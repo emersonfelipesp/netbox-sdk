@@ -1,0 +1,19 @@
+{
+  "name": "dracula",
+  "label": "Dracula",
+  "dark": true,
+  "aliases": [],
+  "colors": {
+    "primary": "#BD93F9",
+    "secondary": "#FFB86C",
+    "warning": "#F1FA8C",
+    "error": "#FF5555",
+    "success": "#50FA7B",
+    "accent": "#FF79C6",
+    "background": "#1E1F29",
+    "surface": "#232530",
+    "panel": "#2B2D3A",
+    "boost": "#343746"
+  },
+  "variables": {}
+}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Any
 
 from textual import on, work
@@ -9,45 +10,11 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
-from textual.theme import Theme
-from textual.widgets import Button, DataTable, Footer, Header, Input, Label, ListItem, ListView, Static, TabbedContent, TabPane, Tree
-
-# NetBox dark mode palette mapped to Textual semantic tokens.
-# Source: reference/design/NETBOX-DARK-PATTERNS.md (higher priority)
-NETBOX_DARK = Theme(
-    name="netbox-dark",
-    dark=True,
-    primary="#00F2D4",       # bright-teal — links, active nav, focus rings
-    secondary="#00857D",     # dark-teal — secondary accent
-    warning="#F59F00",       # NetBox warning
-    error="#D63939",         # NetBox danger/error
-    success="#2FB344",       # NetBox success/connected
-    accent="#00F2D4",        # same as primary
-    background="#001423",    # rich-black — outermost: html, navbar, cards
-    surface="#081B2A",       # rich-black-light — page content area
-    panel="#18212F",         # surface-tertiary — card headers, nested panels
-    boost="#1F2937",         # gray-800 — elevated surfaces, dropdowns
-    variables={
-        # NetBox status badge colors (text on dark bg)
-        "nb-success-text":   "#82D18E",
-        "nb-info-text":      "#8DC1ED",
-        "nb-warning-text":   "#F9C566",
-        "nb-danger-text":    "#E68888",
-        "nb-secondary-text": "#A6AAB2",
-        # NetBox subtle status backgrounds
-        "nb-success-bg":     "#09230D",
-        "nb-info-bg":        "#0D1E2D",
-        "nb-warning-bg":     "#311F00",
-        "nb-danger-bg":      "#2B0B0B",
-        "nb-secondary-bg":   "#151720",
-        # NetBox border tones
-        "nb-border":         "#2D3C51",
-        "nb-border-subtle":  "#374151",
-    },
-)
+from textual.widgets import Button, DataTable, Footer, Header, Input, Label, ListItem, ListView, Select, Static, TabbedContent, TabPane, Tree
 
 from netbox_cli.api import NetBoxApiClient
 from netbox_cli.schema import SchemaIndex
+from netbox_cli.theme_registry import ThemeCatalog, load_theme_catalog
 
 from .formatting import (
     humanize_field,
@@ -60,6 +27,15 @@ from .formatting import (
 from .navigation import build_navigation_menus
 from .panels import ObjectAttributesPanel
 from .state import TuiState, ViewState, load_tui_state, save_tui_state
+
+_THEME_CATALOG: ThemeCatalog | None = None
+
+
+def _get_theme_catalog() -> ThemeCatalog:
+    global _THEME_CATALOG
+    if _THEME_CATALOG is None:
+        _THEME_CATALOG = load_theme_catalog()
+    return _THEME_CATALOG
 
 
 class FilterFieldItem(ListItem):
@@ -107,7 +83,7 @@ class FilterModal(ModalScreen[tuple[str, str] | None]):
 class NetBoxTuiApp(App[None]):
     TITLE = "NetBox CLI"
     SUB_TITLE = "NetBox UI-style shell for terminal"
-    CSS_PATH = "../tui.tcss"
+    CSS_PATH = str(Path(__file__).resolve().parent.parent / "tui.tcss")
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
@@ -121,11 +97,20 @@ class NetBoxTuiApp(App[None]):
         Binding("d", "show_details", "Details"),
     ]
 
-    def __init__(self, client: NetBoxApiClient, index: SchemaIndex):
+    def __init__(self, client: NetBoxApiClient, index: SchemaIndex, theme_name: str | None = None):
         super().__init__()
         self.client = client
         self.index = index
         self.state: TuiState = load_tui_state()
+        self.theme_catalog = _get_theme_catalog()
+        requested_theme = self.theme_catalog.resolve(theme_name) if theme_name is not None else None
+        state_theme = self.theme_catalog.resolve(self.state.theme_name)
+        self.theme_name = requested_theme or state_theme or self.theme_catalog.default_theme_name
+        self.theme_options = self.theme_catalog.select_options()
+
+        for definition in self.theme_catalog.themes:
+            self.register_theme(definition.to_textual_theme())
+        self.theme = self.theme_name
 
         self.current_group: str | None = self.state.last_view.group
         self.current_resource: str | None = self.state.last_view.resource
@@ -135,6 +120,7 @@ class NetBoxTuiApp(App[None]):
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         with Horizontal(id="topbar"):
+            yield Select(options=self.theme_options, value=self.theme_name, prompt="Theme", id="theme_select")
             yield Input(
                 value=self.state.last_view.query_text,
                 id="global_search",
@@ -169,11 +155,8 @@ class NetBoxTuiApp(App[None]):
 
         yield Footer()
 
-    def on_load(self) -> None:
-        self.register_theme(NETBOX_DARK)
-        self.theme = "netbox-dark"
-
     def on_mount(self) -> None:
+        self._apply_theme(self.theme_name)
         self._build_navigation_tree()
         self._update_context_line()
         self._sync_search_input()
@@ -193,6 +176,7 @@ class NetBoxTuiApp(App[None]):
             query_text=query_text,
             details_expanded=False,
         )
+        self.state.theme_name = self.theme_name
         save_tui_state(self.state)
 
     def action_focus_search(self) -> None:
@@ -255,6 +239,18 @@ class NetBoxTuiApp(App[None]):
     @on(Button.Pressed, "#close_tui_button")
     def on_close_pressed(self) -> None:
         self.exit()
+
+    @on(Select.Changed, "#theme_select")
+    def on_theme_changed(self, event: Select.Changed) -> None:
+        if event.value == Select.BLANK:
+            return
+        selected = self.theme_catalog.resolve(str(event.value))
+        if not selected:
+            self.notify("Unknown theme selected", severity="warning")
+            return
+        if selected == self.theme_name:
+            return
+        self._apply_theme(selected, notify=True)
 
     @on(Tree.NodeSelected, "#nav_tree")
     def on_nav_selected(self, event: Tree.NodeSelected[tuple[str, str] | None]) -> None:
@@ -500,6 +496,26 @@ class NetBoxTuiApp(App[None]):
         for key in order_field_names(list(seen)):
             list_view.append(FilterFieldItem(key, humanize_field(key)))
 
+    def _apply_theme(self, theme_name: str, notify: bool = False) -> None:
+        previous = self.theme_name
+        if previous:
+            self.screen.remove_class(f"theme-{previous}")
+        self.theme_name = theme_name
+        self.state.theme_name = theme_name
+        self.theme = theme_name
+        self.screen.add_class(f"theme-{theme_name}")
+        if notify:
+            label = next((name for name, key in self.theme_options if key == theme_name), theme_name)
+            self.notify(f"Theme switched to {label}")
 
-def run_tui(client: NetBoxApiClient, index: SchemaIndex) -> None:
-    NetBoxTuiApp(client=client, index=index).run()
+
+def available_theme_names() -> tuple[str, ...]:
+    return _get_theme_catalog().available_theme_names()
+
+
+def resolve_theme_name(theme_name: str | None) -> str | None:
+    return _get_theme_catalog().resolve(theme_name)
+
+
+def run_tui(client: NetBoxApiClient, index: SchemaIndex, theme_name: str | None = None) -> None:
+    NetBoxTuiApp(client=client, index=index, theme_name=theme_name).run()

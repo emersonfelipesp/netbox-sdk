@@ -146,6 +146,36 @@ nbx ops dcim devices
 nbx tui
 ```
 
+Theme options:
+
+```bash
+nbx tui --theme          # list available themes
+nbx tui --theme dracula  # start with Dracula
+```
+
+You can also switch theme live from the top-left `Theme` dropdown in the TUI.
+
+### Custom Themes (JSON)
+
+Themes are loaded dynamically from:
+
+- `netbox_cli/themes/`
+
+Built-ins:
+
+- `netbox_cli/themes/default.json`
+- `netbox_cli/themes/dracula.json`
+
+To add a custom theme, place `<theme>.json` in that folder. It will be auto-discovered.
+
+Strict validation rules:
+
+- required top-level keys: `name`, `label`, `dark`, `colors`
+- optional keys: `variables`, `aliases`
+- `colors` must define: `primary`, `secondary`, `warning`, `error`, `success`, `accent`, `background`, `surface`, `panel`, `boost`
+- all color values must be `#RRGGBB`
+- unknown keys, malformed colors, duplicate names, and alias conflicts fail fast with clear errors
+
 TUI behavior (initial bootstrap):
 
 - shell layout inspired by NetBox web UI:

@@ -13,6 +13,7 @@ from .api import NetBoxApiClient
 from .config import Config, is_runtime_config_complete, load_config, normalize_base_url, resolved_token, save_config
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
+from .theme_registry import ThemeCatalogError
 
 console = Console()
 _SCHEMA_INDEX: SchemaIndex | None = None
@@ -41,7 +42,7 @@ def _get_client() -> NetBoxApiClient:
 def root_callback(ctx: typer.Context) -> None:
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand != "init":
+    if ctx.invoked_subcommand not in {"init", "tui"}:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
@@ -132,11 +133,43 @@ def call_command(
     _print_response(response.status, response.text)
 
 
-@app.command("tui")
-def tui_command() -> None:
-    from .tui import run_tui
+@app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def tui_command(
+    ctx: typer.Context,
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
+    ),
+) -> None:
+    from .tui import available_theme_names, resolve_theme_name, run_tui
 
-    run_tui(client=_get_client(), index=_get_index())
+    try:
+        names = available_theme_names()
+    except ThemeCatalogError as exc:
+        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
+
+    selected_theme: str | None = None
+    if theme:
+        if not ctx.args:
+            typer.echo("Available themes:")
+            for name in names:
+                typer.echo(f"- {name}")
+            return
+        if len(ctx.args) > 1:
+            raise typer.BadParameter("Too many arguments for --theme. Use: nbx tui --theme <name>")
+
+        requested = ctx.args[0]
+        resolved = resolve_theme_name(requested)
+        if not resolved:
+            available = ", ".join(names)
+            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
+        selected_theme = resolved
+
+    try:
+        run_tui(client=_get_client(), index=_get_index(), theme_name=selected_theme)
+    except ThemeCatalogError as exc:
+        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
 
 
 def _handle_dynamic_invocation(raw_args: list[str]) -> None:

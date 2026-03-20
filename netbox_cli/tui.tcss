@@ -13,6 +13,20 @@ Screen {
     background: $background;
 }
 
+/* ---- Scrollbars ----------------------------------------------------- */
+/* Slim, low-contrast rails by default; accent only on interaction. */
+
+* {
+    scrollbar-size: 1 1;
+    scrollbar-background: transparent;
+    scrollbar-background-hover: $foreground 4%;
+    scrollbar-background-active: $foreground 8%;
+    scrollbar-color: $foreground 30%;
+    scrollbar-color-hover: $primary 65%;
+    scrollbar-color-active: $primary;
+    scrollbar-corner-color: transparent;
+}
+
 
 /* ---- Header --------------------------------------------------------- */
 /* Textual's built-in Header uses $primary / $background automatically. */
@@ -33,6 +47,19 @@ Screen {
 
 #topbar:focus-within {
     border: tall $secondary;
+}
+
+#theme_select {
+    width: 16;
+    min-width: 14;
+    margin-right: 1;
+    border: tall transparent;
+    background: transparent;
+}
+
+#theme_select:focus {
+    border: tall $primary;
+    background: $primary 7%;
 }
 
 #global_search {
@@ -85,6 +112,14 @@ Screen {
     padding: 0 1;
     overflow: hidden scroll;
     scrollbar-size: 0 0;
+}
+
+/* Dracula override: avoid blue cast on the main content layers. */
+.theme-dracula #main,
+.theme-dracula #results_tab,
+.theme-dracula #details_tab,
+.theme-dracula #filters_tab {
+    background: $surface;
 }
 
 #nav_title,
