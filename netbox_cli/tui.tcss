@@ -73,6 +73,40 @@ Screen {
     background: $primary 7%;
 }
 
+#connection_badge {
+    width: auto;
+    margin-left: 1;
+    margin-right: 1;
+    padding: 0 1;
+    border: round $foreground 35%;
+    color: $text-muted;
+    text-style: bold;
+}
+
+#connection_badge.-checking {
+    color: $warning;
+    border: round $warning 40%;
+    background: $warning 8%;
+}
+
+#connection_badge.-ok {
+    color: $success;
+    border: round $success 40%;
+    background: $success 8%;
+}
+
+#connection_badge.-warning {
+    color: $warning;
+    border: round $warning 40%;
+    background: $warning 8%;
+}
+
+#connection_badge.-error {
+    color: $error;
+    border: round $error 40%;
+    background: $error 8%;
+}
+
 #context_line {
     width: 42;
     content-align: right middle;
@@ -96,6 +130,7 @@ Screen {
 
 #shell {
     height: 1fr;
+    layers: base overlay;
 }
 
 
@@ -112,6 +147,30 @@ Screen {
     padding: 0 1;
     overflow: hidden scroll;
     scrollbar-size: 0 0;
+}
+
+#connection_warning_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 80%;
+    padding: 1;
+}
+
+#connection_warning_overlay.hidden {
+    display: none;
+}
+
+#connection_warning {
+    width: 88%;
+    max-width: 100;
+    height: auto;
+    border: round $error;
+    background: $surface;
+    color: $error;
+    padding: 1 2;
+    text-align: center;
 }
 
 /* Dracula override: avoid blue cast on the main content layers. */
