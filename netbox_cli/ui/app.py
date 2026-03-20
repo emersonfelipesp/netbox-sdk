@@ -505,17 +505,24 @@ class NetBoxTuiApp(App[None]):
 
     async def _load_trace_for_object(self, obj: dict[str, Any]) -> None:
         panel = self.query_one("#detail_panel", ObjectAttributesPanel)
-        if self.current_group != "dcim" or self.current_resource != "interfaces":
+        group = self.current_group
+        resource = self.current_resource
+        if not group or not resource:
             panel.set_trace(None)
             return
 
         object_id = obj.get("id")
-        cable = obj.get("cable")
-        if object_id is None or not cable:
+        trace_template = self.index.trace_path(group, resource)
+        if object_id is None or not trace_template:
             panel.set_trace(None)
             return
 
-        trace_path = f"/api/dcim/interfaces/{object_id}/trace/"
+        # Interfaces without a cable cannot yield a meaningful trace.
+        if group == "dcim" and resource == "interfaces" and not obj.get("cable"):
+            panel.set_trace(None)
+            return
+
+        trace_path = trace_template.replace("{id}", str(object_id))
         try:
             response = await self.client.request("GET", trace_path)
         except Exception:
