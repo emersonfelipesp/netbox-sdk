@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from netbox_cli.api import ApiResponse
+from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
 from netbox_cli.ui.state import TuiState, ViewState
@@ -41,10 +41,15 @@ def real_index():
     return build_schema_index(_OPENAPI_PATH)
 
 
+_PROBE_OK = ConnectionProbe(status=200, version="4.2", ok=True, error=None)
+
+
 @pytest.fixture()
 def mock_client():
     client = MagicMock()
     client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    # Short-circuit _probe_connection_health so it never calls client.request
+    client.probe_connection = AsyncMock(return_value=_PROBE_OK)
     return client
 
 
