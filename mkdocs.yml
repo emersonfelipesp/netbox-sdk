@@ -1,0 +1,99 @@
+site_name: NetBox CLI
+site_description: API-first NetBox CLI and TUI — manage NetBox from your terminal
+site_url: https://emersonfelipesp.github.io/netbox-cli/
+repo_url: https://github.com/emersonfelipesp/netbox-cli
+repo_name: emersonfelipesp/netbox-cli
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.path
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+
+plugins:
+  - search
+
+hooks:
+  - docs/hooks.py
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Configuration: getting-started/configuration.md
+    - Quick Start: getting-started/quickstart.md
+  - CLI Reference:
+    - cli/index.md
+    - Commands: cli/commands.md
+    - Dynamic Commands: cli/dynamic-commands.md
+    - Demo Profile: cli/demo-profile.md
+  - TUI:
+    - tui/index.md
+    - Themes: tui/themes.md
+    - Keyboard Shortcuts: tui/keybindings.md
+  - Command Examples: reference/command-examples.md
+  - Developer Guide:
+    - developer/index.md
+    - Architecture: developer/architecture.md
+    - Documentation Generation: developer/docgen.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/emersonfelipesp/netbox-cli
+
+extra_css:
+  - assets/extra.css
