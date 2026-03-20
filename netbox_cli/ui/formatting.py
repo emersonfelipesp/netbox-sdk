@@ -168,10 +168,6 @@ _CHIP_STYLES: dict[str, str] = {}
 _VALUE_STYLES: dict[str, str] = {}
 
 
-def _on_style(fg: str, bg: str) -> str:
-    return f"{fg} on {bg}"
-
-
 def configure_semantic_styles(
     *, colors: Mapping[str, str], variables: Mapping[str, str]
 ) -> None:
@@ -183,17 +179,11 @@ def configure_semantic_styles(
     global _STATUS_STYLES, _CHIP_STYLES, _VALUE_STYLES
 
     status_styles = {
-        "success": _on_style(
-            variables["nb-success-text"], variables["nb-secondary-bg"]
-        ),
-        "info": _on_style(variables["nb-info-text"], variables["nb-secondary-bg"]),
-        "warning": _on_style(
-            variables["nb-warning-text"], variables["nb-secondary-bg"]
-        ),
-        "danger": _on_style(variables["nb-danger-text"], variables["nb-secondary-bg"]),
-        "neutral": _on_style(
-            variables["nb-secondary-text"], variables["nb-secondary-bg"]
-        ),
+        "success": variables["nb-success-text"],
+        "info": variables["nb-info-text"],
+        "warning": variables["nb-warning-text"],
+        "danger": variables["nb-danger-text"],
+        "neutral": variables["nb-secondary-text"],
     }
 
     _STATUS_STYLES = {

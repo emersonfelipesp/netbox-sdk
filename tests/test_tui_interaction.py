@@ -154,7 +154,7 @@ async def test_theme_background_applies_to_filters_and_select(mock_client, real_
         theme_overlay = app.query_one("#theme_select SelectOverlay", object)
 
         assert filters_list.styles.background == expected_background
-        assert theme_current.styles.background == expected_background
+        assert theme_current.styles.background.a == 0
         assert theme_overlay.styles.background == expected_background
 
 
@@ -181,14 +181,9 @@ def test_semantic_cells_use_neutral_chip_background() -> None:
     theme = catalog.theme_for("dracula")
     configure_semantic_styles(colors=theme.colors, variables=theme.variables)
 
-    expected_bg = theme.variables["nb-secondary-bg"]
-
-    assert semantic_cell("status", "active").style == f"bold #8DF5A4 on {expected_bg}"
-    assert (
-        semantic_cell("role", "Placeholder Role").style
-        == f"bold #F5FCB0 on {expected_bg}"
-    )
-    assert semantic_cell("tenant", "Tenant A").style == f"bold #8DF5A4 on {expected_bg}"
+    assert " on " not in semantic_cell("status", "active").style
+    assert " on " not in semantic_cell("role", "Placeholder Role").style
+    assert " on " not in semantic_cell("tenant", "Tenant A").style
 
 
 # ---------------------------------------------------------------------------

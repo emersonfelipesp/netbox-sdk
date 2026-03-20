@@ -53,24 +53,25 @@ Screen {
     width: 16;
     min-width: 14;
     margin-right: 1;
-    border: tall transparent;
-    background: $background;
+    border: none;
+    background: transparent;
 }
 
 #theme_select:focus {
-    border: tall $nb-border-subtle;
-    background: $background;
+    border: none;
+    background: transparent;
 }
 
 #theme_select SelectCurrent {
-    border: tall $nb-border-subtle;
+    border: none;
     color: $foreground;
-    background: $background;
+    background: transparent;
+    padding: 0 1;
 }
 
 #theme_select SelectCurrent:focus {
-    border: tall $primary;
-    background: $background;
+    border: none;
+    background: transparent;
 }
 
 #theme_select SelectCurrent Static#label {
