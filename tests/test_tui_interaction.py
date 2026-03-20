@@ -12,14 +12,15 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-from netbox_cli.api import ApiResponse, ConnectionProbe
-from netbox_cli.schema import build_schema_index
-from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
-from netbox_cli.ui.state import TuiState, ViewState
 from textual.color import Color
 from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 
+from netbox_cli.api import ApiResponse, ConnectionProbe
+from netbox_cli.schema import build_schema_index
+from netbox_cli.theme_registry import load_theme_catalog
+from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
+from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
+from netbox_cli.ui.state import TuiState, ViewState
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
@@ -155,6 +156,39 @@ async def test_theme_background_applies_to_filters_and_select(mock_client, real_
         assert filters_list.styles.background == expected_background
         assert theme_current.styles.background == expected_background
         assert theme_overlay.styles.background == expected_background
+
+
+@pytest.mark.asyncio
+async def test_connection_badge_is_single_dot_and_theme_colored(
+    mock_client, real_index
+):
+    app = _make_app(mock_client, real_index, theme="dracula")
+    expected_success = Color.parse(
+        app.theme_catalog.theme_for("dracula").variables["nb-success-text"]
+    )
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+        await pilot.pause()
+
+        badge = app.query_one("#connection_badge", Static)
+        assert _static_text(badge) == "●"
+        assert badge.styles.color == expected_success
+
+
+def test_semantic_cells_use_neutral_chip_background() -> None:
+    catalog = load_theme_catalog()
+    theme = catalog.theme_for("dracula")
+    configure_semantic_styles(colors=theme.colors, variables=theme.variables)
+
+    expected_bg = theme.variables["nb-secondary-bg"]
+
+    assert semantic_cell("status", "active").style == f"bold #8DF5A4 on {expected_bg}"
+    assert (
+        semantic_cell("role", "Placeholder Role").style
+        == f"bold #F5FCB0 on {expected_bg}"
+    )
+    assert semantic_cell("tenant", "Tenant A").style == f"bold #8DF5A4 on {expected_bg}"
 
 
 # ---------------------------------------------------------------------------
@@ -566,6 +600,7 @@ def test_query_from_search_multi_key_value():
         "name": "switch01",
         "role": "leaf",
     }
+
 
 def test_query_from_search_empty():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)

@@ -637,7 +637,7 @@ class NetBoxTuiApp(App[None]):
         badge.remove_class("-warning")
         badge.remove_class("-error")
         badge.add_class("-checking")
-        badge.update("● Checking connection...")
+        badge.update("●")
         self.sub_title = "NetBox UI-style shell for terminal [checking]"
 
     def _render_connection_status(self, probe: ConnectionProbe) -> None:
@@ -653,7 +653,7 @@ class NetBoxTuiApp(App[None]):
         version_text = probe.version or "n/a"
         if probe.status == 0:
             badge.add_class("-error")
-            badge.update("● DOWN network")
+            badge.update("●")
             self.sub_title = f"NetBox UI-style shell for terminal [down network] [API {version_text}]"
             warning.update(
                 "NetBox Connection Failed\n\n"
@@ -666,14 +666,14 @@ class NetBoxTuiApp(App[None]):
 
         if probe.ok and probe.status < 300:
             badge.add_class("-ok")
-            badge.update(f"● UP {probe.status} API {version_text}")
+            badge.update("●")
             self.sub_title = f"NetBox UI-style shell for terminal [up {probe.status}] [API {version_text}]"
             overlay.add_class("hidden")
             return
 
         if probe.ok and probe.status == 403:
             badge.add_class("-warning")
-            badge.update(f"● WARN {probe.status} API {version_text}")
+            badge.update("●")
             self.sub_title = f"NetBox UI-style shell for terminal [warn {probe.status}] [API {version_text}]"
             warning.update(
                 "NetBox Reached with Authorization Warning\n\n"
@@ -685,7 +685,7 @@ class NetBoxTuiApp(App[None]):
             return
 
         badge.add_class("-error")
-        badge.update(f"● DOWN {probe.status} API {version_text}")
+        badge.update("●")
         self.sub_title = f"NetBox UI-style shell for terminal [down {probe.status}] [API {version_text}]"
         warning.update(
             "NetBox API Request Failed\n\n"
