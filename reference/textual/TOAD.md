@@ -412,6 +412,23 @@ class AgentResponse(ConversationMarkdown):
 
 ---
 
+## Design & Visual Reference
+
+For a comprehensive breakdown of Toad's visual language, color system, CSS patterns, layout conventions, and component styling — see **[TOAD-DESIGN-GUIDE.md](TOAD-DESIGN-GUIDE.md)**.
+
+That guide covers:
+- Full color palette (Dracula theme + semantic CSS variables)
+- Typography rules and text opacity conventions
+- Spacing rhythm (`1 1 1 0` margin pattern, base unit system)
+- All border style mappings (`tall`, `round`, `panel`, `thick`, `blank`, etc.)
+- Interactive state patterns (hover, focus, focus-within, blur)
+- Screen and modal design patterns
+- Every content widget (UserInput, AgentThought, ToolCall, TerminalTool, ShellResult)
+- Responsive breakpoints and global CSS class toggles
+- Animations and motion patterns
+
+---
+
 ## Lessons for NMS-CLI
 
 | Pattern | How Toad Does It | Applicability |

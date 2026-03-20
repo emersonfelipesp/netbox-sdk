@@ -13,6 +13,7 @@ This directory contains comprehensive reference guides for notable open-source p
 | [MEMRAY.md](MEMRAY.md) | [Memray](https://github.com/bloomberg/memray) | Bloomberg | ~14,950 | Memory profiler + Textual live mode |
 | [POSTING.md](POSTING.md) | [Posting](https://github.com/darrenburns/posting) | Darren Burns | ~11,589 | HTTP client TUI |
 | [TOAD.md](TOAD.md) | [Toad](https://github.com/batrachianai/toad) | Will McGugan | ~2,665 | AI agent unified TUI |
+| [TOAD-DESIGN-GUIDE.md](TOAD-DESIGN-GUIDE.md) | Toad (design deep-dive) | Will McGugan | ~2,665 | Visual language, TCSS patterns, color system |
 | [TOOLONG.md](TOOLONG.md) | [Toolong](https://github.com/Textualize/toolong) | Will McGugan | ~3,892 | Log file viewer TUI |
 
 ---
@@ -110,7 +111,7 @@ Quick lookup for "where did I see that pattern?"
 | 4 | Jump mode: pixel-offset label overlay on `ModalScreen` | `screen.get_offset(child)` → `label.styles.margin = y, x` |
 | 5 | Reinitialise state when returning to a screen | `on_screen_resume` vs `on_mount` |
 
-### [TOAD.md](TOAD.md) — 7 patterns
+### [TOAD.md](TOAD.md) — 7 patterns + [TOAD-DESIGN-GUIDE.md](TOAD-DESIGN-GUIDE.md) (visual/CSS)
 | # | Pattern | Key API |
 |---|---------|---------|
 | 1 | App modes, auto CSS class toggle, responsive breakpoints | `MODES`, `var(toggle_class="-cls")`, `HORIZONTAL_BREAKPOINTS` |
@@ -120,6 +121,15 @@ Quick lookup for "where did I see that pattern?"
 | 5 | One-way reactive propagation down the widget tree | `widget.data_bind(child_attr=ParentClass.attr)` |
 | 6 | PTY terminal as `ScrollView` with LRU render cache | `ansi.TerminalState`, `LRUCache[tuple, Strip]`, `Finalized(Message)` |
 | 7 | Token-by-token streaming Markdown | `MarkdownStream.write(fragment)`, `self.loading = False` |
+
+**Visual/Design patterns** (see [TOAD-DESIGN-GUIDE.md](TOAD-DESIGN-GUIDE.md)):
+- Semantic color tokens only — never hardcode hex in TCSS
+- Opacity-based tinting hierarchy (`$primary 10%` / `50%` / `100%`)
+- Left-stripe message categorization (`border-left: blank $color`)
+- CSS class state machine (`.-success`, `.-expanded`, `.-loading`)
+- Transparent border as layout-stable focus ring placeholder
+- `layout: stream` + `align: left bottom` for feed/log views
+- Global layout via `var(toggle_class=...)` reactive on App
 
 ### [TOOLONG.md](TOOLONG.md) — 6 patterns
 | # | Pattern | Key API |
