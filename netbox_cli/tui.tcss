@@ -54,23 +54,23 @@ Screen {
     min-width: 14;
     margin-right: 1;
     border: tall transparent;
-    background: transparent;
+    background: $background;
 }
 
 #theme_select:focus {
-    border: tall $primary;
-    background: $primary 7%;
+    border: tall $nb-border-subtle;
+    background: $background;
 }
 
 #theme_select SelectCurrent {
-    border: tall $border-blurred;
+    border: tall $nb-border-subtle;
     color: $foreground;
     background: $background;
 }
 
 #theme_select SelectCurrent:focus {
     border: tall $primary;
-    background: $primary 7%;
+    background: $background;
 }
 
 #theme_select SelectCurrent Static#label {
@@ -89,19 +89,19 @@ Screen {
 OptionList {
     background: $background;
     color: $foreground;
-    border: tall $border-blurred;
+    border: tall $nb-border-subtle;
 }
 
 #theme_select SelectOverlay:focus,
 OptionList:focus {
-    border: tall $border;
+    border: tall $primary;
     background-tint: $foreground 5%;
 }
 
 #theme_select SelectOverlay > .option-list--option-highlighted,
 OptionList > .option-list--option-highlighted {
-    color: $background;
-    background: $primary 20%;
+    color: $foreground;
+    background: $panel;
     text-style: bold;
 }
 
@@ -127,37 +127,30 @@ OptionList > .option-list--option-disabled {
 }
 
 #connection_badge {
-    width: auto;
+    width: 1;
     margin-left: 1;
     margin-right: 1;
-    padding: 0 1;
-    border: round $foreground 35%;
-    color: $text-muted;
+    padding: 0;
+    border: none;
+    color: $nb-secondary-text;
     text-style: bold;
+    content-align: center middle;
 }
 
 #connection_badge.-checking {
-    color: $warning;
-    border: round $warning 40%;
-    background: $warning 8%;
+    color: $nb-warning-text;
 }
 
 #connection_badge.-ok {
-    color: $success;
-    border: round $success 40%;
-    background: $success 8%;
+    color: $nb-success-text;
 }
 
 #connection_badge.-warning {
-    color: $warning;
-    border: round $warning 40%;
-    background: $warning 8%;
+    color: $nb-warning-text;
 }
 
 #connection_badge.-error {
-    color: $error;
-    border: round $error 40%;
-    background: $error 8%;
+    color: $nb-danger-text;
 }
 
 #context_line {
@@ -319,23 +312,23 @@ OptionList > .option-list--option-disabled {
 }
 
 #results_table > .datatable--cursor {
-    background: $primary 20%;
-    color: $background;
+    background: $panel;
+    color: $foreground;
     text-style: bold;
 }
 
 #results_table > .datatable--fixed-cursor {
-    background: $primary 20%;
-    color: $background;
+    background: $panel;
+    color: $foreground;
 }
 
 #results_table > .datatable--header-cursor {
-    background: $accent 20%;
-    color: $background;
+    background: $panel;
+    color: $foreground;
 }
 
 #results_table > .datatable--hover {
-    background: $primary 10%;
+    background: $panel;
 }
 
 #results_table:focus {
@@ -377,8 +370,8 @@ OptionList > .option-list--option-disabled {
 }
 
 #filters_list > ListItem.-highlight {
-    background: $primary 20%;
-    color: $background;
+    background: $panel;
+    color: $foreground;
     text-style: bold;
 }
 
@@ -481,8 +474,8 @@ ListView > ListItem.-hovered {
 }
 
 ListView > ListItem.-highlight {
-    background: $primary 20%;
-    color: $background;
+    background: $panel;
+    color: $foreground;
     border: tall transparent;
     text-style: bold;
 }

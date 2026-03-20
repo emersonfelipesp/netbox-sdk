@@ -183,10 +183,14 @@ def configure_semantic_styles(
     global _STATUS_STYLES, _CHIP_STYLES, _VALUE_STYLES
 
     status_styles = {
-        "success": _on_style(variables["nb-success-text"], variables["nb-success-bg"]),
-        "info": _on_style(variables["nb-info-text"], variables["nb-info-bg"]),
-        "warning": _on_style(variables["nb-warning-text"], variables["nb-warning-bg"]),
-        "danger": _on_style(variables["nb-danger-text"], variables["nb-danger-bg"]),
+        "success": _on_style(
+            variables["nb-success-text"], variables["nb-secondary-bg"]
+        ),
+        "info": _on_style(variables["nb-info-text"], variables["nb-secondary-bg"]),
+        "warning": _on_style(
+            variables["nb-warning-text"], variables["nb-secondary-bg"]
+        ),
+        "danger": _on_style(variables["nb-danger-text"], variables["nb-secondary-bg"]),
         "neutral": _on_style(
             variables["nb-secondary-text"], variables["nb-secondary-bg"]
         ),
@@ -226,7 +230,7 @@ def status_badge(value: str) -> Text:
     raw_label = value.strip() or "Unknown"
     label = raw_label.replace("_", " ").replace("-", " ").title()
     icon, style = _status_meta(raw_label)
-    return Text(f" {icon} {label} ", style=style)
+    return Text(f" {icon} {label} ", style=f"bold {style}")
 
 
 def label_chip(value: str, *, tone: str = "neutral") -> Text:
@@ -235,7 +239,7 @@ def label_chip(value: str, *, tone: str = "neutral") -> Text:
         label = "—"
     label = label.replace("_", " ").replace("-", " ").title()
     style = _CHIP_STYLES.get(tone, _CHIP_STYLES.get("neutral", ""))
-    return Text(f" {label} ", style=style)
+    return Text(f" {label} ", style=f"bold {style}")
 
 
 def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
