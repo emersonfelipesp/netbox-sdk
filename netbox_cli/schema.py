@@ -148,7 +148,7 @@ def parse_group_resource(path: str) -> tuple[str | None, str | None]:
 def load_openapi_schema(openapi_path: Path | None = None) -> dict[str, Any]:
     if openapi_path is None:
         openapi_path = (
-            Path(__file__).resolve().parents[1]
+            Path(__file__).resolve().parent
             / "reference"
             / "openapi"
             / "netbox-openapi.json"

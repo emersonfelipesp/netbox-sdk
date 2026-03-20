@@ -38,7 +38,7 @@ where = ["."]
 include = ["netbox_cli*"]
 
 [tool.setuptools.package-data]
-netbox_cli = ["*.tcss", "themes/*.json"]
+netbox_cli = ["*.tcss", "themes/*.json", "reference/openapi/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -36,7 +36,7 @@ The fastest way to try `netbox-cli` — one command installs everything and conn
 **Install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/v2/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/v2/install.sh | bash
 ```
 
 The script installs [`uv`](https://github.com/astral-sh/uv) if not present, fetches `netbox-cli` directly from this GitHub repository, and sets up Playwright Chromium for the demo login flow.
