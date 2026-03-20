@@ -31,30 +31,17 @@ The project is bootstrapped from `CLAUDE.md` requirements:
 
 ## Quick Test with NetBox Demo Instance
 
-The fastest way to try `netbox-cli` without any NetBox server of your own — uses the public [demo.netbox.dev](https://demo.netbox.dev) instance.
+The fastest way to try `netbox-cli` — one command installs everything and connects to the public [demo.netbox.dev](https://demo.netbox.dev) instance.
 
-**1. Install**
-
-```bash
-pip install pipx --quiet
-pipx install git+https://github.com/emersonfelipesp/netbox-cli.git@v2
-```
-
-Or from a local clone:
+**Install:**
 
 ```bash
-git clone https://github.com/emersonfelipesp/netbox-cli.git
-cd netbox-cli
-pipx install -e .
+curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/v2/install.sh | sh
 ```
 
-**2. Install Playwright (needed for demo login)**
+The script installs [`uv`](https://github.com/astral-sh/uv) if not present, fetches `netbox-cli` directly from this GitHub repository, and sets up Playwright Chromium for the demo login flow.
 
-```bash
-playwright install chromium
-```
-
-**3. Authenticate with the demo instance**
+**Authenticate with the demo instance:**
 
 ```bash
 nbx demo init
@@ -67,13 +54,7 @@ Or non-interactively (CI / scripted):
 nbx demo init --username <your-demo-user> --password <your-demo-password>
 ```
 
-**4. Verify the connection**
-
-```bash
-nbx demo config
-```
-
-**5. Run CLI commands against demo.netbox.dev**
+**Run CLI commands against demo.netbox.dev:**
 
 ```bash
 nbx demo dcim devices list
@@ -82,7 +63,7 @@ nbx demo ipam prefixes list
 nbx demo circuits circuit-terminations get --id 15 --trace-only
 ```
 
-**6. Launch the interactive TUI**
+**Launch the interactive TUI:**
 
 ```bash
 nbx demo tui
