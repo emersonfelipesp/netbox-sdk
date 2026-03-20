@@ -82,6 +82,29 @@ nbx init
 
 If configuration is missing, `nbx` will prompt for host/token credentials automatically before executing commands (including `nbx tui`).
 
+Demo profile bootstrap:
+
+```bash
+nbx demo init
+```
+
+This always targets `https://demo.netbox.dev/`, opens the NetBox login flow in Playwright, prompts for demo username/password in the terminal, creates a fresh API token, and stores that token in the separate `demo` profile.
+
+Install Playwright first if you want browser-based demo bootstrap:
+
+```bash
+pip install playwright
+playwright install chromium
+```
+
+If you already have a demo API token, you can skip Playwright entirely:
+
+```bash
+nbx demo --token-key <key> --token-secret <secret>
+```
+
+The normal `nbx` profile and the `nbx demo` profile are stored separately in the same config file.
+
 Stored config path:
 
 - `$XDG_CONFIG_HOME/netbox-cli/config.json`
@@ -114,6 +137,14 @@ This path is now fully registered as real Typer subcommands generated from OpenA
 nbx dcim --help
 nbx dcim devices --help
 nbx dcim devices get --help
+```
+
+Demo mode uses the same command tree against `https://demo.netbox.dev/`:
+
+```bash
+nbx demo dcim devices list
+nbx demo ipam prefixes list
+nbx demo tui
 ```
 
 Supported action aliases:

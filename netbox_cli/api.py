@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urljoin
 
-from .config import Config, resolved_token
+from .config import Config, authorization_header_value
 
 
 @dataclass(slots=True)
@@ -54,25 +54,72 @@ class NetBoxApiClient:
         try:
             import aiohttp
         except ModuleNotFoundError as exc:
-            raise RuntimeError("aiohttp is required for HTTP requests. Install project dependencies first.") from exc
-
-        req_headers = dict(headers or {})
-        req_headers.setdefault("Accept", "application/json")
-        token = resolved_token(self.config)
-        if token:
-            req_headers.setdefault("Authorization", f"Bearer {token}")
+            raise RuntimeError(
+                "aiohttp is required for HTTP requests. Install project dependencies first."
+            ) from exc
 
         timeout = aiohttp.ClientTimeout(total=self.config.timeout)
         async with aiohttp.ClientSession(timeout=timeout) as session:
-            async with session.request(
-                method=method.upper(),
-                url=self.build_url(path),
-                params=query,
-                json=payload,
-                headers=req_headers,
-            ) as response:
-                text = await response.text()
-                return ApiResponse(status=response.status, text=text, headers=dict(response.headers))
+            response = await self._request_once(
+                session,
+                method=method,
+                path=path,
+                query=query,
+                payload=payload,
+                headers=headers,
+                authorization=authorization_header_value(self.config),
+            )
+            if self._should_retry_with_v1(response):
+                response = await self._request_once(
+                    session,
+                    method=method,
+                    path=path,
+                    query=query,
+                    payload=payload,
+                    headers=headers,
+                    authorization=self._v1_fallback_header(),
+                )
+            return response
+
+    async def _request_once(
+        self,
+        session: Any,
+        *,
+        method: str,
+        path: str,
+        query: dict[str, str] | None,
+        payload: dict[str, Any] | list[Any] | None,
+        headers: dict[str, str] | None,
+        authorization: str | None,
+    ) -> ApiResponse:
+        req_headers = dict(headers or {})
+        req_headers.setdefault("Accept", "application/json")
+        if authorization:
+            req_headers["Authorization"] = authorization
+
+        async with session.request(
+            method=method.upper(),
+            url=self.build_url(path),
+            params=query,
+            json=payload,
+            headers=req_headers,
+        ) as response:
+            text = await response.text()
+            return ApiResponse(
+                status=response.status, text=text, headers=dict(response.headers)
+            )
+
+    def _v1_fallback_header(self) -> str | None:
+        if not self.config.token_secret:
+            return None
+        return f"Token {self.config.token_secret}"
+
+    def _should_retry_with_v1(self, response: ApiResponse) -> bool:
+        if self.config.token_version != "v2" or not self.config.token_secret:
+            return False
+        if response.status not in {401, 403}:
+            return False
+        return "invalid v2 token" in response.text.lower()
 
     async def probe_connection(self) -> ConnectionProbe:
         headers = {"Content-Type": "application/json"}
@@ -97,4 +144,6 @@ class NetBoxApiClient:
         probe = await self.probe_connection()
         if probe.ok:
             return probe.version
-        raise RequestError(ApiResponse(status=probe.status, text=probe.error or "", headers={}))
+        raise RequestError(
+            ApiResponse(status=probe.status, text=probe.error or "", headers={})
+        )
