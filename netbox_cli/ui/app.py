@@ -8,21 +8,17 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from textual import on, work
+from textual import events, on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.css.query import NoMatches
-from textual.screen import ModalScreen
 from textual.timer import Timer
 from textual.widgets import (
     Button,
     DataTable,
     Footer,
     Input,
-    Label,
-    ListItem,
-    ListView,
     Select,
     Static,
     TabbedContent,
@@ -57,67 +53,22 @@ def _get_theme_catalog() -> ThemeCatalog:
     return _THEME_CATALOG
 
 
-class FilterFieldItem(ListItem):
-    def __init__(self, field_name: str, field_label: str):
-        super().__init__(Label(field_label))
-        self.field_name = field_name
-
-
-class FilterModal(ModalScreen[tuple[str, str] | None]):
-    BINDINGS = [Binding("escape", "cancel", "Cancel", show=False)]
-
-    def __init__(self, default_key: str = ""):
-        super().__init__()
-        self.default_key = default_key
-
-    def compose(self) -> ComposeResult:
-        with Vertical(id="filter_dialog"):
-            yield Static("Apply Filter", classes="panel-title")
-            yield Input(
-                value=self.default_key,
-                placeholder="Field (example: name)",
-                id="filter_key",
-            )
-            yield Input(placeholder="Value", id="filter_value")
-            with Horizontal(id="filter_buttons"):
-                yield Button("Apply", id="apply", variant="primary")
-                yield Button("Cancel", id="cancel")
-
-    def on_mount(self) -> None:
-        self.query_one("#filter_value", Input).focus()
-
-    @on(Button.Pressed, "#apply")
-    def on_apply(self) -> None:
-        key = self.query_one("#filter_key", Input).value.strip()
-        value = self.query_one("#filter_value", Input).value.strip()
-        if not key:
-            self.app.notify("Field is required", severity="warning")
-            return
-        self.dismiss((key, value))
-
-    @on(Button.Pressed, "#cancel")
-    def on_cancel_button(self) -> None:
-        self.dismiss(None)
-
-    def action_cancel(self) -> None:
-        self.dismiss(None)
-
-
 class NetBoxTuiApp(App[None]):
     TITLE = "NetBox CLI"
     SUB_TITLE = "NetBox UI-style shell for terminal"
     CSS_PATH = str(Path(__file__).resolve().parent.parent / "tui.tcss")
 
     BINDINGS = [
-        Binding("q", "quit", "Quit"),
-        Binding("/", "focus_search", "Search"),
-        Binding("g", "focus_navigation", "Navigation"),
-        Binding("s", "focus_results", "Results"),
-        Binding("r", "refresh", "Refresh"),
-        Binding("f", "filter_modal", "Filter"),
-        Binding("space", "toggle_select", "Toggle Row"),
-        Binding("a", "toggle_select_all", "Select All"),
-        Binding("d", "show_details", "Details"),
+        Binding("q", "quit", "Quit", priority=True),
+        Binding("escape", "cancel", "Cancel", show=False, priority=True),
+        Binding("/", "focus_search", "Search", priority=True),
+        Binding("g", "focus_navigation", "Navigation", priority=True),
+        Binding("s", "focus_results", "Results", priority=True),
+        Binding("r", "refresh", "Refresh", priority=True),
+        Binding("f", "filter_modal", "Filter", priority=True),
+        Binding("space", "toggle_select", "Toggle Row", priority=True),
+        Binding("a", "toggle_select_all", "Select All", priority=True),
+        Binding("d", "show_details", "Details", priority=True),
     ]
 
     def __init__(
@@ -158,6 +109,9 @@ class NetBoxTuiApp(App[None]):
         self._connection_timer: Timer | None = None
         self._clock_timer: Timer | None = None
         self._last_connection_probe: ConnectionProbe | None = None
+        self._filter_fields: list[tuple[str, str]] = []
+        self._filter_overlay_field: str = ""
+        self._ignored_filter_select_values: set[str] = set()
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
@@ -182,11 +136,19 @@ class NetBoxTuiApp(App[None]):
             yield Static("Context: <none>", id="context_line")
             yield Button("Close", id="close_tui_button")
 
-        yield Input(
-            value=self.state.last_view.query_text,
-            id="global_search",
-            placeholder="Quick search: plain text -> q=<text>, or key=value",
-        )
+        with Horizontal(id="query_bar"):
+            yield Input(
+                value=self.state.last_view.query_text,
+                id="global_search",
+                placeholder="Quick search: plain text -> q=<text>, or key=value",
+            )
+            yield Select(
+                options=[("Filter Field", Select.BLANK)],
+                value=Select.BLANK,
+                prompt="Filter",
+                id="filter_select",
+            )
+        yield Static("Filters: none", id="active_filters")
 
         with Horizontal(id="shell"):
             with Vertical(id="sidebar"):
@@ -211,15 +173,16 @@ class NetBoxTuiApp(App[None]):
 
                     with TabPane("Details", id="details_tab"):
                         yield ObjectAttributesPanel(panel_id="detail_panel")
-
-                    with TabPane("Filters", id="filters_tab"):
-                        yield Static(
-                            "Select a field and press Enter to apply a filter",
-                            id="filters_help",
-                        )
-                        yield ListView(id="filters_list")
             with Vertical(id="connection_warning_overlay", classes="hidden"):
                 yield Static("", id="connection_warning")
+            with Vertical(id="filter_overlay", classes="hidden"):
+                with Vertical(id="filter_dialog"):
+                    yield Static("Apply Filter", classes="panel-title")
+                    yield Static("", id="filter_field_label")
+                    yield Input(placeholder="Value", id="filter_value")
+                    with Horizontal(id="filter_buttons"):
+                        yield Button("Apply", id="filter_apply", variant="primary")
+                        yield Button("Cancel", id="filter_cancel")
 
         yield Footer()
 
@@ -230,6 +193,7 @@ class NetBoxTuiApp(App[None]):
         self._build_navigation_tree()
         self._update_context_line()
         self._sync_search_input()
+        self._update_active_filters()
         self.query_one("#nav_tree", Tree).focus()
         self._restore_last_view_if_any()
         self._probe_connection_health()
@@ -239,6 +203,27 @@ class NetBoxTuiApp(App[None]):
             self._probe_connection_health,
             name="nbx_connection_health",
         )
+
+    def on_key(self, event: events.Key) -> None:
+        if isinstance(self.focused, Input):
+            return
+
+        handlers = {
+            "a": self.action_toggle_select_all,
+            "d": self.action_show_details,
+            "f": self.action_filter_modal,
+            "g": self.action_focus_navigation,
+            "q": self.action_quit,
+            "r": self.action_refresh,
+            "s": self.action_focus_results,
+            "/": self.action_focus_search,
+            "space": self.action_toggle_select,
+        }
+        handler = handlers.get(event.key)
+        if handler is None:
+            return
+        event.stop()
+        handler()
 
     def on_unmount(self) -> None:
         if self._clock_timer is not None:
@@ -276,12 +261,13 @@ class NetBoxTuiApp(App[None]):
             self._load_rows(self.current_group, self.current_resource)
 
     def action_filter_modal(self) -> None:
-        default_key = ""
-        focused = self.query_one("#filters_list", ListView).highlighted_child
-        if isinstance(focused, FilterFieldItem):
-            default_key = focused.field_name
-
-        self._open_filter_modal(default_key)
+        default_key = self._selected_filter_field()
+        if not default_key and self._filter_fields:
+            default_key = self._filter_fields[0][1]
+        if not default_key:
+            self.notify("No filterable fields loaded yet", severity="warning")
+            return
+        self._open_filter_overlay(default_key)
 
     def action_show_details(self) -> None:
         tabs = self.query_one("#main_tabs", TabbedContent)
@@ -318,8 +304,13 @@ class NetBoxTuiApp(App[None]):
 
     @on(Input.Submitted, "#global_search")
     def on_search_submit(self) -> None:
+        self._update_active_filters()
         if self.current_group and self.current_resource:
             self._load_rows(self.current_group, self.current_resource)
+
+    @on(Input.Submitted, "#filter_value")
+    def on_filter_value_submit(self) -> None:
+        self._apply_filter_overlay()
 
     @on(Button.Pressed, "#close_tui_button")
     def on_close_pressed(self) -> None:
@@ -336,6 +327,16 @@ class NetBoxTuiApp(App[None]):
         if selected == self.theme_name:
             return
         self._apply_theme(selected, notify=True)
+
+    @on(Select.Changed, "#filter_select")
+    def on_filter_select_changed(self, event: Select.Changed) -> None:
+        selected = str(event.value)
+        if selected in self._ignored_filter_select_values:
+            self._ignored_filter_select_values.discard(selected)
+            return
+        if not any(field_value == selected for _, field_value in self._filter_fields):
+            return
+        self._open_filter_overlay(selected)
 
     @on(Tree.NodeSelected, "#nav_tree")
     def on_nav_selected(self, event: Tree.NodeSelected[tuple[str, str] | None]) -> None:
@@ -395,24 +396,13 @@ class NetBoxTuiApp(App[None]):
         tabs.active = "details_tab"
         await self._show_detail_for_path(detail_path, fallback_row)
 
-    @on(ListView.Selected, "#filters_list")
-    def on_filter_field_selected(self, event: ListView.Selected) -> None:
-        if not isinstance(event.item, FilterFieldItem):
-            return
-        self._open_filter_modal(event.item.field_name)
+    @on(Button.Pressed, "#filter_apply")
+    def on_filter_apply_pressed(self) -> None:
+        self._apply_filter_overlay()
 
-    def _open_filter_modal(self, default_key: str) -> None:
-        self.push_screen(
-            FilterModal(default_key=default_key), self._on_filter_modal_result
-        )
-
-    def _on_filter_modal_result(self, result: tuple[str, str] | None) -> None:
-        if not result:
-            return
-        key, value = result
-        self.query_one("#global_search", Input).value = f"{key}={value}"
-        if self.current_group and self.current_resource:
-            self._load_rows(self.current_group, self.current_resource)
+    @on(Button.Pressed, "#filter_cancel")
+    def on_filter_cancel_pressed(self) -> None:
+        self._close_filter_overlay()
 
     @work(group="list_refresh", exclusive=True, thread=False)
     async def _load_rows(self, group: str, resource: str) -> None:
@@ -440,6 +430,7 @@ class NetBoxTuiApp(App[None]):
         self.current_rows = rows
         self._prune_selection()
         self._render_results_table(rows)
+        self._update_active_filters()
 
         if rows:
             self._load_object_details(rows[0])
@@ -453,6 +444,7 @@ class NetBoxTuiApp(App[None]):
             self._set_status(f"HTTP {response.status}")
         else:
             self._set_status(f"Loaded {len(rows)} row(s) - HTTP {response.status}")
+        self.query_one("#results_table", DataTable).focus()
 
     async def _show_detail_for_path(
         self, detail_path: str, fallback_row: dict[str, Any]
@@ -703,17 +695,112 @@ class NetBoxTuiApp(App[None]):
         return f"row:{index}"
 
     def _refresh_filter_fields(self, fields: Iterable[str]) -> None:
-        list_view = self.query_one("#filters_list", ListView)
-        list_view.clear()
-
+        select = self.query_one("#filter_select", Select)
+        current = self._selected_filter_field()
         seen: set[str] = set()
-        for name in fields:
-            key = str(name)
-            if key in seen:
+        ordered: list[tuple[str, str]] = []
+        for name in order_field_names([str(field) for field in fields]):
+            if name in seen:
                 continue
-            seen.add(key)
-        for key in order_field_names(list(seen)):
-            list_view.append(FilterFieldItem(key, humanize_field(key)))
+            seen.add(name)
+            ordered.append((humanize_field(name), name))
+
+        self._filter_fields = ordered
+        options: list[tuple[str, str | Select.BLANK]] = [("Filter Field", Select.BLANK)]
+        options.extend(ordered)
+        select.set_options(options)
+        if current and any(value == current for _, value in ordered):
+            self._ignored_filter_select_values.add(current)
+            select.value = current
+        else:
+            self._ignored_filter_select_values.add(str(Select.BLANK))
+            select.value = Select.BLANK
+        self._update_active_filters()
+
+    def _selected_filter_field(self) -> str:
+        value = self.query_one("#filter_select", Select).value
+        if value is None:
+            return ""
+        selected = str(value)
+        if not any(field_value == selected for _, field_value in self._filter_fields):
+            return ""
+        return selected
+
+    def _open_filter_overlay(self, field_name: str) -> None:
+        self._filter_overlay_field = field_name
+        overlay = self.query_one("#filter_overlay", Vertical)
+        label = self.query_one("#filter_field_label", Static)
+        value_input = self.query_one("#filter_value", Input)
+        select = self.query_one("#filter_select", Select)
+        self._ignored_filter_select_values.add(field_name)
+        select.value = field_name
+        label.update(f"Field: {humanize_field(field_name)}")
+        value_input.value = self._current_filter_value(field_name)
+        overlay.remove_class("hidden")
+        value_input.focus()
+
+    def _close_filter_overlay(self) -> None:
+        self._filter_overlay_field = ""
+        self.query_one("#filter_overlay", Vertical).add_class("hidden")
+        self.query_one("#filter_value", Input).value = ""
+
+    def _apply_filter_overlay(self) -> None:
+        key = self._filter_overlay_field.strip()
+        if not key:
+            self.notify("Field is required", severity="warning")
+            return
+        value = self.query_one("#filter_value", Input).value.strip()
+        self._set_filter_query(key, value)
+        self._close_filter_overlay()
+        if self.current_group and self.current_resource:
+            self._load_rows(self.current_group, self.current_resource)
+        else:
+            self._update_active_filters()
+
+    def _current_filter_value(self, key: str) -> str:
+        return self._parse_filter_pairs(
+            self.query_one("#global_search", Input).value.strip()
+        ).get(key, "")
+
+    def _set_filter_query(self, key: str, value: str) -> None:
+        search = self.query_one("#global_search", Input)
+        pairs = self._parse_filter_pairs(search.value.strip())
+        if value:
+            pairs[key] = value
+        else:
+            pairs.pop(key, None)
+        search.value = ", ".join(f"{name}={pairs[name]}" for name in sorted(pairs))
+        self._update_active_filters()
+
+    def _parse_filter_pairs(self, raw: str) -> dict[str, str]:
+        raw = raw.strip()
+        if not raw or "=" not in raw:
+            return {}
+        pairs: dict[str, str] = {}
+        for chunk in [part.strip() for part in raw.split(",") if part.strip()]:
+            if "=" not in chunk:
+                return {}
+            key, value = chunk.split("=", 1)
+            key = key.strip()
+            if key:
+                pairs[key] = value.strip()
+        return pairs
+
+    def _update_active_filters(self) -> None:
+        target = self.query_one("#active_filters", Static)
+        pairs = self._parse_filter_pairs(self.query_one("#global_search", Input).value)
+        if not pairs:
+            target.update("Filters: none")
+            return
+        chips = ", ".join(
+            f"{humanize_field(key)}={value}" for key, value in sorted(pairs.items())
+        )
+        target.update(f"Filters: {chips}")
+
+    def action_cancel(self) -> None:
+        overlay = self.query_one("#filter_overlay", Vertical)
+        if "hidden" not in overlay.classes:
+            self._close_filter_overlay()
 
     def _apply_theme(self, theme_name: str, notify: bool = False) -> None:
         definition = self.theme_catalog.theme_for(theme_name)
