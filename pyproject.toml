@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "netbox-cli"
+version = "0.1.0"
+description = "API-first NetBox CLI + Textual TUI"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "netbox-cli contributors" }]
+dependencies = [
+  "aiohttp>=3.9.0",
+  "typer>=0.12.0",
+  "rich>=13.7.0",
+  "textual>=0.62.0",
+  "pyyaml>=6.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+]
+
+[project.scripts]
+nbx = "netbox_cli.cli:app"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["netbox_cli*"]
+
+[tool.setuptools.package-data]
+netbox_cli = ["*.tcss"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

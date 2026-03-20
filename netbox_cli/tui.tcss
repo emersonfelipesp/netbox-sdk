@@ -1,0 +1,43 @@
+Screen {
+    layout: vertical;
+}
+
+#layout {
+    height: 1fr;
+}
+
+#sidebar {
+    width: 34;
+    border: round $panel;
+    padding: 0 1;
+}
+
+#content {
+    width: 1fr;
+    border: round $panel;
+    padding: 0 1;
+}
+
+.panel_title {
+    margin: 1 0 0 0;
+    color: $accent;
+    text-style: bold;
+}
+
+#selection {
+    margin: 1 0;
+    text-style: bold;
+}
+
+#filter {
+    margin: 0 0 1 0;
+}
+
+#result_table {
+    height: 1fr;
+}
+
+#status {
+    margin: 1 0;
+    color: $text-muted;
+}
