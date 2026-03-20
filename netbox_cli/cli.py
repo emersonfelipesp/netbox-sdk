@@ -199,6 +199,8 @@ def _initialize_demo_profile(
     *,
     force: bool,
     headless: bool = True,
+    username: str | None = None,
+    password: str | None = None,
     token_key: str | None = None,
     token_secret: str | None = None,
 ) -> Config:
@@ -241,8 +243,10 @@ def _initialize_demo_profile(
         )
         raise typer.Exit(code=1) from exc
 
-    username = typer.prompt("NetBox demo username")
-    password = typer.prompt("NetBox demo password", hide_input=True)
+    if username is None:
+        username = typer.prompt("NetBox demo username")
+    if password is None:
+        password = typer.prompt("NetBox demo password", hide_input=True)
     try:
         cfg = bootstrap_demo_profile(
             username=username,
@@ -306,22 +310,42 @@ def demo_init_command(
     headless: bool = typer.Option(
         True,
         "--headless/--headed",
-        help="Run Playwright headless by default. Use --headed only when a desktop/X server is available.",
+        help="Run Playwright headless (default). Use --headed only when a desktop/X server is available.",
+    ),
+    username: str | None = typer.Option(
+        None,
+        "--username",
+        "-u",
+        help="demo.netbox.dev username. Prompted interactively when omitted.",
+    ),
+    password: str | None = typer.Option(
+        None,
+        "--password",
+        "-p",
+        help="demo.netbox.dev password. Prompted interactively when omitted.",
     ),
     token_key: str | None = typer.Option(
         None,
         "--token-key",
-        help="Set the demo profile directly without Playwright.",
+        help="Set the demo profile directly without Playwright (requires --token-secret).",
     ),
     token_secret: str | None = typer.Option(
         None,
         "--token-secret",
-        help="Set the demo profile directly without Playwright.",
+        help="Set the demo profile directly without Playwright (requires --token-key).",
     ),
 ) -> None:
+    """Authenticate with demo.netbox.dev via Playwright and save the demo profile.
+
+    Pass ``--username`` and ``--password`` for non-interactive / CI use.
+    Alternatively, supply an existing token directly with ``--token-key`` and
+    ``--token-secret`` to skip Playwright entirely.
+    """
     _initialize_demo_profile(
         force=True,
         headless=headless,
+        username=username,
+        password=password,
         token_key=token_key,
         token_secret=token_secret,
     )
@@ -867,8 +891,20 @@ def docs_generate_capture(
     max_chars: int = typer.Option(
         120_000, "--max-chars", help="Max chars per command output in the Markdown."
     ),
+    live: bool = typer.Option(
+        False,
+        "--live",
+        help=(
+            "Use the default profile (your real NetBox) instead of the demo profile. "
+            "By default the generator captures live-API specs against demo.netbox.dev."
+        ),
+    ),
 ) -> None:
-    """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md."""
+    """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md.
+
+    By default live-API specs run through ``nbx demo …`` (demo.netbox.dev).
+    Pass ``--live`` to run them against your configured default profile instead.
+    """
     from .docgen_capture import generate_command_capture_docs, resolve_capture_paths
 
     try:
@@ -881,6 +917,7 @@ def docs_generate_capture(
         raw_dir=raw,
         max_lines=max_lines,
         max_chars=max_chars,
+        use_demo=not live,
     )
     raise typer.Exit(code=code)
 

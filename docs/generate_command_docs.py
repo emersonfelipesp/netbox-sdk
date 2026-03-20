@@ -14,6 +14,15 @@ def main() -> int:
     parser.add_argument("--raw-dir", type=Path, default=None)
     parser.add_argument("--max-lines", type=int, default=200)
     parser.add_argument("--max-chars", type=int, default=120_000)
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        default=False,
+        help=(
+            "Use the default profile (your real NetBox) for live-API specs. "
+            "By default live specs run through the demo profile (demo.netbox.dev)."
+        ),
+    )
     args = parser.parse_args()
 
     from netbox_cli.docgen_capture import generate_command_capture_docs, resolve_capture_paths
@@ -28,6 +37,7 @@ def main() -> int:
         raw_dir=raw,
         max_lines=args.max_lines,
         max_chars=args.max_chars,
+        use_demo=not args.live,
     )
 
 

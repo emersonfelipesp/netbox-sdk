@@ -1,9 +1,10 @@
 {
   "meta": {
-    "generated_at": "2026-03-20T21:58:29.593852+00:00",
+    "generated_at": "2026-03-20T23:01:55.623452+00:00",
+    "profile": "demo",
     "netbox_url": "https://demo.netbox.dev",
     "timeout": "30",
-    "token_key_set": false
+    "token_configured": false
   },
   "runs": [
     {
@@ -13,7 +14,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.712,
+      "elapsed_seconds": 1.579,
       "truncated": false
     },
     {
@@ -24,7 +25,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.69,
+      "elapsed_seconds": 1.349,
       "truncated": false
     },
     {
@@ -35,17 +36,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.762,
-      "truncated": false
-    },
-    {
-      "section": "Top-level",
-      "title": "nbx config",
-      "argv": [
-        "config"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 0.628,
+      "elapsed_seconds": 1.467,
       "truncated": false
     },
     {
@@ -56,7 +47,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.611,
+      "elapsed_seconds": 1.713,
       "truncated": false
     },
     {
@@ -67,7 +58,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.621,
+      "elapsed_seconds": 1.467,
       "truncated": false
     },
     {
@@ -78,7 +69,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.622,
+      "elapsed_seconds": 1.512,
       "truncated": false
     },
     {
@@ -89,7 +80,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.613,
+      "elapsed_seconds": 1.291,
       "truncated": false
     },
     {
@@ -100,7 +91,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.611,
+      "elapsed_seconds": 1.444,
       "truncated": false
     },
     {
@@ -111,7 +102,7 @@
         "--theme"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.688,
+      "elapsed_seconds": 1.28,
       "truncated": false
     },
     {
@@ -122,7 +113,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.613,
+      "elapsed_seconds": 1.715,
       "truncated": false
     },
     {
@@ -134,7 +125,42 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.622,
+      "elapsed_seconds": 1.678,
+      "truncated": false
+    },
+    {
+      "section": "Demo profile",
+      "title": "nbx demo --help",
+      "argv": [
+        "demo",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.346,
+      "truncated": false
+    },
+    {
+      "section": "Demo profile",
+      "title": "nbx demo init --help",
+      "argv": [
+        "demo",
+        "init",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.305,
+      "truncated": false
+    },
+    {
+      "section": "Demo profile",
+      "title": "nbx demo config --help",
+      "argv": [
+        "demo",
+        "config",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.433,
       "truncated": false
     },
     {
@@ -144,7 +170,7 @@
         "groups"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.603,
+      "elapsed_seconds": 1.359,
       "truncated": false
     },
     {
@@ -155,7 +181,7 @@
         "dcim"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.606,
+      "elapsed_seconds": 1.224,
       "truncated": false
     },
     {
@@ -167,7 +193,7 @@
         "devices"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.613,
+      "elapsed_seconds": 1.241,
       "truncated": false
     },
     {
@@ -178,7 +204,7 @@
         "ipam"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.608,
+      "elapsed_seconds": 1.374,
       "truncated": false
     },
     {
@@ -189,7 +215,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.692,
+      "elapsed_seconds": 1.264,
       "truncated": false
     },
     {
@@ -201,7 +227,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.614,
+      "elapsed_seconds": 1.23,
       "truncated": false
     },
     {
@@ -214,7 +240,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.633,
+      "elapsed_seconds": 1.392,
       "truncated": false
     },
     {
@@ -226,44 +252,46 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 0.633,
+      "elapsed_seconds": 1.214,
       "truncated": false
     },
     {
-      "section": "Live API",
-      "title": "nbx call GET /api/status/",
+      "section": "Live API \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim devices list",
       "argv": [
-        "call",
-        "GET",
-        "/api/status/"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.356,
-      "truncated": false
-    },
-    {
-      "section": "Live API",
-      "title": "nbx call GET /api/dcim/sites/ --json",
-      "argv": [
-        "call",
-        "GET",
-        "/api/dcim/sites/",
-        "--json"
-      ],
-      "exit_code": 0,
-      "elapsed_seconds": 0.983,
-      "truncated": false
-    },
-    {
-      "section": "Dynamic Form",
-      "title": "nbx dcim devices list (dynamic form)",
-      "argv": [
+        "demo",
         "dcim",
         "devices",
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.021,
+      "elapsed_seconds": 2.372,
+      "truncated": true
+    },
+    {
+      "section": "Live API \u2014 demo.netbox.dev",
+      "title": "nbx demo ipam prefixes list",
+      "argv": [
+        "demo",
+        "ipam",
+        "prefixes",
+        "list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.188,
+      "truncated": false
+    },
+    {
+      "section": "Live API \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim sites list",
+      "argv": [
+        "demo",
+        "dcim",
+        "sites",
+        "list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.946,
       "truncated": false
     }
   ]

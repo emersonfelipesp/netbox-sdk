@@ -19,7 +19,8 @@ class CaptureSpec:
     title: str
     argv: list[str]
     notes: str = ""
-    # catch_exceptions=True in CliRunner for specs that make live network calls
+    # safe=True → catch_exceptions=False (local/schema commands, fail fast on bugs)
+    # safe=False → catch_exceptions=True (live API calls, connection errors are valid docs)
     safe: bool = True
 
 
@@ -48,27 +49,54 @@ def resolve_capture_paths(
     return output, raw_dir
 
 
-def _inject_stub_config() -> None:
-    """Pre-populate cli._RUNTIME_CONFIG so _ensure_runtime_config() returns early."""
-    from netbox_cli import cli as cli_mod
-    from netbox_cli.config import Config, normalize_base_url
+def _inject_stub_config(profile: str) -> bool:
+    """Ensure ``cli._RUNTIME_CONFIGS[profile]`` is populated before CliRunner invocations.
 
-    base_url = os.environ.get("NETBOX_URL", "https://demo.netbox.dev").strip()
+    If a complete config already exists on disk for this profile it is loaded into the
+    in-process cache (so commands don't re-read disk on every spec) and ``False`` is
+    returned — meaning the caller should *not* clear the cache afterwards.
+
+    If no real config exists, a placeholder stub is injected so that live-API specs
+    produce a 401/403 response instead of triggering interactive prompts.  ``True`` is
+    returned so the caller knows to clear the injected entry after the invocation.
+    """
+    from netbox_cli import cli as cli_mod
+    from netbox_cli.config import (
+        DEMO_BASE_URL,
+        Config,
+        is_runtime_config_complete,
+        load_profile_config,
+        normalize_base_url,
+    )
+
+    existing = load_profile_config(profile)
+    if is_runtime_config_complete(existing):
+        cli_mod._RUNTIME_CONFIGS[profile] = existing
+        return False  # real config loaded — caller must not clear it
+
+    # No real config — inject a placeholder so live calls fail gracefully.
+    if profile == "demo":
+        base_url = DEMO_BASE_URL
+    else:
+        raw = os.environ.get("NETBOX_URL", "https://netbox.example.com").strip()
+        base_url = normalize_base_url(raw)
+
     token_key = os.environ.get("NETBOX_TOKEN_KEY", "docgen-placeholder").strip()
     token_secret = os.environ.get("NETBOX_TOKEN_SECRET", "placeholder").strip()
     timeout = float(os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"))
-    cli_mod._RUNTIME_CONFIG = Config(
-        base_url=normalize_base_url(base_url),
+    cli_mod._RUNTIME_CONFIGS[profile] = Config(
+        base_url=base_url,
         token_key=token_key,
         token_secret=token_secret,
         timeout=timeout,
     )
+    return True  # stub injected — caller must clear it afterwards
 
 
-def _clear_stub_config() -> None:
+def _clear_stub_config(profile: str) -> None:
     from netbox_cli import cli as cli_mod
 
-    cli_mod._RUNTIME_CONFIG = None
+    cli_mod._RUNTIME_CONFIGS.pop(profile, None)
 
 
 def _truncate(text: str, max_lines: int, max_chars: int) -> tuple[str, bool]:
@@ -90,8 +118,8 @@ def _make_cli_runner() -> Any:
     return CliRunner()
 
 
-def _run_capture(spec: CaptureSpec, app: Any) -> tuple[int, str, float]:
-    _inject_stub_config()
+def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str, float]:
+    was_stub = _inject_stub_config(profile)
     try:
         runner = _make_cli_runner()
         started = time.perf_counter()
@@ -105,8 +133,12 @@ def _run_capture(spec: CaptureSpec, app: Any) -> tuple[int, str, float]:
         out = result.stdout or ""
         err = getattr(result, "stderr", "") or ""
         if err.strip():
-            out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
-        # If an exception was captured (catch_exceptions=True path), surface it
+            out = (
+                f"{out}\n--- stderr ---\n{err}"
+                if out.strip()
+                else f"--- stderr ---\n{err}"
+            )
+        # Surface captured exceptions (catch_exceptions=True path) as readable text.
         if result.exception is not None and not isinstance(result.exception, SystemExit):
             import traceback
 
@@ -117,24 +149,31 @@ def _run_capture(spec: CaptureSpec, app: Any) -> tuple[int, str, float]:
                     result.exception.__traceback__,
                 )
             )
-            out = f"{out}\n--- exception ---\n{tb}" if out.strip() else f"--- exception ---\n{tb}"
+            out = (
+                f"{out}\n--- exception ---\n{tb}"
+                if out.strip()
+                else f"--- exception ---\n{tb}"
+            )
         return result.exit_code or 0, out, elapsed
     finally:
-        _clear_stub_config()
+        if was_stub:
+            _clear_stub_config(profile)
 
 
-def _all_specs() -> list[CaptureSpec]:
-    return [
-        # ── Top-level help banners (no network, safe) ─────────────────────────
+def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
+    """Return the ordered list of capture specs.
+
+    Args:
+        use_demo: When True (default) live-API specs invoke commands through
+            ``nbx demo …`` so they hit demo.netbox.dev with the configured demo
+            profile.  When False they hit the default profile (real NetBox).
+    """
+    # ── Shared: help banners and schema-discovery (no network, no profile) ────
+    specs: list[CaptureSpec] = [
+        # Top-level help banners
         CaptureSpec("Top-level", "nbx --help", ["--help"]),
         CaptureSpec("Top-level", "nbx init --help", ["init", "--help"]),
         CaptureSpec("Top-level", "nbx config --help", ["config", "--help"]),
-        CaptureSpec(
-            "Top-level",
-            "nbx config",
-            ["config"],
-            notes="Displays current connection config. Token fields show 'set'/'unset' unless --show-token is passed.",
-        ),
         CaptureSpec("Top-level", "nbx groups --help", ["groups", "--help"]),
         CaptureSpec("Top-level", "nbx resources --help", ["resources", "--help"]),
         CaptureSpec("Top-level", "nbx ops --help", ["ops", "--help"]),
@@ -157,12 +196,18 @@ def _all_specs() -> list[CaptureSpec]:
             "nbx docs generate-capture --help",
             ["docs", "generate-capture", "--help"],
         ),
-        # ── Schema discovery (reads reference/openapi/netbox-openapi.json, no network) ──
+        # Demo sub-app help
+        CaptureSpec("Demo profile", "nbx demo --help", ["demo", "--help"]),
+        CaptureSpec("Demo profile", "nbx demo init --help", ["demo", "init", "--help"]),
+        CaptureSpec(
+            "Demo profile", "nbx demo config --help", ["demo", "config", "--help"]
+        ),
+        # Schema discovery (reads reference/openapi/netbox-openapi.json — no network)
         CaptureSpec(
             "Schema Discovery",
             "nbx groups",
             ["groups"],
-            notes="Lists all OpenAPI app groups from the bundled schema. No network call.",
+            notes="Lists all OpenAPI app groups from the local schema file. No network call.",
         ),
         CaptureSpec(
             "Schema Discovery",
@@ -180,9 +225,8 @@ def _all_specs() -> list[CaptureSpec]:
             "Schema Discovery",
             "nbx resources ipam",
             ["resources", "ipam"],
-            notes="Lists all resources under the 'ipam' app group.",
         ),
-        # ── Dynamic sub-commands (registered from OpenAPI schema, no network) ──
+        # Dynamic sub-commands: --help is safe (no network)
         CaptureSpec(
             "Dynamic Commands",
             "nbx dcim --help",
@@ -199,43 +243,66 @@ def _all_specs() -> list[CaptureSpec]:
             "Dynamic Commands",
             "nbx dcim devices list --help",
             ["dcim", "devices", "list", "--help"],
-            notes="Auto-generated list action for dcim/devices.",
         ),
-        CaptureSpec(
-            "Dynamic Commands",
-            "nbx ipam prefixes --help",
-            ["ipam", "prefixes", "--help"],
-        ),
-        # ── Live API calls (require a real NetBox at NETBOX_URL) ──────────────
-        CaptureSpec(
-            "Live API",
-            "nbx call GET /api/status/",
-            ["call", "GET", "/api/status/"],
-            notes=(
-                "Requires a reachable NetBox at NETBOX_URL. "
-                "Connection errors are expected in offline runs and are valid documentation."
-            ),
-            safe=False,
-        ),
-        CaptureSpec(
-            "Live API",
-            "nbx call GET /api/dcim/sites/ --json",
-            ["call", "GET", "/api/dcim/sites/", "--json"],
-            notes="Returns paginated list as raw JSON. Requires a NetBox with a valid token.",
-            safe=False,
-        ),
-        # ── Dynamic form invocation ────────────────────────────────────────────
-        CaptureSpec(
-            "Dynamic Form",
-            "nbx dcim devices list (dynamic form)",
-            ["dcim", "devices", "list"],
-            notes=(
-                "Invoked via the auto-registered Typer sub-command (not dynamic ctx.args path). "
-                "Requires live NetBox. Connection errors are expected in offline runs."
-            ),
-            safe=False,
-        ),
+        CaptureSpec("Dynamic Commands", "nbx ipam prefixes --help", ["ipam", "prefixes", "--help"]),
     ]
+
+    # ── Live API specs: differ between demo and default profile ───────────────
+    if use_demo:
+        specs += [
+            CaptureSpec(
+                "Live API — demo.netbox.dev",
+                "nbx demo dcim devices list",
+                ["demo", "dcim", "devices", "list"],
+                notes=(
+                    "Runs against demo.netbox.dev using the configured demo profile. "
+                    "Returns real data when the demo token is valid; 401/403 otherwise."
+                ),
+                safe=False,
+            ),
+            CaptureSpec(
+                "Live API — demo.netbox.dev",
+                "nbx demo ipam prefixes list",
+                ["demo", "ipam", "prefixes", "list"],
+                notes="Requires a valid demo profile token.",
+                safe=False,
+            ),
+            CaptureSpec(
+                "Live API — demo.netbox.dev",
+                "nbx demo dcim sites list",
+                ["demo", "dcim", "sites", "list"],
+                safe=False,
+            ),
+        ]
+    else:
+        specs += [
+            CaptureSpec(
+                "Live API — default profile",
+                "nbx call GET /api/status/",
+                ["call", "GET", "/api/status/"],
+                notes=(
+                    "Requires a reachable NetBox at NETBOX_URL. "
+                    "Connection errors are expected in offline runs and are still valid documentation."
+                ),
+                safe=False,
+            ),
+            CaptureSpec(
+                "Live API — default profile",
+                "nbx call GET /api/dcim/sites/ --json",
+                ["call", "GET", "/api/dcim/sites/", "--json"],
+                notes="Returns paginated list as raw JSON. Requires a configured default profile.",
+                safe=False,
+            ),
+            CaptureSpec(
+                "Live API — default profile",
+                "nbx dcim devices list",
+                ["dcim", "devices", "list"],
+                notes="Dynamic sub-command against the default profile NetBox instance.",
+                safe=False,
+            ),
+        ]
+
+    return specs
 
 
 def generate_command_capture_docs(
@@ -244,21 +311,41 @@ def generate_command_capture_docs(
     raw_dir: Path,
     max_lines: int = 200,
     max_chars: int = 120_000,
+    use_demo: bool = True,
     log: TextIO | None = None,
 ) -> int:
     """Write capture Markdown and raw JSON artifacts. Returns 0 on success."""
     log = log or sys.stderr
     from netbox_cli.cli import app as cli_app
+    from netbox_cli.config import DEMO_PROFILE, DEFAULT_PROFILE
+
+    profile = DEMO_PROFILE if use_demo else DEFAULT_PROFILE
 
     output.parent.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
+    # Determine effective base_url for the chosen profile for metadata display.
+    from netbox_cli.config import DEMO_BASE_URL, load_profile_config
+
+    cfg = load_profile_config(profile)
+    effective_url = cfg.base_url or (
+        DEMO_BASE_URL if use_demo else os.environ.get("NETBOX_URL", "https://netbox.example.com")
+    )
+    token_configured = bool(cfg.token_key and cfg.token_secret)
+
     meta = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "netbox_url": os.environ.get("NETBOX_URL", "https://demo.netbox.dev"),
+        "profile": profile,
+        "netbox_url": effective_url,
         "timeout": os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"),
-        "token_key_set": bool(os.environ.get("NETBOX_TOKEN_KEY", "").strip()),
+        "token_configured": token_configured,
     }
+
+    profile_note = (
+        "**demo profile** (`nbx demo …` commands → demo.netbox.dev)"
+        if use_demo
+        else "**default profile** (`nbx …` commands → your configured NetBox)"
+    )
 
     lines: list[str] = [
         "# NetBox CLI — captured command input and output",
@@ -268,7 +355,8 @@ def generate_command_capture_docs(
         "```bash",
         "cd /path/to/netbox-cli",
         "pip install -e .   # once",
-        "nbx docs generate-capture",
+        "nbx docs generate-capture            # demo profile (default)",
+        "nbx docs generate-capture --live     # default profile (real NetBox)",
         "# or: python docs/generate_command_docs.py",
         "```",
         "",
@@ -281,13 +369,14 @@ def generate_command_capture_docs(
         "## Generation metadata",
         "",
         f"- **UTC time:** `{meta['generated_at']}`",
-        f"- **Effective `NETBOX_URL`:** `{meta['netbox_url']}`",
+        f"- **Profile used:** {profile_note}",
+        f"- **Effective NetBox URL:** `{meta['netbox_url']}`",
         f"- **Effective timeout (s):** `{meta['timeout']}`",
-        f"- **`NETBOX_TOKEN_KEY` set:** `{meta['token_key_set']}`",
+        f"- **Token configured:** `{meta['token_configured']}`",
         "",
         (
-            "> Live API calls (`call`, dynamic-form list/get/…) reflect whatever is reachable "
-            "at NETBOX_URL. Connection errors and 401/403 responses are still useful documentation "
+            "> Live API calls reflect whatever is reachable at the configured URL. "
+            "Connection errors and 401/403 responses are still useful documentation "
             "of real CLI behavior."
         ),
         "",
@@ -303,17 +392,22 @@ def generate_command_capture_docs(
     section_last = ""
     artifacts: list[dict] = []
 
-    for spec in _all_specs():
+    for spec in _all_specs(use_demo=use_demo):
         if spec.section != section_last:
             lines.append(f"## {spec.section}")
             lines.append("")
             section_last = spec.section
 
         cmd_display = "nbx " + " ".join(spec.argv)
-        code, out, elapsed = _run_capture(spec, cli_app)
+        code, out, elapsed = _run_capture(spec, cli_app, profile=profile)
 
         truncated, did_trunc = _truncate(out, max_lines, max_chars)
-        slug = f"{spec.section}-{spec.title}"[:80].lower().replace(" ", "-").replace("/", "-")
+        slug = (
+            f"{spec.section}-{spec.title}"[:80]
+            .lower()
+            .replace(" ", "-")
+            .replace("/", "-")
+        )
         slug = "".join(c if c.isalnum() or c == "-" else "-" for c in slug)
         while "--" in slug:
             slug = slug.replace("--", "-")
