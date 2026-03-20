@@ -31,7 +31,7 @@ def test_demo_config_command(monkeypatch) -> None:
     assert '"profile": "demo"' in result.stdout
 
 
-def test_demo_config_rejects_legacy_v2_profile(monkeypatch) -> None:
+def test_demo_config_allows_legacy_v2_profile(monkeypatch) -> None:
     monkeypatch.setattr(
         cli,
         "load_profile_config",
@@ -46,8 +46,8 @@ def test_demo_config_rejects_legacy_v2_profile(monkeypatch) -> None:
 
     result = runner.invoke(cli.app, ["demo", "config"])
 
-    assert result.exit_code != 0
-    assert "legacy v2 token configuration" in result.output
+    assert result.exit_code == 0
+    assert '"token_version": "v2"' in result.output
 
 
 def test_demo_callback_initializes_when_missing(monkeypatch) -> None:
@@ -73,25 +73,6 @@ def test_demo_callback_initializes_when_missing(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert called["force"] is True
-
-
-def test_demo_callback_rejects_legacy_v2_profile(monkeypatch) -> None:
-    monkeypatch.setattr(
-        cli,
-        "load_profile_config",
-        lambda profile: Config(
-            base_url=DEMO_BASE_URL,
-            token_version="v2",
-            token_key="legacy-key",
-            token_secret="legacy-secret",
-            timeout=30.0,
-        ),
-    )
-
-    result = runner.invoke(cli.app, ["demo"])
-
-    assert result.exit_code != 0
-    assert "legacy v2 token configuration" in result.output
 
 
 def test_demo_dynamic_command_uses_demo_profile(monkeypatch) -> None:
@@ -144,6 +125,7 @@ def test_demo_init_bootstraps_and_saves_profile(monkeypatch) -> None:
         "save_profile_config",
         lambda profile, cfg: saved.update({"profile": profile, "cfg": cfg}),
     )
+    monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
 
     result = runner.invoke(cli.app, ["demo", "init"])
 
@@ -176,6 +158,7 @@ def test_demo_init_defaults_to_headless(monkeypatch) -> None:
             )
         ),
     )
+    monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
 
     result = runner.invoke(cli.app, ["demo", "init"])
 
@@ -201,6 +184,7 @@ def test_demo_direct_token_setup(monkeypatch) -> None:
         "save_profile_config",
         lambda profile, cfg: saved.update({"profile": profile, "cfg": cfg}),
     )
+    monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
 
     result = runner.invoke(
         cli.app,
@@ -219,6 +203,30 @@ def test_demo_direct_token_requires_both_values() -> None:
 
     assert result.exit_code != 0
     assert "Use both --token-key and --token-secret together." in result.output
+
+
+def test_demo_direct_token_setup_rejects_invalid_token(monkeypatch) -> None:
+    monkeypatch.setattr(
+        cli,
+        "load_profile_config",
+        lambda profile: Config(base_url=DEMO_BASE_URL, timeout=33.0),
+    )
+    monkeypatch.setattr(cli.typer, "confirm", lambda *args, **kwargs: True)
+    monkeypatch.setattr(
+        cli,
+        "_verify_runtime_config",
+        lambda cfg, context: (_ for _ in ()).throw(
+            cli.typer.BadParameter("Demo token verification failed: Invalid v1 token")
+        ),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        ["demo", "--token-key", "provided-key", "--token-secret", "provided-secret"],
+    )
+
+    assert result.exit_code != 0
+    assert "Demo token verification failed: Invalid v1 token" in result.output
 
 
 def test_demo_override_confirmation_can_abort(monkeypatch) -> None:
@@ -261,6 +269,40 @@ def test_demo_init_reports_playwright_error(monkeypatch) -> None:
     assert result.exit_code == 1
     assert "Playwright is required for `nbx demo init`." in result.output
     assert "pip install playwright" in result.output
+
+
+def test_demo_init_rejects_unverified_token(monkeypatch) -> None:
+    prompts = iter(["demo-user", "demo-pass"])
+
+    monkeypatch.setitem(sys.modules, "playwright", SimpleNamespace())
+    monkeypatch.setattr(cli.typer, "prompt", lambda *args, **kwargs: next(prompts))
+    monkeypatch.setattr(
+        cli,
+        "load_profile_config",
+        lambda profile: Config(base_url=DEMO_BASE_URL, timeout=42.0),
+    )
+    monkeypatch.setattr(
+        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        lambda **kwargs: Config(
+            base_url=DEMO_BASE_URL,
+            token_version="v1",
+            token_key=None,
+            token_secret="invalid-token",
+            timeout=kwargs["timeout"],
+        ),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_verify_runtime_config",
+        lambda cfg, context: (_ for _ in ()).throw(
+            cli.typer.BadParameter("Demo token verification failed: Invalid v1 token")
+        ),
+    )
+
+    result = runner.invoke(cli.app, ["demo", "init"])
+
+    assert result.exit_code == 1
+    assert "Demo token verification failed: Invalid v1 token" in result.output
 
 
 def test_demo_init_reports_missing_system_libraries(monkeypatch) -> None:

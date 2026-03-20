@@ -149,21 +149,6 @@ def _demo_payload(cfg: Config, *, show_token: bool) -> dict[str, Any]:
     return payload
 
 
-def _validate_demo_profile(cfg: Config) -> Config:
-    if (
-        cfg.base_url == DEMO_BASE_URL
-        and cfg.token_version == "v2"
-        and cfg.token_key
-        and cfg.token_secret
-    ):
-        raise typer.BadParameter(
-            "Stored demo profile uses a legacy v2 token configuration. "
-            "demo.netbox.dev currently requires v1 tokens for `nbx demo`. "
-            "Run `nbx demo init` again, or `nbx demo reset` and reconfigure."
-        )
-    return cfg
-
-
 def _confirm_demo_override(existing: Config) -> None:
     if not is_runtime_config_complete(existing):
         return
@@ -196,9 +181,18 @@ def _save_demo_profile_from_token(
         raise typer.BadParameter(
             "Both --token-key and --token-secret are required when configuring the demo profile directly."
         )
+    _verify_runtime_config(cfg, context="Demo token")
     save_profile_config(DEMO_PROFILE, cfg)
     typer.echo("Demo configuration saved.")
     return _cache_profile(DEMO_PROFILE, cfg)
+
+
+def _verify_runtime_config(cfg: Config, *, context: str) -> None:
+    client = _get_client_for_config(cfg)
+    response = _run_with_spinner(client.request("GET", "/api/status/"))
+    if response.status >= 400:
+        detail = response.text.strip() or f"HTTP {response.status}"
+        raise typer.BadParameter(f"{context} verification failed: {detail}")
 
 
 def _initialize_demo_profile(
@@ -259,13 +253,18 @@ def _initialize_demo_profile(
     except RuntimeError as exc:
         typer.echo(str(exc), err=True)
         raise typer.Exit(code=1) from exc
+    try:
+        _verify_runtime_config(cfg, context="Demo token")
+    except typer.BadParameter as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
     save_profile_config(DEMO_PROFILE, cfg)
     typer.echo("Demo configuration saved.")
     return _cache_profile(DEMO_PROFILE, cfg)
 
 
 def _ensure_demo_runtime_config() -> Config:
-    return _validate_demo_profile(_ensure_profile_config(DEMO_PROFILE))
+    return _ensure_profile_config(DEMO_PROFILE)
 
 
 @demo_app.callback(invoke_without_command=True)
@@ -295,7 +294,7 @@ def demo_callback(
                 token_secret=token_secret,
             )
             return
-        cfg = _validate_demo_profile(load_profile_config(DEMO_PROFILE))
+        cfg = load_profile_config(DEMO_PROFILE)
         if not is_runtime_config_complete(cfg):
             _initialize_demo_profile(force=True)
             return
@@ -334,7 +333,7 @@ def demo_config_command(
         False, "--show-token", help="Include API token in output"
     ),
 ) -> None:
-    cfg = _validate_demo_profile(load_profile_config(DEMO_PROFILE))
+    cfg = load_profile_config(DEMO_PROFILE)
     typer.echo(json.dumps(_demo_payload(cfg, show_token=show_token), indent=2))
 
 
