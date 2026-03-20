@@ -4,6 +4,7 @@ These tests exercise the NetBoxTuiApp without a real terminal or NetBox server.
 All API calls are intercepted by a mock client, and file-system state I/O is
 patched out so the tests are fully hermetic.
 """
+
 from __future__ import annotations
 
 import json
@@ -16,6 +17,7 @@ from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
 from netbox_cli.ui.state import TuiState, ViewState
+from textual.color import Color
 from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 
 
@@ -23,7 +25,9 @@ from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 # Shared fixtures
 # ---------------------------------------------------------------------------
 
-_OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
+_OPENAPI_PATH = (
+    Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
+)
 
 FAKE_DEVICES = [
     {"id": 1, "name": "switch01", "status": "active", "display": "switch01"},
@@ -32,7 +36,9 @@ FAKE_DEVICES = [
 
 
 def _list_response(items: list) -> ApiResponse:
-    body = json.dumps({"count": len(items), "results": items, "next": None, "previous": None})
+    body = json.dumps(
+        {"count": len(items), "results": items, "next": None, "previous": None}
+    )
     return ApiResponse(status=200, text=body)
 
 
@@ -72,6 +78,7 @@ def _make_app(mock_client, real_index, theme: str = "default") -> NetBoxTuiApp:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _first_leaf_with_data(tree: Tree) -> object | None:
     """BFS over tree nodes; return first leaf that carries (group, resource) data."""
     stack = list(tree.root.children)
@@ -92,13 +99,16 @@ def _static_text(widget: Static) -> str:
 # 1. Startup / mount
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_app_mounts_and_nav_tree_is_populated(mock_client, real_index):
     app = _make_app(mock_client, real_index)
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
         tree = app.query_one("#nav_tree", Tree)
-        assert tree.root.children, "Navigation tree should have at least one top-level menu"
+        assert tree.root.children, (
+            "Navigation tree should have at least one top-level menu"
+        )
 
 
 @pytest.mark.asyncio
@@ -128,9 +138,29 @@ async def test_dracula_theme_name(mock_client, real_index):
         assert app.theme == "dracula"
 
 
+@pytest.mark.asyncio
+async def test_theme_background_applies_to_filters_and_select(mock_client, real_index):
+    app = _make_app(mock_client, real_index, theme="dracula")
+    expected_background = Color.parse(
+        app.theme_catalog.theme_for("dracula").colors["background"]
+    )
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        filters_list = app.query_one("#filters_list", object)
+        theme_current = app.query_one("#theme_select SelectCurrent", object)
+        theme_overlay = app.query_one("#theme_select SelectOverlay", object)
+
+        assert filters_list.styles.background == expected_background
+        assert theme_current.styles.background == expected_background
+        assert theme_overlay.styles.background == expected_background
+
+
 # ---------------------------------------------------------------------------
 # 2. Key bindings
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_slash_key_focuses_search_input(mock_client, real_index):
@@ -200,6 +230,7 @@ async def test_close_button_exits_app(mock_client, real_index):
 # ---------------------------------------------------------------------------
 # 3. Navigation tree selection → API load
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_nav_tree_selection_triggers_api_call(mock_client, real_index):
@@ -281,6 +312,7 @@ async def test_nav_tree_api_error_shows_status(mock_client, real_index):
 # 4. Row selection
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_space_toggles_row_selection(mock_client, real_index):
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
@@ -355,6 +387,7 @@ async def test_a_key_deselects_all_when_all_selected(mock_client, real_index):
 # ---------------------------------------------------------------------------
 # 5. Search / filter
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_search_input_submit_triggers_reload(mock_client, real_index):
@@ -471,6 +504,7 @@ async def test_filter_modal_apply_empty_key_shows_warning(mock_client, real_inde
 # 6. Refresh action
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_r_key_refreshes_current_resource(mock_client, real_index):
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
@@ -515,6 +549,7 @@ async def test_r_key_does_nothing_without_resource(mock_client, real_index):
 # 7. Pure-unit tests for internal helpers (no Pilot needed)
 # ---------------------------------------------------------------------------
 
+
 def test_query_from_search_plain_text():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
     assert app._query_from_search("switch") == {"q": "switch"}
@@ -527,8 +562,10 @@ def test_query_from_search_key_value():
 
 def test_query_from_search_multi_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
-    assert app._query_from_search("name=switch01,role=leaf") == {"name": "switch01", "role": "leaf"}
-
+    assert app._query_from_search("name=switch01,role=leaf") == {
+        "name": "switch01",
+        "role": "leaf",
+    }
 
 def test_query_from_search_empty():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
