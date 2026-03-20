@@ -1,5 +1,21 @@
 # NetBox CLI and TUI
 
+## Contents
+
+- [Install](#install)
+  - [Install `nbx` Globally (bash + zsh)](#install-nbx-globally-bash--zsh)
+- [Configure](#configure)
+- [Command Modes](#command-modes)
+  - [1) Dynamic mode (OpenAPI app/resource/action)](#1-dynamic-mode-openapi-appresourceaction)
+  - [2) Explicit HTTP mode](#2-explicit-http-mode)
+  - [3) Discovery helpers](#3-discovery-helpers)
+  - [4) TUI mode](#4-tui-mode)
+  - [Custom Themes (JSON)](#custom-themes-json)
+- [Project Layout](#project-layout)
+- [Notes](#notes)
+
+---
+
 `netbox-cli` is an API-first NetBox client that supports both:
 
 - direct command execution (`nbx dcim devices get --id 1`)
