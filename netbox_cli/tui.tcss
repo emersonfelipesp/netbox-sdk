@@ -37,6 +37,7 @@ Screen {
 /* On :focus-within the border lights up — Toad PromptContainer pattern.  */
 
 #topbar {
+    width: 1fr;
     height: auto;
     background: $background;
     border: tall transparent;
@@ -47,6 +48,24 @@ Screen {
 
 #topbar:focus-within {
     border: tall $secondary;
+}
+
+#topbar_spacer {
+    width: 1fr;
+}
+
+#nav_dot {
+    width: 1;
+    margin-right: 1;
+    color: $primary;
+    text-style: bold;
+}
+
+#app_title {
+    width: auto;
+    margin-right: 1;
+    color: $foreground;
+    text-style: bold;
 }
 
 #theme_select {
@@ -116,6 +135,14 @@ OptionList > .option-list--option-disabled {
     color: $text-muted;
 }
 
+#clock {
+    width: auto;
+    min-width: 8;
+    margin-left: 1;
+    color: $text-muted;
+    content-align: right middle;
+}
+
 #global_search {
     width: 1fr;
     border: tall transparent;
@@ -155,7 +182,8 @@ OptionList > .option-list--option-disabled {
 }
 
 #context_line {
-    width: 42;
+    width: auto;
+    max-width: 42;
     content-align: right middle;
     color: $text-muted;
     text-wrap: nowrap;

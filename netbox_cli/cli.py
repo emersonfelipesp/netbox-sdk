@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import Any
 
 import typer
+import yaml
 from rich.console import Console
 from rich.table import Table
 
@@ -21,6 +22,13 @@ from .config import (
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
+from .ui.formatting import (
+    _FIELD_PRIORITY,
+    humanize_field,
+    humanize_value,
+    key_value_rows,
+    order_field_names,
+)
 
 console = Console()
 _SCHEMA_INDEX: SchemaIndex | None = None
@@ -148,14 +156,18 @@ def call_command(
     body_file: str | None = typer.Option(
         None, "--body-file", help="Path to JSON request body file"
     ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
 ) -> None:
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
-    response = asyncio.run(
+    response = _run_with_spinner(
         _get_client().request(method, path, query=query_dict, payload=payload)
     )
-    _print_response(response.status, response.text)
+    _print_response(
+        response.status, response.text, as_json=output_json, as_yaml=output_yaml
+    )
 
 
 @app.command(
@@ -212,7 +224,9 @@ def _handle_dynamic_invocation(raw_args: list[str]) -> None:
     group, resource, action = raw_args[0], raw_args[1], raw_args[2]
     option_args = raw_args[3:]
 
-    object_id, query_pairs, body_json, body_file = _parse_dynamic_options(option_args)
+    object_id, query_pairs, body_json, body_file, as_json, as_yaml = (
+        _parse_dynamic_options(option_args)
+    )
     response = _execute_dynamic_action(
         group=group,
         resource=resource,
@@ -222,16 +236,18 @@ def _handle_dynamic_invocation(raw_args: list[str]) -> None:
         body_json=body_json,
         body_file=body_file,
     )
-    _print_response(response.status, response.text)
+    _print_response(response.status, response.text, as_json=as_json, as_yaml=as_yaml)
 
 
 def _parse_dynamic_options(
     args: list[str],
-) -> tuple[int | None, list[str], str | None, str | None]:
+) -> tuple[int | None, list[str], str | None, str | None, bool, bool]:
     object_id: int | None = None
     query_pairs: list[str] = []
     body_json: str | None = None
     body_file: str | None = None
+    as_json: bool = False
+    as_yaml: bool = False
 
     i = 0
     while i < len(args):
@@ -260,12 +276,112 @@ def _parse_dynamic_options(
             body_file = args[i + 1]
             i += 2
             continue
+        if token == "--json":
+            as_json = True
+            i += 1
+            continue
+        if token == "--yaml":
+            as_yaml = True
+            i += 1
+            continue
         raise typer.BadParameter(f"Unknown option: {token}")
 
-    return object_id, query_pairs, body_json, body_file
+    return object_id, query_pairs, body_json, body_file, as_json, as_yaml
 
 
-def _print_response(status: int, text: str) -> None:
+def _run_with_spinner(coro: Any) -> Any:
+    """Run an async coroutine while showing a spinner on stderr."""
+    with console.status("[bold cyan]Fetching…[/bold cyan]", spinner="dots"):
+        return asyncio.run(coro)
+
+
+# Compact set for list views — excludes verbose fields (description, url, timestamps)
+_LIST_COLUMNS = {
+    "id",
+    "name",
+    "display",
+    "status",
+    "type",
+    "role",
+    "site",
+    "location",
+    "device",
+    "interface",
+    "ip",
+    "address",
+    "prefix",
+    "vlan",
+    "tenant",
+}
+
+
+def _render_table(parsed: Any) -> None:
+    # Detect paginated list vs single object
+    if (
+        isinstance(parsed, dict)
+        and "results" in parsed
+        and isinstance(parsed["results"], list)
+    ):
+        rows_data = [r for r in parsed["results"] if isinstance(r, dict)]
+        count = parsed.get("count")
+        _render_list_table(rows_data, count=count)
+    elif isinstance(parsed, dict):
+        _render_detail_table(parsed)
+    elif isinstance(parsed, list):
+        rows_data = [r for r in parsed if isinstance(r, dict)]
+        if not rows_data and parsed:
+            rows_data = [{"value": str(item)} for item in parsed]
+        _render_list_table(rows_data, count=None)
+    else:
+        console.print(str(parsed))
+
+
+def _render_list_table(rows_data: list[dict[str, Any]], *, count: int | None) -> None:
+    if not rows_data:
+        console.print("[dim]No results.[/dim]")
+        return
+
+    # Collect all keys present in the data, keep only priority ones for compact display
+    all_keys: list[str] = []
+    for row in rows_data:
+        for key in row.keys():
+            if key not in all_keys:
+                all_keys.append(str(key))
+
+    # Filter to priority columns that actually exist; fall back to all if none match
+    priority_keys = [k for k in all_keys if k in _LIST_COLUMNS]
+    display_keys = order_field_names(priority_keys if priority_keys else all_keys)
+
+    title = f"{count} result(s)" if count is not None else None
+    table = Table(title=title, show_header=True, header_style="bold")
+    for key in display_keys:
+        table.add_column(humanize_field(key), overflow="fold", no_wrap=False)
+
+    for row in rows_data:
+        values = [humanize_value(row.get(key)) for key in display_keys]
+        table.add_row(*values)
+
+    console.print(table)
+
+
+def _render_detail_table(obj: dict[str, Any]) -> None:
+    table = Table(show_header=True, header_style="bold", show_lines=True)
+    table.add_column("Field", style="bold", no_wrap=True)
+    table.add_column("Value", overflow="fold")
+
+    for field_label, cell_text in key_value_rows(obj):
+        table.add_row(field_label, str(cell_text))
+
+    console.print(table)
+
+
+def _print_response(
+    status: int,
+    text: str,
+    *,
+    as_json: bool = False,
+    as_yaml: bool = False,
+) -> None:
     typer.echo(f"Status: {status}")
     stripped = text.strip()
     if not stripped:
@@ -275,7 +391,20 @@ def _print_response(status: int, text: str) -> None:
     except json.JSONDecodeError:
         typer.echo(stripped)
         return
-    typer.echo(json.dumps(parsed, indent=2, sort_keys=True))
+
+    if as_json:
+        typer.echo(json.dumps(parsed, indent=2, sort_keys=True))
+        return
+
+    if as_yaml:
+        typer.echo(
+            yaml.dump(
+                parsed, allow_unicode=True, sort_keys=False, default_flow_style=False
+            ).rstrip()
+        )
+        return
+
+    _render_table(parsed)
 
 
 def _execute_dynamic_action(
@@ -288,7 +417,7 @@ def _execute_dynamic_action(
     body_json: str | None,
     body_file: str | None,
 ):
-    return asyncio.run(
+    return _run_with_spinner(
         run_dynamic_command(
             client=_get_client(),
             index=_get_index(),
@@ -374,6 +503,8 @@ def _build_action_command(
         body_file: str | None = typer.Option(
             None, "--body-file", help="Path to JSON request body file"
         ),
+        output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+        output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
     ) -> None:
         if requires_id and object_id is None:
             raise typer.BadParameter("--id is required for this action")
@@ -389,7 +520,9 @@ def _build_action_command(
             body_json=body_json,
             body_file=body_file,
         )
-        _print_response(response.status, response.text)
+        _print_response(
+            response.status, response.text, as_json=output_json, as_yaml=output_yaml
+        )
 
     return _command
 

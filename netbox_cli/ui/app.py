@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Iterable
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -17,7 +18,6 @@ from textual.widgets import (
     Button,
     DataTable,
     Footer,
-    Header,
     Input,
     Label,
     ListItem,
@@ -150,27 +150,34 @@ class NetBoxTuiApp(App[None]):
         self.current_rows: list[dict[str, Any]] = []
         self.selected_row_ids: set[str] = set()
         self._connection_timer: Timer | None = None
+        self._clock_timer: Timer | None = None
         self._last_connection_probe: ConnectionProbe | None = None
 
     def compose(self) -> ComposeResult:
-        yield Header(show_clock=True)
         with Horizontal(id="topbar"):
+            yield Static("●", id="nav_dot")
             yield Select(
                 options=self.theme_options,
                 value=self.theme_name,
                 prompt="Theme",
                 id="theme_select",
             )
-            yield Input(
-                value=self.state.last_view.query_text,
-                id="global_search",
-                placeholder="Quick search: plain text -> q=<text>, or key=value",
-            )
+            yield Static(self.TITLE, id="app_title")
+            yield Static("", id="topbar_spacer")
+            yield Static("", id="clock")
             yield Static(
-                "● Checking connection...", id="connection_badge", classes="-checking"
+                "● Checking connection...",
+                id="connection_badge",
+                classes="-checking",
             )
             yield Static("Context: <none>", id="context_line")
             yield Button("Close", id="close_tui_button")
+
+        yield Input(
+            value=self.state.last_view.query_text,
+            id="global_search",
+            placeholder="Quick search: plain text -> q=<text>, or key=value",
+        )
 
         with Horizontal(id="shell"):
             with Vertical(id="sidebar"):
@@ -209,6 +216,7 @@ class NetBoxTuiApp(App[None]):
 
     def on_mount(self) -> None:
         self._apply_theme(self.theme_name)
+        self._update_clock()
         self._set_connection_badge_checking()
         self._build_navigation_tree()
         self._update_context_line()
@@ -216,6 +224,7 @@ class NetBoxTuiApp(App[None]):
         self.query_one("#nav_tree", Tree).focus()
         self._restore_last_view_if_any()
         self._probe_connection_health()
+        self._clock_timer = self.set_interval(1.0, self._update_clock, name="nbx_clock")
         self._connection_timer = self.set_interval(
             30.0,
             self._probe_connection_health,
@@ -223,6 +232,9 @@ class NetBoxTuiApp(App[None]):
         )
 
     def on_unmount(self) -> None:
+        if self._clock_timer is not None:
+            self._clock_timer.stop()
+            self._clock_timer = None
         if self._connection_timer is not None:
             self._connection_timer.stop()
             self._connection_timer = None
@@ -516,6 +528,12 @@ class NetBoxTuiApp(App[None]):
 
     def _sync_search_input(self) -> None:
         self.query_one("#global_search", Input).value = self.state.last_view.query_text
+
+    def _update_clock(self) -> None:
+        try:
+            self.query_one("#clock", Static).update(datetime.now().strftime("%H:%M:%S"))
+        except NoMatches:
+            pass
 
     def _update_context_line(self) -> None:
         target = self.query_one("#context_line", Static)
