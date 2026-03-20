@@ -29,6 +29,7 @@ from .config import (
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
+from .trace_ascii import render_cable_trace_ascii
 from .ui.formatting import (
     _FIELD_PRIORITY,
     humanize_field,
@@ -538,9 +539,18 @@ def _handle_dynamic_invocation(
     group, resource, action = raw_args[0], raw_args[1], raw_args[2]
     option_args = raw_args[3:]
 
-    object_id, query_pairs, body_json, body_file, as_json, as_yaml = (
-        _parse_dynamic_options(option_args)
-    )
+    (
+        object_id,
+        query_pairs,
+        body_json,
+        body_file,
+        as_json,
+        as_yaml,
+        trace,
+        trace_only,
+    ) = _parse_dynamic_options(option_args)
+    if trace and trace_only:
+        raise typer.BadParameter("Use either --trace or --trace-only, not both.")
     response = _execute_dynamic_action(
         group=group,
         resource=resource,
@@ -552,18 +562,32 @@ def _handle_dynamic_invocation(
         client=client_factory(),
         index=index_factory(),
     )
-    _print_response(response.status, response.text, as_json=as_json, as_yaml=as_yaml)
+    if not trace_only:
+        _print_response(
+            response.status, response.text, as_json=as_json, as_yaml=as_yaml
+        )
+    if trace or trace_only:
+        _print_trace_output(
+            group=group,
+            resource=resource,
+            action=action,
+            object_id=object_id,
+            client=client_factory(),
+            index=index_factory(),
+        )
 
 
 def _parse_dynamic_options(
     args: list[str],
-) -> tuple[int | None, list[str], str | None, str | None, bool, bool]:
+) -> tuple[int | None, list[str], str | None, str | None, bool, bool, bool, bool]:
     object_id: int | None = None
     query_pairs: list[str] = []
     body_json: str | None = None
     body_file: str | None = None
     as_json: bool = False
     as_yaml: bool = False
+    trace: bool = False
+    trace_only: bool = False
 
     i = 0
     while i < len(args):
@@ -600,9 +624,26 @@ def _parse_dynamic_options(
             as_yaml = True
             i += 1
             continue
+        if token == "--trace":
+            trace = True
+            i += 1
+            continue
+        if token == "--trace-only":
+            trace_only = True
+            i += 1
+            continue
         raise typer.BadParameter(f"Unknown option: {token}")
 
-    return object_id, query_pairs, body_json, body_file, as_json, as_yaml
+    return (
+        object_id,
+        query_pairs,
+        body_json,
+        body_file,
+        as_json,
+        as_yaml,
+        trace,
+        trace_only,
+    )
 
 
 def _run_with_spinner(coro: Any) -> Any:
@@ -721,6 +762,68 @@ def _print_response(
         return
 
     _render_table(parsed)
+
+
+def _trace_message(message: str) -> None:
+    typer.echo(f"Cable Trace: {message}")
+
+
+def _print_trace_output(
+    *,
+    group: str,
+    resource: str,
+    action: str,
+    object_id: int | None,
+    client: NetBoxApiClient,
+    index: SchemaIndex,
+) -> None:
+    if action != "get":
+        raise typer.BadParameter("--trace is only supported for get actions")
+    if object_id is None:
+        raise typer.BadParameter("--trace requires --id")
+
+    trace_path = index.trace_path(group, resource)
+    if not trace_path:
+        _trace_message("Not available for this resource.")
+        return
+
+    response = _run_with_spinner(
+        client.request("GET", trace_path.replace("{id}", str(object_id)))
+    )
+    if response.status >= 400:
+        detail = response.text.strip().lower()
+        if "not found" in detail or "no cable" in detail or "no connected" in detail:
+            _trace_message("No connected cable trace found.")
+            return
+        try:
+            parsed = json.loads(response.text)
+        except json.JSONDecodeError:
+            parsed = None
+        if isinstance(parsed, dict):
+            detail_text = str(parsed.get("detail") or "").strip().lower()
+            if (
+                "not found" in detail_text
+                or "no cable" in detail_text
+                or "no connected" in detail_text
+            ):
+                _trace_message("No connected cable trace found.")
+                return
+        _trace_message(f"Unavailable (HTTP {response.status}).")
+        return
+
+    try:
+        parsed = json.loads(response.text)
+    except json.JSONDecodeError:
+        _trace_message("Unavailable.")
+        return
+
+    rendered = render_cable_trace_ascii(parsed)
+    if not rendered:
+        _trace_message("No connected cable trace found.")
+        return
+
+    typer.echo("Cable Trace:")
+    typer.echo(rendered)
 
 
 def _execute_dynamic_action(
@@ -842,12 +945,30 @@ def _build_action_command(
         ),
         output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
         output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+        trace: bool = typer.Option(
+            False,
+            "--trace",
+            help="Fetch and render the cable trace as ASCII when supported.",
+        ),
+        trace_only: bool = typer.Option(
+            False,
+            "--trace-only",
+            help="Render only the cable trace ASCII output when supported.",
+        ),
     ) -> None:
         if requires_id and object_id is None:
             raise typer.BadParameter("--id is required for this action")
         if not allows_body and (body_json is not None or body_file is not None):
             raise typer.BadParameter("This action does not accept a request body")
+        if trace and trace_only:
+            raise typer.BadParameter("Use either --trace or --trace-only, not both.")
+        if (trace or trace_only) and action != "get":
+            raise typer.BadParameter(
+                "--trace and --trace-only are only supported for get actions"
+            )
 
+        client = client_factory()
+        index = index_factory()
         response = _execute_dynamic_action(
             group=group,
             resource=resource,
@@ -856,12 +977,22 @@ def _build_action_command(
             query_pairs=query or [],
             body_json=body_json,
             body_file=body_file,
-            client=client_factory(),
-            index=index_factory(),
+            client=client,
+            index=index,
         )
-        _print_response(
-            response.status, response.text, as_json=output_json, as_yaml=output_yaml
-        )
+        if not trace_only:
+            _print_response(
+                response.status, response.text, as_json=output_json, as_yaml=output_yaml
+            )
+        if trace or trace_only:
+            _print_trace_output(
+                group=group,
+                resource=resource,
+                action=action,
+                object_id=object_id,
+                client=client,
+                index=index,
+            )
 
     return _command
 

@@ -19,10 +19,10 @@ from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
+from netbox_cli.trace_ascii import render_cable_trace_ascii
 from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
-from netbox_cli.ui.panels import render_cable_trace_ascii
 from netbox_cli.ui.state import TuiState, ViewState
 
 # ---------------------------------------------------------------------------
@@ -115,6 +115,21 @@ FAKE_INTERFACE_TRACE = [
         ],
     ]
 ]
+
+FAKE_CABLE_ROW = {
+    "id": 4,
+    "display": "#4",
+    "label": "",
+    "status": "connected",
+}
+
+FAKE_CABLE_DETAIL = {
+    "id": 4,
+    "display": "#4",
+    "label": "",
+    "status": "connected",
+    "type": "smf",
+}
 
 
 def _list_response(items: list) -> ApiResponse:
@@ -449,6 +464,50 @@ async def test_interface_detail_shows_ascii_cable_trace(real_index):
         while stack:
             node = stack.pop(0)
             if node.data == ("dcim", "interfaces"):
+                leaf = node
+                break
+            stack.extend(node.children)
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        trace = app.query_one("#detail_trace", Static)
+        trace_text = str(trace.content)
+        assert "dmi01-akron-rtr01" in trace_text
+        assert "Cable #36" in trace_text
+        assert "Trace Completed - 1 segment(s)" in trace_text
+
+
+@pytest.mark.asyncio
+async def test_cable_detail_shows_ascii_cable_trace(real_index):
+    client = MagicMock()
+
+    async def _request(method: str, path: str, **kwargs):
+        if method != "GET":
+            raise AssertionError(f"unexpected method: {method}")
+        if path == "/api/dcim/cables/":
+            return _list_response([FAKE_CABLE_ROW])
+        if path == "/api/dcim/cables/4/":
+            return _detail_response(FAKE_CABLE_DETAIL)
+        if path == "/api/dcim/cables/4/trace/":
+            return ApiResponse(status=200, text=json.dumps(FAKE_INTERFACE_TRACE))
+        raise AssertionError(f"unexpected path: {path}")
+
+    client.request = AsyncMock(side_effect=_request)
+    client.probe_connection = AsyncMock(return_value=_PROBE_OK)
+
+    app = _make_app(client, real_index, theme="dracula")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = None
+        stack = list(tree.root.children)
+        while stack:
+            node = stack.pop(0)
+            if node.data == ("dcim", "cables"):
                 leaf = node
                 break
             stack.extend(node.children)
