@@ -18,7 +18,7 @@ Run the capture **in the background** (log + pid):
 
 ## Generation metadata
 
-- **UTC time:** `2026-03-20T23:01:55.623452+00:00`
+- **UTC time:** `2026-03-20T23:28:17.167508+00:00`
 - **Profile used:** **demo profile** (`nbx demo …` commands → demo.netbox.dev)
 - **Effective NetBox URL:** `https://demo.netbox.dev`
 - **Effective timeout (s):** `30`
@@ -40,7 +40,7 @@ Run the capture **in the background** (log + pid):
 nbx --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.579`
+**Exit code:** `0`  ·  **Wall time (s):** `1.807`
 
 **Output:**
 
@@ -89,7 +89,7 @@ nbx --help
 nbx init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.349`
+**Exit code:** `0`  ·  **Wall time (s):** `1.589`
 
 **Output:**
 
@@ -118,7 +118,7 @@ nbx init --help
 nbx config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.467`
+**Exit code:** `0`  ·  **Wall time (s):** `1.759`
 
 **Output:**
 
@@ -142,7 +142,7 @@ nbx config --help
 nbx groups --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.713`
+**Exit code:** `0`  ·  **Wall time (s):** `1.488`
 
 **Output:**
 
@@ -165,7 +165,7 @@ nbx groups --help
 nbx resources --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.467`
+**Exit code:** `0`  ·  **Wall time (s):** `1.511`
 
 **Output:**
 
@@ -191,7 +191,7 @@ nbx resources --help
 nbx ops --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.512`
+**Exit code:** `0`  ·  **Wall time (s):** `1.666`
 
 **Output:**
 
@@ -218,7 +218,7 @@ nbx ops --help
 nbx call --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.291`
+**Exit code:** `0`  ·  **Wall time (s):** `1.462`
 
 **Output:**
 
@@ -252,7 +252,7 @@ nbx tui --help
 
 *Launches the full Textual TUI when invoked without flags. --help shown here only.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.444`
+**Exit code:** `0`  ·  **Wall time (s):** `1.451`
 
 **Output:**
 
@@ -279,7 +279,7 @@ nbx tui --theme
 
 *Lists available themes without launching the TUI.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.280`
+**Exit code:** `0`  ·  **Wall time (s):** `1.539`
 
 **Output:**
 
@@ -299,7 +299,7 @@ Available themes:
 nbx docs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.715`
+**Exit code:** `0`  ·  **Wall time (s):** `1.441`
 
 **Output:**
 
@@ -328,7 +328,7 @@ nbx docs --help
 nbx docs generate-capture --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.678`
+**Exit code:** `0`  ·  **Wall time (s):** `1.445`
 
 **Output:**
 
@@ -371,7 +371,7 @@ nbx docs generate-capture --help
 nbx demo --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.346`
+**Exit code:** `0`  ·  **Wall time (s):** `1.655`
 
 **Output:**
 
@@ -418,7 +418,7 @@ nbx demo --help
 nbx demo init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.305`
+**Exit code:** `0`  ·  **Wall time (s):** `1.478`
 
 **Output:**
 
@@ -459,7 +459,7 @@ nbx demo init --help
 nbx demo config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.433`
+**Exit code:** `0`  ·  **Wall time (s):** `1.612`
 
 **Output:**
 
@@ -487,7 +487,7 @@ nbx groups
 
 *Lists all OpenAPI app groups from the local schema file. No network call.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.359`
+**Exit code:** `0`  ·  **Wall time (s):** `1.436`
 
 **Output:**
 
@@ -517,7 +517,7 @@ nbx resources dcim
 
 *Lists all resources under the 'dcim' app group.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.224`
+**Exit code:** `0`  ·  **Wall time (s):** `1.438`
 
 **Output:**
 
@@ -581,7 +581,7 @@ nbx ops dcim devices
 
 *Lists HTTP operations (method, path, operationId) for dcim/devices.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.241`
+**Exit code:** `0`  ·  **Wall time (s):** `1.622`
 
 **Output:**
 
@@ -613,7 +613,7 @@ nbx ops dcim devices
 nbx resources ipam
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.374`
+**Exit code:** `0`  ·  **Wall time (s):** `1.464`
 
 **Output:**
 
@@ -652,7 +652,7 @@ nbx dcim --help
 
 *Auto-generated Typer sub-app for the 'dcim' OpenAPI group.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.264`
+**Exit code:** `0`  ·  **Wall time (s):** `1.471`
 
 **Output:**
 
@@ -726,7 +726,7 @@ nbx dcim devices --help
 
 *Auto-generated Typer sub-app for dcim/devices.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.230`
+**Exit code:** `0`  ·  **Wall time (s):** `1.766`
 
 **Output:**
 
@@ -759,7 +759,7 @@ nbx dcim devices --help
 nbx dcim devices list --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.392`
+**Exit code:** `0`  ·  **Wall time (s):** `1.445`
 
 **Output:**
 
@@ -770,13 +770,17 @@ nbx dcim devices list --help
  list dcim/devices                                                              
                                                                                 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --id                 INTEGER  Object ID for detail operations                │
-│ --query      -q      TEXT     Query parameter key=value                      │
-│ --body-json          TEXT     Inline JSON request body                       │
-│ --body-file          TEXT     Path to JSON request body file                 │
-│ --json                        Output raw JSON                                │
-│ --yaml                        Output YAML                                    │
-│ --help                        Show this message and exit.                    │
+│ --id                  INTEGER  Object ID for detail operations               │
+│ --query       -q      TEXT     Query parameter key=value                     │
+│ --body-json           TEXT     Inline JSON request body                      │
+│ --body-file           TEXT     Path to JSON request body file                │
+│ --json                         Output raw JSON                               │
+│ --yaml                         Output YAML                                   │
+│ --trace                        Fetch and render the cable trace as ASCII     │
+│                                when supported.                               │
+│ --trace-only                   Render only the cable trace ASCII output when │
+│                                supported.                                    │
+│ --help                         Show this message and exit.                   │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -790,7 +794,7 @@ nbx dcim devices list --help
 nbx ipam prefixes --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.214`
+**Exit code:** `0`  ·  **Wall time (s):** `1.434`
 
 **Output:**
 
@@ -815,6 +819,78 @@ nbx ipam prefixes --help
 
 ---
 
+### nbx dcim interfaces get --help
+
+**Input:**
+
+```bash
+nbx dcim interfaces get --help
+```
+
+*Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.*
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.524`
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dcim interfaces get [OPTIONS]                                      
+                                                                                
+ get dcim/interfaces                                                            
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --id                  INTEGER  Object ID for detail operations               │
+│ --query       -q      TEXT     Query parameter key=value                     │
+│ --body-json           TEXT     Inline JSON request body                      │
+│ --body-file           TEXT     Path to JSON request body file                │
+│ --json                         Output raw JSON                               │
+│ --yaml                         Output YAML                                   │
+│ --trace                        Fetch and render the cable trace as ASCII     │
+│                                when supported.                               │
+│ --trace-only                   Render only the cable trace ASCII output when │
+│                                supported.                                    │
+│ --help                         Show this message and exit.                   │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+### nbx circuits circuit-terminations get --help
+
+**Input:**
+
+```bash
+nbx circuits circuit-terminations get --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.499`
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root circuits circuit-terminations get [OPTIONS]                        
+                                                                                
+ get circuits/circuit-terminations                                              
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --id                  INTEGER  Object ID for detail operations               │
+│ --query       -q      TEXT     Query parameter key=value                     │
+│ --body-json           TEXT     Inline JSON request body                      │
+│ --body-file           TEXT     Path to JSON request body file                │
+│ --json                         Output raw JSON                               │
+│ --yaml                         Output YAML                                   │
+│ --trace                        Fetch and render the cable trace as ASCII     │
+│                                when supported.                               │
+│ --trace-only                   Render only the cable trace ASCII output when │
+│                                supported.                                    │
+│ --help                         Show this message and exit.                   │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
 ## Live API — demo.netbox.dev
 
 ### nbx demo dcim devices list
@@ -827,7 +903,7 @@ nbx demo dcim devices list
 
 *Runs against demo.netbox.dev using the configured demo profile. Returns real data when the demo token is valid; 401/403 otherwise.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.372`
+**Exit code:** `0`  ·  **Wall time (s):** `2.702`
 
 *Output truncated for this doc (max 200 lines / 120000 chars).*
 
@@ -1050,7 +1126,7 @@ nbx demo ipam prefixes list
 
 *Requires a valid demo profile token.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.188`
+**Exit code:** `0`  ·  **Wall time (s):** `2.202`
 
 **Output:**
 
@@ -1223,7 +1299,7 @@ Status: 200
 nbx demo dcim sites list
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.946`
+**Exit code:** `0`  ·  **Wall time (s):** `2.087`
 
 **Output:**
 
@@ -1287,6 +1363,348 @@ Status: 200
 │ 26 │ ZIDRENN-SITE-A     │ ZIDRENN-SITE-A      │ Active  │ —                  │
 │ 27 │ ZIDRENN-SITE-B     │ ZIDRENN-SITE-B      │ Active  │ —                  │
 └────┴────────────────────┴─────────────────────┴─────────┴────────────────────┘
+```
+
+---
+
+## Cable Trace — demo.netbox.dev
+
+### nbx demo dcim interfaces get --id 1 --trace
+
+**Input:**
+
+```bash
+nbx demo dcim interfaces get --id 1 --trace
+```
+
+*Fetches the interface object and appends an ASCII cable trace diagram. Requires the interface to have a connected cable in demo.netbox.dev.*
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.910`
+
+**Output:**
+
+```text
+Status: 200
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Field                         ┃ Value                                        ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ ID                            │ 1                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Name                          │ GigabitEthernet0/0/0                         │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Display                       │ GigabitEthernet0/0/0                         │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Label                         │                                              │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Type                          │  Sfp (1Ge)                                   │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Device                        │ dmi01-akron-rtr01 (ID 1)                     │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Description                   │                                              │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Created                       │ 2021-04-14 00:00:00 UTC                      │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Last Updated                  │ 2021-04-14 17:36:01 UTC                      │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ URL                           │ https://demo.netbox.dev/api/dcim/interfaces/ │
+│                               │ 1/                                           │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Connected Endpoints Type      │  Circuits.Providernetwork                    │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Link Peers Type               │  Circuits.Circuittermination                 │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Poe Type                      │  —                                           │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Rf Role                       │  —                                           │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ MAC Address                   │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Primary MAC Address           │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Untagged VLAN                 │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Display URL                   │ https://demo.netbox.dev/dcim/interfaces/1/   │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Occupied                      │ Yes                                          │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Bridge                        │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Bridge Interfaces             │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Cable                         │ #7 (ID 7)                                    │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Cable End                     │ B                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Connected Endpoints           │ Level3 MPLS (ID 1)                           │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Connected Endpoints Reachable │ Yes                                          │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Count FHRP Groups             │ 0                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Count Ipaddresses             │ 0                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Custom Fields                 │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Duplex                        │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Enabled                       │ Yes                                          │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ L2VPN Termination             │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Lag                           │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Link Peers                    │ KKDG4923: Termination Z (ID 1)               │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ MAC Addresses                 │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Mark Connected                │ No                                           │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Mgmt Only                     │ No                                           │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Mode                          │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Module                        │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Mtu                           │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Owner                         │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Parent                        │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Poe Mode                      │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Qinq Svlan                    │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Rf Channel                    │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Rf Channel Frequency          │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Rf Channel Width              │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Speed                         │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Tagged Vlans                  │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Tags                          │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Tx Power                      │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Vdcs                          │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ VLAN Translation Policy       │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ VRF                           │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Wireless Lans                 │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Wireless Link                 │ —                                            │
+├───────────────────────────────┼──────────────────────────────────────────────┤
+│ Wwn                           │ —                                            │
+└───────────────────────────────┴──────────────────────────────────────────────┘
+Cable Trace:
+┌────────────────────────────────────┐
+│         dmi01-akron-rtr01          │
+│        GigabitEthernet0/0/0        │
+└────────────────────────────────────┘
+                │
+                │  Cable
+                │  Connected
+                │
+┌────────────────────────────────────┐
+│      KKDG4923: Termination Z       │
+└────────────────────────────────────┘
+
+Trace Completed - 1 segment(s)
+```
+
+---
+
+### nbx demo dcim interfaces get --id 1 --trace-only
+
+**Input:**
+
+```bash
+nbx demo dcim interfaces get --id 1 --trace-only
+```
+
+*Renders only the cable trace, omitting the object detail table.*
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.442`
+
+**Output:**
+
+```text
+Cable Trace:
+┌────────────────────────────────────┐
+│         dmi01-akron-rtr01          │
+│        GigabitEthernet0/0/0        │
+└────────────────────────────────────┘
+                │
+                │  Cable
+                │  Connected
+                │
+┌────────────────────────────────────┐
+│      KKDG4923: Termination Z       │
+└────────────────────────────────────┘
+
+Trace Completed - 1 segment(s)
+```
+
+---
+
+### nbx demo circuits circuit-terminations get --id 15 --trace
+
+**Input:**
+
+```bash
+nbx demo circuits circuit-terminations get --id 15 --trace
+```
+
+*Circuit terminations also expose a ``/trace/`` endpoint. Renders the full path from the physical interface through the circuit.*
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.326`
+
+**Output:**
+
+```text
+Status: 200
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Field            ┃ Value                                                     ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ ID               │ 15                                                        │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Display          │ DEOW4921: Termination Z                                   │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Description      │                                                           │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Created          │ 2021-04-14 00:00:00 UTC                                   │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Last Updated     │ 2021-04-14 17:36:14 UTC                                   │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ URL              │ https://demo.netbox.dev/api/circuits/circuit-terminations │
+│                  │ /15/                                                      │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Termination ID   │ 14                                                        │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Xconnect ID      │                                                           │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Link Peers Type  │  Dcim.Interface                                           │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Termination Type │  Dcim.Site                                                │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Display URL      │ https://demo.netbox.dev/circuits/circuit-terminations/15/ │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Occupied         │ Yes                                                       │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Cable            │ HQ1 (ID 1)                                                │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Cable End        │ A                                                         │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Circuit          │ DEOW4921 (ID 14)                                          │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Custom Fields    │ —                                                         │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Link Peers       │ GigabitEthernet0/0/0 (ID 157)                             │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Mark Connected   │ No                                                        │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Port Speed       │ —                                                         │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Pp Info          │                                                           │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Tags             │ —                                                         │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Term Side        │ Z                                                         │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Termination      │ DM-Yonkers (ID 14)                                        │
+├──────────────────┼───────────────────────────────────────────────────────────┤
+│ Upstream Speed   │ —                                                         │
+└──────────────────┴───────────────────────────────────────────────────────────┘
+Cable Trace:
+┌────────────────────────────────────┐
+│        dmi01-yonkers-rtr01         │
+│        GigabitEthernet0/0/0        │
+└────────────────────────────────────┘
+                │
+                │  Cable HQ1
+                │  Connected
+                │
+                │
+                │
+                │
+┌────────────────────────────────────┐
+│      DEOW4921: Termination Z       │
+│          Circuit DEOW4921          │
+│              Level 3               │
+└────────────────────────────────────┘
+                ┆
+                ┆
+                ┆
+┌────────────────────────────────────┐
+│      DEOW4921: Termination A       │
+│          Circuit DEOW4921          │
+│              Level 3               │
+└────────────────────────────────────┘
+                │
+                │
+                │
+┌────────────────────────────────────┐
+│            Level3 MPLS             │
+└────────────────────────────────────┘
+
+Trace Completed - 1 segment(s)
+```
+
+---
+
+### nbx demo circuits circuit-terminations get --id 15 --trace-only
+
+**Input:**
+
+```bash
+nbx demo circuits circuit-terminations get --id 15 --trace-only
+```
+
+*Trace-only view for a circuit termination — no object detail table.*
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.579`
+
+**Output:**
+
+```text
+Cable Trace:
+┌────────────────────────────────────┐
+│        dmi01-yonkers-rtr01         │
+│        GigabitEthernet0/0/0        │
+└────────────────────────────────────┘
+                │
+                │  Cable HQ1
+                │  Connected
+                │
+                │
+                │
+                │
+┌────────────────────────────────────┐
+│      DEOW4921: Termination Z       │
+│          Circuit DEOW4921          │
+│              Level 3               │
+└────────────────────────────────────┘
+                ┆
+                ┆
+                ┆
+┌────────────────────────────────────┐
+│      DEOW4921: Termination A       │
+│          Circuit DEOW4921          │
+│              Level 3               │
+└────────────────────────────────────┘
+                │
+                │
+                │
+┌────────────────────────────────────┐
+│            Level3 MPLS             │
+└────────────────────────────────────┘
+
+Trace Completed - 1 segment(s)
 ```
 
 ---

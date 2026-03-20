@@ -245,6 +245,18 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             ["dcim", "devices", "list", "--help"],
         ),
         CaptureSpec("Dynamic Commands", "nbx ipam prefixes --help", ["ipam", "prefixes", "--help"]),
+        # Trace flag help (safe — schema/help, no network)
+        CaptureSpec(
+            "Dynamic Commands",
+            "nbx dcim interfaces get --help",
+            ["dcim", "interfaces", "get", "--help"],
+            notes="Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.",
+        ),
+        CaptureSpec(
+            "Dynamic Commands",
+            "nbx circuits circuit-terminations get --help",
+            ["circuits", "circuit-terminations", "get", "--help"],
+        ),
     ]
 
     # ── Live API specs: differ between demo and default profile ───────────────
@@ -271,6 +283,42 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
                 "Live API — demo.netbox.dev",
                 "nbx demo dcim sites list",
                 ["demo", "dcim", "sites", "list"],
+                safe=False,
+            ),
+            # ── Cable trace: dcim/interfaces ──────────────────────────────────
+            CaptureSpec(
+                "Cable Trace — demo.netbox.dev",
+                "nbx demo dcim interfaces get --id 1 --trace",
+                ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace"],
+                notes=(
+                    "Fetches the interface object and appends an ASCII cable trace diagram. "
+                    "Requires the interface to have a connected cable in demo.netbox.dev."
+                ),
+                safe=False,
+            ),
+            CaptureSpec(
+                "Cable Trace — demo.netbox.dev",
+                "nbx demo dcim interfaces get --id 1 --trace-only",
+                ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace-only"],
+                notes="Renders only the cable trace, omitting the object detail table.",
+                safe=False,
+            ),
+            # ── Cable trace: circuits/circuit-terminations ────────────────────
+            CaptureSpec(
+                "Cable Trace — demo.netbox.dev",
+                "nbx demo circuits circuit-terminations get --id 15 --trace",
+                ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace"],
+                notes=(
+                    "Circuit terminations also expose a ``/trace/`` endpoint. "
+                    "Renders the full path from the physical interface through the circuit."
+                ),
+                safe=False,
+            ),
+            CaptureSpec(
+                "Cable Trace — demo.netbox.dev",
+                "nbx demo circuits circuit-terminations get --id 15 --trace-only",
+                ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace-only"],
+                notes="Trace-only view for a circuit termination — no object detail table.",
                 safe=False,
             ),
         ]

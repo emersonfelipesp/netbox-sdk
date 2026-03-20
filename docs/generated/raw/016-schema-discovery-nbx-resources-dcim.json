@@ -6,7 +6,7 @@
     "dcim"
   ],
   "exit_code": 0,
-  "elapsed_seconds": 1.224,
+  "elapsed_seconds": 1.438,
   "truncated": false,
   "stdout_full": "cable-terminations\ncables\nconnected-device\nconsole-port-templates\nconsole-ports\nconsole-server-port-templates\nconsole-server-ports\ndevice-bay-templates\ndevice-bays\ndevice-roles\ndevice-types\ndevices\nfront-port-templates\nfront-ports\ninterface-templates\ninterfaces\ninventory-item-roles\ninventory-item-templates\ninventory-items\nlocations\nmac-addresses\nmanufacturers\nmodule-bay-templates\nmodule-bays\nmodule-type-profiles\nmodule-types\nmodules\nplatforms\npower-feeds\npower-outlet-templates\npower-outlets\npower-panels\npower-port-templates\npower-ports\nrack-reservations\nrack-roles\nrack-types\nracks\nrear-port-templates\nrear-ports\nregions\nsite-groups\nsites\nvirtual-chassis\nvirtual-device-contexts\n"
 }

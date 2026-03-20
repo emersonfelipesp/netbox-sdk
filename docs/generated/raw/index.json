@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-03-20T23:01:55.623452+00:00",
+    "generated_at": "2026-03-20T23:28:17.167508+00:00",
     "profile": "demo",
     "netbox_url": "https://demo.netbox.dev",
     "timeout": "30",
@@ -14,7 +14,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.579,
+      "elapsed_seconds": 1.807,
       "truncated": false
     },
     {
@@ -25,7 +25,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.349,
+      "elapsed_seconds": 1.589,
       "truncated": false
     },
     {
@@ -36,7 +36,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.467,
+      "elapsed_seconds": 1.759,
       "truncated": false
     },
     {
@@ -47,7 +47,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.713,
+      "elapsed_seconds": 1.488,
       "truncated": false
     },
     {
@@ -58,7 +58,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.467,
+      "elapsed_seconds": 1.511,
       "truncated": false
     },
     {
@@ -69,7 +69,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.512,
+      "elapsed_seconds": 1.666,
       "truncated": false
     },
     {
@@ -80,7 +80,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.291,
+      "elapsed_seconds": 1.462,
       "truncated": false
     },
     {
@@ -91,7 +91,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.444,
+      "elapsed_seconds": 1.451,
       "truncated": false
     },
     {
@@ -102,7 +102,7 @@
         "--theme"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.28,
+      "elapsed_seconds": 1.539,
       "truncated": false
     },
     {
@@ -113,7 +113,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.715,
+      "elapsed_seconds": 1.441,
       "truncated": false
     },
     {
@@ -125,7 +125,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.678,
+      "elapsed_seconds": 1.445,
       "truncated": false
     },
     {
@@ -136,7 +136,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.346,
+      "elapsed_seconds": 1.655,
       "truncated": false
     },
     {
@@ -148,7 +148,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.305,
+      "elapsed_seconds": 1.478,
       "truncated": false
     },
     {
@@ -160,7 +160,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.433,
+      "elapsed_seconds": 1.612,
       "truncated": false
     },
     {
@@ -170,7 +170,7 @@
         "groups"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.359,
+      "elapsed_seconds": 1.436,
       "truncated": false
     },
     {
@@ -181,7 +181,7 @@
         "dcim"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.224,
+      "elapsed_seconds": 1.438,
       "truncated": false
     },
     {
@@ -193,7 +193,7 @@
         "devices"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.241,
+      "elapsed_seconds": 1.622,
       "truncated": false
     },
     {
@@ -204,7 +204,7 @@
         "ipam"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.374,
+      "elapsed_seconds": 1.464,
       "truncated": false
     },
     {
@@ -215,7 +215,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.264,
+      "elapsed_seconds": 1.471,
       "truncated": false
     },
     {
@@ -227,7 +227,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.23,
+      "elapsed_seconds": 1.766,
       "truncated": false
     },
     {
@@ -240,7 +240,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.392,
+      "elapsed_seconds": 1.445,
       "truncated": false
     },
     {
@@ -252,7 +252,33 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.214,
+      "elapsed_seconds": 1.434,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim interfaces get --help",
+      "argv": [
+        "dcim",
+        "interfaces",
+        "get",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.524,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx circuits circuit-terminations get --help",
+      "argv": [
+        "circuits",
+        "circuit-terminations",
+        "get",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.499,
       "truncated": false
     },
     {
@@ -265,7 +291,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.372,
+      "elapsed_seconds": 2.702,
       "truncated": true
     },
     {
@@ -278,7 +304,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.188,
+      "elapsed_seconds": 2.202,
       "truncated": false
     },
     {
@@ -291,7 +317,71 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.946,
+      "elapsed_seconds": 2.087,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim interfaces get --id 1 --trace",
+      "argv": [
+        "demo",
+        "dcim",
+        "interfaces",
+        "get",
+        "--id",
+        "1",
+        "--trace"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.91,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim interfaces get --id 1 --trace-only",
+      "argv": [
+        "demo",
+        "dcim",
+        "interfaces",
+        "get",
+        "--id",
+        "1",
+        "--trace-only"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.442,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo circuits circuit-terminations get --id 15 --trace",
+      "argv": [
+        "demo",
+        "circuits",
+        "circuit-terminations",
+        "get",
+        "--id",
+        "15",
+        "--trace"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.326,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo circuits circuit-terminations get --id 15 --trace-only",
+      "argv": [
+        "demo",
+        "circuits",
+        "circuit-terminations",
+        "get",
+        "--id",
+        "15",
+        "--trace-only"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.579,
       "truncated": false
     }
   ]

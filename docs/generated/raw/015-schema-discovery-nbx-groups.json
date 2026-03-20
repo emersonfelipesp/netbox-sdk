@@ -5,7 +5,7 @@
     "groups"
   ],
   "exit_code": 0,
-  "elapsed_seconds": 1.359,
+  "elapsed_seconds": 1.436,
   "truncated": false,
   "stdout_full": "circuits\ncore\ndcim\nextras\nipam\nplugins\ntenancy\nusers\nvirtualization\nvpn\nwireless\n"
 }
