@@ -14,13 +14,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from textual.color import Color
 from textual.coordinate import Coordinate
-from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
+from textual.widgets import DataTable, Input, Select, Static, TabbedContent, Tree
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
 from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
-from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
+from netbox_cli.ui.app import NetBoxTuiApp
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
@@ -377,7 +377,9 @@ async def test_demo_tui_title_has_themed_demo_suffix(mock_client, real_index):
 
 
 @pytest.mark.asyncio
-async def test_theme_background_applies_to_filters_and_select(mock_client, real_index):
+async def test_theme_background_applies_to_query_bar_and_select(
+    mock_client, real_index
+):
     app = _make_app(mock_client, real_index, theme="dracula")
     expected_background = Color.parse(
         app.theme_catalog.theme_for("dracula").colors["background"]
@@ -386,11 +388,11 @@ async def test_theme_background_applies_to_filters_and_select(mock_client, real_
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
 
-        filters_list = app.query_one("#filters_list", object)
+        query_bar = app.query_one("#query_bar", object)
         theme_current = app.query_one("#theme_select SelectCurrent", object)
         theme_overlay = app.query_one("#theme_select SelectOverlay", object)
 
-        assert filters_list.styles.background == expected_background
+        assert query_bar.styles.background == expected_background
         assert theme_current.styles.background.a == 0
         assert theme_overlay.styles.background == expected_background
 
@@ -895,7 +897,7 @@ async def test_a_key_selects_all_rows(mock_client, real_index):
 
         assert len(app.current_rows) > 0
 
-        await pilot.press("a")
+        app.action_toggle_select_all()
         await pilot.pause()
         assert len(app.selected_row_ids) == len(FAKE_DEVICES)
 
@@ -913,11 +915,11 @@ async def test_a_key_deselects_all_when_all_selected(mock_client, real_index):
         await pilot.pause()
         await pilot.pause()
 
-        await pilot.press("a")
+        app.action_toggle_select_all()
         await pilot.pause()
         assert len(app.selected_row_ids) == len(FAKE_DEVICES)
 
-        await pilot.press("a")
+        app.action_toggle_select_all()
         await pilot.pause()
         assert len(app.selected_row_ids) == 0
 
@@ -953,45 +955,7 @@ async def test_search_input_submit_triggers_reload(mock_client, real_index):
 
 
 @pytest.mark.asyncio
-async def test_f_key_opens_filter_modal(mock_client, real_index):
-    app = _make_app(mock_client, real_index)
-    async with app.run_test(size=(160, 50)) as pilot:
-        await pilot.pause()
-        await pilot.press("f")
-        await pilot.pause()
-        assert isinstance(app.screen, FilterModal)
-
-
-@pytest.mark.asyncio
-async def test_filter_modal_escape_dismisses(mock_client, real_index):
-    app = _make_app(mock_client, real_index)
-    async with app.run_test(size=(160, 50)) as pilot:
-        await pilot.pause()
-        await pilot.press("f")
-        await pilot.pause()
-        assert isinstance(app.screen, FilterModal)
-
-        await pilot.press("escape")
-        await pilot.pause()
-        assert not isinstance(app.screen, FilterModal)
-
-
-@pytest.mark.asyncio
-async def test_filter_modal_cancel_button_dismisses(mock_client, real_index):
-    app = _make_app(mock_client, real_index)
-    async with app.run_test(size=(160, 50)) as pilot:
-        await pilot.pause()
-        await pilot.press("f")
-        await pilot.pause()
-        assert isinstance(app.screen, FilterModal)
-
-        await pilot.click("#cancel")
-        await pilot.pause()
-        assert not isinstance(app.screen, FilterModal)
-
-
-@pytest.mark.asyncio
-async def test_filter_modal_apply_updates_search_bar(mock_client, real_index):
+async def test_f_key_opens_filter_overlay(mock_client, real_index):
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
     app = _make_app(mock_client, real_index)
     async with app.run_test(size=(160, 50)) as pilot:
@@ -1003,39 +967,119 @@ async def test_filter_modal_apply_updates_search_bar(mock_client, real_index):
         await pilot.pause()
         await pilot.pause()
 
-        await pilot.press("f")
+        app.action_filter_modal()
         await pilot.pause()
-        assert isinstance(app.screen, FilterModal)
-
-        modal = app.screen
-        modal.query_one("#filter_key", Input).value = "name"
-        modal.query_one("#filter_value", Input).value = "switch01"
-
-        await pilot.click("#apply")
-        await pilot.pause()
-        await pilot.pause()
-
-        assert not isinstance(app.screen, FilterModal)
-        assert app.query_one("#global_search", Input).value == "name=switch01"
+        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert str(app.query_one("#filter_field_label", Static).render()) == "Field: ID"
 
 
 @pytest.mark.asyncio
-async def test_filter_modal_apply_empty_key_shows_warning(mock_client, real_index):
+async def test_filter_overlay_escape_dismisses(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _first_leaf_with_data(tree)
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+
+        await pilot.press("escape")
+        await pilot.pause()
+        assert "hidden" in app.query_one("#filter_overlay", object).classes
+
+
+@pytest.mark.asyncio
+async def test_filter_overlay_cancel_button_dismisses(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _first_leaf_with_data(tree)
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+
+        await pilot.click("#filter_cancel")
+        await pilot.pause()
+        assert "hidden" in app.query_one("#filter_overlay", object).classes
+
+
+@pytest.mark.asyncio
+async def test_filter_overlay_apply_updates_search_bar(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _first_leaf_with_data(tree)
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+
+        app.query_one("#filter_value", Input).value = "switch01"
+        app._apply_filter_overlay()
+        await pilot.pause()
+        await pilot.pause()
+
+        assert "hidden" in app.query_one("#filter_overlay", object).classes
+        assert app.query_one("#global_search", Input).value == "id=switch01"
+        assert "ID=switch01" in str(app.query_one("#active_filters", Static).render())
+
+
+@pytest.mark.asyncio
+async def test_filter_select_opens_overlay_for_selected_field(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _first_leaf_with_data(tree)
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        filter_select = app.query_one("#filter_select", Select)
+        filter_select.value = "status"
+        app._open_filter_overlay("status")
+        await pilot.pause()
+
+        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert (
+            str(app.query_one("#filter_field_label", Static).render())
+            == "Field: Status"
+        )
+
+
+@pytest.mark.asyncio
+async def test_filter_overlay_without_field_shows_warning(mock_client, real_index):
     app = _make_app(mock_client, real_index)
     async with app.run_test(size=(160, 50), notifications=True) as pilot:
         await pilot.pause()
-        await pilot.press("f")
+        app._filter_overlay_field = ""
+        app.query_one("#filter_overlay", object).remove_class("hidden")
+        app.query_one("#filter_value", Input).value = "switch01"
+        await pilot.click("#filter_apply")
         await pilot.pause()
 
-        modal = app.screen
-        modal.query_one("#filter_key", Input).value = ""
-        modal.query_one("#filter_value", Input).value = "switch01"
-
-        await pilot.click("#apply")
-        await pilot.pause()
-
-        # Modal stays open when field key is empty
-        assert isinstance(app.screen, FilterModal)
+        assert "hidden" not in app.query_one("#filter_overlay", object).classes
 
 
 # ---------------------------------------------------------------------------
@@ -1058,7 +1102,7 @@ async def test_r_key_refreshes_current_resource(mock_client, real_index):
 
         call_count_after_load = mock_client.request.call_count
 
-        await pilot.press("r")
+        app.action_refresh()
         await pilot.pause()
         await pilot.pause()
 
