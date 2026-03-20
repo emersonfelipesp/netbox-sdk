@@ -2,18 +2,33 @@
   "name": "dracula",
   "label": "Dracula",
   "dark": true,
-  "aliases": [],
+  "aliases": [
+    "dracula-dark"
+  ],
   "colors": {
     "primary": "#BD93F9",
-    "secondary": "#FFB86C",
+    "secondary": "#6272A4",
     "warning": "#F1FA8C",
     "error": "#FF5555",
     "success": "#50FA7B",
     "accent": "#FF79C6",
-    "background": "#1E1F29",
-    "surface": "#232530",
-    "panel": "#2B2D3A",
-    "boost": "#343746"
+    "background": "#282A36",
+    "surface": "#2D2F3E",
+    "panel": "#343646",
+    "boost": "#44475A"
   },
-  "variables": {}
+  "variables": {
+    "nb-success-text": "#8DF5A4",
+    "nb-info-text": "#8BE9FD",
+    "nb-warning-text": "#F5FCB0",
+    "nb-danger-text": "#FF8080",
+    "nb-secondary-text": "#A0AAB4",
+    "nb-success-bg": "#1A3A22",
+    "nb-info-bg": "#1A3040",
+    "nb-warning-bg": "#3A2E0D",
+    "nb-danger-bg": "#3A1A1A",
+    "nb-secondary-bg": "#2A2C3A",
+    "nb-border": "#44475A",
+    "nb-border-subtle": "#3D3F52"
+  }
 }
