@@ -35,3 +35,7 @@ def test_schema_index_trace_path_for_interfaces():
     assert index.trace_path("dcim", "interfaces") == "/api/dcim/interfaces/{id}/trace/"
     assert index.trace_path("dcim", "cables") == "/api/dcim/cables/{id}/trace/"
     assert index.trace_path("dcim", "devices") is None
+    assert (
+        index.paths_path("circuits", "circuit-terminations")
+        == "/api/circuits/circuit-terminations/{id}/paths/"
+    )

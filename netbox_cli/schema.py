@@ -123,6 +123,18 @@ class SchemaIndex:
             return None
         return candidate
 
+    def paths_path(self, group: str, resource: str) -> str | None:
+        candidate = f"/api/{group}/{resource}/{{id}}/paths/"
+        paths = self.schema.get("paths")
+        if not isinstance(paths, dict):
+            return None
+        path_item = paths.get(candidate)
+        if not isinstance(path_item, dict):
+            return None
+        if "get" not in {str(method).lower() for method in path_item.keys()}:
+            return None
+        return candidate
+
 
 def parse_group_resource(path: str) -> tuple[str | None, str | None]:
     parts = [part for part in path.split("/") if part]

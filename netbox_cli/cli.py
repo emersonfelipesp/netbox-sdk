@@ -29,7 +29,7 @@ from .config import (
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
-from .trace_ascii import render_cable_trace_ascii
+from .trace_ascii import render_any_trace_ascii
 from .ui.formatting import (
     _FIELD_PRIORITY,
     humanize_field,
@@ -409,7 +409,10 @@ def demo_tui_command(
 
     try:
         run_tui(
-            client=_get_demo_client(), index=_get_index(), theme_name=selected_theme
+            client=_get_demo_client(),
+            index=_get_index(),
+            theme_name=selected_theme,
+            demo_mode=True,
         )
     except ThemeCatalogError as exc:
         raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
@@ -520,7 +523,12 @@ def tui_command(
         selected_theme = resolved
 
     try:
-        run_tui(client=_get_client(), index=_get_index(), theme_name=selected_theme)
+        run_tui(
+            client=_get_client(),
+            index=_get_index(),
+            theme_name=selected_theme,
+            demo_mode=False,
+        )
     except ThemeCatalogError as exc:
         raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
 
@@ -783,12 +791,14 @@ def _print_trace_output(
         raise typer.BadParameter("--trace requires --id")
 
     trace_path = index.trace_path(group, resource)
-    if not trace_path:
+    paths_path = index.paths_path(group, resource)
+    trace_endpoint = trace_path or paths_path
+    if not trace_endpoint:
         _trace_message("Not available for this resource.")
         return
 
     response = _run_with_spinner(
-        client.request("GET", trace_path.replace("{id}", str(object_id)))
+        client.request("GET", trace_endpoint.replace("{id}", str(object_id)))
     )
     if response.status >= 400:
         detail = response.text.strip().lower()
@@ -817,7 +827,7 @@ def _print_trace_output(
         _trace_message("Unavailable.")
         return
 
-    rendered = render_cable_trace_ascii(parsed)
+    rendered = render_any_trace_ascii(parsed)
     if not rendered:
         _trace_message("No connected cable trace found.")
         return

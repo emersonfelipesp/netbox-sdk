@@ -19,7 +19,7 @@ from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
-from netbox_cli.trace_ascii import render_cable_trace_ascii
+from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
 from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
@@ -130,6 +130,100 @@ FAKE_CABLE_DETAIL = {
     "status": "connected",
     "type": "smf",
 }
+
+FAKE_CIRCUIT_TERMINATION_ROW = {
+    "id": 15,
+    "display": "DEOW4921: Termination Z",
+    "cable": {"id": 1, "display": "HQ1"},
+    "term_side": "Z",
+}
+
+FAKE_CIRCUIT_TERMINATION_DETAIL = {
+    "id": 15,
+    "display": "DEOW4921: Termination Z",
+    "cable": {"id": 1, "display": "HQ1"},
+    "term_side": "Z",
+    "circuit": {
+        "id": 14,
+        "display": "DEOW4921",
+        "cid": "DEOW4921",
+        "provider": {"id": 5, "display": "Level 3", "name": "Level 3"},
+    },
+}
+
+FAKE_CIRCUIT_TERMINATION_PATHS = [
+    {
+        "id": 160,
+        "path": [
+            [
+                {
+                    "id": 157,
+                    "url": "https://demo.netbox.dev/api/dcim/interfaces/157/",
+                    "display": "GigabitEthernet0/0/0",
+                    "name": "GigabitEthernet0/0/0",
+                    "device": {
+                        "id": 13,
+                        "display": "dmi01-yonkers-rtr01",
+                        "name": "dmi01-yonkers-rtr01",
+                    },
+                }
+            ],
+            [
+                {
+                    "id": 1,
+                    "url": "https://demo.netbox.dev/api/dcim/cables/1/",
+                    "display": "HQ1",
+                    "label": "HQ1",
+                }
+            ],
+            [
+                {
+                    "id": 15,
+                    "url": "https://demo.netbox.dev/api/circuits/circuit-terminations/15/",
+                    "display": "DEOW4921: Termination Z",
+                    "circuit": {
+                        "id": 14,
+                        "display": "DEOW4921",
+                        "cid": "DEOW4921",
+                        "provider": {
+                            "id": 5,
+                            "display": "Level 3",
+                            "name": "Level 3",
+                        },
+                    },
+                }
+            ],
+            [
+                {
+                    "id": 42,
+                    "url": "https://demo.netbox.dev/api/circuits/circuit-terminations/42/",
+                    "display": "DEOW4921: Termination A",
+                    "circuit": {
+                        "id": 14,
+                        "display": "DEOW4921",
+                        "cid": "DEOW4921",
+                        "provider": {
+                            "id": 5,
+                            "display": "Level 3",
+                            "name": "Level 3",
+                        },
+                    },
+                }
+            ],
+            [
+                {
+                    "id": 1,
+                    "url": "https://demo.netbox.dev/api/circuits/provider-networks/1/",
+                    "display": "Level3 MPLS",
+                    "name": "Level3 MPLS",
+                }
+            ],
+        ],
+        "is_active": True,
+        "is_complete": True,
+        "is_split": False,
+    }
+]
 
 
 def _list_response(items: list) -> ApiResponse:
@@ -265,6 +359,24 @@ async def test_dracula_theme_name(mock_client, real_index):
 
 
 @pytest.mark.asyncio
+async def test_demo_tui_title_has_themed_demo_suffix(mock_client, real_index):
+    app = NetBoxTuiApp(
+        client=mock_client, index=real_index, theme_name="dracula", demo_mode=True
+    )
+    expected_suffix = Color.parse(
+        app.theme_catalog.theme_for("dracula").colors["secondary"]
+    )
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+        title = app.query_one("#app_title", Static)
+        suffix = app.query_one("#app_title_demo", Static)
+        assert str(title.content) == "NetBox CLI"
+        assert str(suffix.content) == "(Demo Version)"
+        assert suffix.styles.color == expected_suffix
+
+
+@pytest.mark.asyncio
 async def test_theme_background_applies_to_filters_and_select(mock_client, real_index):
     app = _make_app(mock_client, real_index, theme="dracula")
     expected_background = Color.parse(
@@ -358,6 +470,19 @@ def test_render_cable_trace_ascii_formats_segment() -> None:
     assert "Cable #36" in rendered
     assert "Connected" in rendered
     assert "dmi01-akron-sw01" in rendered
+    assert "Trace Completed - 1 segment(s)" in rendered
+
+
+def test_render_any_trace_ascii_formats_circuit_termination_path() -> None:
+    rendered = render_any_trace_ascii(FAKE_CIRCUIT_TERMINATION_PATHS)
+
+    assert rendered is not None
+    assert "dmi01-yonkers-rtr01" in rendered
+    assert "GigabitEthernet0/0/0" in rendered
+    assert "Cable HQ1" in rendered
+    assert "DEOW4921: Termination Z" in rendered
+    assert "Circuit DEOW4921" in rendered
+    assert "Level3 MPLS" in rendered
     assert "Trace Completed - 1 segment(s)" in rendered
 
 
@@ -521,6 +646,53 @@ async def test_cable_detail_shows_ascii_cable_trace(real_index):
         assert "dmi01-akron-rtr01" in trace_text
         assert "Cable #36" in trace_text
         assert "Trace Completed - 1 segment(s)" in trace_text
+
+
+@pytest.mark.asyncio
+async def test_circuit_termination_detail_shows_ascii_path_trace(real_index):
+    client = MagicMock()
+
+    async def _request(method: str, path: str, **kwargs):
+        if method != "GET":
+            raise AssertionError(f"unexpected method: {method}")
+        if path == "/api/circuits/circuit-terminations/":
+            return _list_response([FAKE_CIRCUIT_TERMINATION_ROW])
+        if path == "/api/circuits/circuit-terminations/15/":
+            return _detail_response(FAKE_CIRCUIT_TERMINATION_DETAIL)
+        if path == "/api/circuits/circuit-terminations/15/paths/":
+            return ApiResponse(
+                status=200, text=json.dumps(FAKE_CIRCUIT_TERMINATION_PATHS)
+            )
+        raise AssertionError(f"unexpected path: {path}")
+
+    client.request = AsyncMock(side_effect=_request)
+    client.probe_connection = AsyncMock(return_value=_PROBE_OK)
+
+    app = _make_app(client, real_index, theme="dracula")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = None
+        stack = list(tree.root.children)
+        while stack:
+            node = stack.pop(0)
+            if node.data == ("circuits", "circuit-terminations"):
+                leaf = node
+                break
+            stack.extend(node.children)
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        trace = app.query_one("#detail_trace", Static)
+        trace_text = str(trace.content)
+        assert "dmi01-yonkers-rtr01" in trace_text
+        assert "Cable HQ1" in trace_text
+        assert "DEOW4921: Termination Z" in trace_text
+        assert "Level3 MPLS" in trace_text
 
 
 # ---------------------------------------------------------------------------

@@ -81,7 +81,8 @@ def test_demo_interfaces_get_trace_renders_ascii(monkeypatch) -> None:
         cli,
         "_get_index",
         lambda: SimpleNamespace(
-            trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/"
+            trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/",
+            paths_path=lambda group, resource: None,
         ),
     )
 
@@ -121,7 +122,8 @@ def test_demo_interfaces_get_trace_reports_missing_connection(monkeypatch) -> No
         cli,
         "_get_index",
         lambda: SimpleNamespace(
-            trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/"
+            trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/",
+            paths_path=lambda group, resource: None,
         ),
     )
 
@@ -192,7 +194,8 @@ def test_demo_interfaces_get_trace_only_suppresses_detail_table(monkeypatch) -> 
         cli,
         "_get_index",
         lambda: SimpleNamespace(
-            trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/"
+            trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/",
+            paths_path=lambda group, resource: None,
         ),
     )
 
@@ -227,3 +230,126 @@ def test_demo_interfaces_get_rejects_trace_and_trace_only_together(monkeypatch) 
 
     assert result.exit_code != 0
     assert "Use either --trace or --trace-only, not both." in result.output
+
+
+def test_demo_circuit_termination_get_trace_renders_ascii(monkeypatch) -> None:
+    client = MagicMock()
+    client.request = AsyncMock(
+        return_value=ApiResponse(
+            status=200,
+            text=json.dumps(
+                [
+                    {
+                        "id": 160,
+                        "path": [
+                            [
+                                {
+                                    "id": 157,
+                                    "url": "https://demo.netbox.dev/api/dcim/interfaces/157/",
+                                    "display": "GigabitEthernet0/0/0",
+                                    "name": "GigabitEthernet0/0/0",
+                                    "device": {
+                                        "id": 13,
+                                        "display": "dmi01-yonkers-rtr01",
+                                        "name": "dmi01-yonkers-rtr01",
+                                    },
+                                }
+                            ],
+                            [
+                                {
+                                    "id": 1,
+                                    "url": "https://demo.netbox.dev/api/dcim/cables/1/",
+                                    "display": "HQ1",
+                                    "label": "HQ1",
+                                }
+                            ],
+                            [
+                                {
+                                    "id": 15,
+                                    "url": "https://demo.netbox.dev/api/circuits/circuit-terminations/15/",
+                                    "display": "DEOW4921: Termination Z",
+                                    "circuit": {
+                                        "id": 14,
+                                        "display": "DEOW4921",
+                                        "cid": "DEOW4921",
+                                        "provider": {
+                                            "id": 5,
+                                            "display": "Level 3",
+                                            "name": "Level 3",
+                                        },
+                                    },
+                                }
+                            ],
+                            [
+                                {
+                                    "id": 42,
+                                    "url": "https://demo.netbox.dev/api/circuits/circuit-terminations/42/",
+                                    "display": "DEOW4921: Termination A",
+                                    "circuit": {
+                                        "id": 14,
+                                        "display": "DEOW4921",
+                                        "cid": "DEOW4921",
+                                        "provider": {
+                                            "id": 5,
+                                            "display": "Level 3",
+                                            "name": "Level 3",
+                                        },
+                                    },
+                                }
+                            ],
+                            [
+                                {
+                                    "id": 1,
+                                    "url": "https://demo.netbox.dev/api/circuits/provider-networks/1/",
+                                    "display": "Level3 MPLS",
+                                    "name": "Level3 MPLS",
+                                }
+                            ],
+                        ],
+                    }
+                ]
+            ),
+        )
+    )
+
+    async def _fake_run_dynamic_command(**kwargs):
+        return ApiResponse(
+            status=200,
+            text=json.dumps(
+                {
+                    "id": 15,
+                    "display": "DEOW4921: Termination Z",
+                    "cable": {"id": 1, "display": "HQ1"},
+                }
+            ),
+        )
+
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr(cli, "_get_client_for_config", lambda cfg: client)
+    monkeypatch.setattr(cli, "run_dynamic_command", _fake_run_dynamic_command)
+    monkeypatch.setattr(
+        cli,
+        "_get_index",
+        lambda: SimpleNamespace(
+            trace_path=lambda group, resource: None,
+            paths_path=lambda group, resource: (
+                "/api/circuits/circuit-terminations/{id}/paths/"
+            ),
+        ),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace"],
+    )
+
+    assert result.exit_code == 0
+    assert "Status: 200" in result.output
+    assert "Cable Trace:" in result.output
+    assert "dmi01-yonkers-rtr01" in result.output
+    assert "Cable HQ1" in result.output
+    assert "DEOW4921: Termination Z" in result.output
+    assert "Level3 MPLS" in result.output
+    client.request.assert_awaited_once_with(
+        "GET", "/api/circuits/circuit-terminations/15/paths/"
+    )

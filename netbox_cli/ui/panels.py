@@ -6,7 +6,7 @@ from textual.containers import Vertical
 from textual.timer import Timer
 from textual.widgets import DataTable, Static
 
-from netbox_cli.trace_ascii import render_cable_trace_ascii
+from netbox_cli.trace_ascii import render_any_trace_ascii
 
 from .formatting import humanize_field, order_field_names, semantic_cell
 
@@ -109,7 +109,7 @@ class ObjectAttributesPanel(PanelCard):
         rendered = (
             trace_payload
             if isinstance(trace_payload, str)
-            else render_cable_trace_ascii(trace_payload)
+            else render_any_trace_ascii(trace_payload)
         )
         if not rendered:
             title.add_class("hidden")

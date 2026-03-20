@@ -121,11 +121,16 @@ class NetBoxTuiApp(App[None]):
     ]
 
     def __init__(
-        self, client: NetBoxApiClient, index: SchemaIndex, theme_name: str | None = None
+        self,
+        client: NetBoxApiClient,
+        index: SchemaIndex,
+        theme_name: str | None = None,
+        demo_mode: bool = False,
     ):
         super().__init__()
         self.client = client
         self.index = index
+        self.demo_mode = demo_mode
         self.state: TuiState = load_tui_state()
         self.theme_catalog = _get_theme_catalog()
         requested_theme = (
@@ -163,7 +168,10 @@ class NetBoxTuiApp(App[None]):
                 prompt="Theme",
                 id="theme_select",
             )
-            yield Static(self.TITLE, id="app_title")
+            with Horizontal(id="app_title_wrap"):
+                yield Static(self.TITLE, id="app_title")
+                if self.demo_mode:
+                    yield Static("(Demo Version)", id="app_title_demo")
             yield Static("", id="topbar_spacer")
             yield Static("", id="clock")
             yield Static(
@@ -513,7 +521,9 @@ class NetBoxTuiApp(App[None]):
 
         object_id = obj.get("id")
         trace_template = self.index.trace_path(group, resource)
-        if object_id is None or not trace_template:
+        paths_template = self.index.paths_path(group, resource)
+        trace_endpoint = trace_template or paths_template
+        if object_id is None or not trace_endpoint:
             panel.set_trace(None)
             return
 
@@ -522,7 +532,7 @@ class NetBoxTuiApp(App[None]):
             panel.set_trace(None)
             return
 
-        trace_path = trace_template.replace("{id}", str(object_id))
+        trace_path = trace_endpoint.replace("{id}", str(object_id))
         try:
             response = await self.client.request("GET", trace_path)
         except Exception:
@@ -832,6 +842,11 @@ def resolve_theme_name(theme_name: str | None) -> str | None:
 
 
 def run_tui(
-    client: NetBoxApiClient, index: SchemaIndex, theme_name: str | None = None
+    client: NetBoxApiClient,
+    index: SchemaIndex,
+    theme_name: str | None = None,
+    demo_mode: bool = False,
 ) -> None:
-    NetBoxTuiApp(client=client, index=index, theme_name=theme_name).run()
+    NetBoxTuiApp(
+        client=client, index=index, theme_name=theme_name, demo_mode=demo_mode
+    ).run()

@@ -65,10 +65,22 @@ Screen {
     text-style: bold;
 }
 
+#app_title_wrap {
+    width: auto;
+    height: auto;
+}
+
 #app_title {
     width: auto;
     margin-right: 1;
     color: $foreground;
+    text-style: bold;
+}
+
+#app_title_demo {
+    width: auto;
+    margin-right: 1;
+    color: $secondary;
     text-style: bold;
 }
 

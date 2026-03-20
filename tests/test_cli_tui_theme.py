@@ -5,7 +5,6 @@ from typer.testing import CliRunner
 from netbox_cli import cli
 from netbox_cli.config import Config
 
-
 runner = CliRunner()
 
 
@@ -34,10 +33,11 @@ def test_tui_theme_dracula(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_get_client", lambda: object())
     monkeypatch.setattr(cli, "_get_index", lambda: object())
 
-    called: dict[str, str] = {}
+    called: dict[str, object] = {}
 
-    def _fake_run_tui(*, client, index, theme_name: str) -> None:
+    def _fake_run_tui(*, client, index, theme_name: str, demo_mode: bool) -> None:
         called["theme_name"] = theme_name
+        called["demo_mode"] = demo_mode
 
     import netbox_cli.tui as tui_module
 
@@ -47,6 +47,7 @@ def test_tui_theme_dracula(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert called["theme_name"] == "dracula"
+    assert called["demo_mode"] is False
 
 
 def test_tui_theme_unknown(monkeypatch) -> None:
@@ -75,10 +76,13 @@ def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_get_client", lambda: object())
     monkeypatch.setattr(cli, "_get_index", lambda: object())
 
-    called: dict[str, str] = {}
+    called: dict[str, object] = {}
 
-    def _fake_run_tui(*, client, index, theme_name: str | None) -> None:
+    def _fake_run_tui(
+        *, client, index, theme_name: str | None, demo_mode: bool
+    ) -> None:
         called["theme_name"] = str(theme_name)
+        called["demo_mode"] = demo_mode
 
     import netbox_cli.tui as tui_module
 
@@ -88,3 +92,28 @@ def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert called["theme_name"] == "default"
+    assert called["demo_mode"] is False
+
+
+def test_demo_tui_sets_demo_mode(monkeypatch) -> None:
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _mock_config)
+    monkeypatch.setattr(cli, "_get_demo_client", lambda: object())
+    monkeypatch.setattr(cli, "_get_index", lambda: object())
+
+    called: dict[str, object] = {}
+
+    def _fake_run_tui(
+        *, client, index, theme_name: str | None, demo_mode: bool
+    ) -> None:
+        called["theme_name"] = str(theme_name)
+        called["demo_mode"] = demo_mode
+
+    import netbox_cli.tui as tui_module
+
+    monkeypatch.setattr(tui_module, "run_tui", _fake_run_tui)
+
+    result = runner.invoke(cli.app, ["demo", "tui", "--theme", "dracula"])
+
+    assert result.exit_code == 0
+    assert called["theme_name"] == "dracula"
+    assert called["demo_mode"] is True
