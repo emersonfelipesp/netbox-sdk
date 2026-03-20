@@ -19,6 +19,24 @@ _REQUIRED_COLOR_KEYS = (
     "panel",
     "boost",
 )
+_REQUIRED_VARIABLE_KEYS = (
+    "nb-success-text",
+    "nb-info-text",
+    "nb-warning-text",
+    "nb-danger-text",
+    "nb-secondary-text",
+    "nb-success-bg",
+    "nb-info-bg",
+    "nb-warning-bg",
+    "nb-danger-bg",
+    "nb-secondary-bg",
+    "nb-border",
+    "nb-border-subtle",
+    "nb-muted-text",
+    "nb-link-text",
+    "nb-id-text",
+    "nb-key-text",
+)
 _HEX_COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 _NAME_RE = re.compile(r"^[a-z][a-z0-9-]{1,31}$")
 
@@ -91,7 +109,9 @@ def load_theme_catalog(path: Path | None = None) -> ThemeCatalog:
     if not target.exists() or not target.is_dir():
         raise ThemeCatalogError(f"Themes directory is missing: {target}")
 
-    json_files = sorted(p for p in target.iterdir() if p.is_file() and p.suffix == ".json")
+    json_files = sorted(
+        p for p in target.iterdir() if p.is_file() and p.suffix == ".json"
+    )
     if not json_files:
         raise ThemeCatalogError(f"No theme JSON files were found in {target}")
 
@@ -117,7 +137,9 @@ def load_theme_catalog(path: Path | None = None) -> ThemeCatalog:
             aliases[alias] = theme.name
 
     default_theme_name = "default" if "default" in name_map else themes[0].name
-    return ThemeCatalog(themes=tuple(themes), aliases=aliases, default_theme_name=default_theme_name)
+    return ThemeCatalog(
+        themes=tuple(themes), aliases=aliases, default_theme_name=default_theme_name
+    )
 
 
 def _load_theme_file(path: Path) -> ThemeDefinition:
@@ -134,7 +156,9 @@ def _load_theme_file(path: Path) -> ThemeDefinition:
     allowed_top_keys = {"name", "label", "dark", "colors", "variables", "aliases"}
     unknown_top = set(payload.keys()) - allowed_top_keys
     if unknown_top:
-        raise ThemeCatalogError(f"{path}: unknown keys: {', '.join(sorted(unknown_top))}")
+        raise ThemeCatalogError(
+            f"{path}: unknown keys: {', '.join(sorted(unknown_top))}"
+        )
 
     name = _require_string(path, payload, "name")
     if not _NAME_RE.match(name):
@@ -184,9 +208,13 @@ def _require_string(path: Path, payload: dict[str, object], key: str) -> str:
 
 
 def _validate_colors(path: Path, colors: dict[object, object]) -> dict[str, str]:
-    unknown = {str(key) for key in colors.keys() if str(key) not in _REQUIRED_COLOR_KEYS}
+    unknown = {
+        str(key) for key in colors.keys() if str(key) not in _REQUIRED_COLOR_KEYS
+    }
     if unknown:
-        raise ThemeCatalogError(f"{path}: colors has unknown keys: {', '.join(sorted(unknown))}")
+        raise ThemeCatalogError(
+            f"{path}: colors has unknown keys: {', '.join(sorted(unknown))}"
+        )
 
     missing = [key for key in _REQUIRED_COLOR_KEYS if key not in colors]
     if missing:
@@ -204,6 +232,12 @@ def _validate_colors(path: Path, colors: dict[object, object]) -> dict[str, str]
 
 
 def _validate_variables(path: Path, variables: dict[object, object]) -> dict[str, str]:
+    missing = [key for key in _REQUIRED_VARIABLE_KEYS if key not in variables]
+    if missing:
+        raise ThemeCatalogError(
+            f"{path}: variables is missing keys: {', '.join(missing)}"
+        )
+
     validated: dict[str, str] = {}
     for key, value in variables.items():
         if not isinstance(key, str):
@@ -211,12 +245,16 @@ def _validate_variables(path: Path, variables: dict[object, object]) -> dict[str
         if not isinstance(value, str):
             raise ThemeCatalogError(f"{path}: variables.{key} must be a string")
         if not _HEX_COLOR_RE.match(value):
-            raise ThemeCatalogError(f"{path}: variables.{key} must be in #RRGGBB format")
+            raise ThemeCatalogError(
+                f"{path}: variables.{key} must be in #RRGGBB format"
+            )
         validated[key] = value
     return validated
 
 
-def _validate_aliases(path: Path, aliases: list[object], theme_name: str) -> tuple[str, ...]:
+def _validate_aliases(
+    path: Path, aliases: list[object], theme_name: str
+) -> tuple[str, ...]:
     normalized: list[str] = []
     seen: set[str] = set()
     for item in aliases:
