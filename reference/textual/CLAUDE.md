@@ -8,6 +8,7 @@ This directory contains comprehensive reference guides for notable open-source p
 
 | Guide | Project | Author | Stars | Category |
 |-------|---------|--------|-------|----------|
+| [NMS-CLI.md](NMS-CLI.md) | nms-cli | Local project | n/a | NMS operations CLI + Textual console |
 | [DOLPHIE.md](DOLPHIE.md) | [Dolphie](https://github.com/charles-001/dolphie) | charles-001 | ~1,130 | Database monitoring TUI |
 | [MEMRAY.md](MEMRAY.md) | [Memray](https://github.com/bloomberg/memray) | Bloomberg | ~14,950 | Memory profiler + Textual live mode |
 | [POSTING.md](POSTING.md) | [Posting](https://github.com/darrenburns/posting) | Darren Burns | ~11,589 | HTTP client TUI |
@@ -18,13 +19,14 @@ This directory contains comprehensive reference guides for notable open-source p
 
 ## What These Projects Have in Common
 
-All five are Python TUI applications built on the **Textual** framework. Together they cover the major patterns you'll encounter when building nms-cli:
+These references cover the major patterns you'll encounter when building nms-cli:
 
 - **Monitoring dashboards** with live data refresh → Dolphie
 - **CLI tools that optionally launch a TUI** → Memray
 - **Keyboard-first productivity tools** with jump mode, command palette → Posting
 - **Real PTY shell integration + streaming output** → Toad
 - **Large-file and streaming data viewers** → Toolong
+- **In-repo production Typer+Textual architecture** → NMS-CLI
 
 ---
 
@@ -133,7 +135,7 @@ Quick lookup for "where did I see that pattern?"
 
 ## Framework Notes
 
-All five projects use **Textual**. Key Textual capabilities demonstrated:
+All referenced projects with TUI components use **Textual**. Key Textual capabilities demonstrated:
 
 | Feature | Demonstrated In |
 |---------|----------------|
