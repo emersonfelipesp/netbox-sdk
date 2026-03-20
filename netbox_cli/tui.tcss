@@ -62,6 +62,59 @@ Screen {
     background: $primary 7%;
 }
 
+#theme_select SelectCurrent {
+    border: tall $border-blurred;
+    color: $foreground;
+    background: $background;
+}
+
+#theme_select SelectCurrent:focus {
+    border: tall $primary;
+    background: $primary 7%;
+}
+
+#theme_select SelectCurrent Static#label {
+    color: $foreground 60%;
+}
+
+#theme_select SelectCurrent.-has-value Static#label {
+    color: $foreground;
+}
+
+#theme_select SelectCurrent .arrow {
+    color: $foreground 55%;
+}
+
+#theme_select SelectOverlay,
+OptionList {
+    background: $background;
+    color: $foreground;
+    border: tall $border-blurred;
+}
+
+#theme_select SelectOverlay:focus,
+OptionList:focus {
+    border: tall $border;
+    background-tint: $foreground 5%;
+}
+
+#theme_select SelectOverlay > .option-list--option-highlighted,
+OptionList > .option-list--option-highlighted {
+    color: $background;
+    background: $primary 20%;
+    text-style: bold;
+}
+
+#theme_select SelectOverlay > .option-list--option-hover,
+OptionList > .option-list--option-hover {
+    background: $panel;
+}
+
+#theme_select SelectOverlay > .option-list--option-disabled,
+OptionList > .option-list--option-disabled {
+    color: $text-muted;
+}
+
 #global_search {
     width: 1fr;
     border: tall transparent;
@@ -309,6 +362,28 @@ Screen {
 
 #filters_list {
     height: 1fr;
+    background: $background;
+    color: $foreground;
+    background-tint: transparent;
+}
+
+#filters_list > ListItem {
+    color: $foreground;
+    background: $background;
+}
+
+#filters_list > ListItem.-hovered {
+    background: $panel;
+}
+
+#filters_list > ListItem.-highlight {
+    background: $primary 20%;
+    color: $background;
+    text-style: bold;
+}
+
+#filters_list:focus {
+    background-tint: transparent;
 }
 
 
@@ -401,13 +476,19 @@ ListView > ListItem {
     border: tall transparent;
 }
 
-ListView > ListItem:hover {
+ListView > ListItem.-hovered {
     background: $panel;
 }
 
-ListView > ListItem.-highlighted {
-    background: $primary 10%;
+ListView > ListItem.-highlight {
+    background: $primary 20%;
+    color: $background;
     border: tall transparent;
+    text-style: bold;
+}
+
+ListView:focus {
+    background-tint: transparent;
 }
 
 
