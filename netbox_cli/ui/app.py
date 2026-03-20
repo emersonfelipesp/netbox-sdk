@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+import inspect
 from pathlib import Path
 from typing import Any
 
@@ -10,9 +11,10 @@ from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.css.query import NoMatches
 from textual.screen import ModalScreen
+from textual.timer import Timer
 from textual.widgets import Button, DataTable, Footer, Header, Input, Label, ListItem, ListView, Select, Static, TabbedContent, TabPane, Tree
 
-from netbox_cli.api import NetBoxApiClient
+from netbox_cli.api import ConnectionProbe, NetBoxApiClient
 from netbox_cli.schema import SchemaIndex
 from netbox_cli.theme_registry import ThemeCatalog, load_theme_catalog
 
@@ -116,6 +118,8 @@ class NetBoxTuiApp(App[None]):
         self.current_resource: str | None = self.state.last_view.resource
         self.current_rows: list[dict[str, Any]] = []
         self.selected_row_ids: set[str] = set()
+        self._connection_timer: Timer | None = None
+        self._last_connection_probe: ConnectionProbe | None = None
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -126,6 +130,7 @@ class NetBoxTuiApp(App[None]):
                 id="global_search",
                 placeholder="Quick search: plain text -> q=<text>, or key=value",
             )
+            yield Static("● Checking connection...", id="connection_badge", classes="-checking")
             yield Static("Context: <none>", id="context_line")
             yield Button("Close", id="close_tui_button")
 
@@ -152,18 +157,30 @@ class NetBoxTuiApp(App[None]):
                     with TabPane("Filters", id="filters_tab"):
                         yield Static("Select a field and press Enter to apply a filter", id="filters_help")
                         yield ListView(id="filters_list")
+            with Vertical(id="connection_warning_overlay", classes="hidden"):
+                yield Static("", id="connection_warning")
 
         yield Footer()
 
     def on_mount(self) -> None:
         self._apply_theme(self.theme_name)
+        self._set_connection_badge_checking()
         self._build_navigation_tree()
         self._update_context_line()
         self._sync_search_input()
         self.query_one("#nav_tree", Tree).focus()
         self._restore_last_view_if_any()
+        self._probe_connection_health()
+        self._connection_timer = self.set_interval(
+            30.0,
+            self._probe_connection_health,
+            name="nbx_connection_health",
+        )
 
     def on_unmount(self) -> None:
+        if self._connection_timer is not None:
+            self._connection_timer.stop()
+            self._connection_timer = None
         query_text = self.state.last_view.query_text
         try:
             query_text = self.query_one("#global_search", Input).value.strip()
@@ -425,6 +442,33 @@ class NetBoxTuiApp(App[None]):
     def _set_status(self, text: str) -> None:
         self.query_one("#results_status", Static).update(text)
 
+    @work(group="connection_probe", exclusive=True, thread=False)
+    async def _probe_connection_health(self) -> None:
+        self._set_connection_badge_checking()
+        probe = await self._run_connection_probe()
+        self._last_connection_probe = probe
+        self._render_connection_status(probe)
+
+    async def _run_connection_probe(self) -> ConnectionProbe:
+        probe_fn = getattr(self.client, "probe_connection", None)
+        if callable(probe_fn):
+            result = probe_fn()
+            if inspect.isawaitable(result):
+                result = await result
+            if isinstance(result, ConnectionProbe):
+                return result
+
+        try:
+            response = await self.client.request("GET", "/", headers={"Content-Type": "application/json"})
+        except Exception as exc:  # noqa: BLE001
+            return ConnectionProbe(status=0, version="", ok=False, error=str(exc))
+
+        headers = getattr(response, "headers", {}) or {}
+        version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
+        status = int(getattr(response, "status", 0) or 0)
+        ok = status < 400 or status == 403
+        return ConnectionProbe(status=status, version=version, ok=ok, error=None if ok else getattr(response, "text", ""))
+
     def _query_from_search(self, raw: str) -> dict[str, str]:
         raw = raw.strip()
         if not raw:
@@ -507,6 +551,70 @@ class NetBoxTuiApp(App[None]):
         if notify:
             label = next((name for name, key in self.theme_options if key == theme_name), theme_name)
             self.notify(f"Theme switched to {label}")
+
+    def _set_connection_badge_checking(self) -> None:
+        badge = self.query_one("#connection_badge", Static)
+        badge.remove_class("-ok")
+        badge.remove_class("-warning")
+        badge.remove_class("-error")
+        badge.add_class("-checking")
+        badge.update("● Checking connection...")
+        self.sub_title = "NetBox UI-style shell for terminal [checking]"
+
+    def _render_connection_status(self, probe: ConnectionProbe) -> None:
+        badge = self.query_one("#connection_badge", Static)
+        overlay = self.query_one("#connection_warning_overlay", Vertical)
+        warning = self.query_one("#connection_warning", Static)
+
+        badge.remove_class("-checking")
+        badge.remove_class("-ok")
+        badge.remove_class("-warning")
+        badge.remove_class("-error")
+
+        version_text = probe.version or "n/a"
+        if probe.status == 0:
+            badge.add_class("-error")
+            badge.update("● DOWN network")
+            self.sub_title = f"NetBox UI-style shell for terminal [down network] [API {version_text}]"
+            warning.update(
+                "NetBox Connection Failed\n\n"
+                "Network error while reaching NetBox API base URL.\n"
+                "Verify host, token, and connectivity.\n\n"
+                f"Status: network error\nAPI-Version: {version_text}"
+            )
+            overlay.remove_class("hidden")
+            return
+
+        if probe.ok and probe.status < 300:
+            badge.add_class("-ok")
+            badge.update(f"● UP {probe.status} API {version_text}")
+            self.sub_title = f"NetBox UI-style shell for terminal [up {probe.status}] [API {version_text}]"
+            overlay.add_class("hidden")
+            return
+
+        if probe.ok and probe.status == 403:
+            badge.add_class("-warning")
+            badge.update(f"● WARN {probe.status} API {version_text}")
+            self.sub_title = f"NetBox UI-style shell for terminal [warn {probe.status}] [API {version_text}]"
+            warning.update(
+                "NetBox Reached with Authorization Warning\n\n"
+                "Connection succeeded but token/permissions returned 403.\n"
+                "Check token scope and credentials.\n\n"
+                f"Status: {probe.status}\nAPI-Version: {version_text}"
+            )
+            overlay.remove_class("hidden")
+            return
+
+        badge.add_class("-error")
+        badge.update(f"● DOWN {probe.status} API {version_text}")
+        self.sub_title = f"NetBox UI-style shell for terminal [down {probe.status}] [API {version_text}]"
+        warning.update(
+            "NetBox API Request Failed\n\n"
+            "NetBox endpoint responded with a failing status.\n"
+            "Check URL/authentication and server health.\n\n"
+            f"Status: {probe.status}\nAPI-Version: {version_text}"
+        )
+        overlay.remove_class("hidden")
 
 
 def available_theme_names() -> tuple[str, ...]:
