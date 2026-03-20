@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 import typer
@@ -57,7 +58,7 @@ def _get_client() -> NetBoxApiClient:
 def root_callback(ctx: typer.Context) -> None:
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand not in {"init", "tui"}:
+    if ctx.invoked_subcommand not in {"init", "tui", "docs"}:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
@@ -525,6 +526,48 @@ def _build_action_command(
         )
 
     return _command
+
+
+docs_app = typer.Typer(
+    no_args_is_help=True,
+    help="Generate reference documentation (captured CLI input/output).",
+)
+
+
+@docs_app.command("generate-capture")
+def docs_generate_capture(
+    output: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Markdown destination. Default: <repo>/docs/generated/nbx-command-capture.md",
+    ),
+    raw_dir: Path | None = typer.Option(
+        None,
+        "--raw-dir",
+        help="Raw JSON artifacts directory. Default: <repo>/docs/generated/raw/",
+    ),
+    max_lines: int = typer.Option(200, "--max-lines", help="Max lines per command output in the Markdown."),
+    max_chars: int = typer.Option(120_000, "--max-chars", help="Max chars per command output in the Markdown."),
+) -> None:
+    """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md."""
+    from .docgen_capture import generate_command_capture_docs, resolve_capture_paths
+
+    try:
+        out, raw = resolve_capture_paths(output, raw_dir)
+    except FileNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    code = generate_command_capture_docs(
+        output=out,
+        raw_dir=raw,
+        max_lines=max_lines,
+        max_chars=max_chars,
+    )
+    raise typer.Exit(code=code)
+
+
+app.add_typer(docs_app, name="docs")
 
 
 def _register_openapi_subcommands() -> None:

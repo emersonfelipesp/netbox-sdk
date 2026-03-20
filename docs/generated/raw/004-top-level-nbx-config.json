@@ -1,0 +1,11 @@
+{
+  "section": "Top-level",
+  "title": "nbx config",
+  "argv": [
+    "config"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.628,
+  "truncated": false,
+  "stdout_full": "{\n  \"base_url\": \"https://demo.netbox.dev\",\n  \"timeout\": 30.0,\n  \"token_v2\": \"set\",\n  \"token_key\": \"set\",\n  \"token_secret\": \"set\"\n}\n"
+}

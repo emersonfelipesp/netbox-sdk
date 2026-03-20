@@ -1,0 +1,14 @@
+{
+  "section": "Live API",
+  "title": "nbx call GET /api/dcim/sites/ --json",
+  "argv": [
+    "call",
+    "GET",
+    "/api/dcim/sites/",
+    "--json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.983,
+  "truncated": false,
+  "stdout_full": "Status: 403\n{\n  \"detail\": \"Invalid v2 token\"\n}\n"
+}

@@ -1,0 +1,270 @@
+{
+  "meta": {
+    "generated_at": "2026-03-20T21:58:29.593852+00:00",
+    "netbox_url": "https://demo.netbox.dev",
+    "timeout": "30",
+    "token_key_set": false
+  },
+  "runs": [
+    {
+      "section": "Top-level",
+      "title": "nbx --help",
+      "argv": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.712,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx init --help",
+      "argv": [
+        "init",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.69,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx config --help",
+      "argv": [
+        "config",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.762,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx config",
+      "argv": [
+        "config"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.628,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx groups --help",
+      "argv": [
+        "groups",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.611,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx resources --help",
+      "argv": [
+        "resources",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.621,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx ops --help",
+      "argv": [
+        "ops",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.622,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx call --help",
+      "argv": [
+        "call",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.613,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx tui --help",
+      "argv": [
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.611,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx tui --theme",
+      "argv": [
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.688,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx docs --help",
+      "argv": [
+        "docs",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.613,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx docs generate-capture --help",
+      "argv": [
+        "docs",
+        "generate-capture",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.622,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx groups",
+      "argv": [
+        "groups"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.603,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx resources dcim",
+      "argv": [
+        "resources",
+        "dcim"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.606,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx ops dcim devices",
+      "argv": [
+        "ops",
+        "dcim",
+        "devices"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.613,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx resources ipam",
+      "argv": [
+        "resources",
+        "ipam"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.608,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim --help",
+      "argv": [
+        "dcim",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.692,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim devices --help",
+      "argv": [
+        "dcim",
+        "devices",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.614,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim devices list --help",
+      "argv": [
+        "dcim",
+        "devices",
+        "list",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.633,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx ipam prefixes --help",
+      "argv": [
+        "ipam",
+        "prefixes",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.633,
+      "truncated": false
+    },
+    {
+      "section": "Live API",
+      "title": "nbx call GET /api/status/",
+      "argv": [
+        "call",
+        "GET",
+        "/api/status/"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.356,
+      "truncated": false
+    },
+    {
+      "section": "Live API",
+      "title": "nbx call GET /api/dcim/sites/ --json",
+      "argv": [
+        "call",
+        "GET",
+        "/api/dcim/sites/",
+        "--json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.983,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Form",
+      "title": "nbx dcim devices list (dynamic form)",
+      "argv": [
+        "dcim",
+        "devices",
+        "list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.021,
+      "truncated": false
+    }
+  ]
+}
