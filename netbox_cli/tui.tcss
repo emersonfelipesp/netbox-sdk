@@ -165,9 +165,51 @@ OptionList > .option-list--option-disabled {
     background: transparent;
 }
 
+#query_bar {
+    width: 1fr;
+    height: auto;
+    padding: 0 1;
+    align: left middle;
+    background: $background;
+}
+
+#global_search {
+    width: 1fr;
+    border: tall transparent;
+    background: transparent;
+}
+
 #global_search:focus {
     border: tall $primary;
     background: $primary 7%;
+}
+
+#filter_select {
+    width: 24;
+    min-width: 18;
+    margin-left: 1;
+    border: none;
+    background: transparent;
+}
+
+#filter_select SelectCurrent {
+    border: tall transparent;
+    background: transparent;
+    color: $foreground;
+    padding: 0 1;
+}
+
+#filter_select SelectCurrent:focus {
+    border: tall $secondary;
+    background: $panel;
+}
+
+#active_filters {
+    width: 1fr;
+    padding: 0 2 0 2;
+    margin-bottom: 1;
+    color: $text-muted;
+    text-style: dim;
 }
 
 #connection_badge {
@@ -361,8 +403,7 @@ OptionList > .option-list--option-disabled {
 }
 
 #results_tab,
-#details_tab,
-#filters_tab {
+#details_tab {
     padding: 0;
     background: $background;
 }
@@ -440,43 +481,6 @@ OptionList > .option-list--option-disabled {
     margin: 1 1 1 0;
     color: $text-muted;
     text-style: dim;
-}
-
-
-/* ---- Filters Tab ---------------------------------------------------- */
-/* border-left: blank $secondary — different category stripe from results. */
-
-#filters_help {
-    margin: 1 1 1 0;
-    border-left: blank $secondary;
-    padding: 0 1;
-    color: $text-muted;
-}
-
-#filters_list {
-    height: 1fr;
-    background: $background;
-    color: $foreground;
-    background-tint: transparent;
-}
-
-#filters_list > ListItem {
-    color: $foreground;
-    background: $background;
-}
-
-#filters_list > ListItem.-hovered {
-    background: $panel;
-}
-
-#filters_list > ListItem.-highlight {
-    background: $panel;
-    color: $foreground;
-    text-style: bold;
-}
-
-#filters_list:focus {
-    background-tint: transparent;
 }
 
 
@@ -581,11 +585,13 @@ ObjectAttributesPanel.-loading #detail_status {
 }
 
 
-/* ---- Filter Modal --------------------------------------------------- */
-/* Toad modal pattern: align center middle, thick $primary 20% border.    */
-
-FilterModal {
+#filter_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
     align: center middle;
+    background: $background 80%;
+    padding: 1;
 }
 
 #filter_dialog {
@@ -602,6 +608,11 @@ FilterModal {
 
 #filter_dialog .panel-title {
     margin: 0 0 1 0;
+}
+
+#filter_field_label {
+    margin: 0 0 1 0;
+    color: $secondary;
 }
 
 #filter_buttons {
