@@ -128,6 +128,13 @@ def _static_text(widget: Static) -> str:
     return str(widget.content).lower()
 
 
+def _truecolor_hex(color: object) -> str:
+    """Return a normalized #rrggbb hex string for a Textual/Rich color."""
+    if hasattr(color, "get_truecolor"):
+        return color.get_truecolor().hex.lower()
+    return getattr(color, "hex").lower()
+
+
 # ---------------------------------------------------------------------------
 # 1. Startup / mount
 # ---------------------------------------------------------------------------
@@ -188,6 +195,44 @@ async def test_theme_background_applies_to_filters_and_select(mock_client, real_
         assert filters_list.styles.background == expected_background
         assert theme_current.styles.background.a == 0
         assert theme_overlay.styles.background == expected_background
+
+
+@pytest.mark.asyncio
+async def test_tree_and_detail_cursor_styles_follow_theme(mock_client, real_index):
+    app = _make_app(mock_client, real_index, theme="dracula")
+    expected_panel = app.theme_catalog.theme_for("dracula").colors["panel"]
+    expected_subtle = (
+        app.theme_catalog.theme_for("dracula").variables["nb-border-subtle"].lower()
+    )
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        results_table = app.query_one("#results_table", DataTable)
+        detail_table = app.query_one("#detail_table", DataTable)
+
+        tree_cursor = tree.get_component_rich_style("tree--cursor")
+        tree_hover = tree.get_component_rich_style("tree--highlight-line")
+        tree_highlight = tree.get_component_rich_style("tree--highlight")
+        tree_guides_hover = tree.get_component_rich_style("tree--guides-hover")
+        results_header_hover = results_table.get_component_rich_style(
+            "datatable--header-hover"
+        )
+        detail_cursor = detail_table.get_component_rich_style("datatable--cursor")
+        detail_hover = detail_table.get_component_rich_style("datatable--hover")
+        detail_header_hover = detail_table.get_component_rich_style(
+            "datatable--header-hover"
+        )
+
+        assert _truecolor_hex(tree_cursor.bgcolor) == expected_panel
+        assert _truecolor_hex(tree_hover.bgcolor) == expected_panel
+        assert _truecolor_hex(tree_highlight.bgcolor) == expected_panel
+        assert _truecolor_hex(tree_guides_hover.color) == expected_subtle
+        assert _truecolor_hex(results_header_hover.bgcolor) == expected_panel
+        assert _truecolor_hex(detail_cursor.bgcolor) == expected_panel
+        assert _truecolor_hex(detail_hover.bgcolor) == expected_panel
+        assert _truecolor_hex(detail_header_hover.bgcolor) == expected_panel
 
 
 @pytest.mark.asyncio

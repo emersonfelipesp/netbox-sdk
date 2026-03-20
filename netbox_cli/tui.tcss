@@ -237,11 +237,61 @@ OptionList > .option-list--option-disabled {
     height: 1fr;
     margin-top: 1;
     background: transparent;
+    color: $foreground;
 }
 
 #nav_tree:focus {
     background: transparent;
     background-tint: transparent;
+}
+
+#nav_tree > .tree--label {
+    color: $foreground;
+}
+
+#nav_tree > .tree--guides {
+    color: $nb-border-subtle;
+}
+
+#nav_tree > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#nav_tree > .tree--guides-selected {
+    color: $primary;
+}
+
+#nav_tree > .tree--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#nav_tree > .tree--highlight-line {
+    background: $panel;
+}
+
+#nav_tree > .tree--highlight {
+    background: $panel;
+    color: $foreground;
+}
+
+#nav_tree:focus > .tree--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#nav_tree:focus > .tree--guides {
+    color: $nb-border-subtle;
+}
+
+#nav_tree:focus > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#nav_tree:focus > .tree--guides-selected {
+    color: $primary;
 }
 
 #nav_help {
@@ -324,6 +374,11 @@ OptionList > .option-list--option-disabled {
 }
 
 #results_table > .datatable--header-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#results_table > .datatable--header-hover {
     background: $panel;
     color: $foreground;
 }
@@ -416,6 +471,54 @@ ObjectAttributesPanel.-loading #detail_status {
     height: 1fr;
     background: $background;
     color: $foreground;
+    background-tint: transparent;
+}
+
+#detail_table > .datatable--header {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#detail_table > .datatable--fixed {
+    background: $background;
+    color: $foreground;
+}
+
+#detail_table > .datatable--odd-row {
+    background: $background;
+}
+
+#detail_table > .datatable--even-row {
+    background: $background 6%;
+}
+
+#detail_table > .datatable--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#detail_table > .datatable--fixed-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#detail_table > .datatable--header-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#detail_table > .datatable--header-hover {
+    background: $panel;
+    color: $foreground;
+}
+
+#detail_table > .datatable--hover {
+    background: $panel;
+}
+
+#detail_table:focus {
     background-tint: transparent;
 }
 
