@@ -239,6 +239,9 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
     if lower in {"status"} or lower.endswith("_status"):
         return status_badge(human)
 
+    if isinstance(value, dict) and _is_linkable_object(value):
+        return linked_object_cell(value, max_len=max_len)
+
     if "role" in lower:
         return label_chip(human, tone="role")
     if "type" in lower:
@@ -272,6 +275,19 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
         return Text(human, style=_VALUE_STYLES.get("key", ""))
 
     return Text(human)
+
+
+def _is_linkable_object(value: dict[str, Any]) -> bool:
+    for key in ("url", "display_url"):
+        candidate = value.get(key)
+        if isinstance(candidate, str) and candidate.strip():
+            return True
+    return False
+
+
+def linked_object_cell(value: dict[str, Any], max_len: int = 180) -> Text:
+    label = compact_cell(value, max_len=max_len)
+    return Text(label, style=_VALUE_STYLES.get("url", ""))
 
 
 def order_field_names(names: list[str]) -> list[str]:

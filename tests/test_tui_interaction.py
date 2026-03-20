@@ -13,6 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from textual.color import Color
+from textual.coordinate import Coordinate
 from textual.widgets import DataTable, Input, Static, TabbedContent, Tree
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
@@ -35,12 +36,43 @@ FAKE_DEVICES = [
     {"id": 2, "name": "router01", "status": "planned", "display": "router01"},
 ]
 
+FAKE_DEVICE_DETAIL = {
+    "id": 1,
+    "name": "switch01",
+    "display": "switch01",
+    "status": "active",
+    "device_type": {
+        "id": 10,
+        "name": "MA5800",
+        "display": "MA5800",
+        "url": "/api/dcim/device-types/10/",
+        "display_url": "/dcim/device-types/10/",
+    },
+}
+
+FAKE_DEVICE_TYPE_DETAIL = {
+    "id": 10,
+    "name": "MA5800",
+    "display": "MA5800",
+    "manufacturer": {
+        "id": 88,
+        "name": "Huawei",
+        "display": "Huawei",
+        "url": "/api/dcim/manufacturers/88/",
+        "display_url": "/dcim/manufacturers/88/",
+    },
+}
+
 
 def _list_response(items: list) -> ApiResponse:
     body = json.dumps(
         {"count": len(items), "results": items, "next": None, "previous": None}
     )
     return ApiResponse(status=200, text=body)
+
+
+def _detail_response(payload: dict) -> ApiResponse:
+    return ApiResponse(status=200, text=json.dumps(payload))
 
 
 @pytest.fixture()
@@ -184,6 +216,80 @@ def test_semantic_cells_use_neutral_chip_background() -> None:
     assert " on " not in semantic_cell("status", "active").style
     assert " on " not in semantic_cell("role", "Placeholder Role").style
     assert " on " not in semantic_cell("tenant", "Tenant A").style
+
+
+@pytest.mark.asyncio
+async def test_detail_link_click_redirects_to_linked_object(real_index):
+    client = MagicMock()
+
+    async def _request(method: str, path: str, **kwargs):
+        if method != "GET":
+            raise AssertionError(f"unexpected method: {method}")
+        if path == "/api/dcim/devices/":
+            return _list_response([FAKE_DEVICE_DETAIL])
+        if path == "/api/dcim/devices/1/":
+            return _detail_response(FAKE_DEVICE_DETAIL)
+        if path == "/api/dcim/device-types/10/":
+            return _detail_response(FAKE_DEVICE_TYPE_DETAIL)
+        raise AssertionError(f"unexpected path: {path}")
+
+    client.request = AsyncMock(side_effect=_request)
+    client.probe_connection = AsyncMock(return_value=_PROBE_OK)
+
+    app = _make_app(client, real_index, theme="dracula")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = None
+        stack = list(tree.root.children)
+        while stack:
+            node = stack.pop(0)
+            if node.data == ("dcim", "devices"):
+                leaf = node
+                break
+            stack.extend(node.children)
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        detail_table = app.query_one("#detail_table", DataTable)
+        device_type_row = None
+        for _ in range(20):
+            for row_index in range(detail_table.row_count):
+                field_value = (
+                    str(detail_table.get_cell_at(Coordinate(row_index, 0)))
+                    .strip()
+                    .lower()
+                )
+                if field_value == "device type":
+                    device_type_row = row_index
+                    break
+            if device_type_row is not None:
+                break
+            await pilot.pause()
+
+        assert device_type_row is not None, "Expected Device Type field in details"
+
+        value_coord = Coordinate(device_type_row, 1)
+        detail_table.post_message(
+            DataTable.CellSelected(
+                detail_table,
+                detail_table.get_cell_at(value_coord),
+                coordinate=value_coord,
+                cell_key=detail_table.coordinate_to_cell_key(value_coord),
+            )
+        )
+        await pilot.pause()
+        await pilot.pause()
+
+        assert app.current_group == "dcim"
+        assert app.current_resource == "device-types"
+        ctx = app.query_one("#context_line", Static)
+        assert "device types" in _static_text(ctx)
+        client.request.assert_any_call("GET", "/api/dcim/device-types/10/")
 
 
 # ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import inspect
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from textual import on, work
 from textual.app import App, ComposeResult
@@ -348,6 +349,29 @@ class NetBoxTuiApp(App[None]):
         tabs = self.query_one("#main_tabs", TabbedContent)
         tabs.active = "details_tab"
 
+    @on(DataTable.CellSelected, "#detail_table")
+    async def on_detail_cell_selected(self, event: DataTable.CellSelected[Any]) -> None:
+        if event.coordinate.column != 1:
+            return
+
+        panel = self.query_one("#detail_panel", ObjectAttributesPanel)
+        row_value = panel.detail_value_at(event.coordinate.row)
+        target = self._resolve_linked_object_target(row_value)
+        if target is None:
+            return
+
+        group, resource, detail_path, fallback_row = target
+        self.current_group = group
+        self.current_resource = resource
+        self.selected_row_ids.clear()
+        self._update_context_line()
+        self._set_controls(
+            f"Resource: {humanize_group(group)} / {humanize_resource(resource)}"
+        )
+        tabs = self.query_one("#main_tabs", TabbedContent)
+        tabs.active = "details_tab"
+        await self._show_detail_for_path(detail_path, fallback_row)
+
     @on(ListView.Selected, "#filters_list")
     def on_filter_field_selected(self, event: ListView.Selected) -> None:
         if not isinstance(event.item, FilterFieldItem):
@@ -407,37 +431,21 @@ class NetBoxTuiApp(App[None]):
         else:
             self._set_status(f"Loaded {len(rows)} row(s) - HTTP {response.status}")
 
-    @work(group="detail_refresh", exclusive=True, thread=False)
-    async def _load_object_details(self, row: dict[str, Any]) -> None:
+    async def _show_detail_for_path(
+        self, detail_path: str, fallback_row: dict[str, Any]
+    ) -> None:
         panel = self.query_one("#detail_panel", ObjectAttributesPanel)
         panel.set_loading("Loading object details...")
 
-        group = self.current_group
-        resource = self.current_resource
-        if not group or not resource:
-            panel.set_object(row)
-            return
-
-        object_id = row.get("id")
-        if object_id is None:
-            panel.set_object(row)
-            return
-
-        paths = self.index.resource_paths(group, resource)
-        if paths is None or paths.detail_path is None:
-            panel.set_object(row)
-            return
-
-        detail_path = paths.detail_path.replace("{id}", str(object_id))
         try:
             response = await self.client.request("GET", detail_path)
         except Exception as exc:  # noqa: BLE001
-            panel.set_object(row)
+            panel.set_object(fallback_row)
             self.notify(f"Detail request failed: {exc}", severity="error")
             return
 
         if response.status >= 400:
-            panel.set_object(row)
+            panel.set_object(fallback_row)
             self.notify(
                 f"HTTP {response.status} while loading details", severity="warning"
             )
@@ -445,11 +453,34 @@ class NetBoxTuiApp(App[None]):
 
         parsed = parse_response_rows(response.text)
         if not parsed:
+            panel.set_object(fallback_row)
+            return
+
+        panel.set_object(parsed[0])
+
+    @work(group="detail_refresh", exclusive=True, thread=False)
+    async def _load_object_details(self, row: dict[str, Any]) -> None:
+        group = self.current_group
+        resource = self.current_resource
+        if not group or not resource:
+            panel = self.query_one("#detail_panel", ObjectAttributesPanel)
             panel.set_object(row)
             return
 
-        # detail endpoint returns one object; keep first object entry
-        panel.set_object(parsed[0])
+        object_id = row.get("id")
+        if object_id is None:
+            panel = self.query_one("#detail_panel", ObjectAttributesPanel)
+            panel.set_object(row)
+            return
+
+        paths = self.index.resource_paths(group, resource)
+        if paths is None or paths.detail_path is None:
+            panel = self.query_one("#detail_panel", ObjectAttributesPanel)
+            panel.set_object(row)
+            return
+
+        detail_path = paths.detail_path.replace("{id}", str(object_id))
+        await self._show_detail_for_path(detail_path, row)
 
     def _build_navigation_tree(self) -> None:
         tree = self.query_one("#nav_tree", Tree)
@@ -694,6 +725,39 @@ class NetBoxTuiApp(App[None]):
             f"Status: {probe.status}\nAPI-Version: {version_text}"
         )
         overlay.remove_class("hidden")
+
+    def _resolve_linked_object_target(
+        self, value: Any
+    ) -> tuple[str, str, str, dict[str, Any]] | None:
+        if not isinstance(value, dict):
+            return None
+
+        raw_url = value.get("url") or value.get("display_url")
+        if not isinstance(raw_url, str) or not raw_url.strip():
+            return None
+
+        parsed = urlparse(raw_url.strip())
+        path = parsed.path or raw_url.strip()
+        parts = [part for part in path.split("/") if part]
+        if parts and parts[0] == "api":
+            parts = parts[1:]
+        if len(parts) < 3:
+            return None
+
+        group, resource, object_id = parts[0], parts[1], parts[2]
+        if object_id == "{id}" and value.get("id") is not None:
+            object_id = str(value["id"])
+        if not str(object_id).isdigit():
+            return None
+        if self.index.resource_paths(group, resource) is None:
+            return None
+
+        detail_path = f"/api/{group}/{resource}/{object_id}/"
+        fallback_row: dict[str, Any] = dict(value)
+        fallback_row["id"] = int(object_id)
+        if "display" not in fallback_row and "name" in fallback_row:
+            fallback_row["display"] = str(fallback_row["name"])
+        return group, resource, detail_path, fallback_row
 
 
 def available_theme_names() -> tuple[str, ...]:
