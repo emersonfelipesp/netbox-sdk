@@ -150,7 +150,24 @@ async def test_app_mounts_and_nav_tree_is_populated(mock_client, real_index):
         expected_labels = [menu.label for menu in build_navigation_menus(real_index)]
         actual_labels = [node.label.plain for node in tree.root.children]
         assert actual_labels == expected_labels
-        assert all(not node.children for node in tree.root.children)
+        assert all(node.children for node in tree.root.children)
+        assert all(not node.is_expanded for node in tree.root.children)
+
+
+@pytest.mark.asyncio
+async def test_nav_tree_top_level_click_toggles_expansion(mock_client, real_index):
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+        tree = app.query_one("#nav_tree", Tree)
+        first_menu = tree.root.children[0]
+
+        assert not first_menu.is_expanded
+        app.on_nav_selected(Tree.NodeSelected(first_menu).set_sender(tree))
+        assert first_menu.is_expanded
+
+        app.on_nav_selected(Tree.NodeSelected(first_menu).set_sender(tree))
+        assert not first_menu.is_expanded
 
 
 @pytest.mark.asyncio

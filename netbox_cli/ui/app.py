@@ -331,6 +331,8 @@ class NetBoxTuiApp(App[None]):
     @on(Tree.NodeSelected, "#nav_tree")
     def on_nav_selected(self, event: Tree.NodeSelected[tuple[str, str] | None]) -> None:
         if event.node.data is None:
+            if event.node.children:
+                event.node.toggle()
             if not event.node.children:
                 self._set_status(
                     "No API endpoint is available for this menu item in TUI"
@@ -500,15 +502,16 @@ class NetBoxTuiApp(App[None]):
         root = tree.root
         root.expand()
         for menu in build_navigation_menus(self.index):
-            default_target = None
+            menu_node = root.add(menu.label)
             for group in menu.groups:
+                group_node = menu_node.add(group.label)
                 for item in group.items:
-                    if item.group and item.resource:
-                        default_target = (item.group, item.resource)
-                        break
-                if default_target is not None:
-                    break
-            root.add(menu.label, data=default_target)
+                    data = (
+                        (item.group, item.resource)
+                        if item.group and item.resource
+                        else None
+                    )
+                    group_node.add_leaf(item.label, data=data)
 
     def _restore_last_view_if_any(self) -> None:
         group = self.state.last_view.group
