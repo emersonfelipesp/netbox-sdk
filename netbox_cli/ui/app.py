@@ -488,18 +488,15 @@ class NetBoxTuiApp(App[None]):
         root = tree.root
         root.expand()
         for menu in build_navigation_menus(self.index):
-            menu_node = root.add(menu.label)
-            menu_node.expand()
+            default_target = None
             for group in menu.groups:
-                group_node = menu_node.add(group.label)
-                group_node.expand()
                 for item in group.items:
-                    data = (
-                        (item.group, item.resource)
-                        if item.group and item.resource
-                        else None
-                    )
-                    group_node.add_leaf(item.label, data=data)
+                    if item.group and item.resource:
+                        default_target = (item.group, item.resource)
+                        break
+                if default_target is not None:
+                    break
+            root.add(menu.label, data=default_target)
 
     def _restore_last_view_if_any(self) -> None:
         group = self.state.last_view.group

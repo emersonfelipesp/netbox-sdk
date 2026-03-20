@@ -21,6 +21,7 @@ from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
 from netbox_cli.ui.app import FilterModal, NetBoxTuiApp
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
+from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
 
 # ---------------------------------------------------------------------------
@@ -146,9 +147,10 @@ async def test_app_mounts_and_nav_tree_is_populated(mock_client, real_index):
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
         tree = app.query_one("#nav_tree", Tree)
-        assert tree.root.children, (
-            "Navigation tree should have at least one top-level menu"
-        )
+        expected_labels = [menu.label for menu in build_navigation_menus(real_index)]
+        actual_labels = [node.label.plain for node in tree.root.children]
+        assert actual_labels == expected_labels
+        assert all(not node.children for node in tree.root.children)
 
 
 @pytest.mark.asyncio
