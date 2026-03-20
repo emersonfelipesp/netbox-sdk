@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 import json
-from typing import Any
+from datetime import datetime
+from typing import Any, Mapping
 
 from rich.text import Text
 
@@ -117,7 +117,9 @@ def _dict_display(value: dict[str, Any], max_items: int = 3) -> str:
             if remaining > 0:
                 items.append(f"+{remaining} more")
             break
-        items.append(f"{humanize_field(str(key))}: {humanize_value(item_value, max_len=48)}")
+        items.append(
+            f"{humanize_field(str(key))}: {humanize_value(item_value, max_len=48)}"
+        )
     return "; ".join(items) if items else "—"
 
 
@@ -154,18 +156,62 @@ def compact_cell(value: Any, max_len: int = 180) -> str:
     return humanize_value(value, max_len=max_len)
 
 
-# NetBox dark mode status palette — source: NETBOX-DARK-PATTERNS.md
-# Dark subtle bg + lightened text for readability on dark terminals.
-_STATUS_STYLES: dict[frozenset[str], tuple[str, str]] = {
-    frozenset({"active", "up", "enabled", "online", "true"}):
-        ("●", "#82D18E on #09230D"),          # success: green text / dark green bg
-    frozenset({"planned", "staged", "provisioning", "standby"}):
-        ("◐", "#8DC1ED on #0D1E2D"),          # info: blue text / dark blue bg
-    frozenset({"offline", "disabled", "down", "decommissioning"}):
-        ("◌", "#F9C566 on #311F00"),          # warning: amber text / dark amber bg
-    frozenset({"failed", "error", "deprecated"}):
-        ("✖", "#E68888 on #2B0B0B"),          # danger: red text / dark red bg
+_STATUS_STATES: dict[frozenset[str], tuple[str, str]] = {
+    frozenset({"active", "up", "enabled", "online", "true"}): ("●", "success"),
+    frozenset({"planned", "staged", "provisioning", "standby"}): ("◐", "info"),
+    frozenset({"offline", "disabled", "down", "decommissioning"}): ("◌", "warning"),
+    frozenset({"failed", "error", "deprecated"}): ("✖", "danger"),
 }
+
+_STATUS_STYLES: dict[frozenset[str], tuple[str, str]] = {}
+_CHIP_STYLES: dict[str, str] = {}
+_VALUE_STYLES: dict[str, str] = {}
+
+
+def _on_style(fg: str, bg: str) -> str:
+    return f"{fg} on {bg}"
+
+
+def configure_semantic_styles(
+    *, colors: Mapping[str, str], variables: Mapping[str, str]
+) -> None:
+    """Build Rich style strings from the currently active theme."""
+    del (
+        colors
+    )  # Styles below are intentionally derived from semantic theme variables only.
+
+    global _STATUS_STYLES, _CHIP_STYLES, _VALUE_STYLES
+
+    status_styles = {
+        "success": _on_style(variables["nb-success-text"], variables["nb-success-bg"]),
+        "info": _on_style(variables["nb-info-text"], variables["nb-info-bg"]),
+        "warning": _on_style(variables["nb-warning-text"], variables["nb-warning-bg"]),
+        "danger": _on_style(variables["nb-danger-text"], variables["nb-danger-bg"]),
+        "neutral": _on_style(
+            variables["nb-secondary-text"], variables["nb-secondary-bg"]
+        ),
+    }
+
+    _STATUS_STYLES = {
+        states: (icon, status_styles[tone])
+        for states, (icon, tone) in _STATUS_STATES.items()
+    }
+
+    _CHIP_STYLES = {
+        "role": status_styles["warning"],
+        "type": status_styles["info"],
+        "tenant": status_styles["success"],
+        "neutral": status_styles["neutral"],
+    }
+
+    _VALUE_STYLES = {
+        "bool_true": variables["nb-success-text"],
+        "bool_false": variables["nb-danger-text"],
+        "id": f"bold {variables['nb-id-text']}",
+        "muted": variables["nb-muted-text"],
+        "url": f"{variables['nb-link-text']} underline",
+        "key": variables["nb-key-text"],
+    }
 
 
 def _status_meta(value: str) -> tuple[str, str]:
@@ -173,7 +219,7 @@ def _status_meta(value: str) -> tuple[str, str]:
     for states, style in _STATUS_STYLES.items():
         if text in states:
             return style
-    return ("•", "#A6AAB2 on #151720")       # secondary: gray text / dark gray bg
+    return ("•", _CHIP_STYLES.get("neutral", ""))
 
 
 def status_badge(value: str) -> Text:
@@ -183,22 +229,12 @@ def status_badge(value: str) -> Text:
     return Text(f" {icon} {label} ", style=style)
 
 
-# NetBox dark mode label chip palette — maps semantic tone to status family.
-# role → warning (orange-amber), type → info (blue), tenant → success (green).
-_CHIP_STYLES: dict[str, str] = {
-    "role":    "#F9C566 on #311F00",     # warning palette — orange-amber
-    "type":    "#8DC1ED on #0D1E2D",     # info palette — blue
-    "tenant":  "#82D18E on #09230D",     # success palette — green
-    "neutral": "#A6AAB2 on #151720",     # secondary palette — gray
-}
-
-
 def label_chip(value: str, *, tone: str = "neutral") -> Text:
     label = value.strip()
     if not label:
         label = "—"
     label = label.replace("_", " ").replace("-", " ").title()
-    style = _CHIP_STYLES.get(tone, _CHIP_STYLES["neutral"])
+    style = _CHIP_STYLES.get(tone, _CHIP_STYLES.get("neutral", ""))
     return Text(f" {label} ", style=style)
 
 
@@ -217,22 +253,29 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
         return label_chip(human, tone="tenant")
 
     if value is None:
-        return Text("—", style="dim")
+        return Text("—", style=_VALUE_STYLES.get("muted", ""))
 
     if isinstance(value, bool):
-        return Text("Yes" if value else "No", style="green" if value else "red")
+        style_key = "bool_true" if value else "bool_false"
+        return Text("Yes" if value else "No", style=_VALUE_STYLES.get(style_key, ""))
 
     if lower in {"id", "pk"} or lower.endswith("_id"):
-        return Text(human, style="bold cyan")
+        return Text(human, style=_VALUE_STYLES.get("id", ""))
 
-    if "date" in lower or "time" in lower or lower in {"created", "last_updated", "updated"}:
-        return Text(human, style="dim")
+    if (
+        "date" in lower
+        or "time" in lower
+        or lower in {"created", "last_updated", "updated"}
+    ):
+        return Text(human, style=_VALUE_STYLES.get("muted", ""))
 
     if lower == "url" or lower.endswith("_url"):
-        return Text(human, style="blue underline")
+        return Text(human, style=_VALUE_STYLES.get("url", ""))
 
-    if any(token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")):
-        return Text(human, style="magenta")
+    if any(
+        token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")
+    ):
+        return Text(human, style=_VALUE_STYLES.get("key", ""))
 
     return Text(human)
 
@@ -274,5 +317,7 @@ def key_value_rows(obj: dict[str, Any]) -> list[tuple[str, Text]]:
     ordered = order_field_names([str(key) for key in obj.keys()])
     for key in ordered:
         value = obj.get(key)
-        rows.append((humanize_field(str(key)), semantic_cell(str(key), value, max_len=500)))
+        rows.append(
+            (humanize_field(str(key)), semantic_cell(str(key), value, max_len=500))
+        )
     return rows

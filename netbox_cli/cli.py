@@ -10,7 +10,14 @@ from rich.console import Console
 from rich.table import Table
 
 from .api import NetBoxApiClient
-from .config import Config, is_runtime_config_complete, load_config, normalize_base_url, resolved_token, save_config
+from .config import (
+    Config,
+    is_runtime_config_complete,
+    load_config,
+    normalize_base_url,
+    resolved_token,
+    save_config,
+)
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
@@ -50,9 +57,13 @@ def root_callback(ctx: typer.Context) -> None:
 
 @app.command("init")
 def init_command(
-    base_url: str = typer.Option(..., prompt=True, help="NetBox base URL, e.g. https://netbox.example.com"),
+    base_url: str = typer.Option(
+        ..., prompt=True, help="NetBox base URL, e.g. https://netbox.example.com"
+    ),
     token_key: str = typer.Option(..., prompt=True, help="NetBox API token key"),
-    token_secret: str = typer.Option(..., prompt=True, hide_input=True, help="NetBox API token secret"),
+    token_secret: str = typer.Option(
+        ..., prompt=True, hide_input=True, help="NetBox API token secret"
+    ),
     timeout: float = typer.Option(30.0, help="HTTP timeout in seconds"),
 ) -> None:
     cfg = Config(
@@ -68,7 +79,11 @@ def init_command(
 
 
 @app.command("config")
-def config_command(show_token: bool = typer.Option(False, "--show-token", help="Include API token in output")) -> None:
+def config_command(
+    show_token: bool = typer.Option(
+        False, "--show-token", help="Include API token in output"
+    ),
+) -> None:
     cfg = _ensure_runtime_config()
     payload: dict[str, Any] = {"base_url": cfg.base_url, "timeout": cfg.timeout}
     if show_token:
@@ -90,7 +105,9 @@ def groups_command() -> None:
 
 
 @app.command("resources")
-def resources_command(group: str = typer.Argument(..., help="OpenAPI app group, e.g. dcim")) -> None:
+def resources_command(
+    group: str = typer.Argument(..., help="OpenAPI app group, e.g. dcim"),
+) -> None:
     index = _get_index()
     resources = index.resources(group)
     if not resources:
@@ -110,9 +127,9 @@ def operations_command(
         raise typer.BadParameter(f"No operations found for {group}/{resource}")
 
     table = Table(title=f"{group}/{resource}")
-    table.add_column("Method", style="cyan", no_wrap=True)
-    table.add_column("Path", style="green")
-    table.add_column("Operation ID", style="yellow")
+    table.add_column("Method", no_wrap=True)
+    table.add_column("Path")
+    table.add_column("Operation ID")
     for row in rows:
         table.add_row(row.method, row.path, row.operation_id or "-")
     console.print(table)
@@ -122,18 +139,28 @@ def operations_command(
 def call_command(
     method: str = typer.Argument(...),
     path: str = typer.Argument(...),
-    query: list[str] = typer.Option(None, "-q", "--query", help="Query parameter key=value"),
-    body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
-    body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON request body file"),
+    query: list[str] = typer.Option(
+        None, "-q", "--query", help="Query parameter key=value"
+    ),
+    body_json: str | None = typer.Option(
+        None, "--body-json", help="Inline JSON request body"
+    ),
+    body_file: str | None = typer.Option(
+        None, "--body-file", help="Path to JSON request body file"
+    ),
 ) -> None:
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
-    response = asyncio.run(_get_client().request(method, path, query=query_dict, payload=payload))
+    response = asyncio.run(
+        _get_client().request(method, path, query=query_dict, payload=payload)
+    )
     _print_response(response.status, response.text)
 
 
-@app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@app.command(
+    "tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
 def tui_command(
     ctx: typer.Context,
     theme: bool = typer.Option(
@@ -157,13 +184,17 @@ def tui_command(
                 typer.echo(f"- {name}")
             return
         if len(ctx.args) > 1:
-            raise typer.BadParameter("Too many arguments for --theme. Use: nbx tui --theme <name>")
+            raise typer.BadParameter(
+                "Too many arguments for --theme. Use: nbx tui --theme <name>"
+            )
 
         requested = ctx.args[0]
         resolved = resolve_theme_name(requested)
         if not resolved:
             available = ", ".join(names)
-            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
+            raise typer.BadParameter(
+                f"Unknown theme '{requested}'. Available themes: {available}"
+            )
         selected_theme = resolved
 
     try:
@@ -174,7 +205,9 @@ def tui_command(
 
 def _handle_dynamic_invocation(raw_args: list[str]) -> None:
     if len(raw_args) < 3:
-        raise typer.BadParameter("Dynamic invocation requires: nbx <group> <resource> <action> [options]")
+        raise typer.BadParameter(
+            "Dynamic invocation requires: nbx <group> <resource> <action> [options]"
+        )
 
     group, resource, action = raw_args[0], raw_args[1], raw_args[2]
     option_args = raw_args[3:]
@@ -192,8 +225,9 @@ def _handle_dynamic_invocation(raw_args: list[str]) -> None:
     _print_response(response.status, response.text)
 
 
-
-def _parse_dynamic_options(args: list[str]) -> tuple[int | None, list[str], str | None, str | None]:
+def _parse_dynamic_options(
+    args: list[str],
+) -> tuple[int | None, list[str], str | None, str | None]:
     object_id: int | None = None
     query_pairs: list[str] = []
     body_json: str | None = None
@@ -229,7 +263,6 @@ def _parse_dynamic_options(args: list[str]) -> tuple[int | None, list[str], str 
         raise typer.BadParameter(f"Unknown option: {token}")
 
     return object_id, query_pairs, body_json, body_file
-
 
 
 def _print_response(status: int, text: str) -> None:
@@ -329,10 +362,18 @@ def _build_action_command(
     allows_body = action in {"create", "update", "patch"}
 
     def _command(
-        object_id: int | None = typer.Option(None, "--id", help="Object ID for detail operations"),
-        query: list[str] | None = typer.Option(None, "-q", "--query", help="Query parameter key=value"),
-        body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
-        body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON request body file"),
+        object_id: int | None = typer.Option(
+            None, "--id", help="Object ID for detail operations"
+        ),
+        query: list[str] | None = typer.Option(
+            None, "-q", "--query", help="Query parameter key=value"
+        ),
+        body_json: str | None = typer.Option(
+            None, "--body-json", help="Inline JSON request body"
+        ),
+        body_file: str | None = typer.Option(
+            None, "--body-file", help="Path to JSON request body file"
+        ),
     ) -> None:
         if requires_id and object_id is None:
             raise typer.BadParameter("--id is required for this action")
@@ -370,8 +411,12 @@ def _register_openapi_subcommands() -> None:
             group_typer.add_typer(resource_typer, name=resource)
 
             for action in _supported_actions(group, resource):
-                cmd = _build_action_command(group=group, resource=resource, action=action)
-                resource_typer.command(name=action, help=f"{action} {group}/{resource}")(cmd)
+                cmd = _build_action_command(
+                    group=group, resource=resource, action=action
+                )
+                resource_typer.command(
+                    name=action, help=f"{action} {group}/{resource}"
+                )(cmd)
 
 
 _register_openapi_subcommands()
