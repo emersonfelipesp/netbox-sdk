@@ -2,6 +2,7 @@
 
 ## Contents
 
+- [Quick Test with NetBox Demo Instance](#quick-test-with-netbox-demo-instance)
 - [Install](#install)
   - [Install `nbx` Globally (bash + zsh)](#install-nbx-globally-bash--zsh)
 - [Configure](#configure)
@@ -27,6 +28,69 @@ The project is bootstrapped from `CLAUDE.md` requirements:
 - async HTTP via `aiohttp`
 - shared backend logic for CLI and TUI
 - OpenAPI-driven command/resource discovery
+
+## Quick Test with NetBox Demo Instance
+
+The fastest way to try `netbox-cli` without any NetBox server of your own — uses the public [demo.netbox.dev](https://demo.netbox.dev) instance.
+
+**1. Install**
+
+```bash
+pip install pipx --quiet
+pipx install git+https://github.com/emersonfelipesp/netbox-cli.git@v2
+```
+
+Or from a local clone:
+
+```bash
+git clone https://github.com/emersonfelipesp/netbox-cli.git
+cd netbox-cli
+pipx install -e .
+```
+
+**2. Install Playwright (needed for demo login)**
+
+```bash
+playwright install chromium
+```
+
+**3. Authenticate with the demo instance**
+
+```bash
+nbx demo init
+# enter your demo.netbox.dev username and password when prompted
+```
+
+Or non-interactively (CI / scripted):
+
+```bash
+nbx demo init --username <your-demo-user> --password <your-demo-password>
+```
+
+**4. Verify the connection**
+
+```bash
+nbx demo config
+```
+
+**5. Run CLI commands against demo.netbox.dev**
+
+```bash
+nbx demo dcim devices list
+nbx demo dcim sites list
+nbx demo ipam prefixes list
+nbx demo circuits circuit-terminations get --id 15 --trace-only
+```
+
+**6. Launch the interactive TUI**
+
+```bash
+nbx demo tui
+```
+
+Use `/` to search, `g` to focus the nav tree, `q` to quit. All commands that work under `nbx demo …` are available inside the TUI with the same demo profile.
+
+---
 
 ## Install
 
