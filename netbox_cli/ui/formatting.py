@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime
 from typing import Any, Mapping
 
 from rich.text import Text
 
 from ..output_safety import safe_text, sanitize_terminal_text
+
+_HEX_COLOR_RE = re.compile(r"^#?([0-9a-fA-F]{6})$")
 
 _FIELD_PRIORITY = [
     "id",
@@ -279,6 +282,9 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
     ):
         return safe_text(human, style=_VALUE_STYLES.get("key", ""))
 
+    if (lower == "color" or lower.endswith("_color")) and isinstance(value, str):
+        return color_swatch(value)
+
     return safe_text(human)
 
 
@@ -288,6 +294,19 @@ def _is_linkable_object(value: dict[str, Any]) -> bool:
         if isinstance(candidate, str) and candidate.strip():
             return True
     return False
+
+
+def color_swatch(value: str) -> Text:
+    """Render a hex color as a colored block swatch followed by the hex code."""
+    match = _HEX_COLOR_RE.match(value.strip())
+    if not match:
+        return safe_text(value)
+    hex6 = match.group(1).lower()
+    color = f"#{hex6}"
+    result = Text()
+    result.append("██", style=color)
+    result.append(f" {hex6}", style=_VALUE_STYLES.get("muted", ""))
+    return result
 
 
 def linked_object_cell(value: dict[str, Any], max_len: int = 180) -> Text:
