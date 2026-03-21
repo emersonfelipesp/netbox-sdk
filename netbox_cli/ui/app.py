@@ -342,7 +342,7 @@ class NetBoxTuiApp(App[None]):
             label = self.query_one("#theme_select SelectCurrent Static#label", Static)
         except NoMatches:
             return
-        text = str(label.renderable)
+        text = str(label.content)
         if text.startswith("- "):
             label.update(text[2:])
 
@@ -777,7 +777,12 @@ class NetBoxTuiApp(App[None]):
         select = self.query_one("#filter_select", Select)
         current = self._selected_filter_field()
 
-        ordered: list[tuple[str, str]] = [(p.label, p.name) for p in params]
+        structured_params = [param for param in params if param.name != "q"]
+        name_to_label = {param.name: param.label for param in structured_params}
+        ordered_names = order_field_names(list(name_to_label))
+        ordered: list[tuple[str, str]] = [
+            (name_to_label[name], name) for name in ordered_names
+        ]
         self._filter_fields = ordered
 
         options: list[tuple[str, str | Select.BLANK]] = [("Filter Field", Select.BLANK)]

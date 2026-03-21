@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_CONFIG_DIRNAME = "netbox-cli"
@@ -32,7 +34,37 @@ def normalize_base_url(value: str) -> str:
         raise ValueError("base_url cannot be empty")
     if "://" not in url:
         url = f"https://{url}"
-    return url.rstrip("/")
+    parsed = urlsplit(url)
+    scheme = parsed.scheme.lower()
+    if scheme not in {"http", "https"}:
+        raise ValueError("base_url must use http or https")
+    if not parsed.netloc:
+        raise ValueError("base_url must include a host")
+    if parsed.username or parsed.password:
+        raise ValueError("base_url must not include embedded credentials")
+    if parsed.query or parsed.fragment:
+        raise ValueError("base_url must not include query parameters or fragments")
+    normalized_path = parsed.path.rstrip("/")
+    return urlunsplit((scheme, parsed.netloc, normalized_path, "", ""))
+
+
+def _set_private_permissions(path: Path, mode: int) -> None:
+    try:
+        if os.name != "nt":
+            path.chmod(mode)
+    except OSError:
+        return
+
+
+def _write_private_json(path: Path, payload: dict[str, object]) -> None:
+    serialized = json.dumps(payload, indent=2)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    fd = os.open(path, flags, 0o600)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(serialized)
+    finally:
+        _set_private_permissions(path, stat.S_IRUSR | stat.S_IWUSR)
 
 
 def config_path() -> Path:
@@ -42,6 +74,7 @@ def config_path() -> Path:
     else:
         cfg_dir = Path.home() / ".config" / DEFAULT_CONFIG_DIRNAME
     cfg_dir.mkdir(parents=True, exist_ok=True)
+    _set_private_permissions(cfg_dir, stat.S_IRWXU)
     return cfg_dir / DEFAULT_CONFIG_FILENAME
 
 
@@ -126,7 +159,7 @@ def save_profile_config(profile: str, cfg: Config) -> None:
     if profile == DEMO_PROFILE:
         serialized["base_url"] = DEMO_BASE_URL
     profiles[profile] = serialized
-    path.write_text(json.dumps({"profiles": profiles}, indent=2), encoding="utf-8")
+    _write_private_json(path, {"profiles": profiles})
 
 
 def save_config(cfg: Config) -> None:
@@ -146,7 +179,7 @@ def clear_profile_config(profile: str) -> None:
     profiles = profiles_obj if isinstance(profiles_obj, dict) else {}
     if profile in profiles:
         del profiles[profile]
-    path.write_text(json.dumps({"profiles": profiles}, indent=2), encoding="utf-8")
+    _write_private_json(path, {"profiles": profiles})
 
 
 def resolved_token(cfg: Config) -> str | None:

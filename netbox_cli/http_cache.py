@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import stat
 import tempfile
 import time
 from dataclasses import asdict, dataclass
@@ -69,6 +71,7 @@ class HttpCacheStore:
     def __init__(self, root: Path):
         self.root = root
         self.root.mkdir(parents=True, exist_ok=True)
+        self._set_private_permissions(self.root, stat.S_IRWXU)
 
     def load(self, key: str) -> CacheEntry | None:
         path = self._entry_path(key)
@@ -144,3 +147,11 @@ class HttpCacheStore:
             handle.write(payload)
             temp_path = Path(handle.name)
         temp_path.replace(path)
+        self._set_private_permissions(path, stat.S_IRUSR | stat.S_IWUSR)
+
+    def _set_private_permissions(self, path: Path, mode: int) -> None:
+        try:
+            if os.name != "nt":
+                path.chmod(mode)
+        except OSError:
+            return

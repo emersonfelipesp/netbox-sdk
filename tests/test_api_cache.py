@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import stat
 import sys
 from collections import deque
 
@@ -173,3 +175,31 @@ async def test_api_client_serves_stale_cache_on_network_error(
     assert response.status == 200
     assert response.text == '{"results": [1]}'
     assert response.headers["X-NBX-Cache"] == "STALE"
+
+
+@pytest.mark.asyncio
+async def test_api_client_cache_uses_private_permissions(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+
+    async def _fake_request_once(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"results": [1]}', headers={})
+
+    monkeypatch.setattr(
+        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
+    )
+
+    await client.request("GET", "/api/dcim/devices/")
+
+    entries = list(client._cache.root.glob("*.json"))  # noqa: SLF001
+    assert entries
+    if os.name != "nt":
+        assert stat.S_IMODE(client._cache.root.stat().st_mode) == 0o700  # noqa: SLF001
+        assert stat.S_IMODE(entries[0].stat().st_mode) == 0o600

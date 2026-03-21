@@ -43,6 +43,41 @@ def test_runtime_config_complete_v1_without_token_key() -> None:
     assert is_runtime_config_complete(cfg) is True
 
 
+def test_api_client_rejects_absolute_request_urls(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    client = NetBoxApiClient(
+        Config(
+            base_url="https://netbox.example.com",
+            token_version="v1",
+            token_secret="plain-token",
+        )
+    )
+
+    with pytest.raises(
+        ValueError, match="relative to the configured NetBox base URL"
+    ):
+        client.build_url("https://evil.example.com/api/status/")
+
+
+def test_api_client_rejects_request_paths_with_query_or_fragment(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    client = NetBoxApiClient(
+        Config(
+            base_url="https://netbox.example.com",
+            token_version="v1",
+            token_secret="plain-token",
+        )
+    )
+
+    with pytest.raises(ValueError, match="must not include query parameters"):
+        client.build_url("/api/status/?format=json")
+
+    with pytest.raises(ValueError, match="must not include query parameters"):
+        client.build_url("/api/status/#frag")
+
+
 @pytest.mark.asyncio
 async def test_api_client_retries_with_v1_on_invalid_v2(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))

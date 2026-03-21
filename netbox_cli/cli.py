@@ -30,6 +30,7 @@ from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
 from .trace_ascii import render_any_trace_ascii
+from .output_safety import safe_text, sanitize_terminal_text
 from .ui.formatting import (
     _FIELD_PRIORITY,
     humanize_field,
@@ -712,10 +713,10 @@ def _render_table(parsed: Any) -> None:
     elif isinstance(parsed, list):
         rows_data = [r for r in parsed if isinstance(r, dict)]
         if not rows_data and parsed:
-            rows_data = [{"value": str(item)} for item in parsed]
+            rows_data = [{"value": sanitize_terminal_text(item)} for item in parsed]
         _render_list_table(rows_data, count=None)
     else:
-        console.print(str(parsed))
+        console.print(safe_text(parsed))
 
 
 def _render_list_table(rows_data: list[dict[str, Any]], *, count: int | None) -> None:
@@ -740,7 +741,7 @@ def _render_list_table(rows_data: list[dict[str, Any]], *, count: int | None) ->
         table.add_column(humanize_field(key), overflow="fold", no_wrap=False)
 
     for row in rows_data:
-        values = [humanize_value(row.get(key)) for key in display_keys]
+        values = [safe_text(humanize_value(row.get(key))) for key in display_keys]
         table.add_row(*values)
 
     console.print(table)
@@ -752,7 +753,7 @@ def _render_detail_table(obj: dict[str, Any]) -> None:
     table.add_column("Value", overflow="fold")
 
     for field_label, cell_text in key_value_rows(obj):
-        table.add_row(field_label, str(cell_text))
+        table.add_row(safe_text(field_label, style="bold"), cell_text)
 
     console.print(table)
 
@@ -771,7 +772,7 @@ def _print_response(
     try:
         parsed = json.loads(stripped)
     except json.JSONDecodeError:
-        typer.echo(stripped)
+        typer.echo(sanitize_terminal_text(stripped))
         return
 
     if as_json:
@@ -790,7 +791,7 @@ def _print_response(
 
 
 def _trace_message(message: str) -> None:
-    typer.echo(f"Cable Trace: {message}")
+    typer.echo(f"Cable Trace: {sanitize_terminal_text(message)}")
 
 
 def _print_trace_output(
@@ -850,7 +851,7 @@ def _print_trace_output(
         return
 
     typer.echo("Cable Trace:")
-    typer.echo(rendered)
+    typer.echo(sanitize_terminal_text(rendered))
 
 
 def _execute_dynamic_action(
