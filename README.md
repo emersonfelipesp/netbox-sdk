@@ -44,6 +44,19 @@ curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/ins
 
 The script installs [`uv`](https://github.com/astral-sh/uv) if not present, fetches `netbox-cli` directly from this GitHub repository, and sets up Playwright Chromium for the demo login flow.
 
+**Reload your shell after install** (the installer runs in a subshell, so PATH changes need to be applied):
+
+```bash
+source ~/.bashrc   # bash
+source ~/.zshrc    # zsh
+```
+
+If `nbx` is still not found, run it directly by full path as a fallback:
+
+```bash
+~/.local/bin/nbx --help
+```
+
 **Authenticate with the demo instance:**
 
 ```bash

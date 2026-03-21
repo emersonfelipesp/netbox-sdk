@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# netbox-cli installer — pipe to bash, not sh (uses bash arrays/builtins)
+# netbox-cli installer — pipe to bash, not sh (uses bash builtins)
 # curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash
 
 set -e
@@ -10,9 +10,9 @@ PACKAGE="git+${REPO}@${BRANCH}"
 
 # ── ANSI colors (disabled when not a TTY) ────────────────────────────────────
 if [ -t 1 ]; then
-    RESET="\033[0m"    BOLD="\033[1m"      DIM="\033[2m"
-    RED="\033[1;31m"   GREEN="\033[1;32m"  YELLOW="\033[1;33m"
-    BLUE="\033[1;34m"  CYAN="\033[1;36m"   WHITE="\033[1;37m"
+    RESET=$'\033[0m'    BOLD=$'\033[1m'      DIM=$'\033[2m'
+    RED=$'\033[1;31m'   GREEN=$'\033[1;32m'  YELLOW=$'\033[1;33m'
+    BLUE=$'\033[1;34m'  CYAN=$'\033[1;36m'   WHITE=$'\033[1;37m'
 else
     RESET="" BOLD="" DIM="" RED="" GREEN="" YELLOW="" BLUE="" CYAN="" WHITE=""
 fi
@@ -118,12 +118,12 @@ NBX_BIN=""
 for candidate in "$HOME/.local/bin/nbx" "$HOME/.cargo/bin/nbx" "$(command -v nbx 2>/dev/null)"; do
     [ -x "$candidate" ] && NBX_BIN="$candidate" && break
 done
-[ -z "$NBX_BIN" ] && NBX_BIN="nbx"
+[ -z "$NBX_BIN" ] && NBX_BIN="$HOME/.local/bin/nbx"
 info "binary: ${NBX_BIN}"
 
 # ── 3. Install Playwright Chromium ────────────────────────────────────────────
 step "Installing Playwright Chromium"
-info "required for  ${CYAN}nbx demo init${RESET}  (browser-based token retrieval)"
+info "required for 'nbx demo init'  (browser-based token retrieval)"
 
 PW_LOG="$(mktemp)"
 PW_OK=false
@@ -147,12 +147,52 @@ else
 fi
 rm -f "$PW_LOG"
 
+# ── 4. Ensure ~/.local/bin is on PATH ────────────────────────────────────────
+LOCAL_BIN="$HOME/.local/bin"
+PATH_OK=false
+case ":${PATH}:" in
+    *":${LOCAL_BIN}:"*) PATH_OK=true ;;
+esac
+
+if ! $PATH_OK; then
+    step "Setting up PATH"
+    info "${LOCAL_BIN} is not in your PATH — adding it now"
+
+    SHELL_RC=""
+    case "${SHELL}" in
+        */zsh)  SHELL_RC="$HOME/.zshrc" ;;
+        */fish) SHELL_RC="$HOME/.config/fish/config.fish" ;;
+        *)      SHELL_RC="$HOME/.bashrc" ;;
+    esac
+
+    PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\""
+    if [ -n "$SHELL_RC" ] && ! grep -qF '.local/bin' "$SHELL_RC" 2>/dev/null; then
+        printf '\n# Added by netbox-cli installer\n%s\n' "$PATH_LINE" >> "$SHELL_RC"
+        spinner_ok "Added to ${SHELL_RC}"
+    fi
+
+    # Apply for this session so the success message works
+    export PATH="$LOCAL_BIN:$PATH"
+fi
+
 # ── Done ──────────────────────────────────────────────────────────────────────
 printf "\n"
 printf "  ${GREEN}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
 printf "  ${GREEN}${BOLD}│${RESET}   ${GREEN}${BOLD}✔  netbox-cli is installed!${RESET}           ${GREEN}${BOLD}│${RESET}\n"
 printf "  ${GREEN}${BOLD}└─────────────────────────────────────────┘${RESET}\n"
 printf "\n"
+
+# PATH warning — installer runs in a subshell so the parent shell won't see
+# the updated PATH automatically. Always remind the user.
+if ! $PATH_OK; then
+    printf "  ${YELLOW}⚠${RESET}  ${BOLD}Reload your shell to use 'nbx':${RESET}\n\n"
+    printf "     ${CYAN}source ~/.bashrc${RESET}   ${DIM}# bash${RESET}\n"
+    printf "     ${CYAN}source ~/.zshrc${RESET}    ${DIM}# zsh${RESET}\n"
+    printf "\n"
+    printf "  ${DIM}Or run nbx directly without reloading:${RESET}\n\n"
+    printf "     ${CYAN}${NBX_BIN} --help${RESET}\n"
+    printf "\n"
+fi
 
 printf "  ${BOLD}Quick test — NetBox demo instance:${RESET}\n\n"
 printf "     ${CYAN}nbx demo init${RESET}                   ${DIM}# authenticate with demo.netbox.dev${RESET}\n"
