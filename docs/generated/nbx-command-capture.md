@@ -18,7 +18,7 @@ Run the capture **in the background** (log + pid):
 
 ## Generation metadata
 
-- **UTC time:** `2026-03-20T23:28:17.167508+00:00`
+- **UTC time:** `2026-03-21T00:04:12.357147+00:00`
 - **Profile used:** **demo profile** (`nbx demo …` commands → demo.netbox.dev)
 - **Effective NetBox URL:** `https://demo.netbox.dev`
 - **Effective timeout (s):** `30`
@@ -40,43 +40,43 @@ Run the capture **in the background** (log + pid):
 nbx --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.807`
+**Exit code:** `0`  ·  **Wall time (s):** `1.357`
 
 **Output:**
 
 ```text
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot [OPTIONS] COMMAND [ARGS]...[0m[1m                                       [0m[1m [0m
+[1m                                                                                [0m
+ NetBox API-first CLI/TUI. Dynamic command form: nbx [1;33m<group>[0m [1;33m<resource>[0m         
+ [1;33m<action>[0m                                                                       
                                                                                 
- Usage: root [OPTIONS] COMMAND [ARGS]...                                        
-                                                                                
- NetBox API-first CLI/TUI. Dynamic command form: nbx <group> <resource>         
- <action>                                                                       
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ init                                                                         │
-│ config                                                                       │
-│ groups                                                                       │
-│ resources                                                                    │
-│ ops                                                                          │
-│ call                                                                         │
-│ tui                                                                          │
-│ docs            Generate reference documentation (captured CLI               │
-│                 input/output).                                               │
-│ demo            NetBox demo.netbox.dev profile and command tree.             │
-│ circuits        OpenAPI app group: circuits                                  │
-│ core            OpenAPI app group: core                                      │
-│ dcim            OpenAPI app group: dcim                                      │
-│ extras          OpenAPI app group: extras                                    │
-│ ipam            OpenAPI app group: ipam                                      │
-│ plugins         OpenAPI app group: plugins                                   │
-│ tenancy         OpenAPI app group: tenancy                                   │
-│ users           OpenAPI app group: users                                     │
-│ virtualization  OpenAPI app group: virtualization                            │
-│ vpn             OpenAPI app group: vpn                                       │
-│ wireless        OpenAPI app group: wireless                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m          Show this message and exit.                                  [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+[2m╭─[0m[2m Commands [0m[2m──────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36minit          [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mconfig        [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mgroups        [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mresources     [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mops           [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mcall          [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mtui           [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mdocs          [0m[1;36m [0m Generate reference documentation (captured CLI               [2m│[0m
+[2m│[0m [1;36m               [0m input/output).                                               [2m│[0m
+[2m│[0m [1;36mdemo          [0m[1;36m [0m NetBox demo.netbox.dev profile and command tree.             [2m│[0m
+[2m│[0m [1;36mcircuits      [0m[1;36m [0m OpenAPI app group: circuits                                  [2m│[0m
+[2m│[0m [1;36mcore          [0m[1;36m [0m OpenAPI app group: core                                      [2m│[0m
+[2m│[0m [1;36mdcim          [0m[1;36m [0m OpenAPI app group: dcim                                      [2m│[0m
+[2m│[0m [1;36mextras        [0m[1;36m [0m OpenAPI app group: extras                                    [2m│[0m
+[2m│[0m [1;36mipam          [0m[1;36m [0m OpenAPI app group: ipam                                      [2m│[0m
+[2m│[0m [1;36mplugins       [0m[1;36m [0m OpenAPI app group: plugins                                   [2m│[0m
+[2m│[0m [1;36mtenancy       [0m[1;36m [0m OpenAPI app group: tenancy                                   [2m│[0m
+[2m│[0m [1;36musers         [0m[1;36m [0m OpenAPI app group: users                                     [2m│[0m
+[2m│[0m [1;36mvirtualization[0m[1;36m [0m OpenAPI app group: virtualization                            [2m│[0m
+[2m│[0m [1;36mvpn           [0m[1;36m [0m OpenAPI app group: vpn                                       [2m│[0m
+[2m│[0m [1;36mwireless      [0m[1;36m [0m OpenAPI app group: wireless                                  [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -89,23 +89,23 @@ nbx --help
 nbx init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.589`
+**Exit code:** `0`  ·  **Wall time (s):** `1.285`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root init [OPTIONS]                                                     
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --base-url            TEXT   NetBox base URL, e.g.                        │
-│                                 https://netbox.example.com                   │
-│                                 [required]                                   │
-│ *  --token-key           TEXT   NetBox API token key [required]              │
-│ *  --token-secret        TEXT   NetBox API token secret [required]           │
-│    --timeout             FLOAT  HTTP timeout in seconds [default: 30.0]      │
-│    --help                       Show this message and exit.                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot init [OPTIONS][0m[1m                                                    [0m[1m [0m
+[1m                                                                                [0m
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [31m*[0m  [1;36m-[0m[1;36m-base[0m[1;36m-url[0m            [1;33mTEXT [0m  NetBox base URL, e.g.                        [2m│[0m
+[2m│[0m                                 https://netbox.example.com                   [2m│[0m
+[2m│[0m                                 [2;31m[required]                                  [0m [2m│[0m
+[2m│[0m [31m*[0m  [1;36m-[0m[1;36m-token[0m[1;36m-key[0m           [1;33mTEXT [0m  NetBox API token key [2;31m[required][0m              [2m│[0m
+[2m│[0m [31m*[0m  [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m        [1;33mTEXT [0m  NetBox API token secret [2;31m[required][0m           [2m│[0m
+[2m│[0m    [1;36m-[0m[1;36m-timeout[0m             [1;33mFLOAT[0m  HTTP timeout in seconds [2m[default: 30.0][0m      [2m│[0m
+[2m│[0m    [1;36m-[0m[1;36m-help[0m                [1;33m     [0m  Show this message and exit.                  [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -118,18 +118,15 @@ nbx init --help
 nbx config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.759`
+**Exit code:** `1`  ·  **Wall time (s):** `1.271`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root config [OPTIONS]                                                   
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --show-token          Include API token in output                            │
-│ --help                Show this message and exit.                            │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -142,17 +139,15 @@ nbx config --help
 nbx groups --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.488`
+**Exit code:** `1`  ·  **Wall time (s):** `1.350`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root groups [OPTIONS]                                                   
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -165,20 +160,15 @@ nbx groups --help
 nbx resources --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.511`
+**Exit code:** `1`  ·  **Wall time (s):** `1.299`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root resources [OPTIONS] GROUP                                          
-                                                                                
-╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-│ *    group      TEXT  OpenAPI app group, e.g. dcim [required]                │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -191,21 +181,15 @@ nbx resources --help
 nbx ops --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.666`
+**Exit code:** `1`  ·  **Wall time (s):** `1.308`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root ops [OPTIONS] GROUP RESOURCE                                       
-                                                                                
-╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-│ *    group         TEXT  [required]                                          │
-│ *    resource      TEXT  [required]                                          │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -218,26 +202,15 @@ nbx ops --help
 nbx call --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.462`
+**Exit code:** `1`  ·  **Wall time (s):** `1.297`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root call [OPTIONS] METHOD PATH                                         
-                                                                                
-╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-│ *    method      TEXT  [required]                                            │
-│ *    path        TEXT  [required]                                            │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --query      -q      TEXT  Query parameter key=value                         │
-│ --body-json          TEXT  Inline JSON request body                          │
-│ --body-file          TEXT  Path to JSON request body file                    │
-│ --json                     Output raw JSON                                   │
-│ --yaml                     Output YAML                                       │
-│ --help                     Show this message and exit.                       │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -252,19 +225,19 @@ nbx tui --help
 
 *Launches the full Textual TUI when invoked without flags. --help shown here only.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.451`
+**Exit code:** `0`  ·  **Wall time (s):** `1.293`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root tui [OPTIONS]                                                      
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --theme          Theme selector. Use '--theme' to list available themes or   │
-│                  '--theme <name>' to launch with one.                        │
-│ --help           Show this message and exit.                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot tui [OPTIONS][0m[1m                                                     [0m[1m [0m
+[1m                                                                                [0m
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-theme[0m          Theme selector. Use '[1;36m-[0m[1;36m-theme[0m' to list available themes or   [2m│[0m
+[2m│[0m                  '[1;36m-[0m[1;36m-theme[0m [1;33m<name>[0m' to launch with one.                        [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m           Show this message and exit.                                 [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -279,7 +252,7 @@ nbx tui --theme
 
 *Lists available themes without launching the TUI.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.539`
+**Exit code:** `0`  ·  **Wall time (s):** `1.284`
 
 **Output:**
 
@@ -299,23 +272,23 @@ Available themes:
 nbx docs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.441`
+**Exit code:** `0`  ·  **Wall time (s):** `1.332`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root docs [OPTIONS] COMMAND [ARGS]...                                   
-                                                                                
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot docs [OPTIONS] COMMAND [ARGS]...[0m[1m                                  [0m[1m [0m
+[1m                                                                                [0m
  Generate reference documentation (captured CLI input/output).                  
                                                                                 
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ generate-capture  Capture every nbx command (input + output) and write       │
-│                   docs/generated/nbx-command-capture.md.                     │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m          Show this message and exit.                                  [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+[2m╭─[0m[2m Commands [0m[2m──────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36mgenerate-capture[0m[1;36m [0m Capture every nbx command (input + output) and write       [2m│[0m
+[2m│[0m [1;36m                 [0m docs/generated/nbx-command-capture.md.                     [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -328,35 +301,35 @@ nbx docs --help
 nbx docs generate-capture --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.445`
+**Exit code:** `0`  ·  **Wall time (s):** `1.287`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root docs generate-capture [OPTIONS]                                    
-                                                                                
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot docs generate-capture [OPTIONS][0m[1m                                   [0m[1m [0m
+[1m                                                                                [0m
  Capture every nbx command (input + output) and write                           
  docs/generated/nbx-command-capture.md.                                         
                                                                                 
- By default live-API specs run through ``nbx demo …`` (demo.netbox.dev).        
- Pass ``--live`` to run them against your configured default profile instead.   
+ [2mBy default live-API specs run through ``nbx demo …`` (demo.netbox.dev).[0m        
+ [2mPass ``[0m[1;2;36m-[0m[1;2;36m-live[0m[2m`` to run them against your configured default profile instead.[0m   
                                                                                 
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --output     -o      PATH     Markdown destination. Default:                 │
-│                               <repo>/docs/generated/nbx-command-capture.md   │
-│ --raw-dir            PATH     Raw JSON artifacts directory. Default:         │
-│                               <repo>/docs/generated/raw/                     │
-│ --max-lines          INTEGER  Max lines per command output in the Markdown.  │
-│                               [default: 200]                                 │
-│ --max-chars          INTEGER  Max chars per command output in the Markdown.  │
-│                               [default: 120000]                              │
-│ --live                        Use the default profile (your real NetBox)     │
-│                               instead of the demo profile. By default the    │
-│                               generator captures live-API specs against      │
-│                               demo.netbox.dev.                               │
-│ --help                        Show this message and exit.                    │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-output[0m     [1;32m-o[0m      [1;33mPATH   [0m  Markdown destination. Default:                 [2m│[0m
+[2m│[0m                               [1;33m<repo>[0m/docs/generated/nbx-command-capture.md   [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-raw[0m[1;36m-dir[0m            [1;33mPATH   [0m  Raw JSON artifacts directory. Default:         [2m│[0m
+[2m│[0m                               [1;33m<repo>[0m/docs/generated/raw/                     [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-max[0m[1;36m-lines[0m          [1;33mINTEGER[0m  Max lines per command output in the Markdown.  [2m│[0m
+[2m│[0m                               [2m[default: 200]                               [0m  [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-max[0m[1;36m-chars[0m          [1;33mINTEGER[0m  Max chars per command output in the Markdown.  [2m│[0m
+[2m│[0m                               [2m[default: 120000]                            [0m  [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-live[0m               [1;33m       [0m  Use the default profile (your real NetBox)     [2m│[0m
+[2m│[0m                               instead of the demo profile. By default the    [2m│[0m
+[2m│[0m                               generator captures live-API specs against      [2m│[0m
+[2m│[0m                               demo.netbox.dev.                               [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m               [1;33m       [0m  Show this message and exit.                    [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -371,41 +344,41 @@ nbx docs generate-capture --help
 nbx demo --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.655`
+**Exit code:** `0`  ·  **Wall time (s):** `1.285`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root demo [OPTIONS] COMMAND [ARGS]...                                   
-                                                                                
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot demo [OPTIONS] COMMAND [ARGS]...[0m[1m                                  [0m[1m [0m
+[1m                                                                                [0m
  NetBox demo.netbox.dev profile and command tree.                               
                                                                                 
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --token-key           TEXT  Set the demo profile directly without            │
-│                             Playwright.                                      │
-│ --token-secret        TEXT  Set the demo profile directly without            │
-│                             Playwright.                                      │
-│ --help                      Show this message and exit.                      │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ init            Authenticate with demo.netbox.dev via Playwright and save    │
-│                 the demo profile.                                            │
-│ config                                                                       │
-│ reset                                                                        │
-│ tui                                                                          │
-│ circuits        OpenAPI app group: circuits                                  │
-│ core            OpenAPI app group: core                                      │
-│ dcim            OpenAPI app group: dcim                                      │
-│ extras          OpenAPI app group: extras                                    │
-│ ipam            OpenAPI app group: ipam                                      │
-│ plugins         OpenAPI app group: plugins                                   │
-│ tenancy         OpenAPI app group: tenancy                                   │
-│ users           OpenAPI app group: users                                     │
-│ virtualization  OpenAPI app group: virtualization                            │
-│ vpn             OpenAPI app group: vpn                                       │
-│ wireless        OpenAPI app group: wireless                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-key[0m           [1;33mTEXT[0m  Set the demo profile directly without            [2m│[0m
+[2m│[0m                             Playwright.                                      [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m        [1;33mTEXT[0m  Set the demo profile directly without            [2m│[0m
+[2m│[0m                             Playwright.                                      [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m                [1;33m    [0m  Show this message and exit.                      [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+[2m╭─[0m[2m Commands [0m[2m──────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36minit          [0m[1;36m [0m Authenticate with demo.netbox.dev via Playwright and save    [2m│[0m
+[2m│[0m [1;36m               [0m the demo profile.                                            [2m│[0m
+[2m│[0m [1;36mconfig        [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mreset         [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mtui           [0m[1;36m [0m                                                              [2m│[0m
+[2m│[0m [1;36mcircuits      [0m[1;36m [0m OpenAPI app group: circuits                                  [2m│[0m
+[2m│[0m [1;36mcore          [0m[1;36m [0m OpenAPI app group: core                                      [2m│[0m
+[2m│[0m [1;36mdcim          [0m[1;36m [0m OpenAPI app group: dcim                                      [2m│[0m
+[2m│[0m [1;36mextras        [0m[1;36m [0m OpenAPI app group: extras                                    [2m│[0m
+[2m│[0m [1;36mipam          [0m[1;36m [0m OpenAPI app group: ipam                                      [2m│[0m
+[2m│[0m [1;36mplugins       [0m[1;36m [0m OpenAPI app group: plugins                                   [2m│[0m
+[2m│[0m [1;36mtenancy       [0m[1;36m [0m OpenAPI app group: tenancy                                   [2m│[0m
+[2m│[0m [1;36musers         [0m[1;36m [0m OpenAPI app group: users                                     [2m│[0m
+[2m│[0m [1;36mvirtualization[0m[1;36m [0m OpenAPI app group: virtualization                            [2m│[0m
+[2m│[0m [1;36mvpn           [0m[1;36m [0m OpenAPI app group: vpn                                       [2m│[0m
+[2m│[0m [1;36mwireless      [0m[1;36m [0m OpenAPI app group: wireless                                  [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -418,35 +391,35 @@ nbx demo --help
 nbx demo init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.478`
+**Exit code:** `0`  ·  **Wall time (s):** `1.279`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root demo init [OPTIONS]                                                
-                                                                                
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot demo init [OPTIONS][0m[1m                                               [0m[1m [0m
+[1m                                                                                [0m
  Authenticate with demo.netbox.dev via Playwright and save the demo profile.    
                                                                                 
- Pass ``--username`` and ``--password`` for non-interactive / CI use.           
- Alternatively, supply an existing token directly with ``--token-key`` and      
- ``--token-secret`` to skip Playwright entirely.                                
+ [2mPass ``[0m[1;2;36m-[0m[1;2;36m-username[0m[2m`` and ``[0m[1;2;36m-[0m[1;2;36m-password[0m[2m`` for non-interactive / CI use.[0m           
+ [2mAlternatively, supply an existing token directly with ``[0m[1;2;36m-[0m[1;2;36m-token[0m[1;2;36m-key[0m[2m`` and[0m      
+ [2m``[0m[1;2;36m-[0m[1;2;36m-token[0m[1;2;36m-secret[0m[2m`` to skip Playwright entirely.[0m                                
                                                                                 
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --headless          --headed          Run Playwright headless (default). Use │
-│                                       --headed only when a desktop/X server  │
-│                                       is available.                          │
-│                                       [default: headless]                    │
-│ --username      -u              TEXT  demo.netbox.dev username. Prompted     │
-│                                       interactively when omitted.            │
-│ --password      -p              TEXT  demo.netbox.dev password. Prompted     │
-│                                       interactively when omitted.            │
-│ --token-key                     TEXT  Set the demo profile directly without  │
-│                                       Playwright (requires --token-secret).  │
-│ --token-secret                  TEXT  Set the demo profile directly without  │
-│                                       Playwright (requires --token-key).     │
-│ --help                                Show this message and exit.            │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-headless[0m          [1;35m-[0m[1;35m-headed[0m    [1;33m    [0m  Run Playwright headless (default). Use [2m│[0m
+[2m│[0m                                       [1;36m-[0m[1;36m-headed[0m only when a desktop/X server  [2m│[0m
+[2m│[0m                                       is available.                          [2m│[0m
+[2m│[0m                                       [2m[default: headless]                   [0m [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-username[0m      [1;32m-u[0m              [1;33mTEXT[0m  demo.netbox.dev username. Prompted     [2m│[0m
+[2m│[0m                                       interactively when omitted.            [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-password[0m      [1;32m-p[0m              [1;33mTEXT[0m  demo.netbox.dev password. Prompted     [2m│[0m
+[2m│[0m                                       interactively when omitted.            [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-key[0m                     [1;33mTEXT[0m  Set the demo profile directly without  [2m│[0m
+[2m│[0m                                       Playwright (requires [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m).  [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m                  [1;33mTEXT[0m  Set the demo profile directly without  [2m│[0m
+[2m│[0m                                       Playwright (requires [1;36m-[0m[1;36m-token[0m[1;36m-key[0m).     [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m                          [1;33m    [0m  Show this message and exit.            [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -459,18 +432,18 @@ nbx demo init --help
 nbx demo config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.612`
+**Exit code:** `0`  ·  **Wall time (s):** `1.304`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root demo config [OPTIONS]                                              
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --show-token          Include API token in output                            │
-│ --help                Show this message and exit.                            │
-╰──────────────────────────────────────────────────────────────────────────────╯
+[1m                                                                                [0m
+[1m [0m[1;33mUsage: [0m[1mroot demo config [OPTIONS][0m[1m                                             [0m[1m [0m
+[1m                                                                                [0m
+[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+[2m│[0m [1;36m-[0m[1;36m-show[0m[1;36m-token[0m          Include API token in output                            [2m│[0m
+[2m│[0m [1;36m-[0m[1;36m-help[0m                Show this message and exit.                            [2m│[0m
+[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
 ```
 
 ---
@@ -487,22 +460,15 @@ nbx groups
 
 *Lists all OpenAPI app groups from the local schema file. No network call.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.436`
+**Exit code:** `1`  ·  **Wall time (s):** `1.383`
 
 **Output:**
 
 ```text
-circuits
-core
-dcim
-extras
-ipam
-plugins
-tenancy
-users
-virtualization
-vpn
-wireless
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -517,56 +483,15 @@ nbx resources dcim
 
 *Lists all resources under the 'dcim' app group.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.438`
+**Exit code:** `1`  ·  **Wall time (s):** `1.310`
 
 **Output:**
 
 ```text
-cable-terminations
-cables
-connected-device
-console-port-templates
-console-ports
-console-server-port-templates
-console-server-ports
-device-bay-templates
-device-bays
-device-roles
-device-types
-devices
-front-port-templates
-front-ports
-interface-templates
-interfaces
-inventory-item-roles
-inventory-item-templates
-inventory-items
-locations
-mac-addresses
-manufacturers
-module-bay-templates
-module-bays
-module-type-profiles
-module-types
-modules
-platforms
-power-feeds
-power-outlet-templates
-power-outlets
-power-panels
-power-port-templates
-power-ports
-rack-reservations
-rack-roles
-rack-types
-racks
-rear-port-templates
-rear-ports
-regions
-site-groups
-sites
-virtual-chassis
-virtual-device-contexts
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -581,26 +506,15 @@ nbx ops dcim devices
 
 *Lists HTTP operations (method, path, operationId) for dcim/devices.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.622`
+**Exit code:** `1`  ·  **Wall time (s):** `1.336`
 
 **Output:**
 
 ```text
-                                  dcim/devices                                  
-┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Method ┃ Path                             ┃ Operation ID                     ┃
-┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ DELETE │ /api/dcim/devices/               │ dcim_devices_bulk_destroy        │
-│ GET    │ /api/dcim/devices/               │ dcim_devices_list                │
-│ PATCH  │ /api/dcim/devices/               │ dcim_devices_bulk_partial_update │
-│ POST   │ /api/dcim/devices/               │ dcim_devices_create              │
-│ PUT    │ /api/dcim/devices/               │ dcim_devices_bulk_update         │
-│ DELETE │ /api/dcim/devices/{id}/          │ dcim_devices_destroy             │
-│ GET    │ /api/dcim/devices/{id}/          │ dcim_devices_retrieve            │
-│ PATCH  │ /api/dcim/devices/{id}/          │ dcim_devices_partial_update      │
-│ PUT    │ /api/dcim/devices/{id}/          │ dcim_devices_update              │
-│ POST   │ /api/dcim/devices/{id}/render-c… │ dcim_devices_render_config_crea… │
-└────────┴──────────────────────────────────┴──────────────────────────────────┘
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -613,29 +527,15 @@ nbx ops dcim devices
 nbx resources ipam
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.464`
+**Exit code:** `1`  ·  **Wall time (s):** `1.301`
 
 **Output:**
 
 ```text
-aggregates
-asn-ranges
-asns
-fhrp-group-assignments
-fhrp-groups
-ip-addresses
-ip-ranges
-prefixes
-rirs
-roles
-route-targets
-service-templates
-services
-vlan-groups
-vlan-translation-policies
-vlan-translation-rules
-vlans
-vrfs
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -652,66 +552,15 @@ nbx dcim --help
 
 *Auto-generated Typer sub-app for the 'dcim' OpenAPI group.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.471`
+**Exit code:** `1`  ·  **Wall time (s):** `1.295`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root dcim [OPTIONS] COMMAND [ARGS]...                                   
-                                                                                
- OpenAPI app group: dcim                                                        
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ cable-terminations             Resource: dcim/cable-terminations             │
-│ cables                         Resource: dcim/cables                         │
-│ connected-device               Resource: dcim/connected-device               │
-│ console-port-templates         Resource: dcim/console-port-templates         │
-│ console-ports                  Resource: dcim/console-ports                  │
-│ console-server-port-templates  Resource: dcim/console-server-port-templates  │
-│ console-server-ports           Resource: dcim/console-server-ports           │
-│ device-bay-templates           Resource: dcim/device-bay-templates           │
-│ device-bays                    Resource: dcim/device-bays                    │
-│ device-roles                   Resource: dcim/device-roles                   │
-│ device-types                   Resource: dcim/device-types                   │
-│ devices                        Resource: dcim/devices                        │
-│ front-port-templates           Resource: dcim/front-port-templates           │
-│ front-ports                    Resource: dcim/front-ports                    │
-│ interface-templates            Resource: dcim/interface-templates            │
-│ interfaces                     Resource: dcim/interfaces                     │
-│ inventory-item-roles           Resource: dcim/inventory-item-roles           │
-│ inventory-item-templates       Resource: dcim/inventory-item-templates       │
-│ inventory-items                Resource: dcim/inventory-items                │
-│ locations                      Resource: dcim/locations                      │
-│ mac-addresses                  Resource: dcim/mac-addresses                  │
-│ manufacturers                  Resource: dcim/manufacturers                  │
-│ module-bay-templates           Resource: dcim/module-bay-templates           │
-│ module-bays                    Resource: dcim/module-bays                    │
-│ module-type-profiles           Resource: dcim/module-type-profiles           │
-│ module-types                   Resource: dcim/module-types                   │
-│ modules                        Resource: dcim/modules                        │
-│ platforms                      Resource: dcim/platforms                      │
-│ power-feeds                    Resource: dcim/power-feeds                    │
-│ power-outlet-templates         Resource: dcim/power-outlet-templates         │
-│ power-outlets                  Resource: dcim/power-outlets                  │
-│ power-panels                   Resource: dcim/power-panels                   │
-│ power-port-templates           Resource: dcim/power-port-templates           │
-│ power-ports                    Resource: dcim/power-ports                    │
-│ rack-reservations              Resource: dcim/rack-reservations              │
-│ rack-roles                     Resource: dcim/rack-roles                     │
-│ rack-types                     Resource: dcim/rack-types                     │
-│ racks                          Resource: dcim/racks                          │
-│ rear-port-templates            Resource: dcim/rear-port-templates            │
-│ rear-ports                     Resource: dcim/rear-ports                     │
-│ regions                        Resource: dcim/regions                        │
-│ site-groups                    Resource: dcim/site-groups                    │
-│ sites                          Resource: dcim/sites                          │
-│ virtual-chassis                Resource: dcim/virtual-chassis                │
-│ virtual-device-contexts        Resource: dcim/virtual-device-contexts        │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -726,27 +575,15 @@ nbx dcim devices --help
 
 *Auto-generated Typer sub-app for dcim/devices.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.766`
+**Exit code:** `1`  ·  **Wall time (s):** `1.292`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root dcim devices [OPTIONS] COMMAND [ARGS]...                           
-                                                                                
- Resource: dcim/devices                                                         
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ list    list dcim/devices                                                    │
-│ get     get dcim/devices                                                     │
-│ create  create dcim/devices                                                  │
-│ update  update dcim/devices                                                  │
-│ patch   patch dcim/devices                                                   │
-│ delete  delete dcim/devices                                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -759,29 +596,15 @@ nbx dcim devices --help
 nbx dcim devices list --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.445`
+**Exit code:** `1`  ·  **Wall time (s):** `1.283`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root dcim devices list [OPTIONS]                                        
-                                                                                
- list dcim/devices                                                              
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --id                  INTEGER  Object ID for detail operations               │
-│ --query       -q      TEXT     Query parameter key=value                     │
-│ --body-json           TEXT     Inline JSON request body                      │
-│ --body-file           TEXT     Path to JSON request body file                │
-│ --json                         Output raw JSON                               │
-│ --yaml                         Output YAML                                   │
-│ --trace                        Fetch and render the cable trace as ASCII     │
-│                                when supported.                               │
-│ --trace-only                   Render only the cable trace ASCII output when │
-│                                supported.                                    │
-│ --help                         Show this message and exit.                   │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -794,27 +617,15 @@ nbx dcim devices list --help
 nbx ipam prefixes --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.434`
+**Exit code:** `1`  ·  **Wall time (s):** `1.288`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root ipam prefixes [OPTIONS] COMMAND [ARGS]...                          
-                                                                                
- Resource: ipam/prefixes                                                        
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ list    list ipam/prefixes                                                   │
-│ get     get ipam/prefixes                                                    │
-│ create  create ipam/prefixes                                                 │
-│ update  update ipam/prefixes                                                 │
-│ patch   patch ipam/prefixes                                                  │
-│ delete  delete ipam/prefixes                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -829,29 +640,15 @@ nbx dcim interfaces get --help
 
 *Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.524`
+**Exit code:** `1`  ·  **Wall time (s):** `1.313`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root dcim interfaces get [OPTIONS]                                      
-                                                                                
- get dcim/interfaces                                                            
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --id                  INTEGER  Object ID for detail operations               │
-│ --query       -q      TEXT     Query parameter key=value                     │
-│ --body-json           TEXT     Inline JSON request body                      │
-│ --body-file           TEXT     Path to JSON request body file                │
-│ --json                         Output raw JSON                               │
-│ --yaml                         Output YAML                                   │
-│ --trace                        Fetch and render the cable trace as ASCII     │
-│                                when supported.                               │
-│ --trace-only                   Render only the cable trace ASCII output when │
-│                                supported.                                    │
-│ --help                         Show this message and exit.                   │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -864,29 +661,15 @@ nbx dcim interfaces get --help
 nbx circuits circuit-terminations get --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.499`
+**Exit code:** `1`  ·  **Wall time (s):** `1.276`
 
 **Output:**
 
 ```text
-                                                                                
- Usage: root circuits circuit-terminations get [OPTIONS]                        
-                                                                                
- get circuits/circuit-terminations                                              
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --id                  INTEGER  Object ID for detail operations               │
-│ --query       -q      TEXT     Query parameter key=value                     │
-│ --body-json           TEXT     Inline JSON request body                      │
-│ --body-file           TEXT     Path to JSON request body file                │
-│ --json                         Output raw JSON                               │
-│ --yaml                         Output YAML                                   │
-│ --trace                        Fetch and render the cable trace as ASCII     │
-│                                when supported.                               │
-│ --trace-only                   Render only the cable trace ASCII output when │
-│                                supported.                                    │
-│ --help                         Show this message and exit.                   │
-╰──────────────────────────────────────────────────────────────────────────────╯
+NetBox endpoint configuration is required.
+NetBox host (example: https://netbox.example.com): 
+--- stderr ---
+[31mAborted.[0m
 ```
 
 ---
@@ -903,7 +686,7 @@ nbx demo dcim devices list
 
 *Runs against demo.netbox.dev using the configured demo profile. Returns real data when the demo token is valid; 401/403 otherwise.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.702`
+**Exit code:** `0`  ·  **Wall time (s):** `1.867`
 
 *Output truncated for this doc (max 200 lines / 120000 chars).*
 
@@ -1126,7 +909,7 @@ nbx demo ipam prefixes list
 
 *Requires a valid demo profile token.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.202`
+**Exit code:** `0`  ·  **Wall time (s):** `2.019`
 
 **Output:**
 
@@ -1299,7 +1082,7 @@ Status: 200
 nbx demo dcim sites list
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.087`
+**Exit code:** `0`  ·  **Wall time (s):** `1.547`
 
 **Output:**
 
@@ -1379,7 +1162,7 @@ nbx demo dcim interfaces get --id 1 --trace
 
 *Fetches the interface object and appends an ASCII cable trace diagram. Requires the interface to have a connected cable in demo.netbox.dev.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.910`
+**Exit code:** `0`  ·  **Wall time (s):** `1.728`
 
 **Output:**
 
@@ -1529,7 +1312,7 @@ nbx demo dcim interfaces get --id 1 --trace-only
 
 *Renders only the cable trace, omitting the object detail table.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.442`
+**Exit code:** `0`  ·  **Wall time (s):** `1.676`
 
 **Output:**
 
@@ -1562,7 +1345,7 @@ nbx demo circuits circuit-terminations get --id 15 --trace
 
 *Circuit terminations also expose a ``/trace/`` endpoint. Renders the full path from the physical interface through the circuit.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.326`
+**Exit code:** `0`  ·  **Wall time (s):** `1.613`
 
 **Output:**
 
@@ -1667,7 +1450,7 @@ nbx demo circuits circuit-terminations get --id 15 --trace-only
 
 *Trace-only view for a circuit termination — no object detail table.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.579`
+**Exit code:** `0`  ·  **Wall time (s):** `1.716`
 
 **Output:**
 

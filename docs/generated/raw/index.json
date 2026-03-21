@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-03-20T23:28:17.167508+00:00",
+    "generated_at": "2026-03-21T00:04:12.357147+00:00",
     "profile": "demo",
     "netbox_url": "https://demo.netbox.dev",
     "timeout": "30",
@@ -14,7 +14,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.807,
+      "elapsed_seconds": 1.357,
       "truncated": false
     },
     {
@@ -25,7 +25,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.589,
+      "elapsed_seconds": 1.285,
       "truncated": false
     },
     {
@@ -35,8 +35,8 @@
         "config",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.759,
+      "exit_code": 1,
+      "elapsed_seconds": 1.271,
       "truncated": false
     },
     {
@@ -46,8 +46,8 @@
         "groups",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.488,
+      "exit_code": 1,
+      "elapsed_seconds": 1.35,
       "truncated": false
     },
     {
@@ -57,8 +57,8 @@
         "resources",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.511,
+      "exit_code": 1,
+      "elapsed_seconds": 1.299,
       "truncated": false
     },
     {
@@ -68,8 +68,8 @@
         "ops",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.666,
+      "exit_code": 1,
+      "elapsed_seconds": 1.308,
       "truncated": false
     },
     {
@@ -79,8 +79,8 @@
         "call",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.462,
+      "exit_code": 1,
+      "elapsed_seconds": 1.297,
       "truncated": false
     },
     {
@@ -91,7 +91,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.451,
+      "elapsed_seconds": 1.293,
       "truncated": false
     },
     {
@@ -102,7 +102,7 @@
         "--theme"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.539,
+      "elapsed_seconds": 1.284,
       "truncated": false
     },
     {
@@ -113,7 +113,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.441,
+      "elapsed_seconds": 1.332,
       "truncated": false
     },
     {
@@ -125,7 +125,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.445,
+      "elapsed_seconds": 1.287,
       "truncated": false
     },
     {
@@ -136,7 +136,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.655,
+      "elapsed_seconds": 1.285,
       "truncated": false
     },
     {
@@ -148,7 +148,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.478,
+      "elapsed_seconds": 1.279,
       "truncated": false
     },
     {
@@ -160,7 +160,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.612,
+      "elapsed_seconds": 1.304,
       "truncated": false
     },
     {
@@ -169,8 +169,8 @@
       "argv": [
         "groups"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.436,
+      "exit_code": 1,
+      "elapsed_seconds": 1.383,
       "truncated": false
     },
     {
@@ -180,8 +180,8 @@
         "resources",
         "dcim"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.438,
+      "exit_code": 1,
+      "elapsed_seconds": 1.31,
       "truncated": false
     },
     {
@@ -192,8 +192,8 @@
         "dcim",
         "devices"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.622,
+      "exit_code": 1,
+      "elapsed_seconds": 1.336,
       "truncated": false
     },
     {
@@ -203,8 +203,8 @@
         "resources",
         "ipam"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.464,
+      "exit_code": 1,
+      "elapsed_seconds": 1.301,
       "truncated": false
     },
     {
@@ -214,8 +214,8 @@
         "dcim",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.471,
+      "exit_code": 1,
+      "elapsed_seconds": 1.295,
       "truncated": false
     },
     {
@@ -226,8 +226,8 @@
         "devices",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.766,
+      "exit_code": 1,
+      "elapsed_seconds": 1.292,
       "truncated": false
     },
     {
@@ -239,8 +239,8 @@
         "list",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.445,
+      "exit_code": 1,
+      "elapsed_seconds": 1.283,
       "truncated": false
     },
     {
@@ -251,8 +251,8 @@
         "prefixes",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.434,
+      "exit_code": 1,
+      "elapsed_seconds": 1.288,
       "truncated": false
     },
     {
@@ -264,8 +264,8 @@
         "get",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.524,
+      "exit_code": 1,
+      "elapsed_seconds": 1.313,
       "truncated": false
     },
     {
@@ -277,8 +277,8 @@
         "get",
         "--help"
       ],
-      "exit_code": 0,
-      "elapsed_seconds": 1.499,
+      "exit_code": 1,
+      "elapsed_seconds": 1.276,
       "truncated": false
     },
     {
@@ -291,7 +291,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.702,
+      "elapsed_seconds": 1.867,
       "truncated": true
     },
     {
@@ -304,7 +304,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.202,
+      "elapsed_seconds": 2.019,
       "truncated": false
     },
     {
@@ -317,7 +317,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.087,
+      "elapsed_seconds": 1.547,
       "truncated": false
     },
     {
@@ -333,7 +333,7 @@
         "--trace"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.91,
+      "elapsed_seconds": 1.728,
       "truncated": false
     },
     {
@@ -349,7 +349,7 @@
         "--trace-only"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.442,
+      "elapsed_seconds": 1.676,
       "truncated": false
     },
     {
@@ -365,7 +365,7 @@
         "--trace"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.326,
+      "elapsed_seconds": 1.613,
       "truncated": false
     },
     {
@@ -381,7 +381,7 @@
         "--trace-only"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.579,
+      "elapsed_seconds": 1.716,
       "truncated": false
     }
   ]
