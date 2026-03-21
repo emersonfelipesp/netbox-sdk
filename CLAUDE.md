@@ -12,6 +12,7 @@
 | `docs/` | [→](docs/CLAUDE.md) | MkDocs documentation source + generated capture outputs |
 | `.github/` | [→](.github/CLAUDE.md) | GitHub Actions workflows (CI tests, docs build + deploy) |
 | `reference/` | [→](reference/CLAUDE.md) | Design guides (NETBOX-DARK-PATTERNS, TOAD), Textual app references |
+| `SECURITY-GUIDE.md` | n/a | Security hardening guide: URL validation, secret storage, cache privacy, terminal output sanitization, security tests |
 
 ---
 
@@ -31,6 +32,9 @@ Shared:
   config.py     → ~/.config/netbox-cli/config.json
   theme_registry.py → netbox_cli/themes/*.json
   trace_ascii.py, demo_auth.py, docgen_capture.py
+
+Security Reference:
+  SECURITY-GUIDE.md → implemented hardening controls + verification commands
 ```
 
 **Data flow:**
