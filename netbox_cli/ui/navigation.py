@@ -1,27 +1,30 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict
 
 from netbox_cli.schema import SchemaIndex
 
 from .formatting import humanize_resource
 
 
-@dataclass(slots=True, frozen=True)
-class NavItem:
+class NavItem(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     label: str
     group: str | None = None
     resource: str | None = None
 
 
-@dataclass(slots=True, frozen=True)
-class NavGroup:
+class NavGroup(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     label: str
     items: tuple[NavItem, ...]
 
 
-@dataclass(slots=True, frozen=True)
-class NavMenu:
+class NavMenu(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     label: str
     groups: tuple[NavGroup, ...]
 

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from typing import Any
+
+from pydantic import BaseModel
 
 from .api import NetBoxApiClient, ApiResponse
 from .schema import SchemaIndex
@@ -17,13 +18,11 @@ ACTION_METHOD_MAP = {
 }
 
 
-@dataclass(slots=True)
-class ResolvedRequest:
+class ResolvedRequest(BaseModel):
     method: str
     path: str
     query: dict[str, str]
     payload: dict[str, Any] | list[Any] | None
-
 
 
 def parse_key_value_pairs(values: list[str]) -> dict[str, str]:
@@ -37,7 +36,6 @@ def parse_key_value_pairs(values: list[str]) -> dict[str, str]:
             raise ValueError(f"Expected key=value format, got: {raw}")
         parsed[key] = value
     return parsed
-
 
 
 def load_json_payload(body_json: str | None, body_file: str | None) -> dict[str, Any] | list[Any] | None:
@@ -55,7 +53,6 @@ def load_json_payload(body_json: str | None, body_file: str | None) -> dict[str,
             raise ValueError("--body-file content must be an object or array")
         return value
     return None
-
 
 
 def resolve_dynamic_request(
