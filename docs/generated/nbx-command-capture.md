@@ -18,7 +18,7 @@ Run the capture **in the background** (log + pid):
 
 ## Generation metadata
 
-- **UTC time:** `2026-03-21T00:20:50.519623+00:00`
+- **UTC time:** `2026-03-21T00:29:25.000243+00:00`
 - **Profile used:** **demo profile** (`nbx demo …` commands → demo.netbox.dev)
 - **Effective NetBox URL:** `https://demo.netbox.dev`
 - **Effective timeout (s):** `30`
@@ -40,7 +40,7 @@ Run the capture **in the background** (log + pid):
 nbx --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.373`
+**Exit code:** `0`  ·  **Wall time (s):** `1.096`
 
 **Output:**
 
@@ -89,7 +89,7 @@ nbx --help
 nbx init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.297`
+**Exit code:** `0`  ·  **Wall time (s):** `1.048`
 
 **Output:**
 
@@ -118,7 +118,7 @@ nbx init --help
 nbx config --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.286`
+**Exit code:** `1`  ·  **Wall time (s):** `1.043`
 
 **Output:**
 
@@ -139,7 +139,7 @@ NetBox host (example: https://netbox.example.com):
 nbx groups --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.373`
+**Exit code:** `1`  ·  **Wall time (s):** `1.126`
 
 **Output:**
 
@@ -160,7 +160,7 @@ NetBox host (example: https://netbox.example.com):
 nbx resources --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.330`
+**Exit code:** `1`  ·  **Wall time (s):** `1.070`
 
 **Output:**
 
@@ -181,7 +181,7 @@ NetBox host (example: https://netbox.example.com):
 nbx ops --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.317`
+**Exit code:** `1`  ·  **Wall time (s):** `1.072`
 
 **Output:**
 
@@ -202,7 +202,7 @@ NetBox host (example: https://netbox.example.com):
 nbx call --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.326`
+**Exit code:** `1`  ·  **Wall time (s):** `1.064`
 
 **Output:**
 
@@ -225,7 +225,7 @@ nbx tui --help
 
 *Launches the full Textual TUI when invoked without flags. --help shown here only.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.316`
+**Exit code:** `0`  ·  **Wall time (s):** `1.060`
 
 **Output:**
 
@@ -252,7 +252,7 @@ nbx tui --theme
 
 *Lists available themes without launching the TUI.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.314`
+**Exit code:** `0`  ·  **Wall time (s):** `1.059`
 
 **Output:**
 
@@ -272,7 +272,7 @@ Available themes:
 nbx docs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.352`
+**Exit code:** `0`  ·  **Wall time (s):** `1.092`
 
 **Output:**
 
@@ -301,7 +301,7 @@ nbx docs --help
 nbx docs generate-capture --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.327`
+**Exit code:** `0`  ·  **Wall time (s):** `1.059`
 
 **Output:**
 
@@ -344,7 +344,7 @@ nbx docs generate-capture --help
 nbx demo --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.310`
+**Exit code:** `0`  ·  **Wall time (s):** `1.051`
 
 **Output:**
 
@@ -391,7 +391,7 @@ nbx demo --help
 nbx demo init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.305`
+**Exit code:** `0`  ·  **Wall time (s):** `1.049`
 
 **Output:**
 
@@ -432,7 +432,7 @@ nbx demo init --help
 nbx demo config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.324`
+**Exit code:** `0`  ·  **Wall time (s):** `1.159`
 
 **Output:**
 
@@ -460,7 +460,7 @@ nbx groups
 
 *Lists all OpenAPI app groups from the local schema file. No network call.*
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.408`
+**Exit code:** `1`  ·  **Wall time (s):** `1.099`
 
 **Output:**
 
@@ -483,7 +483,7 @@ nbx resources dcim
 
 *Lists all resources under the 'dcim' app group.*
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.313`
+**Exit code:** `1`  ·  **Wall time (s):** `1.059`
 
 **Output:**
 
@@ -506,7 +506,7 @@ nbx ops dcim devices
 
 *Lists HTTP operations (method, path, operationId) for dcim/devices.*
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.394`
+**Exit code:** `1`  ·  **Wall time (s):** `1.062`
 
 **Output:**
 
@@ -527,7 +527,7 @@ NetBox host (example: https://netbox.example.com):
 nbx resources ipam
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.332`
+**Exit code:** `1`  ·  **Wall time (s):** `1.058`
 
 **Output:**
 
@@ -552,7 +552,7 @@ nbx dcim --help
 
 *Auto-generated Typer sub-app for the 'dcim' OpenAPI group.*
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.303`
+**Exit code:** `1`  ·  **Wall time (s):** `1.054`
 
 **Output:**
 
@@ -575,7 +575,7 @@ nbx dcim devices --help
 
 *Auto-generated Typer sub-app for dcim/devices.*
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.310`
+**Exit code:** `1`  ·  **Wall time (s):** `1.054`
 
 **Output:**
 
@@ -596,7 +596,7 @@ NetBox host (example: https://netbox.example.com):
 nbx dcim devices list --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.304`
+**Exit code:** `1`  ·  **Wall time (s):** `1.050`
 
 **Output:**
 
@@ -617,7 +617,7 @@ NetBox host (example: https://netbox.example.com):
 nbx ipam prefixes --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.288`
+**Exit code:** `1`  ·  **Wall time (s):** `1.046`
 
 **Output:**
 
@@ -640,7 +640,7 @@ nbx dcim interfaces get --help
 
 *Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.*
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.293`
+**Exit code:** `1`  ·  **Wall time (s):** `1.044`
 
 **Output:**
 
@@ -661,7 +661,7 @@ NetBox host (example: https://netbox.example.com):
 nbx circuits circuit-terminations get --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.287`
+**Exit code:** `1`  ·  **Wall time (s):** `1.036`
 
 **Output:**
 
@@ -686,7 +686,7 @@ nbx demo dcim devices list
 
 *Runs against demo.netbox.dev using the configured demo profile. Returns real data when the demo token is valid; 401/403 otherwise.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.002`
+**Exit code:** `0`  ·  **Wall time (s):** `2.014`
 
 *Output truncated for this doc (max 200 lines / 120000 chars).*
 
@@ -909,7 +909,7 @@ nbx demo ipam prefixes list
 
 *Requires a valid demo profile token.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.791`
+**Exit code:** `0`  ·  **Wall time (s):** `1.656`
 
 **Output:**
 
@@ -1082,7 +1082,7 @@ Status: 200
 nbx demo dcim sites list
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.645`
+**Exit code:** `0`  ·  **Wall time (s):** `1.617`
 
 **Output:**
 
@@ -1162,7 +1162,7 @@ nbx demo dcim interfaces get --id 1 --trace
 
 *Fetches the interface object and appends an ASCII cable trace diagram. Requires the interface to have a connected cable in demo.netbox.dev.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.854`
+**Exit code:** `0`  ·  **Wall time (s):** `1.778`
 
 **Output:**
 
@@ -1312,7 +1312,7 @@ nbx demo dcim interfaces get --id 1 --trace-only
 
 *Renders only the cable trace, omitting the object detail table.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.800`
+**Exit code:** `0`  ·  **Wall time (s):** `1.757`
 
 **Output:**
 
@@ -1345,7 +1345,7 @@ nbx demo circuits circuit-terminations get --id 15 --trace
 
 *Circuit terminations also expose a ``/trace/`` endpoint. Renders the full path from the physical interface through the circuit.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.697`
+**Exit code:** `0`  ·  **Wall time (s):** `1.829`
 
 **Output:**
 
@@ -1450,7 +1450,7 @@ nbx demo circuits circuit-terminations get --id 15 --trace-only
 
 *Trace-only view for a circuit termination — no object detail table.*
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.695`
+**Exit code:** `0`  ·  **Wall time (s):** `1.757`
 
 **Output:**
 
