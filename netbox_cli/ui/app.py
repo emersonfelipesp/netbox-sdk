@@ -440,10 +440,17 @@ class NetBoxTuiApp(App[None]):
         try:
             response = await self.client.request("GET", paths.list_path, query=query)
         except Exception as exc:  # noqa: BLE001
+            # Discard if the user navigated away while the request was in-flight.
+            if self.current_group != group or self.current_resource != resource:
+                return
             self.current_rows = []
             self._render_results_table([])
             self._stop_results_loading()
             self._set_status(f"Request failed: {exc}")
+            return
+
+        # Discard stale response if the user navigated away while awaiting.
+        if self.current_group != group or self.current_resource != resource:
             return
 
         rows = parse_response_rows(response.text)
@@ -650,6 +657,13 @@ class NetBoxTuiApp(App[None]):
             self.query_one("#results_status", Static).remove_class("-loading")
         except NoMatches:
             pass
+
+    def _clear_results_table(self) -> None:
+        """Clear the results table to a blank loading placeholder immediately."""
+        table = self.query_one("#results_table", DataTable)
+        table.clear(columns=True)
+        table.add_columns("sel", "result")
+        table.add_row("", "")
 
     @work(group="connection_probe", exclusive=True, thread=False)
     async def _probe_connection_health(self) -> None:

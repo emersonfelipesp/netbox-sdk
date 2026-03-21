@@ -8,6 +8,7 @@ from pathlib import Path
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_CONFIG_DIRNAME = "netbox-cli"
 DEFAULT_CONFIG_FILENAME = "config.json"
+DEFAULT_HTTP_CACHE_DIRNAME = "http-cache"
 TOKEN_KEY_ENV_VAR = "NETBOX_TOKEN_KEY"
 TOKEN_SECRET_ENV_VAR = "NETBOX_TOKEN_SECRET"
 BASE_URL_ENV_VAR = "NETBOX_URL"
@@ -42,6 +43,10 @@ def config_path() -> Path:
         cfg_dir = Path.home() / ".config" / DEFAULT_CONFIG_DIRNAME
     cfg_dir.mkdir(parents=True, exist_ok=True)
     return cfg_dir / DEFAULT_CONFIG_FILENAME
+
+
+def cache_dir() -> Path:
+    return config_path().parent / DEFAULT_HTTP_CACHE_DIRNAME
 
 
 def _load_raw_document() -> dict[str, object]:

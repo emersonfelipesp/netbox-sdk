@@ -44,7 +44,8 @@ def test_runtime_config_complete_v1_without_token_key() -> None:
 
 
 @pytest.mark.asyncio
-async def test_api_client_retries_with_v1_on_invalid_v2(monkeypatch) -> None:
+async def test_api_client_retries_with_v1_on_invalid_v2(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     cfg = Config(
         base_url="https://demo.netbox.dev",
         token_version="v2",
@@ -98,7 +99,8 @@ async def test_api_client_retries_with_v1_on_invalid_v2(monkeypatch) -> None:
 
 
 @pytest.mark.asyncio
-async def test_api_client_does_not_retry_non_auth_error(monkeypatch) -> None:
+async def test_api_client_does_not_retry_non_auth_error(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     cfg = Config(
         base_url="https://demo.netbox.dev",
         token_version="v2",
