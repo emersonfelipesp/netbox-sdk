@@ -36,6 +36,9 @@ The fastest way to try `netbox-cli` — one command installs everything and conn
 **Install:**
 
 ```bash
+# Debian/Ubuntu — install curl if not present
+sudo apt-get update && sudo apt-get install -y curl
+
 curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash
 ```
 
