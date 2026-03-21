@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # netbox-cli installer — pipe to bash, not sh (uses bash arrays/builtins)
-# curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/v2/install.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash
 
 set -e
 
 REPO="https://github.com/emersonfelipesp/netbox-cli.git"
-BRANCH="v2"
+BRANCH="main"
 PACKAGE="git+${REPO}@${BRANCH}"
 
 # ── ANSI colors (disabled when not a TTY) ────────────────────────────────────
@@ -99,7 +99,7 @@ else
 
     if [ -z "$UV_BIN" ]; then
         spinner_fail "uv installed but not found — restart your shell and re-run:"
-        printf "\n     ${DIM}curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/v2/install.sh | bash${RESET}\n\n"
+        printf "\n     ${DIM}curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash${RESET}\n\n"
         exit 0
     fi
 
