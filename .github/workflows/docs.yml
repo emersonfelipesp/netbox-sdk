@@ -26,9 +26,32 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install netbox-cli and docs dependencies
-        run: pip install -e ".[docs]"
+      - name: Install netbox-cli and docs + dev dependencies
+        run: pip install -e ".[docs,dev]"
 
+      # ── Docgen: regenerate captured CLI output ────────────────────────────
+      - name: Install Playwright and Chromium browser
+        if: ${{ secrets.DEMO_USERNAME != '' && secrets.DEMO_PASSWORD != '' }}
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+
+      - name: Authenticate with demo.netbox.dev
+        if: ${{ secrets.DEMO_USERNAME != '' && secrets.DEMO_PASSWORD != '' }}
+        run: |
+          nbx demo init \
+            --username "${{ secrets.DEMO_USERNAME }}" \
+            --password "${{ secrets.DEMO_PASSWORD }}" \
+            --headless
+        # Required repository secrets:
+        #   DEMO_USERNAME  →  nbxuser
+        #   DEMO_PASSWORD  →  @nm12345678
+
+      - name: Regenerate command capture docs
+        if: ${{ secrets.DEMO_USERNAME != '' && secrets.DEMO_PASSWORD != '' }}
+        run: nbx docs generate-capture
+
+      # ── Build + deploy ────────────────────────────────────────────────────
       - name: Configure git identity for gh-deploy
         run: |
           git config user.name  "github-actions[bot]"
