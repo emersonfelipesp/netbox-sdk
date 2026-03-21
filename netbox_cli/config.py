@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 import os
 import stat
-from dataclasses import asdict, dataclass
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
+
+from pydantic import BaseModel, field_validator
 
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_CONFIG_DIRNAME = "netbox-cli"
@@ -19,13 +20,44 @@ DEMO_PROFILE = "demo"
 DEMO_BASE_URL = "https://demo.netbox.dev"
 
 
-@dataclass(slots=True)
-class Config:
+class Config(BaseModel):
     base_url: str | None = None
     token_version: str = "v2"
     token_key: str | None = None
     token_secret: str | None = None
     timeout: float = DEFAULT_TIMEOUT
+
+    @field_validator("base_url", mode="before")
+    @classmethod
+    def _normalize_url(cls, v: object) -> str | None:
+        if v is None:
+            return None
+        raw = str(v).strip()
+        if not raw:
+            return None
+        return normalize_base_url(raw)
+
+    @field_validator("token_version", mode="before")
+    @classmethod
+    def _normalize_token_version(cls, v: object) -> str:
+        raw = str(v or "v2").strip().lower()
+        return raw if raw in {"v1", "v2"} else "v2"
+
+    @field_validator("token_key", "token_secret", mode="before")
+    @classmethod
+    def _coerce_optional_str(cls, v: object) -> str | None:
+        if v is None:
+            return None
+        s = str(v).strip()
+        return s if s else None
+
+    @field_validator("timeout", mode="before")
+    @classmethod
+    def _coerce_timeout(cls, v: object) -> float:
+        try:
+            return float(v or DEFAULT_TIMEOUT)
+        except (TypeError, ValueError):
+            return DEFAULT_TIMEOUT
 
 
 def normalize_base_url(value: str) -> str:
@@ -91,26 +123,12 @@ def _load_raw_document() -> dict[str, object]:
 
 
 def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
-    raw_url_obj = payload.get("base_url")
-    raw_token_version = str(payload.get("token_version") or "v2").strip().lower()
-    raw_token_key = payload.get("token_key")
-    raw_token_secret = payload.get("token_secret")
-    timeout = float(payload.get("timeout") or DEFAULT_TIMEOUT)
-
+    raw: dict[str, object] = dict(payload)
     if apply_env:
-        raw_url_obj = raw_url_obj or os.environ.get(BASE_URL_ENV_VAR)
-        raw_token_key = raw_token_key or os.environ.get(TOKEN_KEY_ENV_VAR)
-        raw_token_secret = raw_token_secret or os.environ.get(TOKEN_SECRET_ENV_VAR)
-
-    raw_url = str(raw_url_obj).strip() if raw_url_obj else ""
-    token_version = raw_token_version if raw_token_version in {"v1", "v2"} else "v2"
-    return Config(
-        base_url=normalize_base_url(raw_url) if raw_url else None,
-        token_version=token_version,
-        token_key=str(raw_token_key) if raw_token_key else None,
-        token_secret=str(raw_token_secret) if raw_token_secret else None,
-        timeout=timeout,
-    )
+        raw["base_url"] = raw.get("base_url") or os.environ.get(BASE_URL_ENV_VAR)
+        raw["token_key"] = raw.get("token_key") or os.environ.get(TOKEN_KEY_ENV_VAR)
+        raw["token_secret"] = raw.get("token_secret") or os.environ.get(TOKEN_SECRET_ENV_VAR)
+    return Config.model_validate(raw)
 
 
 def load_profile_config(profile: str = DEFAULT_PROFILE) -> Config:
@@ -155,7 +173,7 @@ def save_profile_config(profile: str, cfg: Config) -> None:
     else:
         profiles_obj = stored.get("profiles")
         profiles = dict(profiles_obj) if isinstance(profiles_obj, dict) else {}
-    serialized = asdict(cfg)
+    serialized = cfg.model_dump()
     if profile == DEMO_PROFILE:
         serialized["base_url"] = DEMO_BASE_URL
     profiles[profile] = serialized

@@ -6,15 +6,17 @@ import json
 import os
 import sys
 import time
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from inspect import signature
 from pathlib import Path
 from typing import Any, TextIO
 
+from pydantic import BaseModel, ConfigDict
 
-@dataclass(frozen=True, slots=True)
-class CaptureSpec:
+
+class CaptureSpec(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     section: str
     title: str
     argv: list[str]
@@ -171,91 +173,91 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
     # ── Shared: help banners and schema-discovery (no network, no profile) ────
     specs: list[CaptureSpec] = [
         # Top-level help banners
-        CaptureSpec("Top-level", "nbx --help", ["--help"]),
-        CaptureSpec("Top-level", "nbx init --help", ["init", "--help"]),
-        CaptureSpec("Top-level", "nbx config --help", ["config", "--help"]),
-        CaptureSpec("Top-level", "nbx groups --help", ["groups", "--help"]),
-        CaptureSpec("Top-level", "nbx resources --help", ["resources", "--help"]),
-        CaptureSpec("Top-level", "nbx ops --help", ["ops", "--help"]),
-        CaptureSpec("Top-level", "nbx call --help", ["call", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx --help", argv=["--help"]),
+        CaptureSpec(section="Top-level", title="nbx init --help", argv=["init", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx config --help", argv=["config", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx groups --help", argv=["groups", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx resources --help", argv=["resources", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx ops --help", argv=["ops", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx call --help", argv=["call", "--help"]),
         CaptureSpec(
-            "Top-level",
-            "nbx tui --help",
-            ["tui", "--help"],
+            section="Top-level",
+            title="nbx tui --help",
+            argv=["tui", "--help"],
             notes="Launches the full Textual TUI when invoked without flags. --help shown here only.",
         ),
         CaptureSpec(
-            "Top-level",
-            "nbx tui --theme",
-            ["tui", "--theme"],
+            section="Top-level",
+            title="nbx tui --theme",
+            argv=["tui", "--theme"],
             notes="Lists available themes without launching the TUI.",
         ),
-        CaptureSpec("Top-level", "nbx docs --help", ["docs", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx docs --help", argv=["docs", "--help"]),
         CaptureSpec(
-            "Top-level",
-            "nbx docs generate-capture --help",
-            ["docs", "generate-capture", "--help"],
+            section="Top-level",
+            title="nbx docs generate-capture --help",
+            argv=["docs", "generate-capture", "--help"],
         ),
         # Demo sub-app help
-        CaptureSpec("Demo profile", "nbx demo --help", ["demo", "--help"]),
-        CaptureSpec("Demo profile", "nbx demo init --help", ["demo", "init", "--help"]),
+        CaptureSpec(section="Demo profile", title="nbx demo --help", argv=["demo", "--help"]),
+        CaptureSpec(section="Demo profile", title="nbx demo init --help", argv=["demo", "init", "--help"]),
         CaptureSpec(
-            "Demo profile", "nbx demo config --help", ["demo", "config", "--help"]
+            section="Demo profile", title="nbx demo config --help", argv=["demo", "config", "--help"]
         ),
         # Schema discovery (reads reference/openapi/netbox-openapi.json — no network)
         CaptureSpec(
-            "Schema Discovery",
-            "nbx groups",
-            ["groups"],
+            section="Schema Discovery",
+            title="nbx groups",
+            argv=["groups"],
             notes="Lists all OpenAPI app groups from the local schema file. No network call.",
         ),
         CaptureSpec(
-            "Schema Discovery",
-            "nbx resources dcim",
-            ["resources", "dcim"],
+            section="Schema Discovery",
+            title="nbx resources dcim",
+            argv=["resources", "dcim"],
             notes="Lists all resources under the 'dcim' app group.",
         ),
         CaptureSpec(
-            "Schema Discovery",
-            "nbx ops dcim devices",
-            ["ops", "dcim", "devices"],
+            section="Schema Discovery",
+            title="nbx ops dcim devices",
+            argv=["ops", "dcim", "devices"],
             notes="Lists HTTP operations (method, path, operationId) for dcim/devices.",
         ),
         CaptureSpec(
-            "Schema Discovery",
-            "nbx resources ipam",
-            ["resources", "ipam"],
+            section="Schema Discovery",
+            title="nbx resources ipam",
+            argv=["resources", "ipam"],
         ),
         # Dynamic sub-commands: --help is safe (no network)
         CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim --help",
-            ["dcim", "--help"],
+            section="Dynamic Commands",
+            title="nbx dcim --help",
+            argv=["dcim", "--help"],
             notes="Auto-generated Typer sub-app for the 'dcim' OpenAPI group.",
         ),
         CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim devices --help",
-            ["dcim", "devices", "--help"],
+            section="Dynamic Commands",
+            title="nbx dcim devices --help",
+            argv=["dcim", "devices", "--help"],
             notes="Auto-generated Typer sub-app for dcim/devices.",
         ),
         CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim devices list --help",
-            ["dcim", "devices", "list", "--help"],
+            section="Dynamic Commands",
+            title="nbx dcim devices list --help",
+            argv=["dcim", "devices", "list", "--help"],
         ),
-        CaptureSpec("Dynamic Commands", "nbx ipam prefixes --help", ["ipam", "prefixes", "--help"]),
+        CaptureSpec(section="Dynamic Commands", title="nbx ipam prefixes --help", argv=["ipam", "prefixes", "--help"]),
         # Trace flag help (safe — schema/help, no network)
         CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim interfaces get --help",
-            ["dcim", "interfaces", "get", "--help"],
+            section="Dynamic Commands",
+            title="nbx dcim interfaces get --help",
+            argv=["dcim", "interfaces", "get", "--help"],
             notes="Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.",
         ),
         CaptureSpec(
-            "Dynamic Commands",
-            "nbx circuits circuit-terminations get --help",
-            ["circuits", "circuit-terminations", "get", "--help"],
+            section="Dynamic Commands",
+            title="nbx circuits circuit-terminations get --help",
+            argv=["circuits", "circuit-terminations", "get", "--help"],
         ),
     ]
 
@@ -263,9 +265,9 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
     if use_demo:
         specs += [
             CaptureSpec(
-                "Live API — demo.netbox.dev",
-                "nbx demo dcim devices list",
-                ["demo", "dcim", "devices", "list"],
+                section="Live API — demo.netbox.dev",
+                title="nbx demo dcim devices list",
+                argv=["demo", "dcim", "devices", "list"],
                 notes=(
                     "Runs against demo.netbox.dev using the configured demo profile. "
                     "Returns real data when the demo token is valid; 401/403 otherwise."
@@ -273,23 +275,23 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
                 safe=False,
             ),
             CaptureSpec(
-                "Live API — demo.netbox.dev",
-                "nbx demo ipam prefixes list",
-                ["demo", "ipam", "prefixes", "list"],
+                section="Live API — demo.netbox.dev",
+                title="nbx demo ipam prefixes list",
+                argv=["demo", "ipam", "prefixes", "list"],
                 notes="Requires a valid demo profile token.",
                 safe=False,
             ),
             CaptureSpec(
-                "Live API — demo.netbox.dev",
-                "nbx demo dcim sites list",
-                ["demo", "dcim", "sites", "list"],
+                section="Live API — demo.netbox.dev",
+                title="nbx demo dcim sites list",
+                argv=["demo", "dcim", "sites", "list"],
                 safe=False,
             ),
             # ── Cable trace: dcim/interfaces ──────────────────────────────────
             CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo dcim interfaces get --id 1 --trace",
-                ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace"],
+                section="Cable Trace — demo.netbox.dev",
+                title="nbx demo dcim interfaces get --id 1 --trace",
+                argv=["demo", "dcim", "interfaces", "get", "--id", "1", "--trace"],
                 notes=(
                     "Fetches the interface object and appends an ASCII cable trace diagram. "
                     "Requires the interface to have a connected cable in demo.netbox.dev."
@@ -297,17 +299,17 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
                 safe=False,
             ),
             CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo dcim interfaces get --id 1 --trace-only",
-                ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace-only"],
+                section="Cable Trace — demo.netbox.dev",
+                title="nbx demo dcim interfaces get --id 1 --trace-only",
+                argv=["demo", "dcim", "interfaces", "get", "--id", "1", "--trace-only"],
                 notes="Renders only the cable trace, omitting the object detail table.",
                 safe=False,
             ),
             # ── Cable trace: circuits/circuit-terminations ────────────────────
             CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo circuits circuit-terminations get --id 15 --trace",
-                ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace"],
+                section="Cable Trace — demo.netbox.dev",
+                title="nbx demo circuits circuit-terminations get --id 15 --trace",
+                argv=["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace"],
                 notes=(
                     "Circuit terminations also expose a ``/trace/`` endpoint. "
                     "Renders the full path from the physical interface through the circuit."
@@ -315,9 +317,9 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
                 safe=False,
             ),
             CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo circuits circuit-terminations get --id 15 --trace-only",
-                ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace-only"],
+                section="Cable Trace — demo.netbox.dev",
+                title="nbx demo circuits circuit-terminations get --id 15 --trace-only",
+                argv=["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace-only"],
                 notes="Trace-only view for a circuit termination — no object detail table.",
                 safe=False,
             ),
@@ -325,9 +327,9 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
     else:
         specs += [
             CaptureSpec(
-                "Live API — default profile",
-                "nbx call GET /api/status/",
-                ["call", "GET", "/api/status/"],
+                section="Live API — default profile",
+                title="nbx call GET /api/status/",
+                argv=["call", "GET", "/api/status/"],
                 notes=(
                     "Requires a reachable NetBox at NETBOX_URL. "
                     "Connection errors are expected in offline runs and are still valid documentation."
@@ -335,16 +337,16 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
                 safe=False,
             ),
             CaptureSpec(
-                "Live API — default profile",
-                "nbx call GET /api/dcim/sites/ --json",
-                ["call", "GET", "/api/dcim/sites/", "--json"],
+                section="Live API — default profile",
+                title="nbx call GET /api/dcim/sites/ --json",
+                argv=["call", "GET", "/api/dcim/sites/", "--json"],
                 notes="Returns paginated list as raw JSON. Requires a configured default profile.",
                 safe=False,
             ),
             CaptureSpec(
-                "Live API — default profile",
-                "nbx dcim devices list",
-                ["dcim", "devices", "list"],
+                section="Live API — default profile",
+                title="nbx dcim devices list",
+                argv=["dcim", "devices", "list"],
                 notes="Dynamic sub-command against the default profile NetBox instance.",
                 safe=False,
             ),

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 from .config import DEMO_BASE_URL, Config, normalize_base_url
 
@@ -9,8 +9,7 @@ LOGIN_URL = f"{DEMO_BASE_URL}/login/"
 TOKENS_URL = f"{DEMO_BASE_URL}/user/api-tokens/"
 
 
-@dataclass(slots=True)
-class DemoToken:
+class DemoToken(BaseModel):
     version: str
     key: str | None
     secret: str

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from pydantic import BaseModel, ConfigDict
 
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options"}
 
@@ -18,14 +19,33 @@ _LOOKUP_SUFFIXES: tuple[str, ...] = (
 )
 
 
-@dataclass(slots=True, frozen=True)
-class FilterParam:
+class FilterParam(BaseModel):
     """A single query parameter available for filtering a list endpoint."""
+    model_config = ConfigDict(frozen=True)
+
     name: str
     label: str
     type: str            # "string" | "integer" | "boolean" | "enum" | "array"
     choices: tuple[str, ...] = ()   # non-empty only when type == "enum"
     description: str = ""
+
+
+class Operation(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    group: str
+    resource: str
+    method: str
+    path: str
+    operation_id: str
+    summary: str
+
+
+class ResourcePaths(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    list_path: str | None
+    detail_path: str | None
 
 
 def _classify_param(schema: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
@@ -42,22 +62,6 @@ def _classify_param(schema: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
     if ptype == "array":
         return "array", ()
     return "string", ()
-
-
-@dataclass(slots=True, frozen=True)
-class Operation:
-    group: str
-    resource: str
-    method: str
-    path: str
-    operation_id: str
-    summary: str
-
-
-@dataclass(slots=True, frozen=True)
-class ResourcePaths:
-    list_path: str | None
-    detail_path: str | None
 
 
 class SchemaIndex:

@@ -1,19 +1,21 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urljoin, urlsplit
+
+from pydantic import BaseModel, ConfigDict
 
 from .config import Config, authorization_header_value, cache_dir
 from .http_cache import CachePolicy, HttpCacheStore, build_cache_key
 
 
-@dataclass(slots=True)
-class ApiResponse:
+class ApiResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     status: int
     text: str
-    headers: dict[str, str] = field(default_factory=dict)
+    headers: dict[str, str] = {}
 
     def json(self) -> Any:
         return json.loads(self.text)
@@ -25,8 +27,7 @@ class RequestError(RuntimeError):
         super().__init__(f"Request failed with status {response.status}")
 
 
-@dataclass(slots=True)
-class ConnectionProbe:
+class ConnectionProbe(BaseModel):
     status: int
     version: str
     ok: bool
