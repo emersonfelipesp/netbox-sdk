@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
+import stat
+
+import pytest
 
 from netbox_cli.config import (
     DEFAULT_PROFILE,
@@ -10,6 +14,7 @@ from netbox_cli.config import (
     clear_profile_config,
     config_path,
     load_profile_config,
+    normalize_base_url,
     save_profile_config,
 )
 
@@ -137,3 +142,38 @@ def test_clear_profile_config_removes_only_selected_profile(
     stored = json.loads(config_path().read_text(encoding="utf-8"))
     assert "default" in stored["profiles"]
     assert "demo" not in stored["profiles"]
+
+
+@pytest.mark.parametrize(
+    ("raw_url", "message"),
+    [
+        ("ftp://netbox.example.com", "http or https"),
+        ("https://user:pass@netbox.example.com", "embedded credentials"),
+        ("https://netbox.example.com/?q=1", "query parameters or fragments"),
+        ("https://netbox.example.com/#frag", "query parameters or fragments"),
+    ],
+)
+def test_normalize_base_url_rejects_unsafe_values(raw_url, message) -> None:
+    with pytest.raises(ValueError, match=message):
+        normalize_base_url(raw_url)
+
+
+def test_save_profile_config_uses_private_permissions(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+
+    save_profile_config(
+        DEFAULT_PROFILE,
+        Config(
+            base_url="https://netbox.example.com",
+            token_key="root",
+            token_secret="secret",
+            timeout=30.0,
+        ),
+    )
+
+    cfg_dir = config_path().parent
+    cfg_file = config_path()
+
+    if os.name != "nt":
+        assert stat.S_IMODE(cfg_dir.stat().st_mode) == 0o700
+        assert stat.S_IMODE(cfg_file.stat().st_mode) == 0o600

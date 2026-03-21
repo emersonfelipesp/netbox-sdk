@@ -286,6 +286,17 @@ def _first_leaf_with_data(tree: Tree) -> object | None:
     return None
 
 
+def _leaf_for_resource(tree: Tree, group: str, resource: str) -> object | None:
+    """Return the leaf node matching a specific (group, resource) pair."""
+    stack = list(tree.root.children)
+    while stack:
+        node = stack.pop(0)
+        if node.data == (group, resource):
+            return node
+        stack.extend(node.children)
+    return None
+
+
 def _static_text(widget: Static) -> str:
     """Return the text content of a Static widget as a plain string."""
     return str(widget.content).lower()
@@ -1088,7 +1099,8 @@ async def test_filter_overlay_apply_updates_search_bar(mock_client, real_index):
         await pilot.pause()
 
         tree = app.query_one("#nav_tree", Tree)
-        leaf = _first_leaf_with_data(tree)
+        leaf = _leaf_for_resource(tree, "dcim", "devices")
+        assert leaf is not None
         tree.post_message(Tree.NodeSelected(leaf))
         await pilot.pause()
         await pilot.pause()
@@ -1114,7 +1126,8 @@ async def test_filter_select_opens_overlay_for_selected_field(mock_client, real_
         await pilot.pause()
 
         tree = app.query_one("#nav_tree", Tree)
-        leaf = _first_leaf_with_data(tree)
+        leaf = _leaf_for_resource(tree, "dcim", "devices")
+        assert leaf is not None
         tree.post_message(Tree.NodeSelected(leaf))
         await pilot.pause()
         await pilot.pause()

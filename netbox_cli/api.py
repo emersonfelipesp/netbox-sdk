@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 from .config import Config, authorization_header_value, cache_dir
 from .http_cache import CachePolicy, HttpCacheStore, build_cache_key
@@ -41,8 +41,24 @@ class NetBoxApiClient:
     def build_url(self, path: str) -> str:
         if not self.config.base_url:
             raise RuntimeError("NetBox base URL is not configured")
-        normalized = path if path.startswith("/") else f"/{path}"
+        normalized = self._normalize_request_path(path)
         return urljoin(f"{self.config.base_url.rstrip('/')}/", normalized.lstrip("/"))
+
+    def _normalize_request_path(self, path: str) -> str:
+        raw = path.strip()
+        if not raw:
+            raise ValueError("Request path cannot be empty")
+        parsed = urlsplit(raw)
+        if parsed.scheme or parsed.netloc:
+            raise ValueError(
+                "Request path must be relative to the configured NetBox base URL"
+            )
+        if parsed.query or parsed.fragment:
+            raise ValueError(
+                "Request path must not include query parameters or fragments"
+            )
+        normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
+        return normalized
 
     async def request(
         self,

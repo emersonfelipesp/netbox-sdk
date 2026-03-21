@@ -6,6 +6,8 @@ from typing import Any, Mapping
 
 from rich.text import Text
 
+from ..output_safety import safe_text, sanitize_terminal_text
+
 _FIELD_PRIORITY = [
     "id",
     "name",
@@ -89,7 +91,7 @@ def humanize_field(field: str) -> str:
 
 
 def _format_datetime(value: str) -> str:
-    candidate = value.strip()
+    candidate = sanitize_terminal_text(value).strip()
     if not candidate or "T" not in candidate:
         return value
     normalized = candidate.replace("Z", "+00:00")
@@ -105,7 +107,7 @@ def _format_datetime(value: str) -> str:
 def _dict_display(value: dict[str, Any], max_items: int = 3) -> str:
     for key in ("display", "name", "label", "title", "slug"):
         if key in value and value[key] not in (None, ""):
-            display = str(value[key])
+            display = sanitize_terminal_text(value[key])
             if "id" in value and value["id"] not in (None, "") and key != "id":
                 return f"{display} (ID {value['id']})"
             return display
@@ -132,6 +134,7 @@ def humanize_value(value: Any, max_len: int = 180) -> str:
         return str(value)
     if isinstance(value, str):
         text = _format_datetime(value)
+        text = sanitize_terminal_text(text)
     elif isinstance(value, dict):
         text = _dict_display(value)
     elif isinstance(value, list):
@@ -145,7 +148,7 @@ def humanize_value(value: Any, max_len: int = 180) -> str:
                 preview.append(f"+{len(value) - 3} more")
             text = " | ".join(preview)
     else:
-        text = str(value)
+        text = sanitize_terminal_text(value)
 
     if len(text) <= max_len:
         return text
@@ -217,19 +220,19 @@ def _status_meta(value: str) -> tuple[str, str]:
 
 
 def status_badge(value: str) -> Text:
-    raw_label = value.strip() or "Unknown"
+    raw_label = sanitize_terminal_text(value).strip() or "Unknown"
     label = raw_label.replace("_", " ").replace("-", " ").title()
     icon, style = _status_meta(raw_label)
-    return Text(f" {icon} {label} ", style=f"bold {style}")
+    return safe_text(f" {icon} {label} ", style=f"bold {style}")
 
 
 def label_chip(value: str, *, tone: str = "neutral") -> Text:
-    label = value.strip()
+    label = sanitize_terminal_text(value).strip()
     if not label:
         label = "—"
     label = label.replace("_", " ").replace("-", " ").title()
     style = _CHIP_STYLES.get(tone, _CHIP_STYLES.get("neutral", ""))
-    return Text(f" {label} ", style=f"bold {style}")
+    return safe_text(f" {label} ", style=f"bold {style}")
 
 
 def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
@@ -250,31 +253,33 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
         return label_chip(human, tone="tenant")
 
     if value is None:
-        return Text("—", style=_VALUE_STYLES.get("muted", ""))
+        return safe_text("—", style=_VALUE_STYLES.get("muted", ""))
 
     if isinstance(value, bool):
         style_key = "bool_true" if value else "bool_false"
-        return Text("Yes" if value else "No", style=_VALUE_STYLES.get(style_key, ""))
+        return safe_text(
+            "Yes" if value else "No", style=_VALUE_STYLES.get(style_key, "")
+        )
 
     if lower in {"id", "pk"} or lower.endswith("_id"):
-        return Text(human, style=_VALUE_STYLES.get("id", ""))
+        return safe_text(human, style=_VALUE_STYLES.get("id", ""))
 
     if (
         "date" in lower
         or "time" in lower
         or lower in {"created", "last_updated", "updated"}
     ):
-        return Text(human, style=_VALUE_STYLES.get("muted", ""))
+        return safe_text(human, style=_VALUE_STYLES.get("muted", ""))
 
     if lower == "url" or lower.endswith("_url"):
-        return Text(human, style=_VALUE_STYLES.get("url", ""))
+        return safe_text(human, style=_VALUE_STYLES.get("url", ""))
 
     if any(
         token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")
     ):
-        return Text(human, style=_VALUE_STYLES.get("key", ""))
+        return safe_text(human, style=_VALUE_STYLES.get("key", ""))
 
-    return Text(human)
+    return safe_text(human)
 
 
 def _is_linkable_object(value: dict[str, Any]) -> bool:
@@ -287,7 +292,7 @@ def _is_linkable_object(value: dict[str, Any]) -> bool:
 
 def linked_object_cell(value: dict[str, Any], max_len: int = 180) -> Text:
     label = compact_cell(value, max_len=max_len)
-    return Text(label, style=_VALUE_STYLES.get("url", ""))
+    return safe_text(label, style=_VALUE_STYLES.get("url", ""))
 
 
 def order_field_names(names: list[str]) -> list[str]:
