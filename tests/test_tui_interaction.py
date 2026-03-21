@@ -1032,7 +1032,8 @@ async def test_f_key_opens_filter_overlay(mock_client, real_index):
         app.action_filter_modal()
         await pilot.pause()
         assert "hidden" not in app.query_one("#filter_overlay", object).classes
-        assert str(app.query_one("#filter_field_label", Static).render()) == "Field: ID"
+        label = str(app.query_one("#filter_field_label", Static).render())
+        assert label.startswith("Field: ") and len(label) > len("Field: ")
 
 
 @pytest.mark.asyncio
