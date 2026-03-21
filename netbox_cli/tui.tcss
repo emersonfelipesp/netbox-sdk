@@ -428,6 +428,33 @@ OptionList > .option-list--option-disabled {
     background-tint: transparent;
 }
 
+#results_loading_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 72%;
+}
+
+#results_loading_overlay.hidden {
+    display: none;
+}
+
+#results_loading_spinner {
+    width: auto;
+    color: $primary;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#results_loading_text {
+    width: auto;
+    margin-top: 1;
+    color: $foreground;
+    text-style: bold;
+    content-align: center middle;
+}
+
 #results_table > .datatable--header {
     background: $panel;
     color: $foreground;
@@ -481,6 +508,11 @@ OptionList > .option-list--option-disabled {
     margin: 1 1 1 0;
     color: $text-muted;
     text-style: dim;
+}
+
+#results_status.-loading {
+    color: $primary;
+    text-style: bold;
 }
 
 
@@ -615,9 +647,57 @@ ObjectAttributesPanel.-loading #detail_status {
     color: $secondary;
 }
 
+#filter_dialog Input {
+    border: tall $nb-border-subtle;
+    background: $background;
+    color: $foreground;
+}
+
+#filter_dialog Input:focus {
+    border: tall $primary;
+    background: $panel;
+}
+
+#filter_dialog Input > .input--placeholder {
+    color: $text-muted;
+}
+
 #filter_buttons {
     height: auto;
     margin: 1 0 0 0;
+}
+
+#filter_buttons Button {
+    min-width: 12;
+    margin-right: 1;
+    border: none;
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#filter_buttons Button:hover {
+    background: $panel;
+    text-style: bold underline;
+}
+
+#filter_buttons Button:focus {
+    background: $panel;
+    border: tall $secondary;
+}
+
+#filter_cancel {
+    background: $background;
+    color: $foreground;
+    border: tall $nb-border-subtle;
+}
+
+#filter_cancel:hover {
+    background: $panel;
+}
+
+#filter_cancel:focus {
+    border: tall $secondary;
 }
 
 

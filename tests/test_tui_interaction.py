@@ -7,6 +7,7 @@ patched out so the tests are fully hermetic.
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -830,6 +831,41 @@ async def test_nav_tree_selection_populates_results_table(mock_client, real_inde
 
 
 @pytest.mark.asyncio
+async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real_index):
+    async def _slow_request(*args, **kwargs):
+        await asyncio.sleep(0.2)
+        return _list_response(FAKE_DEVICES)
+
+    mock_client.request = AsyncMock(side_effect=_slow_request)
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _first_leaf_with_data(tree)
+        assert leaf is not None
+
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+
+        overlay = app.query_one("#results_loading_overlay", object)
+        status = app.query_one("#results_status", Static)
+        spinner = app.query_one("#results_loading_spinner", Static)
+
+        assert "hidden" not in overlay.classes
+        assert "-loading" in status.classes
+        assert _static_text(spinner) != ""
+
+        for _ in range(10):
+            if "hidden" in overlay.classes:
+                break
+            await pilot.pause()
+
+        assert "hidden" in overlay.classes
+        assert "-loading" not in status.classes
+
+
+@pytest.mark.asyncio
 async def test_nav_tree_api_error_shows_status(mock_client, real_index):
     mock_client.request = AsyncMock(side_effect=RuntimeError("connection refused"))
     app = _make_app(mock_client, real_index)
@@ -846,6 +882,32 @@ async def test_nav_tree_api_error_shows_status(mock_client, real_index):
 
         status = app.query_one("#results_status", Static)
         assert "failed" in _static_text(status)
+
+
+@pytest.mark.asyncio
+async def test_results_loading_status_uses_theme_primary(mock_client, real_index):
+    async def _slow_request(*args, **kwargs):
+        await asyncio.sleep(0.2)
+        return _list_response(FAKE_DEVICES)
+
+    mock_client.request = AsyncMock(side_effect=_slow_request)
+    app = _make_app(mock_client, real_index, theme="dracula")
+    expected_primary = Color.parse(
+        app.theme_catalog.theme_for("dracula").colors["primary"]
+    )
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _first_leaf_with_data(tree)
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+
+        status = app.query_one("#results_status", Static)
+        assert "-loading" in status.classes
+        assert status.styles.color == expected_primary
 
 
 # ---------------------------------------------------------------------------
