@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 authors = [{ name = "netbox-cli contributors" }]
 dependencies = [
   "aiohttp>=3.9.0",
+  "playwright>=1.52.0",
   "typer>=0.12.0",
   "rich>=13.7.0",
   "textual>=0.62.0",
@@ -20,6 +21,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+]
+docs = [
+  "mkdocs-material>=9.5",
 ]
 
 [project.scripts]
@@ -33,8 +38,9 @@ where = ["."]
 include = ["netbox_cli*"]
 
 [tool.setuptools.package-data]
-netbox_cli = ["*.tcss"]
+netbox_cli = ["*.tcss", "themes/*.json", "reference/openapi/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+asyncio_mode = "auto"

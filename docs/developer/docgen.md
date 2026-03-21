@@ -1,0 +1,146 @@
+# Documentation Generation
+
+`netbox-cli` includes a built-in capture system that runs every `nbx` command, records its output, and produces the [Command Examples](../reference/command-examples.md) page automatically.
+
+---
+
+## Quick start
+
+```bash
+cd /path/to/netbox-cli
+pip install -e .
+
+# Default: live-API specs hit demo.netbox.dev
+nbx docs generate-capture
+
+# Alternative: hit your real NetBox (default profile)
+nbx docs generate-capture --live
+```
+
+---
+
+## Background run
+
+```bash
+chmod +x docs/run_capture_in_background.sh
+./docs/run_capture_in_background.sh
+
+tail -f docs/generated/capture-run.log
+# stop: kill "$(cat docs/generated/capture-run.log)"
+```
+
+---
+
+## CLI options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o` / `--output` | `docs/generated/nbx-command-capture.md` | Markdown output path |
+| `--raw-dir` | `docs/generated/raw/` | Per-command JSON directory |
+| `--max-lines` | `200` | Max lines embedded in Markdown |
+| `--max-chars` | `120000` | Max characters embedded in Markdown |
+| `--live` | off | Use default profile instead of demo |
+
+---
+
+## Environment variables
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `NETBOX_URL` | `https://netbox.example.com` | Base URL for `--live` mode |
+| `NETBOX_TOKEN_KEY` | `docgen-placeholder` | Stub token key when no config exists |
+| `NETBOX_TOKEN_SECRET` | `placeholder` | Stub token secret when no config exists |
+| `NBX_DOC_CAPTURE_TIMEOUT` | `30` | HTTP timeout for live API calls |
+| `NBX_DOC_PYTHON` | auto-detected | Python interpreter for the background script |
+
+---
+
+## Output files
+
+| File | Description |
+|------|-------------|
+| `docs/generated/nbx-command-capture.md` | Full Markdown reference with all command captures |
+| `docs/generated/raw/NNN-<slug>.json` | Per-command JSON with full stdout, exit code, timing |
+| `docs/generated/raw/index.json` | Summary of all runs with generation metadata |
+
+---
+
+## How the capture works
+
+### CaptureSpec
+
+Each command is declared as a `CaptureSpec`:
+
+```python
+@dataclass(frozen=True, slots=True)
+class CaptureSpec:
+    section: str      # Markdown section (e.g. "Top-level")
+    title: str        # Heading (e.g. "nbx groups")
+    argv: list[str]   # Args passed to the Typer app (without "nbx")
+    notes: str = ""   # Italic note below the input block
+    safe: bool = True # False → catch_exceptions=True (live API calls)
+```
+
+### Two modes: demo vs. live
+
+| | Demo (default) | Live (`--live`) |
+|-|----------------|----------------|
+| Profile | `demo` | `default` |
+| Live specs | `nbx demo dcim devices list` | `nbx dcim devices list` |
+| Config source | `nbx demo init` / disk | `nbx init` / disk |
+
+### Stub config injection
+
+Before each CliRunner invocation, `_inject_stub_config(profile)` ensures the in-process config cache is populated:
+
+1. If a complete config exists on disk → load it into cache (real credentials, not cleared after).
+2. If no config exists → inject a placeholder so live calls return 401/403 gracefully.
+
+The `"docs"` subcommand is excluded from `root_callback`'s config check so `nbx docs generate-capture` itself never prompts.
+
+### Safe vs. unsafe specs
+
+| `safe=True` | `safe=False` |
+|-------------|-------------|
+| `catch_exceptions=False` | `catch_exceptions=True` |
+| Help banners, config display, schema discovery | Live API calls (`demo dcim devices list`, `call GET …`) |
+| Generator aborts on unhandled exception | Exception is captured and printed in the output |
+
+---
+
+## MkDocs integration
+
+The `docs/hooks.py` MkDocs hook reads the raw JSON artifacts before each build and generates `docs/reference/command-examples.md` with Material tabs and badges. This means the [Command Examples](../reference/command-examples.md) page always reflects the latest captured run — no manual editing required.
+
+---
+
+## GitHub Actions CI
+
+The workflow at `.github/workflows/docs-capture.yml` runs on every push to `main`:
+
+1. Installs `netbox-cli` and dependencies.
+2. Runs `playwright install chromium --with-deps`.
+3. Authenticates with demo.netbox.dev: `nbx demo init --username $DEMO_USERNAME --password $DEMO_PASSWORD --headless`.
+4. Verifies: `nbx demo config`.
+5. Runs `nbx docs generate-capture`.
+6. Commits changed `docs/generated/` with `[skip ci]`.
+
+### Required repository secrets
+
+| Secret | Value |
+|--------|-------|
+| `DEMO_USERNAME` | Your demo.netbox.dev username |
+| `DEMO_PASSWORD` | Your demo.netbox.dev password |
+
+Set these under **Settings → Secrets and variables → Actions**.
+
+---
+
+## Regenerating after CLI changes
+
+```bash
+nbx demo init             # if demo profile not configured
+nbx docs generate-capture
+git add docs/generated/
+git commit -m "docs: regenerate command capture"
+```

@@ -1,0 +1,51 @@
+/* NetBox CLI — MkDocs Material custom styles */
+
+/* Command example badges */
+.nbx-badge {
+  display: inline-block;
+  padding: 0.1em 0.5em;
+  border-radius: 0.25em;
+  font-size: 0.78em;
+  font-family: var(--md-code-font-family);
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.nbx-badge--ok {
+  background: color-mix(in srgb, var(--md-primary-fg-color) 15%, transparent);
+  color: var(--md-primary-fg-color);
+  border: 1px solid var(--md-primary-fg-color);
+}
+
+.nbx-badge--err {
+  background: color-mix(in srgb, var(--md-typeset-color) 10%, transparent);
+  color: var(--md-typeset-color);
+  border: 1px solid color-mix(in srgb, var(--md-typeset-color) 40%, transparent);
+}
+
+.nbx-badge--neutral {
+  background: color-mix(in srgb, var(--md-default-fg-color) 8%, transparent);
+  color: var(--md-default-fg-color--light);
+  border: 1px solid color-mix(in srgb, var(--md-default-fg-color) 20%, transparent);
+}
+
+/* Keep terminal output blocks from overflowing on narrow screens */
+.md-typeset pre code {
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Hero on the home page */
+.nbx-hero {
+  padding: 2rem 0 1rem;
+}
+
+.nbx-hero h1 {
+  font-size: 2.4rem;
+}
+
+/* Keybindings table alignment */
+.nbx-keys td:first-child {
+  font-family: var(--md-code-font-family);
+  white-space: nowrap;
+}

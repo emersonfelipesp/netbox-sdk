@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 import json
-from typing import Any
+from datetime import datetime
+from typing import Any, Mapping
 
 from rich.text import Text
 
@@ -117,7 +117,9 @@ def _dict_display(value: dict[str, Any], max_items: int = 3) -> str:
             if remaining > 0:
                 items.append(f"+{remaining} more")
             break
-        items.append(f"{humanize_field(str(key))}: {humanize_value(item_value, max_len=48)}")
+        items.append(
+            f"{humanize_field(str(key))}: {humanize_value(item_value, max_len=48)}"
+        )
     return "; ".join(items) if items else "—"
 
 
@@ -154,24 +156,71 @@ def compact_cell(value: Any, max_len: int = 180) -> str:
     return humanize_value(value, max_len=max_len)
 
 
+_STATUS_STATES: dict[frozenset[str], tuple[str, str]] = {
+    frozenset({"active", "up", "enabled", "online", "true"}): ("●", "success"),
+    frozenset({"planned", "staged", "provisioning", "standby"}): ("◐", "info"),
+    frozenset({"offline", "disabled", "down", "decommissioning"}): ("◌", "warning"),
+    frozenset({"failed", "error", "deprecated"}): ("✖", "danger"),
+}
+
+_STATUS_STYLES: dict[frozenset[str], tuple[str, str]] = {}
+_CHIP_STYLES: dict[str, str] = {}
+_VALUE_STYLES: dict[str, str] = {}
+
+
+def configure_semantic_styles(
+    *, colors: Mapping[str, str], variables: Mapping[str, str]
+) -> None:
+    """Build Rich style strings from the currently active theme."""
+    del (
+        colors
+    )  # Styles below are intentionally derived from semantic theme variables only.
+
+    global _STATUS_STYLES, _CHIP_STYLES, _VALUE_STYLES
+
+    status_styles = {
+        "success": variables["nb-success-text"],
+        "info": variables["nb-info-text"],
+        "warning": variables["nb-warning-text"],
+        "danger": variables["nb-danger-text"],
+        "neutral": variables["nb-secondary-text"],
+    }
+
+    _STATUS_STYLES = {
+        states: (icon, status_styles[tone])
+        for states, (icon, tone) in _STATUS_STATES.items()
+    }
+
+    _CHIP_STYLES = {
+        "role": status_styles["warning"],
+        "type": status_styles["info"],
+        "tenant": status_styles["success"],
+        "neutral": status_styles["neutral"],
+    }
+
+    _VALUE_STYLES = {
+        "bool_true": variables["nb-success-text"],
+        "bool_false": variables["nb-danger-text"],
+        "id": f"bold {variables['nb-id-text']}",
+        "muted": variables["nb-muted-text"],
+        "url": f"{variables['nb-link-text']} underline",
+        "key": variables["nb-key-text"],
+    }
+
+
 def _status_meta(value: str) -> tuple[str, str]:
     text = value.strip().lower()
-    if text in {"active", "up", "enabled", "online", "true"}:
-        return ("●", "bold black on #4ec9a5")
-    if text in {"planned", "staged", "provisioning", "standby"}:
-        return ("◐", "bold black on #7dcfff")
-    if text in {"offline", "disabled", "down", "decommissioning"}:
-        return ("◌", "bold black on #ffd166")
-    if text in {"failed", "error", "deprecated"}:
-        return ("✖", "bold white on #e76f51")
-    return ("•", "bold black on #d9e1e8")
+    for states, style in _STATUS_STYLES.items():
+        if text in states:
+            return style
+    return ("•", _CHIP_STYLES.get("neutral", ""))
 
 
 def status_badge(value: str) -> Text:
     raw_label = value.strip() or "Unknown"
     label = raw_label.replace("_", " ").replace("-", " ").title()
     icon, style = _status_meta(raw_label)
-    return Text(f" {icon} {label} ", style=style)
+    return Text(f" {icon} {label} ", style=f"bold {style}")
 
 
 def label_chip(value: str, *, tone: str = "neutral") -> Text:
@@ -179,14 +228,8 @@ def label_chip(value: str, *, tone: str = "neutral") -> Text:
     if not label:
         label = "—"
     label = label.replace("_", " ").replace("-", " ").title()
-    tone_styles = {
-        "role": "bold black on #f4a261",
-        "type": "bold black on #90caf9",
-        "tenant": "bold black on #c7f9cc",
-        "neutral": "bold black on #d9e1e8",
-    }
-    style = tone_styles.get(tone, tone_styles["neutral"])
-    return Text(f" {label} ", style=style)
+    style = _CHIP_STYLES.get(tone, _CHIP_STYLES.get("neutral", ""))
+    return Text(f" {label} ", style=f"bold {style}")
 
 
 def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
@@ -196,6 +239,9 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
     if lower in {"status"} or lower.endswith("_status"):
         return status_badge(human)
 
+    if isinstance(value, dict) and _is_linkable_object(value):
+        return linked_object_cell(value, max_len=max_len)
+
     if "role" in lower:
         return label_chip(human, tone="role")
     if "type" in lower:
@@ -204,24 +250,44 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
         return label_chip(human, tone="tenant")
 
     if value is None:
-        return Text("—", style="dim")
+        return Text("—", style=_VALUE_STYLES.get("muted", ""))
 
     if isinstance(value, bool):
-        return Text("Yes" if value else "No", style="green" if value else "red")
+        style_key = "bool_true" if value else "bool_false"
+        return Text("Yes" if value else "No", style=_VALUE_STYLES.get(style_key, ""))
 
     if lower in {"id", "pk"} or lower.endswith("_id"):
-        return Text(human, style="bold cyan")
+        return Text(human, style=_VALUE_STYLES.get("id", ""))
 
-    if "date" in lower or "time" in lower or lower in {"created", "last_updated", "updated"}:
-        return Text(human, style="dim")
+    if (
+        "date" in lower
+        or "time" in lower
+        or lower in {"created", "last_updated", "updated"}
+    ):
+        return Text(human, style=_VALUE_STYLES.get("muted", ""))
 
     if lower == "url" or lower.endswith("_url"):
-        return Text(human, style="blue underline")
+        return Text(human, style=_VALUE_STYLES.get("url", ""))
 
-    if any(token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")):
-        return Text(human, style="magenta")
+    if any(
+        token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")
+    ):
+        return Text(human, style=_VALUE_STYLES.get("key", ""))
 
     return Text(human)
+
+
+def _is_linkable_object(value: dict[str, Any]) -> bool:
+    for key in ("url", "display_url"):
+        candidate = value.get(key)
+        if isinstance(candidate, str) and candidate.strip():
+            return True
+    return False
+
+
+def linked_object_cell(value: dict[str, Any], max_len: int = 180) -> Text:
+    label = compact_cell(value, max_len=max_len)
+    return Text(label, style=_VALUE_STYLES.get("url", ""))
 
 
 def order_field_names(names: list[str]) -> list[str]:
@@ -261,5 +327,7 @@ def key_value_rows(obj: dict[str, Any]) -> list[tuple[str, Text]]:
     ordered = order_field_names([str(key) for key in obj.keys()])
     for key in ordered:
         value = obj.get(key)
-        rows.append((humanize_field(str(key)), semantic_cell(str(key), value, max_len=500)))
+        rows.append(
+            (humanize_field(str(key)), semantic_cell(str(key), value, max_len=500))
+        )
     return rows

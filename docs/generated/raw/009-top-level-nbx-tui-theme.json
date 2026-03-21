@@ -1,0 +1,12 @@
+{
+  "section": "Top-level",
+  "title": "nbx tui --theme",
+  "argv": [
+    "tui",
+    "--theme"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.539,
+  "truncated": false,
+  "stdout_full": "Available themes:\n- default\n- dracula\n"
+}

@@ -1,0 +1,64 @@
+name: Regenerate command capture docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs-capture:
+    name: Capture CLI output and commit docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push the regenerated docs commit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch with a token that has write access so the push step works.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install netbox-cli and dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Install Playwright and Chromium browser
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+
+      - name: Authenticate with demo.netbox.dev
+        run: |
+          nbx demo init \
+            --username "${{ secrets.DEMO_USERNAME }}" \
+            --password "${{ secrets.DEMO_PASSWORD }}" \
+            --headless
+        # Required repository secrets:
+        #   DEMO_USERNAME  →  nbxuser
+        #   DEMO_PASSWORD  →  @nm12345678
+
+      - name: Verify demo configuration
+        run: nbx demo config
+
+      - name: Regenerate command capture docs
+        run: nbx docs generate-capture
+
+      - name: Commit and push updated docs
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/generated/
+
+          if git diff --cached --quiet; then
+            echo "No changes to docs/generated/ — skipping commit."
+          else
+            git commit -m "docs: regenerate command capture [skip ci]"
+            git push
+          fi

@@ -1,0 +1,38 @@
+name: Build and deploy documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed for gh-deploy to push to gh-pages branch
+
+jobs:
+  build-and-deploy:
+    name: Build MkDocs and deploy to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # full history for git-committer-date in MkDocs
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install netbox-cli and docs dependencies
+        run: pip install -e ".[docs]"
+
+      - name: Configure git identity for gh-deploy
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build and deploy docs to GitHub Pages
+        run: mkdocs gh-deploy --force --clean --verbose

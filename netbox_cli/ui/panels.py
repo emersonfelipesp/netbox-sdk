@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from textual.timer import Timer
 from textual.containers import Vertical
+from textual.timer import Timer
 from textual.widgets import DataTable, Static
 
-from .formatting import key_value_rows
+from netbox_cli.trace_ascii import render_any_trace_ascii
+
+from .formatting import humanize_field, order_field_names, semantic_cell
 
 
 class PanelCard(Vertical):
@@ -27,19 +29,24 @@ class ObjectAttributesPanel(PanelCard):
     """Render selected row data as key/value attributes."""
 
     def __init__(self, *, panel_id: str = "detail_panel"):
-        super().__init__("Object Attributes", "NetBox detail-style panel", panel_id=panel_id)
+        super().__init__(
+            "Object Attributes", "NetBox detail-style panel", panel_id=panel_id
+        )
         self._spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
         self._spinner_index = 0
         self._spinner_timer: Timer | None = None
+        self._row_values: list[tuple[str, Any]] = []
 
     def compose(self):
         yield from super().compose()
         yield Static("Ready", id="detail_status")
         table = DataTable(id="detail_table")
-        table.cursor_type = "row"
+        table.cursor_type = "cell"
         table.add_columns("Field", "Value")
         table.add_row("status", "Select a row in Results tab")
         yield table
+        yield Static("Cable Trace", id="detail_trace_title", classes="hidden")
+        yield Static("", id="detail_trace", classes="hidden")
 
     def _set_status(self, text: str) -> None:
         self.query_one("#detail_status", Static).update(text)
@@ -57,16 +64,21 @@ class ObjectAttributesPanel(PanelCard):
     def set_loading(self, label: str = "Loading object details...") -> None:
         self._stop_spinner()
         self._spinner_index = 0
+        self._row_values = []
         self._spinner_tick(label)
         self._spinner_timer = self.set_interval(0.12, lambda: self._spinner_tick(label))
+        self.add_class("-loading")  # CSS state machine: drives teal status color
 
         table = self.query_one("#detail_table", DataTable)
         table.clear(columns=True)
         table.add_columns("Field", "Value")
         table.add_row("status", "Loading...")
+        self.set_trace(None)
 
     def set_object(self, obj: dict[str, Any] | None) -> None:
         self._stop_spinner()
+        self.remove_class("-loading")  # Clear CSS loading state
+        self._row_values = []
         table = self.query_one("#detail_table", DataTable)
         table.clear(columns=True)
         table.add_columns("Field", "Value")
@@ -74,8 +86,42 @@ class ObjectAttributesPanel(PanelCard):
         if not obj:
             self._set_status("No object selected")
             table.add_row("status", "No object selected")
+            self.set_trace(None)
             return
 
         self._set_status("Loaded")
-        for field, value in key_value_rows(obj):
-            table.add_row(field, value)
+        ordered = order_field_names([str(key) for key in obj.keys()])
+        for key in ordered:
+            raw_value = obj.get(key)
+            field = humanize_field(str(key))
+            self._row_values.append((field, raw_value))
+            table.add_row(field, semantic_cell(str(key), raw_value, max_len=500))
+
+    def set_trace(self, trace_payload: Any | None) -> None:
+        title = self.query_one("#detail_trace_title", Static)
+        trace = self.query_one("#detail_trace", Static)
+        if trace_payload is None:
+            title.add_class("hidden")
+            trace.add_class("hidden")
+            trace.update("")
+            return
+
+        rendered = (
+            trace_payload
+            if isinstance(trace_payload, str)
+            else render_any_trace_ascii(trace_payload)
+        )
+        if not rendered:
+            title.add_class("hidden")
+            trace.add_class("hidden")
+            trace.update("")
+            return
+
+        title.remove_class("hidden")
+        trace.remove_class("hidden")
+        trace.update(rendered)
+
+    def detail_value_at(self, row_index: int) -> Any | None:
+        if row_index < 0 or row_index >= len(self._row_values):
+            return None
+        return self._row_values[row_index][1]

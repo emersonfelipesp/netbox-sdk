@@ -1,5 +1,22 @@
 # NetBox CLI and TUI
 
+## Contents
+
+- [Quick Test with NetBox Demo Instance](#quick-test-with-netbox-demo-instance)
+- [Install](#install)
+  - [Install `nbx` Globally (bash + zsh)](#install-nbx-globally-bash--zsh)
+- [Configure](#configure)
+- [Command Modes](#command-modes)
+  - [1) Dynamic mode (OpenAPI app/resource/action)](#1-dynamic-mode-openapi-appresourceaction)
+  - [2) Explicit HTTP mode](#2-explicit-http-mode)
+  - [3) Discovery helpers](#3-discovery-helpers)
+  - [4) TUI mode](#4-tui-mode)
+  - [Custom Themes (JSON)](#custom-themes-json)
+- [Project Layout](#project-layout)
+- [Notes](#notes)
+
+---
+
 `netbox-cli` is an API-first NetBox client that supports both:
 
 - direct command execution (`nbx dcim devices get --id 1`)
@@ -11,6 +28,50 @@ The project is bootstrapped from `CLAUDE.md` requirements:
 - async HTTP via `aiohttp`
 - shared backend logic for CLI and TUI
 - OpenAPI-driven command/resource discovery
+
+## Quick Test with NetBox Demo Instance
+
+The fastest way to try `netbox-cli` — one command installs everything and connects to the public [demo.netbox.dev](https://demo.netbox.dev) instance.
+
+**Install:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/v2/install.sh | bash
+```
+
+The script installs [`uv`](https://github.com/astral-sh/uv) if not present, fetches `netbox-cli` directly from this GitHub repository, and sets up Playwright Chromium for the demo login flow.
+
+**Authenticate with the demo instance:**
+
+```bash
+nbx demo init
+# enter your demo.netbox.dev username and password when prompted
+```
+
+Or non-interactively (CI / scripted):
+
+```bash
+nbx demo init --username <your-demo-user> --password <your-demo-password>
+```
+
+**Run CLI commands against demo.netbox.dev:**
+
+```bash
+nbx demo dcim devices list
+nbx demo dcim sites list
+nbx demo ipam prefixes list
+nbx demo circuits circuit-terminations get --id 15 --trace-only
+```
+
+**Launch the interactive TUI:**
+
+```bash
+nbx demo tui
+```
+
+Use `/` to search, `g` to focus the nav tree, `q` to quit. All commands that work under `nbx demo …` are available inside the TUI with the same demo profile.
+
+---
 
 ## Install
 
@@ -82,6 +143,29 @@ nbx init
 
 If configuration is missing, `nbx` will prompt for host/token credentials automatically before executing commands (including `nbx tui`).
 
+Demo profile bootstrap:
+
+```bash
+nbx demo init
+```
+
+This always targets `https://demo.netbox.dev/`, opens the NetBox login flow in Playwright, prompts for demo username/password in the terminal, creates a fresh API token, and stores that token in the separate `demo` profile.
+
+Install Playwright first if you want browser-based demo bootstrap:
+
+```bash
+pip install playwright
+playwright install chromium
+```
+
+If you already have a demo API token, you can skip Playwright entirely:
+
+```bash
+nbx demo --token-key <key> --token-secret <secret>
+```
+
+The normal `nbx` profile and the `nbx demo` profile are stored separately in the same config file.
+
 Stored config path:
 
 - `$XDG_CONFIG_HOME/netbox-cli/config.json`
@@ -116,6 +200,14 @@ nbx dcim devices --help
 nbx dcim devices get --help
 ```
 
+Demo mode uses the same command tree against `https://demo.netbox.dev/`:
+
+```bash
+nbx demo dcim devices list
+nbx demo ipam prefixes list
+nbx demo tui
+```
+
 Supported action aliases:
 
 - `list -> GET`
@@ -145,6 +237,36 @@ nbx ops dcim devices
 ```bash
 nbx tui
 ```
+
+Theme options:
+
+```bash
+nbx tui --theme          # list available themes
+nbx tui --theme dracula  # start with Dracula
+```
+
+You can also switch theme live from the top-left `Theme` dropdown in the TUI.
+
+### Custom Themes (JSON)
+
+Themes are loaded dynamically from:
+
+- `netbox_cli/themes/`
+
+Built-ins:
+
+- `netbox_cli/themes/default.json`
+- `netbox_cli/themes/dracula.json`
+
+To add a custom theme, place `<theme>.json` in that folder. It will be auto-discovered.
+
+Strict validation rules:
+
+- required top-level keys: `name`, `label`, `dark`, `colors`
+- optional keys: `variables`, `aliases`
+- `colors` must define: `primary`, `secondary`, `warning`, `error`, `success`, `accent`, `background`, `surface`, `panel`, `boost`
+- all color values must be `#RRGGBB`
+- unknown keys, malformed colors, duplicate names, and alias conflicts fail fast with clear errors
 
 TUI behavior (initial bootstrap):
 

@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-from netbox_cli.ui import NetBoxTuiApp, run_tui
+from netbox_cli.ui import NetBoxTuiApp, available_theme_names, resolve_theme_name, run_tui
 
-__all__ = ["NetBoxTuiApp", "run_tui"]
+__all__ = ["NetBoxTuiApp", "available_theme_names", "resolve_theme_name", "run_tui"]
