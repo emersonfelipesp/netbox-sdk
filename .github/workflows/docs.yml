@@ -30,27 +30,23 @@ jobs:
         run: pip install -e ".[docs,dev]"
 
       # ── Docgen: regenerate captured CLI output ────────────────────────────
-      # These steps are skipped when DEMO_USERNAME / DEMO_PASSWORD secrets
-      # are not configured (e.g. forks).  Required secrets:
+      # Skipped automatically when DEMO_USERNAME / DEMO_PASSWORD are absent.
+      # Required repository secrets:
       #   DEMO_USERNAME  →  nbxuser
       #   DEMO_PASSWORD  →  @nm12345678
-      - name: Install Playwright and Chromium browser
-        if: ${{ secrets.DEMO_USERNAME && secrets.DEMO_PASSWORD }}
+      - name: Regenerate command capture docs
+        env:
+          DEMO_USERNAME: ${{ secrets.DEMO_USERNAME }}
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
         run: |
+          if [ -z "$DEMO_USERNAME" ] || [ -z "$DEMO_PASSWORD" ]; then
+            echo "Demo secrets not configured — skipping docgen."
+            exit 0
+          fi
           pip install playwright
           playwright install chromium --with-deps
-
-      - name: Authenticate with demo.netbox.dev
-        if: ${{ secrets.DEMO_USERNAME && secrets.DEMO_PASSWORD }}
-        run: |
-          nbx demo init \
-            --username "${{ secrets.DEMO_USERNAME }}" \
-            --password "${{ secrets.DEMO_PASSWORD }}" \
-            --headless
-
-      - name: Regenerate command capture docs
-        if: ${{ secrets.DEMO_USERNAME && secrets.DEMO_PASSWORD }}
-        run: nbx docs generate-capture
+          nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
+          nbx docs generate-capture
 
       # ── Build + deploy ────────────────────────────────────────────────────
       - name: Configure git identity for gh-deploy
