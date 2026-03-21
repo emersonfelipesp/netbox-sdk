@@ -1,0 +1,388 @@
+{
+  "meta": {
+    "generated_at": "2026-03-20T23:28:17.167508+00:00",
+    "profile": "demo",
+    "netbox_url": "https://demo.netbox.dev",
+    "timeout": "30",
+    "token_configured": false
+  },
+  "runs": [
+    {
+      "section": "Top-level",
+      "title": "nbx --help",
+      "argv": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.807,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx init --help",
+      "argv": [
+        "init",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.589,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx config --help",
+      "argv": [
+        "config",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.759,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx groups --help",
+      "argv": [
+        "groups",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.488,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx resources --help",
+      "argv": [
+        "resources",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.511,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx ops --help",
+      "argv": [
+        "ops",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.666,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx call --help",
+      "argv": [
+        "call",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.462,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx tui --help",
+      "argv": [
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.451,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx tui --theme",
+      "argv": [
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.539,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx docs --help",
+      "argv": [
+        "docs",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.441,
+      "truncated": false
+    },
+    {
+      "section": "Top-level",
+      "title": "nbx docs generate-capture --help",
+      "argv": [
+        "docs",
+        "generate-capture",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.445,
+      "truncated": false
+    },
+    {
+      "section": "Demo profile",
+      "title": "nbx demo --help",
+      "argv": [
+        "demo",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.655,
+      "truncated": false
+    },
+    {
+      "section": "Demo profile",
+      "title": "nbx demo init --help",
+      "argv": [
+        "demo",
+        "init",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.478,
+      "truncated": false
+    },
+    {
+      "section": "Demo profile",
+      "title": "nbx demo config --help",
+      "argv": [
+        "demo",
+        "config",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.612,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx groups",
+      "argv": [
+        "groups"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.436,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx resources dcim",
+      "argv": [
+        "resources",
+        "dcim"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.438,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx ops dcim devices",
+      "argv": [
+        "ops",
+        "dcim",
+        "devices"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.622,
+      "truncated": false
+    },
+    {
+      "section": "Schema Discovery",
+      "title": "nbx resources ipam",
+      "argv": [
+        "resources",
+        "ipam"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.464,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim --help",
+      "argv": [
+        "dcim",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.471,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim devices --help",
+      "argv": [
+        "dcim",
+        "devices",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.766,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim devices list --help",
+      "argv": [
+        "dcim",
+        "devices",
+        "list",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.445,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx ipam prefixes --help",
+      "argv": [
+        "ipam",
+        "prefixes",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.434,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx dcim interfaces get --help",
+      "argv": [
+        "dcim",
+        "interfaces",
+        "get",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.524,
+      "truncated": false
+    },
+    {
+      "section": "Dynamic Commands",
+      "title": "nbx circuits circuit-terminations get --help",
+      "argv": [
+        "circuits",
+        "circuit-terminations",
+        "get",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.499,
+      "truncated": false
+    },
+    {
+      "section": "Live API \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim devices list",
+      "argv": [
+        "demo",
+        "dcim",
+        "devices",
+        "list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.702,
+      "truncated": true
+    },
+    {
+      "section": "Live API \u2014 demo.netbox.dev",
+      "title": "nbx demo ipam prefixes list",
+      "argv": [
+        "demo",
+        "ipam",
+        "prefixes",
+        "list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.202,
+      "truncated": false
+    },
+    {
+      "section": "Live API \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim sites list",
+      "argv": [
+        "demo",
+        "dcim",
+        "sites",
+        "list"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.087,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim interfaces get --id 1 --trace",
+      "argv": [
+        "demo",
+        "dcim",
+        "interfaces",
+        "get",
+        "--id",
+        "1",
+        "--trace"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.91,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo dcim interfaces get --id 1 --trace-only",
+      "argv": [
+        "demo",
+        "dcim",
+        "interfaces",
+        "get",
+        "--id",
+        "1",
+        "--trace-only"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.442,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo circuits circuit-terminations get --id 15 --trace",
+      "argv": [
+        "demo",
+        "circuits",
+        "circuit-terminations",
+        "get",
+        "--id",
+        "15",
+        "--trace"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.326,
+      "truncated": false
+    },
+    {
+      "section": "Cable Trace \u2014 demo.netbox.dev",
+      "title": "nbx demo circuits circuit-terminations get --id 15 --trace-only",
+      "argv": [
+        "demo",
+        "circuits",
+        "circuit-terminations",
+        "get",
+        "--id",
+        "15",
+        "--trace-only"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.579,
+      "truncated": false
+    }
+  ]
+}
