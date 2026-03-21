@@ -28,10 +28,17 @@ def _required_variables_json() -> str:
 """.strip()
 
 
-def test_theme_catalog_loads_default_and_dracula() -> None:
+def test_theme_catalog_loads_builtin_themes() -> None:
     catalog = load_theme_catalog()
-    assert catalog.available_theme_names() == ("default", "dracula")
-    assert catalog.resolve("netbox-dark") == "default"
+    assert catalog.available_theme_names() == (
+        "default",
+        "dracula",
+        "netbox-dark",
+        "netbox-light",
+    )
+    assert catalog.resolve("netbox") == "netbox-dark"
+    assert catalog.resolve("netbox-dark") == "netbox-dark"
+    assert catalog.resolve("netbox-light") == "netbox-light"
     assert catalog.resolve("dracula") == "dracula"
     assert catalog.default_theme_name == "default"
 

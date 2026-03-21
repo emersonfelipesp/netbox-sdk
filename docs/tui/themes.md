@@ -1,6 +1,6 @@
 # Themes
 
-The TUI ships with two built-in themes and supports unlimited custom themes defined as JSON files.
+The TUI ships with four built-in themes and supports unlimited custom themes defined as JSON files.
 
 ---
 
@@ -8,8 +8,10 @@ The TUI ships with two built-in themes and supports unlimited custom themes defi
 
 | Theme name | Label | Aliases |
 |-----------|-------|---------|
-| `default` | NetBox Dark | `netbox`, `netbox-dark` |
+| `default` | Default | - |
 | `dracula` | Dracula | `dracula-dark` |
+| `netbox-dark` | NetBox Dark | `netbox` |
+| `netbox-light` | NetBox Light | `light` |
 
 ---
 
@@ -20,6 +22,7 @@ The TUI ships with two built-in themes and supports unlimited custom themes defi
     ```bash
     nbx tui --theme dracula
     nbx demo tui --theme netbox
+    nbx tui --theme netbox-light
     ```
 
 === "At runtime"

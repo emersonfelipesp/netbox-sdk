@@ -26,6 +26,8 @@ def test_tui_theme_list(monkeypatch) -> None:
     assert "Available themes:" in result.stdout
     assert "- default" in result.stdout
     assert "- dracula" in result.stdout
+    assert "- netbox-dark" in result.stdout
+    assert "- netbox-light" in result.stdout
 
 
 def test_tui_theme_dracula(monkeypatch) -> None:
@@ -91,7 +93,31 @@ def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
     result = runner.invoke(cli.app, ["tui", "--theme", "netbox-dark"])
 
     assert result.exit_code == 0
-    assert called["theme_name"] == "default"
+    assert called["theme_name"] == "netbox-dark"
+    assert called["demo_mode"] is False
+
+
+def test_tui_theme_alias_netbox(monkeypatch) -> None:
+    monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+    monkeypatch.setattr(cli, "_get_client", lambda: object())
+    monkeypatch.setattr(cli, "_get_index", lambda: object())
+
+    called: dict[str, object] = {}
+
+    def _fake_run_tui(
+        *, client, index, theme_name: str | None, demo_mode: bool
+    ) -> None:
+        called["theme_name"] = str(theme_name)
+        called["demo_mode"] = demo_mode
+
+    import netbox_cli.tui as tui_module
+
+    monkeypatch.setattr(tui_module, "run_tui", _fake_run_tui)
+
+    result = runner.invoke(cli.app, ["tui", "--theme", "netbox"])
+
+    assert result.exit_code == 0
+    assert called["theme_name"] == "netbox-dark"
     assert called["demo_mode"] is False
 
 

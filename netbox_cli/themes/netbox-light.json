@@ -1,0 +1,36 @@
+{
+    "name": "netbox-light",
+    "label": "NetBox Light",
+    "dark": false,
+    "aliases": ["light"],
+    "colors": {
+        "primary": "#00857D",
+        "secondary": "#00F2D4",
+        "warning": "#F59F00",
+        "error": "#D63939",
+        "success": "#2FB344",
+        "accent": "#0CA678",
+        "background": "#F9FAFB",
+        "surface": "#FFFFFF",
+        "panel": "#F3F4F6",
+        "boost": "#E5E7EB"
+    },
+    "variables": {
+        "nb-success-text": "#13481B",
+        "nb-info-text": "#1A3D5A",
+        "nb-warning-text": "#624000",
+        "nb-danger-text": "#561717",
+        "nb-secondary-text": "#2B2E33",
+        "nb-success-bg": "#D5F0DA",
+        "nb-info-bg": "#D9EBF9",
+        "nb-warning-bg": "#FDECCC",
+        "nb-danger-bg": "#F7D7D7",
+        "nb-secondary-bg": "#E1E3E6",
+        "nb-border": "#E5E7EB",
+        "nb-border-subtle": "#D1D5DB",
+        "nb-muted-text": "#6B7280",
+        "nb-link-text": "#00857D",
+        "nb-id-text": "#00857D",
+        "nb-key-text": "#4299E1"
+    }
+}

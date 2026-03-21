@@ -1,8 +1,8 @@
 {
-    "name": "default",
-    "label": "Default",
+    "name": "netbox-dark",
+    "label": "NetBox Dark",
     "dark": true,
-    "aliases": [],
+    "aliases": ["netbox"],
     "colors": {
         "primary": "#00F2D4",
         "secondary": "#00857D",
@@ -16,21 +16,21 @@
         "boost": "#1F2937"
     },
     "variables": {
-        "nb-success-text": "#82D18E",
+        "nb-success-text": "#82D18F",
         "nb-info-text": "#8DC1ED",
         "nb-warning-text": "#F9C566",
         "nb-danger-text": "#E68888",
-        "nb-secondary-text": "#A6AAB2",
-        "nb-success-bg": "#09230D",
-        "nb-info-bg": "#0D1E2D",
+        "nb-secondary-text": "#A6AAB3",
+        "nb-success-bg": "#09240E",
+        "nb-info-bg": "#0D1F2D",
         "nb-warning-bg": "#311F00",
         "nb-danger-bg": "#2B0B0B",
-        "nb-secondary-bg": "#151720",
-        "nb-border": "#2D3C51",
+        "nb-secondary-bg": "#15171A",
+        "nb-border": "#2E3C51",
         "nb-border-subtle": "#374151",
-        "nb-muted-text": "#A6AAB2",
-        "nb-link-text": "#8DC1ED",
-        "nb-id-text": "#8DC1ED",
-        "nb-key-text": "#D4A5FF"
+        "nb-muted-text": "#9CA3AF",
+        "nb-link-text": "#00F2D4",
+        "nb-id-text": "#00F2D4",
+        "nb-key-text": "#8DC1ED"
     }
 }

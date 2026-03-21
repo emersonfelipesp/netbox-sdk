@@ -259,6 +259,7 @@ Theme options:
 ```bash
 nbx tui --theme          # list available themes
 nbx tui --theme dracula  # start with Dracula
+nbx tui --theme netbox-light
 ```
 
 You can also switch theme live from the top-left `Theme` dropdown in the TUI.
@@ -273,6 +274,8 @@ Built-ins:
 
 - `netbox_cli/themes/default.json`
 - `netbox_cli/themes/dracula.json`
+- `netbox_cli/themes/netbox-dark.json`
+- `netbox_cli/themes/netbox-light.json`
 
 To add a custom theme, place `<theme>.json` in that folder. It will be auto-discovered.
 
