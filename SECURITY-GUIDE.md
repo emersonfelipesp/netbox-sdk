@@ -85,9 +85,9 @@ Implemented in:
 
 The sanitizer strips:
 
-- ANSI escape sequences
-- OSC hyperlink/control sequences
-- Raw control characters other than newline, carriage return, and tab
+- ANSI ESC-based sequences (CSI, OSC, two-character forms)
+- C1 control characters (U+0080–U+009F), including U+009B (C1 CSI) and U+009D (C1 OSC) — these are escape-sequence initiators that some terminals accept without a leading ESC byte
+- Raw C0 control characters other than newline, carriage return, and tab
 
 The sanitizer is applied before rendering:
 
@@ -185,6 +185,6 @@ Run the full suite:
 pytest -q
 ```
 
-Current known good result at the time of writing:
+Current known good result at the time of writing (excludes live-network demo tests):
 
-- `123 passed`
+- `100 passed`
