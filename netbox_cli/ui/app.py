@@ -193,6 +193,7 @@ class NetBoxTuiApp(App[None]):
 
     def on_mount(self) -> None:
         self._apply_theme(self.theme_name)
+        self.call_after_refresh(self._strip_theme_select_prefix)
         self._update_clock()
         self._set_connection_badge_checking()
         self._build_navigation_tree()
@@ -333,6 +334,17 @@ class NetBoxTuiApp(App[None]):
         if selected == self.theme_name:
             return
         self._apply_theme(selected, notify=True)
+        self.call_after_refresh(self._strip_theme_select_prefix)
+
+    def _strip_theme_select_prefix(self) -> None:
+        """Remove the '- ' list prefix from the SelectCurrent display label."""
+        try:
+            label = self.query_one("#theme_select SelectCurrent Static#label", Static)
+        except NoMatches:
+            return
+        text = str(label.renderable)
+        if text.startswith("- "):
+            label.update(text[2:])
 
     @on(Select.Changed, "#filter_select")
     def on_filter_select_changed(self, event: Select.Changed) -> None:

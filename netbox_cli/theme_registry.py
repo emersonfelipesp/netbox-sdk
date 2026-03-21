@@ -83,7 +83,7 @@ class ThemeCatalog:
         return tuple(theme.name for theme in self.themes)
 
     def select_options(self) -> tuple[tuple[str, str], ...]:
-        return tuple((theme.label, theme.name) for theme in self.themes)
+        return tuple((f"- {theme.label}", theme.name) for theme in self.themes)
 
     def resolve(self, name: str | None) -> str | None:
         if name is None:

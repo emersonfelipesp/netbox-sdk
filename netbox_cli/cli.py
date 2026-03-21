@@ -362,6 +362,23 @@ def demo_config_command(
     typer.echo(json.dumps(_demo_payload(cfg, show_token=show_token), indent=2))
 
 
+@demo_app.command("test")
+def demo_test_command() -> None:
+    """Test connectivity to demo.netbox.dev using the configured demo profile."""
+    cfg = _ensure_demo_runtime_config()
+    probe = _run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    if probe.ok:
+        version_text = probe.version or "unknown"
+        typer.echo(
+            f"Demo connection OK (status={probe.status}, api_version={version_text})"
+        )
+        return
+
+    detail = probe.error or f"HTTP {probe.status}"
+    typer.echo(f"Demo connection failed: {detail}", err=True)
+    raise typer.Exit(code=1)
+
+
 @demo_app.command("reset")
 def demo_reset_command() -> None:
     clear_profile_config(DEMO_PROFILE)
