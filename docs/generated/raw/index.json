@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-03-21T00:17:22.573227+00:00",
+    "generated_at": "2026-03-21T00:20:50.519623+00:00",
     "profile": "demo",
     "netbox_url": "https://demo.netbox.dev",
     "timeout": "30",
@@ -14,7 +14,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.35,
+      "elapsed_seconds": 1.373,
       "truncated": false
     },
     {
@@ -25,7 +25,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.284,
+      "elapsed_seconds": 1.297,
       "truncated": false
     },
     {
@@ -36,7 +36,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.277,
+      "elapsed_seconds": 1.286,
       "truncated": false
     },
     {
@@ -47,7 +47,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.364,
+      "elapsed_seconds": 1.373,
       "truncated": false
     },
     {
@@ -58,7 +58,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.304,
+      "elapsed_seconds": 1.33,
       "truncated": false
     },
     {
@@ -69,7 +69,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.311,
+      "elapsed_seconds": 1.317,
       "truncated": false
     },
     {
@@ -80,7 +80,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.296,
+      "elapsed_seconds": 1.326,
       "truncated": false
     },
     {
@@ -91,7 +91,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.295,
+      "elapsed_seconds": 1.316,
       "truncated": false
     },
     {
@@ -102,7 +102,7 @@
         "--theme"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.287,
+      "elapsed_seconds": 1.314,
       "truncated": false
     },
     {
@@ -113,7 +113,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.331,
+      "elapsed_seconds": 1.352,
       "truncated": false
     },
     {
@@ -125,7 +125,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.307,
+      "elapsed_seconds": 1.327,
       "truncated": false
     },
     {
@@ -136,7 +136,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.286,
+      "elapsed_seconds": 1.31,
       "truncated": false
     },
     {
@@ -148,7 +148,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.287,
+      "elapsed_seconds": 1.305,
       "truncated": false
     },
     {
@@ -160,7 +160,7 @@
         "--help"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.306,
+      "elapsed_seconds": 1.324,
       "truncated": false
     },
     {
@@ -170,7 +170,7 @@
         "groups"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.457,
+      "elapsed_seconds": 1.408,
       "truncated": false
     },
     {
@@ -181,7 +181,7 @@
         "dcim"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.304,
+      "elapsed_seconds": 1.313,
       "truncated": false
     },
     {
@@ -193,7 +193,7 @@
         "devices"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.327,
+      "elapsed_seconds": 1.394,
       "truncated": false
     },
     {
@@ -204,7 +204,7 @@
         "ipam"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.29,
+      "elapsed_seconds": 1.332,
       "truncated": false
     },
     {
@@ -215,7 +215,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.301,
+      "elapsed_seconds": 1.303,
       "truncated": false
     },
     {
@@ -227,7 +227,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.284,
+      "elapsed_seconds": 1.31,
       "truncated": false
     },
     {
@@ -240,7 +240,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.301,
+      "elapsed_seconds": 1.304,
       "truncated": false
     },
     {
@@ -252,7 +252,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.284,
+      "elapsed_seconds": 1.288,
       "truncated": false
     },
     {
@@ -265,7 +265,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.275,
+      "elapsed_seconds": 1.293,
       "truncated": false
     },
     {
@@ -278,7 +278,7 @@
         "--help"
       ],
       "exit_code": 1,
-      "elapsed_seconds": 1.299,
+      "elapsed_seconds": 1.287,
       "truncated": false
     },
     {
@@ -291,7 +291,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.336,
+      "elapsed_seconds": 2.002,
       "truncated": true
     },
     {
@@ -304,7 +304,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.949,
+      "elapsed_seconds": 1.791,
       "truncated": false
     },
     {
@@ -317,7 +317,7 @@
         "list"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.907,
+      "elapsed_seconds": 1.645,
       "truncated": false
     },
     {
@@ -333,7 +333,7 @@
         "--trace"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 2.058,
+      "elapsed_seconds": 1.854,
       "truncated": false
     },
     {
@@ -349,7 +349,7 @@
         "--trace-only"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.891,
+      "elapsed_seconds": 1.8,
       "truncated": false
     },
     {
@@ -365,7 +365,7 @@
         "--trace"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.898,
+      "elapsed_seconds": 1.697,
       "truncated": false
     },
     {
@@ -381,7 +381,7 @@
         "--trace-only"
       ],
       "exit_code": 0,
-      "elapsed_seconds": 1.851,
+      "elapsed_seconds": 1.695,
       "truncated": false
     }
   ]
