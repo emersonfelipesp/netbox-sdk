@@ -30,25 +30,26 @@ jobs:
         run: pip install -e ".[docs,dev]"
 
       # ── Docgen: regenerate captured CLI output ────────────────────────────
+      # These steps are skipped when DEMO_USERNAME / DEMO_PASSWORD secrets
+      # are not configured (e.g. forks).  Required secrets:
+      #   DEMO_USERNAME  →  nbxuser
+      #   DEMO_PASSWORD  →  @nm12345678
       - name: Install Playwright and Chromium browser
-        if: ${{ secrets.DEMO_USERNAME != '' && secrets.DEMO_PASSWORD != '' }}
+        if: ${{ secrets.DEMO_USERNAME && secrets.DEMO_PASSWORD }}
         run: |
           pip install playwright
           playwright install chromium --with-deps
 
       - name: Authenticate with demo.netbox.dev
-        if: ${{ secrets.DEMO_USERNAME != '' && secrets.DEMO_PASSWORD != '' }}
+        if: ${{ secrets.DEMO_USERNAME && secrets.DEMO_PASSWORD }}
         run: |
           nbx demo init \
             --username "${{ secrets.DEMO_USERNAME }}" \
             --password "${{ secrets.DEMO_PASSWORD }}" \
             --headless
-        # Required repository secrets:
-        #   DEMO_USERNAME  →  nbxuser
-        #   DEMO_PASSWORD  →  @nm12345678
 
       - name: Regenerate command capture docs
-        if: ${{ secrets.DEMO_USERNAME != '' && secrets.DEMO_PASSWORD != '' }}
+        if: ${{ secrets.DEMO_USERNAME && secrets.DEMO_PASSWORD }}
         run: nbx docs generate-capture
 
       # ── Build + deploy ────────────────────────────────────────────────────
