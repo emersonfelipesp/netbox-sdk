@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import inspect
 import json
-from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -27,7 +26,7 @@ from textual.widgets import (
 )
 
 from netbox_cli.api import ConnectionProbe, NetBoxApiClient
-from netbox_cli.schema import SchemaIndex
+from netbox_cli.schema import FilterParam, SchemaIndex
 from netbox_cli.theme_registry import ThemeCatalog, load_theme_catalog
 
 from .formatting import (
@@ -112,6 +111,9 @@ class NetBoxTuiApp(App[None]):
         self._filter_fields: list[tuple[str, str]] = []
         self._filter_overlay_field: str = ""
         self._ignored_filter_select_values: set[str] = set()
+        self._results_spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+        self._results_spinner_index = 0
+        self._results_spinner_timer: Timer | None = None
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
@@ -169,6 +171,9 @@ class NetBoxTuiApp(App[None]):
                         table.add_columns("sel", "result")
                         table.add_row("", "No data loaded")
                         yield table
+                        with Vertical(id="results_loading_overlay", classes="hidden"):
+                            yield Static("", id="results_loading_spinner")
+                            yield Static("Loading...", id="results_loading_text")
                         yield Static("Ready", id="results_status")
 
                     with TabPane("Details", id="details_tab"):
@@ -226,6 +231,7 @@ class NetBoxTuiApp(App[None]):
         handler()
 
     def on_unmount(self) -> None:
+        self._stop_results_loading()
         if self._clock_timer is not None:
             self._clock_timer.stop()
             self._clock_timer = None
@@ -352,10 +358,18 @@ class NetBoxTuiApp(App[None]):
         group, resource = event.node.data
         self.current_group = group
         self.current_resource = resource
+        self.current_rows = []
         self.selected_row_ids.clear()
         self._update_context_line()
         self._set_controls(
             f"Resource: {humanize_group(group)} / {humanize_resource(resource)}"
+        )
+        # Switch to Results tab and show loading immediately — before the async
+        # worker starts — so the user gets instant visual feedback.
+        self.query_one("#main_tabs", TabbedContent).active = "results_tab"
+        self._clear_results_table()
+        self._set_results_loading(
+            f"Loading {humanize_group(group)} / {humanize_resource(resource)}"
         )
         self._load_rows(group, resource)
 
@@ -369,7 +383,6 @@ class NetBoxTuiApp(App[None]):
 
         selected = self.current_rows[row_index]
         self._load_object_details(selected)
-        self._refresh_filter_fields(selected.keys())
         tabs = self.query_one("#main_tabs", TabbedContent)
         tabs.active = "details_tab"
 
@@ -413,8 +426,14 @@ class NetBoxTuiApp(App[None]):
             self._set_status("List endpoint unavailable for this resource")
             return
 
+        # Populate filter fields from schema before any HTTP request.
+        self._refresh_filter_fields(group, resource)
+
         query = self._query_from_search(
             self.query_one("#global_search", Input).value.strip()
+        )
+        self._set_results_loading(
+            f"Loading {humanize_group(group)} / {humanize_resource(resource)}"
         )
         self._set_status(f"Loading {group}/{resource}...")
 
@@ -423,6 +442,7 @@ class NetBoxTuiApp(App[None]):
         except Exception as exc:  # noqa: BLE001
             self.current_rows = []
             self._render_results_table([])
+            self._stop_results_loading()
             self._set_status(f"Request failed: {exc}")
             return
 
@@ -434,16 +454,15 @@ class NetBoxTuiApp(App[None]):
 
         if rows:
             self._load_object_details(rows[0])
-            self._refresh_filter_fields(rows[0].keys())
         else:
             self.query_one("#detail_panel", ObjectAttributesPanel).set_object(None)
-            self._refresh_filter_fields([])
 
         if response.status >= 400:
             self.notify(f"HTTP {response.status}", severity="error")
             self._set_status(f"HTTP {response.status}")
         else:
             self._set_status(f"Loaded {len(rows)} row(s) - HTTP {response.status}")
+        self._stop_results_loading()
         self.query_one("#results_table", DataTable).focus()
 
     async def _show_detail_for_path(
@@ -600,6 +619,38 @@ class NetBoxTuiApp(App[None]):
     def _set_status(self, text: str) -> None:
         self.query_one("#results_status", Static).update(text)
 
+    def _results_spinner_tick(self, label: str) -> None:
+        frame = self._results_spinner_frames[
+            self._results_spinner_index % len(self._results_spinner_frames)
+        ]
+        self._results_spinner_index += 1
+        self.query_one("#results_loading_spinner", Static).update(frame)
+        self.query_one("#results_loading_text", Static).update(label)
+
+    def _set_results_loading(self, label: str) -> None:
+        self._stop_results_loading()
+        overlay = self.query_one("#results_loading_overlay", Vertical)
+        self._results_spinner_index = 0
+        overlay.remove_class("hidden")
+        self._results_spinner_tick(label)
+        self._results_spinner_timer = self.set_interval(
+            0.12,
+            lambda: self._results_spinner_tick(label),
+            name="nbx_results_loading",
+        )
+        self.query_one("#results_status", Static).add_class("-loading")
+        self._set_status(label)
+
+    def _stop_results_loading(self) -> None:
+        if self._results_spinner_timer is not None:
+            self._results_spinner_timer.stop()
+            self._results_spinner_timer = None
+        try:
+            self.query_one("#results_loading_overlay", Vertical).add_class("hidden")
+            self.query_one("#results_status", Static).remove_class("-loading")
+        except NoMatches:
+            pass
+
     @work(group="connection_probe", exclusive=True, thread=False)
     async def _probe_connection_health(self) -> None:
         self._set_connection_badge_checking()
@@ -694,18 +745,15 @@ class NetBoxTuiApp(App[None]):
             return str(row["id"])
         return f"row:{index}"
 
-    def _refresh_filter_fields(self, fields: Iterable[str]) -> None:
+    def _refresh_filter_fields(self, group: str, resource: str) -> None:
+        """Populate the filter field dropdown from the OpenAPI schema (no HTTP required)."""
+        params: list[FilterParam] = self.index.filter_params(group, resource)
         select = self.query_one("#filter_select", Select)
         current = self._selected_filter_field()
-        seen: set[str] = set()
-        ordered: list[tuple[str, str]] = []
-        for name in order_field_names([str(field) for field in fields]):
-            if name in seen:
-                continue
-            seen.add(name)
-            ordered.append((humanize_field(name), name))
 
+        ordered: list[tuple[str, str]] = [(p.label, p.name) for p in params]
         self._filter_fields = ordered
+
         options: list[tuple[str, str | Select.BLANK]] = [("Filter Field", Select.BLANK)]
         options.extend(ordered)
         select.set_options(options)

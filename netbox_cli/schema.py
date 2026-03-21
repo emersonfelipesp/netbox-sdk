@@ -7,6 +7,42 @@ from typing import Any
 
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options"}
 
+# Query params that control pagination/format, not filters.
+_FILTER_EXCLUDE_NAMES: frozenset[str] = frozenset({"limit", "offset", "format"})
+
+# Lookup suffixes added by NetBox/django-filter — only the bare field name is shown.
+_LOOKUP_SUFFIXES: tuple[str, ...] = (
+    "__empty", "__gt", "__gte", "__ic", "__ie", "__iew", "__iregex", "__isw",
+    "__lt", "__lte", "__n", "__nic", "__nie", "__niew", "__nisw", "__nre",
+    "__nregex", "__re", "__regex",
+)
+
+
+@dataclass(slots=True, frozen=True)
+class FilterParam:
+    """A single query parameter available for filtering a list endpoint."""
+    name: str
+    label: str
+    type: str            # "string" | "integer" | "boolean" | "enum" | "array"
+    choices: tuple[str, ...] = ()   # non-empty only when type == "enum"
+    description: str = ""
+
+
+def _classify_param(schema: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
+    if "enum" in schema:
+        choices = tuple(
+            str(v) for v in schema["enum"] if v is not None and str(v) != "null"
+        )
+        return "enum", choices
+    ptype = schema.get("type", "string")
+    if ptype == "boolean":
+        return "boolean", ()
+    if ptype == "integer":
+        return "integer", ()
+    if ptype == "array":
+        return "array", ()
+    return "string", ()
+
 
 @dataclass(slots=True, frozen=True)
 class Operation:
@@ -110,6 +146,58 @@ class SchemaIndex:
 
     def resource_paths(self, group: str, resource: str) -> ResourcePaths | None:
         return self._resource_paths.get((group, resource))
+
+    def filter_params(self, group: str, resource: str) -> list[FilterParam]:
+        """Return filterable query parameters for GET /api/{group}/{resource}/ from the schema.
+
+        Excludes lookup-suffix variants (``__ic``, ``__n``, etc.) and pagination
+        params (``limit``, ``offset``, ``format``).  The result is sorted with
+        ``q`` first, then alphabetically by name.
+        """
+        list_path = f"/api/{group}/{resource}/"
+        paths = self.schema.get("paths", {})
+        path_item = paths.get(list_path, {})
+        if not isinstance(path_item, dict):
+            return []
+        get_op = path_item.get("get", {})
+        if not isinstance(get_op, dict):
+            return []
+        parameters = get_op.get("parameters", [])
+        if not isinstance(parameters, list):
+            return []
+
+        result: list[FilterParam] = []
+        for param in parameters:
+            if not isinstance(param, dict):
+                continue
+            if param.get("in") != "query":
+                continue
+            name = str(param.get("name", ""))
+            if not name:
+                continue
+            if name in _FILTER_EXCLUDE_NAMES:
+                continue
+            if any(name.endswith(suffix) for suffix in _LOOKUP_SUFFIXES):
+                continue
+
+            schema = param.get("schema", {})
+            if not isinstance(schema, dict):
+                schema = {}
+            ptype, choices = _classify_param(schema)
+            label = name.replace("_", " ").replace("-", " ").title()
+            description = str(param.get("description", ""))
+
+            result.append(FilterParam(
+                name=name,
+                label=label,
+                type=ptype,
+                choices=choices,
+                description=description,
+            ))
+
+        # q first, then alphabetical
+        result.sort(key=lambda p: (p.name != "q", p.name))
+        return result
 
     def trace_path(self, group: str, resource: str) -> str | None:
         candidate = f"/api/{group}/{resource}/{{id}}/trace/"
