@@ -66,8 +66,7 @@ class ThemeDefinition(BaseModel):
             if isinstance(aliases, list):
                 data = dict(data)
                 data["aliases"] = [
-                    a for a in aliases
-                    if not (isinstance(a, str) and a.strip().lower() == name)
+                    a for a in aliases if not (isinstance(a, str) and a.strip().lower() == name)
                 ]
         return data
 
@@ -194,9 +193,7 @@ def load_theme_catalog(path: Path | None = None) -> ThemeCatalog:
     if not target.exists() or not target.is_dir():
         raise ThemeCatalogError(f"Themes directory is missing: {target}")
 
-    json_files = sorted(
-        p for p in target.iterdir() if p.is_file() and p.suffix == ".json"
-    )
+    json_files = sorted(p for p in target.iterdir() if p.is_file() and p.suffix == ".json")
     if not json_files:
         raise ThemeCatalogError(f"No theme JSON files were found in {target}")
 

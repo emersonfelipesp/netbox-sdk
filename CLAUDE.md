@@ -47,6 +47,28 @@ Security Reference:
 
 ---
 
+## Contributor Workflow
+
+Use `uv` as the default local environment manager and `pre-commit` as the default gate before commits and pushes.
+
+Initial setup:
+
+```bash
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+```
+
+Day-to-day:
+
+```bash
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+Expect every commit and every push to pass the Ruff lint/format hooks. GitHub Actions enforces the same `.pre-commit-config.yaml` checks in CI.
+
+---
+
 # netbox-cli aims to be a TUI mirror of NetBox UI.
 - You must "mirror" UI, such as navigation, cards, etc.
 - For it, you must understand NetBox code and Django (mainly focusing on template understanding)

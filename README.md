@@ -93,15 +93,15 @@ Use `/` to search, `g` to focus the nav tree, `q` to quit. All commands that wor
 
 ```bash
 cd <path-to-netbox-cli>
-pip install -e .
+uv tool install --force .
 ```
 
 ## Install `nbx` Globally (bash + zsh)
 
-Preferred (`pipx`):
+Preferred (`uv tool`):
 
 ```bash
-pipx install -e <path-to-netbox-cli>
+uv tool install --force <path-to-netbox-cli>
 nbx --help
 ```
 
@@ -123,32 +123,26 @@ source ~/.zshrc
 nbx --help
 ```
 
-Alternative (project venv, no activation needed):
+Alternative (repo-local maintenance environment):
 
 ```bash
 cd <path-to-netbox-cli>
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -e .
+uv sync --dev
+uv run nbx --help
 ```
 
-Then add the venv `bin` to your shell PATH:
+This keeps a project-managed environment for development tasks. The main end-user install path remains `uv tool install`.
 
-For **bash**:
+Contributor standard:
 
 ```bash
-echo 'export PATH="<path-to-netbox-cli>/.venv/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-nbx --help
+cd <path-to-netbox-cli>
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
 ```
 
-For **zsh**:
-
-```bash
-echo 'export PATH="<path-to-netbox-cli>/.venv/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-nbx --help
-```
+Commits and pushes should go through `pre-commit`, which runs Ruff linting and formatting locally and in GitHub Actions.
 
 ## Configure
 
@@ -167,11 +161,10 @@ nbx demo init
 
 This always targets `https://demo.netbox.dev/`, opens the NetBox login flow in Playwright, prompts for demo username/password in the terminal, creates a fresh API token, and stores that token in the separate `demo` profile.
 
-Install Playwright first if you want browser-based demo bootstrap:
+Install the Playwright browser first if you want browser-based demo bootstrap:
 
 ```bash
-pip install playwright
-playwright install chromium
+uv tool run --from playwright playwright install chromium --with-deps
 ```
 
 If you already have a demo API token, you can skip Playwright entirely:

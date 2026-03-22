@@ -11,20 +11,26 @@ The recommended approach while the project is in active development:
 ```bash
 git clone https://github.com/emersonfelipesp/netbox-cli.git
 cd netbox-cli
-pip install -e .
+uv tool install --force .
 nbx --help
 ```
 
-The `-e` flag installs in editable mode so code changes take effect immediately without reinstalling.
+For contributor workflows where you want repo-local commands without reinstalling the tool on each change:
+
+```bash
+uv sync --dev
+uv run nbx --help
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+```
 
 ---
 
-## Global install with pipx
+## Global install with uv tool
 
-[pipx](https://pipx.pypa.io) installs Python tools in isolated environments and puts them on your PATH automatically.
+[`uv tool`](https://docs.astral.sh/uv/concepts/tools/) installs Python CLIs in isolated environments and puts the executable on your PATH.
 
 ```bash
-pipx install -e /path/to/netbox-cli
+uv tool install --force /path/to/netbox-cli
 nbx --help
 ```
 
@@ -46,31 +52,25 @@ If `nbx` is not found after install, add `~/.local/bin` to your PATH:
 
 ---
 
-## Project virtual environment
+## Repo-local development environment
 
 ```bash
 cd netbox-cli
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-nbx --help
+uv sync --dev
+uv run nbx --help
 ```
 
-To use `nbx` without activating the venv each time, add the venv's `bin` to your PATH:
+Use this for tests, docs, and local iteration. Use `uv tool install --force ...` when you want the `nbx` executable installed as a user tool.
 
-=== "bash"
+Recommended contributor setup:
 
-    ```bash
-    echo 'export PATH="/path/to/netbox-cli/.venv/bin:$PATH"' >> ~/.bashrc
-    source ~/.bashrc
-    ```
+```bash
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
+uv run pytest
+```
 
-=== "zsh"
-
-    ```bash
-    echo 'export PATH="/path/to/netbox-cli/.venv/bin:$PATH"' >> ~/.zshrc
-    source ~/.zshrc
-    ```
+The project standard is Ruff for linting/formatting and `pre-commit` for enforcing those checks before commits and pushes.
 
 ---
 
@@ -79,9 +79,7 @@ To use `nbx` without activating the venv each time, add the venv's `bin` to your
 The `nbx demo init` command uses [Playwright](https://playwright.dev/python/) to log in to `demo.netbox.dev` and retrieve a fresh API token. Playwright is already declared as a dependency, but the browser must be installed separately:
 
 ```bash
-playwright install chromium
-# or, to install system dependencies as well:
-playwright install chromium --with-deps
+uv tool run --from playwright playwright install chromium --with-deps
 ```
 
 If you already have a demo API token, you can skip Playwright entirely — see [Demo Profile](../cli/demo-profile.md#direct-token-setup).

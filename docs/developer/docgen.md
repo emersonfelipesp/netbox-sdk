@@ -8,13 +8,14 @@
 
 ```bash
 cd /path/to/netbox-cli
-pip install -e .
+uv sync --dev --group docs
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 
 # Default: live-API specs hit demo.netbox.dev
-nbx docs generate-capture
+uv run nbx docs generate-capture
 
 # Alternative: hit your real NetBox (default profile)
-nbx docs generate-capture --live
+uv run nbx docs generate-capture --live
 ```
 
 ---
@@ -119,7 +120,7 @@ The `docs/hooks.py` MkDocs hook reads the raw JSON artifacts before each build a
 The workflow at `.github/workflows/docs-capture.yml` runs on every push to `main`:
 
 1. Installs `netbox-cli` and dependencies.
-2. Runs `playwright install chromium --with-deps`.
+2. Runs `uv tool run --from playwright playwright install chromium --with-deps`.
 3. Authenticates with demo.netbox.dev: `nbx demo init --username $DEMO_USERNAME --password $DEMO_PASSWORD --headless`.
 4. Verifies: `nbx demo config`.
 5. Runs `nbx docs generate-capture`.

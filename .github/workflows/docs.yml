@@ -24,10 +24,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: pip
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       - name: Install netbox-cli and docs + dev dependencies
-        run: pip install -e ".[docs,dev]"
+        run: uv sync --locked --group docs --group dev
 
       # ── Docgen: regenerate captured CLI output ────────────────────────────
       # Skipped automatically when DEMO_USERNAME / DEMO_PASSWORD are absent.
@@ -43,10 +47,10 @@ jobs:
             echo "Demo secrets not configured — skipping docgen."
             exit 0
           fi
-          pip install playwright
-          playwright install chromium --with-deps
-          nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
-          nbx docs generate-capture
+          uv pip install playwright
+          uv run playwright install chromium --with-deps
+          uv run nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
+          uv run nbx docs generate-capture
 
       # ── Build + deploy ────────────────────────────────────────────────────
       - name: Configure git identity for gh-deploy
@@ -55,4 +59,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Build and deploy docs to GitHub Pages
-        run: mkdocs gh-deploy --force --clean --verbose
+        run: uv run mkdocs gh-deploy --force --clean --verbose

@@ -20,7 +20,6 @@ from .config import (
     Config,
     clear_profile_config,
     is_runtime_config_complete,
-    load_config,
     load_profile_config,
     normalize_base_url,
     resolved_token,
@@ -33,7 +32,6 @@ from .services import load_json_payload, parse_key_value_pairs, run_dynamic_comm
 from .theme_registry import ThemeCatalogError
 from .trace_ascii import render_any_trace_ascii
 from .ui.formatting import (
-    _FIELD_PRIORITY,
     humanize_field,
     humanize_value,
     key_value_rows,
@@ -144,9 +142,7 @@ def init_command(
 
 @app.command("config")
 def config_command(
-    show_token: bool = typer.Option(
-        False, "--show-token", help="Include API token in output"
-    ),
+    show_token: bool = typer.Option(False, "--show-token", help="Include API token in output"),
 ) -> None:
     """Show the current default profile configuration."""
     cfg = _ensure_runtime_config()
@@ -403,9 +399,7 @@ def demo_init_command(
 
 @demo_app.command("config")
 def demo_config_command(
-    show_token: bool = typer.Option(
-        False, "--show-token", help="Include API token in output"
-    ),
+    show_token: bool = typer.Option(False, "--show-token", help="Include API token in output"),
 ) -> None:
     """Show the configured demo profile settings."""
     cfg = load_profile_config(DEMO_PROFILE)
@@ -419,9 +413,7 @@ def demo_test_command() -> None:
     probe = _run_with_spinner(_get_client_for_config(cfg).probe_connection())
     if probe.ok:
         version_text = probe.version or "unknown"
-        typer.echo(
-            f"Demo connection OK (status={probe.status}, api_version={version_text})"
-        )
+        typer.echo(f"Demo connection OK (status={probe.status}, api_version={version_text})")
         return
 
     detail = probe.error or f"HTTP {probe.status}"
@@ -471,9 +463,7 @@ def demo_tui_command(
         resolved = resolve_theme_name(requested)
         if not resolved:
             available = ", ".join(names)
-            raise typer.BadParameter(
-                f"Unknown theme '{requested}'. Available themes: {available}"
-            )
+            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
         selected_theme = resolved
 
     try:
@@ -487,9 +477,7 @@ def demo_tui_command(
         raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
 
 
-@dev_app.command(
-    "tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
-)
+@dev_app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def dev_tui_command(
     ctx: typer.Context,
     theme: bool = typer.Option(
@@ -521,9 +509,7 @@ def dev_tui_command(
         resolved = resolve_theme_name(requested)
         if not resolved:
             available = ", ".join(names)
-            raise typer.BadParameter(
-                f"Unknown theme '{requested}'. Available themes: {available}"
-            )
+            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
         selected_theme = resolved
 
     try:
@@ -581,12 +567,8 @@ def operations_command(
 def call_command(
     method: str = typer.Argument(...),
     path: str = typer.Argument(...),
-    query: list[str] = typer.Option(
-        None, "-q", "--query", help="Query parameter key=value"
-    ),
-    body_json: str | None = typer.Option(
-        None, "--body-json", help="Inline JSON request body"
-    ),
+    query: list[str] = typer.Option(None, "-q", "--query", help="Query parameter key=value"),
+    body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
     body_file: str | None = typer.Option(
         None, "--body-file", help="Path to JSON request body file"
     ),
@@ -600,14 +582,10 @@ def call_command(
     response = _run_with_spinner(
         _get_client().request(method, path, query=query_dict, payload=payload)
     )
-    _print_response(
-        response.status, response.text, as_json=output_json, as_yaml=output_yaml
-    )
+    _print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
 
 
-@app.command(
-    "tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
-)
+@app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def tui_command(
     ctx: typer.Context,
     theme: bool = typer.Option(
@@ -632,17 +610,13 @@ def tui_command(
                 typer.echo(f"- {name}")
             return
         if len(ctx.args) > 1:
-            raise typer.BadParameter(
-                "Too many arguments for --theme. Use: nbx tui --theme <name>"
-            )
+            raise typer.BadParameter("Too many arguments for --theme. Use: nbx tui --theme <name>")
 
         requested = ctx.args[0]
         resolved = resolve_theme_name(requested)
         if not resolved:
             available = ", ".join(names)
-            raise typer.BadParameter(
-                f"Unknown theme '{requested}'. Available themes: {available}"
-            )
+            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
         selected_theme = resolved
 
     try:
@@ -694,9 +668,7 @@ def _handle_dynamic_invocation(
         index=index_factory(),
     )
     if not trace_only:
-        _print_response(
-            response.status, response.text, as_json=as_json, as_yaml=as_yaml
-        )
+        _print_response(response.status, response.text, as_json=as_json, as_yaml=as_yaml)
     if trace or trace_only:
         _print_trace_output(
             group=group,
@@ -805,11 +777,7 @@ _LIST_COLUMNS = {
 
 def _render_table(parsed: Any) -> None:
     # Detect paginated list vs single object
-    if (
-        isinstance(parsed, dict)
-        and "results" in parsed
-        and isinstance(parsed["results"], list)
-    ):
+    if isinstance(parsed, dict) and "results" in parsed and isinstance(parsed["results"], list):
         rows_data = [r for r in parsed["results"] if isinstance(r, dict)]
         count = parsed.get("count")
         _render_list_table(rows_data, count=count)
@@ -1064,15 +1032,11 @@ def _build_action_command(
     allows_body = action in {"create", "update", "patch"}
 
     def _command(
-        object_id: int | None = typer.Option(
-            None, "--id", help="Object ID for detail operations"
-        ),
+        object_id: int | None = typer.Option(None, "--id", help="Object ID for detail operations"),
         query: list[str] | None = typer.Option(
             None, "-q", "--query", help="Query parameter key=value"
         ),
-        body_json: str | None = typer.Option(
-            None, "--body-json", help="Inline JSON request body"
-        ),
+        body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
         body_file: str | None = typer.Option(
             None, "--body-file", help="Path to JSON request body file"
         ),
@@ -1096,9 +1060,7 @@ def _build_action_command(
         if trace and trace_only:
             raise typer.BadParameter("Use either --trace or --trace-only, not both.")
         if (trace or trace_only) and action != "get":
-            raise typer.BadParameter(
-                "--trace and --trace-only are only supported for get actions"
-            )
+            raise typer.BadParameter("--trace and --trace-only are only supported for get actions")
 
         client = client_factory()
         index = index_factory()
@@ -1220,9 +1182,7 @@ def _register_openapi_subcommands(
                     client_factory=client_factory,
                     index_factory=index_factory,
                 )
-                resource_typer.command(
-                    name=action, help=f"{action} {group}/{resource}"
-                )(cmd)
+                resource_typer.command(name=action, help=f"{action} {group}/{resource}")(cmd)
 
 
 _register_openapi_subcommands(app)

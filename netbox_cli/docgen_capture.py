@@ -6,7 +6,7 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from inspect import signature
 from pathlib import Path
 from typing import Any, TextIO
@@ -135,11 +135,7 @@ def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str
         out = result.stdout or ""
         err = getattr(result, "stderr", "") or ""
         if err.strip():
-            out = (
-                f"{out}\n--- stderr ---\n{err}"
-                if out.strip()
-                else f"--- stderr ---\n{err}"
-            )
+            out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
         # Surface captured exceptions (catch_exceptions=True path) as readable text.
         if result.exception is not None and not isinstance(result.exception, SystemExit):
             import traceback
@@ -151,11 +147,7 @@ def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str
                     result.exception.__traceback__,
                 )
             )
-            out = (
-                f"{out}\n--- exception ---\n{tb}"
-                if out.strip()
-                else f"--- exception ---\n{tb}"
-            )
+            out = f"{out}\n--- exception ---\n{tb}" if out.strip() else f"--- exception ---\n{tb}"
         return result.exit_code or 0, out, elapsed
     finally:
         if was_stub:
@@ -177,7 +169,9 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
         CaptureSpec(section="Top-level", title="nbx init --help", argv=["init", "--help"]),
         CaptureSpec(section="Top-level", title="nbx config --help", argv=["config", "--help"]),
         CaptureSpec(section="Top-level", title="nbx groups --help", argv=["groups", "--help"]),
-        CaptureSpec(section="Top-level", title="nbx resources --help", argv=["resources", "--help"]),
+        CaptureSpec(
+            section="Top-level", title="nbx resources --help", argv=["resources", "--help"]
+        ),
         CaptureSpec(section="Top-level", title="nbx ops --help", argv=["ops", "--help"]),
         CaptureSpec(section="Top-level", title="nbx call --help", argv=["call", "--help"]),
         CaptureSpec(
@@ -200,9 +194,13 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
         ),
         # Demo sub-app help
         CaptureSpec(section="Demo profile", title="nbx demo --help", argv=["demo", "--help"]),
-        CaptureSpec(section="Demo profile", title="nbx demo init --help", argv=["demo", "init", "--help"]),
         CaptureSpec(
-            section="Demo profile", title="nbx demo config --help", argv=["demo", "config", "--help"]
+            section="Demo profile", title="nbx demo init --help", argv=["demo", "init", "--help"]
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo config --help",
+            argv=["demo", "config", "--help"],
         ),
         # Schema discovery (reads reference/openapi/netbox-openapi.json — no network)
         CaptureSpec(
@@ -246,7 +244,11 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             title="nbx dcim devices list --help",
             argv=["dcim", "devices", "list", "--help"],
         ),
-        CaptureSpec(section="Dynamic Commands", title="nbx ipam prefixes --help", argv=["ipam", "prefixes", "--help"]),
+        CaptureSpec(
+            section="Dynamic Commands",
+            title="nbx ipam prefixes --help",
+            argv=["ipam", "prefixes", "--help"],
+        ),
         # Trace flag help (safe — schema/help, no network)
         CaptureSpec(
             section="Dynamic Commands",
@@ -319,7 +321,15 @@ def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             CaptureSpec(
                 section="Cable Trace — demo.netbox.dev",
                 title="nbx demo circuits circuit-terminations get --id 15 --trace-only",
-                argv=["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace-only"],
+                argv=[
+                    "demo",
+                    "circuits",
+                    "circuit-terminations",
+                    "get",
+                    "--id",
+                    "15",
+                    "--trace-only",
+                ],
                 notes="Trace-only view for a circuit termination — no object detail table.",
                 safe=False,
             ),
@@ -367,7 +377,7 @@ def generate_command_capture_docs(
     """Write capture Markdown and raw JSON artifacts. Returns 0 on success."""
     log = log or sys.stderr
     from netbox_cli.cli import app as cli_app
-    from netbox_cli.config import DEMO_PROFILE, DEFAULT_PROFILE
+    from netbox_cli.config import DEFAULT_PROFILE, DEMO_PROFILE
 
     profile = DEMO_PROFILE if use_demo else DEFAULT_PROFILE
 
@@ -384,7 +394,7 @@ def generate_command_capture_docs(
     token_configured = bool(cfg.token_key and cfg.token_secret)
 
     meta = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "profile": profile,
         "netbox_url": effective_url,
         "timeout": os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"),
@@ -404,10 +414,10 @@ def generate_command_capture_docs(
         "",
         "```bash",
         "cd /path/to/netbox-cli",
-        "pip install -e .   # once",
-        "nbx docs generate-capture            # demo profile (default)",
-        "nbx docs generate-capture --live     # default profile (real NetBox)",
-        "# or: python docs/generate_command_docs.py",
+        "uv sync --group docs --group dev   # once",
+        "uv run nbx docs generate-capture            # demo profile (default)",
+        "uv run nbx docs generate-capture --live     # default profile (real NetBox)",
+        "# or: uv run python docs/generate_command_docs.py",
         "```",
         "",
         "Run the capture **in the background** (log + pid):",
@@ -452,12 +462,7 @@ def generate_command_capture_docs(
         code, out, elapsed = _run_capture(spec, cli_app, profile=profile)
 
         truncated, did_trunc = _truncate(out, max_lines, max_chars)
-        slug = (
-            f"{spec.section}-{spec.title}"[:80]
-            .lower()
-            .replace(" ", "-")
-            .replace("/", "-")
-        )
+        slug = f"{spec.section}-{spec.title}"[:80].lower().replace(" ", "-").replace("/", "-")
         slug = "".join(c if c.isalnum() or c == "-" else "-" for c in slug)
         while "--" in slug:
             slug = slug.replace("--", "-")

@@ -33,8 +33,7 @@ nbx demo init --username nbxuser --password mypassword --headless
     Install Playwright and the Chromium browser before running `nbx demo init`:
 
     ```bash
-    pip install playwright
-    playwright install chromium --with-deps
+    uv tool run --from playwright playwright install chromium --with-deps
     ```
 
 ---
