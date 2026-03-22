@@ -51,13 +51,9 @@ class NetBoxApiClient:
             raise ValueError("Request path cannot be empty")
         parsed = urlsplit(raw)
         if parsed.scheme or parsed.netloc:
-            raise ValueError(
-                "Request path must be relative to the configured NetBox base URL"
-            )
+            raise ValueError("Request path must be relative to the configured NetBox base URL")
         if parsed.query or parsed.fragment:
-            raise ValueError(
-                "Request path must not include query parameters or fragments"
-            )
+            raise ValueError("Request path must not include query parameters or fragments")
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
         return normalized
 
@@ -102,9 +98,7 @@ class NetBoxApiClient:
                 if cache_entry.etag:
                     req_headers.setdefault("If-None-Match", cache_entry.etag)
                 if cache_entry.last_modified:
-                    req_headers.setdefault(
-                        "If-Modified-Since", cache_entry.last_modified
-                    )
+                    req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
 
         timeout = aiohttp.ClientTimeout(total=self.config.timeout)
         async with aiohttp.ClientSession(timeout=timeout) as session:
@@ -163,9 +157,7 @@ class NetBoxApiClient:
             headers=req_headers,
         ) as response:
             text = await response.text()
-            return ApiResponse(
-                status=response.status, text=text, headers=dict(response.headers)
-            )
+            return ApiResponse(status=response.status, text=text, headers=dict(response.headers))
 
     def _v1_fallback_header(self) -> str | None:
         if not self.config.token_secret:
@@ -261,6 +253,4 @@ class NetBoxApiClient:
         probe = await self.probe_connection()
         if probe.ok:
             return probe.version
-        raise RequestError(
-            ApiResponse(status=probe.status, text=probe.error or "", headers={})
-        )
+        raise RequestError(ApiResponse(status=probe.status, text=probe.error or "", headers={}))

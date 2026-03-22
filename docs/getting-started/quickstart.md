@@ -7,9 +7,22 @@ Get up and running in under a minute.
 ## 1. Install and configure
 
 ```bash
-pip install -e /path/to/netbox-cli
+uv tool install --force /path/to/netbox-cli
 nbx init
 # enter your NetBox URL and API token when prompted
+```
+
+---
+
+## 1a. Contributor setup
+
+If you are developing `netbox-cli` itself, use the repo-local environment and install the Git hooks:
+
+```bash
+cd /path/to/netbox-cli
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
 ```
 
 ---

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Any, Mapping
+from typing import Any
 
 from rich.text import Text
 
@@ -122,9 +123,7 @@ def _dict_display(value: dict[str, Any], max_items: int = 3) -> str:
             if remaining > 0:
                 items.append(f"+{remaining} more")
             break
-        items.append(
-            f"{humanize_field(str(key))}: {humanize_value(item_value, max_len=48)}"
-        )
+        items.append(f"{humanize_field(str(key))}: {humanize_value(item_value, max_len=48)}")
     return "; ".join(items) if items else "—"
 
 
@@ -174,13 +173,9 @@ _CHIP_STYLES: dict[str, str] = {}
 _VALUE_STYLES: dict[str, str] = {}
 
 
-def configure_semantic_styles(
-    *, colors: Mapping[str, str], variables: Mapping[str, str]
-) -> None:
+def configure_semantic_styles(*, colors: Mapping[str, str], variables: Mapping[str, str]) -> None:
     """Build Rich style strings from the currently active theme."""
-    del (
-        colors
-    )  # Styles below are intentionally derived from semantic theme variables only.
+    del colors  # Styles below are intentionally derived from semantic theme variables only.
 
     global _STATUS_STYLES, _CHIP_STYLES, _VALUE_STYLES
 
@@ -193,8 +188,7 @@ def configure_semantic_styles(
     }
 
     _STATUS_STYLES = {
-        states: (icon, status_styles[tone])
-        for states, (icon, tone) in _STATUS_STATES.items()
+        states: (icon, status_styles[tone]) for states, (icon, tone) in _STATUS_STATES.items()
     }
 
     _CHIP_STYLES = {
@@ -260,26 +254,18 @@ def semantic_cell(field_name: str, value: Any, max_len: int = 180) -> Text:
 
     if isinstance(value, bool):
         style_key = "bool_true" if value else "bool_false"
-        return safe_text(
-            "Yes" if value else "No", style=_VALUE_STYLES.get(style_key, "")
-        )
+        return safe_text("Yes" if value else "No", style=_VALUE_STYLES.get(style_key, ""))
 
     if lower in {"id", "pk"} or lower.endswith("_id"):
         return safe_text(human, style=_VALUE_STYLES.get("id", ""))
 
-    if (
-        "date" in lower
-        or "time" in lower
-        or lower in {"created", "last_updated", "updated"}
-    ):
+    if "date" in lower or "time" in lower or lower in {"created", "last_updated", "updated"}:
         return safe_text(human, style=_VALUE_STYLES.get("muted", ""))
 
     if lower == "url" or lower.endswith("_url"):
         return safe_text(human, style=_VALUE_STYLES.get("url", ""))
 
-    if any(
-        token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")
-    ):
+    if any(token in lower for token in ("serial", "asset_tag", "mac", "address", "prefix")):
         return safe_text(human, style=_VALUE_STYLES.get("key", ""))
 
     if (lower == "color" or lower.endswith("_color")) and isinstance(value, str):
@@ -356,7 +342,5 @@ def key_value_rows(obj: dict[str, Any]) -> list[tuple[str, Text]]:
     ordered = order_field_names([str(key) for key in obj.keys()])
     for key in ordered:
         value = obj.get(key)
-        rows.append(
-            (humanize_field(str(key)), semantic_cell(str(key), value, max_len=500))
-        )
+        rows.append((humanize_field(str(key)), semantic_cell(str(key), value, max_len=500)))
     return rows

@@ -36,9 +36,7 @@ def _simple_segment_lines(*, dashed: bool = False) -> list[str]:
 def _endpoint_lines(endpoint: dict[str, Any], *, device_first: bool) -> list[str]:
     device = endpoint.get("device")
     device_label = (
-        str(device.get("display") or device.get("name"))
-        if isinstance(device, dict)
-        else ""
+        str(device.get("display") or device.get("name")) if isinstance(device, dict) else ""
     )
     port_label = str(endpoint.get("display") or endpoint.get("name") or "Endpoint")
     if device_first:
@@ -127,11 +125,7 @@ def render_cable_paths_ascii(paths_payload: Any) -> str | None:
 
     selected_path: list[Any] | None = None
     for entry in paths_payload:
-        if (
-            isinstance(entry, dict)
-            and isinstance(entry.get("path"), list)
-            and entry["path"]
-        ):
+        if isinstance(entry, dict) and isinstance(entry.get("path"), list) and entry["path"]:
             selected_path = entry["path"]
             break
     if not selected_path:
@@ -156,14 +150,8 @@ def render_cable_paths_ascii(paths_payload: Any) -> str | None:
 
         if result:
             next_url = ""
-            next_step = (
-                selected_path[index + 1] if index + 1 < len(selected_path) else None
-            )
-            if (
-                isinstance(next_step, list)
-                and next_step
-                and isinstance(next_step[0], dict)
-            ):
+            next_step = selected_path[index + 1] if index + 1 < len(selected_path) else None
+            if isinstance(next_step, list) and next_step and isinstance(next_step[0], dict):
                 next_url = str(next_step[0].get("url") or "")
             dashed = "/api/circuits/provider-networks/" in next_url
             result.extend(_simple_segment_lines(dashed=dashed))

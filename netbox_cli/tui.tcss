@@ -77,10 +77,18 @@ Screen {
 
 #topbar_logo {
     width: auto;
-    margin: 0 1;
+    margin: 0 0 0 1;
     color: $primary;
     text-style: bold;
     text-align: center;
+    text-wrap: nowrap;
+}
+
+#topbar_cli_suffix {
+    width: auto;
+    margin: 0 1 0 1;
+    color: $foreground;
+    text-style: bold;
     text-wrap: nowrap;
 }
 
@@ -94,13 +102,6 @@ Screen {
 #app_title_wrap {
     width: auto;
     height: auto;
-}
-
-#app_title {
-    width: auto;
-    margin-right: 1;
-    color: $foreground;
-    text-style: bold;
 }
 
 #app_title_demo {

@@ -5,11 +5,6 @@ from rich.text import Text
 
 from netbox_cli.theme_registry import ThemeDefinition
 
-_NETBOX_BRIGHT_TEAL = "#00F2D4"
-_NETBOX_DARK_TEAL = "#00857D"
-_NETBOX_DARK_WORDMARK = "#FFFFFF"
-_NETBOX_LIGHT_WORDMARK = "#001423"
-
 
 def build_netbox_logo(theme: ThemeDefinition) -> Text:
     """Render a compact NetBox wordmark suitable for terminal headers.
@@ -18,15 +13,10 @@ def build_netbox_logo(theme: ThemeDefinition) -> Text:
     widgets would not degrade reliably across generic terminals and SSH sessions.
     This keeps the official brand palette and a clean horizontal silhouette.
     """
-    if theme.name == "netbox-light":
-        accent_color = _NETBOX_DARK_TEAL
-        wordmark_color = _NETBOX_LIGHT_WORDMARK
-    elif theme.name == "netbox-dark":
-        accent_color = _NETBOX_BRIGHT_TEAL
-        wordmark_color = _NETBOX_DARK_WORDMARK
-    else:
-        accent_color = theme.colors["primary"]
-        wordmark_color = _NETBOX_DARK_WORDMARK if theme.dark else _NETBOX_LIGHT_WORDMARK
+    variables = theme.variables
+    accent_color = variables.get("nb-logo-accent", theme.colors["primary"])
+    default_wordmark = theme.colors["surface"] if theme.dark else theme.colors["background"]
+    wordmark_color = variables.get("nb-logo-wordmark", default_wordmark)
 
     accent_style = Style(color=accent_color, bold=True)
     wordmark_style = Style(color=wordmark_color, bold=True)

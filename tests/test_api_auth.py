@@ -53,15 +53,11 @@ def test_api_client_rejects_absolute_request_urls(tmp_path, monkeypatch) -> None
         )
     )
 
-    with pytest.raises(
-        ValueError, match="relative to the configured NetBox base URL"
-    ):
+    with pytest.raises(ValueError, match="relative to the configured NetBox base URL"):
         client.build_url("https://evil.example.com/api/status/")
 
 
-def test_api_client_rejects_request_paths_with_query_or_fragment(
-    tmp_path, monkeypatch
-) -> None:
+def test_api_client_rejects_request_paths_with_query_or_fragment(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     client = NetBoxApiClient(
         Config(
@@ -122,9 +118,7 @@ async def test_api_client_retries_with_v1_on_invalid_v2(monkeypatch, tmp_path) -
     import sys
 
     monkeypatch.setitem(sys.modules, "aiohttp", _FakeAiohttp())
-    monkeypatch.setattr(
-        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
-    )
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
 
     response = await client.request("GET", "/api/dcim/devices/")
 
@@ -171,9 +165,7 @@ async def test_api_client_does_not_retry_non_auth_error(monkeypatch, tmp_path) -
     import sys
 
     monkeypatch.setitem(sys.modules, "aiohttp", _FakeAiohttp())
-    monkeypatch.setattr(
-        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
-    )
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
 
     response = await client.request("GET", "/api/dcim/devices/")
 

@@ -2,14 +2,26 @@
 
 ## Workflows
 
+### `workflows/lint.yml` — Lint + Format Checks
+
+Runs on every push and pull request.
+
+- **Python:** 3.13
+- **Tooling:** `uv sync --dev --locked`
+- **Command:** `uv run pre-commit run --all-files --show-diff-on-failure --color=always`
+
+This workflow is the source of truth for Python style enforcement. It executes the same `.pre-commit-config.yaml` hooks contributors should install locally, so local commits, local pushes, and GitHub Actions all use the same Ruff lint/format rules.
+
+---
+
 ### `workflows/test.yml` — CI Tests
 
 Runs the full pytest suite on every push and pull request.
 
 - **Matrix:** Python 3.11, 3.12, 3.13
 - **fail-fast:** false (all versions run even if one fails)
-- **Install:** `pip install -e ".[dev]"`
-- **Command:** `pytest`
+- **Install:** `uv sync --dev --locked`
+- **Command:** `uv run pytest`
 
 Live tests (`test_demo_auth.py`, `test_demo_cli.py`) that require `DEMO_USERNAME` / `DEMO_PASSWORD` skip gracefully when those secrets are absent in a fork or external PR.
 
