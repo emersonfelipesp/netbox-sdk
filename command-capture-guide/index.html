@@ -927,6 +927,8 @@
       
         
       
+        
+      
     
     
     
@@ -998,6 +1000,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1352,7 +1382,7 @@ Pass <code>--live</code> to run them against your own NetBox instance instead.</
 <hr />
 <h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <p>From the <code>netbox-cli</code> repository root, with the package installed:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--force<span class="w"> </span>.
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Default: live-API specs hit demo.netbox.dev (demo profile)</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
@@ -1541,7 +1571,7 @@ runs automatically on every push to <code>main</code> (which includes merged pul
 <ol>
 <li>Checks out the repository.</li>
 <li>Installs <code>netbox-cli</code> and its dependencies.</li>
-<li>Installs Playwright and the Chromium browser (<code>playwright install chromium --with-deps</code>).</li>
+<li>Installs Playwright and the Chromium browser (<code>uv tool run --from playwright playwright install chromium --with-deps</code>).</li>
 <li>Runs <code>nbx demo init --username … --password … --headless</code> to authenticate with
    demo.netbox.dev and save the demo profile to disk.</li>
 <li>Runs <code>nbx demo config</code> to verify the saved token.</li>

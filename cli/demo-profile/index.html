@@ -843,6 +843,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#demo-dev-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Demo Dev TUI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reset" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1060,6 +1071,8 @@
       
         
       
+        
+      
     
     
     
@@ -1131,6 +1144,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1261,6 +1302,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#demo-dev-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Demo Dev TUI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reset" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1361,6 +1413,7 @@
 <p>For CI or scripted use, pass credentials as flags:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>init<span class="w"> </span>--username<span class="w"> </span>nbxuser<span class="w"> </span>--password<span class="w"> </span>mypassword<span class="w"> </span>--headless
 </span></code></pre></div>
+<p>When you initialize the demo profile this way, <code>nbx</code> also stores the demo username and password in the same private config file so it can automatically refresh the demo token later if <code>demo.netbox.dev</code> resets and starts returning <code>Invalid v1 token</code>.</p>
 <p><strong>Options for <code>nbx demo init</code></strong></p>
 <table>
 <thead>
@@ -1395,8 +1448,7 @@
 <div class="admonition tip">
 <p class="admonition-title">Playwright installation</p>
 <p>Install Playwright and the Chromium browser before running <code>nbx demo init</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>playwright
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>playwright<span class="w"> </span>install<span class="w"> </span>chromium<span class="w"> </span>--with-deps
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>--from<span class="w"> </span>playwright<span class="w"> </span>playwright<span class="w"> </span>install<span class="w"> </span>chromium<span class="w"> </span>--with-deps
 </span></code></pre></div>
 </div>
 <hr />
@@ -1413,6 +1465,7 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>config
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>config<span class="w"> </span>--show-token<span class="w">   </span><span class="c1"># reveal token values</span>
 </span></code></pre></div>
+<p>The config output also shows whether demo login credentials are available for automatic token refresh.</p>
 <hr />
 <h2 id="running-commands-against-demo">Running commands against demo<a class="headerlink" href="#running-commands-against-demo" title="Permanent link">&para;</a></h2>
 <p>The <code>nbx demo</code> subcommand tree mirrors the full <code>nbx</code> tree, using the demo profile's token and <code>https://demo.netbox.dev</code> as the base URL:</p>
@@ -1421,7 +1474,9 @@
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>sites<span class="w"> </span>list<span class="w"> </span>--json
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>nbx<span class="w"> </span>demo<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/status/
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dev<span class="w"> </span>tui
 </span></code></pre></div>
+<p>If the saved demo token has expired because the public demo instance reset overnight, <code>nbx</code> will automatically try to provision a fresh demo token using the saved demo username and password before surfacing the auth failure to you.</p>
 <hr />
 <h2 id="demo-tui">Demo TUI<a class="headerlink" href="#demo-tui" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui
@@ -1429,27 +1484,36 @@
 </span></code></pre></div>
 <p>Launches the Textual TUI pre-connected to the demo instance.</p>
 <hr />
+<h2 id="demo-dev-tui">Demo Dev TUI<a class="headerlink" href="#demo-dev-tui" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dev<span class="w"> </span>tui
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span></code></pre></div>
+<p>Launches the developer request workbench pre-connected to the demo instance, so you can inspect paths and execute requests against <code>demo.netbox.dev</code> without switching profiles.</p>
+<hr />
 <h2 id="reset">Reset<a class="headerlink" href="#reset" title="Permanent link">&para;</a></h2>
 <p>Remove saved demo credentials:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>reset
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>reset
 </span></code></pre></div>
 <hr />
 <h2 id="how-the-demo-profile-is-stored">How the demo profile is stored<a class="headerlink" href="#how-the-demo-profile-is-stored" title="Permanent link">&para;</a></h2>
 <p>The demo profile is stored alongside the default profile in <code>~/.config/netbox-cli/config.json</code>:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;profiles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;...&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&quot;demo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://demo.netbox.dev&quot;</span><span class="p">,</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">      </span><span class="nt">&quot;token_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">      </span><span class="nt">&quot;token_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">      </span><span class="nt">&quot;token_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;40-character-token-here&quot;</span><span class="p">,</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30.0</span>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;profiles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;...&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">&quot;demo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">      </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://demo.netbox.dev&quot;</span><span class="p">,</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">      </span><span class="nt">&quot;token_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="nt">&quot;token_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">      </span><span class="nt">&quot;token_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;40-character-token-here&quot;</span><span class="p">,</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">      </span><span class="nt">&quot;demo_username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nbxuser&quot;</span><span class="p">,</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">      </span><span class="nt">&quot;demo_password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mypassword&quot;</span><span class="p">,</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">      </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30.0</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>The <code>base_url</code> for the demo profile is always hardcoded to <code>https://demo.netbox.dev</code> regardless of what is stored in the config file.</p>
+<p>The <code>base_url</code> for the demo profile is always hardcoded to <code>https://demo.netbox.dev</code> regardless of what is stored in the config file.
+The config file is written with private user-only permissions so the stored demo credentials stay local to your machine.</p>
 
 
 

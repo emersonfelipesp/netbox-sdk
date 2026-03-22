@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-cli/getting-started/configuration/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-cli/developer/textual-composition/">
       
       
-        <link rel="prev" href="../installation/">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../quickstart/">
+        <link rel="next" href="../docgen/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Configuration - NetBox CLI</title>
+        <title>Textual Composition Pattern - NetBox CLI</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuration" class="md-skip">
+        <a href="#textual-composition-pattern" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configuration
+              Textual Composition Pattern
             
           </span>
         </div>
@@ -239,13 +239,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -326,11 +324,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../developer/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -425,8 +425,6 @@
       
   
   
-    
-  
   
   
     
@@ -446,23 +444,22 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../getting-started/" class="md-nav__link ">
               
   
   
@@ -480,13 +477,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -506,7 +503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -531,37 +528,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configuration
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
         
   
   
@@ -577,92 +547,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#interactive-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interactive setup
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#config-file-location" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Config file location
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#environment-variable-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Environment variable overrides
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#token-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Token formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#viewing-current-config" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Viewing current config
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-profiles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multiple profiles
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -675,7 +559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../quickstart/" class="md-nav__link">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
         
   
   
@@ -1036,6 +920,8 @@
       
   
   
+    
+  
   
   
     
@@ -1055,22 +941,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../developer/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1088,13 +975,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1114,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -1139,10 +1026,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../developer/textual-composition/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1158,6 +1072,175 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#react-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        React Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-building-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Building Blocks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-compose-screens-from-leaf-widgets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Compose screens from leaf widgets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-treat-constructor-args-like-react-props" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Treat constructor args like React props
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21-theme-values-should-also-be-props" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Theme values should also be props
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-nested-widgets-as-slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use nested widgets as slots
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-keep-public-methods-behavior-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Keep public methods behavior-focused
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-keep-styling-in-tcss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Keep styling in TCSS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-keep-inheritance-shallow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Keep inheritance shallow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-wide-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project-Wide Standard
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1170,7 +1253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/docgen/" class="md-nav__link">
+      <a href="../docgen/" class="md-nav__link">
         
   
   
@@ -1225,10 +1308,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#interactive-setup" class="md-nav__link">
+  <a href="#why" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Interactive setup
+        Why
       
     </span>
   </a>
@@ -1236,10 +1319,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#config-file-location" class="md-nav__link">
+  <a href="#core-rule" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Config file location
+        Core Rule
       
     </span>
   </a>
@@ -1247,10 +1330,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#environment-variable-overrides" class="md-nav__link">
+  <a href="#react-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment variable overrides
+        React Mapping
       
     </span>
   </a>
@@ -1258,10 +1341,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#token-formats" class="md-nav__link">
+  <a href="#standard-building-blocks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Token formats
+        Standard Building Blocks
       
     </span>
   </a>
@@ -1269,21 +1352,104 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#viewing-current-config" class="md-nav__link">
+  <a href="#guidelines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Viewing current config
+        Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-compose-screens-from-leaf-widgets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Compose screens from leaf widgets
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-profiles" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#2-treat-constructor-args-like-react-props" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multiple profiles
+        2. Treat constructor args like React props
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21-theme-values-should-also-be-props" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Theme values should also be props
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-nested-widgets-as-slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use nested widgets as slots
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-keep-public-methods-behavior-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Keep public methods behavior-focused
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-keep-styling-in-tcss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Keep styling in TCSS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-keep-inheritance-shallow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Keep inheritance shallow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-wide-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project-Wide Standard
       
     </span>
   </a>
@@ -1336,7 +1502,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    Getting Started
+    Developer Guide
   </span>
 
         </a>
@@ -1358,126 +1524,139 @@
   
 
 
-<h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
-<p><code>netbox-cli</code> stores connection settings in a JSON config file and supports two named profiles: <code>default</code> and <code>demo</code>.</p>
-<hr />
-<h2 id="interactive-setup">Interactive setup<a class="headerlink" href="#interactive-setup" title="Permanent link">&para;</a></h2>
-<p>Run <code>nbx init</code> to be prompted for your NetBox connection details:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nbx<span class="w"> </span>init
-</span></code></pre></div>
-<p>You will be prompted for:</p>
+<h1 id="textual-composition-pattern">Textual Composition Pattern<a class="headerlink" href="#textual-composition-pattern" title="Permanent link">&para;</a></h1>
+<p><code>netbox-cli</code> uses a React-style composition pattern for Textual UI work: build screens from small reusable widgets, pass configuration through constructor arguments, and compose behavior by nesting widgets instead of building deep inheritance trees.</p>
+<h2 id="why">Why<a class="headerlink" href="#why" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>NetBox base URL</strong> — e.g. <code>https://netbox.example.com</code></li>
-<li><strong>Token key</strong> — the key portion of a v2 API token</li>
-<li><strong>Token secret</strong> — the secret portion of a v2 API token</li>
-<li><strong>Timeout</strong> — HTTP timeout in seconds (default: 30)</li>
+<li>keeps layout readable in <code>compose()</code></li>
+<li>makes theme and styling rules reusable</li>
+<li>lets small widgets evolve independently</li>
+<li>reduces fragile base-class coupling</li>
+<li>maps well to NetBox's own Python-side UI composition model</li>
 </ul>
-<p>Any command that requires a connection will also prompt automatically if the config is missing.</p>
-<hr />
-<h2 id="config-file-location">Config file location<a class="headerlink" href="#config-file-location" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Condition</th>
-<th>Path</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>XDG_CONFIG_HOME</code> is set</td>
-<td><code>$XDG_CONFIG_HOME/netbox-cli/config.json</code></td>
-</tr>
-<tr>
-<td>Default</td>
-<td><code>~/.config/netbox-cli/config.json</code></td>
-</tr>
-</tbody>
-</table>
-<p>The file uses a <code>profiles</code> structure:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;profiles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="nt">&quot;token_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v2&quot;</span><span class="p">,</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">&quot;token_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="p">,</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">&quot;token_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xyz789&quot;</span><span class="p">,</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30.0</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">},</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nt">&quot;demo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://demo.netbox.dev&quot;</span><span class="p">,</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="nt">&quot;token_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">      </span><span class="nt">&quot;token_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">      </span><span class="nt">&quot;token_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;40-char-token-string&quot;</span><span class="p">,</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">      </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30.0</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="p">}</span>
+<h2 id="core-rule">Core Rule<a class="headerlink" href="#core-rule" title="Permanent link">&para;</a></h2>
+<p>Prefer composition over inheritance for UI structure.</p>
+<p>Use inheritance when:</p>
+<ul>
+<li>extending a Textual primitive with a narrow, reusable behavior such as <code>NbxButton</code></li>
+<li>creating a self-contained stateful widget with a clear public API</li>
+</ul>
+<p>Prefer composition when:</p>
+<ul>
+<li>assembling headers, bodies, toolbars, and content regions</li>
+<li>sharing visual structure across multiple screens</li>
+<li>expressing "slots" such as header/body/footer areas</li>
+</ul>
+<h2 id="react-mapping">React Mapping<a class="headerlink" href="#react-mapping" title="Permanent link">&para;</a></h2>
+<p>React pattern:</p>
+<div class="language-tsx highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">&lt;</span><span class="nt">Panel</span><span class="p">&gt;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">PanelHeader</span><span class="w"> </span><span class="na">title</span><span class="o">=</span><span class="s">&quot;Object Attributes&quot;</span><span class="w"> </span><span class="na">subtitle</span><span class="o">=</span><span class="s">&quot;NetBox detail-style panel&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="p">&lt;</span><span class="nt">PanelBody</span><span class="p">&gt;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">&lt;</span><span class="nt">Status</span><span class="w"> </span><span class="p">/&gt;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">&lt;</span><span class="nt">Table</span><span class="w"> </span><span class="p">/&gt;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">&lt;</span><span class="nt">Trace</span><span class="w"> </span><span class="p">/&gt;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="p">&lt;/</span><span class="nt">PanelBody</span><span class="p">&gt;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">&lt;/</span><span class="nt">Panel</span><span class="p">&gt;</span>
 </span></code></pre></div>
-<hr />
-<h2 id="environment-variable-overrides">Environment variable overrides<a class="headerlink" href="#environment-variable-overrides" title="Permanent link">&para;</a></h2>
-<p>The following variables override the <strong>default profile</strong> only:</p>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Config field</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>NETBOX_URL</code></td>
-<td><code>base_url</code></td>
-</tr>
-<tr>
-<td><code>NETBOX_TOKEN_KEY</code></td>
-<td><code>token_key</code></td>
-</tr>
-<tr>
-<td><code>NETBOX_TOKEN_SECRET</code></td>
-<td><code>token_secret</code></td>
-</tr>
-</tbody>
-</table>
-<p>Environment variables take precedence over stored config values but are not saved to disk.</p>
-<hr />
-<h2 id="token-formats">Token formats<a class="headerlink" href="#token-formats" title="Permanent link">&para;</a></h2>
-<p>NetBox supports two token formats:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">v2 tokens (default)</label><label for="__tabbed_1_2">v1 tokens (legacy)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>v2 tokens have a separate key and secret, combined into a <code>Bearer</code> header:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Authorization: Bearer nbt_&lt;KEY&gt;.&lt;SECRET&gt;
+<p>Textual pattern in this repo:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ObjectAttributesPanel</span><span class="p">(</span><span class="n">Vertical</span><span class="p">):</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="k">yield</span> <span class="n">NbxPanelHeader</span><span class="p">(</span><span class="s2">&quot;Object Attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;NetBox detail-style panel&quot;</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="k">with</span> <span class="n">NbxPanelBody</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;detail_panel_body&quot;</span><span class="p">):</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Ready&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;detail_status&quot;</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="k">yield</span> <span class="n">DataTable</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;detail_table&quot;</span><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Cable Trace&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;detail_trace_title&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>            <span class="k">yield</span> <span class="n">Static</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;detail_trace&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p>When configuring: <code>token_key</code> = the key part, <code>token_secret</code> = the secret part.</p>
-</div>
-<div class="tabbed-block">
-<p>v1 tokens are a single opaque string, sent as:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Authorization: Token &lt;TOKEN&gt;
+<h2 id="standard-building-blocks">Standard Building Blocks<a class="headerlink" href="#standard-building-blocks" title="Permanent link">&para;</a></h2>
+<p>Current shared composition primitives live in <a href="/root/nms/netbox-cli/netbox_cli/ui/widgets.py">netbox_cli/ui/widgets.py</a>:</p>
+<ul>
+<li><code>NbxButton</code></li>
+<li><code>NbxPanelHeader</code></li>
+<li><code>NbxPanelBody</code></li>
+</ul>
+<p>These should be the default starting point for new reusable UI pieces.</p>
+<h2 id="guidelines">Guidelines<a class="headerlink" href="#guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="1-compose-screens-from-leaf-widgets">1. Compose screens from leaf widgets<a class="headerlink" href="#1-compose-screens-from-leaf-widgets" title="Permanent link">&para;</a></h3>
+<p>Keep <code>App.compose()</code> focused on arranging major regions.</p>
+<ul>
+<li>app shell</li>
+<li>top bar</li>
+<li>sidebar</li>
+<li>main workspace</li>
+<li>overlays</li>
+</ul>
+<p>Move repeated subtrees into dedicated widgets once they have meaning.</p>
+<h3 id="2-treat-constructor-args-like-react-props">2. Treat constructor args like React props<a class="headerlink" href="#2-treat-constructor-args-like-react-props" title="Permanent link">&para;</a></h3>
+<p>Widget inputs should be explicit and semantic.</p>
+<p>Good:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">NbxButton</span><span class="p">(</span><span class="s2">&quot;Send&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">tone</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">NbxButton</span><span class="p">(</span><span class="s2">&quot;Close&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="n">tone</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">NbxPanelHeader</span><span class="p">(</span><span class="s2">&quot;Object Attributes&quot;</span><span class="p">,</span> <span class="s2">&quot;NetBox detail-style panel&quot;</span><span class="p">,</span> <span class="n">tone</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">NbxPanelBody</span><span class="p">(</span><span class="n">surface</span><span class="o">=</span><span class="s2">&quot;background&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p>When configuring: leave <code>token_key</code> empty, set <code>token_secret</code> to the full token string.
-Set <code>token_version</code> to <code>"v1"</code> in the config file.</p>
-</div>
-</div>
-</div>
-<p><code>netbox-cli</code> automatically retries a failed v2 request with a v1 format when it receives a 401 or 403 response, so misconfigured token versions are usually corrected transparently.</p>
-<hr />
-<h2 id="viewing-current-config">Viewing current config<a class="headerlink" href="#viewing-current-config" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>config<span class="w">              </span><span class="c1"># shows base_url, timeout, token status</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>nbx<span class="w"> </span>config<span class="w"> </span>--show-token<span class="w"> </span><span class="c1"># also shows token key and secret in plaintext</span>
+<p>Avoid passing styling intent indirectly through ad-hoc class strings when a semantic argument would be clearer.</p>
+<h3 id="21-theme-values-should-also-be-props">2.1 Theme values should also be props<a class="headerlink" href="#21-theme-values-should-also-be-props" title="Permanent link">&para;</a></h3>
+<p>Theme-aware reusable widgets should receive semantic styling inputs through constructor arguments, similar to React props.</p>
+<p>Preferred:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">NbxButton</span><span class="p">(</span><span class="s2">&quot;Send&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="n">tone</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">NbxPanelHeader</span><span class="p">(</span><span class="s2">&quot;Danger Zone&quot;</span><span class="p">,</span> <span class="n">tone</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">NbxPanelBody</span><span class="p">(</span><span class="n">surface</span><span class="o">=</span><span class="s2">&quot;panel&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Example output:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30.0</span><span class="p">,</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;token_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v2&quot;</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;set&quot;</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;token_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;set&quot;</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;token_secret&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;set&quot;</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">}</span>
+<p>Avoid:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Send&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;custom-primary custom-medium&quot;</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">Static</span><span class="p">(</span><span class="s2">&quot;Danger Zone&quot;</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;red-header&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<hr />
-<h2 id="multiple-profiles">Multiple profiles<a class="headerlink" href="#multiple-profiles" title="Permanent link">&para;</a></h2>
-<p>The <code>demo</code> profile is separate from the <code>default</code> profile and always targets <code>https://demo.netbox.dev</code>. It is managed through the <code>nbx demo</code> subcommand tree. See <a href="../../cli/demo-profile/">Demo Profile</a> for details.</p>
+<p>Use semantic props such as:</p>
+<ul>
+<li><code>size</code></li>
+<li><code>tone</code></li>
+<li><code>surface</code></li>
+<li><code>chrome</code></li>
+</ul>
+<h3 id="3-use-nested-widgets-as-slots">3. Use nested widgets as slots<a class="headerlink" href="#3-use-nested-widgets-as-slots" title="Permanent link">&para;</a></h3>
+<p>When a widget has recognizable regions, model them as child widgets instead of one large monolith.</p>
+<ul>
+<li>header</li>
+<li>body</li>
+<li>footer</li>
+<li>toolbar</li>
+<li>empty state</li>
+</ul>
+<h3 id="4-keep-public-methods-behavior-focused">4. Keep public methods behavior-focused<a class="headerlink" href="#4-keep-public-methods-behavior-focused" title="Permanent link">&para;</a></h3>
+<p>A composed widget should expose intent-level methods such as:</p>
+<ul>
+<li><code>set_loading()</code></li>
+<li><code>set_object()</code></li>
+<li><code>set_trace()</code></li>
+</ul>
+<p>Avoid leaking internal child structure unless the caller truly owns that structure.</p>
+<h3 id="5-keep-styling-in-tcss">5. Keep styling in TCSS<a class="headerlink" href="#5-keep-styling-in-tcss" title="Permanent link">&para;</a></h3>
+<p>Composition defines structure. TCSS defines appearance.</p>
+<ul>
+<li>use semantic classes on reusable widgets</li>
+<li>keep theme logic in TCSS and theme JSON</li>
+<li>avoid runtime color decisions in widget constructors</li>
+</ul>
+<h3 id="6-keep-inheritance-shallow">6. Keep inheritance shallow<a class="headerlink" href="#6-keep-inheritance-shallow" title="Permanent link">&para;</a></h3>
+<p>Do not create long widget inheritance chains for layout reuse.</p>
+<p>Preferred:</p>
+<ul>
+<li><code>ObjectAttributesPanel(Vertical)</code> composed from <code>NbxPanelHeader</code> and <code>NbxPanelBody</code></li>
+</ul>
+<p>Avoid:</p>
+<ul>
+<li><code>BasePanel -&gt; PanelCard -&gt; DetailPanel -&gt; ObjectAttributesPanel -&gt; SpecializedPanel</code></li>
+</ul>
+<h2 id="project-wide-standard">Project-Wide Standard<a class="headerlink" href="#project-wide-standard" title="Permanent link">&para;</a></h2>
+<p>For new Textual work in <code>netbox-cli</code>:</p>
+<ol>
+<li>Start with composition.</li>
+<li>Pass theme/styling intent as semantic props on reusable widgets.</li>
+<li>Extract reusable visual primitives into <code>netbox_cli/ui/widgets.py</code>.</li>
+<li>Document new primitives in contributor docs if they become project-standard.</li>
+<li>Only add inheritance when the widget is truly a behavior-specialized primitive.</li>
+</ol>
 
 
 

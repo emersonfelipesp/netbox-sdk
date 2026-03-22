@@ -809,6 +809,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nbx-dev-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx dev tui
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nbx-dev-http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx dev http
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nbx-docs-generate-capture" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1071,6 +1093,8 @@
       
         
       
+        
+      
     
     
     
@@ -1142,6 +1166,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1287,6 +1339,28 @@
     <span class="md-ellipsis">
       
         nbx tui
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nbx-dev-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx dev tui
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nbx-dev-http" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx dev http
       
     </span>
   </a>
@@ -1483,10 +1557,42 @@
 </table>
 <p>See <a href="../../tui/">TUI Guide</a> for full navigation documentation.</p>
 <hr />
+<h2 id="nbx-dev-tui"><code>nbx dev tui</code><a class="headerlink" href="#nbx-dev-tui" title="Permanent link">&para;</a></h2>
+<p>Launch the developer request workbench TUI against your default profile.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w">          </span><span class="c1"># list available themes</span>
+</span></code></pre></div>
+<p>This view is designed for API exploration and request crafting rather than the standard browse/results workflow.
+When you launch the same view through <code>nbx demo dev tui</code>, the CLI automatically refreshes expired demo v1 tokens if demo credentials were saved during <code>nbx demo init</code>.</p>
+<p><strong>Options</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--theme</code></td>
+<td>List themes (no argument) or launch with a specific theme name</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="nbx-dev-http"><code>nbx dev http</code><a class="headerlink" href="#nbx-dev-http" title="Permanent link">&para;</a></h2>
+<p>Developer-oriented HTTP helpers for exploring arbitrary API paths and operations.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>paths
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>ops<span class="w"> </span>--path<span class="w"> </span>/api/dcim/devices/
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>get<span class="w"> </span>--path<span class="w"> </span>/api/status/
+</span></code></pre></div>
+<p>Use <code>nbx dev http --help</code> and the subcommand helps for the full option matrix.</p>
+<hr />
 <h2 id="nbx-docs-generate-capture"><code>nbx docs generate-capture</code><a class="headerlink" href="#nbx-docs-generate-capture" title="Permanent link">&para;</a></h2>
 <p>Generate the command capture documentation — runs every <code>nbx</code> command, records output, and writes <code>docs/generated/nbx-command-capture.md</code> plus per-command JSON files.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture<span class="w"> </span>--live<span class="w">   </span><span class="c1"># use default profile instead of demo</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture<span class="w"> </span>--live<span class="w">   </span><span class="c1"># use default profile instead of demo</span>
 </span></code></pre></div>
 <p><strong>Options</strong></p>
 <table>

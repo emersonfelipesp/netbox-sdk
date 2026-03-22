@@ -1082,6 +1082,8 @@
       
         
       
+        
+      
     
     
     
@@ -1153,6 +1155,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1575,6 +1605,7 @@
 <hr />
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <p>At startup, <code>_register_openapi_subcommands()</code> in <code>cli.py</code> reads <code>reference/openapi/netbox-openapi.json</code>, builds a <code>SchemaIndex</code>, then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root <code>app</code> and once for <code>demo_app</code> with <code>_get_demo_client</code> as the client factory.</p>
+<p>For plugin resources, the bundled schema gives <code>nbx</code> the static command tree it knows about, and the TUI layer can additionally augment that view at runtime by discovering live <code>/api/plugins/</code> REST endpoints from the connected NetBox instance.</p>
 
 
 

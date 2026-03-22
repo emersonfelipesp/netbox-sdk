@@ -16,7 +16,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../docgen/">
+        <link rel="next" href="../textual-composition/">
       
       
         
@@ -935,6 +935,8 @@
       
         
       
+        
+      
     
     
     
@@ -1092,6 +1094,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ui-composition-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Composition Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#profile-system" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1139,6 +1152,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1232,6 +1273,17 @@
     <span class="md-ellipsis">
       
         Data flow: TUI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ui-composition-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Composition Pattern
       
     </span>
   </a>
@@ -1352,6 +1404,8 @@
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
 <p><code>netbox-cli</code> is organized around a shared API client and OpenAPI schema index that power both the CLI (Typer) and the TUI (Textual) from the same data layer.</p>
+<p>In addition to the bundled OpenAPI schema, the TUI runtime can augment the schema index by discovering live plugin REST resources exposed under <code>/api/plugins/</code>. This lets plugin-backed resources appear in the TUI automatically when a plugin implements a full REST API.</p>
+<p>The TUI theme system is part of the architecture, not decoration: every Textual widget and subcomponent must derive its runtime styling from the active theme catalog, with no hardcoded colors or stray Textual defaults outside <code>netbox_cli/themes/*.json</code>.</p>
 <hr />
 <h2 id="module-map">Module map<a class="headerlink" href="#module-map" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>netbox_cli/
@@ -1363,14 +1417,21 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── demo_auth.py        Playwright automation for demo.netbox.dev token retrieval
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── docgen_capture.py   CLI output capture and Markdown generation
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>├── theme_registry.py   Theme discovery, validation, and catalog management
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── trace_ascii.py      ASCII cable trace renderer
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── tui.py              Thin wrapper — re-exports run_tui from ui.app
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└── ui/
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ├── app.py          NetBoxTuiApp — main Textual application
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    ├── formatting.py   Response parsing, humanization, semantic cell rendering
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    ├── navigation.py   Navigation tree building from SchemaIndex
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    ├── panels.py       ObjectAttributesPanel — detail view with cable trace
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    └── state.py        TUI state persistence (last resource, filters, theme)
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── ui_common.tcss      Shared visual design layer for both Textual apps
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── trace_ascii.py      ASCII cable trace renderer
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── tui.py              Thin wrapper — re-exports run_tui from ui.app
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── dev_tui.py          Thin wrapper — re-exports run_dev_tui from ui.dev_app
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>└── ui/
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    ├── app.py          NetBoxTuiApp — main Textual application
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    ├── dev_app.py      NetBoxDevTuiApp — request workbench application
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    ├── chrome.py       Shared theme / clock / logo / connection chrome helpers
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    ├── formatting.py   Response parsing, humanization, semantic cell rendering
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    ├── navigation.py   Navigation tree building from SchemaIndex
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    ├── plugin_discovery.py Runtime /api/plugins/ discovery for plugin REST resources
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    ├── panels.py       ObjectAttributesPanel — detail view with cable trace
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    ├── widgets.py      Shared composition primitives (buttons, panel header/body)
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    ├── state.py        Main TUI state persistence
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    └── dev_state.py    Dev TUI state persistence
 </span></code></pre></div>
 <hr />
 <h2 id="data-flow-cli">Data flow: CLI<a class="headerlink" href="#data-flow-cli" title="Permanent link">&para;</a></h2>
@@ -1441,6 +1502,22 @@
 </span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>        panel.set_trace()   ObjectAttributesPanel
 </span></code></pre></div>
 <hr />
+<h2 id="ui-composition-pattern">UI Composition Pattern<a class="headerlink" href="#ui-composition-pattern" title="Permanent link">&para;</a></h2>
+<p>The TUI follows a React-style composition model for Textual widgets:</p>
+<ul>
+<li>small reusable widgets act like component primitives</li>
+<li>constructor arguments act like props</li>
+<li>larger views assemble those primitives in <code>compose()</code></li>
+<li>composition is preferred over inheritance for layout reuse</li>
+</ul>
+<p>Examples in the current codebase:</p>
+<ul>
+<li><code>NbxButton</code> standardizes size and theme props such as <code>tone</code></li>
+<li><code>NbxPanelHeader</code> and <code>NbxPanelBody</code> define reusable panel structure with prop-like theme inputs</li>
+<li><code>ObjectAttributesPanel</code> composes those primitives instead of inheriting layout from a base panel class</li>
+</ul>
+<p>Contributor guideline: when adding new UI, first ask "can this be expressed as nested reusable widgets?" before introducing a new base class.</p>
+<hr />
 <h2 id="profile-system">Profile system<a class="headerlink" href="#profile-system" title="Permanent link">&para;</a></h2>
 <p>Profiles are named configs stored in a single JSON file. Two profiles are currently defined: <code>default</code> and <code>demo</code>.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># config.py</span>
@@ -1472,6 +1549,7 @@
 </span></code></pre></div>
 <p><code>Operation</code> holds: <code>group</code>, <code>resource</code>, <code>method</code>, <code>path</code>, <code>operation_id</code>, <code>summary</code>.</p>
 <p><code>ResourcePaths</code> holds: <code>list_path</code> (<code>/api/group/resources/</code>) and <code>detail_path</code> (<code>/api/group/resources/{id}/</code>).</p>
+<p>For plugin resources, <code>SchemaIndex</code> also supports runtime augmentation. The TUI can discover plugin list/detail endpoints from the live <code>/api/plugins/</code> tree and add them into the shared index so they behave like normal resources in navigation, request resolution, and rendering.</p>
 <hr />
 <h2 id="api-client">API client<a class="headerlink" href="#api-client" title="Permanent link">&para;</a></h2>
 <p><code>api.py</code> wraps <code>aiohttp</code> with:</p>

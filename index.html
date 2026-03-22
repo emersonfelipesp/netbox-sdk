@@ -472,6 +472,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#contributor-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributor standard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supported-netbox-app-groups" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1002,6 +1013,8 @@
       
         
       
+        
+      
     
     
     
@@ -1093,6 +1106,34 @@
   
   
     <li class="md-nav__item">
+      <a href="developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="developer/docgen/" class="md-nav__link">
         
   
@@ -1161,6 +1202,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#contributor-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributor standard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supported-netbox-app-groups" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1206,6 +1258,7 @@
 <h1 id="netbox-cli">NetBox CLI<a class="headerlink" href="#netbox-cli" title="Permanent link">&para;</a></h1>
 <p><strong>API-first NetBox client for your terminal — CLI commands and interactive TUI in one tool.</strong></p>
 <p><code>netbox-cli</code> connects to any NetBox instance through its REST API and lets you list, inspect, create, update, and delete objects without ever opening a browser. Every resource available in the NetBox API is reachable from the command line, and the same backend powers a full interactive TUI.</p>
+<p>If your NetBox instance exposes plugin endpoints under <code>/api/plugins/</code> with a full REST implementation, <code>netbox-cli</code> can discover those plugin resources automatically and surface them in both the CLI/TUI navigation and data views.</p>
 <hr />
 <div class="grid cards">
 <ul>
@@ -1241,7 +1294,7 @@
 <p><span class="twemoji lg middle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 15H6l7-14v8h5l-7 14z"/></svg></span> <strong>Quick start</strong></p>
 <hr />
 <p>Install, configure, and run your first command in under a minute.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--force<span class="w"> </span>.
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>nbx<span class="w"> </span>init
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
 </span></code></pre></div>
@@ -1293,6 +1346,15 @@
 </tr>
 </tbody>
 </table>
+<hr />
+<h2 id="contributor-standard">Contributor standard<a class="headerlink" href="#contributor-standard" title="Permanent link">&para;</a></h2>
+<p>Development uses <code>uv</code>, <code>ruff</code>, and <code>pre-commit</code> as the default workflow:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>pre-commit<span class="w"> </span>--hook-type<span class="w"> </span>pre-push
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
+</span></code></pre></div>
+<p>The same pre-commit hooks are enforced in GitHub Actions, so local checks and CI stay aligned.</p>
 <hr />
 <h2 id="supported-netbox-app-groups">Supported NetBox app groups<a class="headerlink" href="#supported-netbox-app-groups" title="Permanent link">&para;</a></h2>
 <p><code>circuits</code> · <code>core</code> · <code>dcim</code> · <code>extras</code> · <code>ipam</code> · <code>plugins</code> · <code>tenancy</code> · <code>users</code> · <code>virtualization</code> · <code>vpn</code> · <code>wireless</code></p>

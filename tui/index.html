@@ -936,6 +936,8 @@
       
         
       
+        
+      
     
     
     
@@ -1007,6 +1009,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1162,6 +1192,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Navigation tree">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plugin-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1267,6 +1314,7 @@
 
 <h1 id="tui-guide">TUI Guide<a class="headerlink" href="#tui-guide" title="Permanent link">&para;</a></h1>
 <p>The <code>nbx tui</code> command launches a full-screen interactive terminal application built with <a href="https://textual.textualize.io/">Textual</a>. It mirrors the NetBox web UI layout — navigation tree on the left, tabbed workspace in the center — and uses the same API client and schema index as the CLI.</p>
+<p>The TUI also discovers plugin resources dynamically. If a NetBox plugin exposes a full REST API under <code>/api/plugins/</code>, <code>nbx tui</code> and <code>nbx dev tui</code> can add those resources to the sidebar automatically and load their data like any built-in NetBox resource.</p>
 <hr />
 <h2 id="launching-the-tui">Launching the TUI<a class="headerlink" href="#launching-the-tui" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nbx<span class="w"> </span>tui<span class="w">                    </span><span class="c1"># default profile</span>
@@ -1275,6 +1323,9 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui<span class="w">               </span><span class="c1"># demo profile (demo.netbox.dev)</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w">                </span><span class="c1"># developer request workbench</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dev<span class="w"> </span>tui<span class="w">           </span><span class="c1"># developer request workbench on demo.netbox.dev</span>
 </span></code></pre></div>
 <hr />
 <h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
@@ -1317,6 +1368,13 @@
 <li><code>G</code> — focus the navigation tree</li>
 <li>Arrow keys — move through nodes</li>
 <li><code>Enter</code> — select / expand a node</li>
+</ul>
+<h3 id="plugin-resources">Plugin resources<a class="headerlink" href="#plugin-resources" title="Permanent link">&para;</a></h3>
+<p>Plugin REST resources are appended under a <code>Plugins</code> menu automatically when the connected NetBox instance exposes them under <code>/api/plugins/</code>.</p>
+<ul>
+<li>no hardcoded plugin list is required</li>
+<li>plugin resources appear in both <code>nbx tui</code> and <code>nbx dev tui</code></li>
+<li>if the plugin exposes list/detail REST endpoints, the TUI can browse and render the returned data just like built-in resources</li>
 </ul>
 <hr />
 <h2 id="search">Search<a class="headerlink" href="#search" title="Permanent link">&para;</a></h2>

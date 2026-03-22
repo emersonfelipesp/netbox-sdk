@@ -927,6 +927,8 @@
       
         
       
+        
+      
     
     
     
@@ -998,6 +1000,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1187,6 +1217,17 @@
     <span class="md-ellipsis">
       
         2.2 Map NetBox Primitives to Textual Primitives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#221-use-react-style-composition-in-textual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2.1 Use React-Style Composition in Textual
       
     </span>
   </a>
@@ -1428,6 +1469,7 @@
 <li>app-level panel declarations, e.g. <code>dcim/ui/panels.py</code></li>
 </ul>
 <p>This declarative composition is important for TUI parity because it naturally maps to Textual widget composition.</p>
+<p>For <code>netbox-cli</code>, this is now a project guideline: use a React-style composition approach in Textual by building screens from small reusable widgets and nested layout primitives instead of deep inheritance trees.</p>
 <h2 id="14-listdetail-interaction-model">1.4 List/Detail Interaction Model<a class="headerlink" href="#14-listdetail-interaction-model" title="Permanent link">&para;</a></h2>
 <p>Common pages:</p>
 <ul>
@@ -1504,6 +1546,30 @@
 <li>Modal dialogs -&gt; <code>ModalScreen</code></li>
 <li>Toast/messages -&gt; notification widget + footer status channel</li>
 <li>HTMX partial swap -&gt; targeted widget refresh/update methods</li>
+</ul>
+<h2 id="221-use-react-style-composition-in-textual">2.2.1 Use React-Style Composition in Textual<a class="headerlink" href="#221-use-react-style-composition-in-textual" title="Permanent link">&para;</a></h2>
+<p>Treat Textual widgets the same way React treats components:</p>
+<ul>
+<li>constructor args are props</li>
+<li><code>compose()</code> is the render tree</li>
+<li>reusable structure should be extracted into small widgets</li>
+<li>complex screens should assemble child widgets rather than inherit from large base classes</li>
+</ul>
+<p>Project-standard examples:</p>
+<ul>
+<li><code>NbxButton(label, size=\"small\" | \"medium\" | \"large\")</code></li>
+<li><code>NbxButton(label, tone=\"primary\" | \"error\" | ...)</code></li>
+<li><code>NbxPanelHeader(title, subtitle, tone=...)</code></li>
+<li><code>NbxPanelBody(surface=...)</code></li>
+</ul>
+<p>Preferred pattern:</p>
+<ul>
+<li><code>ObjectAttributesPanel(Vertical)</code> composed from header/body primitives</li>
+<li>reusable theme decisions passed as semantic props instead of ad-hoc classes</li>
+</ul>
+<p>Avoid:</p>
+<ul>
+<li>inheritance chains created only to reuse markup or layout</li>
 </ul>
 <h2 id="23-recreate-incremental-refresh-behavior">2.3 Recreate Incremental Refresh Behavior<a class="headerlink" href="#23-recreate-incremental-refresh-behavior" title="Permanent link">&para;</a></h2>
 <p>HTMX's partial updates should become widget-level async refresh:</p>

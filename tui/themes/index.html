@@ -918,6 +918,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#theme-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Theme compliance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#creating-a-custom-theme" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1077,6 +1088,8 @@
       
         
       
+        
+      
     
     
     
@@ -1168,6 +1181,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../developer/textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../developer/docgen/" class="md-nav__link">
         
   
@@ -1238,6 +1279,17 @@
     <span class="md-ellipsis">
       
         Selecting a theme
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#theme-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Theme compliance
       
     </span>
   </a>
@@ -1438,6 +1490,22 @@
 </div>
 </div>
 </div>
+<hr />
+<h2 id="theme-compliance">Theme compliance<a class="headerlink" href="#theme-compliance" title="Permanent link">&para;</a></h2>
+<p>Theme switching is not limited to top-level containers. Every Textual widget and widget subcomponent must follow the selected theme, including:</p>
+<ul>
+<li>overlays and dropdowns</li>
+<li>tab bars and active indicators</li>
+<li>tree cursor and highlight states</li>
+<li>option list hover and selected rows</li>
+<li><code>TextArea</code> gutter, cursor line, selection, cursor, and placeholder styling</li>
+</ul>
+<p>Project rules:</p>
+<ul>
+<li>Never hardcode runtime colors in Python or TCSS outside <code>netbox_cli/themes/*.json</code></li>
+<li>Never leave Textual default colors visible after a theme switch</li>
+<li>Avoid built-in widget palettes when they bypass the repo theme tokens; style component classes with semantic variables instead</li>
+</ul>
 <hr />
 <h2 id="creating-a-custom-theme">Creating a custom theme<a class="headerlink" href="#creating-a-custom-theme" title="Permanent link">&para;</a></h2>
 <p>Place a JSON file in <code>netbox_cli/themes/</code>. It will be discovered automatically — no code changes required.</p>

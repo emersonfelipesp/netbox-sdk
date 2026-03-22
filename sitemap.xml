@@ -2,82 +2,86 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/CLAUDE/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/NETBOX_UI_TO_TEXTUAL_GUIDELINES/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/command-capture-guide/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/cli/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/cli/commands/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/cli/demo-profile/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/cli/dynamic-commands/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/developer/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/developer/architecture/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/developer/docgen/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-cli/developer/textual-composition/</loc>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/generated/nbx-command-capture/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/getting-started/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/getting-started/configuration/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/getting-started/installation/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/getting-started/quickstart/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/reference/command-examples/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/tui/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/tui/keybindings/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
     <url>
          <loc>https://emersonfelipesp.github.io/netbox-cli/tui/themes/</loc>
-         <lastmod>2026-03-21</lastmod>
+         <lastmod>2026-03-22</lastmod>
     </url>
 </urlset>

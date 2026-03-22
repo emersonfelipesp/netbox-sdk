@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-cli/developer/docgen/">
       
       
-        <link rel="prev" href="../architecture/">
+        <link rel="prev" href="../textual-composition/">
       
       
       
@@ -933,6 +933,8 @@
       
         
       
+        
+      
     
     
     
@@ -1005,6 +1007,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../textual-composition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Textual Composition Pattern
   
 
     
@@ -1531,13 +1561,14 @@
 <hr />
 <h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/netbox-cli
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Default: live-API specs hit demo.netbox.dev</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Alternative: hit your real NetBox (default profile)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture<span class="w"> </span>--live
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev<span class="w"> </span>--group<span class="w"> </span>docs
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>pre-commit<span class="w"> </span>--hook-type<span class="w"> </span>pre-push
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Default: live-API specs hit demo.netbox.dev</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>uv<span class="w"> </span>run<span class="w"> </span>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># Alternative: hit your real NetBox (default profile)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>uv<span class="w"> </span>run<span class="w"> </span>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture<span class="w"> </span>--live
 </span></code></pre></div>
 <hr />
 <h2 id="background-run">Background run<a class="headerlink" href="#background-run" title="Permanent link">&para;</a></h2>
@@ -1724,7 +1755,7 @@
 <p>The workflow at <code>.github/workflows/docs-capture.yml</code> runs on every push to <code>main</code>:</p>
 <ol>
 <li>Installs <code>netbox-cli</code> and dependencies.</li>
-<li>Runs <code>playwright install chromium --with-deps</code>.</li>
+<li>Runs <code>uv tool run --from playwright playwright install chromium --with-deps</code>.</li>
 <li>Authenticates with demo.netbox.dev: <code>nbx demo init --username $DEMO_USERNAME --password $DEMO_PASSWORD --headless</code>.</li>
 <li>Verifies: <code>nbx demo config</code>.</li>
 <li>Runs <code>nbx docs generate-capture</code>.</li>
