@@ -88,6 +88,7 @@ nav:
   - Developer Guide:
     - developer/index.md
     - Architecture: developer/architecture.md
+    - Textual Composition Pattern: developer/textual-composition.md
     - Documentation Generation: developer/docgen.md
 
 extra:

@@ -25,6 +25,7 @@ netbox_cli/
     ├── formatting.py   Response parsing, humanization, semantic cell rendering
     ├── navigation.py   Navigation tree building from SchemaIndex
     ├── panels.py       ObjectAttributesPanel — detail view with cable trace
+    ├── widgets.py      Shared composition primitives (buttons, panel header/body)
     └── state.py        TUI state persistence (last resource, filters, theme)
 ```
 
@@ -103,6 +104,25 @@ _load_object_details()    @work(thread=False)
             ▼
         panel.set_trace()   ObjectAttributesPanel
 ```
+
+---
+
+## UI Composition Pattern
+
+The TUI follows a React-style composition model for Textual widgets:
+
+- small reusable widgets act like component primitives
+- constructor arguments act like props
+- larger views assemble those primitives in `compose()`
+- composition is preferred over inheritance for layout reuse
+
+Examples in the current codebase:
+
+- `NbxButton` standardizes size and theme props such as `tone`
+- `NbxPanelHeader` and `NbxPanelBody` define reusable panel structure with prop-like theme inputs
+- `ObjectAttributesPanel` composes those primitives instead of inheriting layout from a base panel class
+
+Contributor guideline: when adding new UI, first ask "can this be expressed as nested reusable widgets?" before introducing a new base class.
 
 ---
 

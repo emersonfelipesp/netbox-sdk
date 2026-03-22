@@ -63,6 +63,8 @@ def apply_theme(
         app.screen.remove_class(f"theme-{current_theme_name}")
     app.theme = new_theme_name
     app.screen.add_class(f"theme-{new_theme_name}")
+    app.refresh_css(animate=False)
+    app.refresh(repaint=True, layout=True)
     state.theme_name = new_theme_name
     refresh_logo_widget(app, definition=definition, widget_id=logo_widget_id)
     if notify:

@@ -11,6 +11,7 @@ This subpackage contains the full Textual TUI. Every module here is UI-layer onl
 | `formatting.py` | Field/value humanization and Rich `Text` semantic styling |
 | `navigation.py` | Static nav menu structure (mirrors NetBox UI sidebar) |
 | `panels.py` | `ObjectAttributesPanel` — detail view with key/value table + cable trace |
+| `widgets.py` | Shared composition primitives like `NbxButton`, `NbxPanelHeader`, `NbxPanelBody` |
 | `state.py` | `TuiState` persistence to `~/.config/netbox-cli/tui_state.json` |
 
 ---
@@ -18,6 +19,20 @@ This subpackage contains the full Textual TUI. Every module here is UI-layer onl
 ## app.py — NetBoxTuiApp
 
 The main `App[None]` subclass. Manages layout, reactive bindings, and async workers.
+
+### Composition Rule
+
+Build UI the way React builds components:
+
+- small reusable widgets
+- explicit constructor props
+- nested `compose()` trees
+- composition preferred over inheritance for layout reuse
+
+Example:
+
+- `NbxButton("Send", variant="primary", size="medium")`
+- `ObjectAttributesPanel` composed from `NbxPanelHeader` + `NbxPanelBody`
 
 ### Layout Structure
 ```
