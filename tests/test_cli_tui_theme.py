@@ -143,3 +143,33 @@ def test_demo_tui_sets_demo_mode(monkeypatch) -> None:
     assert result.exit_code == 0
     assert called["theme_name"] == "dracula"
     assert called["demo_mode"] is True
+
+
+def test_dev_tui_theme_list(monkeypatch) -> None:
+    monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+
+    result = runner.invoke(cli.app, ["dev", "tui", "--theme"])
+
+    assert result.exit_code == 0
+    assert "Available themes:" in result.stdout
+    assert "- default" in result.stdout
+
+
+def test_dev_tui_theme_dispatch(monkeypatch) -> None:
+    monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+    monkeypatch.setattr(cli, "_get_client", lambda: object())
+    monkeypatch.setattr(cli, "_get_index", lambda: object())
+
+    called: dict[str, object] = {}
+
+    def _fake_run_dev_tui(*, client, index, theme_name: str | None) -> None:
+        called["theme_name"] = str(theme_name)
+
+    import netbox_cli.dev_tui as dev_tui_module
+
+    monkeypatch.setattr(dev_tui_module, "run_dev_tui", _fake_run_dev_tui)
+
+    result = runner.invoke(cli.app, ["dev", "tui", "--theme", "dracula"])
+
+    assert result.exit_code == 0
+    assert called["theme_name"] == "dracula"
