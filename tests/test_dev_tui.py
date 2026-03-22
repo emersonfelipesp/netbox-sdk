@@ -52,7 +52,7 @@ def mock_client():
 
 @pytest.mark.asyncio
 async def test_dev_tui_loads_default_operation(mock_client, real_index) -> None:
-    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="default")
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
 
     async with app.run_test() as pilot:
         app._activate_resource("dcim", "devices")
@@ -95,7 +95,7 @@ async def test_dev_tui_send_request_uses_current_http_client(mock_client, real_i
 
 @pytest.mark.asyncio
 async def test_dev_tui_theme_switch_updates_theme_name(mock_client, real_index) -> None:
-    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="default")
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
 
     async with app.run_test() as pilot:
         theme_select = app.query_one("#dev_theme_select", Select)
@@ -111,7 +111,7 @@ async def test_dev_tui_theme_switch_updates_theme_name(mock_client, real_index) 
 
 @pytest.mark.asyncio
 async def test_dev_tui_theme_switch_refreshes_existing_surfaces(mock_client, real_index) -> None:
-    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="default")
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
 
     async with app.run_test(size=(160, 50)) as pilot:
         app._activate_resource("dcim", "devices")

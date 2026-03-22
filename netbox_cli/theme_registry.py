@@ -218,7 +218,7 @@ def load_theme_catalog(path: Path | None = None) -> ThemeCatalog:
                 )
             aliases[alias] = theme.name
 
-    default_theme_name = "default" if "default" in name_map else themes[0].name
+    default_theme_name = "netbox-dark" if "netbox-dark" in name_map else themes[0].name
     return ThemeCatalog(
         themes=tuple(themes), aliases=aliases, default_theme_name=default_theme_name
     )

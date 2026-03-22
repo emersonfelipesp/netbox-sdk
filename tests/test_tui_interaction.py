@@ -270,7 +270,7 @@ def isolate_tui_state():
         yield
 
 
-def _make_app(mock_client, real_index, theme: str = "default") -> NetBoxTuiApp:
+def _make_app(mock_client, real_index, theme: str = "netbox-dark") -> NetBoxTuiApp:
     return NetBoxTuiApp(client=mock_client, index=real_index, theme_name=theme)
 
 
@@ -381,7 +381,7 @@ async def test_default_theme_name(mock_client, real_index):
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
         # app.theme_name is our attribute, not Textual's internal theme name
-        assert app.theme_name == "default"
+        assert app.theme_name == "netbox-dark"
 
 
 @pytest.mark.asyncio

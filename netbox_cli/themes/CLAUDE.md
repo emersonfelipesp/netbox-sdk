@@ -4,12 +4,11 @@ Each `.json` file here is auto-discovered by `theme_registry.load_theme_catalog(
 
 ## Bundled Themes
 
-| File | Name | Dark? | Description |
-|---|---|---|---|
-| `default.json` | default | yes | Teal/cyan dark theme (`primary: #00F2D4`, `background: #001423`) |
-| `dracula.json` | dracula | yes | Dracula color scheme (`primary: #BD93F9`, `background: #282A36`) |
-| `netbox-dark.json` | netbox-dark | yes | NetBox UI dark mode palette |
-| `netbox-light.json` | netbox-light | no | NetBox UI light mode palette |
+| File | Name | Dark? | Default? | Description |
+|---|---|---|---|---|
+| `netbox-dark.json` | netbox-dark | yes | **yes** | NetBox UI dark mode palette — official project default. Aliases: `netbox`, `default` |
+| `netbox-light.json` | netbox-light | no | no | NetBox UI light mode palette |
+| `dracula.json` | dracula | yes | no | Dracula color scheme (`primary: #BD93F9`, `background: #282A36`) |
 
 ---
 

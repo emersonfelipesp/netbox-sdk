@@ -25,7 +25,6 @@ def test_tui_theme_list(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "Available themes:" in result.stdout
-    assert "- default" in result.stdout
     assert "- dracula" in result.stdout
     assert "- netbox-dark" in result.stdout
     assert "- netbox-light" in result.stdout
@@ -147,7 +146,7 @@ def test_dev_tui_theme_list(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "Available themes:" in result.stdout
-    assert "- default" in result.stdout
+    assert "- netbox-dark" in result.stdout
 
 
 def test_dev_tui_theme_dispatch(monkeypatch) -> None:

@@ -2,7 +2,7 @@
     "name": "netbox-dark",
     "label": "NetBox Dark",
     "dark": true,
-    "aliases": ["netbox"],
+    "aliases": ["netbox", "default"],
     "colors": {
         "primary": "#00F2D4",
         "secondary": "#00857D",
