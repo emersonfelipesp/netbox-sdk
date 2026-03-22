@@ -103,13 +103,9 @@ class NetBoxTuiApp(App[None]):
         self.demo_mode = demo_mode
         self.state: TuiState = load_tui_state()
         self.theme_catalog = _get_theme_catalog()
-        requested_theme = (
-            self.theme_catalog.resolve(theme_name) if theme_name is not None else None
-        )
+        requested_theme = self.theme_catalog.resolve(theme_name) if theme_name is not None else None
         state_theme = self.theme_catalog.resolve(self.state.theme_name)
-        self.theme_name = (
-            requested_theme or state_theme or self.theme_catalog.default_theme_name
-        )
+        self.theme_name = requested_theme or state_theme or self.theme_catalog.default_theme_name
         self.theme_options = self.theme_catalog.select_options()
         active_definition = self.theme_catalog.theme_for(self.theme_name)
         configure_semantic_styles(
@@ -146,12 +142,12 @@ class NetBoxTuiApp(App[None]):
                     prompt="Theme",
                     id="theme_select",
                 )
-                with Horizontal(id="app_title_wrap"):
-                    yield Static(self.TITLE, id="app_title")
-                    if self.demo_mode:
+                if self.demo_mode:
+                    with Horizontal(id="app_title_wrap"):
                         yield Static("(Demo Version)", id="app_title_demo")
             with Horizontal(id="topbar_center"):
                 yield Static(self._logo_renderable(), id="topbar_logo")
+                yield Static("CLI", id="topbar_cli_suffix")
             with Horizontal(id="topbar_right"):
                 yield Static("", id="clock")
                 yield Static(
@@ -175,16 +171,12 @@ class NetBoxTuiApp(App[None]):
             with Vertical(id="sidebar"):
                 yield Static("Navigation", id="nav_title")
                 yield Tree("NetBox", id="nav_tree")
-                yield Static(
-                    "/ search | g nav | s results | f filter | d details", id="nav_help"
-                )
+                yield Static("/ search | g nav | s results | f filter | d details", id="nav_help")
 
             with Vertical(id="main"):
                 with TabbedContent(id="main_tabs"):
                     with TabPane("Results", id="results_tab"):
-                        yield Static(
-                            "Select a resource from Navigation", id="results_controls"
-                        )
+                        yield Static("Select a resource from Navigation", id="results_controls")
                         table = DataTable(id="results_table")
                         table.cursor_type = "row"
                         table.add_columns("sel", "result")
@@ -347,9 +339,7 @@ class NetBoxTuiApp(App[None]):
     def action_toggle_select_all(self) -> None:
         if not self.current_rows:
             return
-        all_ids = {
-            self._row_identity(row, idx) for idx, row in enumerate(self.current_rows)
-        }
+        all_ids = {self._row_identity(row, idx) for idx, row in enumerate(self.current_rows)}
         if self.selected_row_ids == all_ids:
             self.selected_row_ids.clear()
         else:
@@ -378,9 +368,7 @@ class NetBoxTuiApp(App[None]):
             self._open_filter_overlay(self._visible_filter_fields[0][1])
 
     @on(OptionList.OptionSelected, "#filter_picker_list")
-    def on_filter_picker_option_selected(
-        self, event: OptionList.OptionSelected
-    ) -> None:
+    def on_filter_picker_option_selected(self, event: OptionList.OptionSelected) -> None:
         if event.option_list.id != "filter_picker_list":
             return
         option_index = getattr(event, "option_index", getattr(event, "index", -1))
@@ -425,9 +413,7 @@ class NetBoxTuiApp(App[None]):
             if event.node.children:
                 event.node.toggle()
             if not event.node.children:
-                self._set_status(
-                    "No API endpoint is available for this menu item in TUI"
-                )
+                self._set_status("No API endpoint is available for this menu item in TUI")
             return
 
         group, resource = event.node.data
@@ -436,9 +422,7 @@ class NetBoxTuiApp(App[None]):
         self.current_rows = []
         self.selected_row_ids.clear()
         self._update_context_line()
-        self._set_controls(
-            f"Resource: {humanize_group(group)} / {humanize_resource(resource)}"
-        )
+        self._set_controls(f"Resource: {humanize_group(group)} / {humanize_resource(resource)}")
         # Switch to Results tab and show loading immediately — before the async
         # worker starts — so the user gets instant visual feedback.
         self.query_one("#main_tabs", TabbedContent).active = "results_tab"
@@ -477,9 +461,7 @@ class NetBoxTuiApp(App[None]):
         self.current_resource = resource
         self.selected_row_ids.clear()
         self._update_context_line()
-        self._set_controls(
-            f"Resource: {humanize_group(group)} / {humanize_resource(resource)}"
-        )
+        self._set_controls(f"Resource: {humanize_group(group)} / {humanize_resource(resource)}")
         tabs = self.query_one("#main_tabs", TabbedContent)
         tabs.active = "details_tab"
         await self._show_detail_for_path(detail_path, fallback_row)
@@ -512,9 +494,7 @@ class NetBoxTuiApp(App[None]):
         # Populate filter fields from schema before any HTTP request.
         self._refresh_filter_fields(group, resource)
 
-        query = self._query_from_search(
-            self.query_one("#global_search", Input).value.strip()
-        )
+        query = self._query_from_search(self.query_one("#global_search", Input).value.strip())
         self._set_results_loading(
             f"Loading {humanize_group(group)} / {humanize_resource(resource)}"
         )
@@ -555,9 +535,7 @@ class NetBoxTuiApp(App[None]):
         self._stop_results_loading()
         self.query_one("#results_table", DataTable).focus()
 
-    async def _show_detail_for_path(
-        self, detail_path: str, fallback_row: dict[str, Any]
-    ) -> None:
+    async def _show_detail_for_path(self, detail_path: str, fallback_row: dict[str, Any]) -> None:
         panel = self.query_one("#detail_panel", ObjectAttributesPanel)
         panel.set_loading("Loading object details...")
 
@@ -570,9 +548,7 @@ class NetBoxTuiApp(App[None]):
 
         if response.status >= 400:
             panel.set_object(fallback_row)
-            self.notify(
-                f"HTTP {response.status} while loading details", severity="warning"
-            )
+            self.notify(f"HTTP {response.status} while loading details", severity="warning")
             return
 
         parsed = parse_response_rows(response.text)
@@ -662,11 +638,7 @@ class NetBoxTuiApp(App[None]):
             for group in menu.groups:
                 group_node = menu_node.add(group.label)
                 for item in group.items:
-                    data = (
-                        (item.group, item.resource)
-                        if item.group and item.resource
-                        else None
-                    )
+                    data = (item.group, item.resource) if item.group and item.resource else None
                     group_node.add_leaf(item.label, data=data)
 
     def _restore_last_view_if_any(self) -> None:
@@ -680,9 +652,7 @@ class NetBoxTuiApp(App[None]):
         self.current_group = group
         self.current_resource = resource
         self._update_context_line()
-        self._set_controls(
-            f"Resource: {humanize_group(group)} / {humanize_resource(resource)}"
-        )
+        self._set_controls(f"Resource: {humanize_group(group)} / {humanize_resource(resource)}")
         self._load_rows(group, resource)
 
     def _sync_search_input(self) -> None:
@@ -837,15 +807,11 @@ class NetBoxTuiApp(App[None]):
         return {
             str(param.get("name", ""))
             for param in parameters
-            if isinstance(param, dict)
-            and param.get("in") == "query"
-            and str(param.get("name", ""))
+            if isinstance(param, dict) and param.get("in") == "query" and str(param.get("name", ""))
         }
 
     def _prune_selection(self) -> None:
-        valid_ids = {
-            self._row_identity(row, idx) for idx, row in enumerate(self.current_rows)
-        }
+        valid_ids = {self._row_identity(row, idx) for idx, row in enumerate(self.current_rows)}
         self.selected_row_ids &= valid_ids
 
     def _render_results_table(self, rows: list[dict[str, Any]]) -> None:
@@ -889,9 +855,7 @@ class NetBoxTuiApp(App[None]):
         structured_params = [param for param in params if param.name != "q"]
         name_to_label = {param.name: param.label for param in structured_params}
         ordered_names = order_field_names(list(name_to_label))
-        ordered: list[tuple[str, str]] = [
-            (name_to_label[name], name) for name in ordered_names
-        ]
+        ordered: list[tuple[str, str]] = [(name_to_label[name], name) for name in ordered_names]
         self._filter_fields = ordered
         self._visible_filter_fields = list(ordered)
         if current and any(value == current for _, value in ordered):
@@ -903,8 +867,7 @@ class NetBoxTuiApp(App[None]):
 
     def _selected_filter_field(self) -> str:
         if not any(
-            field_value == self._selected_filter_key
-            for _, field_value in self._filter_fields
+            field_value == self._selected_filter_key for _, field_value in self._filter_fields
         ):
             return ""
         return self._selected_filter_key
@@ -988,9 +951,9 @@ class NetBoxTuiApp(App[None]):
             self._update_active_filters()
 
     def _current_filter_value(self, key: str) -> str:
-        return self._parse_filter_pairs(
-            self.query_one("#global_search", Input).value.strip()
-        ).get(key, "")
+        return self._parse_filter_pairs(self.query_one("#global_search", Input).value.strip()).get(
+            key, ""
+        )
 
     def _set_filter_query(self, key: str, value: str) -> None:
         search = self.query_one("#global_search", Input)
@@ -1022,9 +985,7 @@ class NetBoxTuiApp(App[None]):
         if not pairs:
             target.update("Filters: none")
             return
-        chips = ", ".join(
-            f"{humanize_field(key)}={value}" for key, value in sorted(pairs.items())
-        )
+        chips = ", ".join(f"{humanize_field(key)}={value}" for key, value in sorted(pairs.items()))
         target.update(f"Filters: {chips}")
 
     def action_cancel(self) -> None:
@@ -1038,9 +999,7 @@ class NetBoxTuiApp(App[None]):
 
     def _apply_theme(self, theme_name: str, notify: bool = False) -> None:
         definition = self.theme_catalog.theme_for(theme_name)
-        configure_semantic_styles(
-            colors=definition.colors, variables=definition.variables
-        )
+        configure_semantic_styles(colors=definition.colors, variables=definition.variables)
 
         previous = self.theme_name
         if previous:
@@ -1090,7 +1049,9 @@ class NetBoxTuiApp(App[None]):
         if probe.status == 0:
             badge.add_class("-error")
             badge.update("●")
-            self.sub_title = f"NetBox UI-style shell for terminal [down network] [API {version_text}]"
+            self.sub_title = (
+                f"NetBox UI-style shell for terminal [down network] [API {version_text}]"
+            )
             warning.update(
                 "NetBox Connection Failed\n\n"
                 "Network error while reaching NetBox API base URL.\n"
@@ -1103,14 +1064,18 @@ class NetBoxTuiApp(App[None]):
         if probe.ok and probe.status < 300:
             badge.add_class("-ok")
             badge.update("●")
-            self.sub_title = f"NetBox UI-style shell for terminal [up {probe.status}] [API {version_text}]"
+            self.sub_title = (
+                f"NetBox UI-style shell for terminal [up {probe.status}] [API {version_text}]"
+            )
             overlay.add_class("hidden")
             return
 
         if probe.ok and probe.status == 403:
             badge.add_class("-warning")
             badge.update("●")
-            self.sub_title = f"NetBox UI-style shell for terminal [warn {probe.status}] [API {version_text}]"
+            self.sub_title = (
+                f"NetBox UI-style shell for terminal [warn {probe.status}] [API {version_text}]"
+            )
             warning.update(
                 "NetBox Reached with Authorization Warning\n\n"
                 "Connection succeeded but token/permissions returned 403.\n"
@@ -1122,7 +1087,9 @@ class NetBoxTuiApp(App[None]):
 
         badge.add_class("-error")
         badge.update("●")
-        self.sub_title = f"NetBox UI-style shell for terminal [down {probe.status}] [API {version_text}]"
+        self.sub_title = (
+            f"NetBox UI-style shell for terminal [down {probe.status}] [API {version_text}]"
+        )
         warning.update(
             "NetBox API Request Failed\n\n"
             "NetBox endpoint responded with a failing status.\n"
@@ -1180,9 +1147,7 @@ def run_tui(
     demo_mode: bool = False,
 ) -> None:
     try:
-        NetBoxTuiApp(
-            client=client, index=index, theme_name=theme_name, demo_mode=demo_mode
-        ).run()
+        NetBoxTuiApp(client=client, index=index, theme_name=theme_name, demo_mode=demo_mode).run()
     except KeyboardInterrupt:
         raise SystemExit(130) from None
     except Exception as exc:  # noqa: BLE001
