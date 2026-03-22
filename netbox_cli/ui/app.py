@@ -64,6 +64,8 @@ _TEXT_CONTAINS_FILTER_FIELDS: frozenset[str] = frozenset(
     }
 )
 
+TOPBAR_CLI_LABEL = "CLI"
+
 
 def _get_theme_catalog() -> ThemeCatalog:
     global _THEME_CATALOG
@@ -147,7 +149,7 @@ class NetBoxTuiApp(App[None]):
                         yield Static("(Demo Version)", id="app_title_demo")
             with Horizontal(id="topbar_center"):
                 yield Static(self._logo_renderable(), id="topbar_logo")
-                yield Static("CLI", id="topbar_cli_suffix")
+                yield Static(TOPBAR_CLI_LABEL, id="topbar_cli_suffix")
             with Horizontal(id="topbar_right"):
                 yield Static("", id="clock")
                 yield Static(

@@ -29,7 +29,7 @@ from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
 from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
-from netbox_cli.ui.app import NetBoxTuiApp
+from netbox_cli.ui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
@@ -419,7 +419,7 @@ async def test_topbar_wordmark_renders_centered(mock_client, real_index):
         topbar_center = topbar.region.x + (topbar.region.width / 2)
 
         assert "netbox" in _static_text(logo)
-        assert str(app.query_one("#topbar_cli_suffix", Static).content) == "CLI"
+        assert str(app.query_one("#topbar_cli_suffix", Static).content) == TOPBAR_CLI_LABEL
         assert abs(center_mid - topbar_center) <= 1.5
 
 
