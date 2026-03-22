@@ -47,6 +47,8 @@ A key NetBox design choice is that page content is not only raw templates; it is
 
 This declarative composition is important for TUI parity because it naturally maps to Textual widget composition.
 
+For `netbox-cli`, this is now a project guideline: use a React-style composition approach in Textual by building screens from small reusable widgets and nested layout primitives instead of deep inheritance trees.
+
 ## 1.4 List/Detail Interaction Model
 
 Common pages:
@@ -132,6 +134,31 @@ Suggested mapping:
 - Modal dialogs -> `ModalScreen`
 - Toast/messages -> notification widget + footer status channel
 - HTMX partial swap -> targeted widget refresh/update methods
+
+## 2.2.1 Use React-Style Composition in Textual
+
+Treat Textual widgets the same way React treats components:
+
+- constructor args are props
+- `compose()` is the render tree
+- reusable structure should be extracted into small widgets
+- complex screens should assemble child widgets rather than inherit from large base classes
+
+Project-standard examples:
+
+- `NbxButton(label, size=\"small\" | \"medium\" | \"large\")`
+- `NbxButton(label, tone=\"primary\" | \"error\" | ...)`
+- `NbxPanelHeader(title, subtitle, tone=...)`
+- `NbxPanelBody(surface=...)`
+
+Preferred pattern:
+
+- `ObjectAttributesPanel(Vertical)` composed from header/body primitives
+- reusable theme decisions passed as semantic props instead of ad-hoc classes
+
+Avoid:
+
+- inheritance chains created only to reuse markup or layout
 
 ## 2.3 Recreate Incremental Refresh Behavior
 

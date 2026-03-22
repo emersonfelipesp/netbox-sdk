@@ -5,12 +5,14 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from textual.color import Color
 from textual.widgets import Input, OptionList, Select, Static, TextArea
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.ui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for
 from netbox_cli.ui.dev_state import DevTuiState
+from netbox_cli.ui.widgets import NbxButton, NbxPanelBody, NbxPanelHeader
 
 _OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
 
@@ -108,6 +110,34 @@ async def test_dev_tui_theme_switch_updates_theme_name(mock_client, real_index) 
 
 
 @pytest.mark.asyncio
+async def test_dev_tui_theme_switch_refreshes_existing_surfaces(mock_client, real_index) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="default")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+
+        app.query_one("#dev_theme_select", Select).value = "dracula"
+        await pilot.pause()
+        await pilot.pause()
+
+        theme = app.theme_catalog.theme_for("dracula")
+        expected_surface = Color.parse(theme.colors["surface"])
+        expected_panel = Color.parse(theme.colors["panel"])
+        expected_background = Color.parse(theme.colors["background"])
+
+        assert app.query_one("#dev_request_panel", object).styles.background == expected_surface
+        assert app.query_one("#dev_response_panel", object).styles.background == expected_surface
+        assert app.query_one("#dev_operations_tab", object).styles.background == expected_surface
+        assert app.query_one("#dev_response_meta", object).styles.background == expected_panel
+        assert (
+            app.query_one("#dev_operation_list", OptionList).styles.background
+            == expected_background
+        )
+        assert app.query_one("#dev_body_editor", TextArea).styles.background == expected_background
+
+
+@pytest.mark.asyncio
 async def test_dev_tui_textareas_follow_app_theme_tokens(mock_client, real_index) -> None:
     app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="dracula")
 
@@ -121,3 +151,45 @@ async def test_dev_tui_textareas_follow_app_theme_tokens(mock_client, real_index
         assert response.theme == "css"
         assert str(body.styles.background) == "Color(40, 42, 54)"
         assert str(response.styles.background) == "Color(40, 42, 54)"
+
+
+@pytest.mark.asyncio
+async def test_dev_tui_operation_search_input_follows_theme_tokens(mock_client, real_index) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+        search = app.query_one("#dev_operation_search", Input)
+        search.focus()
+        await pilot.pause()
+        await pilot.pause()
+
+        theme = app.theme_catalog.theme_for("netbox-dark")
+
+        assert search.styles.background == Color.parse(theme.colors["surface"])
+        selection = search.get_component_styles("input--selection")
+        cursor = search.get_component_styles("input--cursor")
+
+        assert selection.background == Color.parse(theme.colors["primary"]).with_alpha(0.35)
+        assert selection.color == search.styles.color
+        assert cursor.background == search.styles.color
+        assert cursor.color == Color.parse(theme.colors["background"])
+
+
+def test_nbx_button_adds_size_classes() -> None:
+    button = NbxButton("Send", size="medium", tone="primary", id="example_button")
+
+    assert "nbx-button" in button.classes
+    assert "nbx-button--medium" in button.classes
+    assert "nbx-tone--primary" in button.classes
+
+
+def test_nbx_panel_primitives_add_prop_classes() -> None:
+    header = NbxPanelHeader("Object Attributes", tone="warning")
+    body = NbxPanelBody(surface="panel")
+
+    assert "nbx-panel-header" in header.classes
+    assert "nbx-tone--warning" in header.classes
+    assert "nbx-panel-body" in body.classes
+    assert "nbx-surface--panel" in body.classes

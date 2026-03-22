@@ -50,6 +50,7 @@ from .formatting import (
 from .navigation import build_navigation_menus
 from .panels import ObjectAttributesPanel
 from .state import TuiState, ViewState, load_tui_state, save_tui_state
+from .widgets import NbxButton
 
 _TEXT_CONTAINS_FILTER_FIELDS: frozenset[str] = frozenset(
     {
@@ -147,7 +148,7 @@ class NetBoxTuiApp(App[None]):
                     classes="-checking",
                 )
                 yield Static("Context: <none>", id="context_line")
-                yield Button("Close", id="close_tui_button")
+                yield NbxButton("Close", id="close_tui_button", size="small", tone="error")
 
         with Horizontal(id="query_bar"):
             yield Input(
@@ -155,7 +156,7 @@ class NetBoxTuiApp(App[None]):
                 id="global_search",
                 placeholder="Quick search: plain text -> q=<text>, or key=value",
             )
-            yield Button("Filter Field", id="filter_select")
+            yield NbxButton("Filter Field", id="filter_select", size="medium", tone="secondary")
         yield Static("Filters: none", id="active_filters")
 
         with Horizontal(id="shell"):
@@ -195,15 +196,21 @@ class NetBoxTuiApp(App[None]):
                     )
                     yield OptionList(id="filter_picker_list")
                     with Horizontal(id="filter_picker_buttons"):
-                        yield Button("Cancel", id="filter_picker_cancel")
+                        yield NbxButton("Cancel", id="filter_picker_cancel", size="small")
             with Vertical(id="filter_overlay", classes="hidden"):
                 with Vertical(id="filter_dialog"):
                     yield Static("Apply Filter", classes="panel-title")
                     yield Static("", id="filter_field_label")
                     yield Input(placeholder="Value", id="filter_value")
                     with Horizontal(id="filter_buttons"):
-                        yield Button("Apply", id="filter_apply", variant="primary")
-                        yield Button("Cancel", id="filter_cancel")
+                        yield NbxButton(
+                            "Apply",
+                            id="filter_apply",
+                            variant="primary",
+                            size="small",
+                            tone="primary",
+                        )
+                        yield NbxButton("Cancel", id="filter_cancel", size="small")
 
         yield Footer()
 
