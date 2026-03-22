@@ -18,15 +18,20 @@ netbox_cli/
 ├── demo_auth.py        Playwright automation for demo.netbox.dev token retrieval
 ├── docgen_capture.py   CLI output capture and Markdown generation
 ├── theme_registry.py   Theme discovery, validation, and catalog management
+├── ui_common.tcss      Shared visual design layer for both Textual apps
 ├── trace_ascii.py      ASCII cable trace renderer
 ├── tui.py              Thin wrapper — re-exports run_tui from ui.app
+├── dev_tui.py          Thin wrapper — re-exports run_dev_tui from ui.dev_app
 └── ui/
     ├── app.py          NetBoxTuiApp — main Textual application
+    ├── dev_app.py      NetBoxDevTuiApp — request workbench application
+    ├── chrome.py       Shared theme / clock / logo / connection chrome helpers
     ├── formatting.py   Response parsing, humanization, semantic cell rendering
     ├── navigation.py   Navigation tree building from SchemaIndex
     ├── panels.py       ObjectAttributesPanel — detail view with cable trace
     ├── widgets.py      Shared composition primitives (buttons, panel header/body)
-    └── state.py        TUI state persistence (last resource, filters, theme)
+    ├── state.py        Main TUI state persistence
+    └── dev_state.py    Dev TUI state persistence
 ```
 
 ---

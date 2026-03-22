@@ -103,8 +103,9 @@ Expect every commit and every push to pass the Ruff lint/format hooks. GitHub Ac
 ## Theme System
 - TUI themes are JSON files loaded dynamically from `./netbox_cli/themes/`.
 - Built-in themes live as:
-  - `./netbox_cli/themes/default.json`
+  - `./netbox_cli/themes/netbox-dark.json`
   - `./netbox_cli/themes/dracula.json`
+  - `./netbox_cli/themes/netbox-light.json`
 - Any additional `<theme>.json` placed in this folder must be auto-discovered and available without code changes.
 - Theme files must be strictly validated on load:
   - Required top-level keys: `name`, `label`, `dark`, `colors`
