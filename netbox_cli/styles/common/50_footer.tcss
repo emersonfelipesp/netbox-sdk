@@ -1,0 +1,17 @@
+Footer {
+    background: $background;
+}
+
+FooterKey {
+    background: transparent;
+}
+
+FooterKey .footer-key--key {
+    background: $panel;
+    color: $primary;
+}
+
+FooterKey .footer-key--description {
+    background: transparent;
+    color: $foreground;
+}

@@ -1,3 +1,5 @@
+"""Utilities for sanitizing terminal output before rendering untrusted text."""
+
 from __future__ import annotations
 
 import re
@@ -5,9 +7,7 @@ from typing import Any
 
 from rich.text import Text
 
-_ANSI_ESCAPE_RE = re.compile(
-    r"\x1b(?:\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])"
-)
+_ANSI_ESCAPE_RE = re.compile(r"\x1b(?:\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 def sanitize_terminal_text(value: Any) -> str:
@@ -28,5 +28,5 @@ def _sanitize_char(char: str) -> str:
     # C1 includes CSI (U+009B) and OSC (U+009D) which some terminals treat
     # as escape-sequence initiators without a leading ESC byte.
     if cp < 0x20 or cp == 0x7F or 0x80 <= cp <= 0x9F:
-        return "\uFFFD"
+        return "\ufffd"
     return char

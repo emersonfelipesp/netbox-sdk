@@ -28,7 +28,12 @@ nbx
 │   ├── config              show demo profile config
 │   ├── reset               remove saved demo credentials
 │   ├── tui                 launch TUI with demo profile
+│   ├── dev                 developer tools with demo profile
+│   │   └── tui             launch Dev TUI with demo profile
 │   └── <group> <resource>  same command tree as root, using demo profile
+├── dev                     developer tools and experimental interfaces
+│   ├── tui                 launch developer request workbench
+│   └── http                direct HTTP helpers for arbitrary API paths
 └── <group>                 OpenAPI app group (dcim, ipam, …)
     └── <resource>          resource (devices, prefixes, …)
         ├── list            GET list endpoint

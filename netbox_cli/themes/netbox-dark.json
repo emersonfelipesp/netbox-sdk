@@ -2,7 +2,7 @@
     "name": "netbox-dark",
     "label": "NetBox Dark",
     "dark": true,
-    "aliases": ["netbox"],
+    "aliases": ["netbox", "default"],
     "colors": {
         "primary": "#00F2D4",
         "secondary": "#00857D",
@@ -31,6 +31,8 @@
         "nb-muted-text": "#9CA3AF",
         "nb-link-text": "#00F2D4",
         "nb-id-text": "#00F2D4",
-        "nb-key-text": "#8DC1ED"
+        "nb-key-text": "#8DC1ED",
+        "nb-logo-accent": "#00F2D4",
+        "nb-logo-wordmark": "#FFFFFF"
     }
 }

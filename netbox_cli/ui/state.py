@@ -1,61 +1,73 @@
+"""Persistent state models and storage helpers for the main TUI."""
+
 from __future__ import annotations
 
-import json
-from dataclasses import asdict, dataclass
 from pathlib import Path
+
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from netbox_cli.config import config_path
 
 
-@dataclass(slots=True)
-class ViewState:
+class ViewState(BaseModel):
     group: str | None = None
     resource: str | None = None
     query_text: str = ""
     details_expanded: bool = False
 
+    @field_validator("group", "resource", mode="before")
+    @classmethod
+    def _coerce_optional_str(cls, v: object) -> str | None:
+        if not isinstance(v, str):
+            return None
+        return v or None
 
-@dataclass(slots=True)
-class TuiState:
-    last_view: ViewState
+    @field_validator("query_text", mode="before")
+    @classmethod
+    def _coerce_query_text(cls, v: object) -> str:
+        return v if isinstance(v, str) else ""
+
+    @field_validator("details_expanded", mode="before")
+    @classmethod
+    def _coerce_bool(cls, v: object) -> bool:
+        return bool(v)
+
+
+class TuiState(BaseModel):
+    last_view: ViewState = Field(default_factory=ViewState)
     theme_name: str | None = None
+
+    @field_validator("last_view", mode="before")
+    @classmethod
+    def _coerce_last_view(cls, v: object) -> object:
+        # Coerce null/non-dict to an empty dict so ViewState uses its defaults.
+        if not isinstance(v, dict):
+            return {}
+        return v
+
+    @field_validator("theme_name", mode="before")
+    @classmethod
+    def _coerce_theme_name(cls, v: object) -> str | None:
+        return v if isinstance(v, str) else None
 
 
 _STATE_FILE = "tui_state.json"
-
 
 
 def tui_state_path() -> Path:
     return config_path().parent / _STATE_FILE
 
 
-
 def load_tui_state() -> TuiState:
     path = tui_state_path()
     if not path.exists():
-        return TuiState(last_view=ViewState(), theme_name=None)
-
+        return TuiState()
     try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return TuiState(last_view=ViewState(), theme_name=None)
-
-    view = raw.get("last_view") if isinstance(raw, dict) else None
-    if not isinstance(view, dict):
-        return TuiState(last_view=ViewState(), theme_name=None)
-
-    return TuiState(
-        last_view=ViewState(
-            group=view.get("group") if isinstance(view.get("group"), str) else None,
-            resource=view.get("resource") if isinstance(view.get("resource"), str) else None,
-            query_text=view.get("query_text") if isinstance(view.get("query_text"), str) else "",
-            details_expanded=bool(view.get("details_expanded", False)),
-        ),
-        theme_name=raw.get("theme_name") if isinstance(raw.get("theme_name"), str) else None,
-    )
-
+        return TuiState.model_validate_json(path.read_text(encoding="utf-8"))
+    except (OSError, ValidationError):
+        return TuiState()
 
 
 def save_tui_state(state: TuiState) -> None:
     path = tui_state_path()
-    path.write_text(json.dumps(asdict(state), indent=2), encoding="utf-8")
+    path.write_text(state.model_dump_json(indent=2), encoding="utf-8")

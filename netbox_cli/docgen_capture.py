@@ -6,22 +6,13 @@ import json
 import os
 import sys
 import time
-from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from inspect import signature
 from pathlib import Path
 from typing import Any, TextIO
 
-
-@dataclass(frozen=True, slots=True)
-class CaptureSpec:
-    section: str
-    title: str
-    argv: list[str]
-    notes: str = ""
-    # safe=True → catch_exceptions=False (local/schema commands, fail fast on bugs)
-    # safe=False → catch_exceptions=True (live API calls, connection errors are valid docs)
-    safe: bool = True
+from .docgen_specs import CaptureSpec
+from .docgen_specs import all_specs as _all_specs
 
 
 def _repo_root() -> Path:
@@ -133,11 +124,7 @@ def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str
         out = result.stdout or ""
         err = getattr(result, "stderr", "") or ""
         if err.strip():
-            out = (
-                f"{out}\n--- stderr ---\n{err}"
-                if out.strip()
-                else f"--- stderr ---\n{err}"
-            )
+            out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
         # Surface captured exceptions (catch_exceptions=True path) as readable text.
         if result.exception is not None and not isinstance(result.exception, SystemExit):
             import traceback
@@ -149,208 +136,11 @@ def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str
                     result.exception.__traceback__,
                 )
             )
-            out = (
-                f"{out}\n--- exception ---\n{tb}"
-                if out.strip()
-                else f"--- exception ---\n{tb}"
-            )
+            out = f"{out}\n--- exception ---\n{tb}" if out.strip() else f"--- exception ---\n{tb}"
         return result.exit_code or 0, out, elapsed
     finally:
         if was_stub:
             _clear_stub_config(profile)
-
-
-def _all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
-    """Return the ordered list of capture specs.
-
-    Args:
-        use_demo: When True (default) live-API specs invoke commands through
-            ``nbx demo …`` so they hit demo.netbox.dev with the configured demo
-            profile.  When False they hit the default profile (real NetBox).
-    """
-    # ── Shared: help banners and schema-discovery (no network, no profile) ────
-    specs: list[CaptureSpec] = [
-        # Top-level help banners
-        CaptureSpec("Top-level", "nbx --help", ["--help"]),
-        CaptureSpec("Top-level", "nbx init --help", ["init", "--help"]),
-        CaptureSpec("Top-level", "nbx config --help", ["config", "--help"]),
-        CaptureSpec("Top-level", "nbx groups --help", ["groups", "--help"]),
-        CaptureSpec("Top-level", "nbx resources --help", ["resources", "--help"]),
-        CaptureSpec("Top-level", "nbx ops --help", ["ops", "--help"]),
-        CaptureSpec("Top-level", "nbx call --help", ["call", "--help"]),
-        CaptureSpec(
-            "Top-level",
-            "nbx tui --help",
-            ["tui", "--help"],
-            notes="Launches the full Textual TUI when invoked without flags. --help shown here only.",
-        ),
-        CaptureSpec(
-            "Top-level",
-            "nbx tui --theme",
-            ["tui", "--theme"],
-            notes="Lists available themes without launching the TUI.",
-        ),
-        CaptureSpec("Top-level", "nbx docs --help", ["docs", "--help"]),
-        CaptureSpec(
-            "Top-level",
-            "nbx docs generate-capture --help",
-            ["docs", "generate-capture", "--help"],
-        ),
-        # Demo sub-app help
-        CaptureSpec("Demo profile", "nbx demo --help", ["demo", "--help"]),
-        CaptureSpec("Demo profile", "nbx demo init --help", ["demo", "init", "--help"]),
-        CaptureSpec(
-            "Demo profile", "nbx demo config --help", ["demo", "config", "--help"]
-        ),
-        # Schema discovery (reads reference/openapi/netbox-openapi.json — no network)
-        CaptureSpec(
-            "Schema Discovery",
-            "nbx groups",
-            ["groups"],
-            notes="Lists all OpenAPI app groups from the local schema file. No network call.",
-        ),
-        CaptureSpec(
-            "Schema Discovery",
-            "nbx resources dcim",
-            ["resources", "dcim"],
-            notes="Lists all resources under the 'dcim' app group.",
-        ),
-        CaptureSpec(
-            "Schema Discovery",
-            "nbx ops dcim devices",
-            ["ops", "dcim", "devices"],
-            notes="Lists HTTP operations (method, path, operationId) for dcim/devices.",
-        ),
-        CaptureSpec(
-            "Schema Discovery",
-            "nbx resources ipam",
-            ["resources", "ipam"],
-        ),
-        # Dynamic sub-commands: --help is safe (no network)
-        CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim --help",
-            ["dcim", "--help"],
-            notes="Auto-generated Typer sub-app for the 'dcim' OpenAPI group.",
-        ),
-        CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim devices --help",
-            ["dcim", "devices", "--help"],
-            notes="Auto-generated Typer sub-app for dcim/devices.",
-        ),
-        CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim devices list --help",
-            ["dcim", "devices", "list", "--help"],
-        ),
-        CaptureSpec("Dynamic Commands", "nbx ipam prefixes --help", ["ipam", "prefixes", "--help"]),
-        # Trace flag help (safe — schema/help, no network)
-        CaptureSpec(
-            "Dynamic Commands",
-            "nbx dcim interfaces get --help",
-            ["dcim", "interfaces", "get", "--help"],
-            notes="Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.",
-        ),
-        CaptureSpec(
-            "Dynamic Commands",
-            "nbx circuits circuit-terminations get --help",
-            ["circuits", "circuit-terminations", "get", "--help"],
-        ),
-    ]
-
-    # ── Live API specs: differ between demo and default profile ───────────────
-    if use_demo:
-        specs += [
-            CaptureSpec(
-                "Live API — demo.netbox.dev",
-                "nbx demo dcim devices list",
-                ["demo", "dcim", "devices", "list"],
-                notes=(
-                    "Runs against demo.netbox.dev using the configured demo profile. "
-                    "Returns real data when the demo token is valid; 401/403 otherwise."
-                ),
-                safe=False,
-            ),
-            CaptureSpec(
-                "Live API — demo.netbox.dev",
-                "nbx demo ipam prefixes list",
-                ["demo", "ipam", "prefixes", "list"],
-                notes="Requires a valid demo profile token.",
-                safe=False,
-            ),
-            CaptureSpec(
-                "Live API — demo.netbox.dev",
-                "nbx demo dcim sites list",
-                ["demo", "dcim", "sites", "list"],
-                safe=False,
-            ),
-            # ── Cable trace: dcim/interfaces ──────────────────────────────────
-            CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo dcim interfaces get --id 1 --trace",
-                ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace"],
-                notes=(
-                    "Fetches the interface object and appends an ASCII cable trace diagram. "
-                    "Requires the interface to have a connected cable in demo.netbox.dev."
-                ),
-                safe=False,
-            ),
-            CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo dcim interfaces get --id 1 --trace-only",
-                ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace-only"],
-                notes="Renders only the cable trace, omitting the object detail table.",
-                safe=False,
-            ),
-            # ── Cable trace: circuits/circuit-terminations ────────────────────
-            CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo circuits circuit-terminations get --id 15 --trace",
-                ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace"],
-                notes=(
-                    "Circuit terminations also expose a ``/trace/`` endpoint. "
-                    "Renders the full path from the physical interface through the circuit."
-                ),
-                safe=False,
-            ),
-            CaptureSpec(
-                "Cable Trace — demo.netbox.dev",
-                "nbx demo circuits circuit-terminations get --id 15 --trace-only",
-                ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace-only"],
-                notes="Trace-only view for a circuit termination — no object detail table.",
-                safe=False,
-            ),
-        ]
-    else:
-        specs += [
-            CaptureSpec(
-                "Live API — default profile",
-                "nbx call GET /api/status/",
-                ["call", "GET", "/api/status/"],
-                notes=(
-                    "Requires a reachable NetBox at NETBOX_URL. "
-                    "Connection errors are expected in offline runs and are still valid documentation."
-                ),
-                safe=False,
-            ),
-            CaptureSpec(
-                "Live API — default profile",
-                "nbx call GET /api/dcim/sites/ --json",
-                ["call", "GET", "/api/dcim/sites/", "--json"],
-                notes="Returns paginated list as raw JSON. Requires a configured default profile.",
-                safe=False,
-            ),
-            CaptureSpec(
-                "Live API — default profile",
-                "nbx dcim devices list",
-                ["dcim", "devices", "list"],
-                notes="Dynamic sub-command against the default profile NetBox instance.",
-                safe=False,
-            ),
-        ]
-
-    return specs
 
 
 def generate_command_capture_docs(
@@ -365,7 +155,7 @@ def generate_command_capture_docs(
     """Write capture Markdown and raw JSON artifacts. Returns 0 on success."""
     log = log or sys.stderr
     from netbox_cli.cli import app as cli_app
-    from netbox_cli.config import DEMO_PROFILE, DEFAULT_PROFILE
+    from netbox_cli.config import DEFAULT_PROFILE, DEMO_PROFILE
 
     profile = DEMO_PROFILE if use_demo else DEFAULT_PROFILE
 
@@ -382,7 +172,7 @@ def generate_command_capture_docs(
     token_configured = bool(cfg.token_key and cfg.token_secret)
 
     meta = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "profile": profile,
         "netbox_url": effective_url,
         "timeout": os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"),
@@ -402,10 +192,10 @@ def generate_command_capture_docs(
         "",
         "```bash",
         "cd /path/to/netbox-cli",
-        "pip install -e .   # once",
-        "nbx docs generate-capture            # demo profile (default)",
-        "nbx docs generate-capture --live     # default profile (real NetBox)",
-        "# or: python docs/generate_command_docs.py",
+        "uv sync --group docs --group dev   # once",
+        "uv run nbx docs generate-capture            # demo profile (default)",
+        "uv run nbx docs generate-capture --live     # default profile (real NetBox)",
+        "# or: uv run python docs/generate_command_docs.py",
         "```",
         "",
         "Run the capture **in the background** (log + pid):",
@@ -450,12 +240,7 @@ def generate_command_capture_docs(
         code, out, elapsed = _run_capture(spec, cli_app, profile=profile)
 
         truncated, did_trunc = _truncate(out, max_lines, max_chars)
-        slug = (
-            f"{spec.section}-{spec.title}"[:80]
-            .lower()
-            .replace(" ", "-")
-            .replace("/", "-")
-        )
+        slug = f"{spec.section}-{spec.title}"[:80].lower().replace(" ", "-").replace("/", "-")
         slug = "".join(c if c.isalnum() or c == "-" else "-" for c in slug)
         while "--" in slug:
             slug = slug.replace("--", "-")

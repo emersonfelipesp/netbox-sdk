@@ -1,27 +1,31 @@
+"""Filesystem-backed HTTP cache models and storage utilities for API responses."""
+
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import stat
 import tempfile
 import time
-from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
+
+from pydantic import BaseModel, ValidationError
+
+if TYPE_CHECKING:
+    from netbox_cli.api import ApiResponse
 
 DEFAULT_FRESH_TTL_SECONDS = 60.0
 DEFAULT_STALE_IF_ERROR_SECONDS = 300.0
 
 
-@dataclass(slots=True)
-class CachePolicy:
+class CachePolicy(BaseModel):
     fresh_ttl_seconds: float = DEFAULT_FRESH_TTL_SECONDS
     stale_if_error_seconds: float = DEFAULT_STALE_IF_ERROR_SECONDS
 
 
-@dataclass(slots=True)
-class CacheEntry:
+class CacheEntry(BaseModel):
     status: int
     text: str
     headers: dict[str, str]
@@ -52,9 +56,7 @@ def build_cache_key(
     authorization: str | None,
 ) -> str:
     encoded_query = urlencode(sorted((query or {}).items()), doseq=True)
-    token_fingerprint = hashlib.sha256(
-        (authorization or "").encode("utf-8")
-    ).hexdigest()
+    token_fingerprint = hashlib.sha256((authorization or "").encode("utf-8")).hexdigest()
     identity = "\n".join(
         [
             base_url.rstrip("/"),
@@ -78,28 +80,8 @@ class HttpCacheStore:
         if not path.exists():
             return None
         try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return None
-        if not isinstance(payload, dict):
-            return None
-        try:
-            headers = payload.get("headers") or {}
-            return CacheEntry(
-                status=int(payload["status"]),
-                text=str(payload["text"]),
-                headers=dict(headers) if isinstance(headers, dict) else {},
-                created_at=float(payload["created_at"]),
-                fresh_until=float(payload["fresh_until"]),
-                stale_if_error_until=float(payload["stale_if_error_until"]),
-                etag=str(payload["etag"]) if payload.get("etag") else None,
-                last_modified=(
-                    str(payload["last_modified"])
-                    if payload.get("last_modified")
-                    else None
-                ),
-            )
-        except (KeyError, TypeError, ValueError):
+            return CacheEntry.model_validate_json(path.read_text(encoding="utf-8"))
+        except (OSError, ValidationError):
             return None
 
     def save(self, key: str, response: ApiResponse, policy: CachePolicy) -> CacheEntry:
@@ -137,7 +119,7 @@ class HttpCacheStore:
         return self.root / f"{key}.json"
 
     def _write_entry(self, path: Path, entry: CacheEntry) -> None:
-        payload = json.dumps(asdict(entry), ensure_ascii=True, separators=(",", ":"))
+        payload = entry.model_dump_json()
         with tempfile.NamedTemporaryFile(
             "w",
             encoding="utf-8",

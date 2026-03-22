@@ -3,6 +3,7 @@
 Core library: API client, CLI app, TUI app, config, schema, services, and shared utilities.
 
 ## Subpackages
+- [`cli/`](cli/CLAUDE.md) — Typer CLI application split into focused modules
 - [`ui/`](ui/CLAUDE.md) — Textual TUI application (app, panels, navigation, formatting, state)
 - [`themes/`](themes/CLAUDE.md) — JSON theme files auto-discovered by `theme_registry.py`
 - [`reference/openapi/`](reference/CLAUDE.md) — Bundled NetBox OpenAPI schema
@@ -13,10 +14,11 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 |---|---|
 | `__init__.py` | Package version (`0.1.0`) |
 | `api.py` | Async `aiohttp` NetBox API client with caching and token fallback |
-| `cli.py` | Typer root app — static + dynamic commands, `nbx` entry point |
+| `cli/` | Typer CLI subpackage — see `cli/CLAUDE.md` |
 | `config.py` | Profile management (`~/.config/netbox-cli/config.json`) |
 | `demo_auth.py` | Playwright-based demo.netbox.dev account/token provisioning |
 | `docgen_capture.py` | Captures `nbx` CLI output and writes Markdown + JSON to `docs/generated/` |
+| `docgen_specs.py` | `CaptureSpec` model and `all_specs()` — ordered list of commands to capture for docs |
 | `http_cache.py` | Filesystem HTTP cache with TTL (fresh/stale-if-error) |
 | `output_safety.py` | Strips ANSI escapes and control characters from terminal output |
 | `schema.py` | Indexes the bundled OpenAPI JSON for groups, resources, paths, filters |
@@ -24,7 +26,7 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 | `theme_registry.py` | Loads, validates, and registers JSON themes with Textual |
 | `trace_ascii.py` | Renders cable-trace JSON as Unicode box-drawing ASCII art |
 | `tui.py` | Re-export shim: `NetBoxTuiApp`, `run_tui`, theme utilities from `ui/` |
-| `tui.tcss` | Textual CSS stylesheet — **all colors via semantic variables, never hardcoded hex** |
+| `tui.tcss` | Textual CSS stylesheet — **all colors via semantic variables, never hardcoded hex, all component states theme-driven** |
 
 ---
 
@@ -49,9 +51,32 @@ response = await client.request("GET", "/api/dcim/devices/", query={"limit": 50}
 
 ---
 
-## cli.py
+## cli/ subpackage
 
-Typer application (`app`) exposed as the `nbx` CLI entry point.
+Typer application (`app`) exposed as the `nbx` CLI entry point. Split into focused modules:
+
+| Module | Purpose |
+|---|---|
+| `cli/__init__.py` | Root `app`, `main()`, static commands (`init`, `config`, `groups`, `resources`, `ops`, `call`, `tui`, `docs`), app wiring |
+| `cli/runtime.py` | `_RUNTIME_CONFIGS`, `_SCHEMA_INDEX`, client/index factory functions |
+| `cli/support.py` | `console`, `print_response`, `run_with_spinner`, Rich table rendering, theme resolution |
+| `cli/demo.py` | `demo_app` — `nbx demo` command group (init, config, test, reset, tui) |
+| `cli/dev.py` | `dev_app` — `nbx dev` command group + `nbx dev http` sub-app, Pydantic input models |
+| `cli/dynamic.py` | `_handle_dynamic_invocation`, `_register_openapi_subcommands` |
+
+**Structure standard:**
+- Keep CLI modules inside `netbox_cli/cli/`.
+- Treat the old flat layout (`cli.py`, `cli_runtime.py`, `cli_demo.py`, `cli_dynamic.py`, `cli_support.py`, `cli_dev.py`) as legacy only.
+- Do not introduce new top-level `cli_*.py` modules under `netbox_cli/`.
+
+**Import rules:**
+- Root CLI app wiring belongs in `netbox_cli.cli` (`cli/__init__.py`).
+- Import focused helpers from their package modules, for example:
+  - `from netbox_cli.cli import app, main`
+  - `from netbox_cli.cli.runtime import get_runtime_client`
+  - `from netbox_cli.cli.support import print_response`
+  - `from netbox_cli.cli.dynamic import _register_openapi_subcommands`
+- Keep imports package-relative inside the `cli/` subpackage when modules depend on each other.
 
 **Command groups:**
 
@@ -155,6 +180,11 @@ catalog = load_theme_catalog()
 theme = catalog.resolve("netbox")   # resolves alias "netbox" → "netbox-dark"
 names = catalog.names()             # ["default", "dracula", "netbox-dark", "netbox-light"]
 ```
+
+**Theme enforcement contract:**
+- Every Textual widget and subcomponent must render from the active theme tokens.
+- Never ship fallback runtime palettes in Python or TCSS outside `themes/*.json`.
+- Avoid built-in widget palettes when they bypass the app theme; prefer styling component classes in TCSS.
 
 ---
 

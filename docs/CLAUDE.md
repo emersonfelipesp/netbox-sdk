@@ -4,9 +4,19 @@ Built with MkDocs Material theme. Source lives here; deployed to GitHub Pages by
 
 **Local preview:**
 ```bash
-pip install -e ".[docs]"
-mkdocs serve
+uv sync --group docs
+uv run mkdocs serve
 ```
+
+**Contributor hooks:**
+```bash
+uv sync --dev --group docs
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
+```
+
+When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside `netbox_cli/themes/*.json`.
+Also keep the composition contract explicit: contributor guidance should treat Textual widgets as React-style composable building blocks, with composition preferred over inheritance for view structure.
 
 **Deploy (CI only):**
 ```bash
@@ -41,6 +51,7 @@ docs/
 ├── developer/
 │   ├── index.md
 │   ├── architecture.md             # System architecture overview
+│   ├── textual-composition.md      # React-style Textual composition guideline
 │   └── docgen.md                   # Documentation generation process
 ├── reference/
 │   └── command-examples.md         # (may be generated or hand-written)
@@ -90,7 +101,7 @@ Getting Started → Installation, Configuration, Quick Start
 CLI Reference   → Commands, Dynamic Commands, Demo Profile
 TUI             → Themes, Keyboard Shortcuts
 Command Examples
-Developer Guide → Architecture, Documentation Generation
+Developer Guide → Architecture, Textual Composition Pattern, Documentation Generation
 ```
 
 To add a new page: create the `.md` file and add an entry to the `nav:` section in `mkdocs.yml`.

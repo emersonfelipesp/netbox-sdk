@@ -1,3 +1,5 @@
+"""Tests for service-layer request resolution and dynamic CLI argument parsing."""
+
 from pathlib import Path
 
 import pytest
@@ -6,10 +8,8 @@ from netbox_cli.schema import build_schema_index
 from netbox_cli.services import parse_key_value_pairs, resolve_dynamic_request
 
 
-
 def _index():
     return build_schema_index(Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json"))
-
 
 
 def test_parse_key_value_pairs_ok():
@@ -19,11 +19,9 @@ def test_parse_key_value_pairs_ok():
     }
 
 
-
 def test_parse_key_value_pairs_invalid():
     with pytest.raises(ValueError):
         parse_key_value_pairs(["invalid"])
-
 
 
 def test_resolve_list_path():
@@ -40,7 +38,6 @@ def test_resolve_list_path():
     assert resolved.path == "/api/dcim/devices/"
 
 
-
 def test_resolve_get_requires_id():
     with pytest.raises(ValueError):
         resolve_dynamic_request(
@@ -52,7 +49,6 @@ def test_resolve_get_requires_id():
             query={},
             payload=None,
         )
-
 
 
 def test_resolve_get_detail_path():

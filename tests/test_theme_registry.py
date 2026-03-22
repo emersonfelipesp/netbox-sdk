@@ -1,3 +1,5 @@
+"""Tests for theme catalog loading and theme definition validation."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -31,16 +33,16 @@ def _required_variables_json() -> str:
 def test_theme_catalog_loads_builtin_themes() -> None:
     catalog = load_theme_catalog()
     assert catalog.available_theme_names() == (
-        "default",
         "dracula",
         "netbox-dark",
         "netbox-light",
     )
     assert catalog.resolve("netbox") == "netbox-dark"
     assert catalog.resolve("netbox-dark") == "netbox-dark"
+    assert catalog.resolve("default") == "netbox-dark"
     assert catalog.resolve("netbox-light") == "netbox-light"
     assert catalog.resolve("dracula") == "dracula"
-    assert catalog.default_theme_name == "default"
+    assert catalog.default_theme_name == "netbox-dark"
 
 
 def test_theme_catalog_invalid_color_fails(tmp_path: Path) -> None:

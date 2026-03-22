@@ -19,6 +19,8 @@ For CI or scripted use, pass credentials as flags:
 nbx demo init --username nbxuser --password mypassword --headless
 ```
 
+When you initialize the demo profile this way, `nbx` also stores the demo username and password in the same private config file so it can automatically refresh the demo token later if `demo.netbox.dev` resets and starts returning `Invalid v1 token`.
+
 **Options for `nbx demo init`**
 
 | Flag | Description |
@@ -33,8 +35,7 @@ nbx demo init --username nbxuser --password mypassword --headless
     Install Playwright and the Chromium browser before running `nbx demo init`:
 
     ```bash
-    pip install playwright
-    playwright install chromium --with-deps
+    uv tool run --from playwright playwright install chromium --with-deps
     ```
 
 ---
@@ -60,6 +61,8 @@ nbx demo config
 nbx demo config --show-token   # reveal token values
 ```
 
+The config output also shows whether demo login credentials are available for automatic token refresh.
+
 ---
 
 ## Running commands against demo
@@ -72,7 +75,10 @@ nbx demo ipam prefixes list -q status=active
 nbx demo dcim sites list --json
 nbx demo dcim interfaces get --id 4 --trace
 nbx demo call GET /api/status/
+nbx demo dev tui
 ```
+
+If the saved demo token has expired because the public demo instance reset overnight, `nbx` will automatically try to provision a fresh demo token using the saved demo username and password before surfacing the auth failure to you.
 
 ---
 
@@ -84,6 +90,17 @@ nbx demo tui --theme dracula
 ```
 
 Launches the Textual TUI pre-connected to the demo instance.
+
+---
+
+## Demo Dev TUI
+
+```bash
+nbx demo dev tui
+nbx demo dev tui --theme dracula
+```
+
+Launches the developer request workbench pre-connected to the demo instance, so you can inspect paths and execute requests against `demo.netbox.dev` without switching profiles.
 
 ---
 
@@ -110,6 +127,8 @@ The demo profile is stored alongside the default profile in `~/.config/netbox-cl
       "token_version": "v1",
       "token_key": null,
       "token_secret": "40-character-token-here",
+      "demo_username": "nbxuser",
+      "demo_password": "mypassword",
       "timeout": 30.0
     }
   }
@@ -117,3 +136,4 @@ The demo profile is stored alongside the default profile in `~/.config/netbox-cl
 ```
 
 The `base_url` for the demo profile is always hardcoded to `https://demo.netbox.dev` regardless of what is stored in the config file.
+The config file is written with private user-only permissions so the stored demo credentials stay local to your machine.

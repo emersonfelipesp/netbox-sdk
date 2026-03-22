@@ -1,0 +1,99 @@
+Screen {
+    layout: vertical;
+    background: $background;
+}
+
+#logs_shell {
+    height: 1fr;
+    background: $background;
+}
+
+#logs_main {
+    width: 2fr;
+    padding: 0 1 1 1;
+    background: $background;
+}
+
+#logs_detail_panel {
+    width: 1fr;
+    padding: 1;
+    background: $surface;
+    border-left: tall $nb-border-subtle;
+}
+
+#logs_controls,
+#logs_detail_title {
+    height: auto;
+    margin: 1 0;
+    border-left: blank $primary;
+    padding: 0 1;
+    color: $primary;
+    text-style: bold;
+}
+
+#logs_table {
+    height: 1fr;
+    background: $background;
+    color: $foreground;
+    background-tint: transparent;
+}
+
+#logs_table > .datatable--header {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#logs_table > .datatable--fixed {
+    background: $panel;
+    color: $foreground;
+}
+
+#logs_table > .datatable--odd-row {
+    background: $background;
+}
+
+#logs_table > .datatable--even-row {
+    background: $background 6%;
+}
+
+#logs_table > .datatable--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#logs_table > .datatable--fixed-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#logs_table > .datatable--header-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#logs_table > .datatable--header-hover {
+    background: $panel;
+    color: $foreground;
+}
+
+#logs_table > .datatable--hover {
+    background: $panel;
+}
+
+#logs_status {
+    height: auto;
+    margin: 1 0 0 0;
+    color: $text-muted;
+}
+
+#logs_detail {
+    height: 1fr;
+    padding: 1;
+    background: $panel;
+    border: round $nb-border-subtle;
+    color: $foreground;
+    text-wrap: wrap;
+    overflow: auto;
+}

@@ -1,3 +1,5 @@
+"""Tests for demo authentication flows, page parsing, and token extraction."""
+
 from __future__ import annotations
 
 from netbox_cli.demo_auth import (
@@ -14,7 +16,7 @@ from netbox_cli.demo_auth import (
 
 
 class _Locator:
-    def __init__(self, page: "_FakePage", kind: str, value: str):
+    def __init__(self, page: _FakePage, kind: str, value: str):
         self.page = page
         self.kind = kind
         self.value = value
@@ -55,7 +57,7 @@ class _FakePage:
         self.calls.append(("wait_for_url", pattern))
 
     class _BodyLocator:
-        def __init__(self, page: "_FakePage"):
+        def __init__(self, page: _FakePage):
             self.page = page
 
         def inner_text(self) -> str:

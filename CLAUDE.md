@@ -47,6 +47,28 @@ Security Reference:
 
 ---
 
+## Contributor Workflow
+
+Use `uv` as the default local environment manager and `pre-commit` as the default gate before commits and pushes.
+
+Initial setup:
+
+```bash
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+```
+
+Day-to-day:
+
+```bash
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+Expect every commit and every push to pass the Ruff lint/format hooks. GitHub Actions enforces the same `.pre-commit-config.yaml` checks in CI.
+
+---
+
 # netbox-cli aims to be a TUI mirror of NetBox UI.
 - You must "mirror" UI, such as navigation, cards, etc.
 - For it, you must understand NetBox code and Django (mainly focusing on template understanding)
@@ -68,6 +90,9 @@ Security Reference:
   - `./reference/design/TOAD-DESIGN-GUIDE.md` — Toad is the most advanced idiomatic Textual app and defines the Textual visual language (TCSS patterns, spacing, borders, states, animations). Use where NETBOX-DARK-PATTERNS.md has no opinion.
 - Key rules:
   - Use only semantic CSS variables (`$primary`, `$secondary`, `$error`, etc.) — never hardcode hex colors in TCSS.
+  - Every Textual widget and subcomponent must visually follow the active theme. This includes built-in parts such as `OptionList` rows, `Tree` cursor states, `TextArea` gutter/selection/cursor states, tabs, overlays, and notifications.
+  - Do not use built-in Textual widget palettes when they override repo theme tokens. If a widget offers a separate palette/theme API, only use it when its colors still resolve from the active app theme; otherwise style the component classes in TCSS.
+  - Use a React-style composition pattern for Textual widgets. Prefer small reusable primitives and nested `compose()` trees over inheritance chains built only for layout reuse.
   - Use opacity-based tinting for hierarchy: `$primary 10%` (chip bg), `$primary 50%` (border), `$primary 100%` (full).
   - Use `border-left: blank $color` to visually categorize content blocks (e.g. by NetBox app section).
   - Express widget state via CSS modifier classes (`.-active`, `.-error`, `.-loading`, `.-expanded`) — keep visual logic in TCSS.
@@ -78,8 +103,9 @@ Security Reference:
 ## Theme System
 - TUI themes are JSON files loaded dynamically from `./netbox_cli/themes/`.
 - Built-in themes live as:
-  - `./netbox_cli/themes/default.json`
+  - `./netbox_cli/themes/netbox-dark.json`
   - `./netbox_cli/themes/dracula.json`
+  - `./netbox_cli/themes/netbox-light.json`
 - Any additional `<theme>.json` placed in this folder must be auto-discovered and available without code changes.
 - Theme files must be strictly validated on load:
   - Required top-level keys: `name`, `label`, `dark`, `colors`
@@ -88,3 +114,4 @@ Security Reference:
   - Color values must use `#RRGGBB`
   - Unknown keys and alias/name collisions must raise clear errors
 - Theme switching must be live in TUI and persisted in TUI state.
+- Theme switching is a hard contract for every TUI surface: changing theme must update all Textual components, component classes, overlays, and editor chrome with no stray default or hardcoded colors left behind.

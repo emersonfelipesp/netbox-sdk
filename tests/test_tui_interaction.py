@@ -15,13 +15,22 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from textual.color import Color
 from textual.coordinate import Coordinate
-from textual.widgets import DataTable, Input, Select, Static, TabbedContent, Tree
+from textual.widgets import (
+    Button,
+    DataTable,
+    Input,
+    OptionList,
+    Static,
+    TabbedContent,
+    Tree,
+)
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
 from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
-from netbox_cli.ui.app import NetBoxTuiApp
+from netbox_cli.ui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp, run_tui
+from netbox_cli.ui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
@@ -30,9 +39,7 @@ from netbox_cli.ui.state import TuiState, ViewState
 # Shared fixtures
 # ---------------------------------------------------------------------------
 
-_OPENAPI_PATH = (
-    Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
-)
+_OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
 
 FAKE_DEVICES = [
     {"id": 1, "name": "switch01", "status": "active", "display": "switch01"},
@@ -228,9 +235,7 @@ FAKE_CIRCUIT_TERMINATION_PATHS = [
 
 
 def _list_response(items: list) -> ApiResponse:
-    body = json.dumps(
-        {"count": len(items), "results": items, "next": None, "previous": None}
-    )
+    body = json.dumps({"count": len(items), "results": items, "next": None, "previous": None})
     return ApiResponse(status=200, text=body)
 
 
@@ -266,7 +271,7 @@ def isolate_tui_state():
         yield
 
 
-def _make_app(mock_client, real_index, theme: str = "default") -> NetBoxTuiApp:
+def _make_app(mock_client, real_index, theme: str = "netbox-dark") -> NetBoxTuiApp:
     return NetBoxTuiApp(client=mock_client, index=real_index, theme_name=theme)
 
 
@@ -284,6 +289,81 @@ def _first_leaf_with_data(tree: Tree) -> object | None:
             return node
         stack.extend(node.children)
     return None
+
+
+def test_tui_view_selector_requests_dev_mode(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index)
+    app.exit = MagicMock()
+
+    app.on_view_changed(MagicMock(value="dev"))
+
+    app.exit.assert_called_once_with(result=SWITCH_TO_DEV_TUI)
+
+
+def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            return SWITCH_TO_DEV_TUI
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            return None
+
+    with (
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+    ):
+        run_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
+
+    assert launches == [
+        ("main", "dracula", False),
+        ("dev", None, None),
+    ]
+
+
+def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+    dev_runs = 0
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            return (
+                None
+                if len([item for item in launches if item[0] == "main"]) > 1
+                else SWITCH_TO_DEV_TUI
+            )
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            nonlocal dev_runs
+            dev_runs += 1
+            return SWITCH_TO_MAIN_TUI if dev_runs == 1 else None
+
+    with (
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+    ):
+        run_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=True)
+
+    assert launches == [
+        ("main", "dracula", True),
+        ("dev", None, None),
+        ("main", None, True),
+    ]
 
 
 def _leaf_for_resource(tree: Tree, group: str, resource: str) -> object | None:
@@ -307,6 +387,25 @@ def _truecolor_hex(color: object) -> str:
     if hasattr(color, "get_truecolor"):
         return color.get_truecolor().hex.lower()
     return getattr(color, "hex").lower()
+
+
+def test_unhandled_tui_exception_uses_user_message(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index)
+    captured: list[object] = []
+
+    def _panic(*renderables: object) -> None:
+        captured.extend(renderables)
+
+    app.panic = _panic  # type: ignore[method-assign]
+    app._handle_exception(RuntimeError("boom"))
+
+    assert app._return_code == 1
+    assert app._exception is not None
+    assert captured
+    message = str(captured[0])
+    assert "Application error" in message
+    assert "boom" in message
+    assert "Traceback" not in message
 
 
 # ---------------------------------------------------------------------------
@@ -353,12 +452,30 @@ async def test_initial_context_line_is_none(mock_client, real_index):
 
 
 @pytest.mark.asyncio
+async def test_topbar_uses_standard_min_height(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index, theme="dracula")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        topbar = app.query_one("#topbar", object)
+        theme_current = app.query_one("#theme_select SelectCurrent", object)
+        view_current = app.query_one("#view_select SelectCurrent", object)
+        close_button = app.query_one("#close_tui_button", Button)
+
+        assert topbar.styles.min_height.value == 2
+        assert theme_current.styles.min_height.value == 2
+        assert view_current.styles.min_height.value == 2
+        assert close_button.styles.min_height.value == 2
+
+
+@pytest.mark.asyncio
 async def test_default_theme_name(mock_client, real_index):
     app = _make_app(mock_client, real_index)
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
         # app.theme_name is our attribute, not Textual's internal theme name
-        assert app.theme_name == "default"
+        assert app.theme_name == "netbox-dark"
 
 
 @pytest.mark.asyncio
@@ -372,30 +489,38 @@ async def test_dracula_theme_name(mock_client, real_index):
 
 @pytest.mark.asyncio
 async def test_demo_tui_title_has_themed_demo_suffix(mock_client, real_index):
-    app = NetBoxTuiApp(
-        client=mock_client, index=real_index, theme_name="dracula", demo_mode=True
-    )
-    expected_suffix = Color.parse(
-        app.theme_catalog.theme_for("dracula").colors["secondary"]
-    )
+    app = NetBoxTuiApp(client=mock_client, index=real_index, theme_name="dracula", demo_mode=True)
+    expected_suffix = Color.parse(app.theme_catalog.theme_for("dracula").colors["secondary"])
 
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
-        title = app.query_one("#app_title", Static)
         suffix = app.query_one("#app_title_demo", Static)
-        assert str(title.content) == "NetBox CLI"
         assert str(suffix.content) == "(Demo Version)"
         assert suffix.styles.color == expected_suffix
 
 
 @pytest.mark.asyncio
-async def test_theme_background_applies_to_query_bar_and_select(
-    mock_client, real_index
-):
+async def test_topbar_wordmark_renders_centered(mock_client, real_index):
     app = _make_app(mock_client, real_index, theme="dracula")
-    expected_background = Color.parse(
-        app.theme_catalog.theme_for("dracula").colors["background"]
-    )
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        topbar = app.query_one("#topbar", object)
+        logo = app.query_one("#topbar_logo", Static)
+        center_bar = app.query_one("#topbar_center", object)
+        center_mid = center_bar.region.x + center_bar.region.width / 2
+        topbar_center = topbar.region.x + (topbar.region.width / 2)
+
+        assert "netbox" in _static_text(logo)
+        assert str(app.query_one("#topbar_cli_suffix", Static).content) == TOPBAR_CLI_LABEL
+        assert abs(center_mid - topbar_center) <= 1.5
+
+
+@pytest.mark.asyncio
+async def test_theme_background_applies_to_query_bar_and_select(mock_client, real_index):
+    app = _make_app(mock_client, real_index, theme="dracula")
+    expected_background = Color.parse(app.theme_catalog.theme_for("dracula").colors["background"])
 
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
@@ -413,9 +538,7 @@ async def test_theme_background_applies_to_query_bar_and_select(
 async def test_tree_and_detail_cursor_styles_follow_theme(mock_client, real_index):
     app = _make_app(mock_client, real_index, theme="dracula")
     expected_panel = app.theme_catalog.theme_for("dracula").colors["panel"]
-    expected_subtle = (
-        app.theme_catalog.theme_for("dracula").variables["nb-border-subtle"].lower()
-    )
+    expected_subtle = app.theme_catalog.theme_for("dracula").variables["nb-border-subtle"].lower()
 
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
@@ -428,14 +551,10 @@ async def test_tree_and_detail_cursor_styles_follow_theme(mock_client, real_inde
         tree_hover = tree.get_component_rich_style("tree--highlight-line")
         tree_highlight = tree.get_component_rich_style("tree--highlight")
         tree_guides_hover = tree.get_component_rich_style("tree--guides-hover")
-        results_header_hover = results_table.get_component_rich_style(
-            "datatable--header-hover"
-        )
+        results_header_hover = results_table.get_component_rich_style("datatable--header-hover")
         detail_cursor = detail_table.get_component_rich_style("datatable--cursor")
         detail_hover = detail_table.get_component_rich_style("datatable--hover")
-        detail_header_hover = detail_table.get_component_rich_style(
-            "datatable--header-hover"
-        )
+        detail_header_hover = detail_table.get_component_rich_style("datatable--header-hover")
 
         assert _truecolor_hex(tree_cursor.bgcolor) == expected_panel
         assert _truecolor_hex(tree_hover.bgcolor) == expected_panel
@@ -448,9 +567,7 @@ async def test_tree_and_detail_cursor_styles_follow_theme(mock_client, real_inde
 
 
 @pytest.mark.asyncio
-async def test_connection_badge_is_single_dot_and_theme_colored(
-    mock_client, real_index
-):
+async def test_connection_badge_is_single_dot_and_theme_colored(mock_client, real_index):
     app = _make_app(mock_client, real_index, theme="dracula")
     expected_success = Color.parse(
         app.theme_catalog.theme_for("dracula").variables["nb-success-text"]
@@ -542,9 +659,7 @@ async def test_detail_link_click_redirects_to_linked_object(real_index):
         for _ in range(20):
             for row_index in range(detail_table.row_count):
                 field_value = (
-                    str(detail_table.get_cell_at(Coordinate(row_index, 0)))
-                    .strip()
-                    .lower()
+                    str(detail_table.get_cell_at(Coordinate(row_index, 0))).strip().lower()
                 )
                 if field_value == "device type":
                     device_type_row = row_index
@@ -674,9 +789,7 @@ async def test_circuit_termination_detail_shows_ascii_path_trace(real_index):
         if path == "/api/circuits/circuit-terminations/15/":
             return _detail_response(FAKE_CIRCUIT_TERMINATION_DETAIL)
         if path == "/api/circuits/circuit-terminations/15/paths/":
-            return ApiResponse(
-                status=200, text=json.dumps(FAKE_CIRCUIT_TERMINATION_PATHS)
-            )
+            return ApiResponse(status=200, text=json.dumps(FAKE_CIRCUIT_TERMINATION_PATHS))
         raise AssertionError(f"unexpected path: {path}")
 
     client.request = AsyncMock(side_effect=_request)
@@ -903,9 +1016,7 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
 
     mock_client.request = AsyncMock(side_effect=_slow_request)
     app = _make_app(mock_client, real_index, theme="dracula")
-    expected_primary = Color.parse(
-        app.theme_catalog.theme_for("dracula").colors["primary"]
-    )
+    expected_primary = Color.parse(app.theme_catalog.theme_for("dracula").colors["primary"])
 
     async with app.run_test(size=(160, 50)) as pilot:
         await pilot.pause()
@@ -1042,9 +1153,8 @@ async def test_f_key_opens_filter_overlay(mock_client, real_index):
 
         app.action_filter_modal()
         await pilot.pause()
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
-        label = str(app.query_one("#filter_field_label", Static).render())
-        assert label.startswith("Field: ") and len(label) > len("Field: ")
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
+        assert app.query_one("#filter_picker_search", Input).has_focus
 
 
 @pytest.mark.asyncio
@@ -1062,11 +1172,11 @@ async def test_filter_overlay_escape_dismisses(mock_client, real_index):
 
         app.action_filter_modal()
         await pilot.pause()
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
 
         await pilot.press("escape")
         await pilot.pause()
-        assert "hidden" in app.query_one("#filter_overlay", object).classes
+        assert "hidden" in app.query_one("#filter_picker_overlay", object).classes
 
 
 @pytest.mark.asyncio
@@ -1084,11 +1194,11 @@ async def test_filter_overlay_cancel_button_dismisses(mock_client, real_index):
 
         app.action_filter_modal()
         await pilot.pause()
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
 
-        await pilot.click("#filter_cancel")
+        app.query_one("#filter_picker_cancel", Button).press()
         await pilot.pause()
-        assert "hidden" in app.query_one("#filter_overlay", object).classes
+        assert "hidden" in app.query_one("#filter_picker_overlay", object).classes
 
 
 @pytest.mark.asyncio
@@ -1106,6 +1216,8 @@ async def test_filter_overlay_apply_updates_search_bar(mock_client, real_index):
         await pilot.pause()
 
         app.action_filter_modal()
+        await pilot.pause()
+        app._open_filter_overlay("id")
         await pilot.pause()
 
         app.query_one("#filter_value", Input).value = "switch01"
@@ -1132,16 +1244,68 @@ async def test_filter_select_opens_overlay_for_selected_field(mock_client, real_
         await pilot.pause()
         await pilot.pause()
 
-        filter_select = app.query_one("#filter_select", Select)
-        filter_select.value = "status"
-        app._open_filter_overlay("status")
+        app.query_one("#filter_select", Button).press()
         await pilot.pause()
 
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
-        assert (
-            str(app.query_one("#filter_field_label", Static).render())
-            == "Field: Status"
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
+        assert app.query_one("#filter_picker_search", Input).has_focus
+
+
+@pytest.mark.asyncio
+async def test_filter_picker_search_filters_available_fields(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _leaf_for_resource(tree, "dcim", "devices")
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+
+        search = app.query_one("#filter_picker_search", Input)
+        search.value = "stat"
+        app._refresh_filter_picker_list()
+        await pilot.pause()
+
+        assert app._visible_filter_fields
+        assert all("stat" in label.lower() for label, _ in app._visible_filter_fields)
+
+
+@pytest.mark.asyncio
+async def test_filter_picker_selection_opens_value_overlay(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _leaf_for_resource(tree, "dcim", "devices")
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+
+        picker = app.query_one("#filter_picker_list", OptionList)
+        index = next(
+            i for i, (_, value) in enumerate(app._visible_filter_fields) if value == "status"
         )
+        picker.focus()
+        picker.highlighted = index
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert "hidden" in app.query_one("#filter_picker_overlay", object).classes
+        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert str(app.query_one("#filter_field_label", Static).render()) == "Field: Status"
 
 
 @pytest.mark.asyncio
@@ -1215,13 +1379,23 @@ def test_query_from_search_plain_text():
 
 def test_query_from_search_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
-    assert app._query_from_search("name=switch01") == {"name": "switch01"}
+    app.current_group = "dcim"
+    app.current_resource = "devices"
+    app.index = build_schema_index(
+        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
+    )
+    assert app._query_from_search("name=switch01") == {"name__ic": "switch01"}
 
 
 def test_query_from_search_multi_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
+    app.current_group = "dcim"
+    app.current_resource = "devices"
+    app.index = build_schema_index(
+        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
+    )
     assert app._query_from_search("name=switch01,role=leaf") == {
-        "name": "switch01",
+        "name__ic": "switch01",
         "role": "leaf",
     }
 
@@ -1229,6 +1403,16 @@ def test_query_from_search_multi_key_value():
 def test_query_from_search_empty():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
     assert app._query_from_search("") == {}
+
+
+def test_query_from_search_status_stays_exact():
+    app = NetBoxTuiApp.__new__(NetBoxTuiApp)
+    app.current_group = "dcim"
+    app.current_resource = "devices"
+    app.index = build_schema_index(
+        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
+    )
+    assert app._query_from_search("status=active") == {"status": "active"}
 
 
 def test_row_identity_uses_id():

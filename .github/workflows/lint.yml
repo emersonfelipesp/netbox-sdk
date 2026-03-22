@@ -1,0 +1,30 @@
+name: Lint and Format
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  lint:
+    name: pre-commit / Python 3.13
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --locked
+
+      - name: Run pre-commit checks
+        run: uv run pre-commit run --all-files --show-diff-on-failure --color=always

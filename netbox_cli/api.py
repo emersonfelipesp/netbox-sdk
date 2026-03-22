@@ -1,19 +1,34 @@
+"""Data models and HTTP client logic for authenticated NetBox API requests."""
+
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
-from .config import Config, authorization_header_value, cache_dir
+from pydantic import BaseModel, ConfigDict, Field
+
+from .config import (
+    DEMO_BASE_URL,
+    DEMO_PROFILE,
+    Config,
+    authorization_header_value,
+    cache_dir,
+    load_profile_config,
+    save_profile_config,
+)
 from .http_cache import CachePolicy, HttpCacheStore, build_cache_key
+from .logging_runtime import get_logger
+
+logger = get_logger(__name__)
 
 
-@dataclass(slots=True)
-class ApiResponse:
+class ApiResponse(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     status: int
     text: str
-    headers: dict[str, str] = field(default_factory=dict)
+    headers: dict[str, str] = Field(default_factory=dict)
 
     def json(self) -> Any:
         return json.loads(self.text)
@@ -25,8 +40,7 @@ class RequestError(RuntimeError):
         super().__init__(f"Request failed with status {response.status}")
 
 
-@dataclass(slots=True)
-class ConnectionProbe:
+class ConnectionProbe(BaseModel):
     status: int
     version: str
     ok: bool
@@ -37,6 +51,7 @@ class NetBoxApiClient:
     def __init__(self, config: Config):
         self.config = config
         self._cache = HttpCacheStore(cache_dir())
+        logger.debug("initialized api client for %s", self.config.base_url or "<unset>")
 
     def build_url(self, path: str) -> str:
         if not self.config.base_url:
@@ -50,13 +65,9 @@ class NetBoxApiClient:
             raise ValueError("Request path cannot be empty")
         parsed = urlsplit(raw)
         if parsed.scheme or parsed.netloc:
-            raise ValueError(
-                "Request path must be relative to the configured NetBox base URL"
-            )
+            raise ValueError("Request path must be relative to the configured NetBox base URL")
         if parsed.query or parsed.fragment:
-            raise ValueError(
-                "Request path must not include query parameters or fragments"
-            )
+            raise ValueError("Request path must not include query parameters or fragments")
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
         return normalized
 
@@ -83,6 +94,15 @@ class NetBoxApiClient:
             query=query,
             payload=payload,
         )
+        logger.info(
+            "api request starting",
+            extra={
+                "http_method": method.upper(),
+                "request_path": path,
+                "query_keys": sorted((query or {}).keys()),
+                "has_payload": payload is not None,
+            },
+        )
         cache_key: str | None = None
         cache_entry = None
         req_headers = dict(headers or {})
@@ -101,9 +121,7 @@ class NetBoxApiClient:
                 if cache_entry.etag:
                     req_headers.setdefault("If-None-Match", cache_entry.etag)
                 if cache_entry.last_modified:
-                    req_headers.setdefault(
-                        "If-Modified-Since", cache_entry.last_modified
-                    )
+                    req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
 
         timeout = aiohttp.ClientTimeout(total=self.config.timeout)
         async with aiohttp.ClientSession(timeout=timeout) as session:
@@ -118,6 +136,10 @@ class NetBoxApiClient:
                     authorization=authorization,
                 )
             except Exception:
+                logger.exception(
+                    "api request failed",
+                    extra={"http_method": method.upper(), "request_path": path},
+                )
                 if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
                     return self._cached_response(cache_entry, cache_status="STALE")
                 raise
@@ -131,6 +153,26 @@ class NetBoxApiClient:
                     headers=req_headers,
                     authorization=self._v1_fallback_header(),
                 )
+            elif self._should_refresh_demo_v1_token(response):
+                authorization = self._refresh_demo_v1_authorization()
+                if authorization:
+                    response = await self._request_once(
+                        session,
+                        method=method,
+                        path=path,
+                        query=query,
+                        payload=payload,
+                        headers=req_headers,
+                        authorization=authorization,
+                    )
+            logger.info(
+                "api request completed",
+                extra={
+                    "http_method": method.upper(),
+                    "request_path": path,
+                    "status": response.status,
+                },
+            )
             return self._finalize_cached_response(
                 response=response,
                 cache_key=cache_key,
@@ -162,9 +204,15 @@ class NetBoxApiClient:
             headers=req_headers,
         ) as response:
             text = await response.text()
-            return ApiResponse(
-                status=response.status, text=text, headers=dict(response.headers)
+            logger.debug(
+                "received raw api response",
+                extra={
+                    "http_method": method.upper(),
+                    "request_path": path,
+                    "status": response.status,
+                },
             )
+            return ApiResponse(status=response.status, text=text, headers=dict(response.headers))
 
     def _v1_fallback_header(self) -> str | None:
         if not self.config.token_secret:
@@ -177,6 +225,44 @@ class NetBoxApiClient:
         if response.status not in {401, 403}:
             return False
         return "invalid v2 token" in response.text.lower()
+
+    def _should_refresh_demo_v1_token(self, response: ApiResponse) -> bool:
+        if self.config.base_url != DEMO_BASE_URL:
+            return False
+        if self.config.token_version != "v1":
+            return False
+        if response.status not in {401, 403}:
+            return False
+        if "invalid v1 token" not in response.text.lower():
+            return False
+        if self.config.demo_username and self.config.demo_password:
+            return True
+        refreshed_profile = load_profile_config(DEMO_PROFILE)
+        if refreshed_profile.demo_username and refreshed_profile.demo_password:
+            self.config.demo_username = refreshed_profile.demo_username
+            self.config.demo_password = refreshed_profile.demo_password
+            if refreshed_profile.timeout:
+                self.config.timeout = refreshed_profile.timeout
+            return True
+        return False
+
+    def _refresh_demo_v1_authorization(self) -> str | None:
+        try:
+            from .demo_auth import refresh_demo_profile  # noqa: PLC0415
+
+            refreshed = refresh_demo_profile(self.config, headless=True)
+        except Exception:  # noqa: BLE001
+            logger.exception("failed to refresh demo v1 token")
+            return None
+        save_profile_config(DEMO_PROFILE, refreshed)
+        try:
+            from .cli.runtime import _cache_profile  # noqa: PLC0415
+
+            _cache_profile(DEMO_PROFILE, refreshed)
+        except Exception:  # noqa: BLE001
+            pass
+        self.config = refreshed
+        return authorization_header_value(refreshed)
 
     def _cache_policy(
         self,
@@ -242,6 +328,7 @@ class NetBoxApiClient:
         try:
             response = await self.request("GET", "/", headers=headers)
         except Exception as exc:  # noqa: BLE001
+            logger.warning("connection probe failed: %s", exc)
             return ConnectionProbe(status=0, version="", ok=False, error=str(exc))
 
         version = response.headers.get("API-Version", "")
@@ -260,6 +347,4 @@ class NetBoxApiClient:
         probe = await self.probe_connection()
         if probe.ok:
             return probe.version
-        raise RequestError(
-            ApiResponse(status=probe.status, text=probe.error or "", headers={})
-        )
+        raise RequestError(ApiResponse(status=probe.status, text=probe.error or "", headers={}))

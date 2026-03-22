@@ -1,3 +1,5 @@
+"""Tests for terminal text sanitization and safe Rich formatting helpers."""
+
 from __future__ import annotations
 
 from netbox_cli.output_safety import sanitize_terminal_text

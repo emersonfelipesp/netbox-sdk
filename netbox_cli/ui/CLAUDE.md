@@ -1,17 +1,24 @@
 # netbox_cli/ui — Textual TUI Application
 
-This subpackage contains the full Textual TUI. Every module here is UI-layer only — no direct HTTP calls, no config I/O. All data comes through `NetBoxApiClient` and `SchemaIndex` from the parent package.
+This subpackage contains the full Textual TUI. Every module here is UI-layer oriented: no direct HTTP calls, and only lightweight local UI-state persistence. All runtime data comes through `NetBoxApiClient` and `SchemaIndex` from the parent package.
 
 ## Module Map
 
 | File | Purpose |
 |---|---|
-| `__init__.py` | Public re-exports: `NetBoxTuiApp`, `run_tui`, `available_theme_names`, `resolve_theme_name` |
-| `app.py` | `NetBoxTuiApp` — root Textual `App[None]` with all widgets and event handling |
+| `__init__.py` | Public re-exports: `NetBoxTuiApp`, `NetBoxDevTuiApp`, theme helpers, `run_tui`, `run_dev_tui` |
+| `app.py` | `NetBoxTuiApp` — root Textual `App[None]` with layout, data loading, and event handling |
+| `dev_app.py` | `NetBoxDevTuiApp` — request workbench / API dev shell |
+| `chrome.py` | Shared theme, logo, clock, and connection-badge behavior |
+| `filter_overlay.py` | `FilterOverlayMixin` — filter picker dialog, overlay, and active-filter display logic |
 | `formatting.py` | Field/value humanization and Rich `Text` semantic styling |
-| `navigation.py` | Static nav menu structure (mirrors NetBox UI sidebar) |
+| `nav_blueprint.py` | `NAV_BLUEPRINT` — static menu data mirroring NetBox sidebar ordering |
+| `navigation.py` | `NavMenu`/`NavGroup`/`NavItem` models and `build_navigation_menus()` |
+| `dev_rendering.py` | Stateless Rich `Text` rendering helpers for the dev TUI (method/status styles, request lines) |
 | `panels.py` | `ObjectAttributesPanel` — detail view with key/value table + cable trace |
+| `widgets.py` | Shared composition primitives like `NbxButton`, `NbxPanelHeader`, `NbxPanelBody` |
 | `state.py` | `TuiState` persistence to `~/.config/netbox-cli/tui_state.json` |
+| `dev_state.py` | `DevTuiState`, `DevViewState`, `RequestExecution` — dev TUI state and request data |
 
 ---
 
@@ -19,11 +26,26 @@ This subpackage contains the full Textual TUI. Every module here is UI-layer onl
 
 The main `App[None]` subclass. Manages layout, reactive bindings, and async workers.
 
+### Composition Rule
+
+Build UI the way React builds components:
+
+- small reusable widgets
+- explicit constructor props
+- nested `compose()` trees
+- composition preferred over inheritance for layout reuse
+
+Example:
+
+- `NbxButton("Send", tone="primary", size="medium")`
+- `ObjectAttributesPanel` composed from `NbxPanelHeader` + `NbxPanelBody`
+
 ### Layout Structure
 ```
-#topbar         ← search input | theme selector | app title
-#nav            ← navigation tree (groups → resources)
-#results        ← DataTable of list results
+#topbar         ← theme selector | app title | connection state | context
+#query_bar      ← search input | filter action
+#sidebar        ← navigation tree (groups → resources)
+#results_tab    ← DataTable of list results
 #detail_panel   ← ObjectAttributesPanel (attributes + cable trace)
 ```
 
@@ -53,7 +75,7 @@ On quit/navigation change: `save_tui_state()` persists current state.
 When launched with `--demo` flag (or via `nbx demo init`), the app operates in **read-only** mode: create/update/delete actions are disabled.
 
 ### Theme Switching
-Theme selector widget at `#topbar` calls `resolve_theme_name()` then `self.app.register_theme()` + `self.app.theme = name`. The new theme name is persisted via `save_tui_state()`.
+Theme switching goes through shared helpers in `chrome.py`: the selector resolves the name, `apply_theme()` updates the active theme and shared semantic styles, and the new theme name is persisted via `save_tui_state()`.
 
 ---
 
@@ -147,18 +169,18 @@ Lightweight JSON persistence for TUI session state.
 
 **File:** `~/.config/netbox-cli/tui_state.json`
 
-```python
-@dataclass
-class ViewState:
-    group: str
-    resource: str
-    query_text: str
-    details_expanded: bool
+`state.py` uses Pydantic models, not dataclasses:
 
-@dataclass
-class TuiState:
-    last_view: ViewState | None
-    theme_name: str
+```python
+class ViewState(BaseModel):
+    group: str | None = None
+    resource: str | None = None
+    query_text: str = ""
+    details_expanded: bool = False
+
+class TuiState(BaseModel):
+    last_view: ViewState = Field(default_factory=ViewState)
+    theme_name: str | None = None
 ```
 
 ```python
@@ -167,5 +189,5 @@ save_tui_state(state)      # atomic write
 ```
 
 **Defaults if file missing:**
-- `theme_name = "default"`
-- `last_view = None`
+- `theme_name = None` and the runtime theme catalog resolves to `netbox-dark` when available
+- `last_view = ViewState()` with empty group/resource/query values

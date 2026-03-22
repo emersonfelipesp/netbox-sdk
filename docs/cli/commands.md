@@ -112,6 +112,41 @@ See [TUI Guide](../tui/index.md) for full navigation documentation.
 
 ---
 
+## `nbx dev tui`
+
+Launch the developer request workbench TUI against your default profile.
+
+```bash
+nbx dev tui
+nbx dev tui --theme dracula
+nbx dev tui --theme          # list available themes
+```
+
+This view is designed for API exploration and request crafting rather than the standard browse/results workflow.
+When you launch the same view through `nbx demo dev tui`, the CLI automatically refreshes expired demo v1 tokens if demo credentials were saved during `nbx demo init`.
+
+**Options**
+
+| Flag | Description |
+|------|-------------|
+| `--theme` | List themes (no argument) or launch with a specific theme name |
+
+---
+
+## `nbx dev http`
+
+Developer-oriented HTTP helpers for exploring arbitrary API paths and operations.
+
+```bash
+nbx dev http paths
+nbx dev http ops --path /api/dcim/devices/
+nbx dev http get --path /api/status/
+```
+
+Use `nbx dev http --help` and the subcommand helps for the full option matrix.
+
+---
+
 ## `nbx docs generate-capture`
 
 Generate the command capture documentation — runs every `nbx` command, records output, and writes `docs/generated/nbx-command-capture.md` plus per-command JSON files.

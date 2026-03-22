@@ -1,10 +1,13 @@
+"""Service-layer helpers for resolving dynamic CLI requests from user input."""
+
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from typing import Any
 
-from .api import NetBoxApiClient, ApiResponse
+from pydantic import BaseModel
+
+from .api import ApiResponse, NetBoxApiClient
 from .schema import SchemaIndex
 
 ACTION_METHOD_MAP = {
@@ -17,13 +20,11 @@ ACTION_METHOD_MAP = {
 }
 
 
-@dataclass(slots=True)
-class ResolvedRequest:
+class ResolvedRequest(BaseModel):
     method: str
     path: str
     query: dict[str, str]
     payload: dict[str, Any] | list[Any] | None
-
 
 
 def parse_key_value_pairs(values: list[str]) -> dict[str, str]:
@@ -39,8 +40,9 @@ def parse_key_value_pairs(values: list[str]) -> dict[str, str]:
     return parsed
 
 
-
-def load_json_payload(body_json: str | None, body_file: str | None) -> dict[str, Any] | list[Any] | None:
+def load_json_payload(
+    body_json: str | None, body_file: str | None
+) -> dict[str, Any] | list[Any] | None:
     if body_json and body_file:
         raise ValueError("Use either --body-json or --body-file, not both")
     if body_json:
@@ -49,13 +51,12 @@ def load_json_payload(body_json: str | None, body_file: str | None) -> dict[str,
             raise ValueError("--body-json must decode to an object or array")
         return value
     if body_file:
-        with open(body_file, "r", encoding="utf-8") as handle:
+        with open(body_file, encoding="utf-8") as handle:
             value = json.load(handle)
         if not isinstance(value, (dict, list)):
             raise ValueError("--body-file content must be an object or array")
         return value
     return None
-
 
 
 def resolve_dynamic_request(

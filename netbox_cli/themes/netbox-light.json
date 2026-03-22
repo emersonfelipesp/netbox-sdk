@@ -31,6 +31,8 @@
         "nb-muted-text": "#6B7280",
         "nb-link-text": "#00857D",
         "nb-id-text": "#00857D",
-        "nb-key-text": "#4299E1"
+        "nb-key-text": "#4299E1",
+        "nb-logo-accent": "#00857D",
+        "nb-logo-wordmark": "#001423"
     }
 }

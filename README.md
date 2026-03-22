@@ -28,6 +28,7 @@ The project is bootstrapped from `CLAUDE.md` requirements:
 - async HTTP via `aiohttp`
 - shared backend logic for CLI and TUI
 - OpenAPI-driven command/resource discovery
+- automatic TUI discovery for plugin REST resources under `/api/plugins/`
 
 ## Quick Test with NetBox Demo Instance
 
@@ -87,21 +88,23 @@ nbx demo tui
 
 Use `/` to search, `g` to focus the nav tree, `q` to quit. All commands that work under `nbx demo …` are available inside the TUI with the same demo profile.
 
+If your NetBox instance has plugins with a full REST API implementation, the TUI can discover their `/api/plugins/...` resources automatically and render them in navigation without extra configuration.
+
 ---
 
 ## Install
 
 ```bash
 cd <path-to-netbox-cli>
-pip install -e .
+uv tool install --force .
 ```
 
 ## Install `nbx` Globally (bash + zsh)
 
-Preferred (`pipx`):
+Preferred (`uv tool`):
 
 ```bash
-pipx install -e <path-to-netbox-cli>
+uv tool install --force <path-to-netbox-cli>
 nbx --help
 ```
 
@@ -123,32 +126,26 @@ source ~/.zshrc
 nbx --help
 ```
 
-Alternative (project venv, no activation needed):
+Alternative (repo-local maintenance environment):
 
 ```bash
 cd <path-to-netbox-cli>
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -e .
+uv sync --dev
+uv run nbx --help
 ```
 
-Then add the venv `bin` to your shell PATH:
+This keeps a project-managed environment for development tasks. The main end-user install path remains `uv tool install`.
 
-For **bash**:
+Contributor standard:
 
 ```bash
-echo 'export PATH="<path-to-netbox-cli>/.venv/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-nbx --help
+cd <path-to-netbox-cli>
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
 ```
 
-For **zsh**:
-
-```bash
-echo 'export PATH="<path-to-netbox-cli>/.venv/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-nbx --help
-```
+Commits and pushes should go through `pre-commit`, which runs Ruff linting and formatting locally and in GitHub Actions.
 
 ## Configure
 
@@ -167,11 +164,10 @@ nbx demo init
 
 This always targets `https://demo.netbox.dev/`, opens the NetBox login flow in Playwright, prompts for demo username/password in the terminal, creates a fresh API token, and stores that token in the separate `demo` profile.
 
-Install Playwright first if you want browser-based demo bootstrap:
+Install the Playwright browser first if you want browser-based demo bootstrap:
 
 ```bash
-pip install playwright
-playwright install chromium
+uv tool run --from playwright playwright install chromium --with-deps
 ```
 
 If you already have a demo API token, you can skip Playwright entirely:
@@ -264,6 +260,21 @@ nbx tui --theme netbox-light
 
 You can also switch theme live from the top-left `Theme` dropdown in the TUI.
 
+Theme contract:
+
+- every Textual widget and subcomponent must inherit its visual styling from the active theme
+- never hardcode runtime colors in Python or TCSS outside `netbox_cli/themes/*.json`
+- do not opt into builtin Textual widget palettes when they override the repo theme tokens
+- if a widget needs a custom state, express it with semantic variables and theme-backed component classes
+
+Textual composition contract:
+
+- use React-style composition for Textual UI work: small reusable widgets, explicit constructor props, nested `compose()` trees
+- prefer composition over inheritance for layout reuse
+- extract shared primitives into `netbox_cli/ui/widgets.py`
+- standard reusable controls should expose semantic arguments instead of ad-hoc class combinations
+- pass theme-aware styling intent through semantic props such as `tone`, `surface`, and `size`
+
 ### Custom Themes (JSON)
 
 Themes are loaded dynamically from:
@@ -272,9 +283,8 @@ Themes are loaded dynamically from:
 
 Built-ins:
 
-- `netbox_cli/themes/default.json`
-- `netbox_cli/themes/dracula.json`
 - `netbox_cli/themes/netbox-dark.json`
+- `netbox_cli/themes/dracula.json`
 - `netbox_cli/themes/netbox-light.json`
 
 To add a custom theme, place `<theme>.json` in that folder. It will be auto-discovered.
@@ -292,7 +302,7 @@ TUI behavior (initial bootstrap):
 - shell layout inspired by NetBox web UI:
   - top quick-search bar
   - left navigation tree (group -> resource)
-  - main tabbed workspace (`Results`, `Details`, `Filters`)
+  - main tabbed workspace (`Results`, `Details`) plus filter dialogs
   - footer status/help
 - results view with incremental async refresh and row selection tracking
 - details view rendered as panelized object attributes
@@ -318,10 +328,14 @@ Useful TUI keys:
 - `netbox_cli/api.py`: async `aiohttp` client
 - `netbox_cli/services.py`: shared request resolution and action mapping
 - `netbox_cli/cli.py`: Typer entrypoint (CLI + dynamic parser)
+- `netbox_cli/ui_common.tcss`: shared visual design layer for both Textual apps
+- `netbox_cli/ui/dev_app.py`: request-workbench Textual app
 - `netbox_cli/ui/app.py`: shell-style Textual app
 - `netbox_cli/ui/panels.py`: panel widgets for detail rendering
+- `netbox_cli/ui/widgets.py`: shared composition primitives for Textual widgets
 - `netbox_cli/ui/state.py`: persisted TUI view state
 - `netbox_cli/tui.py`: compatibility wrapper
+- `netbox_cli/dev_tui.py`: compatibility wrapper for the dev TUI
 
 ## Notes
 

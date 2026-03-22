@@ -1,3 +1,5 @@
+"""Tests for trace-related CLI commands and their rendered terminal output."""
+
 from __future__ import annotations
 
 import json
@@ -332,9 +334,7 @@ def test_demo_circuit_termination_get_trace_renders_ascii(monkeypatch) -> None:
         "_get_index",
         lambda: SimpleNamespace(
             trace_path=lambda group, resource: None,
-            paths_path=lambda group, resource: (
-                "/api/circuits/circuit-terminations/{id}/paths/"
-            ),
+            paths_path=lambda group, resource: "/api/circuits/circuit-terminations/{id}/paths/",
         ),
     )
 
@@ -350,6 +350,4 @@ def test_demo_circuit_termination_get_trace_renders_ascii(monkeypatch) -> None:
     assert "Cable HQ1" in result.output
     assert "DEOW4921: Termination Z" in result.output
     assert "Level3 MPLS" in result.output
-    client.request.assert_awaited_once_with(
-        "GET", "/api/circuits/circuit-terminations/15/paths/"
-    )
+    client.request.assert_awaited_once_with("GET", "/api/circuits/circuit-terminations/15/paths/")

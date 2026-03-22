@@ -1,3 +1,5 @@
+"""Tests for demo CLI commands, bootstrap flows, and profile setup behavior."""
+
 from __future__ import annotations
 
 import sys
@@ -6,6 +8,7 @@ from types import SimpleNamespace
 from typer.testing import CliRunner
 
 from netbox_cli import cli
+from netbox_cli.api import ConnectionProbe
 from netbox_cli.config import DEMO_BASE_URL, Config
 
 runner = CliRunner()
@@ -22,13 +25,21 @@ def _demo_config() -> Config:
 
 
 def test_demo_config_command(monkeypatch) -> None:
-    monkeypatch.setattr(cli, "load_profile_config", lambda profile: _demo_config())
+    monkeypatch.setattr(
+        cli.demo,
+        "load_profile_config",
+        lambda profile: _demo_config().model_copy(
+            update={"demo_username": "demo-user", "demo_password": "demo-pass"}
+        ),
+    )
 
     result = runner.invoke(cli.app, ["demo", "config"])
 
     assert result.exit_code == 0
     assert DEMO_BASE_URL in result.stdout
     assert '"profile": "demo"' in result.stdout
+    assert '"demo_username": "demo-user"' in result.stdout
+    assert '"demo_password": "set"' in result.stdout
 
 
 def test_demo_config_allows_legacy_v2_profile(monkeypatch) -> None:
@@ -50,12 +61,45 @@ def test_demo_config_allows_legacy_v2_profile(monkeypatch) -> None:
     assert '"token_version": "v2"' in result.output
 
 
+def test_demo_test_command_success(monkeypatch) -> None:
+    class _FakeClient:
+        async def probe_connection(self) -> ConnectionProbe:
+            return ConnectionProbe(status=200, version="4.2", ok=True, error=None)
+
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr(cli, "_get_client_for_config", lambda cfg: _FakeClient())
+
+    result = runner.invoke(cli.app, ["demo", "test"])
+
+    assert result.exit_code == 0
+    assert "Demo connection OK" in result.output
+    assert "status=200" in result.output
+    assert "api_version=4.2" in result.output
+
+
+def test_demo_test_command_failure(monkeypatch) -> None:
+    class _FakeClient:
+        async def probe_connection(self) -> ConnectionProbe:
+            return ConnectionProbe(
+                status=401,
+                version="",
+                ok=False,
+                error="Invalid token",
+            )
+
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr(cli, "_get_client_for_config", lambda cfg: _FakeClient())
+
+    result = runner.invoke(cli.app, ["demo", "test"])
+
+    assert result.exit_code == 1
+    assert "Demo connection failed: Invalid token" in result.output
+
+
 def test_demo_callback_initializes_when_missing(monkeypatch) -> None:
     called: dict[str, bool] = {}
 
-    monkeypatch.setattr(
-        cli, "load_profile_config", lambda profile: Config(base_url=DEMO_BASE_URL)
-    )
+    monkeypatch.setattr(cli, "load_profile_config", lambda profile: Config(base_url=DEMO_BASE_URL))
 
     def _fake_init(
         *,
@@ -133,6 +177,8 @@ def test_demo_init_bootstraps_and_saves_profile(monkeypatch) -> None:
     assert saved["profile"] == "demo"
     assert saved["cfg"].token_key == "fresh-key"
     assert saved["cfg"].timeout == 42.0
+    assert saved["cfg"].demo_username == "demo-user"
+    assert saved["cfg"].demo_password == "demo-pass"
 
 
 def test_demo_init_defaults_to_headless(monkeypatch) -> None:
@@ -158,6 +204,7 @@ def test_demo_init_defaults_to_headless(monkeypatch) -> None:
             )
         ),
     )
+    monkeypatch.setattr(cli, "save_profile_config", lambda profile, cfg: None)
     monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
 
     result = runner.invoke(cli.app, ["demo", "init"])
@@ -396,4 +443,5 @@ def test_demo_missing_playwright_fails_before_prompt(monkeypatch) -> None:
 
     assert result.exit_code == 1
     assert prompted["called"] is False
-    assert "pip install playwright" in result.output
+    assert "uv sync --dev" in result.output
+    assert "uv tool run --from playwright playwright install chromium --with-deps" in result.output

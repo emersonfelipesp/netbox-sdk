@@ -1,3 +1,5 @@
+"""Tests for HTTP response caching, revalidation, and cache file permissions."""
+
 from __future__ import annotations
 
 import json
@@ -44,9 +46,7 @@ def _expire_entry(client: NetBoxApiClient, key: str) -> None:
 
 
 @pytest.mark.asyncio
-async def test_api_client_serves_fresh_list_response_from_cache(
-    monkeypatch, tmp_path
-) -> None:
+async def test_api_client_serves_fresh_list_response_from_cache(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     _install_fake_aiohttp(monkeypatch)
 
@@ -66,9 +66,7 @@ async def test_api_client_serves_fresh_list_response_from_cache(
             headers={"ETag": '"abc"'},
         )
 
-    monkeypatch.setattr(
-        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
-    )
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
 
     response1 = await client.request("GET", "/api/dcim/devices/")
     response2 = await client.request("GET", "/api/dcim/devices/")
@@ -81,9 +79,7 @@ async def test_api_client_serves_fresh_list_response_from_cache(
 
 
 @pytest.mark.asyncio
-async def test_api_client_revalidates_stale_cache_with_etag(
-    monkeypatch, tmp_path
-) -> None:
+async def test_api_client_revalidates_stale_cache_with_etag(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     _install_fake_aiohttp(monkeypatch)
 
@@ -105,9 +101,7 @@ async def test_api_client_revalidates_stale_cache_with_etag(
         calls.append(kwargs)
         return responses.popleft()
 
-    monkeypatch.setattr(
-        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
-    )
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
 
     await client.request("GET", "/api/dcim/devices/")
     key = build_cache_key(
@@ -128,9 +122,7 @@ async def test_api_client_revalidates_stale_cache_with_etag(
 
 
 @pytest.mark.asyncio
-async def test_api_client_serves_stale_cache_on_network_error(
-    monkeypatch, tmp_path
-) -> None:
+async def test_api_client_serves_stale_cache_on_network_error(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     _install_fake_aiohttp(monkeypatch)
 
@@ -148,9 +140,7 @@ async def test_api_client_serves_stale_cache_on_network_error(
             return ApiResponse(status=200, text='{"results": [1]}', headers={})
         raise RuntimeError("network down")
 
-    monkeypatch.setattr(
-        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
-    )
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
 
     await client.request("GET", "/api/dcim/devices/")
     key = build_cache_key(
@@ -164,9 +154,7 @@ async def test_api_client_serves_stale_cache_on_network_error(
     monkeypatch.setattr(
         NetBoxApiClient,
         "_cache_policy",
-        lambda self, **kwargs: CachePolicy(
-            fresh_ttl_seconds=0.0, stale_if_error_seconds=300.0
-        ),
+        lambda self, **kwargs: CachePolicy(fresh_ttl_seconds=0.0, stale_if_error_seconds=300.0),
         raising=True,
     )
 
@@ -192,9 +180,7 @@ async def test_api_client_cache_uses_private_permissions(monkeypatch, tmp_path) 
     async def _fake_request_once(self, session, **kwargs):
         return ApiResponse(status=200, text='{"results": [1]}', headers={})
 
-    monkeypatch.setattr(
-        NetBoxApiClient, "_request_once", _fake_request_once, raising=True
-    )
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
 
     await client.request("GET", "/api/dcim/devices/")
 

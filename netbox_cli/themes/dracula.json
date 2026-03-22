@@ -16,10 +16,10 @@
         "boost": "#44475A"
     },
     "variables": {
-        "nb-success-text": "#8DF5A4",
+        "nb-success-text": "#50FA7B",
         "nb-info-text": "#8BE9FD",
-        "nb-warning-text": "#F5FCB0",
-        "nb-danger-text": "#FF8080",
+        "nb-warning-text": "#F1FA8C",
+        "nb-danger-text": "#FF5555",
         "nb-secondary-text": "#A0AAB4",
         "nb-success-bg": "#1A3A22",
         "nb-info-bg": "#1A3040",
@@ -31,6 +31,8 @@
         "nb-muted-text": "#A0AAB4",
         "nb-link-text": "#8BE9FD",
         "nb-id-text": "#BD93F9",
-        "nb-key-text": "#FF79C6"
+        "nb-key-text": "#FF79C6",
+        "nb-logo-accent": "#BD93F9",
+        "nb-logo-wordmark": "#F8F8F2"
     }
 }

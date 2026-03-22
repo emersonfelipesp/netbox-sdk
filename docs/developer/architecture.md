@@ -2,6 +2,10 @@
 
 `netbox-cli` is organized around a shared API client and OpenAPI schema index that power both the CLI (Typer) and the TUI (Textual) from the same data layer.
 
+In addition to the bundled OpenAPI schema, the TUI runtime can augment the schema index by discovering live plugin REST resources exposed under `/api/plugins/`. This lets plugin-backed resources appear in the TUI automatically when a plugin implements a full REST API.
+
+The TUI theme system is part of the architecture, not decoration: every Textual widget and subcomponent must derive its runtime styling from the active theme catalog, with no hardcoded colors or stray Textual defaults outside `netbox_cli/themes/*.json`.
+
 ---
 
 ## Module map
@@ -16,14 +20,21 @@ netbox_cli/
 ├── demo_auth.py        Playwright automation for demo.netbox.dev token retrieval
 ├── docgen_capture.py   CLI output capture and Markdown generation
 ├── theme_registry.py   Theme discovery, validation, and catalog management
+├── ui_common.tcss      Shared visual design layer for both Textual apps
 ├── trace_ascii.py      ASCII cable trace renderer
 ├── tui.py              Thin wrapper — re-exports run_tui from ui.app
+├── dev_tui.py          Thin wrapper — re-exports run_dev_tui from ui.dev_app
 └── ui/
     ├── app.py          NetBoxTuiApp — main Textual application
+    ├── dev_app.py      NetBoxDevTuiApp — request workbench application
+    ├── chrome.py       Shared theme / clock / logo / connection chrome helpers
     ├── formatting.py   Response parsing, humanization, semantic cell rendering
     ├── navigation.py   Navigation tree building from SchemaIndex
+    ├── plugin_discovery.py Runtime /api/plugins/ discovery for plugin REST resources
     ├── panels.py       ObjectAttributesPanel — detail view with cable trace
-    └── state.py        TUI state persistence (last resource, filters, theme)
+    ├── widgets.py      Shared composition primitives (buttons, panel header/body)
+    ├── state.py        Main TUI state persistence
+    └── dev_state.py    Dev TUI state persistence
 ```
 
 ---
@@ -104,6 +115,25 @@ _load_object_details()    @work(thread=False)
 
 ---
 
+## UI Composition Pattern
+
+The TUI follows a React-style composition model for Textual widgets:
+
+- small reusable widgets act like component primitives
+- constructor arguments act like props
+- larger views assemble those primitives in `compose()`
+- composition is preferred over inheritance for layout reuse
+
+Examples in the current codebase:
+
+- `NbxButton` standardizes size and theme props such as `tone`
+- `NbxPanelHeader` and `NbxPanelBody` define reusable panel structure with prop-like theme inputs
+- `ObjectAttributesPanel` composes those primitives instead of inheriting layout from a base panel class
+
+Contributor guideline: when adding new UI, first ask "can this be expressed as nested reusable widgets?" before introducing a new base class.
+
+---
+
 ## Profile system
 
 Profiles are named configs stored in a single JSON file. Two profiles are currently defined: `default` and `demo`.
@@ -148,6 +178,8 @@ class SchemaIndex:
 `Operation` holds: `group`, `resource`, `method`, `path`, `operation_id`, `summary`.
 
 `ResourcePaths` holds: `list_path` (`/api/group/resources/`) and `detail_path` (`/api/group/resources/{id}/`).
+
+For plugin resources, `SchemaIndex` also supports runtime augmentation. The TUI can discover plugin list/detail endpoints from the live `/api/plugins/` tree and add them into the shared index so they behave like normal resources in navigation, request resolution, and rendering.
 
 ---
 

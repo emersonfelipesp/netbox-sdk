@@ -1,3 +1,5 @@
+"""Tests that runtime UI files avoid hardcoded color values."""
+
 from __future__ import annotations
 
 import re
@@ -42,20 +44,14 @@ def test_no_hardcoded_runtime_colors() -> None:
         if path.suffix == ".py":
             for idx, line in enumerate(content.splitlines(), start=1):
                 if _PY_HEX_LITERAL.search(line):
-                    violations.append(
-                        f"{path.relative_to(PROJECT_ROOT)}:{idx}: hex literal"
-                    )
+                    violations.append(f"{path.relative_to(PROJECT_ROOT)}:{idx}: hex literal")
                 if _PY_NAMED_STYLE.search(line):
-                    violations.append(
-                        f"{path.relative_to(PROJECT_ROOT)}:{idx}: named style color"
-                    )
+                    violations.append(f"{path.relative_to(PROJECT_ROOT)}:{idx}: named style color")
             continue
 
         tcss_without_comments = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
         for idx, line in enumerate(tcss_without_comments.splitlines(), start=1):
             if _TCSS_HEX.search(line):
-                violations.append(
-                    f"{path.relative_to(PROJECT_ROOT)}:{idx}: hex literal in tcss"
-                )
+                violations.append(f"{path.relative_to(PROJECT_ROOT)}:{idx}: hex literal in tcss")
 
     assert not violations, "Hardcoded runtime colors found:\n" + "\n".join(violations)

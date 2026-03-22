@@ -2,6 +2,8 @@
 
 The `nbx tui` command launches a full-screen interactive terminal application built with [Textual](https://textual.textualize.io/). It mirrors the NetBox web UI layout — navigation tree on the left, tabbed workspace in the center — and uses the same API client and schema index as the CLI.
 
+The TUI also discovers plugin resources dynamically. If a NetBox plugin exposes a full REST API under `/api/plugins/`, `nbx tui` and `nbx dev tui` can add those resources to the sidebar automatically and load their data like any built-in NetBox resource.
+
 ---
 
 ## Launching the TUI
@@ -13,6 +15,9 @@ nbx tui --theme            # list available themes
 
 nbx demo tui               # demo profile (demo.netbox.dev)
 nbx demo tui --theme dracula
+
+nbx dev tui                # developer request workbench
+nbx demo dev tui           # developer request workbench on demo.netbox.dev
 ```
 
 ---
@@ -69,6 +74,14 @@ The left panel shows all NetBox app groups as expandable sections. Click a resou
 - `G` — focus the navigation tree
 - Arrow keys — move through nodes
 - `Enter` — select / expand a node
+
+### Plugin resources
+
+Plugin REST resources are appended under a `Plugins` menu automatically when the connected NetBox instance exposes them under `/api/plugins/`.
+
+- no hardcoded plugin list is required
+- plugin resources appear in both `nbx tui` and `nbx dev tui`
+- if the plugin exposes list/detail REST endpoints, the TUI can browse and render the returned data just like built-in resources
 
 ---
 

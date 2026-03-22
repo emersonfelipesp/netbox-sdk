@@ -160,3 +160,5 @@ See [Demo Profile](demo-profile.md) for setup.
 ## How it works
 
 At startup, `_register_openapi_subcommands()` in `cli.py` reads `reference/openapi/netbox-openapi.json`, builds a `SchemaIndex`, then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root `app` and once for `demo_app` with `_get_demo_client` as the client factory.
+
+For plugin resources, the bundled schema gives `nbx` the static command tree it knows about, and the TUI layer can additionally augment that view at runtime by discovering live `/api/plugins/` REST endpoints from the connected NetBox instance.

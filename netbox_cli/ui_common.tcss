@@ -1,0 +1,610 @@
+Screen {
+    layout: vertical;
+    background: $background;
+}
+
+.hidden {
+    display: none;
+}
+
+* {
+    scrollbar-size: 1 1;
+    scrollbar-background: transparent;
+    scrollbar-background-hover: $foreground 4%;
+    scrollbar-background-active: $foreground 8%;
+    scrollbar-color: $foreground 30%;
+    scrollbar-color-hover: $primary 65%;
+    scrollbar-color-active: $primary;
+    scrollbar-corner-color: transparent;
+}
+
+.nbx-button {
+    height: 3;
+    min-height: 3;
+    min-width: 9;
+    width: auto;
+    padding: 0 2;
+    content-align: center middle;
+    background: transparent;
+}
+
+.nbx-panel-body {
+    background: transparent;
+    height: 1fr;
+}
+
+.nbx-panel-header {
+    height: auto;
+}
+
+.nbx-panel-body.nbx-surface--background {
+    background: $background;
+}
+
+.nbx-panel-body.nbx-surface--surface {
+    background: $surface;
+}
+
+.nbx-panel-body.nbx-surface--panel {
+    background: $panel;
+}
+
+.nbx-button--small {
+    min-width: 8;
+    padding: 0 1;
+}
+
+.nbx-button--medium {
+    min-width: 10;
+    padding: 0 2;
+}
+
+.nbx-button--large {
+    min-width: 14;
+    padding: 0 3;
+}
+
+.nbx-panel-header.nbx-tone--default .panel-title {
+    color: $foreground;
+}
+
+.nbx-panel-header.nbx-tone--primary .panel-title {
+    color: $primary;
+}
+
+.nbx-panel-header.nbx-tone--secondary .panel-title {
+    color: $secondary;
+}
+
+.nbx-panel-header.nbx-tone--success .panel-title {
+    color: $success;
+}
+
+.nbx-panel-header.nbx-tone--warning .panel-title {
+    color: $warning;
+}
+
+.nbx-panel-header.nbx-tone--error .panel-title {
+    color: $error;
+}
+
+.nbx-panel-header.nbx-tone--muted .panel-title {
+    color: $text-muted;
+}
+
+.nbx-button.nbx-tone--default {
+    color: $foreground;
+    border: round $nb-border-subtle;
+}
+
+.nbx-button.nbx-tone--secondary {
+    color: $secondary;
+    border: round $secondary;
+}
+
+.nbx-button.nbx-tone--primary {
+    color: $primary;
+    border: round $primary;
+}
+
+.nbx-button.nbx-tone--success {
+    color: $success;
+    border: round $success;
+}
+
+.nbx-button.nbx-tone--warning {
+    color: $warning;
+    border: round $warning;
+}
+
+.nbx-button.nbx-tone--error {
+    color: $error;
+    border: round $error;
+}
+
+.nbx-button.nbx-tone--muted {
+    color: $text-muted;
+    border: round $nb-border-subtle;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--default,
+.nbx-button.nbx-button--soft.nbx-tone--muted {
+    background: $panel;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--secondary {
+    background: $secondary 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--primary {
+    background: $primary 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--success {
+    background: $success 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--warning {
+    background: $warning 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--error {
+    background: $error 12%;
+}
+
+.nbx-button.nbx-tone--default:hover,
+.nbx-button.nbx-tone--muted:hover {
+    tint: $foreground 12%;
+}
+
+.nbx-button.nbx-tone--secondary:hover {
+    tint: $secondary 12%;
+}
+
+.nbx-button.nbx-tone--primary:hover {
+    tint: $primary 12%;
+}
+
+.nbx-button.nbx-tone--success:hover {
+    tint: $success 12%;
+}
+
+.nbx-button.nbx-tone--warning:hover {
+    tint: $warning 12%;
+}
+
+.nbx-button.nbx-tone--error:hover {
+    tint: $error 12%;
+}
+
+.nbx-button:focus {
+    border: round $secondary;
+}
+
+.nbx-button.nbx-tone--default:focus,
+.nbx-button.nbx-tone--muted:focus {
+    tint: $foreground 18%;
+}
+
+.nbx-button.nbx-tone--secondary:focus {
+    tint: $secondary 18%;
+}
+
+.nbx-button.nbx-tone--primary:focus {
+    tint: $primary 18%;
+}
+
+.nbx-button.nbx-tone--success:focus {
+    tint: $success 18%;
+}
+
+.nbx-button.nbx-tone--warning:focus {
+    tint: $warning 18%;
+}
+
+.nbx-button.nbx-tone--error:focus {
+    tint: $error 18%;
+}
+
+/* Top navigation sizing standard:
+   - nav bar minimum height: 2 rows
+   - nav controls minimum height: 2 rows
+   - all children remain vertically centered within the bar */
+
+#topbar,
+#dev_topbar {
+    width: 1fr;
+    height: auto;
+    min-height: 2;
+    background: $background;
+    border: tall transparent;
+    border-bottom: solid $nb-border-subtle;
+    padding: 0 1;
+    margin: 0 0 1 0;
+    align: left middle;
+}
+
+#topbar:focus-within,
+#dev_topbar:focus-within {
+    border: tall $secondary;
+}
+
+#topbar_left,
+#topbar_right,
+#dev_topbar_left,
+#dev_topbar_right {
+    width: 1fr;
+    height: auto;
+}
+
+#topbar_left,
+#dev_topbar_left {
+    align: left middle;
+}
+
+#topbar_center,
+#dev_topbar_center {
+    width: auto;
+    min-width: 19;
+    height: auto;
+    align: center middle;
+}
+
+#topbar_right,
+#dev_topbar_right {
+    align: right middle;
+}
+
+#nav_dot,
+#dev_nav_dot {
+    width: 1;
+    height: 3;
+    margin-right: 1;
+    color: $primary;
+    content-align: center middle;
+    text-style: bold;
+}
+
+#topbar_logo,
+#dev_logo {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    margin: 0 0 0 1;
+    color: $primary;
+    text-style: bold;
+    text-align: center;
+    content-align: center middle;
+    text-wrap: nowrap;
+}
+
+#topbar_cli_suffix,
+#dev_topbar_cli_suffix {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    margin: 0 1 0 1;
+    color: $foreground;
+    content-align: center middle;
+    text-style: bold;
+    text-wrap: nowrap;
+}
+
+#clock,
+#dev_clock {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    min-width: 8;
+    color: $text-muted;
+    content-align: right middle;
+}
+
+#clock {
+    margin-left: 1;
+    content-align: right middle;
+}
+
+#dev_clock {
+    margin-right: 1;
+}
+
+#connection_badge,
+#dev_connection_badge {
+    width: 1;
+    height: 3;
+    min-height: 2;
+    color: $nb-secondary-text;
+    content-align: center middle;
+    text-style: bold;
+}
+
+#connection_badge {
+    margin-left: 1;
+    margin-right: 1;
+    padding: 0;
+    border: none;
+    content-align: center middle;
+}
+
+#dev_connection_badge {
+    margin-right: 1;
+}
+
+#connection_badge.-checking,
+#dev_connection_badge.-checking {
+    color: $nb-warning-text;
+}
+
+#connection_badge.-ok,
+#dev_connection_badge.-ok {
+    color: $nb-success-text;
+}
+
+#connection_badge.-warning,
+#dev_connection_badge.-warning {
+    color: $nb-warning-text;
+}
+
+#connection_badge.-error,
+#dev_connection_badge.-error {
+    color: $nb-danger-text;
+}
+
+#theme_select,
+#dev_theme_select,
+#view_select,
+#dev_view_select {
+    width: 20;
+    min-width: 20;
+    margin-right: 1;
+    border: none;
+    background: transparent;
+}
+
+#theme_select SelectCurrent,
+#dev_theme_select SelectCurrent,
+#view_select SelectCurrent,
+#dev_view_select SelectCurrent {
+    height: 3;
+    min-height: 2;
+    border: tall $nb-border-subtle;
+    color: $foreground;
+    background: transparent;
+    padding: 0 1;
+    margin: 0;
+    content-align: left middle;
+}
+
+#context_line,
+#dev_context_line {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    max-width: 42;
+    margin-left: 1;
+    color: $text-muted;
+    content-align: right middle;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+#close_tui_button,
+#dev_close_button {
+    height: 3;
+    min-height: 2;
+}
+
+#theme_select SelectCurrent:focus,
+#dev_theme_select SelectCurrent:focus,
+#view_select SelectCurrent:focus,
+#dev_view_select SelectCurrent:focus {
+    border: tall $primary;
+    background: $panel;
+}
+
+#theme_select SelectCurrent Static#label,
+#dev_theme_select SelectCurrent Static#label,
+#view_select SelectCurrent Static#label,
+#dev_view_select SelectCurrent Static#label {
+    color: $foreground 70%;
+}
+
+#theme_select SelectCurrent.-has-value Static#label,
+#dev_theme_select SelectCurrent.-has-value Static#label,
+#view_select SelectCurrent.-has-value Static#label,
+#dev_view_select SelectCurrent.-has-value Static#label {
+    color: $foreground;
+}
+
+#theme_select SelectCurrent .arrow,
+#dev_theme_select SelectCurrent .arrow,
+#view_select SelectCurrent .arrow,
+#dev_view_select SelectCurrent .arrow {
+    color: $foreground 55%;
+}
+
+#theme_select SelectOverlay,
+#dev_theme_select SelectOverlay,
+#view_select SelectOverlay,
+#dev_view_select SelectOverlay,
+OptionList {
+    background: $background;
+    color: $foreground;
+    border: tall $nb-border-subtle;
+}
+
+#theme_select SelectOverlay,
+#dev_theme_select SelectOverlay,
+#view_select SelectOverlay,
+#dev_view_select SelectOverlay {
+    min-width: 20;
+    width: 20;
+}
+
+#theme_select SelectOverlay:focus,
+#dev_theme_select SelectOverlay:focus,
+#view_select SelectOverlay:focus,
+#dev_view_select SelectOverlay:focus,
+OptionList:focus {
+    border: tall $primary;
+    background-tint: $foreground 5%;
+}
+
+#theme_select SelectOverlay > .option-list--option-highlighted,
+#dev_theme_select SelectOverlay > .option-list--option-highlighted,
+#view_select SelectOverlay > .option-list--option-highlighted,
+#dev_view_select SelectOverlay > .option-list--option-highlighted,
+OptionList > .option-list--option-highlighted {
+    color: $foreground;
+    background: $panel;
+    text-style: bold;
+}
+
+#theme_select SelectOverlay > .option-list--option-hover,
+#dev_theme_select SelectOverlay > .option-list--option-hover,
+#view_select SelectOverlay > .option-list--option-hover,
+#dev_view_select SelectOverlay > .option-list--option-hover,
+OptionList > .option-list--option-hover {
+    background: $panel;
+}
+
+#theme_select SelectOverlay > .option-list--option-disabled,
+#dev_theme_select SelectOverlay > .option-list--option-disabled,
+#view_select SelectOverlay > .option-list--option-disabled,
+#dev_view_select SelectOverlay > .option-list--option-disabled,
+OptionList > .option-list--option-disabled {
+    color: $text-muted;
+}
+
+#query_bar,
+#dev_request_bar {
+    width: 1fr;
+    height: auto;
+    padding: 0 1 1 1;
+    background: $background;
+    border-bottom: solid $nb-border-subtle;
+}
+
+#query_bar {
+    align: left middle;
+}
+
+#shell,
+#dev_shell {
+    height: 1fr;
+    background: $background;
+}
+
+#sidebar,
+#dev_sidebar {
+    background: $background;
+    border-right: tall $nb-border-subtle;
+    overflow: hidden scroll;
+    scrollbar-size: 0 0;
+}
+
+#nav_title,
+#dev_sidebar_title,
+.panel-title {
+    color: $primary;
+    text-style: bold;
+}
+
+.panel-subtitle {
+    color: $text-muted;
+    text-style: italic;
+}
+
+#nav_help,
+#dev_help {
+    color: $text-muted;
+}
+
+#nav_tree,
+#dev_nav_tree {
+    height: 1fr;
+    background: transparent;
+    color: $foreground;
+}
+
+#nav_tree > .tree--label,
+#dev_nav_tree > .tree--label {
+    color: $foreground;
+}
+
+#nav_tree > .tree--guides,
+#nav_tree > .tree--guides-hover,
+#dev_nav_tree > .tree--guides,
+#dev_nav_tree > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#nav_tree > .tree--guides-selected,
+#dev_nav_tree > .tree--guides-selected {
+    color: $primary;
+}
+
+#nav_tree > .tree--cursor,
+#nav_tree > .tree--highlight-line,
+#nav_tree > .tree--highlight,
+#dev_nav_tree > .tree--cursor,
+#dev_nav_tree > .tree--highlight-line,
+#dev_nav_tree > .tree--highlight {
+    background: $panel;
+    color: $foreground;
+}
+
+#nav_tree > .tree--cursor,
+#dev_nav_tree > .tree--cursor {
+    text-style: bold;
+}
+
+TabbedContent {
+    background: $surface;
+}
+
+ContentSwitcher {
+    background: $surface;
+}
+
+TabPane {
+    background: $surface;
+    padding: 0;
+}
+
+Toast {
+    background: $panel;
+    color: $foreground;
+    border-left: outer $primary;
+}
+
+Toast.-information {
+    border-left: outer $success;
+}
+
+Toast.-warning {
+    border-left: outer $warning;
+}
+
+Toast.-error {
+    border-left: outer $error;
+}
+
+Footer {
+    background: $background;
+}
+
+FooterKey {
+    background: transparent;
+}
+
+FooterKey .footer-key--key {
+    background: $panel;
+    color: $primary;
+}
+
+FooterKey .footer-key--description {
+    background: transparent;
+    color: $foreground;
+}

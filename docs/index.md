@@ -10,6 +10,8 @@ hide:
 
 `netbox-cli` connects to any NetBox instance through its REST API and lets you list, inspect, create, update, and delete objects without ever opening a browser. Every resource available in the NetBox API is reachable from the command line, and the same backend powers a full interactive TUI.
 
+If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a full REST implementation, `netbox-cli` can discover those plugin resources automatically and surface them in both the CLI/TUI navigation and data views.
+
 ---
 
 <div class="grid cards" markdown>
@@ -61,7 +63,7 @@ hide:
     Install, configure, and run your first command in under a minute.
 
     ```bash
-    pip install -e .
+    uv tool install --force .
     nbx init
     nbx dcim devices list
     ```
@@ -84,6 +86,21 @@ hide:
 | **Cable trace** | ASCII cable trace diagram for interfaces with `--trace` |
 | **Pure async** | `aiohttp` with `asyncio` throughout — no blocking I/O in TUI workers |
 | **Output formats** | Rich tables (default), `--json`, `--yaml` |
+
+---
+
+## Contributor standard
+
+Development uses `uv`, `ruff`, and `pre-commit` as the default workflow:
+
+```bash
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+The same pre-commit hooks are enforced in GitHub Actions, so local checks and CI stay aligned.
 
 ---
 
