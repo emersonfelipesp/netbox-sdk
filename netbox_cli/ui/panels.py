@@ -9,42 +9,34 @@ from textual.widgets import DataTable, Static
 from netbox_cli.trace_ascii import render_any_trace_ascii
 
 from .formatting import humanize_field, order_field_names, semantic_cell
+from .widgets import NbxPanelBody, NbxPanelHeader
 
 
-class PanelCard(Vertical):
-    """Simple card-like container with title and optional subtitle."""
-
-    def __init__(self, title: str, subtitle: str = "", *, panel_id: str | None = None):
-        super().__init__(id=panel_id)
-        self._title_text = title
-        self._subtitle_text = subtitle
-
-    def compose(self):
-        yield Static(self._title_text, classes="panel-title")
-        if self._subtitle_text:
-            yield Static(self._subtitle_text, classes="panel-subtitle")
-
-
-class ObjectAttributesPanel(PanelCard):
+class ObjectAttributesPanel(Vertical):
     """Render selected row data as key/value attributes."""
 
     def __init__(self, *, panel_id: str = "detail_panel"):
-        super().__init__("Object Attributes", "NetBox detail-style panel", panel_id=panel_id)
+        super().__init__(id=panel_id)
         self._spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
         self._spinner_index = 0
         self._spinner_timer: Timer | None = None
         self._row_values: list[tuple[str, Any]] = []
 
     def compose(self):
-        yield from super().compose()
-        yield Static("Ready", id="detail_status")
-        table = DataTable(id="detail_table")
-        table.cursor_type = "cell"
-        table.add_columns("Field", "Value")
-        table.add_row("status", "Select a row in Results tab")
-        yield table
-        yield Static("Cable Trace", id="detail_trace_title", classes="hidden")
-        yield Static("", id="detail_trace", classes="hidden")
+        yield NbxPanelHeader(
+            "Object Attributes",
+            "NetBox detail-style panel",
+            tone="primary",
+        )
+        with NbxPanelBody(id="detail_panel_body", surface="background"):
+            yield Static("Ready", id="detail_status")
+            table = DataTable(id="detail_table")
+            table.cursor_type = "cell"
+            table.add_columns("Field", "Value")
+            table.add_row("status", "Select a row in Results tab")
+            yield table
+            yield Static("Cable Trace", id="detail_trace_title", classes="hidden")
+            yield Static("", id="detail_trace", classes="hidden")
 
     def _set_status(self, text: str) -> None:
         self.query_one("#detail_status", Static).update(text)

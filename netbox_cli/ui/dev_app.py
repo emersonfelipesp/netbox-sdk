@@ -49,6 +49,7 @@ from .chrome import (
 from .dev_state import DevTuiState, DevViewState, load_dev_tui_state, save_dev_tui_state
 from .formatting import humanize_group, humanize_resource
 from .navigation import build_navigation_menus
+from .widgets import NbxButton
 
 _HTTP_METHOD_OPTIONS = tuple(
     (method, method) for method in ("GET", "POST", "PUT", "PATCH", "DELETE")
@@ -138,7 +139,7 @@ class NetBoxDevTuiApp(App[None]):
             with Horizontal(id="dev_topbar_right"):
                 yield Static("", id="dev_clock")
                 yield Static("●", id="dev_connection_badge", classes="-checking")
-                yield Button("Close", id="dev_close_button")
+                yield NbxButton("Close", id="dev_close_button", size="small", tone="error")
 
         with Horizontal(id="dev_request_bar"):
             yield Select(
@@ -152,7 +153,13 @@ class NetBoxDevTuiApp(App[None]):
                 placeholder="/api/dcim/devices/",
                 id="dev_path_input",
             )
-            yield Button("Send", id="dev_send_button", variant="primary")
+            yield NbxButton(
+                "Send",
+                id="dev_send_button",
+                variant="primary",
+                size="medium",
+                tone="primary",
+            )
 
         with Horizontal(id="dev_shell"):
             with Vertical(id="dev_sidebar"):

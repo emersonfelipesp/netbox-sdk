@@ -264,6 +264,14 @@ Theme contract:
 - do not opt into builtin Textual widget palettes when they override the repo theme tokens
 - if a widget needs a custom state, express it with semantic variables and theme-backed component classes
 
+Textual composition contract:
+
+- use React-style composition for Textual UI work: small reusable widgets, explicit constructor props, nested `compose()` trees
+- prefer composition over inheritance for layout reuse
+- extract shared primitives into `netbox_cli/ui/widgets.py`
+- standard reusable controls should expose semantic arguments instead of ad-hoc class combinations
+- pass theme-aware styling intent through semantic props such as `tone`, `surface`, and `size`
+
 ### Custom Themes (JSON)
 
 Themes are loaded dynamically from:
@@ -320,6 +328,7 @@ Useful TUI keys:
 - `netbox_cli/cli.py`: Typer entrypoint (CLI + dynamic parser)
 - `netbox_cli/ui/app.py`: shell-style Textual app
 - `netbox_cli/ui/panels.py`: panel widgets for detail rendering
+- `netbox_cli/ui/widgets.py`: shared composition primitives for Textual widgets
 - `netbox_cli/ui/state.py`: persisted TUI view state
 - `netbox_cli/tui.py`: compatibility wrapper
 
