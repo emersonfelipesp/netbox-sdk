@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import inspect
 import json
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -29,10 +28,18 @@ from textual.widgets import (
 
 from netbox_cli.api import ConnectionProbe, NetBoxApiClient
 from netbox_cli.schema import FilterParam, SchemaIndex
-from netbox_cli.theme_registry import ThemeCatalog, ThemeDefinition, load_theme_catalog
 
+from .chrome import (
+    apply_theme,
+    badge_state_for_probe,
+    get_theme_catalog,
+    initialize_theme_state,
+    logo_renderable,
+    set_connection_badge_state,
+    strip_theme_select_prefix,
+    update_clock_widget,
+)
 from .formatting import (
-    configure_semantic_styles,
     humanize_field,
     humanize_group,
     humanize_resource,
@@ -40,12 +47,10 @@ from .formatting import (
     parse_response_rows,
     semantic_cell,
 )
-from .logo_render import build_netbox_logo
 from .navigation import build_navigation_menus
 from .panels import ObjectAttributesPanel
 from .state import TuiState, ViewState, load_tui_state, save_tui_state
 
-_THEME_CATALOG: ThemeCatalog | None = None
 _TEXT_CONTAINS_FILTER_FIELDS: frozenset[str] = frozenset(
     {
         "asset_tag",
@@ -65,13 +70,6 @@ _TEXT_CONTAINS_FILTER_FIELDS: frozenset[str] = frozenset(
 )
 
 TOPBAR_CLI_LABEL = "CLI"
-
-
-def _get_theme_catalog() -> ThemeCatalog:
-    global _THEME_CATALOG
-    if _THEME_CATALOG is None:
-        _THEME_CATALOG = load_theme_catalog()
-    return _THEME_CATALOG
 
 
 class NetBoxTuiApp(App[None]):
@@ -104,20 +102,11 @@ class NetBoxTuiApp(App[None]):
         self.index = index
         self.demo_mode = demo_mode
         self.state: TuiState = load_tui_state()
-        self.theme_catalog = _get_theme_catalog()
-        requested_theme = self.theme_catalog.resolve(theme_name) if theme_name is not None else None
-        state_theme = self.theme_catalog.resolve(self.state.theme_name)
-        self.theme_name = requested_theme or state_theme or self.theme_catalog.default_theme_name
-        self.theme_options = self.theme_catalog.select_options()
-        active_definition = self.theme_catalog.theme_for(self.theme_name)
-        configure_semantic_styles(
-            colors=active_definition.colors,
-            variables=active_definition.variables,
+        self.theme_catalog, self.theme_name, self.theme_options = initialize_theme_state(
+            self,
+            requested_theme_name=theme_name,
+            persisted_theme_name=self.state.theme_name,
         )
-
-        for definition in self.theme_catalog.themes:
-            self.register_theme(definition.to_textual_theme())
-        self.theme = self.theme_name
 
         self.current_group: str | None = self.state.last_view.group
         self.current_resource: str | None = self.state.last_view.resource
@@ -397,13 +386,7 @@ class NetBoxTuiApp(App[None]):
 
     def _strip_theme_select_prefix(self) -> None:
         """Remove the '- ' list prefix from the SelectCurrent display label."""
-        try:
-            label = self.query_one("#theme_select SelectCurrent Static#label", Static)
-        except NoMatches:
-            return
-        text = str(label.content)
-        if text.startswith("- "):
-            label.update(text[2:])
+        strip_theme_select_prefix(self, selector="#theme_select SelectCurrent Static#label")
 
     @on(Button.Pressed, "#filter_select")
     def on_filter_select_pressed(self) -> None:
@@ -661,10 +644,7 @@ class NetBoxTuiApp(App[None]):
         self.query_one("#global_search", Input).value = self.state.last_view.query_text
 
     def _update_clock(self) -> None:
-        try:
-            self.query_one("#clock", Static).update(datetime.now().strftime("%H:%M:%S"))
-        except NoMatches:
-            pass
+        update_clock_widget(self, widget_id="#clock")
 
     def _update_context_line(self) -> None:
         target = self.query_one("#context_line", Static)
@@ -1000,57 +980,31 @@ class NetBoxTuiApp(App[None]):
             self._close_filter_overlay()
 
     def _apply_theme(self, theme_name: str, notify: bool = False) -> None:
-        definition = self.theme_catalog.theme_for(theme_name)
-        configure_semantic_styles(colors=definition.colors, variables=definition.variables)
+        self.theme_name = apply_theme(
+            self,
+            theme_catalog=self.theme_catalog,
+            theme_options=self.theme_options,
+            current_theme_name=self.theme_name,
+            new_theme_name=theme_name,
+            state=self.state,
+            logo_widget_id="#topbar_logo",
+            notify=notify,
+        )
 
-        previous = self.theme_name
-        if previous:
-            self.screen.remove_class(f"theme-{previous}")
-        self.theme_name = theme_name
-        self.state.theme_name = theme_name
-        self.theme = theme_name
-        self.screen.add_class(f"theme-{theme_name}")
-        self._refresh_logo(definition)
-        if notify:
-            label = next(
-                (name for name, key in self.theme_options if key == theme_name),
-                theme_name,
-            )
-            self.notify(f"Theme switched to {label}")
-
-    def _logo_renderable(self) -> Text:
-        return build_netbox_logo(self.theme_catalog.theme_for(self.theme_name))
-
-    def _refresh_logo(self, definition: ThemeDefinition) -> None:
-        try:
-            logo = self.query_one("#topbar_logo", Static)
-        except NoMatches:
-            return
-        logo.update(build_netbox_logo(definition))
+    def _logo_renderable(self):
+        return logo_renderable(self.theme_catalog, self.theme_name)
 
     def _set_connection_badge_checking(self) -> None:
-        badge = self.query_one("#connection_badge", Static)
-        badge.remove_class("-ok")
-        badge.remove_class("-warning")
-        badge.remove_class("-error")
-        badge.add_class("-checking")
-        badge.update("●")
+        set_connection_badge_state(self, badge_id="#connection_badge", state="checking")
         self.sub_title = "NetBox UI-style shell for terminal [checking]"
 
     def _render_connection_status(self, probe: ConnectionProbe) -> None:
-        badge = self.query_one("#connection_badge", Static)
         overlay = self.query_one("#connection_warning_overlay", Vertical)
         warning = self.query_one("#connection_warning", Static)
 
-        badge.remove_class("-checking")
-        badge.remove_class("-ok")
-        badge.remove_class("-warning")
-        badge.remove_class("-error")
-
         version_text = probe.version or "n/a"
         if probe.status == 0:
-            badge.add_class("-error")
-            badge.update("●")
+            set_connection_badge_state(self, badge_id="#connection_badge", state="error")
             self.sub_title = (
                 f"NetBox UI-style shell for terminal [down network] [API {version_text}]"
             )
@@ -1064,8 +1018,11 @@ class NetBoxTuiApp(App[None]):
             return
 
         if probe.ok and probe.status < 300:
-            badge.add_class("-ok")
-            badge.update("●")
+            set_connection_badge_state(
+                self,
+                badge_id="#connection_badge",
+                state=badge_state_for_probe(probe),
+            )
             self.sub_title = (
                 f"NetBox UI-style shell for terminal [up {probe.status}] [API {version_text}]"
             )
@@ -1073,8 +1030,11 @@ class NetBoxTuiApp(App[None]):
             return
 
         if probe.ok and probe.status == 403:
-            badge.add_class("-warning")
-            badge.update("●")
+            set_connection_badge_state(
+                self,
+                badge_id="#connection_badge",
+                state=badge_state_for_probe(probe),
+            )
             self.sub_title = (
                 f"NetBox UI-style shell for terminal [warn {probe.status}] [API {version_text}]"
             )
@@ -1087,8 +1047,11 @@ class NetBoxTuiApp(App[None]):
             overlay.remove_class("hidden")
             return
 
-        badge.add_class("-error")
-        badge.update("●")
+        set_connection_badge_state(
+            self,
+            badge_id="#connection_badge",
+            state=badge_state_for_probe(probe),
+        )
         self.sub_title = (
             f"NetBox UI-style shell for terminal [down {probe.status}] [API {version_text}]"
         )
@@ -1135,11 +1098,11 @@ class NetBoxTuiApp(App[None]):
 
 
 def available_theme_names() -> tuple[str, ...]:
-    return _get_theme_catalog().available_theme_names()
+    return get_theme_catalog().available_theme_names()
 
 
 def resolve_theme_name(theme_name: str | None) -> str | None:
-    return _get_theme_catalog().resolve(theme_name)
+    return get_theme_catalog().resolve(theme_name)
 
 
 def run_tui(

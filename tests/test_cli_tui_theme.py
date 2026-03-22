@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typer
 from typer.testing import CliRunner
 
 from netbox_cli import cli
@@ -167,3 +168,57 @@ def test_dev_tui_theme_dispatch(monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert called["theme_name"] == "dracula"
+
+
+def test_register_openapi_subcommands_uses_injected_index_factory(monkeypatch) -> None:
+    class _FakeOperation:
+        def __init__(self, method: str, path: str) -> None:
+            self.method = method
+            self.path = path
+            self.operation_id = f"{method.lower()}-widgets"
+
+    class _FakePaths:
+        list_path = "/api/lab/widgets/"
+        detail_path = "/api/lab/widgets/{id}/"
+
+    class _InjectedIndex:
+        def groups(self) -> list[str]:
+            return ["lab"]
+
+        def resources(self, group: str) -> list[str]:
+            assert group == "lab"
+            return ["widgets"]
+
+        def operations_for(self, group: str, resource: str) -> list[_FakeOperation]:
+            assert (group, resource) == ("lab", "widgets")
+            return [_FakeOperation("GET", "/api/lab/widgets/")]
+
+        def resource_paths(self, group: str, resource: str) -> _FakePaths:
+            assert (group, resource) == ("lab", "widgets")
+            return _FakePaths()
+
+    class _GlobalIndex:
+        def groups(self) -> list[str]:
+            return []
+
+        def resources(self, group: str) -> list[str]:
+            raise AssertionError("global index should not be used")
+
+        def operations_for(self, group: str, resource: str) -> list[object]:
+            raise AssertionError("global index should not be used")
+
+        def resource_paths(self, group: str, resource: str) -> object:
+            raise AssertionError("global index should not be used")
+
+    monkeypatch.setattr(cli, "_get_index", lambda: _GlobalIndex())
+    target = typer.Typer(no_args_is_help=True)
+    cli._register_openapi_subcommands(
+        target,
+        client_factory=lambda: object(),
+        index_factory=lambda: _InjectedIndex(),
+    )
+
+    result = runner.invoke(target, ["lab", "widgets", "list", "--help"])
+
+    assert result.exit_code == 0
+    assert "list lab/widgets" in result.stdout

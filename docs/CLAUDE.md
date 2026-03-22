@@ -15,6 +15,8 @@ uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 ```
 
+When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside `netbox_cli/themes/*.json`.
+
 **Deploy (CI only):**
 ```bash
 mkdocs gh-deploy --force --clean --verbose

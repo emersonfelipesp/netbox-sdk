@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+build/
+site/
+static/
+v0.0.1.txt
+reference/textual/POSTING-API-CLIENT-DESIGN.md

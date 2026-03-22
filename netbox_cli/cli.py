@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -8,11 +7,19 @@ from typing import Any
 
 import click
 import typer
-import yaml
-from rich.console import Console
 from rich.table import Table
 
 from .api import NetBoxApiClient
+from .cli_support import (
+    console,
+    emit_cli_error,
+    format_click_exception,
+    playwright_install_message,
+    print_response,
+    print_trace_output,
+    resolve_requested_theme,
+    run_with_spinner,
+)
 from .config import (
     DEFAULT_PROFILE,
     DEMO_BASE_URL,
@@ -26,19 +33,10 @@ from .config import (
     save_config,
     save_profile_config,
 )
-from .output_safety import safe_text, sanitize_terminal_text
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
-from .trace_ascii import render_any_trace_ascii
-from .ui.formatting import (
-    humanize_field,
-    humanize_value,
-    key_value_rows,
-    order_field_names,
-)
 
-console = Console()
 _SCHEMA_INDEX: SchemaIndex | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 
@@ -50,22 +48,6 @@ app = typer.Typer(
 )
 
 
-def _emit_cli_error(message: str, *, exit_code: int = 1) -> int:
-    console.print(
-        f"[red]Error:[/red] {sanitize_terminal_text(message).strip()}",
-        highlight=False,
-        soft_wrap=True,
-    )
-    return exit_code
-
-
-def _format_click_exception(error: click.ClickException) -> str:
-    message = error.format_message().strip()
-    if isinstance(error, click.UsageError):
-        return f"{message}\nRun 'nbx --help' to see available commands."
-    return message
-
-
 def main(argv: list[str] | None = None) -> int:
     command = typer.main.get_command(app)
     try:
@@ -75,14 +57,14 @@ def main(argv: list[str] | None = None) -> int:
             standalone_mode=False,
         )
     except KeyboardInterrupt:
-        return _emit_cli_error("Command cancelled.", exit_code=130)
+        return emit_cli_error("Command cancelled.", exit_code=130)
     except click.Abort:
-        return _emit_cli_error("Command cancelled.", exit_code=130)
+        return emit_cli_error("Command cancelled.", exit_code=130)
     except click.ClickException as exc:
-        return _emit_cli_error(_format_click_exception(exc), exit_code=exc.exit_code)
+        return emit_cli_error(format_click_exception(exc), exit_code=exc.exit_code)
     except Exception as exc:  # noqa: BLE001
         detail = str(exc).strip() or exc.__class__.__name__
-        return _emit_cli_error(
+        return emit_cli_error(
             f"Unexpected failure: {detail}. Please retry or check your configuration."
         )
     return 0
@@ -235,7 +217,7 @@ def _save_demo_profile_from_token(
 
 def _verify_runtime_config(cfg: Config, *, context: str) -> None:
     client = _get_client_for_config(cfg)
-    response = _run_with_spinner(client.request("GET", "/api/status/"))
+    response = run_with_spinner(client.request("GET", "/api/status/"))
     if response.status >= 400:
         detail = response.text.strip() or f"HTTP {response.status}"
         raise typer.BadParameter(f"{context} verification failed: {detail}")
@@ -270,23 +252,13 @@ def _initialize_demo_profile(
     try:
         from .demo_auth import bootstrap_demo_profile
     except ModuleNotFoundError as exc:
-        typer.echo(
-            "Playwright is not installed. Install it and the Chromium browser first:\n"
-            "  pip install playwright\n"
-            "  playwright install chromium",
-            err=True,
-        )
+        typer.echo(playwright_install_message(), err=True)
         raise typer.Exit(code=1) from exc
 
     try:
         import playwright  # noqa: F401
     except ModuleNotFoundError as exc:
-        typer.echo(
-            "Playwright is not installed. Install it and the Chromium browser first:\n"
-            "  pip install playwright\n"
-            "  playwright install chromium",
-            err=True,
-        )
+        typer.echo(playwright_install_message(), err=True)
         raise typer.Exit(code=1) from exc
 
     if username is None:
@@ -410,7 +382,7 @@ def demo_config_command(
 def demo_test_command() -> None:
     """Test connectivity to demo.netbox.dev using the configured demo profile."""
     cfg = _ensure_demo_runtime_config()
-    probe = _run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    probe = run_with_spinner(_get_client_for_config(cfg).probe_connection())
     if probe.ok:
         version_text = probe.version or "unknown"
         typer.echo(f"Demo connection OK (status={probe.status}, api_version={version_text})")
@@ -443,28 +415,15 @@ def demo_tui_command(
     """Launch the TUI against the demo profile."""
     from .tui import available_theme_names, resolve_theme_name, run_tui
 
-    try:
-        names = available_theme_names()
-    except ThemeCatalogError as exc:
-        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
-
-    selected_theme: str | None = None
-    if theme:
-        if not ctx.args:
-            typer.echo("Available themes:")
-            for name in names:
-                typer.echo(f"- {name}")
-            return
-        if len(ctx.args) > 1:
-            raise typer.BadParameter(
-                "Too many arguments for --theme. Use: nbx demo tui --theme <name>"
-            )
-        requested = ctx.args[0]
-        resolved = resolve_theme_name(requested)
-        if not resolved:
-            available = ", ".join(names)
-            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
-        selected_theme = resolved
+    selected_theme = resolve_requested_theme(
+        ctx,
+        theme=theme,
+        available_theme_names=available_theme_names,
+        resolve_theme_name=resolve_theme_name,
+        usage="nbx demo tui --theme <name>",
+    )
+    if theme and not ctx.args:
+        return
 
     try:
         run_tui(
@@ -489,28 +448,15 @@ def dev_tui_command(
     """Launch the developer request workbench TUI."""
     from .dev_tui import available_theme_names, resolve_theme_name, run_dev_tui
 
-    try:
-        names = available_theme_names()
-    except ThemeCatalogError as exc:
-        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
-
-    selected_theme: str | None = None
-    if theme:
-        if not ctx.args:
-            typer.echo("Available themes:")
-            for name in names:
-                typer.echo(f"- {name}")
-            return
-        if len(ctx.args) > 1:
-            raise typer.BadParameter(
-                "Too many arguments for --theme. Use: nbx dev tui --theme <name>"
-            )
-        requested = ctx.args[0]
-        resolved = resolve_theme_name(requested)
-        if not resolved:
-            available = ", ".join(names)
-            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
-        selected_theme = resolved
+    selected_theme = resolve_requested_theme(
+        ctx,
+        theme=theme,
+        available_theme_names=available_theme_names,
+        resolve_theme_name=resolve_theme_name,
+        usage="nbx dev tui --theme <name>",
+    )
+    if theme and not ctx.args:
+        return
 
     try:
         run_dev_tui(
@@ -579,10 +525,10 @@ def call_command(
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
-    response = _run_with_spinner(
+    response = run_with_spinner(
         _get_client().request(method, path, query=query_dict, payload=payload)
     )
-    _print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
+    print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
 
 
 @app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
@@ -597,27 +543,15 @@ def tui_command(
     """Launch the interactive NetBox terminal UI."""
     from .tui import available_theme_names, resolve_theme_name, run_tui
 
-    try:
-        names = available_theme_names()
-    except ThemeCatalogError as exc:
-        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
-
-    selected_theme: str | None = None
-    if theme:
-        if not ctx.args:
-            typer.echo("Available themes:")
-            for name in names:
-                typer.echo(f"- {name}")
-            return
-        if len(ctx.args) > 1:
-            raise typer.BadParameter("Too many arguments for --theme. Use: nbx tui --theme <name>")
-
-        requested = ctx.args[0]
-        resolved = resolve_theme_name(requested)
-        if not resolved:
-            available = ", ".join(names)
-            raise typer.BadParameter(f"Unknown theme '{requested}'. Available themes: {available}")
-        selected_theme = resolved
+    selected_theme = resolve_requested_theme(
+        ctx,
+        theme=theme,
+        available_theme_names=available_theme_names,
+        resolve_theme_name=resolve_theme_name,
+        usage="nbx tui --theme <name>",
+    )
+    if theme and not ctx.args:
+        return
 
     try:
         run_tui(
@@ -668,9 +602,9 @@ def _handle_dynamic_invocation(
         index=index_factory(),
     )
     if not trace_only:
-        _print_response(response.status, response.text, as_json=as_json, as_yaml=as_yaml)
+        print_response(response.status, response.text, as_json=as_json, as_yaml=as_yaml)
     if trace or trace_only:
-        _print_trace_output(
+        print_trace_output(
             group=group,
             resource=resource,
             action=action,
@@ -749,184 +683,6 @@ def _parse_dynamic_options(
     )
 
 
-def _run_with_spinner(coro: Any) -> Any:
-    """Run an async coroutine while showing a spinner on stderr."""
-    with console.status("[bold cyan]Fetching…[/bold cyan]", spinner="dots"):
-        return asyncio.run(coro)
-
-
-# Compact set for list views — excludes verbose fields (description, url, timestamps)
-_LIST_COLUMNS = {
-    "id",
-    "name",
-    "display",
-    "status",
-    "type",
-    "role",
-    "site",
-    "location",
-    "device",
-    "interface",
-    "ip",
-    "address",
-    "prefix",
-    "vlan",
-    "tenant",
-}
-
-
-def _render_table(parsed: Any) -> None:
-    # Detect paginated list vs single object
-    if isinstance(parsed, dict) and "results" in parsed and isinstance(parsed["results"], list):
-        rows_data = [r for r in parsed["results"] if isinstance(r, dict)]
-        count = parsed.get("count")
-        _render_list_table(rows_data, count=count)
-    elif isinstance(parsed, dict):
-        _render_detail_table(parsed)
-    elif isinstance(parsed, list):
-        rows_data = [r for r in parsed if isinstance(r, dict)]
-        if not rows_data and parsed:
-            rows_data = [{"value": sanitize_terminal_text(item)} for item in parsed]
-        _render_list_table(rows_data, count=None)
-    else:
-        console.print(safe_text(parsed))
-
-
-def _render_list_table(rows_data: list[dict[str, Any]], *, count: int | None) -> None:
-    if not rows_data:
-        console.print("[dim]No results.[/dim]")
-        return
-
-    # Collect all keys present in the data, keep only priority ones for compact display
-    all_keys: list[str] = []
-    for row in rows_data:
-        for key in row.keys():
-            if key not in all_keys:
-                all_keys.append(str(key))
-
-    # Filter to priority columns that actually exist; fall back to all if none match
-    priority_keys = [k for k in all_keys if k in _LIST_COLUMNS]
-    display_keys = order_field_names(priority_keys if priority_keys else all_keys)
-
-    title = f"{count} result(s)" if count is not None else None
-    table = Table(title=title, show_header=True, header_style="bold")
-    for key in display_keys:
-        table.add_column(humanize_field(key), overflow="fold", no_wrap=False)
-
-    for row in rows_data:
-        values = [safe_text(humanize_value(row.get(key))) for key in display_keys]
-        table.add_row(*values)
-
-    console.print(table)
-
-
-def _render_detail_table(obj: dict[str, Any]) -> None:
-    table = Table(show_header=True, header_style="bold", show_lines=True)
-    table.add_column("Field", style="bold", no_wrap=True)
-    table.add_column("Value", overflow="fold")
-
-    for field_label, cell_text in key_value_rows(obj):
-        table.add_row(safe_text(field_label, style="bold"), cell_text)
-
-    console.print(table)
-
-
-def _print_response(
-    status: int,
-    text: str,
-    *,
-    as_json: bool = False,
-    as_yaml: bool = False,
-) -> None:
-    typer.echo(f"Status: {status}")
-    stripped = text.strip()
-    if not stripped:
-        return
-    try:
-        parsed = json.loads(stripped)
-    except json.JSONDecodeError:
-        typer.echo(sanitize_terminal_text(stripped))
-        return
-
-    if as_json:
-        typer.echo(json.dumps(parsed, indent=2, sort_keys=True))
-        return
-
-    if as_yaml:
-        typer.echo(
-            yaml.dump(
-                parsed, allow_unicode=True, sort_keys=False, default_flow_style=False
-            ).rstrip()
-        )
-        return
-
-    _render_table(parsed)
-
-
-def _trace_message(message: str) -> None:
-    typer.echo(f"Cable Trace: {sanitize_terminal_text(message)}")
-
-
-def _print_trace_output(
-    *,
-    group: str,
-    resource: str,
-    action: str,
-    object_id: int | None,
-    client: NetBoxApiClient,
-    index: SchemaIndex,
-) -> None:
-    if action != "get":
-        raise typer.BadParameter("--trace is only supported for get actions")
-    if object_id is None:
-        raise typer.BadParameter("--trace requires --id")
-
-    trace_path = index.trace_path(group, resource)
-    paths_path = index.paths_path(group, resource)
-    trace_endpoint = trace_path or paths_path
-    if not trace_endpoint:
-        _trace_message("Not available for this resource.")
-        return
-
-    response = _run_with_spinner(
-        client.request("GET", trace_endpoint.replace("{id}", str(object_id)))
-    )
-    if response.status >= 400:
-        detail = response.text.strip().lower()
-        if "not found" in detail or "no cable" in detail or "no connected" in detail:
-            _trace_message("No connected cable trace found.")
-            return
-        try:
-            parsed = json.loads(response.text)
-        except json.JSONDecodeError:
-            parsed = None
-        if isinstance(parsed, dict):
-            detail_text = str(parsed.get("detail") or "").strip().lower()
-            if (
-                "not found" in detail_text
-                or "no cable" in detail_text
-                or "no connected" in detail_text
-            ):
-                _trace_message("No connected cable trace found.")
-                return
-        _trace_message(f"Unavailable (HTTP {response.status}).")
-        return
-
-    try:
-        parsed = json.loads(response.text)
-    except json.JSONDecodeError:
-        _trace_message("Unavailable.")
-        return
-
-    rendered = render_any_trace_ascii(parsed)
-    if not rendered:
-        _trace_message("No connected cable trace found.")
-        return
-
-    typer.echo("Cable Trace:")
-    typer.echo(sanitize_terminal_text(rendered))
-
-
 def _execute_dynamic_action(
     *,
     group: str,
@@ -939,7 +695,7 @@ def _execute_dynamic_action(
     client: NetBoxApiClient | None = None,
     index: SchemaIndex | None = None,
 ):
-    return _run_with_spinner(
+    return run_with_spinner(
         run_dynamic_command(
             client=client or _get_client(),
             index=index or _get_index(),
@@ -997,10 +753,11 @@ def _ensure_runtime_config() -> Config:
     return _ensure_profile_config(DEFAULT_PROFILE)
 
 
-def _supported_actions(group: str, resource: str) -> list[str]:
-    rows = _get_index().operations_for(group, resource)
+def _supported_actions(group: str, resource: str, *, index: SchemaIndex | None = None) -> list[str]:
+    active_index = index or _get_index()
+    rows = active_index.operations_for(group, resource)
     by_pair = {(item.path, item.method.upper()) for item in rows}
-    paths = _get_index().resource_paths(group, resource)
+    paths = active_index.resource_paths(group, resource)
     if paths is None:
         return []
 
@@ -1076,11 +833,9 @@ def _build_action_command(
             index=index,
         )
         if not trace_only:
-            _print_response(
-                response.status, response.text, as_json=output_json, as_yaml=output_yaml
-            )
+            print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
         if trace or trace_only:
-            _print_trace_output(
+            print_trace_output(
                 group=group,
                 resource=resource,
                 action=action,
@@ -1159,7 +914,7 @@ def _register_openapi_subcommands(
     client_factory: Callable[[], NetBoxApiClient] = _get_client,
     index_factory: Callable[[], SchemaIndex] = _get_index,
 ) -> None:
-    index = _get_index()
+    index = index_factory()
     for group in index.groups():
         group_typer = typer.Typer(
             no_args_is_help=True,
@@ -1174,7 +929,7 @@ def _register_openapi_subcommands(
             )
             group_typer.add_typer(resource_typer, name=resource)
 
-            for action in _supported_actions(group, resource):
+            for action in _supported_actions(group, resource, index=index):
                 cmd = _build_action_command(
                     group=group,
                     resource=resource,

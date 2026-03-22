@@ -431,4 +431,5 @@ def test_demo_missing_playwright_fails_before_prompt(monkeypatch) -> None:
 
     assert result.exit_code == 1
     assert prompted["called"] is False
-    assert "pip install playwright" in result.output
+    assert "uv sync --dev" in result.output
+    assert "uv tool run --from playwright playwright install chromium --with-deps" in result.output

@@ -37,6 +37,24 @@ The TUI ships with four built-in themes and supports unlimited custom themes def
 
 ---
 
+## Theme compliance
+
+Theme switching is not limited to top-level containers. Every Textual widget and widget subcomponent must follow the selected theme, including:
+
+- overlays and dropdowns
+- tab bars and active indicators
+- tree cursor and highlight states
+- option list hover and selected rows
+- `TextArea` gutter, cursor line, selection, cursor, and placeholder styling
+
+Project rules:
+
+- Never hardcode runtime colors in Python or TCSS outside `netbox_cli/themes/*.json`
+- Never leave Textual default colors visible after a theme switch
+- Avoid built-in widget palettes when they bypass the repo theme tokens; style component classes with semantic variables instead
+
+---
+
 ## Creating a custom theme
 
 Place a JSON file in `netbox_cli/themes/`. It will be discovered automatically — no code changes required.

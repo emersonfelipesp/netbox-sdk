@@ -4,7 +4,7 @@ import json
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from .config import Config, authorization_header_value, cache_dir
 from .http_cache import CachePolicy, HttpCacheStore, build_cache_key
@@ -15,7 +15,7 @@ class ApiResponse(BaseModel):
 
     status: int
     text: str
-    headers: dict[str, str] = {}
+    headers: dict[str, str] = Field(default_factory=dict)
 
     def json(self) -> Any:
         return json.loads(self.text)

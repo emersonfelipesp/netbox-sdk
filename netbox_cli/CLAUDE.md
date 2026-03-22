@@ -24,7 +24,7 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 | `theme_registry.py` | Loads, validates, and registers JSON themes with Textual |
 | `trace_ascii.py` | Renders cable-trace JSON as Unicode box-drawing ASCII art |
 | `tui.py` | Re-export shim: `NetBoxTuiApp`, `run_tui`, theme utilities from `ui/` |
-| `tui.tcss` | Textual CSS stylesheet — **all colors via semantic variables, never hardcoded hex** |
+| `tui.tcss` | Textual CSS stylesheet — **all colors via semantic variables, never hardcoded hex, all component states theme-driven** |
 
 ---
 
@@ -155,6 +155,11 @@ catalog = load_theme_catalog()
 theme = catalog.resolve("netbox")   # resolves alias "netbox" → "netbox-dark"
 names = catalog.names()             # ["default", "dracula", "netbox-dark", "netbox-light"]
 ```
+
+**Theme enforcement contract:**
+- Every Textual widget and subcomponent must render from the active theme tokens.
+- Never ship fallback runtime palettes in Python or TCSS outside `themes/*.json`.
+- Avoid built-in widget palettes when they bypass the app theme; prefer styling component classes in TCSS.
 
 ---
 

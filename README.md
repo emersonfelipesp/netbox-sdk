@@ -257,6 +257,13 @@ nbx tui --theme netbox-light
 
 You can also switch theme live from the top-left `Theme` dropdown in the TUI.
 
+Theme contract:
+
+- every Textual widget and subcomponent must inherit its visual styling from the active theme
+- never hardcode runtime colors in Python or TCSS outside `netbox_cli/themes/*.json`
+- do not opt into builtin Textual widget palettes when they override the repo theme tokens
+- if a widget needs a custom state, express it with semantic variables and theme-backed component classes
+
 ### Custom Themes (JSON)
 
 Themes are loaded dynamically from:

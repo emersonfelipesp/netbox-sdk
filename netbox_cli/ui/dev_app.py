@@ -3,11 +3,11 @@ from __future__ import annotations
 import inspect
 import json
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 from typing import Any
 
+from rich.style import Style
 from rich.text import Text
 from textual import on, work
 from textual.app import App, ComposeResult
@@ -29,27 +29,41 @@ from textual.widgets import (
     TextArea,
     Tree,
 )
+from textual.widgets.option_list import Option
 
 from netbox_cli.api import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_cli.schema import Operation, SchemaIndex
-from netbox_cli.theme_registry import ThemeCatalog, ThemeDefinition, load_theme_catalog
+from netbox_cli.theme_registry import ThemeDefinition
 
+from .app import TOPBAR_CLI_LABEL
+from .chrome import (
+    apply_theme,
+    badge_state_for_probe,
+    get_theme_catalog,
+    initialize_theme_state,
+    logo_renderable,
+    set_connection_badge_state,
+    strip_theme_select_prefix,
+    update_clock_widget,
+)
 from .dev_state import DevTuiState, DevViewState, load_dev_tui_state, save_dev_tui_state
-from .formatting import configure_semantic_styles, humanize_group, humanize_resource
-from .logo_render import build_netbox_logo
+from .formatting import humanize_group, humanize_resource
 from .navigation import build_navigation_menus
 
-_THEME_CATALOG: ThemeCatalog | None = None
 _HTTP_METHOD_OPTIONS = tuple(
     (method, method) for method in ("GET", "POST", "PUT", "PATCH", "DELETE")
 )
 
 
-def _get_theme_catalog() -> ThemeCatalog:
-    global _THEME_CATALOG
-    if _THEME_CATALOG is None:
-        _THEME_CATALOG = load_theme_catalog()
-    return _THEME_CATALOG
+def _text_area_syntax_theme_for(catalog_theme: str) -> str:
+    """Keep TextArea colors bound to the active app theme.
+
+    Builtin TextArea themes ship their own palette, which drifts away from the
+    repo's JSON theme tokens. Use the CSS-driven theme so editor chrome stays
+    aligned with the selected app theme, then style component classes in TCSS.
+    """
+    del catalog_theme
+    return "css"
 
 
 @dataclass(slots=True)
@@ -95,19 +109,11 @@ class NetBoxDevTuiApp(App[None]):
         self.client = client
         self.index = index
         self.state: DevTuiState = load_dev_tui_state()
-        self.theme_catalog = _get_theme_catalog()
-        requested_theme = self.theme_catalog.resolve(theme_name) if theme_name is not None else None
-        state_theme = self.theme_catalog.resolve(self.state.theme_name)
-        self.theme_name = requested_theme or state_theme or self.theme_catalog.default_theme_name
-        self.theme_options = self.theme_catalog.select_options()
-        active_definition = self.theme_catalog.theme_for(self.theme_name)
-        configure_semantic_styles(
-            colors=active_definition.colors,
-            variables=active_definition.variables,
+        self.theme_catalog, self.theme_name, self.theme_options = initialize_theme_state(
+            self,
+            requested_theme_name=theme_name,
+            persisted_theme_name=self.state.theme_name,
         )
-        for definition in self.theme_catalog.themes:
-            self.register_theme(definition.to_textual_theme())
-        self.theme = self.theme_name
 
         self._clock_timer: Timer | None = None
         self._connection_timer: Timer | None = None
@@ -116,6 +122,7 @@ class NetBoxDevTuiApp(App[None]):
         self._visible_operations: list[Operation] = []
 
     def compose(self) -> ComposeResult:
+        ta_syntax = _text_area_syntax_theme_for(self.theme_name)
         with Horizontal(id="dev_topbar"):
             with Horizontal(id="dev_topbar_left"):
                 yield Static("●", id="dev_nav_dot")
@@ -125,10 +132,9 @@ class NetBoxDevTuiApp(App[None]):
                     prompt="Theme",
                     id="dev_theme_select",
                 )
-                yield Static(self.TITLE, id="dev_title")
-                yield Static("Workbench", id="dev_title_suffix")
             with Horizontal(id="dev_topbar_center"):
                 yield Static(self._logo_renderable(), id="dev_logo")
+                yield Static(TOPBAR_CLI_LABEL, id="dev_topbar_cli_suffix")
             with Horizontal(id="dev_topbar_right"):
                 yield Static("", id="dev_clock")
                 yield Static("●", id="dev_connection_badge", classes="-checking")
@@ -183,6 +189,7 @@ class NetBoxDevTuiApp(App[None]):
                                     language="json",
                                     soft_wrap=True,
                                     show_line_numbers=False,
+                                    theme=ta_syntax,
                                     id="dev_body_editor",
                                 )
                                 yield Static(
@@ -202,6 +209,7 @@ class NetBoxDevTuiApp(App[None]):
                                     soft_wrap=True,
                                     read_only=True,
                                     show_line_numbers=False,
+                                    theme=ta_syntax,
                                     id="dev_response_body",
                                 )
                             with TabPane("Headers", id="dev_response_headers_tab"):
@@ -211,6 +219,7 @@ class NetBoxDevTuiApp(App[None]):
                                     soft_wrap=True,
                                     read_only=True,
                                     show_line_numbers=False,
+                                    theme=ta_syntax,
                                     id="dev_response_headers",
                                 )
                             with TabPane("Summary", id="dev_response_summary_tab"):
@@ -407,7 +416,7 @@ class NetBoxDevTuiApp(App[None]):
                 return operation
         return self._resource_operations[0] if self._resource_operations else None
 
-    def _refresh_operation_list(self) -> None:
+    def _refresh_operation_list(self, highlight_index: int | None = None) -> None:
         search = self.query_one("#dev_operation_search", Input).value.strip().lower()
         operations = [
             operation
@@ -419,26 +428,134 @@ class NetBoxDevTuiApp(App[None]):
             or search in operation.operation_id.lower()
         ]
         self._visible_operations = operations
-        prompts = [f"{operation.method} {operation.path}" for operation in self._visible_operations]
-        if not prompts:
-            prompts = ["No matching operations"]
         option_list = self.query_one("#dev_operation_list", OptionList)
-        option_list.set_options(prompts)
-        option_list.highlighted = 0 if self._visible_operations else None
+        if not self._visible_operations:
+            option_list.set_options(["No matching operations"])
+            option_list.highlighted = None
+            return
+        option_list.set_options(
+            [
+                Option(self._operation_line_text(operation.method, operation.path))
+                for operation in self._visible_operations
+            ]
+        )
+        if highlight_index is None:
+            option_list.highlighted = 0
+        else:
+            option_list.highlighted = min(highlight_index, len(self._visible_operations) - 1)
 
     def _apply_operation(self, operation: Operation) -> None:
         self.query_one("#dev_method_select", Select).value = operation.method
         self.query_one("#dev_path_input", Input).value = operation.path
         summary = operation.summary or operation.operation_id or "No summary available."
-        self._set_operation_summary(f"{operation.method} {operation.path}\n{summary}")
+        self._set_operation_summary(self._operation_detail_text(operation, summary))
         self.query_one("#dev_request_tabs", TabbedContent).active = "dev_operations_tab"
-        self._set_response_summary(f"Prepared {operation.method} {operation.path}")
+        self._set_response_summary(self._prepared_request_text(operation.method, operation.path))
 
-    def _set_operation_summary(self, text: str) -> None:
-        self.query_one("#dev_operation_summary", Static).update(text)
+    def _set_operation_summary(self, content: Text | str) -> None:
+        self.query_one("#dev_operation_summary", Static).update(content)
 
-    def _set_response_summary(self, text: str) -> None:
-        self.query_one("#dev_response_summary", Static).update(text)
+    def _set_response_summary(self, content: Text | str) -> None:
+        self.query_one("#dev_response_summary", Static).update(content)
+
+    def _theme_definition(self) -> ThemeDefinition:
+        return self.theme_catalog.theme_for(self.theme_name)
+
+    def _http_method_style(self, method: str) -> str:
+        colors = self._theme_definition().colors
+        match method.strip().upper():
+            case "GET":
+                return f"bold {colors['success']}"
+            case "POST":
+                return f"bold {colors['primary']}"
+            case "PUT":
+                return f"bold {colors['warning']}"
+            case "PATCH":
+                return f"bold {colors['accent']}"
+            case "DELETE":
+                return f"bold {colors['error']}"
+            case _:
+                return f"bold {colors['secondary']}"
+
+    def _path_muted_style(self) -> Style:
+        return Style(color=self._theme_definition().variables["nb-muted-text"], dim=True)
+
+    def _operation_line_text(self, method: str, path: str) -> Text:
+        line = Text()
+        line.append(method.upper(), style=self._http_method_style(method))
+        line.append(" ")
+        line.append(path, style=self._path_muted_style())
+        return line
+
+    def _operation_detail_text(self, operation: Operation, summary: str) -> Text:
+        block = Text()
+        block.append(operation.method.upper(), style=self._http_method_style(operation.method))
+        block.append(" ")
+        block.append(operation.path, style=self._path_muted_style())
+        block.append("\n")
+        block.append(
+            summary, style=Style(color=self._theme_definition().variables["nb-muted-text"])
+        )
+        return block
+
+    def _http_status_code_style(self, status: int) -> str:
+        colors = self._theme_definition().colors
+        if 200 <= status < 300:
+            return f"bold {colors['success']}"
+        if 300 <= status < 400:
+            return f"bold {colors['primary']}"
+        if 400 <= status < 500:
+            return f"bold {colors['warning']}"
+        if status >= 500:
+            return f"bold {colors['error']}"
+        return f"bold {colors['secondary']}"
+
+    def _response_status_line(self, status: int) -> Text:
+        line = Text()
+        line.append("HTTP ", style="dim")
+        line.append(str(status), style=self._http_status_code_style(status))
+        return line
+
+    def _sending_status_line(self, method: str, path: str) -> Text:
+        line = Text()
+        line.append("Sending ", style="dim")
+        line.append(method.upper(), style=self._http_method_style(method))
+        line.append(" ")
+        line.append(path, style=self._path_muted_style())
+        return line
+
+    def _prepared_request_text(self, method: str, path: str) -> Text:
+        line = Text()
+        line.append("Prepared ", style="dim")
+        line.append(method.upper(), style=self._http_method_style(method))
+        line.append(" ")
+        line.append(path, style=self._path_muted_style())
+        return line
+
+    def _completed_response_summary(
+        self, execution: RequestExecution, response: ApiResponse
+    ) -> Text:
+        muted = Style(color=self._theme_definition().variables["nb-muted-text"])
+        query_text = "&".join(f"{key}={value}" for key, value in execution.query.items()) or "-"
+        payload_text = (
+            "none"
+            if execution.payload is None
+            else json.dumps(execution.payload, indent=2, sort_keys=True)
+        )
+        block = Text()
+        block.append(execution.method.upper(), style=self._http_method_style(execution.method))
+        block.append(" ")
+        block.append(execution.path, style=self._path_muted_style())
+        block.append("\n")
+        block.append("Query: ", style="dim")
+        block.append(query_text, style=muted)
+        block.append("\n")
+        block.append("Payload: ", style="dim")
+        block.append(payload_text, style=muted)
+        block.append("\n")
+        block.append("Status: ", style="dim")
+        block.append(str(response.status), style=self._http_status_code_style(response.status))
+        return block
 
     def _parse_query_text(self, raw: str) -> dict[str, str]:
         raw = raw.strip()
@@ -508,15 +625,22 @@ class NetBoxDevTuiApp(App[None]):
         self._render_response(response, execution)
 
     def _set_request_in_flight(self, method: str, path: str) -> None:
-        self.query_one("#dev_response_status", Static).update(f"Sending {method} {path}")
+        self.query_one("#dev_response_status", Static).update(
+            self._sending_status_line(method, path)
+        )
         self.query_one("#dev_response_timing", Static).update("...")
         self.query_one("#dev_response_size", Static).update("...")
         self._set_response_summary(
-            "Request in flight via the current NetBoxApiClient implementation."
+            Text(
+                "Request in flight via the current NetBoxApiClient implementation.",
+                style=Style(color=self._theme_definition().variables["nb-muted-text"]),
+            )
         )
 
     def _set_request_error(self, message: str) -> None:
-        self.query_one("#dev_response_status", Static).update("Request failed")
+        self.query_one("#dev_response_status", Static).update(
+            Text("Request failed", style=f"bold {self._theme_definition().colors['error']}")
+        )
         self.query_one("#dev_response_timing", Static).update("-")
         self.query_one("#dev_response_size", Static).update("-")
         self.query_one("#dev_response_body", TextArea).text = message
@@ -525,8 +649,9 @@ class NetBoxDevTuiApp(App[None]):
         self.notify(message, severity="error")
 
     def _render_response(self, response: ApiResponse, execution: RequestExecution) -> None:
-        status_text = f"HTTP {response.status}"
-        self.query_one("#dev_response_status", Static).update(status_text)
+        self.query_one("#dev_response_status", Static).update(
+            self._response_status_line(response.status)
+        )
         self.query_one("#dev_response_timing", Static).update(f"{execution.duration_ms:.1f} ms")
         self.query_one("#dev_response_size", Static).update(
             f"{len(response.text.encode('utf-8'))} B"
@@ -535,18 +660,7 @@ class NetBoxDevTuiApp(App[None]):
         self.query_one("#dev_response_headers", TextArea).text = self._format_headers(
             response.headers
         )
-        query_text = "&".join(f"{key}={value}" for key, value in execution.query.items()) or "-"
-        payload_text = (
-            "none"
-            if execution.payload is None
-            else json.dumps(execution.payload, indent=2, sort_keys=True)
-        )
-        self._set_response_summary(
-            f"{execution.method} {execution.path}\n"
-            f"Query: {query_text}\n"
-            f"Payload: {payload_text}\n"
-            f"Status: {response.status}"
-        )
+        self._set_response_summary(self._completed_response_summary(execution, response))
         self.query_one("#dev_response_tabs", TabbedContent).active = "dev_response_body_tab"
 
     def _format_response_body(self, response: ApiResponse) -> str:
@@ -599,87 +713,61 @@ class NetBoxDevTuiApp(App[None]):
         )
 
     def _update_clock(self) -> None:
-        try:
-            self.query_one("#dev_clock", Static).update(datetime.now().strftime("%H:%M:%S"))
-        except NoMatches:
-            pass
+        update_clock_widget(self, widget_id="#dev_clock")
 
     def _set_connection_badge_checking(self) -> None:
-        badge = self.query_one("#dev_connection_badge", Static)
-        badge.remove_class("-ok")
-        badge.remove_class("-warning")
-        badge.remove_class("-error")
-        badge.add_class("-checking")
-        badge.update("●")
+        set_connection_badge_state(self, badge_id="#dev_connection_badge", state="checking")
 
     def _render_connection_status(self, probe: ConnectionProbe) -> None:
-        badge = self.query_one("#dev_connection_badge", Static)
-        badge.remove_class("-checking")
-        badge.remove_class("-ok")
-        badge.remove_class("-warning")
-        badge.remove_class("-error")
-        if probe.status == 0:
-            badge.add_class("-error")
-            badge.update("●")
-            return
-        if probe.ok and probe.status < 300:
-            badge.add_class("-ok")
-            badge.update("●")
-            return
-        if probe.ok and probe.status == 403:
-            badge.add_class("-warning")
-            badge.update("●")
-            return
-        badge.add_class("-error")
-        badge.update("●")
+        set_connection_badge_state(
+            self,
+            badge_id="#dev_connection_badge",
+            state=badge_state_for_probe(probe),
+        )
 
     def _apply_theme(self, theme_name: str, notify: bool = False) -> None:
-        definition = self.theme_catalog.theme_for(theme_name)
-        configure_semantic_styles(
-            colors=definition.colors,
-            variables=definition.variables,
+        self.theme_name = apply_theme(
+            self,
+            theme_catalog=self.theme_catalog,
+            theme_options=self.theme_options,
+            current_theme_name=self.theme_name,
+            new_theme_name=theme_name,
+            state=self.state,
+            logo_widget_id="#dev_logo",
+            notify=notify,
         )
-        previous = self.theme_name
-        if previous:
-            self.screen.remove_class(f"theme-{previous}")
-        self.theme_name = theme_name
-        self.state.theme_name = theme_name
-        self.theme = theme_name
-        self.screen.add_class(f"theme-{theme_name}")
-        self._refresh_logo(definition)
-        if notify:
-            label = next(
-                (name for name, key in self.theme_options if key == theme_name),
-                theme_name,
-            )
-            self.notify(f"Theme switched to {label}")
+        self._sync_text_area_syntax_themes()
+        if self.current_group and self.current_resource:
+            try:
+                prev_hl = self.query_one("#dev_operation_list", OptionList).highlighted
+            except NoMatches:
+                prev_hl = None
+            self._refresh_operation_list(highlight_index=prev_hl)
+            if self._visible_operations:
+                idx = min(prev_hl, len(self._visible_operations) - 1) if prev_hl is not None else 0
+                op = self._visible_operations[idx]
+                summary = op.summary or op.operation_id or "No summary available."
+                self._set_operation_summary(self._operation_detail_text(op, summary))
 
-    def _logo_renderable(self) -> Text:
-        return build_netbox_logo(self.theme_catalog.theme_for(self.theme_name))
+    def _logo_renderable(self):
+        return logo_renderable(self.theme_catalog, self.theme_name)
 
-    def _refresh_logo(self, definition: ThemeDefinition) -> None:
-        try:
-            logo = self.query_one("#dev_logo", Static)
-        except NoMatches:
-            return
-        logo.update(build_netbox_logo(definition))
+    def _sync_text_area_syntax_themes(self) -> None:
+        """Keep TextArea syntax themes aligned with the catalog theme selection."""
+        ta_theme = _text_area_syntax_theme_for(self.theme_name)
+        for widget in self.query(TextArea):
+            widget.theme = ta_theme
 
     def _strip_theme_select_prefix(self) -> None:
-        try:
-            label = self.query_one("#dev_theme_select SelectCurrent Static#label", Static)
-        except NoMatches:
-            return
-        text = str(label.content)
-        if text.startswith("- "):
-            label.update(text[2:])
+        strip_theme_select_prefix(self, selector="#dev_theme_select SelectCurrent Static#label")
 
 
 def available_theme_names() -> tuple[str, ...]:
-    return _get_theme_catalog().available_theme_names()
+    return get_theme_catalog().available_theme_names()
 
 
 def resolve_theme_name(theme_name: str | None) -> str | None:
-    return _get_theme_catalog().resolve(theme_name)
+    return get_theme_catalog().resolve(theme_name)
 
 
 def run_dev_tui(

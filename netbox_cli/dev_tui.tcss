@@ -23,8 +23,8 @@ Screen {
     height: auto;
     background: $background;
     border: tall transparent;
-    border-bottom: solid $foreground 10%;
-    padding: 0 1;
+    padding: 0 1 1 1;
+    margin: 0 0 1 0;
     align: left middle;
 }
 
@@ -75,12 +75,21 @@ Screen {
     padding: 0 1;
 }
 
+#dev_theme_select SelectCurrent:focus {
+    border: none;
+    background: transparent;
+}
+
 #dev_theme_select SelectCurrent Static#label {
     color: $foreground 70%;
 }
 
 #dev_theme_select SelectCurrent.-has-value Static#label {
     color: $foreground;
+}
+
+#dev_theme_select SelectCurrent .arrow {
+    color: $foreground 55%;
 }
 
 #dev_theme_select SelectOverlay {
@@ -91,30 +100,44 @@ Screen {
     border: tall $nb-border-subtle;
 }
 
+#dev_theme_select SelectOverlay:focus,
+#dev_method_select SelectOverlay:focus {
+    border: tall $primary;
+    background-tint: $foreground 5%;
+}
+
 #dev_theme_select SelectOverlay > .option-list--option-highlighted {
     color: $foreground;
     background: $panel;
     text-style: bold;
 }
 
-#dev_title {
-    width: auto;
-    margin-right: 1;
-    color: $foreground;
-    text-style: bold;
+#dev_theme_select SelectOverlay > .option-list--option-hover,
+#dev_method_select SelectOverlay > .option-list--option-hover,
+#dev_operation_list > .option-list--option-hover {
+    background: $panel;
 }
 
-#dev_title_suffix {
-    width: auto;
-    color: $secondary;
+#dev_theme_select SelectOverlay > .option-list--option-disabled,
+#dev_method_select SelectOverlay > .option-list--option-disabled,
+#dev_operation_list > .option-list--option-disabled {
+    color: $text-muted;
 }
 
 #dev_logo {
     width: auto;
-    margin: 0 1;
+    margin: 0 0 0 1;
     color: $primary;
     text-style: bold;
     text-align: center;
+    text-wrap: nowrap;
+}
+
+#dev_topbar_cli_suffix {
+    width: auto;
+    margin: 0 1 0 1;
+    color: $foreground;
+    text-style: bold;
     text-wrap: nowrap;
 }
 
@@ -157,11 +180,19 @@ Screen {
     text-style: bold;
 }
 
+#dev_close_button:hover {
+    background: $error 85%;
+}
+
+#dev_close_button:focus {
+    border: tall $error;
+}
+
 #dev_request_bar {
     width: 1fr;
     height: auto;
-    padding: 0 1 1 1;
-    border-bottom: solid $foreground 10%;
+    padding: 0 1;
+    margin: 0 0 2 0;
     background: $background;
 }
 
@@ -181,8 +212,27 @@ Screen {
     text-style: bold;
 }
 
+#dev_method_select SelectCurrent:hover {
+    background: $surface;
+}
+
 #dev_method_select SelectCurrent:focus {
     border: tall $primary;
+    background: $primary 7%;
+}
+
+#dev_method_select SelectOverlay {
+    background: $background;
+    color: $foreground;
+    border: tall $nb-border-subtle;
+    min-width: 12;
+    width: 12;
+}
+
+#dev_method_select SelectOverlay > .option-list--option-highlighted {
+    color: $foreground;
+    background: $panel;
+    text-style: bold;
 }
 
 #dev_path_input {
@@ -197,12 +247,24 @@ Screen {
     background: $primary 7%;
 }
 
+#dev_path_input > .input--placeholder {
+    color: $text-muted;
+}
+
 #dev_send_button {
     width: 12;
     background: $primary;
     color: $background;
     border: none;
     text-style: bold;
+}
+
+#dev_send_button:hover {
+    background: $primary 88%;
+}
+
+#dev_send_button:focus {
+    border: tall $primary;
 }
 
 #dev_shell {
@@ -214,31 +276,32 @@ Screen {
     min-width: 26;
     max-width: 35%;
     background: $background;
-    border-right: tall $foreground 10%;
-    padding: 0 1;
+    border-right: none;
+    padding: 0 2 0 1;
+    margin: 0 1 0 0;
     overflow: hidden scroll;
     scrollbar-size: 0 0;
 }
 
 #dev_sidebar_title {
-    padding: 1 0 0 0;
-    color: $secondary;
+    padding: 1 0 1 0;
+    color: $primary;
     text-style: bold;
 }
 
 #dev_help {
-    padding: 1 0;
+    padding: 1 0 0 0;
     color: $text-muted;
 }
 
 #dev_main {
     width: 1fr;
-    padding: 0 1 1 1;
+    padding: 0 1 1 2;
     background: $background;
 }
 
 #dev_context {
-    padding: 1 0;
+    padding: 1 0 2 0;
     color: $foreground;
     text-style: bold;
 }
@@ -251,12 +314,14 @@ Screen {
 #dev_response_panel {
     width: 1fr;
     height: 1fr;
-    border: tall $nb-border-subtle;
+    border: none;
     background: $surface;
+    padding: 0 0 1 0;
+    margin: 0 1 0 0;
 }
 
 #dev_request_panel {
-    margin-right: 1;
+    margin-right: 2;
 }
 
 #dev_request_tabs,
@@ -266,28 +331,47 @@ Screen {
 
 #dev_operation_search,
 #dev_query_input {
-    margin: 1;
+    margin: 2 2 1 2;
     border: tall transparent;
     background: $panel;
 }
 
 #dev_operation_search:focus,
 #dev_query_input:focus {
-    border: tall $secondary;
+    border: tall $primary;
+    background: $primary 5%;
+}
+
+#dev_operation_search > .input--placeholder,
+#dev_query_input > .input--placeholder {
+    color: $text-muted;
 }
 
 #dev_operation_list {
     height: 1fr;
-    margin: 0 1;
+    margin: 0 2 2 2;
     background: $background;
-    border: tall $nb-border-subtle;
+    border: tall transparent;
+    color: $foreground;
+    scrollbar-background: transparent;
+}
+
+#dev_operation_list:focus {
+    border: tall $primary;
+    background-tint: $foreground 5%;
+}
+
+#dev_operation_list > .option-list--option-highlighted {
+    color: $foreground;
+    background: $panel;
+    text-style: bold;
 }
 
 #dev_operation_summary,
 #dev_query_help,
 #dev_body_help,
 #dev_response_summary {
-    padding: 1;
+    padding: 1 2 2 2;
     color: $text-muted;
 }
 
@@ -295,15 +379,68 @@ Screen {
 #dev_response_body,
 #dev_response_headers {
     height: 1fr;
-    margin: 1;
+    margin: 1 2 2 2;
     background: $background;
-    border: tall $nb-border-subtle;
+    border: tall transparent;
+    color: $foreground;
+}
+
+#dev_body_editor:focus,
+#dev_response_body:focus,
+#dev_response_headers:focus {
+    border: tall $primary;
+    background: $primary 5%;
+}
+
+#dev_body_editor > .text-area--gutter,
+#dev_response_body > .text-area--gutter,
+#dev_response_headers > .text-area--gutter {
+    background: $background;
+    color: $text-muted;
+}
+
+#dev_body_editor > .text-area--cursor-gutter,
+#dev_response_body > .text-area--cursor-gutter,
+#dev_response_headers > .text-area--cursor-gutter,
+#dev_body_editor > .text-area--cursor-line,
+#dev_response_body > .text-area--cursor-line,
+#dev_response_headers > .text-area--cursor-line {
+    background: $panel;
+    color: $foreground;
+}
+
+#dev_body_editor > .text-area--selection,
+#dev_response_body > .text-area--selection,
+#dev_response_headers > .text-area--selection {
+    background: $primary 35%;
+    color: $foreground;
+}
+
+#dev_body_editor > .text-area--matching-bracket,
+#dev_response_body > .text-area--matching-bracket,
+#dev_response_headers > .text-area--matching-bracket {
+    background: $foreground 8%;
+    color: $foreground;
+}
+
+#dev_body_editor > .text-area--cursor,
+#dev_response_body > .text-area--cursor,
+#dev_response_headers > .text-area--cursor {
+    background: $foreground;
+    color: $background;
+}
+
+#dev_body_editor > .text-area--placeholder,
+#dev_response_body > .text-area--placeholder,
+#dev_response_headers > .text-area--placeholder {
+    color: $text-muted;
 }
 
 #dev_response_meta {
     height: auto;
-    padding: 1;
-    border-bottom: solid $foreground 10%;
+    padding: 1 2;
+    margin: 0 0 1 0;
+    border-bottom: none;
     background: $panel;
 }
 
@@ -321,36 +458,115 @@ Screen {
     content-align: right middle;
 }
 
-Tree {
+#dev_nav_tree {
+    height: 1fr;
+    margin-top: 1;
     background: transparent;
     color: $foreground;
+    border: tall transparent;
 }
 
-Tree:focus {
-    border: tall $primary;
+#dev_nav_tree:focus {
+    background: transparent;
+    background-tint: transparent;
+    border: tall transparent;
 }
 
-OptionList {
-    background: $background;
+#dev_nav_tree > .tree--label {
     color: $foreground;
-    border: tall $nb-border-subtle;
 }
 
-OptionList:focus {
-    border: tall $primary;
+#dev_nav_tree > .tree--guides {
+    color: $nb-border-subtle;
 }
 
-OptionList > .option-list--option-highlighted {
-    color: $foreground;
+#dev_nav_tree > .tree--guides-selected {
+    color: $primary;
+}
+
+#dev_nav_tree > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#dev_nav_tree > .tree--cursor {
     background: $panel;
+    color: $foreground;
     text-style: bold;
+}
+
+#dev_nav_tree > .tree--highlight-line {
+    background: $panel;
+}
+
+#dev_nav_tree > .tree--highlight {
+    background: $panel;
+    color: $foreground;
 }
 
 TabbedContent {
     background: $surface;
 }
 
+#dev_request_tabs ContentTabs,
+#dev_response_tabs ContentTabs {
+    background: transparent;
+    color: $foreground;
+    border: none;
+    padding: 0 1;
+    margin: 0 0 1 0;
+}
+
+#dev_request_tabs .underline--bar,
+#dev_response_tabs .underline--bar {
+    background: $nb-border-subtle;
+}
+
+#dev_request_tabs ContentTabs:focus .underline--bar,
+#dev_response_tabs ContentTabs:focus .underline--bar {
+    background: $primary 35%;
+}
+
+#dev_request_tabs Tab,
+#dev_response_tabs Tab {
+    background: transparent;
+    color: $foreground 50%;
+    border: tall transparent;
+}
+
+#dev_request_tabs Tab:hover,
+#dev_response_tabs Tab:hover {
+    background: $panel;
+    color: $foreground;
+}
+
+#dev_request_tabs Tab:focus,
+#dev_response_tabs Tab:focus {
+    background: $panel;
+    color: $foreground;
+    border: tall $primary;
+}
+
+#dev_request_tabs ContentTabs:focus .-active,
+#dev_response_tabs ContentTabs:focus .-active {
+    color: $primary;
+    background: $surface;
+    text-style: bold;
+}
+
+#dev_request_tabs Tab.-active,
+#dev_response_tabs Tab.-active {
+    color: $foreground;
+    text-style: bold;
+}
+
 TabPane {
     padding: 0;
     background: $surface;
+}
+
+Footer {
+    background: $background;
+    border-top: none;
+    margin-top: 1;
+    padding-top: 1;
 }

@@ -171,3 +171,12 @@ async def test_api_client_does_not_retry_non_auth_error(monkeypatch, tmp_path) -
 
     assert response.status == 500
     assert calls == ["Bearer nbt_legacy.plain-v1-token"]
+
+
+def test_api_response_headers_are_not_shared_between_instances() -> None:
+    first = ApiResponse(status=200, text="ok")
+    second = ApiResponse(status=200, text="ok")
+
+    first.headers["X-Test"] = "one"
+
+    assert second.headers == {}

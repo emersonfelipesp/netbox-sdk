@@ -9,7 +9,7 @@ from textual.widgets import Input, OptionList, Select, Static, TextArea
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
-from netbox_cli.ui.dev_app import NetBoxDevTuiApp
+from netbox_cli.ui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for
 from netbox_cli.ui.dev_state import DevTuiState
 
 _OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
@@ -102,3 +102,22 @@ async def test_dev_tui_theme_switch_updates_theme_name(mock_client, real_index) 
         await pilot.pause()
 
         assert app.theme_name == "netbox-dark"
+        assert app.query_one("#dev_body_editor", TextArea).theme == _text_area_syntax_theme_for(
+            "netbox-dark"
+        )
+
+
+@pytest.mark.asyncio
+async def test_dev_tui_textareas_follow_app_theme_tokens(mock_client, real_index) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="dracula")
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+
+        body = app.query_one("#dev_body_editor", TextArea)
+        response = app.query_one("#dev_response_body", TextArea)
+
+        assert body.theme == "css"
+        assert response.theme == "css"
+        assert str(body.styles.background) == "Color(40, 42, 54)"
+        assert str(response.styles.background) == "Color(40, 42, 54)"
