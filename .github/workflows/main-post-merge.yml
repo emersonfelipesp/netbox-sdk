@@ -1,0 +1,38 @@
+name: Main Post-Merge Validation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-main:
+    name: install, demo tui, and tests / Python 3.13
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --locked
+
+      - name: Install netbox-cli tool
+        run: uv tool install --force .
+
+      - name: Verify installed nbx command
+        run: ~/.local/bin/nbx --help
+
+      - name: Simulate demo TUI interaction
+        run: uv run pytest -v --tb=short tests/test_tui_interaction.py tests/test_dev_tui.py
+
+      - name: Run full test suite
+        run: uv run pytest -v --tb=short
