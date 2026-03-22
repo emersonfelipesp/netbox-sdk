@@ -1,15 +1,14 @@
 """Tests for service-layer request resolution and dynamic CLI argument parsing."""
 
-from pathlib import Path
-
 import pytest
 
 from netbox_cli.schema import build_schema_index
 from netbox_cli.services import parse_key_value_pairs, resolve_dynamic_request
+from tests.conftest import OPENAPI_PATH
 
 
 def _index():
-    return build_schema_index(Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json"))
+    return build_schema_index(OPENAPI_PATH)
 
 
 def test_parse_key_value_pairs_ok():

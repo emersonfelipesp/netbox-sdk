@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from netbox_cli.api import ApiResponse
 from netbox_cli.schema import build_schema_index
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.plugin_discovery import discover_plugin_resource_paths
+from tests.conftest import OPENAPI_PATH
 
 
 @pytest.mark.asyncio
@@ -36,7 +35,7 @@ async def test_discover_plugin_resource_paths_walks_plugin_roots() -> None:
 
 
 def test_build_navigation_menus_groups_plugin_resources_by_plugin_name() -> None:
-    index = build_schema_index(Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json"))
+    index = build_schema_index(OPENAPI_PATH)
 
     menus = build_navigation_menus(index)
     plugins_menu = next(menu for menu in menus if menu.label == "Plugins")

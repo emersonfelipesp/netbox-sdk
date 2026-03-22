@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -34,12 +33,11 @@ from netbox_cli.ui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
+from tests.conftest import OPENAPI_PATH
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
-
-_OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
 
 FAKE_DEVICES = [
     {"id": 1, "name": "switch01", "status": "active", "display": "switch01"},
@@ -245,7 +243,7 @@ def _detail_response(payload: dict) -> ApiResponse:
 
 @pytest.fixture()
 def real_index():
-    return build_schema_index(_OPENAPI_PATH)
+    return build_schema_index(OPENAPI_PATH)
 
 
 _PROBE_OK = ConnectionProbe(status=200, version="4.2", ok=True, error=None)
@@ -1381,9 +1379,7 @@ def test_query_from_search_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
     app.current_group = "dcim"
     app.current_resource = "devices"
-    app.index = build_schema_index(
-        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
-    )
+    app.index = build_schema_index(OPENAPI_PATH)
     assert app._query_from_search("name=switch01") == {"name__ic": "switch01"}
 
 
@@ -1391,9 +1387,7 @@ def test_query_from_search_multi_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
     app.current_group = "dcim"
     app.current_resource = "devices"
-    app.index = build_schema_index(
-        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
-    )
+    app.index = build_schema_index(OPENAPI_PATH)
     assert app._query_from_search("name=switch01,role=leaf") == {
         "name__ic": "switch01",
         "role": "leaf",
@@ -1409,9 +1403,7 @@ def test_query_from_search_status_stays_exact():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
     app.current_group = "dcim"
     app.current_resource = "devices"
-    app.index = build_schema_index(
-        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
-    )
+    app.index = build_schema_index(OPENAPI_PATH)
     assert app._query_from_search("status=active") == {"status": "active"}
 
 
