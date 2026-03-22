@@ -6,9 +6,13 @@ import stat
 import tempfile
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
+
+if TYPE_CHECKING:
+    from netbox_cli.api import ApiResponse
 
 DEFAULT_FRESH_TTL_SECONDS = 60.0
 DEFAULT_STALE_IF_ERROR_SECONDS = 300.0
@@ -50,9 +54,7 @@ def build_cache_key(
     authorization: str | None,
 ) -> str:
     encoded_query = urlencode(sorted((query or {}).items()), doseq=True)
-    token_fingerprint = hashlib.sha256(
-        (authorization or "").encode("utf-8")
-    ).hexdigest()
+    token_fingerprint = hashlib.sha256((authorization or "").encode("utf-8")).hexdigest()
     identity = "\n".join(
         [
             base_url.rstrip("/"),

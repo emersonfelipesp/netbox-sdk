@@ -113,9 +113,7 @@ def test_save_demo_profile_migrates_legacy_default(tmp_path, monkeypatch) -> Non
     assert stored["profiles"]["demo"]["base_url"] == DEMO_BASE_URL
 
 
-def test_clear_profile_config_removes_only_selected_profile(
-    tmp_path, monkeypatch
-) -> None:
+def test_clear_profile_config_removes_only_selected_profile(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
 
     save_profile_config(

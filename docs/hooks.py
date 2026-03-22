@@ -32,7 +32,7 @@ def _build_command_examples() -> str:
     if not _INDEX_FILE.exists():
         return (
             "# Command Examples\n\n"
-            "!!! warning \"Not yet generated\"\n"
+            '!!! warning "Not yet generated"\n'
             "    Run `nbx docs generate-capture` from the repo root to generate "
             "command capture artifacts, then rebuild the docs.\n"
         )
@@ -62,13 +62,13 @@ def _build_command_examples() -> str:
     lines: list[str] = [
         "# Command Examples",
         "",
-        "!!! info \"Machine-generated\"",
+        '!!! info "Machine-generated"',
         "    This page is automatically generated from CLI captures.",
         f"    Last updated: `{generated_at}`",
         "",
-        "??? note \"Generation metadata\"",
-        f"    | Key | Value |",
-        f"    |-----|-------|",
+        '??? note "Generation metadata"',
+        "    | Key | Value |",
+        "    |-----|-------|",
         f"    | Profile | `{profile}` |",
         f"    | NetBox URL | `{netbox_url}` |",
         f"    | Token configured | `{token_ok}` |",
@@ -122,7 +122,7 @@ def _build_command_examples() -> str:
         if truncated:
             lines.append("")
             lines.append(
-                "!!! warning \"Truncated\""
+                '!!! warning "Truncated"'
                 "\n    Output was truncated. Full text is in `docs/generated/raw/`."
             )
 

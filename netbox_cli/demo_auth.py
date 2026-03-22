@@ -60,13 +60,9 @@ def provision_demo_token(
             browser = playwright.chromium.launch(headless=headless)
             page = browser.new_page()
             try:
-                user_created = _create_demo_user(
-                    page, username=username, password=password
-                )
+                user_created = _create_demo_user(page, username=username, password=password)
                 if not user_created:
-                    print(
-                        f"Demo user '{username}' already exists. Proceeding to login."
-                    )
+                    print(f"Demo user '{username}' already exists. Proceeding to login.")
                 _login(page, username=username, password=password)
                 token_value = _create_token(page, token_name=token_name)
             finally:
@@ -90,19 +86,14 @@ def provision_demo_token(
                 "  nbx demo\n"
                 "  xvfb-run nbx demo --headed"
             ) from exc
-        if (
-            "error while loading shared libraries" in detail
-            or "BrowserType.launch" in detail
-        ):
+        if "error while loading shared libraries" in detail or "BrowserType.launch" in detail:
             raise RuntimeError(
                 "Playwright Chromium could not start because system libraries are missing.\n"
                 "Install browser dependencies with:\n"
                 "  playwright install --with-deps chromium\n"
                 "If that is unavailable on your system, install the missing shared libraries and retry."
             ) from exc
-        raise RuntimeError(
-            f"Failed to automate demo.netbox.dev login: {detail}"
-        ) from exc
+        raise RuntimeError(f"Failed to automate demo.netbox.dev login: {detail}") from exc
     return _parse_v1_token(token_value)
 
 
@@ -129,9 +120,7 @@ def _login(page: object, *, username: str, password: str) -> None:
     page.get_by_role("button", name="Sign In").click()
     page.wait_for_url(f"{DEMO_BASE_URL}/**")
     if "/login/" in page.url:
-        raise RuntimeError(
-            "Demo login failed. Check the provided username and password."
-        )
+        raise RuntimeError("Demo login failed. Check the provided username and password.")
 
 
 def _create_token(page: object, *, token_name: str) -> str:
@@ -166,12 +155,8 @@ def _create_token(page: object, *, token_name: str) -> str:
     except Exception as exc:  # noqa: BLE001
         error_text = _extract_page_error(page)
         if error_text:
-            raise RuntimeError(
-                f"NetBox demo rejected token creation: {error_text}"
-            ) from exc
-        raise RuntimeError(
-            "Timed out waiting for NetBox demo to finish token creation."
-        ) from exc
+            raise RuntimeError(f"NetBox demo rejected token creation: {error_text}") from exc
+        raise RuntimeError("Timed out waiting for NetBox demo to finish token creation.") from exc
 
     return token_value
 

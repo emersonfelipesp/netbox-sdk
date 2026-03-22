@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from typer.testing import CliRunner
 
 from netbox_cli import cli
+from netbox_cli.api import ConnectionProbe
 from netbox_cli.config import DEMO_BASE_URL, Config
 
 runner = CliRunner()
@@ -50,12 +51,45 @@ def test_demo_config_allows_legacy_v2_profile(monkeypatch) -> None:
     assert '"token_version": "v2"' in result.output
 
 
+def test_demo_test_command_success(monkeypatch) -> None:
+    class _FakeClient:
+        async def probe_connection(self) -> ConnectionProbe:
+            return ConnectionProbe(status=200, version="4.2", ok=True, error=None)
+
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr(cli, "_get_client_for_config", lambda cfg: _FakeClient())
+
+    result = runner.invoke(cli.app, ["demo", "test"])
+
+    assert result.exit_code == 0
+    assert "Demo connection OK" in result.output
+    assert "status=200" in result.output
+    assert "api_version=4.2" in result.output
+
+
+def test_demo_test_command_failure(monkeypatch) -> None:
+    class _FakeClient:
+        async def probe_connection(self) -> ConnectionProbe:
+            return ConnectionProbe(
+                status=401,
+                version="",
+                ok=False,
+                error="Invalid token",
+            )
+
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr(cli, "_get_client_for_config", lambda cfg: _FakeClient())
+
+    result = runner.invoke(cli.app, ["demo", "test"])
+
+    assert result.exit_code == 1
+    assert "Demo connection failed: Invalid token" in result.output
+
+
 def test_demo_callback_initializes_when_missing(monkeypatch) -> None:
     called: dict[str, bool] = {}
 
-    monkeypatch.setattr(
-        cli, "load_profile_config", lambda profile: Config(base_url=DEMO_BASE_URL)
-    )
+    monkeypatch.setattr(cli, "load_profile_config", lambda profile: Config(base_url=DEMO_BASE_URL))
 
     def _fake_init(
         *,
@@ -158,6 +192,7 @@ def test_demo_init_defaults_to_headless(monkeypatch) -> None:
             )
         ),
     )
+    monkeypatch.setattr(cli, "save_profile_config", lambda profile, cfg: None)
     monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
 
     result = runner.invoke(cli.app, ["demo", "init"])

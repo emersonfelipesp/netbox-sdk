@@ -143,7 +143,7 @@ if $PW_OK; then
     spinner_ok "Playwright Chromium ready"
 else
     spinner_stop
-    warn "Playwright Chromium install skipped (run 'playwright install chromium' manually)"
+    warn "Playwright Chromium install skipped (run 'uv tool run --from playwright playwright install chromium --with-deps' manually)"
 fi
 rm -f "$PW_LOG"
 

@@ -29,9 +29,7 @@ class ObjectAttributesPanel(PanelCard):
     """Render selected row data as key/value attributes."""
 
     def __init__(self, *, panel_id: str = "detail_panel"):
-        super().__init__(
-            "Object Attributes", "NetBox detail-style panel", panel_id=panel_id
-        )
+        super().__init__("Object Attributes", "NetBox detail-style panel", panel_id=panel_id)
         self._spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
         self._spinner_index = 0
         self._spinner_timer: Timer | None = None

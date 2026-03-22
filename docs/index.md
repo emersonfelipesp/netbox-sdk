@@ -61,7 +61,7 @@ hide:
     Install, configure, and run your first command in under a minute.
 
     ```bash
-    pip install -e .
+    uv tool install --force .
     nbx init
     nbx dcim devices list
     ```
@@ -84,6 +84,21 @@ hide:
 | **Cable trace** | ASCII cable trace diagram for interfaces with `--trace` |
 | **Pure async** | `aiohttp` with `asyncio` throughout — no blocking I/O in TUI workers |
 | **Output formats** | Rich tables (default), `--json`, `--yaml` |
+
+---
+
+## Contributor standard
+
+Development uses `uv`, `ruff`, and `pre-commit` as the default workflow:
+
+```bash
+uv sync --dev
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+The same pre-commit hooks are enforced in GitHub Actions, so local checks and CI stay aligned.
 
 ---
 

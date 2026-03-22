@@ -9,7 +9,7 @@ from time import perf_counter
 from typing import Any
 
 from rich.text import Text
-from textual import events, on, work
+from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -34,10 +34,10 @@ from netbox_cli.api import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_cli.schema import Operation, SchemaIndex
 from netbox_cli.theme_registry import ThemeCatalog, ThemeDefinition, load_theme_catalog
 
+from .dev_state import DevTuiState, DevViewState, load_dev_tui_state, save_dev_tui_state
 from .formatting import configure_semantic_styles, humanize_group, humanize_resource
 from .logo_render import build_netbox_logo
 from .navigation import build_navigation_menus
-from .dev_state import DevTuiState, DevViewState, load_dev_tui_state, save_dev_tui_state
 
 _THEME_CATALOG: ThemeCatalog | None = None
 _HTTP_METHOD_OPTIONS = tuple(
@@ -96,13 +96,9 @@ class NetBoxDevTuiApp(App[None]):
         self.index = index
         self.state: DevTuiState = load_dev_tui_state()
         self.theme_catalog = _get_theme_catalog()
-        requested_theme = (
-            self.theme_catalog.resolve(theme_name) if theme_name is not None else None
-        )
+        requested_theme = self.theme_catalog.resolve(theme_name) if theme_name is not None else None
         state_theme = self.theme_catalog.resolve(self.state.theme_name)
-        self.theme_name = (
-            requested_theme or state_theme or self.theme_catalog.default_theme_name
-        )
+        self.theme_name = requested_theme or state_theme or self.theme_catalog.default_theme_name
         self.theme_options = self.theme_catalog.select_options()
         active_definition = self.theme_catalog.theme_for(self.theme_name)
         configure_semantic_styles(
@@ -246,9 +242,7 @@ class NetBoxDevTuiApp(App[None]):
         self._update_clock()
         self._set_connection_badge_checking()
         self._probe_connection_health()
-        self._clock_timer = self.set_interval(
-            1.0, self._update_clock, name="nbx_dev_clock"
-        )
+        self._clock_timer = self.set_interval(1.0, self._update_clock, name="nbx_dev_clock")
         self._connection_timer = self.set_interval(
             30.0, self._probe_connection_health, name="nbx_dev_connection"
         )
@@ -376,11 +370,7 @@ class NetBoxDevTuiApp(App[None]):
             for group in menu.groups:
                 group_node = menu_node.add(group.label)
                 for item in group.items:
-                    data = (
-                        (item.group, item.resource)
-                        if item.group and item.resource
-                        else None
-                    )
+                    data = (item.group, item.resource) if item.group and item.resource else None
                     group_node.add_leaf(item.label, data=data)
 
     def _restore_last_view(self) -> None:
@@ -429,10 +419,7 @@ class NetBoxDevTuiApp(App[None]):
             or search in operation.operation_id.lower()
         ]
         self._visible_operations = operations
-        prompts = [
-            f"{operation.method} {operation.path}"
-            for operation in self._visible_operations
-        ]
+        prompts = [f"{operation.method} {operation.path}" for operation in self._visible_operations]
         if not prompts:
             prompts = ["No matching operations"]
         option_list = self.query_one("#dev_operation_list", OptionList)
@@ -443,9 +430,7 @@ class NetBoxDevTuiApp(App[None]):
         self.query_one("#dev_method_select", Select).value = operation.method
         self.query_one("#dev_path_input", Input).value = operation.path
         summary = operation.summary or operation.operation_id or "No summary available."
-        self._set_operation_summary(
-            f"{operation.method} {operation.path}\n{summary}"
-        )
+        self._set_operation_summary(f"{operation.method} {operation.path}\n{summary}")
         self.query_one("#dev_request_tabs", TabbedContent).active = "dev_operations_tab"
         self._set_response_summary(f"Prepared {operation.method} {operation.path}")
 
@@ -488,9 +473,7 @@ class NetBoxDevTuiApp(App[None]):
             path = self.query_one("#dev_path_input", Input).value.strip()
             if not path:
                 raise ValueError("Request path cannot be empty.")
-            query = self._parse_query_text(
-                self.query_one("#dev_query_input", Input).value.strip()
-            )
+            query = self._parse_query_text(self.query_one("#dev_query_input", Input).value.strip())
             payload = self._build_payload(method)
         except Exception as exc:  # noqa: BLE001
             self._set_request_error(str(exc).strip() or exc.__class__.__name__)
@@ -525,9 +508,7 @@ class NetBoxDevTuiApp(App[None]):
         self._render_response(response, execution)
 
     def _set_request_in_flight(self, method: str, path: str) -> None:
-        self.query_one("#dev_response_status", Static).update(
-            f"Sending {method} {path}"
-        )
+        self.query_one("#dev_response_status", Static).update(f"Sending {method} {path}")
         self.query_one("#dev_response_timing", Static).update("...")
         self.query_one("#dev_response_size", Static).update("...")
         self._set_response_summary(
@@ -543,26 +524,18 @@ class NetBoxDevTuiApp(App[None]):
         self._set_response_summary(message)
         self.notify(message, severity="error")
 
-    def _render_response(
-        self, response: ApiResponse, execution: RequestExecution
-    ) -> None:
+    def _render_response(self, response: ApiResponse, execution: RequestExecution) -> None:
         status_text = f"HTTP {response.status}"
         self.query_one("#dev_response_status", Static).update(status_text)
-        self.query_one("#dev_response_timing", Static).update(
-            f"{execution.duration_ms:.1f} ms"
-        )
+        self.query_one("#dev_response_timing", Static).update(f"{execution.duration_ms:.1f} ms")
         self.query_one("#dev_response_size", Static).update(
             f"{len(response.text.encode('utf-8'))} B"
         )
-        self.query_one("#dev_response_body", TextArea).text = self._format_response_body(
-            response
-        )
+        self.query_one("#dev_response_body", TextArea).text = self._format_response_body(response)
         self.query_one("#dev_response_headers", TextArea).text = self._format_headers(
             response.headers
         )
-        query_text = "&".join(
-            f"{key}={value}" for key, value in execution.query.items()
-        ) or "-"
+        query_text = "&".join(f"{key}={value}" for key, value in execution.query.items()) or "-"
         payload_text = (
             "none"
             if execution.payload is None
@@ -627,9 +600,7 @@ class NetBoxDevTuiApp(App[None]):
 
     def _update_clock(self) -> None:
         try:
-            self.query_one("#dev_clock", Static).update(
-                datetime.now().strftime("%H:%M:%S")
-            )
+            self.query_one("#dev_clock", Static).update(datetime.now().strftime("%H:%M:%S"))
         except NoMatches:
             pass
 
@@ -695,9 +666,7 @@ class NetBoxDevTuiApp(App[None]):
 
     def _strip_theme_select_prefix(self) -> None:
         try:
-            label = self.query_one(
-                "#dev_theme_select SelectCurrent Static#label", Static
-            )
+            label = self.query_one("#dev_theme_select SelectCurrent Static#label", Static)
         except NoMatches:
             return
         text = str(label.content)

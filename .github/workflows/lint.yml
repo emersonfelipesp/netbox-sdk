@@ -1,4 +1,4 @@
-name: Tests
+name: Lint and Format
 
 on:
   push:
@@ -7,28 +7,24 @@ on:
     branches: ["**"]
 
 jobs:
-  test:
-    name: pytest / Python ${{ matrix.python-version }}
+  lint:
+    name: pre-commit / Python 3.13
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.13"
+
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
 
       - name: Sync development environment
         run: uv sync --dev --locked
 
-      - name: Run tests
-        run: uv run pytest -v --tb=short
+      - name: Run pre-commit checks
+        run: uv run pre-commit run --all-files --show-diff-on-failure --color=always

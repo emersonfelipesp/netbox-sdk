@@ -4,8 +4,15 @@ Built with MkDocs Material theme. Source lives here; deployed to GitHub Pages by
 
 **Local preview:**
 ```bash
-pip install -e ".[docs]"
-mkdocs serve
+uv sync --group docs
+uv run mkdocs serve
+```
+
+**Contributor hooks:**
+```bash
+uv sync --dev --group docs
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
 ```
 
 **Deploy (CI only):**

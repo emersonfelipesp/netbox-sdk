@@ -13,20 +13,37 @@ _FILTER_EXCLUDE_NAMES: frozenset[str] = frozenset({"limit", "offset", "format"})
 
 # Lookup suffixes added by NetBox/django-filter — only the bare field name is shown.
 _LOOKUP_SUFFIXES: tuple[str, ...] = (
-    "__empty", "__gt", "__gte", "__ic", "__ie", "__iew", "__iregex", "__isw",
-    "__lt", "__lte", "__n", "__nic", "__nie", "__niew", "__nisw", "__nre",
-    "__nregex", "__re", "__regex",
+    "__empty",
+    "__gt",
+    "__gte",
+    "__ic",
+    "__ie",
+    "__iew",
+    "__iregex",
+    "__isw",
+    "__lt",
+    "__lte",
+    "__n",
+    "__nic",
+    "__nie",
+    "__niew",
+    "__nisw",
+    "__nre",
+    "__nregex",
+    "__re",
+    "__regex",
 )
 
 
 class FilterParam(BaseModel):
     """A single query parameter available for filtering a list endpoint."""
+
     model_config = ConfigDict(frozen=True)
 
     name: str
     label: str
-    type: str            # "string" | "integer" | "boolean" | "enum" | "array"
-    choices: tuple[str, ...] = ()   # non-empty only when type == "enum"
+    type: str  # "string" | "integer" | "boolean" | "enum" | "array"
+    choices: tuple[str, ...] = ()  # non-empty only when type == "enum"
     description: str = ""
 
 
@@ -50,9 +67,7 @@ class ResourcePaths(BaseModel):
 
 def _classify_param(schema: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
     if "enum" in schema:
-        choices = tuple(
-            str(v) for v in schema["enum"] if v is not None and str(v) != "null"
-        )
+        choices = tuple(str(v) for v in schema["enum"] if v is not None and str(v) != "null")
         return "enum", choices
     ptype = schema.get("type", "string")
     if ptype == "boolean":
@@ -90,10 +105,7 @@ class SchemaIndex:
                 resource_paths[key] = {"list_path": None, "detail_path": None}
 
             is_list = (
-                len(parts) == 3
-                and parts[0] == "api"
-                and parts[1] == group
-                and parts[2] == resource
+                len(parts) == 3 and parts[0] == "api" and parts[1] == group and parts[2] == resource
             )
             is_detail = (
                 len(parts) == 4
@@ -123,13 +135,9 @@ class SchemaIndex:
                     )
                 )
 
-        self.operations.sort(
-            key=lambda item: (item.group, item.resource, item.path, item.method)
-        )
+        self.operations.sort(key=lambda item: (item.group, item.resource, item.path, item.method))
         self._resource_paths = {
-            key: ResourcePaths(
-                list_path=val["list_path"], detail_path=val["detail_path"]
-            )
+            key: ResourcePaths(list_path=val["list_path"], detail_path=val["detail_path"])
             for key, val in resource_paths.items()
         }
 
@@ -137,15 +145,11 @@ class SchemaIndex:
         return sorted({item.group for item in self.operations})
 
     def resources(self, group: str) -> list[str]:
-        return sorted(
-            {item.resource for item in self.operations if item.group == group}
-        )
+        return sorted({item.resource for item in self.operations if item.group == group})
 
     def operations_for(self, group: str, resource: str) -> list[Operation]:
         return [
-            item
-            for item in self.operations
-            if item.group == group and item.resource == resource
+            item for item in self.operations if item.group == group and item.resource == resource
         ]
 
     def resource_paths(self, group: str, resource: str) -> ResourcePaths | None:
@@ -191,13 +195,15 @@ class SchemaIndex:
             label = name.replace("_", " ").replace("-", " ").title()
             description = str(param.get("description", ""))
 
-            result.append(FilterParam(
-                name=name,
-                label=label,
-                type=ptype,
-                choices=choices,
-                description=description,
-            ))
+            result.append(
+                FilterParam(
+                    name=name,
+                    label=label,
+                    type=ptype,
+                    choices=choices,
+                    description=description,
+                )
+            )
 
         # q first, then alphabetical
         result.sort(key=lambda p: (p.name != "q", p.name))
@@ -240,19 +246,14 @@ def parse_group_resource(path: str) -> tuple[str | None, str | None]:
 def load_openapi_schema(openapi_path: Path | None = None) -> dict[str, Any]:
     if openapi_path is None:
         openapi_path = (
-            Path(__file__).resolve().parent
-            / "reference"
-            / "openapi"
-            / "netbox-openapi.json"
+            Path(__file__).resolve().parent / "reference" / "openapi" / "netbox-openapi.json"
         )
     text = openapi_path.read_text(encoding="utf-8")
     if openapi_path.suffix.lower() in {".yaml", ".yml"}:
         try:
             import yaml
         except ModuleNotFoundError as exc:
-            raise RuntimeError(
-                "PyYAML is required to load YAML OpenAPI schemas"
-            ) from exc
+            raise RuntimeError("PyYAML is required to load YAML OpenAPI schemas") from exc
         loaded = yaml.safe_load(text)
     else:
         loaded = json.loads(text)

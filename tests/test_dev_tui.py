@@ -12,9 +12,7 @@ from netbox_cli.schema import build_schema_index
 from netbox_cli.ui.dev_app import NetBoxDevTuiApp
 from netbox_cli.ui.dev_state import DevTuiState
 
-_OPENAPI_PATH = (
-    Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
-)
+_OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
 
 
 @pytest.fixture
@@ -70,9 +68,7 @@ async def test_dev_tui_loads_default_operation(mock_client, real_index) -> None:
 
 
 @pytest.mark.asyncio
-async def test_dev_tui_send_request_uses_current_http_client(
-    mock_client, real_index
-) -> None:
+async def test_dev_tui_send_request_uses_current_http_client(mock_client, real_index) -> None:
     app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="dracula")
 
     async with app.run_test() as pilot:

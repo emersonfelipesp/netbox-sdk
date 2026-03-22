@@ -30,7 +30,9 @@ class NavMenu(BaseModel):
 
 
 # Mirror netbox/netbox/netbox/navigation/menu.py ordering.
-_NAV_BLUEPRINT: tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str | None, str | None], ...]], ...]], ...] = (
+_NAV_BLUEPRINT: tuple[
+    tuple[str, tuple[tuple[str, tuple[tuple[str, str | None, str | None], ...]], ...]], ...
+] = (
     (
         "Organization",
         (
@@ -75,9 +77,7 @@ _NAV_BLUEPRINT: tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str | None, s
             ),
             (
                 "Rack Types",
-                (
-                    ("Rack Types", "dcim", "rack-types"),
-                ),
+                (("Rack Types", "dcim", "rack-types"),),
             ),
         ),
     ),
@@ -122,9 +122,7 @@ _NAV_BLUEPRINT: tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str | None, s
             ),
             (
                 "Addressing",
-                (
-                    ("MAC Addresses", "dcim", "mac-addresses"),
-                ),
+                (("MAC Addresses", "dcim", "mac-addresses"),),
             ),
         ),
     ),
@@ -342,9 +340,7 @@ _NAV_BLUEPRINT: tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str | None, s
             ),
             (
                 "Scripts",
-                (
-                    ("Scripts", "extras", "scripts"),
-                ),
+                (("Scripts", "extras", "scripts"),),
             ),
         ),
     ),
@@ -361,9 +357,7 @@ _NAV_BLUEPRINT: tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str | None, s
             ),
             (
                 "Jobs",
-                (
-                    ("Jobs", "core", "jobs"),
-                ),
+                (("Jobs", "core", "jobs"),),
             ),
             (
                 "Logging",
@@ -424,9 +418,7 @@ def _plugin_menu(index: SchemaIndex) -> NavMenu | None:
 
 def build_navigation_menus(index: SchemaIndex) -> list[NavMenu]:
     available = {
-        (group, resource)
-        for group in index.groups()
-        for resource in index.resources(group)
+        (group, resource) for group in index.groups() for resource in index.resources(group)
     }
 
     menus: list[NavMenu] = []
