@@ -6,6 +6,7 @@ import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
+import click
 from typer.testing import CliRunner
 
 from netbox_cli import cli
@@ -231,7 +232,7 @@ def test_demo_interfaces_get_rejects_trace_and_trace_only_together(monkeypatch) 
     )
 
     assert result.exit_code != 0
-    assert "Use either --trace or --trace-only, not both." in result.output
+    assert "Use either --trace or --trace-only, not both." in click.unstyle(result.output)
 
 
 def test_demo_circuit_termination_get_trace_renders_ascii(monkeypatch) -> None:

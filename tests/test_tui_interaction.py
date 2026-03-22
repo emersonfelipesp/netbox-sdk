@@ -648,7 +648,8 @@ async def test_detail_link_click_redirects_to_linked_object(real_index):
                 break
             stack.extend(node.children)
         assert leaf is not None
-        app.on_nav_selected(Tree.NodeSelected(leaf))
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
         await pilot.pause()
 
         detail_table = app.query_one("#detail_table", DataTable)
@@ -1020,8 +1021,12 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
         tree = app.query_one("#nav_tree", Tree)
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
-        app.on_nav_selected(Tree.NodeSelected(leaf))
-        await pilot.pause()
+        tree.post_message(Tree.NodeSelected(leaf))
+        for _ in range(5):
+            await pilot.pause()
+            status = app.query_one("#results_status", Static)
+            if "-loading" in status.classes:
+                break
 
         status = app.query_one("#results_status", Static)
         assert "-loading" in status.classes

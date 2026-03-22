@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from types import SimpleNamespace
 
+import click
 from typer.testing import CliRunner
 
 from netbox_cli import cli
@@ -249,7 +250,7 @@ def test_demo_direct_token_requires_both_values() -> None:
     result = runner.invoke(cli.app, ["demo", "--token-key", "provided-key"])
 
     assert result.exit_code != 0
-    assert "Use both --token-key and --token-secret together." in result.output
+    assert "Use both --token-key and --token-secret together." in click.unstyle(result.output)
 
 
 def test_demo_direct_token_setup_rejects_invalid_token(monkeypatch) -> None:
