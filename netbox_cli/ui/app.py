@@ -76,7 +76,10 @@ TOPBAR_CLI_LABEL = "CLI"
 class NetBoxTuiApp(App[None]):
     TITLE = "NetBox CLI"
     SUB_TITLE = "NetBox UI-style shell for terminal"
-    CSS_PATH = str(Path(__file__).resolve().parent.parent / "tui.tcss")
+    CSS_PATH = [
+        str(Path(__file__).resolve().parent.parent / "ui_common.tcss"),
+        str(Path(__file__).resolve().parent.parent / "tui.tcss"),
+    ]
 
     BINDINGS = [
         Binding("q", "quit", "Quit", priority=True),

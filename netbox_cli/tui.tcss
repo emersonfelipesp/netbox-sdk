@@ -43,6 +43,11 @@ Screen {
 
 .nbx-panel-body {
     background: transparent;
+    height: 1fr;
+}
+
+.nbx-panel-header {
+    height: auto;
 }
 
 .nbx-panel-body.nbx-surface--background {
@@ -199,15 +204,16 @@ Screen {
 }
 
 #theme_select SelectCurrent {
-    border: none;
+    border: tall $nb-border-subtle;
     color: $foreground;
     background: transparent;
     padding: 0 1;
+    margin: 0 0 1 0;
 }
 
 #theme_select SelectCurrent:focus {
-    border: none;
-    background: transparent;
+    border: tall $primary;
+    background: $panel;
 }
 
 #theme_select SelectCurrent Static#label {
@@ -269,26 +275,28 @@ OptionList > .option-list--option-disabled {
 #query_bar {
     width: 1fr;
     height: auto;
-    padding: 0 1;
+    padding: 0 1 1 1;
     align: left middle;
     background: $background;
+    border-bottom: solid $nb-border-subtle;
 }
 
 #global_search {
     width: 1fr;
-    border: tall transparent;
-    background: transparent;
+    margin: 0;
+    border: tall $nb-border-subtle;
+    background: $panel;
 }
 
 #global_search:focus {
     border: tall $primary;
-    background: $primary 7%;
+    background: $surface;
 }
 
 #filter_select {
     width: 24;
     min-width: 18;
-    margin-left: 1;
+    margin: 0 0 0 1;
     border: tall transparent;
     background: transparent;
     color: $foreground;
@@ -497,7 +505,7 @@ OptionList > .option-list--option-disabled {
 #main {
     width: 1fr;
     background: $background;
-    padding: 0 1;
+    padding: 0 1 0 2;
 }
 
 #main_tabs {
@@ -753,6 +761,7 @@ ObjectAttributesPanel.-loading #detail_status {
 /* Match #filter_dialog Input — picker search was only margin, so it read as empty space. */
 #filter_picker_dialog Input {
     width: 1fr;
+    margin: 0 0 1 0;
     border: tall $nb-border-subtle;
     background: $background;
     color: $foreground;
@@ -823,6 +832,7 @@ ObjectAttributesPanel.-loading #detail_status {
 }
 
 #filter_dialog Input {
+    margin: 0 0 1 0;
     border: tall $nb-border-subtle;
     background: $background;
     color: $foreground;

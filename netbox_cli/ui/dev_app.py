@@ -86,7 +86,10 @@ class DevResponseReceived(Message):
 class NetBoxDevTuiApp(App[None]):
     TITLE = "NetBox CLI Dev"
     SUB_TITLE = "Request workbench for API development"
-    CSS_PATH = str(Path(__file__).resolve().parent.parent / "dev_tui.tcss")
+    CSS_PATH = [
+        str(Path(__file__).resolve().parent.parent / "ui_common.tcss"),
+        str(Path(__file__).resolve().parent.parent / "dev_tui.tcss"),
+    ]
 
     BINDINGS = [
         Binding("ctrl+enter", "send_request", "Send", priority=True),

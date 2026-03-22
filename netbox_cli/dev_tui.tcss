@@ -30,6 +30,11 @@ Screen {
 
 .nbx-panel-body {
     background: transparent;
+    height: 1fr;
+}
+
+.nbx-panel-header {
+    height: auto;
 }
 
 .nbx-panel-body.nbx-surface--background {
@@ -92,6 +97,7 @@ Screen {
     height: auto;
     background: $background;
     border: tall transparent;
+    border-bottom: solid $nb-border-subtle;
     padding: 0 1 1 1;
     margin: 0 0 1 0;
     align: left middle;
@@ -138,15 +144,16 @@ Screen {
 }
 
 #dev_theme_select SelectCurrent {
-    border: none;
+    border: tall $nb-border-subtle;
     color: $foreground;
     background: transparent;
     padding: 0 1;
+    margin: 0 0 1 0;
 }
 
 #dev_theme_select SelectCurrent:focus {
-    border: none;
-    background: transparent;
+    border: tall $primary;
+    background: $panel;
 }
 
 #dev_theme_select SelectCurrent Static#label {
@@ -252,21 +259,22 @@ Screen {
 #dev_request_bar {
     width: 1fr;
     height: auto;
-    padding: 0 1;
-    margin: 0 0 2 0;
+    padding: 0 1 1 1;
+    margin: 0 0 1 0;
     background: $background;
+    border-bottom: solid $nb-border-subtle;
 }
 
 #dev_method_select {
     width: 12;
     min-width: 12;
-    margin-right: 1;
+    margin: 0 1 0 0;
     border: none;
     background: transparent;
 }
 
 #dev_method_select SelectCurrent {
-    border: tall transparent;
+    border: tall $nb-border-subtle;
     background: $panel;
     color: $foreground;
     padding: 0 1;
@@ -298,14 +306,14 @@ Screen {
 
 #dev_path_input {
     width: 1fr;
-    margin-right: 1;
-    border: tall transparent;
-    background: transparent;
+    margin: 0 1;
+    border: tall $nb-border-subtle;
+    background: $panel;
 }
 
 #dev_path_input:focus {
     border: tall $primary;
-    background: $primary 7%;
+    background: $surface;
 }
 
 #dev_path_input > .input--placeholder {
@@ -331,7 +339,7 @@ Screen {
     min-width: 26;
     max-width: 35%;
     background: $background;
-    border-right: none;
+    border-right: tall $nb-border-subtle;
     padding: 0 2 0 1;
     margin: 0 1 0 0;
     overflow: hidden scroll;
@@ -491,7 +499,9 @@ Screen {
 }
 
 #dev_request_panel {
-    margin-right: 2;
+    margin-right: 1;
+    padding-right: 1;
+    border-right: tall $nb-border-subtle;
 }
 
 #dev_request_panel > *,
@@ -521,8 +531,8 @@ Screen {
 
 #dev_operation_search,
 #dev_query_input {
-    margin: 2 2 1 2;
-    border: tall transparent;
+    margin: 1 2 0 2;
+    border: tall $nb-border-subtle;
     background: $panel;
     color: $foreground;
 }
@@ -587,9 +597,9 @@ Screen {
 #dev_response_body,
 #dev_response_headers {
     height: 1fr;
-    margin: 1 2 2 2;
+    margin: 0 2 2 2;
     background: $background;
-    border: tall transparent;
+    border: tall $nb-border-subtle;
     color: $foreground;
 }
 
@@ -648,7 +658,7 @@ Screen {
     height: auto;
     padding: 1 2;
     margin: 0 0 1 0;
-    border-bottom: none;
+    border-bottom: solid $nb-border-subtle;
     background: $panel;
 }
 
