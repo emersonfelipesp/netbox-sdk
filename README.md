@@ -280,9 +280,8 @@ Themes are loaded dynamically from:
 
 Built-ins:
 
-- `netbox_cli/themes/default.json`
-- `netbox_cli/themes/dracula.json`
 - `netbox_cli/themes/netbox-dark.json`
+- `netbox_cli/themes/dracula.json`
 - `netbox_cli/themes/netbox-light.json`
 
 To add a custom theme, place `<theme>.json` in that folder. It will be auto-discovered.
@@ -300,7 +299,7 @@ TUI behavior (initial bootstrap):
 - shell layout inspired by NetBox web UI:
   - top quick-search bar
   - left navigation tree (group -> resource)
-  - main tabbed workspace (`Results`, `Details`, `Filters`)
+  - main tabbed workspace (`Results`, `Details`) plus filter dialogs
   - footer status/help
 - results view with incremental async refresh and row selection tracking
 - details view rendered as panelized object attributes
@@ -326,11 +325,14 @@ Useful TUI keys:
 - `netbox_cli/api.py`: async `aiohttp` client
 - `netbox_cli/services.py`: shared request resolution and action mapping
 - `netbox_cli/cli.py`: Typer entrypoint (CLI + dynamic parser)
+- `netbox_cli/ui_common.tcss`: shared visual design layer for both Textual apps
+- `netbox_cli/ui/dev_app.py`: request-workbench Textual app
 - `netbox_cli/ui/app.py`: shell-style Textual app
 - `netbox_cli/ui/panels.py`: panel widgets for detail rendering
 - `netbox_cli/ui/widgets.py`: shared composition primitives for Textual widgets
 - `netbox_cli/ui/state.py`: persisted TUI view state
 - `netbox_cli/tui.py`: compatibility wrapper
+- `netbox_cli/dev_tui.py`: compatibility wrapper for the dev TUI
 
 ## Notes
 
