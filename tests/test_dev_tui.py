@@ -10,7 +10,8 @@ from textual.widgets import Input, OptionList, Select, Static, TextArea
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
-from netbox_cli.ui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for
+from netbox_cli.ui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
+from netbox_cli.ui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for, run_dev_tui
 from netbox_cli.ui.dev_state import DevTuiState
 from netbox_cli.ui.widgets import NbxButton, NbxPanelBody, NbxPanelHeader
 
@@ -177,6 +178,21 @@ async def test_dev_tui_operation_search_input_follows_theme_tokens(mock_client, 
         assert cursor.color == Color.parse(theme.colors["background"])
 
 
+@pytest.mark.asyncio
+async def test_dev_tui_topbar_context_tracks_selected_resource(mock_client, real_index) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
+
+    async with app.run_test() as pilot:
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+
+        topbar_context = app.query_one("#dev_context_line", Static)
+        body_context = app.query_one("#dev_context", Static)
+
+        assert str(topbar_context.content) == "Context: DCIM / Devices"
+        assert str(body_context.content) == "DCIM / Devices"
+
+
 def test_nbx_button_adds_size_classes() -> None:
     button = NbxButton("Send", size="medium", tone="primary", id="example_button")
 
@@ -193,3 +209,78 @@ def test_nbx_panel_primitives_add_prop_classes() -> None:
     assert "nbx-tone--warning" in header.classes
     assert "nbx-panel-body" in body.classes
     assert "nbx-surface--panel" in body.classes
+
+
+def test_dev_tui_view_selector_requests_main_mode(mock_client, real_index) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
+    app.exit = MagicMock()
+
+    app.on_view_changed(MagicMock(value="main"))
+
+    app.exit.assert_called_once_with(result=SWITCH_TO_MAIN_TUI)
+
+
+def test_run_dev_tui_can_switch_back_into_main_tui(mock_client, real_index) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            return SWITCH_TO_MAIN_TUI
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            return None
+
+    with (
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+    ):
+        run_dev_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
+
+    assert launches == [
+        ("dev", "dracula", None),
+        ("main", None, False),
+    ]
+
+
+def test_run_dev_tui_can_switch_back_to_dev_from_main(mock_client, real_index) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+    main_runs = 0
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            return (
+                None
+                if len([item for item in launches if item[0] == "dev"]) > 1
+                else SWITCH_TO_MAIN_TUI
+            )
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            nonlocal main_runs
+            main_runs += 1
+            return SWITCH_TO_DEV_TUI if main_runs == 1 else None
+
+    with (
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+    ):
+        run_dev_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
+
+    assert launches == [
+        ("dev", "dracula", None),
+        ("main", None, False),
+        ("dev", None, None),
+    ]

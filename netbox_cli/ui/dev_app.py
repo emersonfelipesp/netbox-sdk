@@ -37,6 +37,8 @@ from netbox_cli.theme_registry import ThemeDefinition
 
 from .app import TOPBAR_CLI_LABEL
 from .chrome import (
+    SWITCH_TO_DEV_TUI,
+    SWITCH_TO_MAIN_TUI,
     apply_theme,
     badge_state_for_probe,
     get_theme_catalog,
@@ -53,6 +55,10 @@ from .widgets import NbxButton
 
 _HTTP_METHOD_OPTIONS = tuple(
     (method, method) for method in ("GET", "POST", "PUT", "PATCH", "DELETE")
+)
+_VIEW_MODE_OPTIONS = (
+    ("- TUI", "main"),
+    ("- Dev", "dev"),
 )
 
 
@@ -136,13 +142,26 @@ class NetBoxDevTuiApp(App[None]):
                     prompt="Theme",
                     id="dev_theme_select",
                 )
+                yield Select(
+                    options=_VIEW_MODE_OPTIONS,
+                    value="dev",
+                    prompt="View",
+                    id="dev_view_select",
+                )
             with Horizontal(id="dev_topbar_center"):
                 yield Static(self._logo_renderable(), id="dev_logo")
                 yield Static(TOPBAR_CLI_LABEL, id="dev_topbar_cli_suffix")
             with Horizontal(id="dev_topbar_right"):
                 yield Static("", id="dev_clock")
                 yield Static("●", id="dev_connection_badge", classes="-checking")
-                yield NbxButton("Close", id="dev_close_button", size="small", tone="error")
+                yield Static("Context: <none>", id="dev_context_line")
+                yield NbxButton(
+                    "Close",
+                    id="dev_close_button",
+                    size="small",
+                    tone="error",
+                    classes="nbx-topbar-control",
+                )
 
         with Horizontal(id="dev_request_bar"):
             yield Select(
@@ -316,6 +335,13 @@ class NetBoxDevTuiApp(App[None]):
     def on_close_button_pressed(self) -> None:
         self.exit()
 
+    @on(Select.Changed, "#dev_view_select")
+    def on_view_changed(self, event: Select.Changed) -> None:
+        if event.value == Select.BLANK:
+            return
+        if str(event.value) == "main":
+            self.exit(result=SWITCH_TO_MAIN_TUI)
+
     @on(Button.Pressed, "#dev_send_button")
     def on_send_button_pressed(self) -> None:
         self.send_request_via_worker()
@@ -372,12 +398,16 @@ class NetBoxDevTuiApp(App[None]):
 
     def _refresh_context(self) -> None:
         target = self.query_one("#dev_context", Static)
+        topbar_target = self.query_one("#dev_context_line", Static)
         if self.current_group and self.current_resource:
-            target.update(
+            context = (
                 f"{humanize_group(self.current_group)} / {humanize_resource(self.current_resource)}"
             )
+            target.update(context)
+            topbar_target.update(f"Context: {context}")
         else:
             target.update("No resource selected")
+            topbar_target.update("Context: <none>")
 
     def _build_navigation_tree(self) -> None:
         tree = self.query_one("#dev_nav_tree", Tree)
@@ -770,6 +800,7 @@ class NetBoxDevTuiApp(App[None]):
 
     def _strip_theme_select_prefix(self) -> None:
         strip_theme_select_prefix(self, selector="#dev_theme_select SelectCurrent Static#label")
+        strip_theme_select_prefix(self, selector="#dev_view_select SelectCurrent Static#label")
 
 
 def available_theme_names() -> tuple[str, ...]:
@@ -784,9 +815,33 @@ def run_dev_tui(
     client: NetBoxApiClient,
     index: SchemaIndex,
     theme_name: str | None = None,
+    demo_mode: bool = False,
 ) -> None:
     try:
-        NetBoxDevTuiApp(client=client, index=index, theme_name=theme_name).run()
+        next_mode = "dev"
+        next_theme = theme_name
+        while True:
+            if next_mode == "dev":
+                result = NetBoxDevTuiApp(client=client, index=index, theme_name=next_theme).run()
+                if result == SWITCH_TO_MAIN_TUI:
+                    next_mode = "main"
+                    next_theme = None
+                    continue
+                return
+
+            from .app import NetBoxTuiApp
+
+            result = NetBoxTuiApp(
+                client=client,
+                index=index,
+                theme_name=next_theme,
+                demo_mode=demo_mode,
+            ).run()
+            if result == SWITCH_TO_DEV_TUI:
+                next_mode = "dev"
+                next_theme = None
+                continue
+            return
     except KeyboardInterrupt:
         raise SystemExit(130) from None
     except Exception as exc:  # noqa: BLE001

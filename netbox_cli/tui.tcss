@@ -120,7 +120,6 @@ Screen {
     background: $background;
     border: tall transparent;
     border-bottom: solid $foreground 10%;
-    padding: 0 1;
     align: left middle;
 }
 
@@ -208,7 +207,6 @@ Screen {
     color: $foreground;
     background: transparent;
     padding: 0 1;
-    margin: 0 0 1 0;
 }
 
 #theme_select SelectCurrent:focus {

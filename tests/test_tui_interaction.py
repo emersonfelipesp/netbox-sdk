@@ -29,7 +29,8 @@ from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
 from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
-from netbox_cli.ui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp
+from netbox_cli.ui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp, run_tui
+from netbox_cli.ui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
@@ -288,6 +289,81 @@ def _first_leaf_with_data(tree: Tree) -> object | None:
             return node
         stack.extend(node.children)
     return None
+
+
+def test_tui_view_selector_requests_dev_mode(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index)
+    app.exit = MagicMock()
+
+    app.on_view_changed(MagicMock(value="dev"))
+
+    app.exit.assert_called_once_with(result=SWITCH_TO_DEV_TUI)
+
+
+def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            return SWITCH_TO_DEV_TUI
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            return None
+
+    with (
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+    ):
+        run_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
+
+    assert launches == [
+        ("main", "dracula", False),
+        ("dev", None, None),
+    ]
+
+
+def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+    dev_runs = 0
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            return (
+                None
+                if len([item for item in launches if item[0] == "main"]) > 1
+                else SWITCH_TO_DEV_TUI
+            )
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            nonlocal dev_runs
+            dev_runs += 1
+            return SWITCH_TO_MAIN_TUI if dev_runs == 1 else None
+
+    with (
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+    ):
+        run_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=True)
+
+    assert launches == [
+        ("main", "dracula", True),
+        ("dev", None, None),
+        ("main", None, True),
+    ]
 
 
 def _leaf_for_resource(tree: Tree, group: str, resource: str) -> object | None:

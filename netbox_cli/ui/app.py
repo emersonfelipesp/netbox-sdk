@@ -30,6 +30,8 @@ from netbox_cli.api import ConnectionProbe, NetBoxApiClient
 from netbox_cli.schema import FilterParam, SchemaIndex
 
 from .chrome import (
+    SWITCH_TO_DEV_TUI,
+    SWITCH_TO_MAIN_TUI,
     apply_theme,
     badge_state_for_probe,
     get_theme_catalog,
@@ -71,6 +73,10 @@ _TEXT_CONTAINS_FILTER_FIELDS: frozenset[str] = frozenset(
 )
 
 TOPBAR_CLI_LABEL = "CLI"
+_VIEW_MODE_OPTIONS = (
+    ("- TUI", "main"),
+    ("- Dev", "dev"),
+)
 
 
 class NetBoxTuiApp(App[None]):
@@ -137,6 +143,12 @@ class NetBoxTuiApp(App[None]):
                     prompt="Theme",
                     id="theme_select",
                 )
+                yield Select(
+                    options=_VIEW_MODE_OPTIONS,
+                    value="main",
+                    prompt="View",
+                    id="view_select",
+                )
                 if self.demo_mode:
                     with Horizontal(id="app_title_wrap"):
                         yield Static("(Demo Version)", id="app_title_demo")
@@ -151,7 +163,13 @@ class NetBoxTuiApp(App[None]):
                     classes="-checking",
                 )
                 yield Static("Context: <none>", id="context_line")
-                yield NbxButton("Close", id="close_tui_button", size="small", tone="error")
+                yield NbxButton(
+                    "Close",
+                    id="close_tui_button",
+                    size="small",
+                    tone="error",
+                    classes="nbx-topbar-control",
+                )
 
         with Horizontal(id="query_bar"):
             yield Input(
@@ -381,6 +399,13 @@ class NetBoxTuiApp(App[None]):
     def on_close_pressed(self) -> None:
         self.exit()
 
+    @on(Select.Changed, "#view_select")
+    def on_view_changed(self, event: Select.Changed) -> None:
+        if event.value == Select.BLANK:
+            return
+        if str(event.value) == "dev":
+            self.exit(result=SWITCH_TO_DEV_TUI)
+
     @on(Select.Changed, "#theme_select")
     def on_theme_changed(self, event: Select.Changed) -> None:
         if event.value == Select.BLANK:
@@ -397,6 +422,7 @@ class NetBoxTuiApp(App[None]):
     def _strip_theme_select_prefix(self) -> None:
         """Remove the '- ' list prefix from the SelectCurrent display label."""
         strip_theme_select_prefix(self, selector="#theme_select SelectCurrent Static#label")
+        strip_theme_select_prefix(self, selector="#view_select SelectCurrent Static#label")
 
     @on(Button.Pressed, "#filter_select")
     def on_filter_select_pressed(self) -> None:
@@ -1122,7 +1148,30 @@ def run_tui(
     demo_mode: bool = False,
 ) -> None:
     try:
-        NetBoxTuiApp(client=client, index=index, theme_name=theme_name, demo_mode=demo_mode).run()
+        next_mode = "main"
+        next_theme = theme_name
+        while True:
+            if next_mode == "main":
+                result = NetBoxTuiApp(
+                    client=client,
+                    index=index,
+                    theme_name=next_theme,
+                    demo_mode=demo_mode,
+                ).run()
+                if result == SWITCH_TO_DEV_TUI:
+                    next_mode = "dev"
+                    next_theme = None
+                    continue
+                return
+
+            from .dev_app import NetBoxDevTuiApp
+
+            result = NetBoxDevTuiApp(client=client, index=index, theme_name=next_theme).run()
+            if result == SWITCH_TO_MAIN_TUI:
+                next_mode = "main"
+                next_theme = None
+                continue
+            return
     except KeyboardInterrupt:
         raise SystemExit(130) from None
     except Exception as exc:  # noqa: BLE001
