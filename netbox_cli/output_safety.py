@@ -1,3 +1,5 @@
+"""Utilities for sanitizing terminal output before rendering untrusted text."""
+
 from __future__ import annotations
 
 import re

@@ -1,3 +1,5 @@
+"""Configuration loading, profile persistence, and private config file handling."""
+
 from __future__ import annotations
 
 import json

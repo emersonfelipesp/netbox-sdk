@@ -1,3 +1,5 @@
+"""Public exports for launching the main NetBox terminal UI."""
+
 from __future__ import annotations
 
 from netbox_cli.ui import NetBoxTuiApp, available_theme_names, resolve_theme_name, run_tui

@@ -1,3 +1,5 @@
+"""Tests for user-facing CLI error handling and unexpected command failures."""
+
 from __future__ import annotations
 
 from netbox_cli import cli

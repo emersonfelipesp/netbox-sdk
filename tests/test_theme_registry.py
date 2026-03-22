@@ -1,3 +1,5 @@
+"""Tests for theme catalog loading and theme definition validation."""
+
 from __future__ import annotations
 
 from pathlib import Path

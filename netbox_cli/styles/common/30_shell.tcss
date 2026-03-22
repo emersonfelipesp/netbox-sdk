@@ -1,0 +1,123 @@
+#query_bar,
+#dev_request_bar {
+    width: 1fr;
+    height: auto;
+    padding: 0 1 1 1;
+    background: $background;
+    border-bottom: solid $nb-border-subtle;
+}
+
+#shell,
+#dev_shell {
+    height: 1fr;
+    background: $background;
+}
+
+#sidebar,
+#dev_sidebar {
+    background: $background;
+    border-right: tall $nb-border-subtle;
+    overflow: hidden scroll;
+    scrollbar-size: 0 0;
+}
+
+#nav_title,
+#dev_sidebar_title,
+.panel-title {
+    color: $primary;
+    text-style: bold;
+}
+
+.panel-subtitle {
+    color: $text-muted;
+    text-style: italic;
+}
+
+#nav_help,
+#dev_help {
+    color: $text-muted;
+}
+
+#nav_tree,
+#dev_nav_tree {
+    height: 1fr;
+    background: transparent;
+    color: $foreground;
+}
+
+#nav_tree > .tree--label,
+#dev_nav_tree > .tree--label {
+    color: $foreground;
+}
+
+#nav_tree > .tree--guides,
+#nav_tree > .tree--guides-hover,
+#dev_nav_tree > .tree--guides,
+#dev_nav_tree > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#nav_tree > .tree--guides-selected,
+#dev_nav_tree > .tree--guides-selected {
+    color: $primary;
+}
+
+#nav_tree > .tree--cursor,
+#nav_tree > .tree--highlight-line,
+#nav_tree > .tree--highlight,
+#dev_nav_tree > .tree--cursor,
+#dev_nav_tree > .tree--highlight-line,
+#dev_nav_tree > .tree--highlight {
+    background: $panel;
+    color: $foreground;
+}
+
+#nav_tree > .tree--cursor,
+#dev_nav_tree > .tree--cursor {
+    text-style: bold;
+}
+
+OptionList {
+    background: $background;
+    color: $foreground;
+    border: tall $nb-border-subtle;
+}
+
+OptionList:focus {
+    border: tall $primary;
+    background-tint: $foreground 5%;
+}
+
+OptionList > .option-list--option-highlighted {
+    color: $foreground;
+    background: $panel;
+    text-style: bold;
+}
+
+OptionList > .option-list--option-hover {
+    background: $panel;
+}
+
+OptionList > .option-list--option-disabled {
+    color: $text-muted;
+}
+
+ListView > ListItem {
+    border: tall transparent;
+}
+
+ListView > ListItem.-hovered {
+    background: $panel;
+}
+
+ListView > ListItem.-highlight {
+    background: $panel;
+    color: $foreground;
+    border: tall transparent;
+    text-style: bold;
+}
+
+ListView:focus {
+    background-tint: transparent;
+}
+

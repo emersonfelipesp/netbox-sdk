@@ -1,3 +1,5 @@
+"""Formatting helpers for humanized labels, values, badges, and semantic Rich text."""
+
 from __future__ import annotations
 
 import json

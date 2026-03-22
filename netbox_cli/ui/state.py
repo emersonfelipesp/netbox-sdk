@@ -1,3 +1,5 @@
+"""Persistent state models and storage helpers for the main TUI."""
+
 from __future__ import annotations
 
 from pathlib import Path

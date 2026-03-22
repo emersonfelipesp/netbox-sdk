@@ -452,6 +452,24 @@ async def test_initial_context_line_is_none(mock_client, real_index):
 
 
 @pytest.mark.asyncio
+async def test_topbar_uses_standard_min_height(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index, theme="dracula")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        topbar = app.query_one("#topbar", object)
+        theme_current = app.query_one("#theme_select SelectCurrent", object)
+        view_current = app.query_one("#view_select SelectCurrent", object)
+        close_button = app.query_one("#close_tui_button", Button)
+
+        assert topbar.styles.min_height.value == 2
+        assert theme_current.styles.min_height.value == 2
+        assert view_current.styles.min_height.value == 2
+        assert close_button.styles.min_height.value == 2
+
+
+@pytest.mark.asyncio
 async def test_default_theme_name(mock_client, real_index):
     app = _make_app(mock_client, real_index)
     async with app.run_test(size=(160, 50)) as pilot:

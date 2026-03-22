@@ -1,3 +1,5 @@
+"""Tests for trace-related CLI commands and their rendered terminal output."""
+
 from __future__ import annotations
 
 import json

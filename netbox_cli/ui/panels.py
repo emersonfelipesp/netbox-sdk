@@ -1,3 +1,5 @@
+"""Reusable composed Textual panels for rendering object attribute details."""
+
 from __future__ import annotations
 
 from typing import Any

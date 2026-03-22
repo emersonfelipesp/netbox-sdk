@@ -1,3 +1,5 @@
+"""Tests for API authentication behavior, token formats, and auth retry handling."""
+
 from __future__ import annotations
 
 from collections import deque

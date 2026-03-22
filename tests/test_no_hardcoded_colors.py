@@ -1,3 +1,5 @@
+"""Tests that runtime UI files avoid hardcoded color values."""
+
 from __future__ import annotations
 
 import re

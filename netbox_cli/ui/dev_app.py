@@ -1,8 +1,9 @@
+"""Developer Textual application for exploring and executing NetBox API operations."""
+
 from __future__ import annotations
 
 import inspect
 import json
-from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
 from typing import Any
@@ -48,7 +49,21 @@ from .chrome import (
     strip_theme_select_prefix,
     update_clock_widget,
 )
-from .dev_state import DevTuiState, DevViewState, load_dev_tui_state, save_dev_tui_state
+from .dev_rendering import (
+    completed_response_summary,
+    operation_detail_text,
+    operation_line_text,
+    prepared_request_text,
+    response_status_line,
+    sending_status_line,
+)
+from .dev_state import (
+    DevTuiState,
+    DevViewState,
+    RequestExecution,
+    load_dev_tui_state,
+    save_dev_tui_state,
+)
 from .formatting import humanize_group, humanize_resource
 from .navigation import build_navigation_menus
 from .widgets import NbxButton
@@ -71,15 +86,6 @@ def _text_area_syntax_theme_for(catalog_theme: str) -> str:
     """
     del catalog_theme
     return "css"
-
-
-@dataclass(slots=True)
-class RequestExecution:
-    method: str
-    path: str
-    query: dict[str, str]
-    payload: dict[str, Any] | list[Any] | None
-    duration_ms: float
 
 
 class DevResponseReceived(Message):
@@ -473,9 +479,10 @@ class NetBoxDevTuiApp(App[None]):
             option_list.set_options(["No matching operations"])
             option_list.highlighted = None
             return
+        theme = self._theme_definition()
         option_list.set_options(
             [
-                Option(self._operation_line_text(operation.method, operation.path))
+                Option(operation_line_text(theme, operation.method, operation.path))
                 for operation in self._visible_operations
             ]
         )
@@ -487,10 +494,11 @@ class NetBoxDevTuiApp(App[None]):
     def _apply_operation(self, operation: Operation) -> None:
         self.query_one("#dev_method_select", Select).value = operation.method
         self.query_one("#dev_path_input", Input).value = operation.path
+        theme = self._theme_definition()
         summary = operation.summary or operation.operation_id or "No summary available."
-        self._set_operation_summary(self._operation_detail_text(operation, summary))
+        self._set_operation_summary(operation_detail_text(theme, operation, summary))
         self.query_one("#dev_request_tabs", TabbedContent).active = "dev_operations_tab"
-        self._set_response_summary(self._prepared_request_text(operation.method, operation.path))
+        self._set_response_summary(prepared_request_text(theme, operation.method, operation.path))
 
     def _set_operation_summary(self, content: Text | str) -> None:
         self.query_one("#dev_operation_summary", Static).update(content)
@@ -500,102 +508,6 @@ class NetBoxDevTuiApp(App[None]):
 
     def _theme_definition(self) -> ThemeDefinition:
         return self.theme_catalog.theme_for(self.theme_name)
-
-    def _http_method_style(self, method: str) -> str:
-        colors = self._theme_definition().colors
-        match method.strip().upper():
-            case "GET":
-                return f"bold {colors['success']}"
-            case "POST":
-                return f"bold {colors['primary']}"
-            case "PUT":
-                return f"bold {colors['warning']}"
-            case "PATCH":
-                return f"bold {colors['accent']}"
-            case "DELETE":
-                return f"bold {colors['error']}"
-            case _:
-                return f"bold {colors['secondary']}"
-
-    def _path_muted_style(self) -> Style:
-        return Style(color=self._theme_definition().variables["nb-muted-text"], dim=True)
-
-    def _operation_line_text(self, method: str, path: str) -> Text:
-        line = Text()
-        line.append(method.upper(), style=self._http_method_style(method))
-        line.append(" ")
-        line.append(path, style=self._path_muted_style())
-        return line
-
-    def _operation_detail_text(self, operation: Operation, summary: str) -> Text:
-        block = Text()
-        block.append(operation.method.upper(), style=self._http_method_style(operation.method))
-        block.append(" ")
-        block.append(operation.path, style=self._path_muted_style())
-        block.append("\n")
-        block.append(
-            summary, style=Style(color=self._theme_definition().variables["nb-muted-text"])
-        )
-        return block
-
-    def _http_status_code_style(self, status: int) -> str:
-        colors = self._theme_definition().colors
-        if 200 <= status < 300:
-            return f"bold {colors['success']}"
-        if 300 <= status < 400:
-            return f"bold {colors['primary']}"
-        if 400 <= status < 500:
-            return f"bold {colors['warning']}"
-        if status >= 500:
-            return f"bold {colors['error']}"
-        return f"bold {colors['secondary']}"
-
-    def _response_status_line(self, status: int) -> Text:
-        line = Text()
-        line.append("HTTP ", style="dim")
-        line.append(str(status), style=self._http_status_code_style(status))
-        return line
-
-    def _sending_status_line(self, method: str, path: str) -> Text:
-        line = Text()
-        line.append("Sending ", style="dim")
-        line.append(method.upper(), style=self._http_method_style(method))
-        line.append(" ")
-        line.append(path, style=self._path_muted_style())
-        return line
-
-    def _prepared_request_text(self, method: str, path: str) -> Text:
-        line = Text()
-        line.append("Prepared ", style="dim")
-        line.append(method.upper(), style=self._http_method_style(method))
-        line.append(" ")
-        line.append(path, style=self._path_muted_style())
-        return line
-
-    def _completed_response_summary(
-        self, execution: RequestExecution, response: ApiResponse
-    ) -> Text:
-        muted = Style(color=self._theme_definition().variables["nb-muted-text"])
-        query_text = "&".join(f"{key}={value}" for key, value in execution.query.items()) or "-"
-        payload_text = (
-            "none"
-            if execution.payload is None
-            else json.dumps(execution.payload, indent=2, sort_keys=True)
-        )
-        block = Text()
-        block.append(execution.method.upper(), style=self._http_method_style(execution.method))
-        block.append(" ")
-        block.append(execution.path, style=self._path_muted_style())
-        block.append("\n")
-        block.append("Query: ", style="dim")
-        block.append(query_text, style=muted)
-        block.append("\n")
-        block.append("Payload: ", style="dim")
-        block.append(payload_text, style=muted)
-        block.append("\n")
-        block.append("Status: ", style="dim")
-        block.append(str(response.status), style=self._http_status_code_style(response.status))
-        return block
 
     def _parse_query_text(self, raw: str) -> dict[str, str]:
         raw = raw.strip()
@@ -665,15 +577,16 @@ class NetBoxDevTuiApp(App[None]):
         self._render_response(response, execution)
 
     def _set_request_in_flight(self, method: str, path: str) -> None:
+        theme = self._theme_definition()
         self.query_one("#dev_response_status", Static).update(
-            self._sending_status_line(method, path)
+            sending_status_line(theme, method, path)
         )
         self.query_one("#dev_response_timing", Static).update("...")
         self.query_one("#dev_response_size", Static).update("...")
         self._set_response_summary(
             Text(
                 "Request in flight via the current NetBoxApiClient implementation.",
-                style=Style(color=self._theme_definition().variables["nb-muted-text"]),
+                style=Style(color=theme.variables["nb-muted-text"]),
             )
         )
 
@@ -689,8 +602,9 @@ class NetBoxDevTuiApp(App[None]):
         self.notify(message, severity="error")
 
     def _render_response(self, response: ApiResponse, execution: RequestExecution) -> None:
+        theme = self._theme_definition()
         self.query_one("#dev_response_status", Static).update(
-            self._response_status_line(response.status)
+            response_status_line(theme, response.status)
         )
         self.query_one("#dev_response_timing", Static).update(f"{execution.duration_ms:.1f} ms")
         self.query_one("#dev_response_size", Static).update(
@@ -700,7 +614,7 @@ class NetBoxDevTuiApp(App[None]):
         self.query_one("#dev_response_headers", TextArea).text = self._format_headers(
             response.headers
         )
-        self._set_response_summary(self._completed_response_summary(execution, response))
+        self._set_response_summary(completed_response_summary(theme, execution, response))
         self.query_one("#dev_response_tabs", TabbedContent).active = "dev_response_body_tab"
 
     def _format_response_body(self, response: ApiResponse) -> str:
@@ -787,7 +701,9 @@ class NetBoxDevTuiApp(App[None]):
                 idx = min(prev_hl, len(self._visible_operations) - 1) if prev_hl is not None else 0
                 op = self._visible_operations[idx]
                 summary = op.summary or op.operation_id or "No summary available."
-                self._set_operation_summary(self._operation_detail_text(op, summary))
+                self._set_operation_summary(
+                    operation_detail_text(self._theme_definition(), op, summary)
+                )
 
     def _logo_renderable(self):
         return logo_renderable(self.theme_catalog, self.theme_name)

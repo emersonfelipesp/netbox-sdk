@@ -1,3 +1,5 @@
+"""Shared Textual widget primitives with prop-style sizing and theme semantics."""
+
 from __future__ import annotations
 
 from typing import Literal

@@ -1,10 +1,23 @@
+"""Persistent state models and storage helpers for the developer TUI."""
+
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from netbox_cli.config import config_path
+
+
+@dataclass(slots=True)
+class RequestExecution:
+    method: str
+    path: str
+    query: dict[str, str]
+    payload: dict[str, Any] | list[Any] | None
+    duration_ms: float
 
 
 class DevViewState(BaseModel):

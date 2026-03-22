@@ -1,3 +1,5 @@
+"""Tests for demo authentication flows, page parsing, and token extraction."""
+
 from __future__ import annotations
 
 from netbox_cli.demo_auth import (

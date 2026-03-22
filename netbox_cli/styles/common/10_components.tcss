@@ -1,0 +1,188 @@
+.nbx-button {
+    height: 3;
+    min-height: 3;
+    min-width: 9;
+    width: auto;
+    padding: 0 2;
+    content-align: center middle;
+    background: transparent;
+}
+
+.nbx-panel-body {
+    background: transparent;
+    height: 1fr;
+}
+
+.nbx-panel-header {
+    height: auto;
+}
+
+.nbx-panel-body.nbx-surface--background {
+    background: $background;
+}
+
+.nbx-panel-body.nbx-surface--surface {
+    background: $surface;
+}
+
+.nbx-panel-body.nbx-surface--panel {
+    background: $panel;
+}
+
+.nbx-button--small {
+    min-width: 8;
+    padding: 0 1;
+}
+
+.nbx-button--medium {
+    min-width: 10;
+    padding: 0 2;
+}
+
+.nbx-button--large {
+    min-width: 14;
+    padding: 0 3;
+}
+
+.nbx-panel-header.nbx-tone--default .panel-title {
+    color: $foreground;
+}
+
+.nbx-panel-header.nbx-tone--primary .panel-title {
+    color: $primary;
+}
+
+.nbx-panel-header.nbx-tone--secondary .panel-title {
+    color: $secondary;
+}
+
+.nbx-panel-header.nbx-tone--success .panel-title {
+    color: $success;
+}
+
+.nbx-panel-header.nbx-tone--warning .panel-title {
+    color: $warning;
+}
+
+.nbx-panel-header.nbx-tone--error .panel-title {
+    color: $error;
+}
+
+.nbx-panel-header.nbx-tone--muted .panel-title {
+    color: $text-muted;
+}
+
+.nbx-button.nbx-tone--default {
+    color: $foreground;
+    border: round $nb-border-subtle;
+}
+
+.nbx-button.nbx-tone--secondary {
+    color: $secondary;
+    border: round $secondary;
+}
+
+.nbx-button.nbx-tone--primary {
+    color: $primary;
+    border: round $primary;
+}
+
+.nbx-button.nbx-tone--success {
+    color: $success;
+    border: round $success;
+}
+
+.nbx-button.nbx-tone--warning {
+    color: $warning;
+    border: round $warning;
+}
+
+.nbx-button.nbx-tone--error {
+    color: $error;
+    border: round $error;
+}
+
+.nbx-button.nbx-tone--muted {
+    color: $text-muted;
+    border: round $nb-border-subtle;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--default,
+.nbx-button.nbx-button--soft.nbx-tone--muted {
+    background: $panel;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--secondary {
+    background: $secondary 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--primary {
+    background: $primary 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--success {
+    background: $success 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--warning {
+    background: $warning 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--error {
+    background: $error 12%;
+}
+
+.nbx-button.nbx-tone--default:hover,
+.nbx-button.nbx-tone--muted:hover {
+    tint: $foreground 12%;
+}
+
+.nbx-button.nbx-tone--secondary:hover {
+    tint: $secondary 12%;
+}
+
+.nbx-button.nbx-tone--primary:hover {
+    tint: $primary 12%;
+}
+
+.nbx-button.nbx-tone--success:hover {
+    tint: $success 12%;
+}
+
+.nbx-button.nbx-tone--warning:hover {
+    tint: $warning 12%;
+}
+
+.nbx-button.nbx-tone--error:hover {
+    tint: $error 12%;
+}
+
+.nbx-button:focus {
+    border: round $secondary;
+}
+
+.nbx-button.nbx-tone--default:focus,
+.nbx-button.nbx-tone--muted:focus {
+    tint: $foreground 18%;
+}
+
+.nbx-button.nbx-tone--secondary:focus {
+    tint: $secondary 18%;
+}
+
+.nbx-button.nbx-tone--primary:focus {
+    tint: $primary 18%;
+}
+
+.nbx-button.nbx-tone--success:focus {
+    tint: $success 18%;
+}
+
+.nbx-button.nbx-tone--warning:focus {
+    tint: $warning 18%;
+}
+
+.nbx-button.nbx-tone--error:focus {
+    tint: $error 18%;
+}
+
