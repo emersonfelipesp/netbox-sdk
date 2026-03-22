@@ -15,7 +15,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from textual.color import Color
 from textual.coordinate import Coordinate
-from textual.widgets import DataTable, Input, Select, Static, TabbedContent, Tree
+from textual.widgets import (
+    Button,
+    DataTable,
+    Input,
+    OptionList,
+    Select,
+    Static,
+    TabbedContent,
+    Tree,
+)
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
@@ -309,6 +318,25 @@ def _truecolor_hex(color: object) -> str:
     return getattr(color, "hex").lower()
 
 
+def test_unhandled_tui_exception_uses_user_message(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index)
+    captured: list[object] = []
+
+    def _panic(*renderables: object) -> None:
+        captured.extend(renderables)
+
+    app.panic = _panic  # type: ignore[method-assign]
+    app._handle_exception(RuntimeError("boom"))
+
+    assert app._return_code == 1
+    assert app._exception is not None
+    assert captured
+    message = str(captured[0])
+    assert "Application error" in message
+    assert "boom" in message
+    assert "Traceback" not in message
+
+
 # ---------------------------------------------------------------------------
 # 1. Startup / mount
 # ---------------------------------------------------------------------------
@@ -386,6 +414,22 @@ async def test_demo_tui_title_has_themed_demo_suffix(mock_client, real_index):
         assert str(title.content) == "NetBox CLI"
         assert str(suffix.content) == "(Demo Version)"
         assert suffix.styles.color == expected_suffix
+
+
+@pytest.mark.asyncio
+async def test_topbar_wordmark_renders_centered(mock_client, real_index):
+    app = _make_app(mock_client, real_index, theme="dracula")
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        topbar = app.query_one("#topbar", object)
+        logo = app.query_one("#topbar_logo", Static)
+        logo_center = logo.region.x + (logo.region.width / 2)
+        topbar_center = topbar.region.x + (topbar.region.width / 2)
+
+        assert "netbox" in _static_text(logo)
+        assert abs(logo_center - topbar_center) <= 1.5
 
 
 @pytest.mark.asyncio
@@ -1042,9 +1086,8 @@ async def test_f_key_opens_filter_overlay(mock_client, real_index):
 
         app.action_filter_modal()
         await pilot.pause()
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
-        label = str(app.query_one("#filter_field_label", Static).render())
-        assert label.startswith("Field: ") and len(label) > len("Field: ")
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
+        assert app.query_one("#filter_picker_search", Input).has_focus
 
 
 @pytest.mark.asyncio
@@ -1062,11 +1105,11 @@ async def test_filter_overlay_escape_dismisses(mock_client, real_index):
 
         app.action_filter_modal()
         await pilot.pause()
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
 
         await pilot.press("escape")
         await pilot.pause()
-        assert "hidden" in app.query_one("#filter_overlay", object).classes
+        assert "hidden" in app.query_one("#filter_picker_overlay", object).classes
 
 
 @pytest.mark.asyncio
@@ -1084,11 +1127,11 @@ async def test_filter_overlay_cancel_button_dismisses(mock_client, real_index):
 
         app.action_filter_modal()
         await pilot.pause()
-        assert "hidden" not in app.query_one("#filter_overlay", object).classes
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
 
-        await pilot.click("#filter_cancel")
+        app.query_one("#filter_picker_cancel", Button).press()
         await pilot.pause()
-        assert "hidden" in app.query_one("#filter_overlay", object).classes
+        assert "hidden" in app.query_one("#filter_picker_overlay", object).classes
 
 
 @pytest.mark.asyncio
@@ -1106,6 +1149,8 @@ async def test_filter_overlay_apply_updates_search_bar(mock_client, real_index):
         await pilot.pause()
 
         app.action_filter_modal()
+        await pilot.pause()
+        app._open_filter_overlay("id")
         await pilot.pause()
 
         app.query_one("#filter_value", Input).value = "switch01"
@@ -1132,11 +1177,68 @@ async def test_filter_select_opens_overlay_for_selected_field(mock_client, real_
         await pilot.pause()
         await pilot.pause()
 
-        filter_select = app.query_one("#filter_select", Select)
-        filter_select.value = "status"
-        app._open_filter_overlay("status")
+        app.query_one("#filter_select", Button).press()
         await pilot.pause()
 
+        assert "hidden" not in app.query_one("#filter_picker_overlay", object).classes
+        assert app.query_one("#filter_picker_search", Input).has_focus
+
+
+@pytest.mark.asyncio
+async def test_filter_picker_search_filters_available_fields(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _leaf_for_resource(tree, "dcim", "devices")
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+
+        search = app.query_one("#filter_picker_search", Input)
+        search.value = "stat"
+        app._refresh_filter_picker_list()
+        await pilot.pause()
+
+        assert app._visible_filter_fields
+        assert all("stat" in label.lower() for label, _ in app._visible_filter_fields)
+
+
+@pytest.mark.asyncio
+async def test_filter_picker_selection_opens_value_overlay(mock_client, real_index):
+    mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
+    app = _make_app(mock_client, real_index)
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        tree = app.query_one("#nav_tree", Tree)
+        leaf = _leaf_for_resource(tree, "dcim", "devices")
+        assert leaf is not None
+        tree.post_message(Tree.NodeSelected(leaf))
+        await pilot.pause()
+        await pilot.pause()
+
+        app.action_filter_modal()
+        await pilot.pause()
+
+        picker = app.query_one("#filter_picker_list", OptionList)
+        index = next(
+            i
+            for i, (_, value) in enumerate(app._visible_filter_fields)
+            if value == "status"
+        )
+        picker.focus()
+        picker.highlighted = index
+        await pilot.press("enter")
+        await pilot.pause()
+
+        assert "hidden" in app.query_one("#filter_picker_overlay", object).classes
         assert "hidden" not in app.query_one("#filter_overlay", object).classes
         assert (
             str(app.query_one("#filter_field_label", Static).render())
@@ -1215,13 +1317,23 @@ def test_query_from_search_plain_text():
 
 def test_query_from_search_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
-    assert app._query_from_search("name=switch01") == {"name": "switch01"}
+    app.current_group = "dcim"
+    app.current_resource = "devices"
+    app.index = build_schema_index(
+        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
+    )
+    assert app._query_from_search("name=switch01") == {"name__ic": "switch01"}
 
 
 def test_query_from_search_multi_key_value():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
+    app.current_group = "dcim"
+    app.current_resource = "devices"
+    app.index = build_schema_index(
+        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
+    )
     assert app._query_from_search("name=switch01,role=leaf") == {
-        "name": "switch01",
+        "name__ic": "switch01",
         "role": "leaf",
     }
 
@@ -1229,6 +1341,16 @@ def test_query_from_search_multi_key_value():
 def test_query_from_search_empty():
     app = NetBoxTuiApp.__new__(NetBoxTuiApp)
     assert app._query_from_search("") == {}
+
+
+def test_query_from_search_status_stays_exact():
+    app = NetBoxTuiApp.__new__(NetBoxTuiApp)
+    app.current_group = "dcim"
+    app.current_resource = "devices"
+    app.index = build_schema_index(
+        Path("/root/nms/netbox-cli/reference/openapi/netbox-openapi.json")
+    )
+    assert app._query_from_search("status=active") == {"status": "active"}
 
 
 def test_row_identity_uses_id():

@@ -6,6 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import click
 import typer
 import yaml
 from rich.console import Console
@@ -26,11 +27,11 @@ from .config import (
     save_config,
     save_profile_config,
 )
+from .output_safety import safe_text, sanitize_terminal_text
 from .schema import SchemaIndex, build_schema_index
 from .services import load_json_payload, parse_key_value_pairs, run_dynamic_command
 from .theme_registry import ThemeCatalogError
 from .trace_ascii import render_any_trace_ascii
-from .output_safety import safe_text, sanitize_terminal_text
 from .ui.formatting import (
     _FIELD_PRIORITY,
     humanize_field,
@@ -49,6 +50,44 @@ app = typer.Typer(
     help="NetBox API-first CLI/TUI. Dynamic command form: nbx <group> <resource> <action>",
     no_args_is_help=True,
 )
+
+
+def _emit_cli_error(message: str, *, exit_code: int = 1) -> int:
+    console.print(
+        f"[red]Error:[/red] {sanitize_terminal_text(message).strip()}",
+        highlight=False,
+        soft_wrap=True,
+    )
+    return exit_code
+
+
+def _format_click_exception(error: click.ClickException) -> str:
+    message = error.format_message().strip()
+    if isinstance(error, click.UsageError):
+        return f"{message}\nRun 'nbx --help' to see available commands."
+    return message
+
+
+def main(argv: list[str] | None = None) -> int:
+    command = typer.main.get_command(app)
+    try:
+        command.main(
+            args=argv,
+            prog_name="nbx",
+            standalone_mode=False,
+        )
+    except KeyboardInterrupt:
+        return _emit_cli_error("Command cancelled.", exit_code=130)
+    except click.Abort:
+        return _emit_cli_error("Command cancelled.", exit_code=130)
+    except click.ClickException as exc:
+        return _emit_cli_error(_format_click_exception(exc), exit_code=exc.exit_code)
+    except Exception as exc:  # noqa: BLE001
+        detail = str(exc).strip() or exc.__class__.__name__
+        return _emit_cli_error(
+            f"Unexpected failure: {detail}. Please retry or check your configuration."
+        )
+    return 0
 
 
 def _get_index() -> SchemaIndex:
@@ -74,7 +113,7 @@ def _get_demo_client() -> NetBoxApiClient:
 def root_callback(ctx: typer.Context) -> None:
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand not in {"init", "tui", "docs", "demo"}:
+    if ctx.invoked_subcommand not in {"init", "tui", "docs", "demo", "dev"}:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
@@ -91,6 +130,7 @@ def init_command(
     ),
     timeout: float = typer.Option(30.0, help="HTTP timeout in seconds"),
 ) -> None:
+    """Create or update the default NetBox CLI profile."""
     cfg = Config(
         base_url=normalize_base_url(base_url),
         token_key=token_key.strip() or None,
@@ -108,6 +148,7 @@ def config_command(
         False, "--show-token", help="Include API token in output"
     ),
 ) -> None:
+    """Show the current default profile configuration."""
     cfg = _ensure_runtime_config()
     payload: dict[str, Any] = {
         "base_url": cfg.base_url,
@@ -130,6 +171,13 @@ demo_app = typer.Typer(
     context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
     help="NetBox demo.netbox.dev profile and command tree.",
     no_args_is_help=False,
+)
+
+dev_app = typer.Typer(
+    add_completion=False,
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+    help="Developer-focused tools and experimental interfaces.",
+    no_args_is_help=True,
 )
 
 
@@ -359,6 +407,7 @@ def demo_config_command(
         False, "--show-token", help="Include API token in output"
     ),
 ) -> None:
+    """Show the configured demo profile settings."""
     cfg = load_profile_config(DEMO_PROFILE)
     typer.echo(json.dumps(_demo_payload(cfg, show_token=show_token), indent=2))
 
@@ -382,6 +431,7 @@ def demo_test_command() -> None:
 
 @demo_app.command("reset")
 def demo_reset_command() -> None:
+    """Remove the saved demo profile configuration."""
     clear_profile_config(DEMO_PROFILE)
     _RUNTIME_CONFIGS.pop(DEMO_PROFILE, None)
     typer.echo("Demo configuration removed.")
@@ -398,6 +448,7 @@ def demo_tui_command(
         help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
     ),
 ) -> None:
+    """Launch the TUI against the demo profile."""
     from .tui import available_theme_names, resolve_theme_name, run_tui
 
     try:
@@ -436,8 +487,58 @@ def demo_tui_command(
         raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
 
 
+@dev_app.command(
+    "tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
+def dev_tui_command(
+    ctx: typer.Context,
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
+    ),
+) -> None:
+    """Launch the developer request workbench TUI."""
+    from .dev_tui import available_theme_names, resolve_theme_name, run_dev_tui
+
+    try:
+        names = available_theme_names()
+    except ThemeCatalogError as exc:
+        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
+
+    selected_theme: str | None = None
+    if theme:
+        if not ctx.args:
+            typer.echo("Available themes:")
+            for name in names:
+                typer.echo(f"- {name}")
+            return
+        if len(ctx.args) > 1:
+            raise typer.BadParameter(
+                "Too many arguments for --theme. Use: nbx dev tui --theme <name>"
+            )
+        requested = ctx.args[0]
+        resolved = resolve_theme_name(requested)
+        if not resolved:
+            available = ", ".join(names)
+            raise typer.BadParameter(
+                f"Unknown theme '{requested}'. Available themes: {available}"
+            )
+        selected_theme = resolved
+
+    try:
+        run_dev_tui(
+            client=_get_client(),
+            index=_get_index(),
+            theme_name=selected_theme,
+        )
+    except ThemeCatalogError as exc:
+        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
+
+
 @app.command("groups")
 def groups_command() -> None:
+    """List all available OpenAPI app groups."""
     index = _get_index()
     for group in index.groups():
         typer.echo(group)
@@ -447,6 +548,7 @@ def groups_command() -> None:
 def resources_command(
     group: str = typer.Argument(..., help="OpenAPI app group, e.g. dcim"),
 ) -> None:
+    """List resources available within a group."""
     index = _get_index()
     resources = index.resources(group)
     if not resources:
@@ -460,6 +562,7 @@ def operations_command(
     group: str = typer.Argument(...),
     resource: str = typer.Argument(...),
 ) -> None:
+    """Show available HTTP operations for a resource."""
     index = _get_index()
     rows = index.operations_for(group, resource)
     if not rows:
@@ -490,6 +593,7 @@ def call_command(
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
 ) -> None:
+    """Call an arbitrary NetBox API path."""
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
@@ -512,6 +616,7 @@ def tui_command(
         help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
     ),
 ) -> None:
+    """Launch the interactive NetBox terminal UI."""
     from .tui import available_theme_names, resolve_theme_name, run_tui
 
     try:
@@ -1083,6 +1188,7 @@ def docs_generate_capture(
 
 app.add_typer(docs_app, name="docs")
 app.add_typer(demo_app, name="demo")
+app.add_typer(dev_app, name="dev")
 
 
 def _register_openapi_subcommands(
@@ -1124,4 +1230,4 @@ _register_openapi_subcommands(demo_app, client_factory=_get_demo_client)
 
 
 if __name__ == "__main__":
-    app()
+    raise SystemExit(main())

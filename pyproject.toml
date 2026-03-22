@@ -29,7 +29,7 @@ docs = [
 ]
 
 [project.scripts]
-nbx = "netbox_cli.cli:app"
+nbx = "netbox_cli.cli:main"
 
 [tool.setuptools]
 include-package-data = true

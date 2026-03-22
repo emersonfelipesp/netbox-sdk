@@ -54,8 +54,34 @@ Screen {
     border: tall $secondary;
 }
 
-#topbar_spacer {
+#topbar_left,
+#topbar_right {
     width: 1fr;
+    height: auto;
+}
+
+#topbar_left {
+    align: left middle;
+}
+
+#topbar_center {
+    width: auto;
+    min-width: 19;
+    height: auto;
+    align: center middle;
+}
+
+#topbar_right {
+    align: right middle;
+}
+
+#topbar_logo {
+    width: auto;
+    margin: 0 1;
+    color: $primary;
+    text-style: bold;
+    text-align: center;
+    text-wrap: nowrap;
 }
 
 #nav_dot {
@@ -193,18 +219,19 @@ OptionList > .option-list--option-disabled {
     width: 24;
     min-width: 18;
     margin-left: 1;
-    border: none;
-    background: transparent;
-}
-
-#filter_select SelectCurrent {
     border: tall transparent;
     background: transparent;
     color: $foreground;
+    text-align: left;
+    content-align: left middle;
     padding: 0 1;
 }
 
-#filter_select SelectCurrent:focus {
+#filter_select:hover {
+    background: $panel;
+}
+
+#filter_select:focus {
     border: tall $secondary;
     background: $panel;
 }
@@ -629,6 +656,77 @@ ObjectAttributesPanel.-loading #detail_status {
     align: center middle;
     background: $background 80%;
     padding: 1;
+}
+
+#filter_picker_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 80%;
+    padding: 1;
+}
+
+#filter_picker_dialog {
+    width: 48;
+    height: auto;
+    max-height: 22;
+    border: thick $primary 20%;
+    background: $background;
+    padding: 1 2;
+}
+
+#filter_picker_dialog:focus-within {
+    border: thick $primary;
+}
+
+/* Match #filter_dialog Input — picker search was only margin, so it read as empty space. */
+#filter_picker_dialog Input {
+    width: 1fr;
+    border: tall $nb-border-subtle;
+    background: $background;
+    color: $foreground;
+}
+
+#filter_picker_dialog Input:focus {
+    border: tall $primary;
+    background: $panel;
+}
+
+#filter_picker_dialog Input > .input--placeholder {
+    color: $text-muted;
+}
+
+#filter_picker_search {
+    margin: 0 0 1 0;
+    min-height: 3;
+}
+
+#filter_picker_list {
+    height: 12;
+    border: tall $nb-border-subtle;
+    background: $background;
+}
+
+#filter_picker_buttons {
+    height: auto;
+    margin: 1 0 0 0;
+}
+
+#filter_picker_buttons Button {
+    min-width: 12;
+    border: none;
+    background: $background;
+    color: $foreground;
+    border: tall $nb-border-subtle;
+}
+
+#filter_picker_buttons Button:hover {
+    background: $panel;
+}
+
+#filter_picker_buttons Button:focus {
+    border: tall $secondary;
 }
 
 #filter_dialog {
