@@ -1,3 +1,5 @@
+"""Shared top-level UI helpers for themes, clocks, badges, and logo refresh behavior."""
+
 from __future__ import annotations
 
 from datetime import datetime

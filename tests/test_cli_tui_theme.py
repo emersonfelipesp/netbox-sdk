@@ -1,3 +1,5 @@
+"""Tests for CLI theme options, theme aliases, and TUI command dispatch."""
+
 from __future__ import annotations
 
 import typer

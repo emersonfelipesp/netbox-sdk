@@ -1,3 +1,5 @@
+"""Public exports for launching the developer-focused NetBox TUI."""
+
 from __future__ import annotations
 
 from netbox_cli.ui.dev_app import (

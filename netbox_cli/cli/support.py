@@ -1,3 +1,5 @@
+"""Shared CLI helpers for errors, tables, tracing output, and theme selection."""
+
 from __future__ import annotations
 
 import asyncio
@@ -11,12 +13,12 @@ import yaml
 from rich.console import Console
 from rich.table import Table
 
-from netbox_cli.api import NetBoxApiClient
-from netbox_cli.output_safety import safe_text, sanitize_terminal_text
-from netbox_cli.schema import SchemaIndex
-from netbox_cli.theme_registry import ThemeCatalogError
-from netbox_cli.trace_ascii import render_any_trace_ascii
-from netbox_cli.ui.formatting import (
+from ..api import NetBoxApiClient
+from ..output_safety import safe_text, sanitize_terminal_text
+from ..schema import SchemaIndex
+from ..theme_registry import ThemeCatalogError
+from ..trace_ascii import render_any_trace_ascii
+from ..ui.formatting import (
     humanize_field,
     humanize_value,
     key_value_rows,

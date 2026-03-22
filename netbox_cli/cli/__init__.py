@@ -1,0 +1,293 @@
+"""Typer CLI entrypoints and command registration for the NetBox CLI application."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import click
+import typer
+from rich.table import Table
+
+from ..config import (
+    DEFAULT_PROFILE,
+    Config,
+    normalize_base_url,
+    resolved_token,
+    save_config,
+)
+from ..services import load_json_payload, parse_key_value_pairs
+from ..theme_registry import ThemeCatalogError
+from .demo import demo_app
+from .dev import dev_app
+from .dynamic import _handle_dynamic_invocation, _register_openapi_subcommands
+from .runtime import (
+    _RUNTIME_CONFIGS as _RUNTIME_CONFIGS,  # re-exported so docgen_capture can access cli._RUNTIME_CONFIGS
+)
+from .runtime import (
+    _cache_profile,
+    _ensure_runtime_config,
+    _get_client,
+    _get_demo_client,
+    _get_index,
+)
+from .support import (
+    console,
+    emit_cli_error,
+    format_click_exception,
+    print_response,
+    resolve_requested_theme,
+    run_with_spinner,
+)
+
+app = typer.Typer(
+    add_completion=False,
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+    help="NetBox API-first CLI/TUI. Dynamic command form: nbx <group> <resource> <action>",
+    no_args_is_help=True,
+)
+
+
+def main(argv: list[str] | None = None) -> int:
+    command = typer.main.get_command(app)
+    try:
+        command.main(
+            args=argv,
+            prog_name="nbx",
+            standalone_mode=False,
+        )
+    except KeyboardInterrupt:
+        return emit_cli_error("Command cancelled.", exit_code=130)
+    except click.Abort:
+        return emit_cli_error("Command cancelled.", exit_code=130)
+    except click.ClickException as exc:
+        return emit_cli_error(format_click_exception(exc), exit_code=exc.exit_code)
+    except Exception as exc:  # noqa: BLE001
+        detail = str(exc).strip() or exc.__class__.__name__
+        return emit_cli_error(
+            f"Unexpected failure: {detail}. Please retry or check your configuration."
+        )
+    return 0
+
+
+@app.callback(invoke_without_command=True)
+def root_callback(ctx: typer.Context) -> None:
+    if ctx.resilient_parsing:
+        return
+    if ctx.invoked_subcommand not in {"init", "tui", "docs", "demo", "dev"}:
+        _ensure_runtime_config()
+    if ctx.invoked_subcommand is None and ctx.args:
+        _handle_dynamic_invocation(ctx.args)
+
+
+@app.command("init")
+def init_command(
+    base_url: str = typer.Option(
+        ..., prompt=True, help="NetBox base URL, e.g. https://netbox.example.com"
+    ),
+    token_key: str = typer.Option(..., prompt=True, help="NetBox API token key"),
+    token_secret: str = typer.Option(
+        ..., prompt=True, hide_input=True, help="NetBox API token secret"
+    ),
+    timeout: float = typer.Option(30.0, help="HTTP timeout in seconds"),
+) -> None:
+    """Create or update the default NetBox CLI profile."""
+    cfg = Config(
+        base_url=normalize_base_url(base_url),
+        token_key=token_key.strip() or None,
+        token_secret=token_secret.strip() or None,
+        timeout=timeout,
+    )
+    save_config(cfg)
+    _cache_profile(DEFAULT_PROFILE, cfg)
+    typer.echo("Configuration saved")
+
+
+@app.command("config")
+def config_command(
+    show_token: bool = typer.Option(False, "--show-token", help="Include API token in output"),
+) -> None:
+    """Show the current default profile configuration."""
+    cfg = _ensure_runtime_config()
+    payload: dict[str, Any] = {
+        "base_url": cfg.base_url,
+        "timeout": cfg.timeout,
+        "token_version": cfg.token_version,
+    }
+    if show_token:
+        payload["token"] = resolved_token(cfg)
+        payload["token_key"] = cfg.token_key
+        payload["token_secret"] = cfg.token_secret
+    else:
+        payload["token"] = "set" if resolved_token(cfg) else "unset"
+        payload["token_key"] = "set" if cfg.token_key else "unset"
+        payload["token_secret"] = "set" if cfg.token_secret else "unset"
+    typer.echo(json.dumps(payload, indent=2))
+
+
+@app.command("groups")
+def groups_command() -> None:
+    """List all available OpenAPI app groups."""
+    index = _get_index()
+    for group in index.groups():
+        typer.echo(group)
+
+
+@app.command("resources")
+def resources_command(
+    group: str = typer.Argument(..., help="OpenAPI app group, e.g. dcim"),
+) -> None:
+    """List resources available within a group."""
+    index = _get_index()
+    resources = index.resources(group)
+    if not resources:
+        raise typer.BadParameter(f"Group not found or has no resources: {group}")
+    for resource in resources:
+        typer.echo(resource)
+
+
+@app.command("ops")
+def operations_command(
+    group: str = typer.Argument(...),
+    resource: str = typer.Argument(...),
+) -> None:
+    """Show available HTTP operations for a resource."""
+    index = _get_index()
+    rows = index.operations_for(group, resource)
+    if not rows:
+        raise typer.BadParameter(f"No operations found for {group}/{resource}")
+
+    table = Table(title=f"{group}/{resource}")
+    table.add_column("Method", no_wrap=True)
+    table.add_column("Path")
+    table.add_column("Operation ID")
+    for row in rows:
+        table.add_row(row.method, row.path, row.operation_id or "-")
+    console.print(table)
+
+
+@app.command("call")
+def call_command(
+    method: str = typer.Argument(...),
+    path: str = typer.Argument(...),
+    query: list[str] = typer.Option(None, "-q", "--query", help="Query parameter key=value"),
+    body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
+    body_file: str | None = typer.Option(
+        None, "--body-file", help="Path to JSON request body file"
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+) -> None:
+    """Call an arbitrary NetBox API path."""
+    query_pairs = query or []
+    query_dict = parse_key_value_pairs(query_pairs)
+    payload = load_json_payload(body_json, body_file)
+    response = run_with_spinner(
+        _get_client().request(method, path, query=query_dict, payload=payload)
+    )
+    print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
+
+
+@app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def tui_command(
+    ctx: typer.Context,
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
+    ),
+) -> None:
+    """Launch the interactive NetBox terminal UI."""
+    from ..tui import available_theme_names, resolve_theme_name, run_tui  # noqa: PLC0415
+
+    selected_theme = resolve_requested_theme(
+        ctx,
+        theme=theme,
+        available_theme_names=available_theme_names,
+        resolve_theme_name=resolve_theme_name,
+        usage="nbx tui --theme <name>",
+    )
+    if theme and not ctx.args:
+        return
+
+    try:
+        run_tui(
+            client=_get_client(),
+            index=_get_index(),
+            theme_name=selected_theme,
+            demo_mode=False,
+        )
+    except ThemeCatalogError as exc:
+        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
+
+
+docs_app = typer.Typer(
+    no_args_is_help=True,
+    help="Generate reference documentation (captured CLI input/output).",
+)
+
+
+@docs_app.command("generate-capture")
+def docs_generate_capture(
+    output: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Markdown destination. Default: <repo>/docs/generated/nbx-command-capture.md",
+    ),
+    raw_dir: Path | None = typer.Option(
+        None,
+        "--raw-dir",
+        help="Raw JSON artifacts directory. Default: <repo>/docs/generated/raw/",
+    ),
+    max_lines: int = typer.Option(
+        200, "--max-lines", help="Max lines per command output in the Markdown."
+    ),
+    max_chars: int = typer.Option(
+        120_000, "--max-chars", help="Max chars per command output in the Markdown."
+    ),
+    live: bool = typer.Option(
+        False,
+        "--live",
+        help=(
+            "Use the default profile (your real NetBox) instead of the demo profile. "
+            "By default the generator captures live-API specs against demo.netbox.dev."
+        ),
+    ),
+) -> None:
+    """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md.
+
+    By default live-API specs run through ``nbx demo …`` (demo.netbox.dev).
+    Pass ``--live`` to run them against your configured default profile instead.
+    """
+    from ..docgen_capture import (  # noqa: PLC0415
+        generate_command_capture_docs,
+        resolve_capture_paths,
+    )
+
+    try:
+        out, raw = resolve_capture_paths(output, raw_dir)
+    except FileNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    code = generate_command_capture_docs(
+        output=out,
+        raw_dir=raw,
+        max_lines=max_lines,
+        max_chars=max_chars,
+        use_demo=not live,
+    )
+    raise typer.Exit(code=code)
+
+
+app.add_typer(docs_app, name="docs")
+app.add_typer(demo_app, name="demo")
+app.add_typer(dev_app, name="dev")
+
+_register_openapi_subcommands(app)
+_register_openapi_subcommands(demo_app, client_factory=_get_demo_client)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,3 +1,5 @@
+"""Tests for demo CLI commands, bootstrap flows, and profile setup behavior."""
+
 from __future__ import annotations
 
 import sys
@@ -23,7 +25,7 @@ def _demo_config() -> Config:
 
 
 def test_demo_config_command(monkeypatch) -> None:
-    monkeypatch.setattr(cli, "load_profile_config", lambda profile: _demo_config())
+    monkeypatch.setattr(cli.demo, "load_profile_config", lambda profile: _demo_config())
 
     result = runner.invoke(cli.app, ["demo", "config"])
 

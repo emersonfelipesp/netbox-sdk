@@ -1,3 +1,5 @@
+"""Tests for HTTP response caching, revalidation, and cache file permissions."""
+
 from __future__ import annotations
 
 import json

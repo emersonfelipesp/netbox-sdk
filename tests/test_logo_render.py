@@ -1,3 +1,5 @@
+"""Tests for theme-aware NetBox logo rendering colors."""
+
 from __future__ import annotations
 
 from netbox_cli.theme_registry import load_theme_catalog

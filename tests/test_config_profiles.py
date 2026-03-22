@@ -1,3 +1,5 @@
+"""Tests for config profile loading, migration, normalization, and permissions."""
+
 from __future__ import annotations
 
 import json

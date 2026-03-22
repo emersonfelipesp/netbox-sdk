@@ -1,3 +1,5 @@
+"""Theme-aware Rich renderables for the NetBox CLI wordmark."""
+
 from __future__ import annotations
 
 from rich.style import Style

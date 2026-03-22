@@ -1,3 +1,5 @@
+"""Service-layer helpers for resolving dynamic CLI requests from user input."""
+
 from __future__ import annotations
 
 import json

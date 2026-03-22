@@ -1,3 +1,5 @@
+"""Theme catalog loading, validation, and lookup for built-in and custom themes."""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,5 @@
+"""Data models and HTTP client logic for authenticated NetBox API requests."""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,5 @@
+"""Tests for service-layer request resolution and dynamic CLI argument parsing."""
+
 from pathlib import Path
 
 import pytest

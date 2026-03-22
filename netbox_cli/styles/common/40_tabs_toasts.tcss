@@ -1,0 +1,31 @@
+TabbedContent {
+    background: $surface;
+}
+
+ContentSwitcher {
+    background: $surface;
+}
+
+TabPane {
+    background: $surface;
+    padding: 0;
+}
+
+Toast {
+    background: $panel;
+    color: $foreground;
+    border-left: outer $primary;
+}
+
+Toast.-information {
+    border-left: outer $success;
+}
+
+Toast.-warning {
+    border-left: outer $warning;
+}
+
+Toast.-error {
+    border-left: outer $error;
+}
+

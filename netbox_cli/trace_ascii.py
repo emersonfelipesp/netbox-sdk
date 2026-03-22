@@ -1,3 +1,5 @@
+"""ASCII renderers for cable and trace path output in terminal views."""
+
 from __future__ import annotations
 
 from typing import Any

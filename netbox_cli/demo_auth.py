@@ -1,3 +1,5 @@
+"""Demo-environment authentication helpers for provisioning and parsing NetBox demo tokens."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel

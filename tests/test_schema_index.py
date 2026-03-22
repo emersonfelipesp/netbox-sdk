@@ -1,3 +1,5 @@
+"""Tests for schema parsing and indexed NetBox resource lookup behavior."""
+
 from pathlib import Path
 
 from netbox_cli.schema import build_schema_index, parse_group_resource

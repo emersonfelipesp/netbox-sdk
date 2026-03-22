@@ -1,3 +1,5 @@
+"""Filesystem-backed HTTP cache models and storage utilities for API responses."""
+
 from __future__ import annotations
 
 import hashlib

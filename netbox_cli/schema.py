@@ -1,3 +1,5 @@
+"""OpenAPI schema parsing and resource indexing for dynamic NetBox commands."""
+
 from __future__ import annotations
 
 import json
