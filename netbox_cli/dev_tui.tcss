@@ -323,6 +323,7 @@ Screen {
 
 #dev_shell {
     height: 1fr;
+    background: $background;
 }
 
 #dev_sidebar {
@@ -476,6 +477,7 @@ Screen {
 
 #dev_columns {
     height: 1fr;
+    background: $background;
 }
 
 #dev_request_panel,
@@ -492,6 +494,11 @@ Screen {
     margin-right: 2;
 }
 
+#dev_request_panel > *,
+#dev_response_panel > * {
+    background: $surface;
+}
+
 #dev_request_tabs,
 #dev_response_tabs {
     height: 1fr;
@@ -504,6 +511,11 @@ Screen {
 #dev_response_tabs ContentTabs,
 #dev_request_tabs Container#tabs-scroll,
 #dev_response_tabs Container#tabs-scroll {
+    background: $surface;
+}
+
+#dev_request_tabs > *,
+#dev_response_tabs > * {
     background: $surface;
 }
 
@@ -758,6 +770,15 @@ TabbedContent {
 #dev_request_tabs TabPane,
 #dev_response_tabs TabPane {
     padding: 0;
+    background: $surface;
+}
+
+#dev_request_tabs #dev_operations_tab,
+#dev_request_tabs #dev_query_tab,
+#dev_request_tabs #dev_body_tab,
+#dev_response_tabs #dev_response_body_tab,
+#dev_response_tabs #dev_response_headers_tab,
+#dev_response_tabs #dev_response_summary_tab {
     background: $surface;
 }
 
