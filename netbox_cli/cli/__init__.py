@@ -17,6 +17,12 @@ from ..config import (
     resolved_token,
     save_config,
 )
+from ..config import (
+    load_profile_config as load_profile_config,
+)
+from ..config import (
+    save_profile_config as save_profile_config,
+)
 from ..logging_runtime import (
     DEFAULT_LOG_TAIL_LIMIT,
     log_file_path,
@@ -24,8 +30,15 @@ from ..logging_runtime import (
     render_log_entries,
     setup_logging,
 )
-from ..services import load_json_payload, parse_key_value_pairs
+from ..services import (
+    load_json_payload,
+    parse_key_value_pairs,
+)
+from ..services import (
+    run_dynamic_command as run_dynamic_command,
+)
 from ..theme_registry import ThemeCatalogError
+from . import demo as demo
 from .demo import demo_app
 from .dev import dev_app
 from .dynamic import _handle_dynamic_invocation, _register_openapi_subcommands
@@ -36,7 +49,6 @@ from .runtime import (
     _cache_profile,
     _ensure_runtime_config,
     _get_client,
-    _get_demo_client,
     _get_index,
 )
 from .runtime import (
@@ -44,6 +56,9 @@ from .runtime import (
 )
 from .runtime import (
     _get_client_for_config as _get_client_for_config,
+)
+from .runtime import (
+    _get_demo_client as _get_demo_client,
 )
 from .runtime import (
     _verify_runtime_config as _verify_runtime_config,
@@ -56,6 +71,8 @@ from .support import (
     print_response,
     run_with_spinner,
 )
+
+_initialize_demo_profile = demo._initialize_demo_profile
 
 app = typer.Typer(
     add_completion=False,
@@ -348,7 +365,11 @@ app.add_typer(demo_app, name="demo")
 app.add_typer(dev_app, name="dev")
 
 _register_openapi_subcommands(app)
-_register_openapi_subcommands(demo_app, client_factory=_get_demo_client)
+_register_openapi_subcommands(
+    demo_app,
+    client_factory=lambda: _get_client_for_config(_ensure_demo_runtime_config()),
+    index_factory=lambda: _get_index(),
+)
 
 
 if __name__ == "__main__":

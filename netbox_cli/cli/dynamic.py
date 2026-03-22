@@ -8,15 +8,37 @@ Typer command trees at startup.
 from __future__ import annotations
 
 from collections.abc import Callable
+from importlib import import_module
 from typing import Any
 
 import typer
 
 from ..api import NetBoxApiClient
 from ..schema import SchemaIndex
-from ..services import run_dynamic_command
 from .runtime import _get_client, _get_index
 from .support import print_response, print_trace_output, run_with_spinner
+
+
+def _run_dynamic_command(
+    *, client, index, group, resource, action, object_id, query_pairs, body_json, body_file
+):
+    cli_module = import_module("netbox_cli.cli")
+    fn = getattr(cli_module, "run_dynamic_command", None)
+    if fn is None:
+        from ..services import run_dynamic_command  # noqa: PLC0415
+
+        fn = run_dynamic_command
+    return fn(
+        client=client,
+        index=index,
+        group=group,
+        resource=resource,
+        action=action,
+        object_id=object_id,
+        query_pairs=query_pairs,
+        body_json=body_json,
+        body_file=body_file,
+    )
 
 
 def _handle_dynamic_invocation(
@@ -151,7 +173,7 @@ def _execute_dynamic_action(
     index: SchemaIndex | None = None,
 ) -> Any:
     return run_with_spinner(
-        run_dynamic_command(
+        _run_dynamic_command(
             client=client or _get_client(),
             index=index or _get_index(),
             group=group,

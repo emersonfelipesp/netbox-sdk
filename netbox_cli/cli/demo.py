@@ -7,6 +7,7 @@ that interact with the demo.netbox.dev hosted NetBox instance.
 from __future__ import annotations
 
 import json
+from importlib import import_module
 from typing import Any
 
 import typer
@@ -46,6 +47,32 @@ demo_dev_app = typer.Typer(
     help="Developer-focused tools against the demo.netbox.dev profile.",
     no_args_is_help=True,
 )
+
+
+def _cli_exports():
+    return import_module("netbox_cli.cli")
+
+
+_ORIGINAL_LOAD_PROFILE_CONFIG = load_profile_config
+_ORIGINAL_SAVE_PROFILE_CONFIG = save_profile_config
+_ORIGINAL_VERIFY_RUNTIME_CONFIG = _verify_runtime_config
+_ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG = _ensure_demo_runtime_config
+_ORIGINAL_GET_CLIENT_FOR_CONFIG = _get_client_for_config
+_ORIGINAL_GET_DEMO_CLIENT = _get_demo_client
+_ORIGINAL_GET_INDEX = _get_index
+
+
+def _resolve_cli_override(name: str, current, original):
+    if current is not original:
+        return current
+    candidate = getattr(_cli_exports(), name, None)
+    if candidate is not None and candidate is not original:
+        return candidate
+    return current
+
+
+def _call_cli_override(name: str, current, original, *args, **kwargs):
+    return _resolve_cli_override(name, current, original)(*args, **kwargs)
 
 
 def _demo_payload(cfg: Config, *, show_token: bool) -> dict[str, Any]:
@@ -88,7 +115,12 @@ def _save_demo_profile_from_token(
     demo_username: str | None = None,
     demo_password: str | None = None,
 ) -> Config:
-    existing = load_profile_config(DEMO_PROFILE)
+    existing = _call_cli_override(
+        "load_profile_config",
+        load_profile_config,
+        _ORIGINAL_LOAD_PROFILE_CONFIG,
+        DEMO_PROFILE,
+    )
     if force:
         _confirm_demo_override(existing)
     cfg = Config(
@@ -104,8 +136,20 @@ def _save_demo_profile_from_token(
         raise typer.BadParameter(
             "Both --token-key and --token-secret are required when configuring the demo profile directly."
         )
-    _verify_runtime_config(cfg, context="Demo token")
-    save_profile_config(DEMO_PROFILE, cfg)
+    _call_cli_override(
+        "_verify_runtime_config",
+        _verify_runtime_config,
+        _ORIGINAL_VERIFY_RUNTIME_CONFIG,
+        cfg,
+        context="Demo token",
+    )
+    _call_cli_override(
+        "save_profile_config",
+        save_profile_config,
+        _ORIGINAL_SAVE_PROFILE_CONFIG,
+        DEMO_PROFILE,
+        cfg,
+    )
     typer.echo("Demo configuration saved.")
     return _cache_profile(DEMO_PROFILE, cfg)
 
@@ -119,7 +163,12 @@ def _initialize_demo_profile(
     token_key: str | None = None,
     token_secret: str | None = None,
 ) -> Config:
-    existing = load_profile_config(DEMO_PROFILE)
+    existing = _call_cli_override(
+        "load_profile_config",
+        load_profile_config,
+        _ORIGINAL_LOAD_PROFILE_CONFIG,
+        DEMO_PROFILE,
+    )
     if not force and is_runtime_config_complete(existing):
         return _cache_profile(DEMO_PROFILE, existing)
 
@@ -167,11 +216,23 @@ def _initialize_demo_profile(
         typer.echo(str(exc), err=True)
         raise typer.Exit(code=1) from exc
     try:
-        _verify_runtime_config(cfg, context="Demo token")
+        _call_cli_override(
+            "_verify_runtime_config",
+            _verify_runtime_config,
+            _ORIGINAL_VERIFY_RUNTIME_CONFIG,
+            cfg,
+            context="Demo token",
+        )
     except typer.BadParameter as exc:
         typer.echo(str(exc), err=True)
         raise typer.Exit(code=1) from exc
-    save_profile_config(DEMO_PROFILE, cfg)
+    _call_cli_override(
+        "save_profile_config",
+        save_profile_config,
+        _ORIGINAL_SAVE_PROFILE_CONFIG,
+        DEMO_PROFILE,
+        cfg,
+    )
     typer.echo("Demo configuration saved.")
     return _cache_profile(DEMO_PROFILE, cfg)
 
@@ -196,18 +257,48 @@ def demo_callback(
         if ctx.args:
             from .dynamic import _handle_dynamic_invocation  # noqa: PLC0415
 
-            _handle_dynamic_invocation(ctx.args, client_factory=_get_demo_client)
+            _handle_dynamic_invocation(
+                ctx.args,
+                client_factory=lambda: _call_cli_override(
+                    "_get_client_for_config",
+                    _get_client_for_config,
+                    _ORIGINAL_GET_CLIENT_FOR_CONFIG,
+                    _call_cli_override(
+                        "_ensure_demo_runtime_config",
+                        _ensure_demo_runtime_config,
+                        _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
+                    ),
+                ),
+                index_factory=lambda: _call_cli_override(
+                    "_get_index",
+                    _get_index,
+                    _ORIGINAL_GET_INDEX,
+                ),
+            )
             return
         if token_key is not None or token_secret is not None:
-            _initialize_demo_profile(
+            _call_cli_override(
+                "_initialize_demo_profile",
+                _initialize_demo_profile,
+                _initialize_demo_profile,
                 force=True,
                 token_key=token_key,
                 token_secret=token_secret,
             )
             return
-        cfg = load_profile_config(DEMO_PROFILE)
+        cfg = _call_cli_override(
+            "load_profile_config",
+            load_profile_config,
+            _ORIGINAL_LOAD_PROFILE_CONFIG,
+            DEMO_PROFILE,
+        )
         if not is_runtime_config_complete(cfg):
-            _initialize_demo_profile(force=True)
+            _call_cli_override(
+                "_initialize_demo_profile",
+                _initialize_demo_profile,
+                _initialize_demo_profile,
+                force=True,
+            )
             return
         typer.echo(json.dumps(_demo_payload(cfg, show_token=False), indent=2))
 
@@ -263,15 +354,31 @@ def demo_config_command(
     show_token: bool = typer.Option(False, "--show-token", help="Include API token in output"),
 ) -> None:
     """Show the configured demo profile settings."""
-    cfg = load_profile_config(DEMO_PROFILE)
+    cfg = _call_cli_override(
+        "load_profile_config",
+        load_profile_config,
+        _ORIGINAL_LOAD_PROFILE_CONFIG,
+        DEMO_PROFILE,
+    )
     typer.echo(json.dumps(_demo_payload(cfg, show_token=show_token), indent=2))
 
 
 @demo_app.command("test")
 def demo_test_command() -> None:
     """Test connectivity to demo.netbox.dev using the configured demo profile."""
-    cfg = _ensure_demo_runtime_config()
-    probe = run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    cfg = _call_cli_override(
+        "_ensure_demo_runtime_config",
+        _ensure_demo_runtime_config,
+        _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
+    )
+    probe = run_with_spinner(
+        _call_cli_override(
+            "_get_client_for_config",
+            _get_client_for_config,
+            _ORIGINAL_GET_CLIENT_FOR_CONFIG,
+            cfg,
+        ).probe_connection()
+    )
     if probe.ok:
         version_text = probe.version or "unknown"
         typer.echo(f"Demo connection OK (status={probe.status}, api_version={version_text})")
