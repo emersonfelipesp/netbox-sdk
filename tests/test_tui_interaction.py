@@ -648,8 +648,7 @@ async def test_detail_link_click_redirects_to_linked_object(real_index):
                 break
             stack.extend(node.children)
         assert leaf is not None
-        tree.post_message(Tree.NodeSelected(leaf))
-        await pilot.pause()
+        app.on_nav_selected(Tree.NodeSelected(leaf))
         await pilot.pause()
 
         detail_table = app.query_one("#detail_table", DataTable)
@@ -925,8 +924,7 @@ async def test_nav_tree_selection_updates_context_line(mock_client, real_index):
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
 
-        tree.post_message(Tree.NodeSelected(leaf))
-        await pilot.pause()
+        app.on_nav_selected(Tree.NodeSelected(leaf))
 
         ctx = app.query_one("#context_line", Static)
         assert "none" not in _static_text(ctx)
@@ -967,7 +965,7 @@ async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
 
-        tree.post_message(Tree.NodeSelected(leaf))
+        app.on_nav_selected(Tree.NodeSelected(leaf))
         await pilot.pause()
 
         overlay = app.query_one("#results_loading_overlay", object)
@@ -1022,7 +1020,7 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
         tree = app.query_one("#nav_tree", Tree)
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
-        tree.post_message(Tree.NodeSelected(leaf))
+        app.on_nav_selected(Tree.NodeSelected(leaf))
         await pilot.pause()
 
         status = app.query_one("#results_status", Static)
