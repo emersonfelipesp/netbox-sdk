@@ -26,7 +26,12 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 | `theme_registry.py` | Loads, validates, and registers JSON themes with Textual |
 | `trace_ascii.py` | Renders cable-trace JSON as Unicode box-drawing ASCII art |
 | `tui.py` | Re-export shim: `NetBoxTuiApp`, `run_tui`, theme utilities from `ui/` |
-| `tui.tcss` | Textual CSS stylesheet — **all colors via semantic variables, never hardcoded hex, all component states theme-driven** |
+| `dev_tui.py` | Re-export shim: `NetBoxDevTuiApp`, `run_dev_tui` from `ui/` |
+| `logging_runtime.py` | Structured JSON logging setup; writes to `~/.config/netbox-cli/logs/netbox-cli.log` |
+| `tui.tcss` | Main TUI Textual CSS — **all colors via semantic variables, never hardcoded hex** |
+| `dev_tui.tcss` | Dev TUI Textual CSS — same semantic-variable contract |
+| `logs_tui.tcss` | Logs viewer TUI Textual CSS — same semantic-variable contract |
+| `ui_common.tcss` | Shared visual design layer imported by all three TUI stylesheets |
 
 ---
 
@@ -90,7 +95,9 @@ Typer application (`app`) exposed as the `nbx` CLI entry point. Split into focus
 | `nbx <group> <resource> <action>` | **Dynamic command** — resolves to an API call |
 | `nbx call <method> <path>` | Raw HTTP call (advanced) |
 | `nbx tui` | Launch Textual TUI |
-| `nbx demo init/test/config` | Demo profile management via Playwright |
+| `nbx logs` | View structured application logs in a TUI log viewer |
+| `nbx demo init/config/test/reset` | Demo profile management via Playwright |
+| `nbx dev tui` | Launch request-workbench dev TUI |
 | `nbx docs generate-capture` | Run docgen capture pipeline |
 
 **Dynamic command resolution:**
