@@ -99,6 +99,7 @@ class DjangoModelTuiApp(App[None]):
         Binding("/", "focus_search", "Search"),
         Binding("g", "focus_tree", "Models"),
         Binding("r", "rebuild", "Rebuild"),
+        Binding("f", "fetch_version", "Fetch"),
         Binding("escape", "cancel", "Cancel"),
     ]
 
@@ -115,6 +116,7 @@ class DjangoModelTuiApp(App[None]):
         self._theme_state = _ThemeState()
         self._version_options = _discover_versions()
         self._active_version: str | None = None
+        self._detected_api_version: str | None = None
 
         catalog, self.theme_name, self.theme_options = initialize_theme_state(
             self,
@@ -264,6 +266,7 @@ class DjangoModelTuiApp(App[None]):
             client = get_runtime_client()
             probe = run_with_spinner(client.probe_connection())
             if probe.ok and probe.version:
+                self._detected_api_version = probe.version
                 matched = _match_version(probe.version, tags)
                 if matched:
                     self._active_version = matched
@@ -278,6 +281,15 @@ class DjangoModelTuiApp(App[None]):
                         f"Auto-selected {matched} (NetBox API {probe.version})",
                         timeout=8,
                     )
+                    return
+                else:
+                    # No matching build — offer to fetch
+                    self.notify(
+                        f"No build for NetBox API {probe.version}. Press 'f' to fetch from GitHub.",
+                        severity="warning",
+                        timeout=15,
+                    )
+                    self._load_graph_from_store()
                     return
         except Exception:
             pass  # No config / no connection
@@ -483,6 +495,62 @@ class DjangoModelTuiApp(App[None]):
 
     def action_rebuild(self) -> None:
         self._rebuild()
+
+    @work(group="dm_fetch", exclusive=True, thread=False)
+    async def action_fetch_version(self) -> None:
+        """Fetch the matching NetBox release from GitHub and build the model graph."""
+        if not self._detected_api_version:
+            self.notify(
+                "No NetBox version detected. Is your profile configured?", severity="warning"
+            )
+            return
+
+        from netbox_cli.django_models.fetcher import (  # noqa: PLC0415
+            _match_tag,
+            available_build_tags,
+            build_exists,
+            clone_and_build,
+            find_github_release_tag,
+        )
+
+        api_ver = self._detected_api_version
+        tags = available_build_tags()
+        matched = _match_tag(api_ver, tags)
+        if matched:
+            self.notify(f"Build already exists: {matched}", timeout=5)
+            return
+
+        self.notify(f"Looking up NetBox {api_ver} on GitHub...", timeout=10)
+        tag = find_github_release_tag(api_ver)
+        if tag is None:
+            self.notify(f"No GitHub release found for API {api_ver}.", severity="error")
+            return
+
+        if build_exists(tag):
+            self.notify(f"Build already exists: {tag}", timeout=5)
+            return
+
+        self.notify(f"Cloning and building {tag} (this may take a minute)...", timeout=60)
+        try:
+            graph = clone_and_build(tag)
+            self._graph = graph
+            self._build_tree()
+            self._render_stats()
+            # Update version selector
+            self._version_options = _discover_versions()
+            self._active_version = tag
+            try:
+                sel = self.query_one("#version_select", Select)
+                sel.value = tag
+            except Exception:
+                pass
+            stats = graph.get("stats", {})
+            self.notify(
+                f"Built {stats.get('total_models', 0)} models. Loaded {tag}.",
+                timeout=10,
+            )
+        except Exception as exc:
+            self.notify(f"Fetch failed: {exc}", severity="error")
 
     def action_cancel(self) -> None:
         pass

@@ -163,19 +163,49 @@ def config_command(
 
 
 @app.command("test")
-def test_command() -> None:
-    """Test connectivity to your configured NetBox instance (default profile)."""
+def test_command(
+    fetch: bool = typer.Option(
+        False,
+        "--fetch",
+        "-f",
+        help="If no matching build exists, fetch the release from GitHub and build it.",
+    ),
+) -> None:
+    """Test connectivity to your configured NetBox instance (default profile).
+
+    Also checks if a Django model graph build exists for the detected version.
+    Use --fetch to automatically clone and build from GitHub if missing.
+    """
+    from ..django_models.fetcher import (  # noqa: PLC0415
+        available_build_tags,
+        fetch_and_build,
+    )
     from .support import run_with_spinner  # noqa: PLC0415
 
     _ensure_runtime_config()
     probe = run_with_spinner(_get_client().probe_connection())
-    if probe.ok:
-        version_text = probe.version or "unknown"
-        typer.echo(f"Connection OK (status={probe.status}, api_version={version_text})")
-    else:
+    if not probe.ok:
         detail = probe.error or f"HTTP {probe.status}"
         typer.echo(f"Connection failed: {detail}", err=True)
         raise typer.Exit(code=1)
+
+    version_text = probe.version or "unknown"
+    typer.echo(f"Connection OK (status={probe.status}, api_version={version_text})")
+
+    # ── Check for matching build ──────────────────────────────────────────
+    if probe.version:
+        from ..django_models.fetcher import _match_tag  # noqa: PLC0415
+
+        tags = available_build_tags()
+        matched = _match_tag(probe.version, tags)
+        if matched:
+            typer.echo(f"Matching build found: {matched}")
+        elif fetch:
+            typer.echo(f"No build found for NetBox API {probe.version}.")
+            fetch_and_build(probe.version, confirm=True)
+        else:
+            typer.echo(f"No build found for NetBox API {probe.version}.")
+            typer.echo("Run with --fetch to clone from GitHub and build it.")
 
 
 @app.command("groups")
