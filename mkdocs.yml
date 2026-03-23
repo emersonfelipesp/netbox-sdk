@@ -84,7 +84,16 @@ nav:
     - tui/index.md
     - Themes: tui/themes.md
     - Keyboard Shortcuts: tui/keybindings.md
-  - Command Examples: reference/command-examples.md
+  - Command Examples:
+    - reference/command-examples/index.md
+    - Top-level: reference/command-examples/top-level.md
+    - Schema Discovery: reference/command-examples/schema-discovery.md
+    - Dynamic Commands: reference/command-examples/dynamic-commands.md
+    - Logs Viewer: reference/command-examples/logs-viewer.md
+    - Developer Tools: reference/command-examples/developer-tools.md
+    - Demo Profile: reference/command-examples/demo-profile.md
+    - Live API: reference/command-examples/live-api-demo-netbox-dev.md
+    - Cable Trace: reference/command-examples/cable-trace-demo-netbox-dev.md
   - Developer Guide:
     - developer/index.md
     - Architecture: developer/architecture.md

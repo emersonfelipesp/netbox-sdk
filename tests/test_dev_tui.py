@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from textual.color import Color
-from textual.widgets import Input, OptionList, Select, Static, TabbedContent, TextArea
+from textual.widgets import Button, Input, OptionList, Select, Static, TabbedContent, TextArea
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
@@ -112,6 +112,34 @@ async def test_dev_tui_send_request_uses_current_http_client(mock_client, real_i
 
 
 @pytest.mark.asyncio
+async def test_dev_tui_copy_response_button_copies_body_to_clipboard(
+    mock_client, real_index
+) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="dracula")
+    app.copy_to_clipboard = MagicMock()
+    app.notify = MagicMock()
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        copy_button = app.query_one("#dev_copy_response_button", Button)
+        assert copy_button.disabled is True
+
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+        await pilot.click("#dev_send_button")
+        await pilot.pause()
+        await pilot.pause()
+
+        copy_button = app.query_one("#dev_copy_response_button", Button)
+        assert copy_button.disabled is False
+
+        body_text = app.query_one("#dev_response_body", TextArea).text
+        await pilot.click("#dev_copy_response_button")
+
+        app.copy_to_clipboard.assert_called_once_with(body_text)
+        app.notify.assert_called_with("Response JSON copied to clipboard.", severity="information")
+
+
+@pytest.mark.asyncio
 async def test_dev_tui_theme_switch_updates_theme_name(mock_client, real_index) -> None:
     app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
 
@@ -143,11 +171,16 @@ async def test_dev_tui_theme_switch_refreshes_existing_surfaces(mock_client, rea
         expected_surface = Color.parse(theme.colors["surface"])
         expected_panel = Color.parse(theme.colors["panel"])
         expected_background = Color.parse(theme.colors["background"])
+        expected_primary = Color.parse(theme.colors["primary"])
 
         assert app.query_one("#dev_request_panel", object).styles.background == expected_surface
         assert app.query_one("#dev_response_panel", object).styles.background == expected_surface
         assert app.query_one("#dev_operations_tab", object).styles.background == expected_surface
         assert app.query_one("#dev_response_meta", object).styles.background == expected_panel
+        assert app.query_one("#dev_send_button", Button).styles.color == expected_primary
+        assert app.query_one("#dev_copy_response_button", Button).styles.background == Color.parse(
+            "transparent"
+        )
         assert (
             app.query_one("#dev_operation_list", OptionList).styles.background
             == expected_background

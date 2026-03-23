@@ -64,6 +64,83 @@ def all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             title="nbx docs generate-capture --help",
             argv=["docs", "generate-capture", "--help"],
         ),
+        # Logs viewer
+        CaptureSpec(
+            section="Logs Viewer",
+            title="nbx logs --help",
+            argv=["logs", "--help"],
+            notes="Launches a Textual log viewer TUI. --help shown here only.",
+        ),
+        # Developer tools help banners
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev --help",
+            argv=["dev", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev tui --help",
+            argv=["dev", "tui", "--help"],
+            notes="Launches the developer request workbench TUI. --help shown here only.",
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev tui --theme",
+            argv=["dev", "tui", "--theme"],
+            notes="Lists available themes without launching the TUI.",
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http --help",
+            argv=["dev", "http", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http get --help",
+            argv=["dev", "http", "get", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http post --help",
+            argv=["dev", "http", "post", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http put --help",
+            argv=["dev", "http", "put", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http patch --help",
+            argv=["dev", "http", "patch", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http delete --help",
+            argv=["dev", "http", "delete", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http paths --help",
+            argv=["dev", "http", "paths", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http ops --help",
+            argv=["dev", "http", "ops", "--help"],
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http paths",
+            argv=["dev", "http", "paths"],
+            notes="Lists all API paths from the bundled OpenAPI schema. No network call.",
+        ),
+        CaptureSpec(
+            section="Developer Tools",
+            title="nbx dev http ops --path /api/dcim/devices/",
+            argv=["dev", "http", "ops", "--path", "/api/dcim/devices/"],
+            notes="Lists all HTTP operations available on the given path. No network call.",
+        ),
         # Demo sub-app help
         CaptureSpec(section="Demo profile", title="nbx demo --help", argv=["demo", "--help"]),
         CaptureSpec(
@@ -73,6 +150,45 @@ def all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             section="Demo profile",
             title="nbx demo config --help",
             argv=["demo", "config", "--help"],
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo test --help",
+            argv=["demo", "test", "--help"],
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo reset --help",
+            argv=["demo", "reset", "--help"],
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo tui --help",
+            argv=["demo", "tui", "--help"],
+            notes="Launches the TUI against the demo profile. --help shown here only.",
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo tui --theme",
+            argv=["demo", "tui", "--theme"],
+            notes="Lists available themes without launching the TUI.",
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo dev --help",
+            argv=["demo", "dev", "--help"],
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo dev tui --help",
+            argv=["demo", "dev", "tui", "--help"],
+            notes="Launches the developer request workbench TUI against the demo profile.",
+        ),
+        CaptureSpec(
+            section="Demo profile",
+            title="nbx demo dev tui --theme",
+            argv=["demo", "dev", "tui", "--theme"],
+            notes="Lists available themes without launching the TUI.",
         ),
         # Schema discovery (reads reference/openapi/netbox-openapi.json — no network)
         CaptureSpec(

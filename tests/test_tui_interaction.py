@@ -297,6 +297,7 @@ async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_n
         assert url.styles.color == Color.parse(theme.variables["nb-muted-text"])
         assert open_button.styles.background == Color.parse(theme.colors["panel"])
         assert open_button.styles.color == Color.parse(theme.colors["primary"])
+        assert close_button.styles.background == Color.parse("transparent")
         open_button.focus()
         await pilot.pause()
         assert open_button.styles.background == Color.parse(theme.colors["panel"])

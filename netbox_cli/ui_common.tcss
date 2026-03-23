@@ -19,11 +19,13 @@ Screen {
 }
 
 .nbx-button {
+    /* Discrete terminal approximation of the shared button formula:
+       3-row capsule, symmetric horizontal inset, centered label. */
     height: 3;
     min-height: 3;
-    min-width: 9;
+    min-width: 8;
     width: auto;
-    padding: 0 2;
+    padding: 0 1 0 1;
     content-align: center middle;
     background: transparent;
 }
@@ -51,17 +53,17 @@ Screen {
 
 .nbx-button--small {
     min-width: 8;
-    padding: 0 1;
+    padding: 0 1 0 1;
 }
 
 .nbx-button--medium {
-    min-width: 10;
-    padding: 0 2;
+    min-width: 11;
+    padding: 0 2 0 2;
 }
 
 .nbx-button--large {
-    min-width: 14;
-    padding: 0 3;
+    min-width: 15;
+    padding: 0 3 0 3;
 }
 
 .nbx-panel-header.nbx-tone--default .panel-title {
@@ -204,6 +206,134 @@ Screen {
 
 .nbx-button.nbx-tone--error:focus {
     tint: $error 18%;
+}
+
+.nbx-button:ansi {
+    background: transparent;
+    color: $foreground;
+    border: round $nb-border-subtle;
+    tint: transparent;
+    background-tint: transparent;
+}
+
+.nbx-button.nbx-tone--default:ansi,
+.nbx-button.nbx-tone--muted:ansi {
+    color: $foreground;
+    border: round $nb-border-subtle;
+}
+
+.nbx-button.nbx-tone--secondary:ansi {
+    color: $secondary;
+    border: round $secondary;
+}
+
+.nbx-button.nbx-tone--primary:ansi {
+    color: $primary;
+    border: round $primary;
+}
+
+.nbx-button.nbx-tone--success:ansi {
+    color: $success;
+    border: round $success;
+}
+
+.nbx-button.nbx-tone--warning:ansi {
+    color: $warning;
+    border: round $warning;
+}
+
+.nbx-button.nbx-tone--error:ansi {
+    color: $error;
+    border: round $error;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--default:ansi,
+.nbx-button.nbx-button--soft.nbx-tone--muted:ansi {
+    background: $panel;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--secondary:ansi {
+    background: $secondary 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--primary:ansi {
+    background: $primary 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--success:ansi {
+    background: $success 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--warning:ansi {
+    background: $warning 12%;
+}
+
+.nbx-button.nbx-button--soft.nbx-tone--error:ansi {
+    background: $error 12%;
+}
+
+.nbx-button.nbx-tone--default:ansi:hover,
+.nbx-button.nbx-tone--muted:ansi:hover {
+    tint: $foreground 12%;
+}
+
+.nbx-button.nbx-tone--secondary:ansi:hover {
+    tint: $secondary 12%;
+}
+
+.nbx-button.nbx-tone--primary:ansi:hover {
+    tint: $primary 12%;
+}
+
+.nbx-button.nbx-tone--success:ansi:hover {
+    tint: $success 12%;
+}
+
+.nbx-button.nbx-tone--warning:ansi:hover {
+    tint: $warning 12%;
+}
+
+.nbx-button.nbx-tone--error:ansi:hover {
+    tint: $error 12%;
+}
+
+.nbx-button:ansi:focus {
+    border: round $secondary;
+    background-tint: transparent;
+}
+
+.nbx-button.nbx-tone--default:ansi:focus,
+.nbx-button.nbx-tone--muted:ansi:focus {
+    tint: $foreground 18%;
+}
+
+.nbx-button.nbx-tone--secondary:ansi:focus {
+    tint: $secondary 18%;
+}
+
+.nbx-button.nbx-tone--primary:ansi:focus {
+    tint: $primary 18%;
+}
+
+.nbx-button.nbx-tone--success:ansi:focus {
+    tint: $success 18%;
+}
+
+.nbx-button.nbx-tone--warning:ansi:focus {
+    tint: $warning 18%;
+}
+
+.nbx-button.nbx-tone--error:ansi:focus {
+    tint: $error 18%;
+}
+
+.nbx-button:ansi.-active {
+    background-tint: transparent;
+}
+
+.nbx-button:ansi:disabled {
+    tint: transparent;
+    background-tint: transparent;
 }
 
 /* Top navigation sizing standard:
@@ -414,11 +544,21 @@ SupportModal {
     background: $background 65%;
 }
 
+SupportModal:ansi {
+    align: center middle;
+    background: $background 65%;
+}
+
 #support_modal_dialog {
     width: 58;
     max-width: 80%;
     height: auto;
     padding: 1 2;
+    background: $surface;
+    border: tall $nb-border-subtle;
+}
+
+#support_modal_dialog:ansi {
     background: $surface;
     border: tall $nb-border-subtle;
 }
@@ -444,6 +584,10 @@ SupportModal {
     width: 1fr;
     height: auto;
     align: right middle;
+}
+
+#support_modal_actions:ansi {
+    background: transparent;
 }
 
 #support_modal_open {
@@ -473,6 +617,18 @@ SupportModal {
 }
 
 #support_modal_open.-active {
+    background: $panel;
+    border: round $primary;
+    color: $primary;
+    tint: transparent;
+    background-tint: transparent;
+    text-style: bold;
+}
+
+#support_modal_open:ansi,
+#support_modal_open:ansi:hover,
+#support_modal_open:ansi:focus,
+#support_modal_open:ansi.-active {
     background: $panel;
     border: round $primary;
     color: $primary;

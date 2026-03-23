@@ -18,16 +18,6 @@ Screen {
     scrollbar-corner-color: transparent;
 }
 
-.nbx-button {
-    height: 3;
-    min-height: 3;
-    min-width: 9;
-    width: auto;
-    padding: 0 2;
-    content-align: center middle;
-    background: transparent;
-}
-
 .nbx-panel-body {
     background: transparent;
     height: 1fr;
@@ -47,21 +37,6 @@ Screen {
 
 .nbx-panel-body.nbx-surface--panel {
     background: $panel;
-}
-
-.nbx-button--small {
-    min-width: 8;
-    padding: 0 1;
-}
-
-.nbx-button--medium {
-    min-width: 10;
-    padding: 0 2;
-}
-
-.nbx-button--large {
-    min-width: 14;
-    padding: 0 3;
 }
 
 .nbx-panel-header.nbx-tone--default .panel-title {
@@ -278,120 +253,6 @@ Screen {
     text-style: bold;
 }
 
-.nbx-button.nbx-tone--default {
-    color: $foreground;
-    border: round $nb-border-subtle;
-}
-
-.nbx-button.nbx-tone--secondary {
-    color: $secondary;
-    border: round $secondary;
-}
-
-.nbx-button.nbx-tone--primary {
-    color: $primary;
-    border: round $primary;
-}
-
-.nbx-button.nbx-tone--success {
-    color: $success;
-    border: round $success;
-}
-
-.nbx-button.nbx-tone--warning {
-    color: $warning;
-    border: round $warning;
-}
-
-.nbx-button.nbx-tone--error {
-    color: $error;
-    border: round $error;
-}
-
-.nbx-button.nbx-tone--muted {
-    color: $nb-muted-text;
-    border: round $nb-border-subtle;
-}
-
-.nbx-button.nbx-button--soft.nbx-tone--default,
-.nbx-button.nbx-button--soft.nbx-tone--muted {
-    background: $panel;
-}
-
-.nbx-button.nbx-button--soft.nbx-tone--secondary {
-    background: $secondary 12%;
-}
-
-.nbx-button.nbx-button--soft.nbx-tone--primary {
-    background: $primary 12%;
-}
-
-.nbx-button.nbx-button--soft.nbx-tone--success {
-    background: $success 12%;
-}
-
-.nbx-button.nbx-button--soft.nbx-tone--warning {
-    background: $warning 12%;
-}
-
-.nbx-button.nbx-button--soft.nbx-tone--error {
-    background: $error 12%;
-}
-
-.nbx-button.nbx-tone--default:hover,
-.nbx-button.nbx-tone--muted:hover {
-    tint: $foreground 12%;
-}
-
-.nbx-button.nbx-tone--secondary:hover {
-    tint: $secondary 12%;
-}
-
-.nbx-button.nbx-tone--primary:hover {
-    tint: $primary 12%;
-}
-
-.nbx-button.nbx-tone--success:hover {
-    tint: $success 12%;
-}
-
-.nbx-button.nbx-tone--warning:hover {
-    tint: $warning 12%;
-}
-
-.nbx-button.nbx-tone--error:hover {
-    tint: $error 12%;
-}
-
-.nbx-button:focus {
-    border: round $secondary;
-}
-
-.nbx-button.nbx-tone--default:focus,
-.nbx-button.nbx-tone--muted:focus {
-    tint: $foreground 18%;
-}
-
-.nbx-button.nbx-tone--secondary:focus {
-    tint: $secondary 18%;
-}
-
-.nbx-button.nbx-tone--primary:focus {
-    tint: $primary 18%;
-}
-
-.nbx-button.nbx-tone--success:focus {
-    tint: $success 18%;
-}
-
-.nbx-button.nbx-tone--warning:focus {
-    tint: $warning 18%;
-}
-
-.nbx-button.nbx-tone--error:focus {
-    tint: $error 18%;
-}
-
 #dev_help {
     padding: 1 0 0 0;
     color: $nb-muted-text;
@@ -400,6 +261,10 @@ Screen {
 #dev_main {
     width: 1fr;
     padding: 0 1 1 2;
+    background: $background;
+}
+
+#dev_main:ansi {
     background: $background;
 }
 
@@ -414,6 +279,10 @@ Screen {
     background: $background;
 }
 
+#dev_columns:ansi {
+    background: $background;
+}
+
 #dev_request_panel,
 #dev_response_panel {
     width: 1fr;
@@ -422,6 +291,12 @@ Screen {
     background: $surface;
     padding: 0 0 1 0;
     margin: 0 1 0 0;
+}
+
+#dev_request_panel:ansi,
+#dev_response_panel:ansi {
+    background: $surface;
+    background-tint: transparent;
 }
 
 #dev_request_panel {
@@ -433,6 +308,12 @@ Screen {
 #dev_request_panel > *,
 #dev_response_panel > * {
     background: $surface;
+}
+
+#dev_request_panel > *:ansi,
+#dev_response_panel > *:ansi {
+    background: $surface;
+    background-tint: transparent;
 }
 
 #dev_request_tabs,
@@ -608,6 +489,10 @@ Screen {
     background: $panel;
 }
 
+#dev_response_meta:ansi {
+    background: $panel;
+}
+
 #dev_response_status {
     width: 1fr;
     color: $foreground;
@@ -620,6 +505,19 @@ Screen {
     min-width: 10;
     color: $nb-muted-text;
     content-align: right middle;
+}
+
+#dev_copy_response_button {
+    width: auto;
+    min-width: 8;
+    margin-left: 2;
+}
+
+#dev_copy_response_button:disabled {
+    color: $nb-muted-text;
+    border: round $nb-border-subtle 60%;
+    background: transparent;
+    tint: transparent;
 }
 
 #dev_nav_tree {

@@ -258,6 +258,13 @@ class NetBoxDevTuiApp(App[None]):
                             yield Static("Idle", id="dev_response_status")
                             yield Static("-", id="dev_response_timing")
                             yield Static("-", id="dev_response_size")
+                            yield NbxButton(
+                                "Copy",
+                                id="dev_copy_response_button",
+                                size="small",
+                                tone="muted",
+                                disabled=True,
+                            )
                         with TabbedContent(id="dev_response_tabs"):
                             with TabPane("Body", id="dev_response_body_tab"):
                                 yield TextArea.code_editor(
@@ -379,6 +386,15 @@ class NetBoxDevTuiApp(App[None]):
     @on(Button.Pressed, "#dev_send_button")
     def on_send_button_pressed(self) -> None:
         self.send_request_via_worker()
+
+    @on(Button.Pressed, "#dev_copy_response_button")
+    def on_copy_response_button_pressed(self) -> None:
+        body_text = self.query_one("#dev_response_body", TextArea).text
+        if not body_text.strip():
+            self.notify("No response body to copy yet.", severity="warning")
+            return
+        self.copy_to_clipboard(body_text)
+        self.notify("Response JSON copied to clipboard.", severity="information")
 
     @on(Input.Submitted, "#dev_path_input")
     def on_path_submitted(self) -> None:
@@ -634,6 +650,7 @@ class NetBoxDevTuiApp(App[None]):
         )
         self.query_one("#dev_response_timing", Static).update("...")
         self.query_one("#dev_response_size", Static).update("...")
+        self.query_one("#dev_copy_response_button", Button).disabled = True
         self._set_response_summary(
             Text(
                 "Request in flight via the current NetBoxApiClient implementation.",
@@ -649,6 +666,7 @@ class NetBoxDevTuiApp(App[None]):
         self.query_one("#dev_response_size", Static).update("-")
         self.query_one("#dev_response_body", TextArea).text = message
         self.query_one("#dev_response_headers", TextArea).text = ""
+        self.query_one("#dev_copy_response_button", Button).disabled = not bool(message.strip())
         self._set_response_summary(message)
         self.notify(message, severity="error")
 
@@ -661,9 +679,13 @@ class NetBoxDevTuiApp(App[None]):
         self.query_one("#dev_response_size", Static).update(
             f"{len(response.text.encode('utf-8'))} B"
         )
-        self.query_one("#dev_response_body", TextArea).text = self._format_response_body(response)
+        formatted_body = self._format_response_body(response)
+        self.query_one("#dev_response_body", TextArea).text = formatted_body
         self.query_one("#dev_response_headers", TextArea).text = self._format_headers(
             response.headers
+        )
+        self.query_one("#dev_copy_response_button", Button).disabled = not bool(
+            formatted_body.strip()
         )
         self._set_response_summary(completed_response_summary(theme, execution, response))
         self.query_one("#dev_response_tabs", TabbedContent).active = "dev_response_body_tab"
