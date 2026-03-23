@@ -100,8 +100,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         super().__init__()
         self.client = client
         self.index = index
+        # Plugin resources are instance-specific; discard bundled plugin paths and
+        # repopulate them only from live discovery on the connected NetBox.
+        self.index.remove_group_resources("plugins")
         self.demo_mode = demo_mode
-        self.state: TuiState = load_tui_state()
+        self._state_scope = self.client.config.base_url
+        self.state: TuiState = load_tui_state(self._state_scope)
         self.theme_catalog, self.theme_name, self.theme_options = initialize_theme_state(
             self,
             requested_theme_name=theme_name,
@@ -110,6 +114,13 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
 
         self.current_group: str | None = self.state.last_view.group
         self.current_resource: str | None = self.state.last_view.resource
+        if (
+            self.current_group
+            and self.current_resource
+            and self.current_resource not in self.index.resources(self.current_group)
+        ):
+            self.current_group = None
+            self.current_resource = None
         self.current_rows: list[dict[str, Any]] = []
         self.selected_row_ids: set[str] = set()
         self._connection_timer: Timer | None = None
@@ -311,7 +322,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             details_expanded=False,
         )
         self.state.theme_name = self.theme_name
-        save_tui_state(self.state)
+        save_tui_state(self.state, self._state_scope)
 
     def action_focus_search(self) -> None:
         self.query_one("#global_search", Input).focus()
@@ -1104,24 +1115,26 @@ def run_tui(
         next_theme = theme_name
         while True:
             if next_mode == "main":
-                result = NetBoxTuiApp(
+                app = NetBoxTuiApp(
                     client=client,
                     index=index,
                     theme_name=next_theme,
                     demo_mode=demo_mode,
-                ).run()
+                )
+                result = app.run()
                 if result == SWITCH_TO_DEV_TUI:
                     next_mode = "dev"
-                    next_theme = None
+                    next_theme = app.theme_name
                     continue
                 return
 
             from .dev_app import NetBoxDevTuiApp
 
-            result = NetBoxDevTuiApp(client=client, index=index, theme_name=next_theme).run()
+            app = NetBoxDevTuiApp(client=client, index=index, theme_name=next_theme)
+            result = app.run()
             if result == SWITCH_TO_MAIN_TUI:
                 next_mode = "main"
-                next_theme = None
+                next_theme = app.theme_name
                 continue
             return
     except KeyboardInterrupt:

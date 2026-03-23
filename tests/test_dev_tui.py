@@ -289,6 +289,7 @@ def test_run_dev_tui_can_switch_back_into_main_tui(mock_client, real_index) -> N
 
     class FakeDevApp:
         def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("dev", theme_name, None))
 
         def run(self):
@@ -296,6 +297,7 @@ def test_run_dev_tui_can_switch_back_into_main_tui(mock_client, real_index) -> N
 
     class FakeMainApp:
         def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 
         def run(self):
@@ -309,7 +311,7 @@ def test_run_dev_tui_can_switch_back_into_main_tui(mock_client, real_index) -> N
 
     assert launches == [
         ("dev", "dracula", None),
-        ("main", None, False),
+        ("main", "dracula", False),
     ]
 
 
@@ -319,6 +321,7 @@ def test_run_dev_tui_can_switch_back_to_dev_from_main(mock_client, real_index) -
 
     class FakeDevApp:
         def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("dev", theme_name, None))
 
         def run(self):
@@ -330,6 +333,7 @@ def test_run_dev_tui_can_switch_back_to_dev_from_main(mock_client, real_index) -
 
     class FakeMainApp:
         def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 
         def run(self):
@@ -345,6 +349,40 @@ def test_run_dev_tui_can_switch_back_to_dev_from_main(mock_client, real_index) -
 
     assert launches == [
         ("dev", "dracula", None),
-        ("main", None, False),
-        ("dev", None, None),
+        ("main", "dracula", False),
+        ("dev", "dracula", None),
+    ]
+
+
+def test_run_dev_tui_preserves_runtime_changed_theme_across_view_switch(
+    mock_client, real_index
+) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            self.theme_name = theme_name
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            self.theme_name = "dracula"
+            return SWITCH_TO_MAIN_TUI
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            self.theme_name = theme_name
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            return None
+
+    with (
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+    ):
+        run_dev_tui(client=mock_client, index=real_index, theme_name="netbox-dark", demo_mode=False)
+
+    assert launches == [
+        ("dev", "netbox-dark", None),
+        ("main", "dracula", False),
     ]

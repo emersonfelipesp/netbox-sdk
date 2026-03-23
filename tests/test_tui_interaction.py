@@ -285,17 +285,22 @@ async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_n
         modal = app.screen_stack[-1]
         dialog = modal.query_one("#support_modal_dialog", object)
         title = modal.query_one("#support_modal_title", object)
+        copy = modal.query_one("#support_modal_copy", object)
         url = modal.query_one("#support_modal_url", object)
         open_button = modal.query_one("#support_modal_open", object)
         close_button = modal.query_one("#support_modal_close", object)
 
         assert dialog.styles.background == Color.parse(theme.colors["surface"])
         assert title.styles.color == Color.parse(theme.colors["primary"])
+        assert "⭐" in str(title.content)
+        assert "⭐" in str(copy.content)
         assert url.styles.color == Color.parse(theme.variables["nb-muted-text"])
-        assert open_button.styles.background == Color.parse(theme.colors["primary"]).with_alpha(
-            0.12
-        )
+        assert open_button.styles.background == Color.parse(theme.colors["panel"])
         assert open_button.styles.color == Color.parse(theme.colors["primary"])
+        open_button.focus()
+        await pilot.pause()
+        assert open_button.styles.background == Color.parse(theme.colors["panel"])
+        assert open_button.styles.background_tint == Color.parse("transparent")
         assert close_button.styles.color == Color.parse(theme.variables["nb-muted-text"])
         app.exit()
 
@@ -385,6 +390,7 @@ def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
 
     class FakeMainApp:
         def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 
         def run(self):
@@ -392,6 +398,7 @@ def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
 
     class FakeDevApp:
         def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("dev", theme_name, None))
 
         def run(self):
@@ -405,7 +412,7 @@ def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
 
     assert launches == [
         ("main", "dracula", False),
-        ("dev", None, None),
+        ("dev", "dracula", None),
     ]
 
 
@@ -415,6 +422,7 @@ def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) 
 
     class FakeMainApp:
         def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 
         def run(self):
@@ -426,6 +434,7 @@ def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) 
 
     class FakeDevApp:
         def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            self.theme_name = theme_name
             launches.append(("dev", theme_name, None))
 
         def run(self):
@@ -441,8 +450,42 @@ def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) 
 
     assert launches == [
         ("main", "dracula", True),
-        ("dev", None, None),
-        ("main", None, True),
+        ("dev", "dracula", None),
+        ("main", "dracula", True),
+    ]
+
+
+def test_run_tui_preserves_runtime_changed_theme_across_view_switch(
+    mock_client, real_index
+) -> None:
+    launches: list[tuple[str, str | None, bool | None]] = []
+
+    class FakeMainApp:
+        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+            self.theme_name = theme_name
+            launches.append(("main", theme_name, demo_mode))
+
+        def run(self):
+            self.theme_name = "dracula"
+            return SWITCH_TO_DEV_TUI
+
+    class FakeDevApp:
+        def __init__(self, *, client, index, theme_name):  # noqa: ANN001
+            self.theme_name = theme_name
+            launches.append(("dev", theme_name, None))
+
+        def run(self):
+            return None
+
+    with (
+        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+    ):
+        run_tui(client=mock_client, index=real_index, theme_name="netbox-dark", demo_mode=False)
+
+    assert launches == [
+        ("main", "netbox-dark", False),
+        ("dev", "dracula", None),
     ]
 
 
@@ -662,32 +705,43 @@ async def test_context_breadcrumb_link_matches_plain_text_style(mock_client, rea
 @pytest.mark.asyncio
 async def test_plugin_breadcrumb_root_opens_descendant_dropdown(mock_client, real_index) -> None:
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
-    app = _make_app(mock_client, real_index, theme="netbox-dark")
+    with patch(
+        "netbox_cli.ui.app.discover_plugin_resource_paths",
+        AsyncMock(
+            return_value=[
+                ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/"),
+                ("/api/plugins/gpon/line-profiles/", "/api/plugins/gpon/line-profiles/{id}/"),
+            ]
+        ),
+    ):
+        app = _make_app(mock_client, real_index, theme="netbox-dark")
 
-    async with app.run_test(size=(180, 24)) as pilot:
-        await pilot.pause()
+        async with app.run_test(size=(180, 24)) as pilot:
+            await pilot.pause()
+            await pilot.pause()
 
-        tree = app.query_one("#nav_tree", Tree)
-        leaf = _leaf_for_resource(tree, "plugins", "gpon/boards")
-        assert leaf is not None
+            tree = app.query_one("#nav_tree", Tree)
+            leaf = _leaf_for_resource(tree, "plugins", "gpon/boards")
+            assert leaf is not None
 
-        tree.post_message(Tree.NodeSelected(leaf))
-        await pilot.pause()
-        await pilot.pause()
+            tree.post_message(Tree.NodeSelected(leaf))
+            await pilot.pause()
+            await pilot.pause()
 
-        plugins_button = next(
-            button for button in app.query(".breadcrumb-link") if str(button.label) == "Plugins"
-        )
-        plugins_button.press()
-        await pilot.pause()
+            plugins_button = next(
+                button for button in app.query(".breadcrumb-link") if str(button.label) == "Plugins"
+            )
+            plugins_button.press()
+            await pilot.pause()
 
-        option_list = app.query_one("#context_breadcrumb_menu", OptionList)
-        prompts = [
-            str(option_list.get_option_at_index(i).prompt) for i in range(option_list.option_count)
-        ]
+            option_list = app.query_one("#context_breadcrumb_menu", OptionList)
+            prompts = [
+                str(option_list.get_option_at_index(i).prompt)
+                for i in range(option_list.option_count)
+            ]
 
-        assert "hidden" not in option_list.classes
-        assert prompts == ["Gpon"]
+            assert "hidden" not in option_list.classes
+            assert prompts == ["Gpon"]
 
 
 @pytest.mark.asyncio
@@ -695,39 +749,93 @@ async def test_plugin_group_breadcrumb_dropdown_navigates_to_selected_resource(
     mock_client, real_index
 ) -> None:
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
-    app = _make_app(mock_client, real_index, theme="netbox-dark")
+    with patch(
+        "netbox_cli.ui.app.discover_plugin_resource_paths",
+        AsyncMock(
+            return_value=[
+                ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/"),
+                ("/api/plugins/gpon/line-profiles/", "/api/plugins/gpon/line-profiles/{id}/"),
+            ]
+        ),
+    ):
+        app = _make_app(mock_client, real_index, theme="netbox-dark")
+
+        async with app.run_test(size=(180, 24)) as pilot:
+            await pilot.pause()
+            await pilot.pause()
+
+            tree = app.query_one("#nav_tree", Tree)
+            leaf = _leaf_for_resource(tree, "plugins", "gpon/boards")
+            assert leaf is not None
+
+            tree.post_message(Tree.NodeSelected(leaf))
+            await pilot.pause()
+            await pilot.pause()
+
+            gpon_button = next(
+                button for button in app.query(".breadcrumb-link") if str(button.label) == "Gpon"
+            )
+            gpon_button.press()
+            await pilot.pause()
+
+            option_list = app.query_one("#context_breadcrumb_menu", OptionList)
+            prompts = [
+                str(option_list.get_option_at_index(i).prompt)
+                for i in range(option_list.option_count)
+            ]
+            assert "Line Profiles" in prompts
+
+            option_list.highlighted = prompts.index("Line Profiles")
+            option_list.action_select()
+            await pilot.pause()
+            await pilot.pause()
+
+            assert app.current_group == "plugins"
+            assert app.current_resource == "gpon/line-profiles"
+            assert "line profiles" in _static_text(app.query_one(".breadcrumb-current", Static))
+
+
+@pytest.mark.asyncio
+async def test_demo_tui_hides_bundled_plugin_navigation_when_runtime_discovery_is_empty(
+    mock_client, real_index
+) -> None:
+    app = NetBoxTuiApp(
+        client=mock_client, index=real_index, theme_name="netbox-dark", demo_mode=True
+    )
 
     async with app.run_test(size=(180, 24)) as pilot:
         await pilot.pause()
+        await pilot.pause()
 
         tree = app.query_one("#nav_tree", Tree)
-        leaf = _leaf_for_resource(tree, "plugins", "gpon/boards")
-        assert leaf is not None
+        root_labels = [node.label.plain for node in tree.root.children]
 
-        tree.post_message(Tree.NodeSelected(leaf))
-        await pilot.pause()
-        await pilot.pause()
+        assert "Plugins" not in root_labels
+        assert _leaf_for_resource(tree, "plugins", "gpon/boards") is None
 
-        gpon_button = next(
-            button for button in app.query(".breadcrumb-link") if str(button.label) == "Gpon"
+
+@pytest.mark.asyncio
+async def test_demo_tui_does_not_restore_stale_plugin_view_when_runtime_has_no_plugins(
+    mock_client, real_index
+) -> None:
+    stale = TuiState(last_view=ViewState(group="plugins", resource="gpon/boards"))
+    with patch("netbox_cli.ui.app.load_tui_state", return_value=stale):
+        app = NetBoxTuiApp(
+            client=mock_client,
+            index=real_index,
+            theme_name="netbox-dark",
+            demo_mode=True,
         )
-        gpon_button.press()
-        await pilot.pause()
 
-        option_list = app.query_one("#context_breadcrumb_menu", OptionList)
-        prompts = [
-            str(option_list.get_option_at_index(i).prompt) for i in range(option_list.option_count)
-        ]
-        assert "Line Profiles" in prompts
-
-        option_list.highlighted = prompts.index("Line Profiles")
-        option_list.action_select()
+    async with app.run_test(size=(180, 24)) as pilot:
         await pilot.pause()
         await pilot.pause()
 
-        assert app.current_group == "plugins"
-        assert app.current_resource == "gpon/line-profiles"
-        assert "line profiles" in _static_text(app.query_one(".breadcrumb-current", Static))
+        tree = app.query_one("#nav_tree", Tree)
+        assert _leaf_for_resource(tree, "plugins", "gpon/boards") is None
+        assert app.current_group is None
+        assert app.current_resource is None
+        assert "<none>" in _breadcrumb_text(app.query_one("#context_breadcrumb", ContextBreadcrumb))
 
 
 @pytest.mark.asyncio

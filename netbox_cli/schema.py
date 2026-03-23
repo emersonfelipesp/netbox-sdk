@@ -282,6 +282,15 @@ class SchemaIndex:
             )
         return True
 
+    def remove_group_resources(self, group: str) -> bool:
+        """Remove all resources and operations for a group from this mutable index."""
+        original_count = len(self.operations)
+        self.operations = [operation for operation in self.operations if operation.group != group]
+        keys_to_remove = [key for key in self._resource_paths if key[0] == group]
+        for key in keys_to_remove:
+            self._resource_paths.pop(key, None)
+        return len(self.operations) != original_count or bool(keys_to_remove)
+
 
 def parse_group_resource(path: str) -> tuple[str | None, str | None]:
     parts = [part for part in path.split("/") if part]

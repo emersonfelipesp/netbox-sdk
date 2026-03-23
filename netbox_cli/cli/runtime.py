@@ -8,6 +8,8 @@ imports ``_RUNTIME_CONFIGS`` by name stays in sync automatically.
 
 from __future__ import annotations
 
+from copy import deepcopy
+
 import typer
 
 from ..api import NetBoxApiClient
@@ -23,20 +25,22 @@ from ..config import (
     save_profile_config,
 )
 from ..logging_runtime import get_logger
-from ..schema import SchemaIndex, build_schema_index
+from ..schema import SchemaIndex, load_openapi_schema
 from .support import run_with_spinner
 
-_SCHEMA_INDEX: SchemaIndex | None = None
+_SCHEMA_DOCUMENT: dict | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
 
 
 def _get_index() -> SchemaIndex:
-    global _SCHEMA_INDEX
-    if _SCHEMA_INDEX is None:
-        logger.info("building schema index")
-        _SCHEMA_INDEX = build_schema_index()
-    return _SCHEMA_INDEX
+    global _SCHEMA_DOCUMENT
+    if _SCHEMA_DOCUMENT is None:
+        logger.info("loading base openapi schema")
+        _SCHEMA_DOCUMENT = load_openapi_schema()
+    # Return a fresh mutable index for each caller so runtime discoveries from one
+    # NetBox instance can't leak into another app session.
+    return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))
 
 
 def _get_client() -> NetBoxApiClient:

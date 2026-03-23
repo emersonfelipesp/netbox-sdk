@@ -446,6 +446,41 @@ SupportModal {
     align: right middle;
 }
 
+#support_modal_open {
+    background: $panel;
+    border: round $primary;
+    color: $primary;
+    tint: transparent;
+    text-style: bold;
+}
+
+#support_modal_open:hover {
+    background: $panel;
+    border: round $primary;
+    color: $primary;
+    tint: transparent;
+    background-tint: transparent;
+    text-style: bold;
+}
+
+#support_modal_open:focus {
+    background: $panel;
+    border: round $primary;
+    color: $primary;
+    tint: transparent;
+    background-tint: transparent;
+    text-style: bold;
+}
+
+#support_modal_open.-active {
+    background: $panel;
+    border: round $primary;
+    color: $primary;
+    tint: transparent;
+    background-tint: transparent;
+    text-style: bold;
+}
+
 #theme_select SelectCurrent:focus,
 #dev_theme_select SelectCurrent:focus,
 #view_select SelectCurrent:focus,

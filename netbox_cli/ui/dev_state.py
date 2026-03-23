@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
@@ -57,6 +59,8 @@ class DevTuiState(BaseModel):
     @field_validator("last_view", mode="before")
     @classmethod
     def _coerce_last_view(cls, value: object) -> object:
+        if isinstance(value, DevViewState):
+            return value.model_dump()
         if not isinstance(value, dict):
             return {}
         return value
@@ -70,12 +74,25 @@ class DevTuiState(BaseModel):
 _STATE_FILE = "dev_tui_state.json"
 
 
-def dev_tui_state_path() -> Path:
-    return config_path().parent / _STATE_FILE
+def _state_scope_key(base_url: str | None = None) -> str:
+    raw = str(base_url or "").strip()
+    if not raw:
+        return "default"
+    parsed = urlsplit(raw)
+    host = parsed.netloc or parsed.path
+    normalized = re.sub(r"[^a-z0-9]+", "-", host.lower()).strip("-")
+    return normalized or "default"
 
 
-def load_dev_tui_state() -> DevTuiState:
-    path = dev_tui_state_path()
+def dev_tui_state_path(base_url: str | None = None) -> Path:
+    scope = _state_scope_key(base_url)
+    if scope == "default":
+        return config_path().parent / _STATE_FILE
+    return config_path().parent / f"dev_tui_state.{scope}.json"
+
+
+def load_dev_tui_state(base_url: str | None = None) -> DevTuiState:
+    path = dev_tui_state_path(base_url)
     if not path.exists():
         return DevTuiState()
     try:
@@ -84,6 +101,6 @@ def load_dev_tui_state() -> DevTuiState:
         return DevTuiState()
 
 
-def save_dev_tui_state(state: DevTuiState) -> None:
-    path = dev_tui_state_path()
+def save_dev_tui_state(state: DevTuiState, base_url: str | None = None) -> None:
+    path = dev_tui_state_path(base_url)
     path.write_text(state.model_dump_json(indent=2), encoding="utf-8")
