@@ -69,6 +69,7 @@ from .support import (
     emit_cli_error,
     format_click_exception,
     print_response,
+    resolve_output_format,
     run_with_spinner,
 )
 
@@ -110,7 +111,7 @@ def root_callback(ctx: typer.Context) -> None:
     setup_logging()
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand not in {"init", "tui", "docs", "demo", "dev", "logs"}:
+    if ctx.invoked_subcommand not in {"init", "tui", "cli", "docs", "demo", "dev", "logs"}:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
@@ -213,15 +214,31 @@ def call_command(
     ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """Call an arbitrary NetBox API path."""
+    resolve_output_format(
+        as_json=output_json,
+        as_yaml=output_yaml,
+        as_markdown=output_markdown,
+    )
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
     response = run_with_spinner(
         _get_client().request(method, path, query=query_dict, payload=payload)
     )
-    print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
+    print_response(
+        response.status,
+        response.text,
+        as_json=output_json,
+        as_yaml=output_yaml,
+        as_markdown=output_markdown,
+    )
 
 
 @app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
@@ -301,6 +318,25 @@ def logs_command(
     typer.echo(render_log_entries(entries, include_source=include_source))
 
 
+cli_app = typer.Typer(
+    no_args_is_help=True,
+    help="CLI utilities: interactive command builder and helpers.",
+)
+
+
+@cli_app.command("tui")
+def cli_tui_command() -> None:
+    """Launch the interactive CLI command builder TUI.
+
+    Presents a navigable menu tree (group → resource → action) that
+    progressively builds an ``nbx`` command, then executes it and
+    shows the output — all without leaving the terminal.
+    """
+    from ..ui.cli_tui import run_cli_tui  # noqa: PLC0415
+
+    run_cli_tui(client=_get_client(), index=_get_index())
+
+
 docs_app = typer.Typer(
     no_args_is_help=True,
     help="Generate reference documentation (captured CLI input/output).",
@@ -360,6 +396,7 @@ def docs_generate_capture(
     raise typer.Exit(code=code)
 
 
+app.add_typer(cli_app, name="cli")
 app.add_typer(docs_app, name="docs")
 app.add_typer(demo_app, name="demo")
 app.add_typer(dev_app, name="dev")

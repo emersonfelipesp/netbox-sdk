@@ -39,6 +39,7 @@ from netbox_cli.theme_registry import ThemeDefinition
 
 from .app import TOPBAR_CLI_LABEL
 from .chrome import (
+    SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
     SWITCH_TO_MAIN_TUI,
     apply_theme,
@@ -75,6 +76,7 @@ _HTTP_METHOD_OPTIONS = tuple(
 )
 _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
+    ("- CLI", "cli"),
     ("- Dev", "dev"),
 )
 logger = get_logger(__name__)
@@ -382,6 +384,8 @@ class NetBoxDevTuiApp(App[None]):
             return
         if str(event.value) == "main":
             self.exit(result=SWITCH_TO_MAIN_TUI)
+        if str(event.value) == "cli":
+            self.exit(result=SWITCH_TO_CLI_TUI)
 
     @on(Button.Pressed, "#dev_send_button")
     def on_send_button_pressed(self) -> None:
@@ -872,6 +876,15 @@ def run_dev_tui(
                     next_mode = "main"
                     next_theme = app.theme_name
                     continue
+                if result == SWITCH_TO_CLI_TUI:
+                    from .cli_tui import run_cli_tui
+
+                    run_cli_tui(
+                        client=client,
+                        index=index,
+                        theme_name=app.theme_name,
+                        demo_mode=demo_mode,
+                    )
                 return
 
             from .app import NetBoxTuiApp

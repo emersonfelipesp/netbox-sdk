@@ -85,7 +85,7 @@ If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a fu
 | **Themes** | JSON-defined themes, auto-discovered, hot-switchable in TUI |
 | **Cable trace** | ASCII cable trace diagram for interfaces with `--trace` |
 | **Pure async** | `aiohttp` with `asyncio` throughout — no blocking I/O in TUI workers |
-| **Output formats** | Rich tables (default), `--json`, `--yaml` |
+| **Output formats** | Rich tables (default), `--json`, `--yaml`, `--markdown` |
 
 ---
 

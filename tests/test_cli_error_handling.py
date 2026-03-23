@@ -16,11 +16,11 @@ def _mock_config() -> Config:
 
 
 def test_main_handles_unknown_command_without_traceback(capsys) -> None:
-    exit_code = cli.main(["cli"])
+    exit_code = cli.main(["__no_such_command__"])
     captured = capsys.readouterr()
 
     assert exit_code == 2
-    assert "No such command 'cli'" in captured.out
+    assert "No such command '__no_such_command__'" in captured.out
     assert "Run 'nbx --help' to see available commands." in captured.out
     assert "Traceback" not in captured.out
     assert "Traceback" not in captured.err

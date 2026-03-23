@@ -586,9 +586,22 @@ SupportModal:ansi {
 }
 
 #support_modal_url {
+    width: 1fr;
     color: $nb-muted-text;
     text-style: dim;
     margin-bottom: 1;
+}
+
+#support_modal_url_row {
+    width: 1fr;
+    height: auto;
+    margin-bottom: 1;
+    align: left middle;
+}
+
+#support_modal_copy_url {
+    margin-left: 1;
+    min-width: 8;
 }
 
 #support_modal_actions {

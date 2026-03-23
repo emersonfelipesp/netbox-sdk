@@ -76,6 +76,7 @@ Make an explicit HTTP request to any NetBox API path.
 ```bash
 nbx call GET /api/status/
 nbx call GET /api/dcim/sites/ --json
+nbx call GET /api/dcim/sites/ --markdown
 nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}'
 nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 ```
@@ -89,6 +90,9 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 | `--body-file PATH` | Path to a JSON file to use as request body |
 | `--json` | Output raw JSON instead of a Rich table |
 | `--yaml` | Output as YAML |
+| `--markdown` | Output API responses as table-first Markdown |
+
+`--json`, `--yaml`, and `--markdown` are mutually exclusive.
 
 ---
 
