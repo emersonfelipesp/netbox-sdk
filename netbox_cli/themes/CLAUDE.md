@@ -8,7 +8,9 @@ Each `.json` file here is auto-discovered by `theme_registry.load_theme_catalog(
 |---|---|---|---|---|
 | `netbox-dark.json` | netbox-dark | yes | **yes** | NetBox UI dark mode palette — official project default. Aliases: `netbox`, `default` |
 | `netbox-light.json` | netbox-light | no | no | NetBox UI light mode palette |
-| `dracula.json` | dracula | yes | no | Dracula color scheme (`primary: #BD93F9`, `background: #282A36`) |
+| `dracula.json` | dracula | yes | no | Dracula color scheme (`primary: #BD93F9`, `background: #282A36`). [Official docs](https://draculatheme.com/) |
+| `tokyo-night.json` | tokyo-night | yes | no | Tokyo Night color scheme (`primary: #7aa2f7`, `background: #1a1b26`). Aliases: `tokyo`. [Official repo](https://github.com/tokyo-night/tokyo-night-vscode-theme) |
+| `onedark-pro.json` | onedark-pro | yes | no | OneDark Pro color scheme (`primary: #61afef`, `background: #282c34`). Aliases: `onedark`, `one-dark`. [Official repo](https://github.com/Binaryify/OneDark-Pro) |
 
 ---
 

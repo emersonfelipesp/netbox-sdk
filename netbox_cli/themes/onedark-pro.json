@@ -1,0 +1,36 @@
+{
+    "name": "onedark-pro",
+    "label": "OneDark Pro",
+    "dark": true,
+    "aliases": ["onedark", "one-dark"],
+    "colors": {
+        "primary": "#61afef",
+        "secondary": "#c678dd",
+        "warning": "#d19a66",
+        "error": "#e05561",
+        "success": "#8cc265",
+        "accent": "#56b6c2",
+        "background": "#282c34",
+        "surface": "#21252b",
+        "panel": "#2c313c",
+        "boost": "#31363f"
+    },
+    "variables": {
+        "nb-success-text": "#8cc265",
+        "nb-info-text": "#61afef",
+        "nb-warning-text": "#d19a66",
+        "nb-danger-text": "#e05561",
+        "nb-secondary-text": "#969aa4",
+        "nb-success-bg": "#1e2a20",
+        "nb-info-bg": "#1a2531",
+        "nb-warning-bg": "#2a2317",
+        "nb-danger-bg": "#2e1c1e",
+        "nb-secondary-bg": "#2c313c",
+        "nb-border": "#3e4452",
+        "nb-border-subtle": "#323842",
+        "nb-muted-text": "#5c6370",
+        "nb-link-text": "#56b6c2",
+        "nb-id-text": "#c678dd",
+        "nb-key-text": "#61afef"
+    }
+}

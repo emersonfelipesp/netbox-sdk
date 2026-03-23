@@ -29,6 +29,14 @@ Optional keys:
 
 All color values in `colors` and `variables` must be `#RRGGBB`.
 
+## Reference Themes
+
+For inspiration and color palette ideas, see:
+
+- [Dracula Theme](https://draculatheme.com/) - Official Dracula color scheme documentation
+- [Tokyo Night](https://github.com/tokyo-night/tokyo-night-vscode-theme) - Official Tokyo Night theme for VS Code
+- [OneDark Pro](https://github.com/Binaryify/OneDark-Pro) - Official OneDark Pro theme for VS Code
+
 `variables` must include:
 
 - `nb-success-text`
