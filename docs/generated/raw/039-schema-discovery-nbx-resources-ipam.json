@@ -6,7 +6,7 @@
     "ipam"
   ],
   "exit_code": 0,
-  "elapsed_seconds": 2.168,
+  "elapsed_seconds": 2.162,
   "truncated": true,
-  "stdout_full": "aggregates\nasn-ranges\nasns\nfhrp-group-assignments\nfhrp-groups\nip-addresses\nip-ranges\nprefixes\nrirs\nroles\nroute-targets\nservice-templates\nservices\nvlan-groups\nvlan-translation-policies\nvlan-translation-rules\nvlans\nvrfs\n"
+  "stdout_full": "aggregates\nasn-ranges\nasns\nfhrp-group-assignments\nfhrp-groups\n\n\u2026 (13 more lines truncated)\n"
 }

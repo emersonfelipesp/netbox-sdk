@@ -378,6 +378,14 @@ def docs_generate_capture(
             "are plain Markdown (not Rich). Default: on."
         ),
     ),
+    concurrency: int = typer.Option(
+        4,
+        "--concurrency",
+        "-j",
+        min=1,
+        max=16,
+        help="Max parallel CLI captures. Higher values speed up generation but increase NetBox load.",
+    ),
 ) -> None:
     """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md.
 
@@ -401,6 +409,7 @@ def docs_generate_capture(
         max_chars=max_chars,
         use_demo=not live,
         markdown_output=markdown,
+        max_concurrency=concurrency,
     )
     raise typer.Exit(code=code)
 
