@@ -55,9 +55,10 @@ nbx dcim devices get --id 1
 nbx dcim devices list -q name=switch01
 nbx dcim devices list -q site=nyc01 -q status=active
 
-# output as JSON or YAML
+# output as JSON, YAML, or Markdown
 nbx dcim devices list --json
 nbx ipam prefixes list --yaml
+nbx dcim devices list --markdown
 ```
 
 ---

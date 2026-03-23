@@ -34,6 +34,7 @@ from netbox_cli.logging_runtime import get_logger
 from netbox_cli.schema import SchemaIndex, parse_group_resource
 
 from .chrome import (
+    SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
     SWITCH_TO_MAIN_TUI,
     apply_theme,
@@ -64,6 +65,7 @@ from .widgets import ContextBreadcrumb, NbxButton, SupportModal
 TOPBAR_CLI_LABEL = "CLI"
 _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
+    ("- CLI", "cli"),
     ("- Dev", "dev"),
 )
 logger = get_logger(__name__)
@@ -431,6 +433,8 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             return
         if str(event.value) == "dev":
             self.exit(result=SWITCH_TO_DEV_TUI)
+        if str(event.value) == "cli":
+            self.exit(result=SWITCH_TO_CLI_TUI)
 
     @on(Select.Changed, "#theme_select")
     def on_theme_changed(self, event: Select.Changed) -> None:
@@ -1126,6 +1130,15 @@ def run_tui(
                     next_mode = "dev"
                     next_theme = app.theme_name
                     continue
+                if result == SWITCH_TO_CLI_TUI:
+                    from .cli_tui import run_cli_tui
+
+                    run_cli_tui(
+                        client=client,
+                        index=index,
+                        theme_name=app.theme_name,
+                        demo_mode=demo_mode,
+                    )
                 return
 
             from .dev_app import NetBoxDevTuiApp

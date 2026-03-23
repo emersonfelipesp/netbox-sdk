@@ -145,6 +145,50 @@ def test_demo_dynamic_command_uses_demo_profile(monkeypatch) -> None:
     assert calls["client"].config.base_url == DEMO_BASE_URL
 
 
+def test_demo_dev_http_uses_demo_client(monkeypatch) -> None:
+    default_hits: list[str] = []
+    demo_hits: list[str] = []
+
+    class _DefaultClient:
+        async def request(self, method: str, path: str, **kwargs: object):
+            del kwargs
+            default_hits.append(f"{method} {path}")
+
+            class _Response:
+                status = 200
+                text = '{"source":"default"}'
+
+            return _Response()
+
+    class _DemoClient:
+        async def request(self, method: str, path: str, **kwargs: object):
+            del kwargs
+            demo_hits.append(f"{method} {path}")
+
+            class _Response:
+                status = 200
+                text = '{"source":"demo"}'
+
+            return _Response()
+
+    def _client_for(cfg: Config):
+        if cfg.base_url == DEMO_BASE_URL:
+            return _DemoClient()
+        return _DefaultClient()
+
+    monkeypatch.setattr("netbox_cli.cli.runtime._ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr("netbox_cli.cli.runtime._get_client_for_config", _client_for)
+
+    result = runner.invoke(
+        cli.app,
+        ["demo", "dev", "http", "get", "--path", "/api/status/"],
+    )
+
+    assert result.exit_code == 0
+    assert demo_hits == ["GET /api/status/"]
+    assert default_hits == []
+
+
 def test_demo_init_bootstraps_and_saves_profile(monkeypatch) -> None:
     prompts = iter(["demo-user", "demo-pass"])
     saved: dict[str, object] = {}
@@ -446,3 +490,24 @@ def test_demo_missing_playwright_fails_before_prompt(monkeypatch) -> None:
     assert prompted["called"] is False
     assert "uv sync --dev" in result.output
     assert "uv tool run --from playwright playwright install chromium --with-deps" in result.output
+
+
+def test_demo_cli_tui_command_uses_demo_profile(monkeypatch) -> None:
+    called: dict[str, object] = {}
+
+    monkeypatch.setattr(cli, "_get_demo_client", lambda: object())
+    monkeypatch.setattr(cli, "_get_index", lambda: object())
+
+    def _fake_run_cli_tui(*, client, index, theme_name=None, demo_mode=False):
+        called["client"] = client
+        called["index"] = index
+        called["theme_name"] = theme_name
+        called["demo_mode"] = demo_mode
+
+    monkeypatch.setattr("netbox_cli.ui.cli_tui.run_cli_tui", _fake_run_cli_tui)
+
+    result = runner.invoke(cli.app, ["demo", "cli", "tui"])
+
+    assert result.exit_code == 0
+    assert called["demo_mode"] is True
+    assert called["theme_name"] is None

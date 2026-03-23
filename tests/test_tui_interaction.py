@@ -268,6 +268,22 @@ async def test_main_tui_support_modal_opens_sponsors_page(mock_client) -> None:
 
 
 @pytest.mark.asyncio
+async def test_main_tui_support_modal_copy_button_copies_url(mock_client) -> None:
+    app = NetBoxTuiApp(client=mock_client, index=build_schema_index(OPENAPI_PATH))
+    app.copy_to_clipboard = MagicMock()
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.on_support_pressed()
+        await pilot.pause()
+        await pilot.click("#support_modal_copy_url")
+        await pilot.pause()
+
+        app.copy_to_clipboard.assert_called_once_with(SPONSOR_URL)
+        app.exit()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("theme_name", ["dracula", "netbox-light", "netbox-dark"])
 async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_name) -> None:
     app = NetBoxTuiApp(
@@ -286,6 +302,7 @@ async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_n
         dialog = modal.query_one("#support_modal_dialog", object)
         title = modal.query_one("#support_modal_title", object)
         copy = modal.query_one("#support_modal_copy", object)
+        copy_url_button = modal.query_one("#support_modal_copy_url", object)
         url = modal.query_one("#support_modal_url", object)
         open_button = modal.query_one("#support_modal_open", object)
         close_button = modal.query_one("#support_modal_close", object)
@@ -295,6 +312,7 @@ async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_n
         assert "⭐" in str(title.content)
         assert "⭐" in str(copy.content)
         assert url.styles.color == Color.parse(theme.variables["nb-muted-text"])
+        assert copy_url_button.styles.color == Color.parse(theme.variables["nb-muted-text"])
         assert open_button.styles.background == Color.parse(theme.colors["panel"])
         assert open_button.styles.color == Color.parse(theme.colors["primary"])
         assert close_button.styles.background == Color.parse("transparent")

@@ -11,7 +11,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from textual.widgets import Button, Input, ListItem, ListView, RichLog, Static
+from textual.widgets import Button, Input, ListItem, ListView, RichLog, Select, Static
 
 from netbox_cli.config import Config
 from netbox_cli.schema import build_schema_index
@@ -362,6 +362,148 @@ async def test_cli_tui_navigating_to_action_fills_command_input(real_index) -> N
         assert "devices" in cmd.value
         assert "list" in cmd.value
         assert "-q" not in cmd.value
+        assert "--json" not in cmd.value
+        assert "--yaml" not in cmd.value
+        assert "--markdown" not in cmd.value
+
+
+@pytest.mark.asyncio
+async def test_cli_tui_output_format_json_appends_flag(real_index) -> None:
+    app = _make_app(real_index)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        output_format = app.query_one("#output_format_select", Select)
+        output_format.value = "json"
+        await pilot.pause()
+
+        nav_list = app.query_one("#nav_list", ListView)
+
+        items = list(nav_list.query(ListItem))
+        dcim_idx = next(
+            i for i, it in enumerate(items) if "dcim" in str(it.query_one(Static).content)
+        )
+        nav_list.index = dcim_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        items = list(nav_list.query(ListItem))
+        dev_idx = next(
+            i for i, it in enumerate(items) if "devices" in str(it.query_one(Static).content)
+        )
+        nav_list.index = dev_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        items = list(nav_list.query(ListItem))
+        list_idx = next(
+            i for i, it in enumerate(items) if str(it.query_one(Static).content).startswith("list")
+        )
+        nav_list.index = list_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        cmd = app.query_one("#command_input", Input)
+        assert "--json" in cmd.value
+        assert "--yaml" not in cmd.value
+        assert "--markdown" not in cmd.value
+
+
+@pytest.mark.asyncio
+async def test_cli_tui_output_format_markdown_appends_flag(real_index) -> None:
+    app = _make_app(real_index)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        output_format = app.query_one("#output_format_select", Select)
+        output_format.value = "markdown"
+        await pilot.pause()
+
+        nav_list = app.query_one("#nav_list", ListView)
+
+        items = list(nav_list.query(ListItem))
+        dcim_idx = next(
+            i for i, it in enumerate(items) if "dcim" in str(it.query_one(Static).content)
+        )
+        nav_list.index = dcim_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        items = list(nav_list.query(ListItem))
+        dev_idx = next(
+            i for i, it in enumerate(items) if "devices" in str(it.query_one(Static).content)
+        )
+        nav_list.index = dev_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        items = list(nav_list.query(ListItem))
+        list_idx = next(
+            i for i, it in enumerate(items) if str(it.query_one(Static).content).startswith("list")
+        )
+        nav_list.index = list_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        cmd = app.query_one("#command_input", Input)
+        assert "--markdown" in cmd.value
+        assert "--json" not in cmd.value
+        assert "--yaml" not in cmd.value
+
+
+@pytest.mark.asyncio
+async def test_cli_tui_output_format_human_removes_flag(real_index) -> None:
+    app = _make_app(real_index)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        output_format = app.query_one("#output_format_select", Select)
+        output_format.value = "json"
+        await pilot.pause()
+        output_format.value = "human"
+        await pilot.pause()
+
+        nav_list = app.query_one("#nav_list", ListView)
+        items = list(nav_list.query(ListItem))
+        dcim_idx = next(
+            i for i, it in enumerate(items) if "dcim" in str(it.query_one(Static).content)
+        )
+        nav_list.index = dcim_idx
+        await pilot.press("enter")
+        await pilot.pause()
+
+        cmd = app.query_one("#command_input", Input)
+        assert "--json" not in cmd.value
+        assert "--yaml" not in cmd.value
+        assert "--markdown" not in cmd.value
+
+
+@pytest.mark.asyncio
+async def test_cli_tui_copy_uses_raw_output_for_markdown_commands(real_index) -> None:
+    app = _make_app(real_index)
+
+    with patch.object(app, "copy_to_clipboard") as mock_copy:
+        async with app.run_test() as pilot:
+            await pilot.pause()
+
+            cmd = app.query_one("#command_input", Input)
+            cmd.value = "dcim devices list --markdown"
+
+            output = app.query_one("#output", RichLog)
+            output.write("Status: 200")
+            output.write("┏━━━━┳━━━━━━━━┓")
+            output.write("┃ ID ┃ Name   ┃")
+            output.write("┡━━━━╇━━━━━━━━┩")
+            output.write("│ 1  │ Device │")
+            output.write("└────┴────────┘")
+
+            await pilot.click("#output_copy_button")
+            await pilot.pause()
+
+    mock_copy.assert_called_once()
+    copied_text = mock_copy.call_args.args[0]
+    assert "┏━━━━┳━━━━━━━━┓" in copied_text
+    assert "| ID | Name |" not in copied_text
 
 
 @pytest.mark.asyncio
@@ -608,6 +750,36 @@ def test_nbx_cli_execute_groups_command() -> None:
 
     assert isinstance(exit_code, int)
     assert isinstance(output, str)
+
+
+def test_cli_tui_convert_rich_table_to_markdown() -> None:
+    text = "\n".join(
+        [
+            "Status: 200",
+            "┏━━━━┳━━━━━━━━┓",
+            "┃ ID ┃ Name   ┃",
+            "┡━━━━╇━━━━━━━━┩",
+            "│ 1  │ Device │",
+            "│ 2  │ Router │",
+            "└────┴────────┘",
+        ]
+    )
+    converted = NbxCliTuiApp._convert_rich_tables_to_markdown(text)
+    assert "Strip(" not in converted
+    assert "| ID | Name |" in converted
+    assert "| --- | --- |" in converted
+    assert "| 1 | Device |" in converted
+    assert "| 2 | Router |" in converted
+
+
+def test_cli_tui_line_to_plain_text_prefers_text_attr() -> None:
+    class _FakeLine:
+        text = "plain-value"
+
+        def __str__(self) -> str:
+            return "Strip(...)"
+
+    assert NbxCliTuiApp._line_to_plain_text(_FakeLine()) == "plain-value"
 
 
 # ---------------------------------------------------------------------------

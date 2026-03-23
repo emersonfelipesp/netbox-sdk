@@ -104,6 +104,17 @@ Launches the developer request workbench pre-connected to the demo instance, so 
 
 ---
 
+## Demo Dev HTTP
+
+`nbx demo dev http` mirrors `nbx dev http`: the same verbs (`get`, `post`, `put`, `patch`, `delete`, `paths`, `ops`) and output flags (`--json`, `--yaml`, `--markdown`) apply, and every HTTP call uses the demo profile.
+
+```bash
+nbx demo dev http get --path /api/status/
+nbx demo dev http get --path /dcim/devices/ -q limit=3 --markdown
+```
+
+---
+
 ## Reset
 
 Remove saved demo credentials:

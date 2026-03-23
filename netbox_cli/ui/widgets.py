@@ -294,7 +294,9 @@ class SupportModal(ModalScreen[None]):
                 "If this project helps you, you can ⭐ support ongoing work on GitHub Sponsors.",
                 id="support_modal_copy",
             )
-            yield Static(SPONSOR_URL, id="support_modal_url")
+            with Horizontal(id="support_modal_url_row"):
+                yield Static(SPONSOR_URL, id="support_modal_url")
+                yield NbxButton("Copy", id="support_modal_copy_url", size="small", tone="muted")
             with Horizontal(id="support_modal_actions"):
                 yield NbxButton("Close", id="support_modal_close", size="small", tone="muted")
                 yield NbxButton(
@@ -336,6 +338,10 @@ class SupportModal(ModalScreen[None]):
             f"background: {panel}; color: {primary}; border: round {primary}; "
             "tint: transparent; background-tint: transparent;"
         )
+        self.query_one("#support_modal_copy_url", Button).set_styles(
+            f"background: transparent; color: {theme.variables['nb-muted-text']}; "
+            f"border: round {border}; tint: transparent; background-tint: transparent;"
+        )
         self.query_one("#support_modal_close", Button).set_styles(
             f"background: transparent; color: {theme.variables['nb-muted-text']}; "
             f"border: round {border}; tint: transparent; background-tint: transparent;"
@@ -349,3 +355,8 @@ class SupportModal(ModalScreen[None]):
     def open_sponsor_page(self) -> None:
         self.app.open_url(SPONSOR_URL)
         self.dismiss()
+
+    @on(Button.Pressed, "#support_modal_copy_url")
+    def copy_sponsor_url(self) -> None:
+        self.app.copy_to_clipboard(SPONSOR_URL)
+        self.notify("Sponsors URL copied to clipboard", severity="information")

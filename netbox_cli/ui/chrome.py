@@ -18,6 +18,7 @@ from .logo_render import build_netbox_logo
 _THEME_CATALOG: ThemeCatalog | None = None
 SWITCH_TO_MAIN_TUI = "switch-to-main-tui"
 SWITCH_TO_DEV_TUI = "switch-to-dev-tui"
+SWITCH_TO_CLI_TUI = "switch-to-cli-tui"
 
 
 def get_theme_catalog() -> ThemeCatalog:
