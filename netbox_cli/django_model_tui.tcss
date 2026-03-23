@@ -29,7 +29,11 @@ Screen {
     background: $panel;
     border-right: tall $primary 20%;
     overflow: hidden scroll;
-    scrollbar-size: 0 0;
+    scrollbar-size: 1 0;
+    scrollbar-background: $surface;
+    scrollbar-background-hover: $surface;
+    scrollbar-color: $primary 30%;
+    scrollbar-color-hover: $primary 50%;
 }
 
 #dm_sidebar_title {
@@ -99,32 +103,63 @@ Screen {
     margin: 0 1;
 }
 
-/* ── Diagram tab ──────────────────────────────────────────────────────── */
+/* ── Content styling ─────────────────────────────────────────────────────── */
 
+/* Static widgets inside VerticalScroll containers - no overflow needed */
 #dm_diagram {
-    height: 1fr;
-    width: 1fr;
     padding: 1 2;
-    overflow: auto;
+}
+
+#dm_diagram:hover {
+    background: $panel 5%;
 }
 
 #dm_source_code {
-    height: 1fr;
-    width: 1fr;
     padding: 1 2;
-    overflow: auto;
 }
 
 #dm_fields {
-    height: 1fr;
-    width: 1fr;
     padding: 1 2;
-    overflow: auto;
 }
 
 #dm_stats {
-    height: 1fr;
-    width: 1fr;
     padding: 1 2;
-    overflow: auto;
+}
+
+/* ── Interactive elements and loading states ─────────────────────────────── */
+
+.dm-loading {
+    opacity: 0.6;
+    text-style: dim;
+}
+
+.dm-clickable-hint {
+    background: $primary 5%;
+    border-left: thick $primary 20%;
+    padding: 0 1;
+}
+
+.dm-expand-icon {
+    color: $primary;
+    text-style: bold;
+}
+
+/* ── Enhanced focus and selection states ─────────────────────────────────── */
+
+#dm_nav_tree Tree {
+    scrollbar-size: 1 1;
+    scrollbar-background: $panel;
+    scrollbar-background-hover: $panel;
+    scrollbar-color: $primary 80%;
+    scrollbar-color-hover: $primary;
+    scrollbar-color-active: $primary;
+}
+
+#dm_nav_tree .tree--cursor {
+    background: $primary 20%;
+    color: $text;
+}
+
+#dm_nav_tree .tree--cursor:focus {
+    background: $primary 30%;
 }

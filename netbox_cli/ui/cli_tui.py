@@ -44,6 +44,7 @@ from .app import TOPBAR_CLI_LABEL
 from .chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
+    SWITCH_TO_DJANGO_TUI,
     SWITCH_TO_MAIN_TUI,
     apply_theme,
     badge_state_for_probe,
@@ -64,6 +65,7 @@ _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
     ("- CLI", "cli"),
     ("- Dev", "dev"),
+    ("- Models", "django"),
 )
 _OUTPUT_FORMAT_OPTIONS = (
     ("Output - Human-Readable", "human"),
@@ -721,6 +723,8 @@ class NbxCliTuiApp(App[None]):
             self.exit(result=SWITCH_TO_MAIN_TUI)
         if value == "dev":
             self.exit(result=SWITCH_TO_DEV_TUI)
+        if value == "django":
+            self.exit(result=SWITCH_TO_DJANGO_TUI)
 
     @on(Select.Changed, "#theme_select")
     def on_theme_changed(self, event: Select.Changed) -> None:
@@ -1136,6 +1140,11 @@ def run_cli_tui(
                     next_mode = "dev"
                     next_theme = app.theme_name
                     continue
+                if result == SWITCH_TO_DJANGO_TUI:
+                    from .django_model_app import run_django_model_tui
+
+                    run_django_model_tui(theme_name=app.theme_name)
+                    return
                 return
 
             if next_mode == "main":
@@ -1156,6 +1165,11 @@ def run_cli_tui(
                     next_mode = "cli"
                     next_theme = app.theme_name
                     continue
+                if result == SWITCH_TO_DJANGO_TUI:
+                    from .django_model_app import run_django_model_tui
+
+                    run_django_model_tui(theme_name=app.theme_name)
+                    return
                 return
 
             from .dev_app import NetBoxDevTuiApp
@@ -1170,6 +1184,11 @@ def run_cli_tui(
                 next_mode = "cli"
                 next_theme = app.theme_name
                 continue
+            if result == SWITCH_TO_DJANGO_TUI:
+                from .django_model_app import run_django_model_tui
+
+                run_django_model_tui(theme_name=app.theme_name)
+                return
             return
     except KeyboardInterrupt:
         pass

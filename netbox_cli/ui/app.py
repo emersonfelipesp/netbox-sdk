@@ -36,6 +36,7 @@ from netbox_cli.schema import SchemaIndex, parse_group_resource
 from .chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
+    SWITCH_TO_DJANGO_TUI,
     SWITCH_TO_MAIN_TUI,
     apply_theme,
     badge_state_for_probe,
@@ -67,6 +68,7 @@ _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
     ("- CLI", "cli"),
     ("- Dev", "dev"),
+    ("- Models", "django"),
 )
 logger = get_logger(__name__)
 
@@ -435,6 +437,8 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             self.exit(result=SWITCH_TO_DEV_TUI)
         if str(event.value) == "cli":
             self.exit(result=SWITCH_TO_CLI_TUI)
+        if str(event.value) == "django":
+            self.exit(result=SWITCH_TO_DJANGO_TUI)
 
     @on(Select.Changed, "#theme_select")
     def on_theme_changed(self, event: Select.Changed) -> None:
@@ -1139,6 +1143,12 @@ def run_tui(
                         theme_name=app.theme_name,
                         demo_mode=demo_mode,
                     )
+                    return
+                if result == SWITCH_TO_DJANGO_TUI:
+                    from .django_model_app import run_django_model_tui
+
+                    run_django_model_tui(theme_name=app.theme_name)
+                    return
                 return
 
             from .dev_app import NetBoxDevTuiApp
@@ -1149,6 +1159,11 @@ def run_tui(
                 next_mode = "main"
                 next_theme = app.theme_name
                 continue
+            if result == SWITCH_TO_DJANGO_TUI:
+                from .django_model_app import run_django_model_tui
+
+                run_django_model_tui(theme_name=app.theme_name)
+                return
             return
     except KeyboardInterrupt:
         raise SystemExit(130) from None

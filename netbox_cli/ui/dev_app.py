@@ -41,6 +41,7 @@ from .app import TOPBAR_CLI_LABEL
 from .chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
+    SWITCH_TO_DJANGO_TUI,
     SWITCH_TO_MAIN_TUI,
     apply_theme,
     badge_state_for_probe,
@@ -78,6 +79,7 @@ _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
     ("- CLI", "cli"),
     ("- Dev", "dev"),
+    ("- Models", "django"),
 )
 logger = get_logger(__name__)
 
@@ -386,6 +388,8 @@ class NetBoxDevTuiApp(App[None]):
             self.exit(result=SWITCH_TO_MAIN_TUI)
         if str(event.value) == "cli":
             self.exit(result=SWITCH_TO_CLI_TUI)
+        if str(event.value) == "django":
+            self.exit(result=SWITCH_TO_DJANGO_TUI)
 
     @on(Button.Pressed, "#dev_send_button")
     def on_send_button_pressed(self) -> None:
@@ -885,6 +889,12 @@ def run_dev_tui(
                         theme_name=app.theme_name,
                         demo_mode=demo_mode,
                     )
+                    return
+                if result == SWITCH_TO_DJANGO_TUI:
+                    from .django_model_app import run_django_model_tui
+
+                    run_django_model_tui(theme_name=app.theme_name)
+                    return
                 return
 
             from .app import NetBoxTuiApp
@@ -900,6 +910,11 @@ def run_dev_tui(
                 next_mode = "dev"
                 next_theme = app.theme_name
                 continue
+            if result == SWITCH_TO_DJANGO_TUI:
+                from .django_model_app import run_django_model_tui
+
+                run_django_model_tui(theme_name=app.theme_name)
+                return
             return
     except KeyboardInterrupt:
         raise SystemExit(130) from None
