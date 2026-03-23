@@ -1,0 +1,543 @@
+"""Django Model Inspector TUI — browse NetBox Django models, diagrams, and source code."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from rich.text import Text
+from textual import on, work
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Horizontal, Vertical
+from textual.widgets import (
+    Button,
+    Footer,
+    Input,
+    Select,
+    Static,
+    TabbedContent,
+    TabPane,
+    TextArea,
+    Tree,
+)
+
+from netbox_cli.django_models.diagram import render_model_diagram
+from netbox_cli.django_models.store import DjangoModelStore
+from netbox_cli.logging_runtime import get_logger
+
+from .chrome import (
+    apply_theme,
+    initialize_theme_state,
+    logo_renderable,
+    strip_theme_select_prefix,
+    update_clock_widget,
+)
+from .widgets import NbxButton, SupportModal
+
+logger = get_logger(__name__)
+
+_VIEW_MODE_OPTIONS = (
+    ("- TUI", "main"),
+    ("- CLI", "cli"),
+    ("- Dev", "dev"),
+    ("- Models", "django"),
+)
+
+_BUILDS_DIR = Path(__file__).resolve().parent.parent.parent / "django_models_builds"
+
+
+class _ThemeState:
+    """Minimal state holder for apply_theme compatibility."""
+
+    def __init__(self) -> None:
+        self.theme_name: str | None = None
+
+
+def _discover_versions() -> tuple[tuple[str, str], ...]:
+    """Scan ``django_models_builds/`` for versioned build files.
+
+    Returns ``Select``-compatible options sorted newest-first.
+    """
+    if not _BUILDS_DIR.is_dir():
+        return ()
+    options: list[tuple[str, str]] = []
+    for f in sorted(_BUILDS_DIR.glob("*-django-models-build.json"), reverse=True):
+        tag = f.name.replace("-django-models-build.json", "")
+        options.append((f"  {tag}", tag))
+    return tuple(options)
+
+
+def _match_version(api_version: str, tags: list[str]) -> str | None:
+    """Find the best build tag matching an ``API-Version`` header value.
+
+    ``api_version`` is e.g. ``"4.2"``; tags are e.g. ``["v4.5.5", "v4.2.1"]``.
+    """
+    prefix = f"v{api_version}."
+    for t in tags:
+        if t.startswith(prefix):
+            return t
+    major = api_version.split(".")[0]
+    major_prefix = f"v{major}."
+    for t in tags:
+        if t.startswith(major_prefix):
+            return t
+    return None
+
+
+class DjangoModelTuiApp(App[None]):
+    """TUI for exploring NetBox Django model relationships and source code."""
+
+    TITLE = "NetBox Django Models"
+    CSS_PATH = [
+        str(Path(__file__).resolve().parent.parent / "ui_common.tcss"),
+        str(Path(__file__).resolve().parent.parent / "django_model_tui.tcss"),
+    ]
+    BINDINGS = [
+        Binding("q", "quit", "Quit", priority=True),
+        Binding("/", "focus_search", "Search"),
+        Binding("g", "focus_tree", "Models"),
+        Binding("r", "rebuild", "Rebuild"),
+        Binding("escape", "cancel", "Cancel"),
+    ]
+
+    def __init__(
+        self,
+        store: DjangoModelStore,
+        *,
+        theme_name: str | None = None,
+    ) -> None:
+        super().__init__()
+        self.store = store
+        self._graph: dict[str, Any] | None = None
+        self._all_keys: list[str] = []
+        self._theme_state = _ThemeState()
+        self._version_options = _discover_versions()
+        self._active_version: str | None = None
+
+        catalog, self.theme_name, self.theme_options = initialize_theme_state(
+            self,
+            requested_theme_name=theme_name,
+            persisted_theme_name=None,
+        )
+        self.theme_catalog = catalog
+
+    # ── Composition ───────────────────────────────────────────────────────
+
+    def compose(self) -> ComposeResult:
+        # ── Topbar ────────────────────────────────────────────────────────
+        with Horizontal(id="topbar"):
+            with Horizontal(id="topbar_left"):
+                yield Static("\u25cf", id="nav_dot")
+                yield Select(
+                    options=self.theme_options,
+                    value=self.theme_name,
+                    prompt="Theme",
+                    id="theme_select",
+                )
+                if self._version_options:
+                    yield Select(
+                        options=self._version_options,
+                        value=None,
+                        prompt="NetBox",
+                        id="version_select",
+                    )
+                yield Select(
+                    options=_VIEW_MODE_OPTIONS,
+                    value="django",
+                    prompt="View",
+                    id="view_select",
+                )
+            with Horizontal(id="topbar_center"):
+                yield Static(self._logo_renderable(), id="topbar_logo")
+                yield Static(
+                    Text(" Django Models", style="dim"),
+                    id="topbar_cli_suffix",
+                )
+            with Horizontal(id="topbar_right"):
+                yield Static(Text("--:--", style="dim"), id="clock")
+                yield Static("", id="connection_badge")
+                yield Static(" ", id="topbar_sep")
+                yield NbxButton(
+                    "Liked it? Support me!",
+                    tone="warning",
+                    size="small",
+                    id="support_button",
+                    chrome="ghost",
+                )
+                yield NbxButton(
+                    "Close",
+                    tone="neutral",
+                    size="small",
+                    id="close_tui_button",
+                    chrome="ghost",
+                )
+
+        # ── Search bar ────────────────────────────────────────────────────
+        with Horizontal(id="query_bar"):
+            yield Input(
+                placeholder="Search models (e.g. Device, dcim, ForeignKey)...", id="model_search"
+            )
+
+        # ── Main shell ────────────────────────────────────────────────────
+        with Horizontal(id="dm_shell"):
+            # Sidebar
+            with Vertical(id="dm_sidebar"):
+                yield Static("Django Models", id="dm_sidebar_title")
+                yield Tree("NetBox Models", id="dm_nav_tree")
+                yield Static("", id="dm_help")
+
+            # Main content
+            with Vertical(id="dm_main"):
+                with TabbedContent(id="dm_main_tabs"):
+                    with TabPane("Diagram", id="dm_diagram_tab"):
+                        yield Static("Select a model from the sidebar.", id="dm_diagram")
+                    with TabPane("Source Code", id="dm_code_tab"):
+                        yield TextArea(
+                            "# Select a model to view its source code.",
+                            read_only=True,
+                            id="dm_source_code",
+                            language="python",
+                            theme="css",
+                        )
+                    with TabPane("Fields", id="dm_fields_tab"):
+                        yield Static("Select a model to view its fields.", id="dm_fields")
+                    with TabPane("Stats", id="dm_stats_tab"):
+                        yield Static("", id="dm_stats")
+
+        yield Footer()
+        yield SupportModal()
+
+    # ── Lifecycle ─────────────────────────────────────────────────────────
+
+    def on_mount(self) -> None:
+        self._apply_theme(self.theme_name)
+        self.call_after_refresh(self._strip_theme_select_prefix)
+        self._update_clock()
+        self.set_interval(60, self._update_clock)
+        self._auto_detect_version()
+
+    def _load_graph_from_store(self) -> None:
+        """Load graph from the default store (no versioned build selected)."""
+        if not self.store.exists():
+            self.notify(
+                "Model cache not found. Run: nbx dev django-model build",
+                severity="warning",
+                timeout=10,
+            )
+            return
+        try:
+            self._graph = self.store.load()
+            self._build_tree()
+            self._render_stats()
+        except Exception as exc:
+            self.notify(f"Error loading cache: {exc}", severity="error")
+
+    def _load_version(self, tag: str) -> None:
+        """Load a versioned build from ``django_models_builds/``."""
+        build_file = _BUILDS_DIR / f"{tag}-django-models-build.json"
+        if not build_file.exists():
+            self.notify(f"Build file not found: {build_file.name}", severity="error")
+            return
+        try:
+            self._graph = json.loads(build_file.read_text(encoding="utf-8"))
+            self._build_tree()
+            self._render_stats()
+            models = self._graph.get("stats", {}).get("total_models", 0) if self._graph else 0
+            self.notify(f"Loaded {tag} ({models} models)", timeout=5)
+        except Exception as exc:
+            self.notify(f"Error loading {tag}: {exc}", severity="error")
+
+    @work(group="dm_autodetect", exclusive=True, thread=False)
+    async def _auto_detect_version(self) -> None:
+        """Probe connected NetBox and auto-select matching build."""
+        tags = [opt[1] for opt in self._version_options]
+        if not tags:
+            self._load_graph_from_store()
+            return
+
+        try:
+            from netbox_cli.cli.runtime import get_runtime_client  # noqa: PLC0415
+            from netbox_cli.cli.support import run_with_spinner  # noqa: PLC0415
+
+            client = get_runtime_client()
+            probe = run_with_spinner(client.probe_connection())
+            if probe.ok and probe.version:
+                matched = _match_version(probe.version, tags)
+                if matched:
+                    self._active_version = matched
+                    # Update the Select widget
+                    try:
+                        sel = self.query_one("#version_select", Select)
+                        sel.value = matched
+                    except Exception:
+                        pass
+                    self._load_version(matched)
+                    self.notify(
+                        f"Auto-selected {matched} (NetBox API {probe.version})",
+                        timeout=8,
+                    )
+                    return
+        except Exception:
+            pass  # No config / no connection
+
+        # No auto-match — load default store
+        self._load_graph_from_store()
+
+    def _rebuild(self) -> None:
+        try:
+            self.notify("Rebuilding model cache...", timeout=10)
+            netbox_root = Path("/root/nms/netbox/netbox/")
+            if not netbox_root.is_dir():
+                self.notify(f"NetBox source not found at {netbox_root}", severity="error")
+                return
+            self._graph = self.store.build(netbox_root)
+            self._build_tree()
+            self._render_stats()
+            self.notify(
+                f"Built {self._graph['stats']['total_models']} models, "
+                f"{self._graph['stats']['total_edges']} edges.",
+                timeout=5,
+            )
+        except Exception as exc:
+            self.notify(f"Rebuild failed: {exc}", severity="error")
+
+    # ── Version selector ──────────────────────────────────────────────────
+
+    @on(Select.Changed, "#version_select")
+    def _on_version_changed(self, event: Select.Changed) -> None:
+        if event.value is None or not isinstance(event.value, str):
+            return
+        self._active_version = event.value
+        self._load_version(event.value)
+
+    # ── Navigation tree ───────────────────────────────────────────────────
+
+    def _build_tree(self) -> None:
+        if self._graph is None:
+            return
+        tree = self.query_one("#dm_nav_tree", Tree)
+        tree.clear()
+        tree.root.expand()
+
+        models = self._graph.get("models", {})
+        self._all_keys = sorted(models.keys())
+
+        # Group by app
+        apps: dict[str, list[tuple[str, dict]]] = {}
+        for key in self._all_keys:
+            model = models[key]
+            apps.setdefault(model["app"], []).append((key, model))
+
+        for app_name in sorted(apps):
+            app_models = apps[app_name]
+            app_node = tree.root.add(f"{app_name}/ ({len(app_models)})", expand=False)
+            for key, model in sorted(app_models, key=lambda x: x[1]["name"]):
+                fk_count = sum(1 for f in model.get("fields", []) if f.get("target"))
+                fk_label = f" [{fk_count} FK]" if fk_count else ""
+                label = f"{model['name']}{fk_label}"
+                app_node.add_leaf(label, data=key)
+
+    # ── Model selection ───────────────────────────────────────────────────
+
+    @on(Tree.NodeSelected, "#dm_nav_tree")
+    def _on_model_selected(self, event: Tree.NodeSelected) -> None:
+        key = event.node.data
+        if key is None or not isinstance(key, str):
+            return
+        self._show_model(key)
+
+    def _show_model(self, key: str) -> None:
+        if self._graph is None:
+            return
+        models = self._graph.get("models", {})
+        model = models.get(key)
+        if model is None:
+            return
+
+        # Diagram
+        diagram_text = render_model_diagram(key, self._graph)
+        try:
+            diagram_widget = self.query_one("#dm_diagram", Static)
+            diagram_widget.update(Text(diagram_text))
+        except Exception:
+            pass
+
+        # Source code — only available for builds from local source
+        source = self._get_model_source(key)
+        try:
+            code_widget = self.query_one("#dm_source_code", TextArea)
+            code_widget.load_text(source)
+        except Exception:
+            pass
+
+        # Fields table
+        fields_lines = self._render_fields_table(model)
+        try:
+            fields_widget = self.query_one("#dm_fields", Static)
+            fields_widget.update(Text(fields_lines))
+        except Exception:
+            pass
+
+        # Update title
+        self.title = f"NetBox \u2014 {key}"
+
+    def _get_model_source(self, key: str) -> str:
+        """Get model source — try the store first, then the versioned build's file_path."""
+        # If a versioned build is selected, file_path may point to a now-gone temp dir
+        if self._active_version:
+            model = (self._graph or {}).get("models", {}).get(key)
+            if model:
+                fp = model.get("file_path", "")
+                if fp and Path(fp).exists():
+                    return self.store.get_model_source(key)
+                return f"# Source not available for {key}\n# (Versioned build — file_path: {fp})"
+        return self.store.get_model_source(key)
+
+    def _render_fields_table(self, model: dict[str, Any]) -> str:
+        fields = model.get("fields", [])
+        if not fields:
+            return "  No fields found."
+
+        lines: list[str] = []
+        _h = "\u2500"
+        lines.append(f"  {'Field':<30} {'Type':<20} {'Target':<30}")
+        lines.append(f"  {_h * 30} {_h * 20} {_h * 30}")
+
+        for f in fields:
+            name = f["name"]
+            ftype = f["type"]
+            target = f.get("target") or "-"
+            lines.append(f"  {name:<30} {ftype:<20} {target:<30}")
+
+        lines.append("")
+        lines.append(f"  Total: {len(fields)} fields")
+        return "\n".join(lines)
+
+    def _render_stats(self) -> None:
+        if self._graph is None:
+            return
+        stats = self._graph.get("stats", {})
+        meta = self._graph.get("meta", {})
+
+        lines: list[str] = []
+        lines.append("  NetBox Django Model Statistics")
+        lines.append("  " + "\u2500" * 40)
+        lines.append("")
+        lines.append(f"  Source:    {meta.get('source_path', 'N/A')}")
+        lines.append(f"  Models:    {stats.get('total_models', 0)}")
+        lines.append(f"  Edges:     {stats.get('total_edges', 0)}")
+        lines.append(f"  Cross-app: {stats.get('cross_app_edges', 0)}")
+        lines.append(f"  Intra-app: {stats.get('intra_app_edges', 0)}")
+        lines.append("")
+        lines.append("  Apps:")
+
+        models = self._graph.get("models", {})
+        for app in stats.get("apps", []):
+            app_models = [m for m in models.values() if m["app"] == app]
+            app_fks = sum(1 for m in app_models for f in m.get("fields", []) if f.get("target"))
+            lines.append(f"    {app:<20} {len(app_models):>3} models, {app_fks:>3} FKs")
+
+        try:
+            stats_widget = self.query_one("#dm_stats", Static)
+            stats_widget.update(Text("\n".join(lines)))
+        except Exception:
+            pass
+
+    # ── Search ────────────────────────────────────────────────────────────
+
+    @on(Input.Changed, "#model_search")
+    def _on_search_changed(self, event: Input.Changed) -> None:
+        query = event.value.strip().lower()
+        if not query:
+            self._build_tree()
+            return
+
+        if self._graph is None:
+            return
+
+        tree = self.query_one("#dm_nav_tree", Tree)
+        tree.clear()
+        tree.root.expand()
+
+        models = self._graph.get("models", {})
+        for key in self._all_keys:
+            model = models[key]
+            searchable = f"{model['app']}.{model['name']}".lower()
+            if query in searchable:
+                fk_count = sum(1 for f in model.get("fields", []) if f.get("target"))
+                fk_label = f" [{fk_count} FK]" if fk_count else ""
+                tree.root.add_leaf(
+                    f"{model['app']}.{model['name']}{fk_label}",
+                    data=key,
+                )
+
+    # ── Actions ───────────────────────────────────────────────────────────
+
+    def action_focus_search(self) -> None:
+        self.query_one("#model_search", Input).focus()
+
+    def action_focus_tree(self) -> None:
+        self.query_one("#dm_nav_tree", Tree).focus()
+
+    def action_rebuild(self) -> None:
+        self._rebuild()
+
+    def action_cancel(self) -> None:
+        pass
+
+    # ── Theme / chrome ────────────────────────────────────────────────────
+
+    @on(Select.Changed, "#theme_select")
+    def _on_theme_changed(self, event: Select.Changed) -> None:
+        if event.value is None or not isinstance(event.value, str):
+            return
+        self.theme_name = apply_theme(
+            self,
+            theme_catalog=self.theme_catalog,
+            theme_options=self.theme_options,
+            current_theme_name=self.theme_name,
+            new_theme_name=event.value,
+            state=self._theme_state,
+            logo_widget_id="#topbar_logo",
+        )
+
+    @on(Button.Pressed, "#support_button")
+    def _on_support(self) -> None:
+        self.push_screen(SupportModal())
+
+    @on(Button.Pressed, "#close_tui_button")
+    def _on_close(self) -> None:
+        self.exit()
+
+    def _logo_renderable(self) -> Text:
+        return logo_renderable(self.theme_catalog, self.theme_name)
+
+    def _apply_theme(self, theme_name: str) -> None:
+        self.theme_name = apply_theme(
+            self,
+            theme_catalog=self.theme_catalog,
+            theme_options=self.theme_options,
+            current_theme_name=self.theme_name,
+            new_theme_name=theme_name,
+            state=self._theme_state,
+            logo_widget_id="#topbar_logo",
+        )
+
+    def _strip_theme_select_prefix(self) -> None:
+        strip_theme_select_prefix(self, selector="#theme_select SelectCurrent Static#label")
+
+    def _update_clock(self) -> None:
+        update_clock_widget(self, widget_id="#clock")
+
+
+def run_django_model_tui(
+    store: DjangoModelStore | None = None,
+    *,
+    theme_name: str | None = None,
+) -> None:
+    """Launch the Django Model Inspector TUI."""
+    if store is None:
+        store = DjangoModelStore()
+    DjangoModelTuiApp(store=store, theme_name=theme_name).run()

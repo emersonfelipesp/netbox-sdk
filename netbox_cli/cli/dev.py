@@ -688,3 +688,7 @@ def dev_tui_command(
 
 
 dev_app.add_typer(dev_http_app, name="http")
+
+from .django_model import django_model_app as _django_model_app  # noqa: E402, PLC0415
+
+dev_app.add_typer(_django_model_app, name="django-model")
