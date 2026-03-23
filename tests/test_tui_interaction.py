@@ -996,7 +996,7 @@ async def test_footer_inner_styles_follow_theme(mock_client, real_index, theme_n
 @pytest.mark.asyncio
 async def test_tree_and_detail_cursor_styles_follow_theme(mock_client, real_index):
     app = _make_app(mock_client, real_index, theme="dracula")
-    expected_panel = app.theme_catalog.theme_for("dracula").colors["panel"]
+    expected_panel = app.theme_catalog.theme_for("dracula").colors["panel"].lower()
     expected_subtle = app.theme_catalog.theme_for("dracula").variables["nb-border-subtle"].lower()
 
     async with app.run_test(size=(160, 50)) as pilot:
