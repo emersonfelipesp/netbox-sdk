@@ -20,7 +20,7 @@
 ## Architecture in One Page
 
 ```
-CLI (cli.py / Typer)                  TUI (ui/app.py / Textual)
+CLI (cli/ / Typer)                    TUI (ui/app.py / Textual)
     │                                        │
     ├── SchemaIndex (schema.py)  ────────────┤
     ├── services.py                          ├── ui/navigation.py
@@ -30,8 +30,9 @@ CLI (cli.py / Typer)                  TUI (ui/app.py / Textual)
     └── output_safety.py                     └── ui/state.py
                                                    (tui_state.json)
 Shared:
-  config.py     → ~/.config/netbox-cli/config.json
-  theme_registry.py → netbox_cli/themes/*.json
+  config.py          → ~/.config/netbox-cli/config.json
+  theme_registry.py  → netbox_cli/themes/*.json
+  logging_runtime.py → ~/.config/netbox-cli/logs/netbox-cli.log
   trace_ascii.py, demo_auth.py, docgen_capture.py
 
 Security Reference:
