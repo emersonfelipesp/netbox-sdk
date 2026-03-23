@@ -11,7 +11,8 @@ from rich.text import Text
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.events import Click
 from textual.timer import Timer
 from textual.widgets import (
     Button,
@@ -26,10 +27,12 @@ from textual.widgets import (
 
 from netbox_cli.api import ConnectionProbe
 from netbox_cli.django_models.rich_rendering import (
+    clear_all_expansions,
     render_fields_table_rich,
     render_model_diagram_rich,
     render_python_source_rich,
     render_stats_table_rich,
+    toggle_dependency_expansion,
 )
 from netbox_cli.django_models.store import DjangoModelStore
 from netbox_cli.logging_runtime import get_logger
@@ -123,6 +126,7 @@ class DjangoModelTuiApp(App[None]):
         self.store = store
         self._graph: dict[str, Any] | None = None
         self._all_keys: list[str] = []
+        self._current_model_key: str | None = None
         self._version_options = _discover_versions()
         self._active_version: str | None = None
         self._detected_api_version: str | None = None
@@ -205,16 +209,20 @@ class DjangoModelTuiApp(App[None]):
             with Vertical(id="dm_main"):
                 with TabbedContent(id="dm_main_tabs"):
                     with TabPane("Diagram", id="dm_diagram_tab"):
-                        yield Static("Select a model from the sidebar.", id="dm_diagram")
+                        with VerticalScroll():
+                            yield Static("Select a model from the sidebar.", id="dm_diagram")
                     with TabPane("Source Code", id="dm_code_tab"):
-                        yield Static(
-                            "# Select a model to view its source code.",
-                            id="dm_source_code",
-                        )
+                        with VerticalScroll():
+                            yield Static(
+                                "# Select a model to view its source code.",
+                                id="dm_source_code",
+                            )
                     with TabPane("Fields", id="dm_fields_tab"):
-                        yield Static("Select a model to view its fields.", id="dm_fields")
+                        with VerticalScroll():
+                            yield Static("Select a model to view its fields.", id="dm_fields")
                     with TabPane("Stats", id="dm_stats_tab"):
-                        yield Static("", id="dm_stats")
+                        with VerticalScroll():
+                            yield Static("", id="dm_stats")
 
         yield Footer()
 
@@ -394,6 +402,11 @@ class DjangoModelTuiApp(App[None]):
         if model is None:
             return
 
+        # Clear expansions if switching to a different model
+        if self._current_model_key != key:
+            clear_all_expansions()
+            self._current_model_key = key
+
         # Diagram - Rich rendering with colored borders
         try:
             diagram_widget = self.query_one("#dm_diagram", Static)
@@ -421,6 +434,54 @@ class DjangoModelTuiApp(App[None]):
 
         # Update title
         self.title = f"NetBox \u2014 {key}"
+
+    @on(Click, "#dm_diagram")
+    def _on_diagram_click(self, event: Click) -> None:
+        """Handle clicks on the diagram to expand/collapse dependency sections."""
+        if self._current_model_key is None or self._graph is None:
+            return
+
+        # Check if we're in the Dependencies or Dependents section area
+        # Since we can't easily parse the rendered content, we'll use a simpler approach
+        # We'll check if the click is in roughly the right area and toggle sections
+
+        # For now, we'll implement a simple click detection based on position
+        # This could be enhanced later with more sophisticated region detection
+        click_y = event.offset.y
+
+        # Heuristic: if clicked in the upper half, try Dependencies; lower half, try Dependents
+        # This is a simplified approach - in a production app we'd want more precise detection
+
+        models = self._graph.get("models", {})
+        model = models.get(self._current_model_key)
+        if model is None:
+            return
+
+        # Get outgoing and incoming relationships to determine if sections exist
+        outgoing_fks = [f for f in model.get("fields", []) if f.get("target")]
+        graph_models = self._graph.get("models", {})
+        incoming_fks = []
+        for other_key, other_model in graph_models.items():
+            for field in other_model.get("fields", []):
+                if field.get("target") == self._current_model_key:
+                    incoming_fks.append((other_key, field))
+
+        # Simple region-based detection
+        # If we have both dependencies and dependents, split the area
+        has_dependencies = len(outgoing_fks) > 0
+        has_dependents = len(incoming_fks) > 0
+
+        if has_dependencies and click_y < 10:  # Upper region - Dependencies
+            toggle_dependency_expansion(self._current_model_key, "dependencies")
+            self._refresh_current_model()
+        elif has_dependents and click_y >= 10:  # Lower region - Dependents
+            toggle_dependency_expansion(self._current_model_key, "dependents")
+            self._refresh_current_model()
+
+    def _refresh_current_model(self) -> None:
+        """Refresh the currently displayed model to show updated expansion states."""
+        if self._current_model_key is not None:
+            self._show_model(self._current_model_key)
 
     def _get_model_source(self, key: str) -> str:
         """Get model source — try the store first, then the versioned build's file_path."""

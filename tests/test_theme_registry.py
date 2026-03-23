@@ -10,6 +10,16 @@ import pytest
 from netbox_cli.theme_registry import ThemeCatalogError, load_theme_catalog
 
 
+def test_themes_set_explicit_foreground_for_textual() -> None:
+    """Textual derives similar auto-foregrounds for dark themes unless we set it."""
+    catalog = load_theme_catalog()
+    for name in catalog.available_theme_names():
+        theme = catalog.theme_for(name)
+        assert theme.foreground is not None, f"{name} should define foreground"
+        tt = theme.to_textual_theme()
+        assert tt.foreground == theme.foreground
+
+
 def _required_variables_json() -> str:
     return """
     "nb-success-text": "#000001",
@@ -51,6 +61,31 @@ def test_theme_catalog_loads_builtin_themes() -> None:
     assert catalog.resolve("onedark") == "onedark-pro"
     assert catalog.resolve("one-dark") == "onedark-pro"
     assert catalog.default_theme_name == "netbox-dark"
+
+
+def test_onedark_pro_surface_stack_matches_textual_atom_one_dark() -> None:
+    """Textual's atom-one-dark uses surface/panel *above* background; inverted stacks break internals."""
+    theme = load_theme_catalog().theme_for("onedark-pro")
+
+    def _rgb_channels(hex_color: str) -> tuple[int, int, int]:
+        value = hex_color.lstrip("#")
+        return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
+
+    def _lightness(hex_color: str) -> float:
+        red, green, blue = _rgb_channels(hex_color)
+        _, lightness, _ = rgb_to_hls(red / 255, green / 255, blue / 255)
+        return lightness
+
+    background = theme.colors["background"]
+    surface = theme.colors["surface"]
+    panel = theme.colors["panel"]
+    boost = theme.colors["boost"]
+
+    assert background == "#282C34"
+    assert surface == "#3B414D"
+    assert panel == "#4F5666"
+    assert boost == "#5C6370"
+    assert _lightness(background) < _lightness(surface) < _lightness(panel) < _lightness(boost)
 
 
 def test_dracula_surface_stack_stays_neutral_and_progressive() -> None:
