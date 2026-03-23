@@ -16,17 +16,11 @@
                                                                                     
      Developer-focused tools and experimental interfaces.                           
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-    │ tui   Launch the developer request workbench TUI.                            │
-    │ http  Direct HTTP operations mapped from OpenAPI paths (nbx dev http         │
-    │       <method> --path ...).                                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (9 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.870s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.816s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -49,14 +43,11 @@
                                                                                     
      Launch the developer request workbench TUI.                                    
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --theme          Theme selector. Use '--theme' to list available themes or   │
-    │                  '--theme <name>' to launch with one.                        │
-    │ --help           Show this message and exit.                                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (6 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.955s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.797s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -79,10 +70,11 @@
     - netbox-dark
     - netbox-light
     - onedark-pro
-    - tokyo-night
+    
+    … (1 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.157s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.529s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -105,22 +97,11 @@
                                                                                     
      Direct HTTP operations mapped from OpenAPI paths (nbx dev http <method> --path 
      ...).                                                                          
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-    │ get     GET a list or detail endpoint. Use --id for a single object.         │
-    │ post    POST to create a new object.                                         │
-    │ put     PUT to fully replace an existing object. Requires --id.              │
-    │ patch   PATCH to partially update an existing object. Requires --id.         │
-    │ delete  DELETE an object by ID. Requires --id.                               │
-    │ paths   List all OpenAPI paths from the bundled NetBox schema.               │
-    │ ops     Show available HTTP operations for a specific OpenAPI path.          │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (14 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.045s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.762s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -143,22 +124,11 @@
                                                                                     
      GET a list or detail endpoint. Use --id for a single object.                   
                                                                                     
-     Any unrecognised --flag is forwarded as a query filter:                        
-     nbx dev http get --path /dcim/devices/ --status active --site mysite           
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path      -p      TEXT     API path, e.g. /dcim/devices/ [required]     │
-    │    --id                INTEGER  Object ID for detail endpoint                │
-    │    --query     -q      TEXT     Query filter as key=value (repeatable)       │
-    │    --json                       Output raw JSON                              │
-    │    --yaml                       Output YAML                                  │
-    │    --markdown                   Output Markdown (mutually exclusive with     │
-    │                                 --json/--yaml)                               │
-    │    --help                       Show this message and exit.                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (14 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.124s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.765s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -181,24 +151,11 @@
                                                                                     
      POST to create a new object.                                                   
                                                                                     
-     Pass body fields directly as flags or with --argument:                         
-     nbx dev http post --path /dcim/devices/ --name router1 --site 3 --device-type  
-     1                                                                              
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path       -p      TEXT  API path, e.g. /dcim/devices/ [required]       │
-    │    --argument   -a      TEXT  Body field as key=value (repeatable)           │
-    │    --body-json          TEXT  Inline JSON request body                       │
-    │    --body-file          TEXT  Path to JSON body file                         │
-    │    --json                     Output raw JSON                                │
-    │    --yaml                     Output YAML                                    │
-    │    --markdown                 Output Markdown (mutually exclusive with       │
-    │                               --json/--yaml)                                 │
-    │    --help                     Show this message and exit.                    │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (16 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.141s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.990s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -221,24 +178,11 @@
                                                                                     
      PUT to fully replace an existing object. Requires --id.                        
                                                                                     
-     Pass body fields directly as flags:                                            
-     nbx dev http put --path /dcim/devices/ --id 42 --name router1-renamed          
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path       -p      TEXT     API path, e.g. /dcim/devices/ [required]    │
-    │ *  --id                 INTEGER  Object ID (required for PUT) [required]     │
-    │    --argument   -a      TEXT     Body field as key=value (repeatable)        │
-    │    --body-json          TEXT     Inline JSON request body                    │
-    │    --body-file          TEXT     Path to JSON body file                      │
-    │    --json                        Output raw JSON                             │
-    │    --yaml                        Output YAML                                 │
-    │    --markdown                    Output Markdown (mutually exclusive with    │
-    │                                  --json/--yaml)                              │
-    │    --help                        Show this message and exit.                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (16 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.074s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.012s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -261,24 +205,11 @@
                                                                                     
      PATCH to partially update an existing object. Requires --id.                   
                                                                                     
-     Pass only the fields you want to change:                                       
-     nbx dev http patch --path /dcim/devices/ --id 42 --status active               
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path       -p      TEXT     API path, e.g. /dcim/devices/ [required]    │
-    │ *  --id                 INTEGER  Object ID (required for PATCH) [required]   │
-    │    --argument   -a      TEXT     Body field as key=value (repeatable)        │
-    │    --body-json          TEXT     Inline JSON request body                    │
-    │    --body-file          TEXT     Path to JSON body file                      │
-    │    --json                        Output raw JSON                             │
-    │    --yaml                        Output YAML                                 │
-    │    --markdown                    Output Markdown (mutually exclusive with    │
-    │                                  --json/--yaml)                              │
-    │    --help                        Show this message and exit.                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (16 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.102s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.870s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -301,18 +232,11 @@
                                                                                     
      DELETE an object by ID. Requires --id.                                         
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path      -p      TEXT     API path, e.g. /dcim/devices/ [required]     │
-    │ *  --id                INTEGER  Object ID (required for DELETE) [required]   │
-    │    --json                       Output raw JSON                              │
-    │    --yaml                       Output YAML                                  │
-    │    --markdown                   Output Markdown (mutually exclusive with     │
-    │                                 --json/--yaml)                               │
-    │    --help                       Show this message and exit.                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (10 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.087s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.936s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -335,18 +259,11 @@
                                                                                     
      List all OpenAPI paths from the bundled NetBox schema.                         
                                                                                     
-    ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-    │   search      [SEARCH]  Optional substring filter on path                    │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --method  -m      TEXT  Filter by HTTP method (GET, POST, PUT, PATCH,        │
-    │                         DELETE)                                              │
-    │ --group   -g      TEXT  Filter by API group, e.g. dcim                       │
-    │ --help                  Show this message and exit.                          │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (10 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.800s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.863s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -369,13 +286,11 @@
                                                                                     
      Show available HTTP operations for a specific OpenAPI path.                    
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path  -p      TEXT  API path to inspect [required]                      │
-    │    --help                Show this message and exit.                         │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (5 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.937s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.743s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -417,560 +332,12 @@
     │                                                          │ PATCH, PUT        │
     │ /api/circuits/circuits/                                  │ DELETE, GET,      │
     │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/circuits/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/circuits/provider-accounts/                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/provider-accounts/{id}/                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/circuits/provider-networks/                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/provider-networks/{id}/                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/circuits/providers/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/providers/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/circuits/virtual-circuit-terminations/              │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/virtual-circuit-terminations/{id}/         │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/circuits/virtual-circuit-terminations/{id}/paths/   │ GET               │
-    │ /api/circuits/virtual-circuit-types/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/virtual-circuit-types/{id}/                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/circuits/virtual-circuits/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/circuits/virtual-circuits/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/core/background-queues/                             │ GET               │
-    │ /api/core/background-queues/{name}/                      │ GET               │
-    │ /api/core/background-tasks/                              │ GET               │
-    │ /api/core/background-tasks/{id}/                         │ GET               │
-    │ /api/core/background-tasks/{id}/delete/                  │ POST              │
-    │ /api/core/background-tasks/{id}/enqueue/                 │ POST              │
-    │ /api/core/background-tasks/{id}/requeue/                 │ POST              │
-    │ /api/core/background-tasks/{id}/stop/                    │ POST              │
-    │ /api/core/background-workers/                            │ GET               │
-    │ /api/core/background-workers/{name}/                     │ GET               │
-    │ /api/core/data-files/                                    │ GET               │
-    │ /api/core/data-files/{id}/                               │ GET               │
-    │ /api/core/data-sources/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/core/data-sources/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/core/data-sources/{id}/sync/                        │ POST              │
-    │ /api/core/jobs/                                          │ GET               │
-    │ /api/core/jobs/{id}/                                     │ GET               │
-    │ /api/core/object-changes/                                │ GET               │
-    │ /api/core/object-changes/{id}/                           │ GET               │
-    │ /api/core/object-types/                                  │ GET               │
-    │ /api/core/object-types/{id}/                             │ GET               │
-    │ /api/dcim/cable-terminations/                            │ GET               │
-    │ /api/dcim/cable-terminations/{id}/                       │ GET               │
-    │ /api/dcim/cables/                                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/cables/{id}/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/connected-device/                              │ GET               │
-    │ /api/dcim/console-port-templates/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/console-port-templates/{id}/                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/console-ports/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/console-ports/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/console-ports/{id}/trace/                      │ GET               │
-    │ /api/dcim/console-server-port-templates/                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/console-server-port-templates/{id}/            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/console-server-ports/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/console-server-ports/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/console-server-ports/{id}/trace/               │ GET               │
-    │ /api/dcim/device-bay-templates/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/device-bay-templates/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/device-bays/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/device-bays/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/device-roles/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/device-roles/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/device-types/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/device-types/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/devices/                                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/devices/{id}/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/devices/{id}/render-config/                    │ POST              │
-    │ /api/dcim/front-port-templates/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/front-port-templates/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/front-ports/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/front-ports/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/front-ports/{id}/paths/                        │ GET               │
-    │ /api/dcim/interface-templates/                           │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/interface-templates/{id}/                      │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/interfaces/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/interfaces/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/interfaces/{id}/trace/                         │ GET               │
-    │ /api/dcim/inventory-item-roles/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/inventory-item-roles/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/inventory-item-templates/                      │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/inventory-item-templates/{id}/                 │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/inventory-items/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/inventory-items/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/locations/                                     │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/locations/{id}/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/mac-addresses/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/mac-addresses/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/manufacturers/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/manufacturers/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/module-bay-templates/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/module-bay-templates/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/module-bays/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/module-bays/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/module-type-profiles/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/module-type-profiles/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/module-types/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/module-types/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/modules/                                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/modules/{id}/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/platforms/                                     │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/platforms/{id}/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-feeds/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/power-feeds/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-feeds/{id}/trace/                        │ GET               │
-    │ /api/dcim/power-outlet-templates/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/power-outlet-templates/{id}/                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-outlets/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/power-outlets/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-outlets/{id}/trace/                      │ GET               │
-    │ /api/dcim/power-panels/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/power-panels/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-port-templates/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/power-port-templates/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-ports/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/power-ports/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/power-ports/{id}/trace/                        │ GET               │
-    │ /api/dcim/rack-reservations/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/rack-reservations/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/rack-roles/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/rack-roles/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/rack-types/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/rack-types/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/racks/                                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/racks/{id}/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/racks/{id}/elevation/                          │ GET               │
-    │ /api/dcim/rear-port-templates/                           │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/rear-port-templates/{id}/                      │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/rear-ports/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/rear-ports/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/rear-ports/{id}/paths/                         │ GET               │
-    │ /api/dcim/regions/                                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/regions/{id}/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/site-groups/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/site-groups/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/sites/                                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/sites/{id}/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/virtual-chassis/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/virtual-chassis/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/dcim/virtual-device-contexts/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/dcim/virtual-device-contexts/{id}/                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/bookmarks/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/bookmarks/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/config-context-profiles/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/config-context-profiles/{id}/                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/config-context-profiles/{id}/sync/           │ POST              │
-    │ /api/extras/config-contexts/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/config-contexts/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/config-contexts/{id}/sync/                   │ POST              │
-    │ /api/extras/config-templates/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/config-templates/{id}/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/config-templates/{id}/render/                │ POST              │
-    │ /api/extras/config-templates/{id}/sync/                  │ POST              │
-    │ /api/extras/custom-field-choice-sets/                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/custom-field-choice-sets/{id}/               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/custom-field-choice-sets/{id}/choices/       │ GET               │
-    │ /api/extras/custom-fields/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/custom-fields/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/custom-links/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/custom-links/{id}/                           │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/dashboard/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/event-rules/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/event-rules/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/export-templates/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/export-templates/{id}/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/export-templates/{id}/sync/                  │ POST              │
-    │ /api/extras/image-attachments/                           │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/image-attachments/{id}/                      │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/journal-entries/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/journal-entries/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/notification-groups/                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/notification-groups/{id}/                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/notifications/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/notifications/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/saved-filters/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/saved-filters/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/scripts/                                     │ GET, POST         │
-    │ /api/extras/scripts/{id}/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/subscriptions/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/subscriptions/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/table-configs/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/table-configs/{id}/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/tagged-objects/                              │ GET               │
-    │ /api/extras/tagged-objects/{id}/                         │ GET               │
-    │ /api/extras/tags/                                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/tags/{id}/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/extras/webhooks/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/extras/webhooks/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/aggregates/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/aggregates/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/asn-ranges/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/asn-ranges/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/asn-ranges/{id}/available-asns/                │ GET, POST         │
-    │ /api/ipam/asns/                                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/asns/{id}/                                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/fhrp-group-assignments/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/fhrp-group-assignments/{id}/                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/fhrp-groups/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/fhrp-groups/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/ip-addresses/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/ip-addresses/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/ip-ranges/                                     │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/ip-ranges/{id}/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/ip-ranges/{id}/available-ips/                  │ GET, POST         │
-    │ /api/ipam/prefixes/                                      │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/prefixes/{id}/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/prefixes/{id}/available-ips/                   │ GET, POST         │
-    │ /api/ipam/prefixes/{id}/available-prefixes/              │ GET, POST         │
-    │ /api/ipam/rirs/                                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/rirs/{id}/                                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/roles/                                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/roles/{id}/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/route-targets/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/route-targets/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/service-templates/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/service-templates/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/services/                                      │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/services/{id}/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/vlan-groups/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/vlan-groups/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/vlan-groups/{id}/available-vlans/              │ GET, POST         │
-    │ /api/ipam/vlan-translation-policies/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/vlan-translation-policies/{id}/                │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/vlan-translation-rules/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/vlan-translation-rules/{id}/                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/vlans/                                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/vlans/{id}/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/ipam/vrfs/                                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/ipam/vrfs/{id}/                                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/plugins/gpon/boards/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/plugins/gpon/boards/{id}/                           │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/plugins/gpon/line-profiles/                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/plugins/gpon/line-profiles/{id}/                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/plugins/gpon/olts/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/plugins/gpon/olts/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/plugins/gpon/onts/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/plugins/gpon/onts/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/plugins/gpon/ports/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/plugins/gpon/ports/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/plugins/gpon/service-profiles/                      │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/plugins/gpon/service-profiles/{id}/                 │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/schema/                                             │ GET               │
-    │ /api/status/                                             │ GET               │
-    │ /api/tenancy/contact-assignments/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/tenancy/contact-assignments/{id}/                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/tenancy/contact-groups/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/tenancy/contact-groups/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/tenancy/contact-roles/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/tenancy/contact-roles/{id}/                         │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/tenancy/contacts/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/tenancy/contacts/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/tenancy/tenant-groups/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/tenancy/tenant-groups/{id}/                         │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/tenancy/tenants/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/tenancy/tenants/{id}/                               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/users/config/                                       │ GET               │
-    │ /api/users/groups/                                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/users/groups/{id}/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/users/owner-groups/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/users/owner-groups/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/users/owners/                                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/users/owners/{id}/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/users/permissions/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/users/permissions/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/users/tokens/                                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/users/tokens/provision/                             │ POST              │
-    │ /api/users/tokens/{id}/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/users/users/                                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/users/users/{id}/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/cluster-groups/                      │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/virtualization/cluster-groups/{id}/                 │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/cluster-types/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/virtualization/cluster-types/{id}/                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/clusters/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/virtualization/clusters/{id}/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/interfaces/                          │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/virtualization/interfaces/{id}/                     │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/virtual-disks/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/virtualization/virtual-disks/{id}/                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/virtual-machines/                    │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/virtualization/virtual-machines/{id}/               │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/virtualization/virtual-machines/{id}/render-config/ │ POST              │
-    │ /api/vpn/ike-policies/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/ike-policies/{id}/                              │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/ike-proposals/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/ike-proposals/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/ipsec-policies/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/ipsec-policies/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/ipsec-profiles/                                 │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/ipsec-profiles/{id}/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/ipsec-proposals/                                │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/ipsec-proposals/{id}/                           │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/l2vpn-terminations/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/l2vpn-terminations/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/l2vpns/                                         │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/l2vpns/{id}/                                    │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/tunnel-groups/                                  │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/tunnel-groups/{id}/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/tunnel-terminations/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/tunnel-terminations/{id}/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/vpn/tunnels/                                        │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/vpn/tunnels/{id}/                                   │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/wireless/wireless-lan-groups/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/wireless/wireless-lan-groups/{id}/                  │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/wireless/wireless-lans/                             │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/wireless/wireless-lans/{id}/                        │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    │ /api/wireless/wireless-links/                            │ DELETE, GET,      │
-    │                                                          │ PATCH, POST, PUT  │
-    │ /api/wireless/wireless-links/{id}/                       │ DELETE, GET,      │
-    │                                                          │ PATCH, PUT        │
-    └──────────────────────────────────────────────────────────┴───────────────────┘
+    │ /api/circuits/circuits/{id}/                          
+    
+    … (truncated by character limit)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.305s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.144s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -993,14 +360,11 @@
     ┃ Method ┃ Operation ID                     ┃ Summary ┃
     ┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
     │ GET    │ dcim_devices_list                │ -       │
-    │ POST   │ dcim_devices_create              │ -       │
-    │ PUT    │ dcim_devices_bulk_update         │ -       │
-    │ PATCH  │ dcim_devices_bulk_partial_update │ -       │
-    │ DELETE │ dcim_devices_bulk_destroy        │ -       │
-    └────────┴──────────────────────────────────┴─────────┘
+    
+    … (5 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.098s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.852s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.

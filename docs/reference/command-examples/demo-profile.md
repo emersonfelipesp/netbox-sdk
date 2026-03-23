@@ -35,19 +35,12 @@
     │ dev             Developer-focused tools against the demo.netbox.dev profile. │
     │ circuits        OpenAPI app group: circuits                                  │
     │ core            OpenAPI app group: core                                      │
-    │ dcim            OpenAPI app group: dcim                                      │
-    │ extras          OpenAPI app group: extras                                    │
-    │ ipam            OpenAPI app group: ipam                                      │
-    │ plugins         OpenAPI app group: plugins                                   │
-    │ tenancy         OpenAPI app group: tenancy                                   │
-    │ users           OpenAPI app group: users                                     │
-    │ virtualization  OpenAPI app group: virtualization                            │
-    │ vpn             OpenAPI app group: vpn                                       │
-    │ wireless        OpenAPI app group: wireless                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    │ dcim            OpenAPI app group: dcim               
+    
+    … (truncated by character limit)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.030s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.890s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -70,28 +63,11 @@
                                                                                     
      Authenticate with demo.netbox.dev via Playwright and save the demo profile.    
                                                                                     
-     Pass ``--username`` and ``--password`` for non-interactive / CI use.           
-     Alternatively, supply an existing token directly with ``--token-key`` and      
-     ``--token-secret`` to skip Playwright entirely.                                
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --headless          --headed          Run Playwright headless (default). Use │
-    │                                       --headed only when a desktop/X server  │
-    │                                       is available.                          │
-    │                                       [default: headless]                    │
-    │ --username      -u              TEXT  demo.netbox.dev username. Prompted     │
-    │                                       interactively when omitted.            │
-    │ --password      -p              TEXT  demo.netbox.dev password. Prompted     │
-    │                                       interactively when omitted.            │
-    │ --token-key                     TEXT  Set the demo profile directly without  │
-    │                                       Playwright (requires --token-secret).  │
-    │ --token-secret                  TEXT  Set the demo profile directly without  │
-    │                                       Playwright (requires --token-key).     │
-    │ --help                                Show this message and exit.            │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (20 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.911s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.858s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -114,13 +90,11 @@
                                                                                     
      Show the configured demo profile settings.                                     
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --show-token          Include API token in output                            │
-    │ --help                Show this message and exit.                            │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (5 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.954s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.973s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -143,12 +117,11 @@
                                                                                     
      Test connectivity to demo.netbox.dev using the configured demo profile.        
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (4 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.008s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.729s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -171,12 +144,11 @@
                                                                                     
      Remove the saved demo profile configuration.                                   
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (4 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.037s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.786s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -199,14 +171,11 @@
                                                                                     
      Launch the TUI against the demo profile.                                       
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --theme          Theme selector. Use '--theme' to list available themes or   │
-    │                  '--theme <name>' to launch with one.                        │
-    │ --help           Show this message and exit.                                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (6 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.841s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.871s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -229,10 +198,11 @@
     - netbox-dark
     - netbox-light
     - onedark-pro
-    - tokyo-night
+    
+    … (1 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.860s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.934s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -255,17 +225,11 @@
                                                                                     
      Developer-focused tools against the demo.netbox.dev profile.                   
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-    │ tui   Launch the developer request workbench TUI against the demo profile.   │
-    │ http  Direct HTTP operations mapped from OpenAPI paths (nbx dev http         │
-    │       <method> --path ...).                                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (9 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.904s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.009s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -288,14 +252,11 @@
                                                                                     
      Launch the developer request workbench TUI against the demo profile.           
                                                                                     
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --theme          Theme selector. Use '--theme' to list available themes or   │
-    │                  '--theme <name>' to launch with one.                        │
-    │ --help           Show this message and exit.                                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
+    
+    … (6 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.852s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.722s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -318,10 +279,11 @@
     - netbox-dark
     - netbox-light
     - onedark-pro
-    - tokyo-night
+    
+    … (1 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.729s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.090s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.

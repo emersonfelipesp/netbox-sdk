@@ -18,7 +18,7 @@ Run the capture **in the background** (log + pid):
 
 ## Generation metadata
 
-- **UTC time:** `2026-03-23T19:05:31.677601+00:00`
+- **UTC time:** `2026-03-23T19:36:19.521095+00:00`
 - **Profile used:** **demo profile** (`nbx demo …` commands → demo.netbox.dev)
 - **Effective NetBox URL:** `https://demo.netbox.dev`
 - **Effective timeout (s):** `30`
@@ -40,7 +40,7 @@ Run the capture **in the background** (log + pid):
 nbx --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.119`
+**Exit code:** `0`  ·  **Wall time (s):** `1.922`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -86,7 +86,7 @@ nbx --help
 nbx init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.850`
+**Exit code:** `0`  ·  **Wall time (s):** `1.953`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -112,7 +112,7 @@ nbx init --help
 nbx config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.744`
+**Exit code:** `0`  ·  **Wall time (s):** `1.932`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -138,7 +138,7 @@ nbx config --help
 nbx groups --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.104`
+**Exit code:** `0`  ·  **Wall time (s):** `1.999`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -164,7 +164,7 @@ nbx groups --help
 nbx resources --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.782`
+**Exit code:** `0`  ·  **Wall time (s):** `1.841`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -190,7 +190,7 @@ nbx resources --help
 nbx ops --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.840`
+**Exit code:** `0`  ·  **Wall time (s):** `1.711`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -216,7 +216,7 @@ nbx ops --help
 nbx call --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.865`
+**Exit code:** `0`  ·  **Wall time (s):** `1.878`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -242,9 +242,7 @@ nbx call --help
 nbx tui --help
 ```
 
-*Launches the full Textual TUI when invoked without flags. --help shown here only.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.898`
+**Exit code:** `0`  ·  **Wall time (s):** `1.677`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -270,9 +268,7 @@ nbx tui --help
 nbx tui --theme
 ```
 
-*Lists available themes without launching the TUI.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.782`
+**Exit code:** `0`  ·  **Wall time (s):** `1.852`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -298,7 +294,7 @@ Available themes:
 nbx docs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.882`
+**Exit code:** `0`  ·  **Wall time (s):** `1.909`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -324,7 +320,7 @@ nbx docs --help
 nbx docs generate-capture --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.695`
+**Exit code:** `0`  ·  **Wall time (s):** `1.947`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -341,21 +337,21 @@ nbx docs generate-capture --help
  Pass ``--live`` to run them against your configured default profile instead.   
                                                                                 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --output     -o                   PATH     Markdown destination. Default:    │
-│                                            <repo>/docs/generated/nbx-comman… │
-│ --raw-dir                         PATH     Raw JSON artifacts directory.     │
-│                                            Default:                          │
-│                                            <repo>/docs/generated/raw/        │
-│ --max-lines                       INTEGER  Max lines per command output in   │
-│                                            the Markdown.                     │
-│                                            [default: 200]                    │
-│ --max-chars                       INTEGER  Max chars per command output in   │
-│                                            the Markdown.                     │
-│                                            [default: 120000]                 │
-│ --live                                     Use the default profile (your     │
-│                                            real NetBox) instead of the demo  │
-│                                            profile. By default the generator │
-│                                            captures li
+│ --output       -o                   PATH                Markdown             │
+│                                                         destination.         │
+│                                                         Default:             │
+│                                                         <repo>/docs/generat… │
+│ --raw-dir                           PATH                Raw JSON artifacts   │
+│                                                         directory. Default:  │
+│                                                         <repo>/docs/generat… │
+│ --max-lines                         INTEGER             Max lines per        │
+│                                                         command output in    │
+│                                                         the Markdown.        │
+│                                                         [default: 200]       │
+│ --max-chars                         INTEGER             Max chars per        │
+│                                                         command output in    │
+│                                                         the Markdown.        │
+│                                                       
 
 … (truncated by character limit)
 ```
@@ -372,9 +368,7 @@ nbx docs generate-capture --help
 nbx logs --help
 ```
 
-*Launches a Textual log viewer TUI. --help shown here only.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.852`
+**Exit code:** `0`  ·  **Wall time (s):** `1.878`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -402,7 +396,7 @@ nbx logs --help
 nbx dev --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.870`
+**Exit code:** `0`  ·  **Wall time (s):** `1.816`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -428,9 +422,7 @@ nbx dev --help
 nbx dev tui --help
 ```
 
-*Launches the developer request workbench TUI. --help shown here only.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.955`
+**Exit code:** `0`  ·  **Wall time (s):** `1.797`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -456,9 +448,7 @@ nbx dev tui --help
 nbx dev tui --theme
 ```
 
-*Lists available themes without launching the TUI.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.157`
+**Exit code:** `0`  ·  **Wall time (s):** `2.529`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -484,7 +474,7 @@ Available themes:
 nbx dev http --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.045`
+**Exit code:** `0`  ·  **Wall time (s):** `1.762`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -510,7 +500,7 @@ nbx dev http --help
 nbx dev http get --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.124`
+**Exit code:** `0`  ·  **Wall time (s):** `1.765`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -536,7 +526,7 @@ nbx dev http get --help
 nbx dev http post --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.141`
+**Exit code:** `0`  ·  **Wall time (s):** `1.990`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -562,7 +552,7 @@ nbx dev http post --help
 nbx dev http put --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.074`
+**Exit code:** `0`  ·  **Wall time (s):** `2.012`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -588,7 +578,7 @@ nbx dev http put --help
 nbx dev http patch --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.102`
+**Exit code:** `0`  ·  **Wall time (s):** `1.870`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -614,7 +604,7 @@ nbx dev http patch --help
 nbx dev http delete --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.087`
+**Exit code:** `0`  ·  **Wall time (s):** `1.936`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -640,7 +630,7 @@ nbx dev http delete --help
 nbx dev http paths --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.800`
+**Exit code:** `0`  ·  **Wall time (s):** `1.863`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -666,7 +656,7 @@ nbx dev http paths --help
 nbx dev http ops --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.937`
+**Exit code:** `0`  ·  **Wall time (s):** `1.743`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -692,9 +682,7 @@ nbx dev http ops --help
 nbx dev http paths
 ```
 
-*Lists all API paths from the bundled OpenAPI schema. No network call.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.305`
+**Exit code:** `0`  ·  **Wall time (s):** `2.144`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -740,9 +728,7 @@ nbx dev http paths
 nbx dev http ops --path /api/dcim/devices/
 ```
 
-*Lists all HTTP operations available on the given path. No network call.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.098`
+**Exit code:** `0`  ·  **Wall time (s):** `1.852`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -770,7 +756,7 @@ nbx dev http ops --path /api/dcim/devices/
 nbx demo --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.030`
+**Exit code:** `0`  ·  **Wall time (s):** `1.890`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -816,7 +802,7 @@ nbx demo --help
 nbx demo init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.911`
+**Exit code:** `0`  ·  **Wall time (s):** `1.858`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -842,7 +828,7 @@ nbx demo init --help
 nbx demo config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.954`
+**Exit code:** `0`  ·  **Wall time (s):** `1.973`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -868,7 +854,7 @@ nbx demo config --help
 nbx demo test --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.008`
+**Exit code:** `0`  ·  **Wall time (s):** `1.729`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -894,7 +880,7 @@ nbx demo test --help
 nbx demo reset --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.037`
+**Exit code:** `0`  ·  **Wall time (s):** `1.786`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -920,9 +906,7 @@ nbx demo reset --help
 nbx demo tui --help
 ```
 
-*Launches the TUI against the demo profile. --help shown here only.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.841`
+**Exit code:** `0`  ·  **Wall time (s):** `1.871`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -948,9 +932,7 @@ nbx demo tui --help
 nbx demo tui --theme
 ```
 
-*Lists available themes without launching the TUI.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.860`
+**Exit code:** `0`  ·  **Wall time (s):** `1.934`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -976,7 +958,7 @@ Available themes:
 nbx demo dev --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.904`
+**Exit code:** `0`  ·  **Wall time (s):** `2.009`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1002,9 +984,7 @@ nbx demo dev --help
 nbx demo dev tui --help
 ```
 
-*Launches the developer request workbench TUI against the demo profile.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.852`
+**Exit code:** `0`  ·  **Wall time (s):** `1.722`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1030,9 +1010,7 @@ nbx demo dev tui --help
 nbx demo dev tui --theme
 ```
 
-*Lists available themes without launching the TUI.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.729`
+**Exit code:** `0`  ·  **Wall time (s):** `2.090`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1060,9 +1038,7 @@ Available themes:
 nbx groups
 ```
 
-*Lists all OpenAPI app groups from the local schema file. No network call.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.299`
+**Exit code:** `0`  ·  **Wall time (s):** `2.450`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1088,9 +1064,7 @@ ipam
 nbx resources dcim
 ```
 
-*Lists all resources under the 'dcim' app group.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.874`
+**Exit code:** `0`  ·  **Wall time (s):** `1.950`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1116,9 +1090,7 @@ console-ports
 nbx ops dcim devices
 ```
 
-*Lists HTTP operations (method, path, operationId) for dcim/devices.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.536`
+**Exit code:** `0`  ·  **Wall time (s):** `2.319`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1144,7 +1116,7 @@ nbx ops dcim devices
 nbx resources ipam
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.168`
+**Exit code:** `0`  ·  **Wall time (s):** `2.162`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1172,9 +1144,7 @@ fhrp-groups
 nbx dcim --help
 ```
 
-*Auto-generated Typer sub-app for the 'dcim' OpenAPI group.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.924`
+**Exit code:** `0`  ·  **Wall time (s):** `2.014`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1220,9 +1190,7 @@ nbx dcim --help
 nbx dcim devices --help
 ```
 
-*Auto-generated Typer sub-app for dcim/devices.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.061`
+**Exit code:** `0`  ·  **Wall time (s):** `1.913`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1248,7 +1216,7 @@ nbx dcim devices --help
 nbx dcim devices list --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.997`
+**Exit code:** `0`  ·  **Wall time (s):** `2.860`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1274,7 +1242,7 @@ nbx dcim devices list --help
 nbx ipam prefixes --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.914`
+**Exit code:** `0`  ·  **Wall time (s):** `2.888`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1300,9 +1268,7 @@ nbx ipam prefixes --help
 nbx dcim interfaces get --help
 ```
 
-*Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.837`
+**Exit code:** `0`  ·  **Wall time (s):** `2.243`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1328,7 +1294,7 @@ nbx dcim interfaces get --help
 nbx circuits circuit-terminations get --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.803`
+**Exit code:** `0`  ·  **Wall time (s):** `2.472`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1356,9 +1322,7 @@ nbx circuits circuit-terminations get --help
 nbx demo dcim devices list --markdown
 ```
 
-*Runs against demo.netbox.dev using the configured demo profile. Returns real data when the demo token is valid; 401/403 otherwise.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.127`
+**Exit code:** `0`  ·  **Wall time (s):** `3.459`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1386,9 +1350,7 @@ Status: 200
 nbx demo ipam prefixes list --markdown
 ```
 
-*Requires a valid demo profile token.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.825`
+**Exit code:** `0`  ·  **Wall time (s):** `2.995`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1418,7 +1380,7 @@ Status: 200
 nbx demo dcim sites list --markdown
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.407`
+**Exit code:** `0`  ·  **Wall time (s):** `2.780`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1454,9 +1416,7 @@ Status: 200
 nbx demo dcim interfaces get --id 1 --trace --markdown
 ```
 
-*Fetches the interface object and appends an ASCII cable trace diagram. Requires the interface to have a connected cable in demo.netbox.dev.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.859`
+**Exit code:** `0`  ·  **Wall time (s):** `3.015`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1522,9 +1482,7 @@ Status: 200
 nbx demo dcim interfaces get --id 1 --trace-only --markdown
 ```
 
-*Renders only the cable trace, omitting the object detail table.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.892`
+**Exit code:** `0`  ·  **Wall time (s):** `2.080`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1550,9 +1508,7 @@ Cable Trace:
 nbx demo circuits circuit-terminations get --id 15 --trace --markdown
 ```
 
-*Circuit terminations also expose a ``/trace/`` endpoint. Renders the full path from the physical interface through the circuit.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `2.749`
+**Exit code:** `0`  ·  **Wall time (s):** `2.767`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 
@@ -1614,9 +1570,7 @@ Cable Trace:
 nbx demo circuits circuit-terminations get --id 15 --trace-only --markdown
 ```
 
-*Trace-only view for a circuit termination — no object detail table.*
-
-**Exit code:** `0`  ·  **Wall time (s):** `1.961`
+**Exit code:** `0`  ·  **Wall time (s):** `2.192`
 
 *Output truncated for this doc (max 5 lines / 2000 chars).*
 

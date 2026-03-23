@@ -8,7 +8,7 @@
     "--theme"
   ],
   "exit_code": 0,
-  "elapsed_seconds": 1.729,
+  "elapsed_seconds": 2.09,
   "truncated": true,
-  "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+  "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n\n\u2026 (1 more lines truncated)\n"
 }

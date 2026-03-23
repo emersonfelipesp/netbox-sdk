@@ -55,38 +55,12 @@
     | Parent | - |
     | Poe Mode | - |
     | Qinq Svlan | - |
-    | Rf Channel | - |
-    | Rf Channel Frequency | - |
-    | Rf Channel Width | - |
-    | Speed | - |
-    | Tagged Vlans | [] |
-    | Tags | [] |
-    | Tx Power | - |
-    | Vdcs | [] |
-    | VLAN Translation Policy | - |
-    | VRF | - |
-    | Wireless Lans | [] |
-    | Wireless Link | - |
-    | Wwn | - |
-    | Created | 2021-04-14T00:00:00Z |
-    | Last Updated | 2021-04-14T17:36:01.841000Z |
-    Cable Trace:
-    ┌────────────────────────────────────┐
-    │         dmi01-akron-rtr01          │
-    │        GigabitEthernet0/0/0        │
-    └────────────────────────────────────┘
-                    │
-                    │  Cable
-                    │  Connected
-                    │
-    ┌────────────────────────────────────┐
-    │      KKDG4923: Termination Z       │
-    └────────────────────────────────────┘
+    | Rf Channel |
     
-    Trace Completed - 1 segment(s)
+    … (truncated by character limit)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.859s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.015s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -109,18 +83,11 @@
     │         dmi01-akron-rtr01          │
     │        GigabitEthernet0/0/0        │
     └────────────────────────────────────┘
-                    │
-                    │  Cable
-                    │  Connected
-                    │
-    ┌────────────────────────────────────┐
-    │      KKDG4923: Termination Z       │
-    └────────────────────────────────────┘
     
-    Trace Completed - 1 segment(s)
+    … (9 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.892s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.080s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -178,29 +145,12 @@
                     │
                     │
     ┌────────────────────────────────────┐
-    │      DEOW4921: Termination Z       │
-    │          Circuit DEOW4921          │
-    │              Level 3               │
-    └────────────────────────────────────┘
-                    ┆
-                    ┆
-                    ┆
-    ┌────────────────────────────────────┐
-    │      DEOW4921: Termination A       │
-    │          Circuit DEOW4921          │
-    │              Level 3               │
-    └────────────────────────────────────┘
-                    │
-                    │
-                    │
-    ┌────────────────────────────────────┐
-    │            Level3 MPLS             │
-    └────────────────────────────────────┘
+    │      
     
-    Trace Completed - 1 segment(s)
+    … (truncated by character limit)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.749s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.767s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
@@ -223,37 +173,11 @@
     │        dmi01-yonkers-rtr01         │
     │        GigabitEthernet0/0/0        │
     └────────────────────────────────────┘
-                    │
-                    │  Cable #1
-                    │  Connected
-                    │
-                    │
-                    │
-                    │
-    ┌────────────────────────────────────┐
-    │      DEOW4921: Termination Z       │
-    │          Circuit DEOW4921          │
-    │              Level 3               │
-    └────────────────────────────────────┘
-                    ┆
-                    ┆
-                    ┆
-    ┌────────────────────────────────────┐
-    │      DEOW4921: Termination A       │
-    │          Circuit DEOW4921          │
-    │              Level 3               │
-    └────────────────────────────────────┘
-                    │
-                    │
-                    │
-    ┌────────────────────────────────────┐
-    │            Level3 MPLS             │
-    └────────────────────────────────────┘
     
-    Trace Completed - 1 segment(s)
+    … (28 more lines truncated)
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">1.961s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">2.192s</span>
 
 !!! warning "Truncated"
     Output was truncated. Full text is in `docs/generated/raw/`.
