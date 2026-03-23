@@ -162,6 +162,22 @@ def config_command(
     typer.echo(json.dumps(payload, indent=2))
 
 
+@app.command("test")
+def test_command() -> None:
+    """Test connectivity to your configured NetBox instance (default profile)."""
+    from .support import run_with_spinner  # noqa: PLC0415
+
+    _ensure_runtime_config()
+    probe = run_with_spinner(_get_client().probe_connection())
+    if probe.ok:
+        version_text = probe.version or "unknown"
+        typer.echo(f"Connection OK (status={probe.status}, api_version={version_text})")
+    else:
+        detail = probe.error or f"HTTP {probe.status}"
+        typer.echo(f"Connection failed: {detail}", err=True)
+        raise typer.Exit(code=1)
+
+
 @app.command("groups")
 def groups_command() -> None:
     """List all available OpenAPI app groups."""

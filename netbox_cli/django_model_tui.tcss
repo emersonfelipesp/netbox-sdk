@@ -1,0 +1,194 @@
+/* Django Model Inspector TUI — specific layout rules.
+   Shared foundation lives in ui_common.tcss (loaded first). */
+
+Screen {
+    layout: vertical;
+}
+
+.hidden {
+    display: none;
+}
+
+* {
+    scrollbar-background: $panel;
+    scrollbar-background-hover: $panel;
+    scrollbar-color: $primary 50%;
+    scrollbar-color-hover: $primary;
+}
+
+/* ── Shell ────────────────────────────────────────────────────────────── */
+
+#dm_shell {
+    dock: top;
+    height: 1fr;
+    width: 1fr;
+}
+
+#dm_sidebar {
+    dock: left;
+    width: 32;
+    min-width: 24;
+    max-width: 48;
+    height: 1fr;
+    background: $panel;
+    border-right: tall $primary 20%;
+}
+
+#dm_sidebar_title {
+    dock: top;
+    height: 3;
+    padding: 1 2;
+    content-align: center middle;
+    background: $primary 10%;
+    text-style: bold;
+    color: $primary;
+}
+
+#dm_nav_tree {
+    height: 1fr;
+    padding: 0 1;
+}
+
+#dm_help {
+    dock: bottom;
+    height: 3;
+    padding: 0 2;
+    content-align: left middle;
+    color: $text-muted;
+}
+
+#dm_main {
+    height: 1fr;
+    width: 1fr;
+    padding: 0 1;
+}
+
+/* ── Topbar (reuses shared rules from ui_common.tcss) ─────────────────── */
+
+#topbar {
+    dock: top;
+    height: 3;
+    width: 1fr;
+    background: $panel;
+    border-bottom: tall $primary 20%;
+}
+
+#topbar_left {
+    dock: left;
+    width: auto;
+    height: 3;
+    align: left middle;
+    padding: 0 1;
+}
+
+#topbar_center {
+    width: 1fr;
+    height: 3;
+    align: center middle;
+}
+
+#topbar_right {
+    dock: right;
+    width: auto;
+    height: 3;
+    align: right middle;
+    padding: 0 1;
+}
+
+#nav_dot {
+    width: 3;
+    height: 3;
+    content-align: center middle;
+    color: $primary;
+}
+
+#topbar_logo {
+    width: auto;
+    height: 3;
+    content-align: center middle;
+}
+
+#topbar_cli_suffix {
+    width: auto;
+    height: 3;
+    content-align: left middle;
+}
+
+#theme_select {
+    width: 16;
+    margin: 0 1;
+}
+
+#view_select {
+    width: 14;
+    margin: 0 1;
+}
+
+#clock {
+    width: 6;
+    height: 3;
+    content-align: center middle;
+}
+
+#connection_badge {
+    width: 3;
+    height: 3;
+    content-align: center middle;
+}
+
+#topbar_sep {
+    width: 1;
+}
+
+#support_button {
+    margin: 0 1;
+}
+
+#close_tui_button {
+    margin: 0 1;
+}
+
+/* ── Query bar ────────────────────────────────────────────────────────── */
+
+#query_bar {
+    dock: top;
+    height: 3;
+    width: 1fr;
+    background: $panel 50%;
+    border-bottom: tall $primary 10%;
+    padding: 0 1;
+}
+
+#model_search {
+    width: 1fr;
+    height: 3;
+    margin: 0 1;
+}
+
+/* ── Diagram tab ──────────────────────────────────────────────────────── */
+
+#dm_diagram {
+    height: 1fr;
+    width: 1fr;
+    padding: 1 2;
+    overflow: auto;
+}
+
+#dm_source_code {
+    height: 1fr;
+    width: 1fr;
+}
+
+#dm_fields {
+    height: 1fr;
+    width: 1fr;
+    padding: 1 2;
+    overflow: auto;
+}
+
+#dm_stats {
+    height: 1fr;
+    width: 1fr;
+    padding: 1 2;
+    overflow: auto;
+}
