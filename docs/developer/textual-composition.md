@@ -55,11 +55,15 @@ class ObjectAttributesPanel(Vertical):
 
 ## Standard Building Blocks
 
-Current shared composition primitives live in [netbox_cli/ui/widgets.py](/root/nms/netbox-cli/netbox_cli/ui/widgets.py):
+Current shared composition primitives live in `netbox_cli/ui/widgets.py`:
 
-- `NbxButton`
-- `NbxPanelHeader`
-- `NbxPanelBody`
+| Primitive | Role |
+|-----------|------|
+| `NbxButton` | Themed button with `tone`, `size`, `chrome` semantic props |
+| `NbxPanelHeader` | Panel title bar |
+| `NbxPanelBody` | Panel content container with optional `tone` / `surface` |
+| `ContextBreadcrumb` | Clickable topbar breadcrumb with scoped dropdown menus; emits `CrumbSelected` / `MenuOptionSelected` |
+| `SupportModal` | Self-contained `ModalScreen` shared by main and dev TUIs; inherits active theme via CSS class on mount |
 
 These should be the default starting point for new reusable UI pieces.
 

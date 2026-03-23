@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from textual.color import Color
-from textual.widgets import Input, OptionList, Select, Static, TextArea
+from textual.widgets import Input, OptionList, Select, Static, TabbedContent, TextArea
 
 from netbox_cli.api import ApiResponse, ConnectionProbe
 from netbox_cli.schema import build_schema_index
@@ -222,6 +222,88 @@ async def test_dev_tui_textarea_internals_follow_theme_tokens(
         assert cursor.color == Color.parse(theme.colors["background"])
         assert cursor_line.background == Color.parse(theme.colors["panel"])
         assert gutter.color == Color.parse(theme.variables["nb-muted-text"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("theme_name", ["dracula", "netbox-light", "netbox-dark"])
+async def test_dev_tui_response_textarea_internals_follow_theme_tokens(
+    mock_client, real_index, theme_name: str
+) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name=theme_name)
+    theme = app.theme_catalog.theme_for(theme_name)
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        await pilot.pause()
+
+        response = app.query_one("#dev_response_body", TextArea)
+        cursor = response.get_component_styles("text-area--cursor")
+        cursor_line = response.get_component_styles("text-area--cursor-line")
+        gutter = response.get_component_styles("text-area--gutter")
+
+        assert cursor.background == response.styles.color
+        assert cursor.color == Color.parse(theme.colors["background"])
+        assert cursor_line.background == Color.parse(theme.colors["panel"])
+        assert gutter.background == Color.parse(theme.colors["background"])
+        assert gutter.color == Color.parse(theme.variables["nb-muted-text"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("theme_name", ["dracula", "netbox-light", "netbox-dark"])
+async def test_dev_tui_operation_list_internals_follow_theme_tokens(
+    mock_client, real_index, theme_name: str
+) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name=theme_name)
+    theme = app.theme_catalog.theme_for(theme_name)
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+        operation_list = app.query_one("#dev_operation_list", OptionList)
+        operation_list.focus()
+        await pilot.pause()
+        await pilot.pause()
+
+        highlighted = operation_list.get_component_styles("option-list--option-highlighted")
+        hovered = operation_list.get_component_styles("option-list--option-hover")
+        separator = operation_list.get_component_styles("option-list--separator")
+
+        assert highlighted.background == Color.parse(theme.colors["panel"])
+        assert highlighted.color == operation_list.styles.color
+        assert hovered.background == Color.parse(theme.colors["panel"])
+        assert separator.color == Color.parse(theme.variables["nb-border-subtle"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("theme_name", ["dracula", "netbox-light", "netbox-dark"])
+async def test_dev_tui_tabbed_content_internals_follow_theme_tokens(
+    mock_client, real_index, theme_name: str
+) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name=theme_name)
+    theme = app.theme_catalog.theme_for(theme_name)
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+
+        app.query_one("#dev_request_tabs", TabbedContent).active = "dev_body_tab"
+        app.query_one("#dev_response_tabs", TabbedContent).active = "dev_response_headers_tab"
+        await pilot.pause()
+        await pilot.pause()
+
+        expected_surface = Color.parse(theme.colors["surface"])
+
+        assert app.query_one("#dev_request_tabs ContentSwitcher", object).styles.background == (
+            expected_surface
+        )
+        assert app.query_one("#dev_response_tabs ContentSwitcher", object).styles.background == (
+            expected_surface
+        )
+        assert app.query_one("#dev_body_tab", object).styles.background == expected_surface
+        assert (
+            app.query_one("#dev_response_headers_tab", object).styles.background == expected_surface
+        )
+        assert app.query_one("#dev_request_tabs", object).styles.background == expected_surface
+        assert app.query_one("#dev_response_tabs", object).styles.background == expected_surface
 
 
 @pytest.mark.asyncio

@@ -21,6 +21,7 @@ nbx
 ├── ops GROUP RESOURCE      list operations for a resource
 ├── call METHOD PATH        explicit HTTP request
 ├── tui                     launch Textual TUI
+├── logs                    view structured application logs in a TUI log viewer
 ├── docs                    documentation generation tools
 │   └── generate-capture    capture CLI output to docs/generated/
 ├── demo                    demo.netbox.dev profile

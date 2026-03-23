@@ -12,29 +12,48 @@ The TUI theme system is part of the architecture, not decoration: every Textual 
 
 ```
 netbox_cli/
-├── cli.py              Typer app — all commands, dynamic registration, profile dispatch
+├── cli/                Typer CLI subpackage
+│   ├── __init__.py     Root app, main(), all static commands, app wiring
+│   ├── runtime.py      _RUNTIME_CONFIGS cache, client/index factory functions
+│   ├── support.py      Console output, Rich table rendering, theme resolution
+│   ├── demo.py         nbx demo command group (init, config, test, reset, tui)
+│   ├── dev.py          nbx dev command group + nbx dev http sub-app
+│   └── dynamic.py      _register_openapi_subcommands, _handle_dynamic_invocation
 ├── api.py              Async aiohttp HTTP client (ApiResponse, NetBoxApiClient)
 ├── config.py           Profile storage, env overrides, token normalization
 ├── schema.py           OpenAPI schema loading and indexing (SchemaIndex)
 ├── services.py         Request resolution and action mapping (run_dynamic_command)
+├── http_cache.py       Filesystem HTTP cache with TTL (60 s fresh, 300 s stale-if-error)
 ├── demo_auth.py        Playwright automation for demo.netbox.dev token retrieval
 ├── docgen_capture.py   CLI output capture and Markdown generation
+├── docgen_specs.py     CaptureSpec model + all_specs() ordered command list
+├── logging_runtime.py  Structured JSON logging setup (→ logs/netbox-cli.log)
+├── output_safety.py    ANSI escape and control-char sanitization
 ├── theme_registry.py   Theme discovery, validation, and catalog management
-├── ui_common.tcss      Shared visual design layer for both Textual apps
 ├── trace_ascii.py      ASCII cable trace renderer
 ├── tui.py              Thin wrapper — re-exports run_tui from ui.app
 ├── dev_tui.py          Thin wrapper — re-exports run_dev_tui from ui.dev_app
+├── tui.tcss            Main TUI stylesheet (semantic variables only)
+├── dev_tui.tcss        Dev TUI stylesheet (semantic variables only)
+├── logs_tui.tcss       Log viewer TUI stylesheet (semantic variables only)
+├── ui_common.tcss      Shared visual design layer imported by all three TUI stylesheets
 └── ui/
-    ├── app.py          NetBoxTuiApp — main Textual application
-    ├── dev_app.py      NetBoxDevTuiApp — request workbench application
-    ├── chrome.py       Shared theme / clock / logo / connection chrome helpers
-    ├── formatting.py   Response parsing, humanization, semantic cell rendering
-    ├── navigation.py   Navigation tree building from SchemaIndex
+    ├── app.py              NetBoxTuiApp — main Textual application
+    ├── dev_app.py          NetBoxDevTuiApp — request workbench application
+    ├── chrome.py           Shared theme / clock / logo / connection chrome helpers
+    ├── filter_overlay.py   FilterOverlayMixin — filter picker dialog and overlay logic
+    ├── formatting.py       Response parsing, humanization, semantic cell rendering
+    ├── logo_render.py      build_netbox_logo() — themed NetBox wordmark (Rich Text)
+    ├── logs_app.py         NetBoxLogsTuiApp — structured log viewer (nbx logs)
+    ├── nav_blueprint.py    NAV_BLUEPRINT — static menu data mirroring NetBox sidebar
+    ├── navigation.py       NavMenu/NavGroup/NavItem models, build_navigation_menus()
     ├── plugin_discovery.py Runtime /api/plugins/ discovery for plugin REST resources
-    ├── panels.py       ObjectAttributesPanel — detail view with cable trace
-    ├── widgets.py      Shared composition primitives (buttons, panel header/body)
-    ├── state.py        Main TUI state persistence
-    └── dev_state.py    Dev TUI state persistence
+    ├── panels.py           ObjectAttributesPanel — detail view with cable trace
+    ├── widgets.py          Shared composition primitives: NbxButton, NbxPanelHeader,
+    │                       NbxPanelBody, ContextBreadcrumb, SupportModal
+    ├── state.py            Main TUI state persistence (tui_state.json)
+    ├── dev_state.py        Dev TUI state persistence
+    └── dev_rendering.py    Stateless Rich Text rendering helpers for the dev TUI
 ```
 
 ---
@@ -129,6 +148,8 @@ Examples in the current codebase:
 - `NbxButton` standardizes size and theme props such as `tone`
 - `NbxPanelHeader` and `NbxPanelBody` define reusable panel structure with prop-like theme inputs
 - `ObjectAttributesPanel` composes those primitives instead of inheriting layout from a base panel class
+- `ContextBreadcrumb` renders the topbar navigation context as clickable segments with dropdown menus, emitting typed `CrumbSelected`/`MenuOptionSelected` messages — no static parent references
+- `SupportModal` is a self-contained `ModalScreen` shared by both TUIs, themed from the active app theme via a CSS class synced on mount
 
 Contributor guideline: when adding new UI, first ask "can this be expressed as nested reusable widgets?" before introducing a new base class.
 
@@ -145,7 +166,7 @@ DEMO_PROFILE    = "demo"
 DEMO_BASE_URL   = "https://demo.netbox.dev"
 ```
 
-In `cli.py`, the in-process cache is a dict:
+In `cli/runtime.py`, the in-process cache is a dict:
 
 ```python
 _RUNTIME_CONFIGS: dict[str, Config] = {}
@@ -195,7 +216,7 @@ For plugin resources, `SchemaIndex` also supports runtime augmentation. The TUI 
 
 ## Dynamic command registration
 
-`_register_openapi_subcommands(target_app, *, client_factory, index_factory)` runs at module import time (twice — once for root `app`, once for `demo_app`):
+`_register_openapi_subcommands(target_app, *, client_factory, index_factory)` in `cli/dynamic.py` runs at module import time (twice — once for root `app`, once for `demo_app`):
 
 ```python
 for group in index.groups():

@@ -441,6 +441,11 @@ Screen {
     background: $surface;
 }
 
+#dev_request_tabs:ansi,
+#dev_response_tabs:ansi {
+    background: $surface;
+}
+
 #dev_request_tabs ContentSwitcher,
 #dev_response_tabs ContentSwitcher,
 #dev_request_tabs ContentTabs,
@@ -450,8 +455,23 @@ Screen {
     background: $surface;
 }
 
+#dev_request_tabs ContentSwitcher:ansi,
+#dev_response_tabs ContentSwitcher:ansi,
+#dev_request_tabs ContentTabs:ansi,
+#dev_response_tabs ContentTabs:ansi,
+#dev_request_tabs Container#tabs-scroll:ansi,
+#dev_response_tabs Container#tabs-scroll:ansi {
+    background: $surface;
+    background-tint: transparent;
+}
+
 #dev_request_tabs > *,
 #dev_response_tabs > * {
+    background: $surface;
+}
+
+#dev_request_tabs > *:ansi,
+#dev_response_tabs > *:ansi {
     background: $surface;
 }
 
@@ -709,12 +729,32 @@ TabbedContent {
     background: $surface;
 }
 
+#dev_request_tabs TabPane:ansi,
+#dev_response_tabs TabPane:ansi,
+#dev_request_tabs TabPane.-active,
+#dev_response_tabs TabPane.-active,
+#dev_request_tabs TabPane.-active:ansi,
+#dev_response_tabs TabPane.-active:ansi {
+    padding: 0;
+    background: $surface;
+    background-tint: transparent;
+}
+
 #dev_request_tabs #dev_operations_tab,
 #dev_request_tabs #dev_query_tab,
 #dev_request_tabs #dev_body_tab,
 #dev_response_tabs #dev_response_body_tab,
 #dev_response_tabs #dev_response_headers_tab,
 #dev_response_tabs #dev_response_summary_tab {
+    background: $surface;
+}
+
+#dev_request_tabs #dev_operations_tab:ansi,
+#dev_request_tabs #dev_query_tab:ansi,
+#dev_request_tabs #dev_body_tab:ansi,
+#dev_response_tabs #dev_response_body_tab:ansi,
+#dev_response_tabs #dev_response_headers_tab:ansi,
+#dev_response_tabs #dev_response_summary_tab:ansi {
     background: $surface;
 }
 

@@ -112,6 +112,27 @@ See [TUI Guide](../tui/index.md) for full navigation documentation.
 
 ---
 
+## `nbx logs`
+
+Launch the structured JSON log viewer TUI. Shows entries written to `~/.config/netbox-cli/logs/netbox-cli.log` by the CLI and TUI.
+
+```bash
+nbx logs
+nbx logs --limit 500     # load up to 500 entries (default: 200)
+nbx logs --theme dracula
+```
+
+**Options**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--limit` | `200` | Maximum number of log entries to load |
+| `--theme` | from saved state | Theme name to use |
+
+Use `Ctrl+G` inside the log viewer to clear the log file.
+
+---
+
 ## `nbx dev tui`
 
 Launch the developer request workbench TUI against your default profile.

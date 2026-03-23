@@ -537,6 +537,11 @@ OptionList:focus {
     background-tint: $foreground 5%;
 }
 
+OptionList:ansi:focus {
+    border: tall $primary;
+    background-tint: $foreground 5%;
+}
+
 #theme_select SelectOverlay > .option-list--option-highlighted,
 #dev_theme_select SelectOverlay > .option-list--option-highlighted,
 #view_select SelectOverlay > .option-list--option-highlighted,
@@ -735,10 +740,53 @@ TextArea .text-area--placeholder {
     color: $nb-muted-text;
 }
 
+TextArea:ansi {
+    color: $foreground;
+    border: tall $nb-border-subtle;
+    background: $surface;
+}
+
+TextArea:ansi:focus {
+    border: tall $primary;
+}
+
+TextArea:ansi .text-area--cursor {
+    background: $foreground;
+    color: $background;
+    text-style: bold;
+}
+
+TextArea:ansi.-read-only .text-area--cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+TextArea:ansi .text-area--gutter {
+    background: $background;
+    color: $nb-muted-text;
+}
+
+TextArea:ansi .text-area--cursor-gutter,
+TextArea:ansi .text-area--cursor-line {
+    background: $panel;
+    color: $foreground;
+}
+
 TextArea:ansi .text-area--selection {
     background: transparent;
     color: $foreground;
     text-style: reverse;
+}
+
+TextArea:ansi .text-area--matching-bracket {
+    background: $foreground 20%;
+    color: $foreground;
+}
+
+TextArea:ansi .text-area--suggestion,
+TextArea:ansi .text-area--placeholder {
+    color: $nb-muted-text;
+    text-style: dim;
 }
 
 #query_bar,
@@ -920,11 +968,13 @@ Tree:ansi > .tree--highlight {
     color: $foreground;
 }
 
-TabbedContent {
+TabbedContent,
+TabbedContent:ansi {
     background: $surface;
 }
 
-Tabs {
+Tabs,
+Tabs:ansi {
     background: transparent;
 }
 
@@ -1013,13 +1063,25 @@ Tabs:ansi:focus .underline--bar {
     background: transparent;
 }
 
-ContentSwitcher {
+ContentTabs,
+ContentTabs:ansi {
+    background: transparent;
+}
+
+ContentSwitcher,
+ContentSwitcher:ansi {
     background: $surface;
 }
 
-TabPane {
+TabPane,
+TabPane:ansi {
     background: $surface;
     padding: 0;
+}
+
+TabPane.-active,
+TabPane.-active:ansi {
+    background: $surface;
 }
 
 ToastRack,
