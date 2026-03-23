@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
+from textual.timer import Timer
 from textual.widgets import (
     Button,
     Footer,
@@ -19,20 +21,35 @@ from textual.widgets import (
     Static,
     TabbedContent,
     TabPane,
-    TextArea,
     Tree,
 )
 
-from netbox_cli.django_models.diagram import render_model_diagram
+from netbox_cli.api import ConnectionProbe
+from netbox_cli.django_models.rich_rendering import (
+    render_fields_table_rich,
+    render_model_diagram_rich,
+    render_python_source_rich,
+    render_stats_table_rich,
+)
 from netbox_cli.django_models.store import DjangoModelStore
 from netbox_cli.logging_runtime import get_logger
 
 from .chrome import (
+    SWITCH_TO_CLI_TUI,
+    SWITCH_TO_DEV_TUI,
+    SWITCH_TO_MAIN_TUI,
     apply_theme,
+    badge_state_for_probe,
     initialize_theme_state,
     logo_renderable,
+    set_connection_badge_state,
     strip_theme_select_prefix,
     update_clock_widget,
+)
+from .django_model_state import (
+    DjangoModelTuiState,
+    load_django_model_tui_state,
+    save_django_model_tui_state,
 )
 from .widgets import NbxButton, SupportModal
 
@@ -46,13 +63,6 @@ _VIEW_MODE_OPTIONS = (
 )
 
 _BUILDS_DIR = Path(__file__).resolve().parent.parent.parent / "django_models_builds"
-
-
-class _ThemeState:
-    """Minimal state holder for apply_theme compatibility."""
-
-    def __init__(self) -> None:
-        self.theme_name: str | None = None
 
 
 def _discover_versions() -> tuple[tuple[str, str], ...]:
@@ -113,30 +123,32 @@ class DjangoModelTuiApp(App[None]):
         self.store = store
         self._graph: dict[str, Any] | None = None
         self._all_keys: list[str] = []
-        self._theme_state = _ThemeState()
         self._version_options = _discover_versions()
         self._active_version: str | None = None
         self._detected_api_version: str | None = None
+        self._clock_timer: Timer | None = None
+        self._connection_timer: Timer | None = None
 
+        self.state: DjangoModelTuiState = load_django_model_tui_state()
         catalog, self.theme_name, self.theme_options = initialize_theme_state(
             self,
             requested_theme_name=theme_name,
-            persisted_theme_name=None,
+            persisted_theme_name=self.state.theme_name,
         )
         self.theme_catalog = catalog
 
     # ── Composition ───────────────────────────────────────────────────────
 
     def compose(self) -> ComposeResult:
-        # ── Topbar ────────────────────────────────────────────────────────
-        with Horizontal(id="topbar"):
-            with Horizontal(id="topbar_left"):
-                yield Static("\u25cf", id="nav_dot")
+        # ── Topbar (matches dev TUI structure) ────────────────────────────
+        with Horizontal(id="dev_topbar"):
+            with Horizontal(id="dev_topbar_left"):
+                yield Static("\u25cf", id="dev_nav_dot")
                 yield Select(
                     options=self.theme_options,
                     value=self.theme_name,
                     prompt="Theme",
-                    id="theme_select",
+                    id="dev_theme_select",
                 )
                 if self._version_options:
                     yield Select(
@@ -149,31 +161,30 @@ class DjangoModelTuiApp(App[None]):
                     options=_VIEW_MODE_OPTIONS,
                     value="django",
                     prompt="View",
-                    id="view_select",
+                    id="dev_view_select",
                 )
-            with Horizontal(id="topbar_center"):
-                yield Static(self._logo_renderable(), id="topbar_logo")
+            with Horizontal(id="dev_topbar_center"):
+                yield Static(self._logo_renderable(), id="dev_logo")
                 yield Static(
                     Text(" Django Models", style="dim"),
-                    id="topbar_cli_suffix",
+                    id="dev_topbar_cli_suffix",
                 )
-            with Horizontal(id="topbar_right"):
-                yield Static(Text("--:--", style="dim"), id="clock")
-                yield Static("", id="connection_badge")
-                yield Static(" ", id="topbar_sep")
+            with Horizontal(id="dev_topbar_right"):
+                yield Static("", id="dev_clock")
+                yield Static("●", id="dev_connection_badge", classes="-checking")
                 yield NbxButton(
                     "Liked it? Support me!",
-                    tone="warning",
-                    size="small",
                     id="support_button",
-                    chrome="ghost",
+                    size="small",
+                    tone="muted",
+                    classes="nbx-topbar-control",
                 )
                 yield NbxButton(
                     "Close",
-                    tone="neutral",
+                    id="dev_close_button",
                     size="small",
-                    id="close_tui_button",
-                    chrome="ghost",
+                    tone="error",
+                    classes="nbx-topbar-control",
                 )
 
         # ── Search bar ────────────────────────────────────────────────────
@@ -196,12 +207,9 @@ class DjangoModelTuiApp(App[None]):
                     with TabPane("Diagram", id="dm_diagram_tab"):
                         yield Static("Select a model from the sidebar.", id="dm_diagram")
                     with TabPane("Source Code", id="dm_code_tab"):
-                        yield TextArea(
+                        yield Static(
                             "# Select a model to view its source code.",
-                            read_only=True,
                             id="dm_source_code",
-                            language="python",
-                            theme="css",
                         )
                     with TabPane("Fields", id="dm_fields_tab"):
                         yield Static("Select a model to view its fields.", id="dm_fields")
@@ -209,16 +217,34 @@ class DjangoModelTuiApp(App[None]):
                         yield Static("", id="dm_stats")
 
         yield Footer()
-        yield SupportModal()
 
     # ── Lifecycle ─────────────────────────────────────────────────────────
 
     def on_mount(self) -> None:
+        logger.info("django model tui mounted")
         self._apply_theme(self.theme_name)
         self.call_after_refresh(self._strip_theme_select_prefix)
         self._update_clock()
-        self.set_interval(60, self._update_clock)
+        self._set_connection_badge_checking()
+        self._probe_connection_health()
+        self._clock_timer = self.set_interval(1.0, self._update_clock, name="dm_clock")
+        self._connection_timer = self.set_interval(
+            30.0, self._probe_connection_health, name="dm_connection"
+        )
         self._auto_detect_version()
+
+    def on_unmount(self) -> None:
+        logger.info("django model tui unmounting")
+        if self._clock_timer is not None:
+            self._clock_timer.stop()
+            self._clock_timer = None
+        if self._connection_timer is not None:
+            self._connection_timer.stop()
+            self._connection_timer = None
+        self.state.theme_name = self.theme_name
+        save_django_model_tui_state(self.state)
+
+    # ── Graph loading ─────────────────────────────────────────────────────
 
     def _load_graph_from_store(self) -> None:
         """Load graph from the default store (no versioned build selected)."""
@@ -260,10 +286,10 @@ class DjangoModelTuiApp(App[None]):
             return
 
         try:
-            from netbox_cli.cli.runtime import get_runtime_client  # noqa: PLC0415
+            from netbox_cli.cli import _get_client  # noqa: PLC0415
             from netbox_cli.cli.support import run_with_spinner  # noqa: PLC0415
 
-            client = get_runtime_client()
+            client = _get_client()
             probe = run_with_spinner(client.probe_connection())
             if probe.ok and probe.version:
                 self._detected_api_version = probe.version
@@ -368,27 +394,28 @@ class DjangoModelTuiApp(App[None]):
         if model is None:
             return
 
-        # Diagram
-        diagram_text = render_model_diagram(key, self._graph)
+        # Diagram - Rich rendering with colored borders
         try:
             diagram_widget = self.query_one("#dm_diagram", Static)
-            diagram_widget.update(Text(diagram_text))
+            diagram_rich = render_model_diagram_rich(key, self._graph)
+            diagram_widget.update(diagram_rich)
         except Exception:
             pass
 
-        # Source code — only available for builds from local source
-        source = self._get_model_source(key)
+        # Source code - Rich rendering with syntax highlighting
         try:
-            code_widget = self.query_one("#dm_source_code", TextArea)
-            code_widget.load_text(source)
+            source = self._get_model_source(key)
+            code_widget = self.query_one("#dm_source_code", Static)
+            source_rich = render_python_source_rich(source)
+            code_widget.update(source_rich)
         except Exception:
             pass
 
-        # Fields table
-        fields_lines = self._render_fields_table(model)
+        # Fields table - Rich Table widget
         try:
             fields_widget = self.query_one("#dm_fields", Static)
-            fields_widget.update(Text(fields_lines))
+            fields_table = render_fields_table_rich(model)
+            fields_widget.update(fields_table)
         except Exception:
             pass
 
@@ -407,53 +434,14 @@ class DjangoModelTuiApp(App[None]):
                 return f"# Source not available for {key}\n# (Versioned build — file_path: {fp})"
         return self.store.get_model_source(key)
 
-    def _render_fields_table(self, model: dict[str, Any]) -> str:
-        fields = model.get("fields", [])
-        if not fields:
-            return "  No fields found."
-
-        lines: list[str] = []
-        _h = "\u2500"
-        lines.append(f"  {'Field':<30} {'Type':<20} {'Target':<30}")
-        lines.append(f"  {_h * 30} {_h * 20} {_h * 30}")
-
-        for f in fields:
-            name = f["name"]
-            ftype = f["type"]
-            target = f.get("target") or "-"
-            lines.append(f"  {name:<30} {ftype:<20} {target:<30}")
-
-        lines.append("")
-        lines.append(f"  Total: {len(fields)} fields")
-        return "\n".join(lines)
-
     def _render_stats(self) -> None:
+        """Render statistics using Rich Table widget."""
         if self._graph is None:
             return
-        stats = self._graph.get("stats", {})
-        meta = self._graph.get("meta", {})
-
-        lines: list[str] = []
-        lines.append("  NetBox Django Model Statistics")
-        lines.append("  " + "\u2500" * 40)
-        lines.append("")
-        lines.append(f"  Source:    {meta.get('source_path', 'N/A')}")
-        lines.append(f"  Models:    {stats.get('total_models', 0)}")
-        lines.append(f"  Edges:     {stats.get('total_edges', 0)}")
-        lines.append(f"  Cross-app: {stats.get('cross_app_edges', 0)}")
-        lines.append(f"  Intra-app: {stats.get('intra_app_edges', 0)}")
-        lines.append("")
-        lines.append("  Apps:")
-
-        models = self._graph.get("models", {})
-        for app in stats.get("apps", []):
-            app_models = [m for m in models.values() if m["app"] == app]
-            app_fks = sum(1 for m in app_models for f in m.get("fields", []) if f.get("target"))
-            lines.append(f"    {app:<20} {len(app_models):>3} models, {app_fks:>3} FKs")
-
         try:
             stats_widget = self.query_one("#dm_stats", Static)
-            stats_widget.update(Text("\n".join(lines)))
+            stats_table = render_stats_table_rich(self._graph)
+            stats_widget.update(stats_table)
         except Exception:
             pass
 
@@ -555,49 +543,109 @@ class DjangoModelTuiApp(App[None]):
     def action_cancel(self) -> None:
         pass
 
+    # ── View switching ────────────────────────────────────────────────────
+
+    @on(Select.Changed, "#dev_view_select")
+    def _on_view_changed(self, event: Select.Changed) -> None:
+        if event.value == Select.BLANK:
+            return
+        if str(event.value) == "main":
+            self.exit(result=SWITCH_TO_MAIN_TUI)
+        if str(event.value) == "cli":
+            self.exit(result=SWITCH_TO_CLI_TUI)
+        if str(event.value) == "dev":
+            self.exit(result=SWITCH_TO_DEV_TUI)
+
     # ── Theme / chrome ────────────────────────────────────────────────────
 
-    @on(Select.Changed, "#theme_select")
+    @on(Select.Changed, "#dev_theme_select")
     def _on_theme_changed(self, event: Select.Changed) -> None:
-        if event.value is None or not isinstance(event.value, str):
+        if event.value == Select.BLANK:
             return
-        self.theme_name = apply_theme(
-            self,
-            theme_catalog=self.theme_catalog,
-            theme_options=self.theme_options,
-            current_theme_name=self.theme_name,
-            new_theme_name=event.value,
-            state=self._theme_state,
-            logo_widget_id="#topbar_logo",
-        )
+        selected = self.theme_catalog.resolve(str(event.value))
+        if not selected or selected == self.theme_name:
+            return
+        self._apply_theme(selected, notify=True)
+        self.call_after_refresh(self._strip_theme_select_prefix)
 
     @on(Button.Pressed, "#support_button")
     def _on_support(self) -> None:
         self.push_screen(SupportModal())
 
-    @on(Button.Pressed, "#close_tui_button")
+    @on(Button.Pressed, "#dev_close_button")
     def _on_close(self) -> None:
         self.exit()
 
     def _logo_renderable(self) -> Text:
         return logo_renderable(self.theme_catalog, self.theme_name)
 
-    def _apply_theme(self, theme_name: str) -> None:
+    def _apply_theme(self, theme_name: str, notify: bool = False) -> None:
         self.theme_name = apply_theme(
             self,
             theme_catalog=self.theme_catalog,
             theme_options=self.theme_options,
             current_theme_name=self.theme_name,
             new_theme_name=theme_name,
-            state=self._theme_state,
-            logo_widget_id="#topbar_logo",
+            state=self.state,
+            logo_widget_id="#dev_logo",
+            notify=notify,
         )
 
     def _strip_theme_select_prefix(self) -> None:
-        strip_theme_select_prefix(self, selector="#theme_select SelectCurrent Static#label")
+        strip_theme_select_prefix(self, selector="#dev_theme_select SelectCurrent Static#label")
+        strip_theme_select_prefix(self, selector="#dev_view_select SelectCurrent Static#label")
+
+    # ── Connection badge ──────────────────────────────────────────────────
 
     def _update_clock(self) -> None:
-        update_clock_widget(self, widget_id="#clock")
+        update_clock_widget(self, widget_id="#dev_clock")
+
+    def _set_connection_badge_checking(self) -> None:
+        set_connection_badge_state(self, badge_id="#dev_connection_badge", state="checking")
+
+    def _render_connection_status(self, probe: ConnectionProbe) -> None:
+        set_connection_badge_state(
+            self,
+            badge_id="#dev_connection_badge",
+            state=badge_state_for_probe(probe),
+        )
+
+    @work(group="dm_connection_probe", exclusive=True, thread=False)
+    async def _probe_connection_health(self) -> None:
+        self._set_connection_badge_checking()
+        try:
+            from netbox_cli.cli import _get_client  # noqa: PLC0415
+
+            client = _get_client()
+            probe_fn = getattr(client, "probe_connection", None)
+            if callable(probe_fn):
+                probe = probe_fn()
+                if inspect.isawaitable(probe):
+                    probe = await probe
+                if isinstance(probe, ConnectionProbe):
+                    self._render_connection_status(probe)
+                    return
+            response = await client.request(
+                "GET", "/", headers={"Content-Type": "application/json"}
+            )
+            headers = getattr(response, "headers", {}) or {}
+            version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
+            status = int(getattr(response, "status", 0) or 0)
+            ok = status < 400 or status == 403
+            self._render_connection_status(
+                ConnectionProbe(
+                    status=status,
+                    version=version,
+                    ok=ok,
+                    error=None if ok else getattr(response, "text", ""),
+                )
+            )
+            return
+        except Exception:
+            pass
+        self._render_connection_status(
+            ConnectionProbe(status=0, version="", ok=False, error="no config")
+        )
 
 
 def run_django_model_tui(
@@ -605,7 +653,40 @@ def run_django_model_tui(
     *,
     theme_name: str | None = None,
 ) -> None:
-    """Launch the Django Model Inspector TUI."""
+    """Launch the Django Model Inspector TUI with mode-switching support."""
     if store is None:
         store = DjangoModelStore()
-    DjangoModelTuiApp(store=store, theme_name=theme_name).run()
+    try:
+        app = DjangoModelTuiApp(store=store, theme_name=theme_name)
+        result = app.run()
+        from netbox_cli.cli import _get_client, _get_index  # noqa: PLC0415
+
+        if result == SWITCH_TO_MAIN_TUI:
+            from .app import run_tui
+
+            run_tui(
+                client=_get_client(),
+                index=_get_index(),
+                theme_name=app.theme_name,
+            )
+        elif result == SWITCH_TO_CLI_TUI:
+            from .cli_tui import run_cli_tui
+
+            run_cli_tui(
+                client=_get_client(),
+                index=_get_index(),
+                theme_name=app.theme_name,
+            )
+        elif result == SWITCH_TO_DEV_TUI:
+            from .dev_app import run_dev_tui
+
+            run_dev_tui(
+                client=_get_client(),
+                index=_get_index(),
+                theme_name=app.theme_name,
+            )
+    except KeyboardInterrupt:
+        raise SystemExit(130) from None
+    except Exception as exc:  # noqa: BLE001
+        detail = str(exc).strip() or exc.__class__.__name__
+        raise RuntimeError(f"Unable to launch the Django Model TUI: {detail}") from None

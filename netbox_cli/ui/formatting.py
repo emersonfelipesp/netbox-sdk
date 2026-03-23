@@ -179,8 +179,6 @@ _VALUE_STYLES: dict[str, str] = {}
 
 def configure_semantic_styles(*, colors: Mapping[str, str], variables: Mapping[str, str]) -> None:
     """Build Rich style strings from the currently active theme."""
-    del colors  # Styles below are intentionally derived from semantic theme variables only.
-
     global _STATUS_STYLES, _CHIP_STYLES, _VALUE_STYLES
 
     status_styles = {
@@ -210,6 +208,14 @@ def configure_semantic_styles(*, colors: Mapping[str, str], variables: Mapping[s
         "url": f"{variables['nb-link-text']} underline",
         "key": variables["nb-key-text"],
     }
+
+    # Configure Django Model Inspector styles
+    try:
+        from ..django_models.rich_rendering import configure_django_styles
+
+        configure_django_styles(colors=colors, variables=variables)
+    except ImportError:
+        pass  # Django models module not available
 
 
 def _status_meta(value: str) -> tuple[str, str]:
