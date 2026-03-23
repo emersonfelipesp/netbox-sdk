@@ -370,6 +370,14 @@ def docs_generate_capture(
             "By default the generator captures live-API specs against demo.netbox.dev."
         ),
     ),
+    markdown: bool = typer.Option(
+        True,
+        "--markdown/--no-markdown",
+        help=(
+            "Append --markdown to dynamic list/get/… and ``nbx call`` captures so tables "
+            "are plain Markdown (not Rich). Default: on."
+        ),
+    ),
 ) -> None:
     """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md.
 
@@ -392,6 +400,7 @@ def docs_generate_capture(
         max_lines=max_lines,
         max_chars=max_chars,
         use_demo=not live,
+        markdown_output=markdown,
     )
     raise typer.Exit(code=code)
 
