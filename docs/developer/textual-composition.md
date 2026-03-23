@@ -122,6 +122,14 @@ Use semantic props such as:
 - `surface`
 - `chrome`
 
+Theme-aware composition also includes surface propagation. If a reusable widget mounts nested Textual primitives internally, the parent widget must carry semantic theme intent down to those children and verify the final rendered surfaces.
+
+Important examples:
+
+- modal widgets must theme the dialog container and action buttons, not only the `ModalScreen`
+- tabbed widgets must theme `TabbedContent`, `ContentTabs`, `ContentSwitcher`, and the active `TabPane`
+- editor/list widgets must theme both their outer container and the framework-owned inner parts that paint backgrounds in focus or ANSI paths
+
 ### 3. Use nested widgets as slots
 
 When a widget has recognizable regions, model them as child widgets instead of one large monolith.
@@ -149,6 +157,17 @@ Composition defines structure. TCSS defines appearance.
 - use semantic classes on reusable widgets
 - keep theme logic in TCSS and theme JSON
 - avoid runtime color decisions in widget constructors
+
+Exception:
+
+- when Textual runtime defaults still override the selected theme in terminal-only paths such as ANSI-mode `Screen` / `ModalScreen` or mounted internal subwidgets, add a narrow runtime surface sync in the owning widget or app
+- if you take this escape hatch, also document the reason in the relevant theme/design docs and keep the runtime override limited to semantic theme tokens
+
+Practical rule:
+
+- first fix the theme palette if the structural tokens themselves are wrong
+- then fix recursive TCSS selectors for framework-owned internals
+- only then add runtime surface syncing for the specific widgets that still escape the theme contract
 
 ### 6. Keep inheritance shallow
 

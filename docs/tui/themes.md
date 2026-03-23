@@ -67,6 +67,32 @@ Project rules:
 - Never leave Textual default colors visible after a theme switch
 - Avoid built-in widget palettes when they bypass the repo theme tokens; style component classes with semantic variables instead
 
+### Debugging theme-specific mismatches
+
+If one built-in theme renders correctly and another still shows stray color blocks, do not assume the remaining issue is always a widget selector bug. Compare the theme JSON palette itself against a known-good built-in theme before adding more TCSS overrides.
+
+Use this workflow:
+
+- compare `background`, `surface`, `panel`, `boost`, `nb-border`, and `nb-border-subtle` between the broken theme and a known-good theme
+- verify the dark-surface hierarchy is progressive: `background < surface < panel < boost` in perceived lightness
+- for dark themes, keep the surface stack low-saturation enough that panel layers read as neutral structure, not bright blue-violet blocks
+- check Textual ANSI paths separately, because `Screen` / `ModalScreen` and nested framework widgets may still apply ANSI-mode defaults in a real terminal even when headless tests look fine
+
+Practical lesson from the Dracula fix:
+
+- the remaining blue support-modal and Dev-TUI pane backgrounds were not only widget-style leaks
+- Dracula's own `surface` / `panel` / `boost` / border tokens were too blue compared with the calmer NetBox Dark surface stack
+- the durable fix was two-part:
+  - rebalance the Dracula surface hierarchy in `netbox_cli/themes/dracula.json`
+  - explicitly account for Textual ANSI-mode screen / modal behavior and runtime-mounted inner widgets
+
+When reviewing or creating a dark theme, treat the following as a built-in sanity check:
+
+- surfaces should get progressively lighter from app background to nested panel emphasis
+- adjacent surface tokens should not jump too far in saturation
+- border tokens should separate regions without reading as neon outlines
+- modal bodies and large content panes should look like neutral structure, not colored feature blocks
+
 ---
 
 ## Creating a custom theme
@@ -154,5 +180,13 @@ Themes should follow the NetBox dark mode visual hierarchy:
 - Use `boost` for highlighted backgrounds
 - Use `nb-border` for standard borders, `nb-border-subtle` for inner/secondary borders
 - Status colors: `nb-success-*`, `nb-info-*`, `nb-warning-*`, `nb-danger-*`
+
+Additional surface guidance for dark themes:
+
+- `background` should be the darkest neutral foundation
+- `surface` should lift slightly from `background` without becoming obviously colored
+- `panel` should sit above `surface` for nested containers and modal bodies
+- `boost` should be the strongest neutral emphasis layer, not a substitute for accent color
+- if a theme's surface stack reads as blue or purple slabs in large panes, reduce saturation in those structural tokens before patching widgets
 
 See `reference/design/NETBOX-DARK-PATTERNS.md` in the repository for the full design reference.

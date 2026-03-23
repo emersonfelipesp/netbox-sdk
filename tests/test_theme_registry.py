@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from colorsys import rgb_to_hls
 from pathlib import Path
 
 import pytest
@@ -43,6 +44,33 @@ def test_theme_catalog_loads_builtin_themes() -> None:
     assert catalog.resolve("netbox-light") == "netbox-light"
     assert catalog.resolve("dracula") == "dracula"
     assert catalog.default_theme_name == "netbox-dark"
+
+
+def test_dracula_surface_stack_stays_neutral_and_progressive() -> None:
+    theme = load_theme_catalog().theme_for("dracula")
+
+    def _rgb_channels(hex_color: str) -> tuple[int, int, int]:
+        value = hex_color.lstrip("#")
+        return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
+
+    def _lightness(hex_color: str) -> float:
+        red, green, blue = _rgb_channels(hex_color)
+        _, lightness, _ = rgb_to_hls(red / 255, green / 255, blue / 255)
+        return lightness
+
+    def _channel_spread(hex_color: str) -> int:
+        channels = _rgb_channels(hex_color)
+        return max(channels) - min(channels)
+
+    background = theme.colors["background"]
+    surface = theme.colors["surface"]
+    panel = theme.colors["panel"]
+    boost = theme.colors["boost"]
+
+    assert _lightness(background) < _lightness(surface) < _lightness(panel) < _lightness(boost)
+    assert _channel_spread(surface) <= 12
+    assert _channel_spread(panel) <= 12
+    assert _channel_spread(boost) <= 12
 
 
 def test_theme_catalog_invalid_color_fails(tmp_path: Path) -> None:

@@ -11,9 +11,9 @@
         "success": "#50FA7B",
         "accent": "#FF79C6",
         "background": "#282A36",
-        "surface": "#2D2F3E",
-        "panel": "#343646",
-        "boost": "#44475A"
+        "surface": "#2B2D34",
+        "panel": "#30323A",
+        "boost": "#363842"
     },
     "variables": {
         "nb-success-text": "#50FA7B",
@@ -25,9 +25,9 @@
         "nb-info-bg": "#1A3040",
         "nb-warning-bg": "#3A2E0D",
         "nb-danger-bg": "#3A1A1A",
-        "nb-secondary-bg": "#2A2C3A",
-        "nb-border": "#44475A",
-        "nb-border-subtle": "#3D3F52",
+        "nb-secondary-bg": "#2B2D34",
+        "nb-border": "#3E4150",
+        "nb-border-subtle": "#363842",
         "nb-muted-text": "#A0AAB4",
         "nb-link-text": "#8BE9FD",
         "nb-id-text": "#BD93F9",

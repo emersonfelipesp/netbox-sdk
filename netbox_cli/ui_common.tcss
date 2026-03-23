@@ -3,6 +3,11 @@ Screen {
     background: $background;
 }
 
+Screen:ansi {
+    background: $background;
+    color: $foreground;
+}
+
 .hidden {
     display: none;
 }
@@ -544,9 +549,15 @@ SupportModal {
     background: $background 65%;
 }
 
+ModalScreen:ansi {
+    background: $background 65%;
+    color: $foreground;
+}
+
 SupportModal:ansi {
     align: center middle;
     background: $background 65%;
+    color: $foreground;
 }
 
 #support_modal_dialog {

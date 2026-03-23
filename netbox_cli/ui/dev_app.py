@@ -764,6 +764,7 @@ class NetBoxDevTuiApp(App[None]):
             notify=notify,
         )
         self._sync_text_area_syntax_themes()
+        self._sync_theme_surfaces()
         if self.current_group and self.current_resource:
             try:
                 prev_hl = self.query_one("#dev_operation_list", OptionList).highlighted
@@ -777,6 +778,60 @@ class NetBoxDevTuiApp(App[None]):
                 self._set_operation_summary(
                     operation_detail_text(self._theme_definition(), op, summary)
                 )
+
+    def _sync_theme_surfaces(self) -> None:
+        theme = self._theme_definition()
+        background = theme.colors["background"]
+        surface = theme.colors["surface"]
+        panel = theme.colors["panel"]
+        primary = theme.colors["primary"]
+        border = theme.variables["nb-border-subtle"]
+        muted = theme.variables["nb-muted-text"]
+
+        def _set(selector: str, css: str) -> None:
+            try:
+                self.query_one(selector).set_styles(css)
+            except NoMatches:
+                return
+
+        for selector in ("#dev_main", "#dev_columns"):
+            _set(selector, f"background: {background}; background-tint: transparent;")
+        for selector in (
+            "#dev_request_panel",
+            "#dev_response_panel",
+            "#dev_request_tabs",
+            "#dev_response_tabs",
+            "#dev_request_tabs ContentSwitcher",
+            "#dev_response_tabs ContentSwitcher",
+        ):
+            _set(selector, f"background: {surface}; background-tint: transparent;")
+        for selector in (
+            "#dev_operations_tab",
+            "#dev_query_tab",
+            "#dev_body_tab",
+            "#dev_response_body_tab",
+            "#dev_response_headers_tab",
+            "#dev_response_summary_tab",
+        ):
+            _set(selector, f"background: {surface}; background-tint: transparent;")
+        for selector in (
+            "#dev_operation_list",
+            "#dev_body_editor",
+            "#dev_response_body",
+            "#dev_response_headers",
+        ):
+            _set(selector, f"background: {background}; background-tint: transparent;")
+        _set("#dev_response_meta", f"background: {panel}; background-tint: transparent;")
+        _set(
+            "#dev_send_button",
+            f"background: {primary} 12%; color: {primary}; border: round {primary}; "
+            "tint: transparent; background-tint: transparent;",
+        )
+        copy_button_css = (
+            f"background: transparent; color: {muted}; border: round {border}; "
+            "tint: transparent; background-tint: transparent;"
+        )
+        _set("#dev_copy_response_button", copy_button_css)
 
     def _logo_renderable(self):
         return logo_renderable(self.theme_catalog, self.theme_name)

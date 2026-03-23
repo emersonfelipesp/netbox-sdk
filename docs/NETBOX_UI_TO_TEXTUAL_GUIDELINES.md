@@ -194,6 +194,19 @@ Theme implementation rule for this project:
 - if a custom widget wraps other Textual widgets, pass semantic theme props down to those children and verify the rendered result after runtime theme switching
 - theme acceptance should include focus, hover, active, selected, overlay, and ANSI states, not only idle appearance
 
+Theme debugging rule for this project:
+
+- if one built-in theme looks correct and another still renders stray color blocks, compare the theme JSON surface tokens before adding more widget overrides
+- specifically compare `background`, `surface`, `panel`, `boost`, `nb-border`, and `nb-border-subtle` against a known-good built-in theme
+- for dark themes, structural tokens must remain neutral enough that large panes and modal bodies read as layered containers rather than bright tinted slabs
+- if the token stack is wrong, fix the theme palette first and only then patch recursive widget selectors
+
+Textual runtime rule:
+
+- headless tests are not enough for theme sign-off
+- Textual has separate ANSI-mode defaults for surfaces such as `Screen` and `ModalScreen`, and these can still win in real terminals
+- if TCSS alone does not fully bind those runtime paths to the selected theme, add a narrow runtime surface sync using semantic theme tokens for the affected modal, pane stack, or internal widget subtree
+
 ## 3. Concrete Porting Blueprint for netbox-cli
 
 ## 3.1 Shell Layout

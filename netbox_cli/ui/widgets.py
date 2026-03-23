@@ -311,7 +311,35 @@ class SupportModal(ModalScreen[None]):
                 if class_name.startswith("theme-"):
                     self.remove_class(class_name)
             self.add_class(f"theme-{theme_name}")
+        self._apply_runtime_theme_tokens()
         self.query_one("#support_modal_open", Button).focus()
+
+    def _apply_runtime_theme_tokens(self) -> None:
+        theme_catalog = getattr(self.app, "theme_catalog", None)
+        theme_name = str(getattr(self.app, "theme_name", "") or "")
+        if not theme_catalog or not theme_name:
+            return
+        theme = theme_catalog.theme_for(theme_name)
+        surface = theme.colors["surface"]
+        panel = theme.colors["panel"]
+        primary = theme.colors["primary"]
+        border = theme.variables["nb-border-subtle"]
+
+        self.set_styles(f"background: {theme.colors['background']} 65%;")
+        self.query_one("#support_modal_dialog", Vertical).set_styles(
+            f"background: {surface}; border: tall {border};"
+        )
+        self.query_one("#support_modal_actions", Horizontal).set_styles(
+            "background: transparent; background-tint: transparent;"
+        )
+        self.query_one("#support_modal_open", Button).set_styles(
+            f"background: {panel}; color: {primary}; border: round {primary}; "
+            "tint: transparent; background-tint: transparent;"
+        )
+        self.query_one("#support_modal_close", Button).set_styles(
+            f"background: transparent; color: {theme.variables['nb-muted-text']}; "
+            f"border: round {border}; tint: transparent; background-tint: transparent;"
+        )
 
     @on(Button.Pressed, "#support_modal_close")
     def close_modal(self) -> None:
