@@ -11,8 +11,40 @@ from inspect import signature
 from pathlib import Path
 from typing import Any, TextIO
 
-from .docgen_specs import CaptureSpec
 from .docgen_specs import all_specs as _all_specs
+
+# OpenAPI dynamic actions that render via ``print_response`` (tabular / Markdown-friendly).
+_MARKDOWN_ACTIONS = frozenset({"list", "get", "create", "update", "patch", "delete"})
+_OUTPUT_FORMAT_FLAGS = frozenset({"--json", "--yaml", "--markdown"})
+
+
+def argv_with_markdown_output(argv: list[str], *, enabled: bool) -> list[str]:
+    """Return argv, appending ``--markdown`` when doc capture should use Markdown tables.
+
+    Skips ``--help``, leaves argv unchanged when ``--json`` / ``--yaml`` / ``--markdown``
+    is already present, and only targets ``call`` plus dynamic
+    ``[<demo>] <group> <resource> <action>`` invocations.
+    """
+    if not enabled:
+        return list(argv)
+    if "--help" in argv:
+        return list(argv)
+    if any(t in _OUTPUT_FORMAT_FLAGS for t in argv):
+        return list(argv)
+
+    opt_idx = next((i for i, t in enumerate(argv) if t.startswith("-")), len(argv))
+    pos = argv[:opt_idx]
+    if not pos:
+        return list(argv)
+
+    if pos[0] == "call" and len(pos) >= 3:
+        return [*argv, "--markdown"]
+
+    body = pos[1:] if pos[0] == "demo" else pos
+    if len(body) >= 3 and body[-1] in _MARKDOWN_ACTIONS:
+        return [*argv, "--markdown"]
+
+    return list(argv)
 
 
 def _repo_root() -> Path:
@@ -109,15 +141,21 @@ def _make_cli_runner() -> Any:
     return CliRunner()
 
 
-def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str, float]:
+def _run_capture(
+    argv: list[str],
+    app: Any,
+    *,
+    profile: str,
+    safe: bool,
+) -> tuple[int, str, float]:
     was_stub = _inject_stub_config(profile)
     try:
         runner = _make_cli_runner()
         started = time.perf_counter()
         result = runner.invoke(
             app,
-            spec.argv,
-            catch_exceptions=not spec.safe,
+            argv,
+            catch_exceptions=not safe,
             color=False,
         )
         elapsed = time.perf_counter() - started
@@ -150,6 +188,7 @@ def generate_command_capture_docs(
     max_lines: int = 200,
     max_chars: int = 120_000,
     use_demo: bool = True,
+    markdown_output: bool = True,
     log: TextIO | None = None,
 ) -> int:
     """Write capture Markdown and raw JSON artifacts. Returns 0 on success."""
@@ -177,6 +216,7 @@ def generate_command_capture_docs(
         "netbox_url": effective_url,
         "timeout": os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"),
         "token_configured": token_configured,
+        "markdown_output": markdown_output,
     }
 
     profile_note = (
@@ -236,8 +276,9 @@ def generate_command_capture_docs(
             lines.append("")
             section_last = spec.section
 
-        cmd_display = "nbx " + " ".join(spec.argv)
-        code, out, elapsed = _run_capture(spec, cli_app, profile=profile)
+        run_argv = argv_with_markdown_output(spec.argv, enabled=markdown_output)
+        cmd_display = "nbx " + " ".join(run_argv)
+        code, out, elapsed = _run_capture(run_argv, cli_app, profile=profile, safe=spec.safe)
 
         truncated, did_trunc = _truncate(out, max_lines, max_chars)
         slug = f"{spec.section}-{spec.title}"[:80].lower().replace(" ", "-").replace("/", "-")
@@ -248,7 +289,7 @@ def generate_command_capture_docs(
         art = {
             "section": spec.section,
             "title": spec.title,
-            "argv": spec.argv,
+            "argv": run_argv,
             "exit_code": code,
             "elapsed_seconds": round(elapsed, 3),
             "truncated": did_trunc,
