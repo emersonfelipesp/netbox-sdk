@@ -37,12 +37,19 @@ def test_theme_catalog_loads_builtin_themes() -> None:
         "dracula",
         "netbox-dark",
         "netbox-light",
+        "onedark-pro",
+        "tokyo-night",
     )
     assert catalog.resolve("netbox") == "netbox-dark"
     assert catalog.resolve("netbox-dark") == "netbox-dark"
     assert catalog.resolve("default") == "netbox-dark"
     assert catalog.resolve("netbox-light") == "netbox-light"
     assert catalog.resolve("dracula") == "dracula"
+    assert catalog.resolve("tokyo-night") == "tokyo-night"
+    assert catalog.resolve("tokyo") == "tokyo-night"
+    assert catalog.resolve("onedark-pro") == "onedark-pro"
+    assert catalog.resolve("onedark") == "onedark-pro"
+    assert catalog.resolve("one-dark") == "onedark-pro"
     assert catalog.default_theme_name == "netbox-dark"
 
 
