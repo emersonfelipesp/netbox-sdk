@@ -12,6 +12,10 @@ hide:
 
 If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a full REST implementation, `netbox-cli` can discover those plugin resources automatically and surface them in both the CLI/TUI navigation and data views.
 
+> Temporary naming note: the repository name is `netbox-cli`, while the package
+> on PyPI is currently `netbox-console` until
+> https://github.com/pypi/support/issues/9925 is resolved.
+
 ---
 
 <div class="grid cards" markdown>

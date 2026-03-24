@@ -30,7 +30,7 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install netbox-cli and docs + dev dependencies
+      - name: Install netbox-console and docs + dev dependencies
         run: uv sync --locked --group docs --group dev
 
       # ── Docgen: regenerate captured CLI output ────────────────────────────

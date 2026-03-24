@@ -27,8 +27,8 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install netbox-cli
-        run: uv sync --locked
+      - name: Install netbox-console tool from PyPI
+        run: uv tool install --force netbox-console
 
       - name: Get last 3 NetBox release tags
         id: releases
@@ -49,7 +49,7 @@ jobs:
             CHECKOUT_DIR="/tmp/netbox-${TAG}"
             git clone --depth 1 --branch "$TAG" \
               https://github.com/netbox-community/netbox.git "$CHECKOUT_DIR"
-            uv run nbx dev django-model build --rebuild \
+            ~/.local/bin/nbx dev django-model build --rebuild \
               --netbox-root "$CHECKOUT_DIR/netbox/" \
               --cache-path "django_models_builds/${TAG}-django-models-build.json"
             rm -rf "$CHECKOUT_DIR"

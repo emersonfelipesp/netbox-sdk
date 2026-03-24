@@ -2,6 +2,10 @@
 
 `netbox-cli` requires **Python 3.11 or newer**.
 
+> Temporary naming note: this repository is named `netbox-cli`, but the PyPI
+> package is temporarily published as `netbox-console` while
+> https://github.com/pypi/support/issues/9925 remains unresolved.
+
 ---
 
 ## From source (development)

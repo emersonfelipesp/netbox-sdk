@@ -25,8 +25,8 @@ jobs:
       - name: Sync development environment
         run: uv sync --dev --locked
 
-      - name: Install netbox-cli tool
-        run: uv tool install --force .
+      - name: Install netbox-console tool from PyPI
+        run: uv tool install --force netbox-console
 
       - name: Verify installed nbx command
         run: ~/.local/bin/nbx --help
