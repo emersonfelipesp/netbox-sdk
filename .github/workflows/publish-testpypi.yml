@@ -1,18 +1,22 @@
-name: Publish to TestPyPI
+name: Release validation and publish
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  publish-testpypi:
-    name: build + publish / TestPyPI
+  prepare-release:
+    name: prepare artifacts + metadata
     runs-on: ubuntu-latest
+    outputs:
+      package_name: ${{ steps.meta.outputs.package_name }}
+      version: ${{ steps.meta.outputs.version }}
+      tag_name: ${{ steps.meta.outputs.tag_name }}
 
     steps:
       - name: Checkout repository
@@ -26,25 +30,63 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Validate package metadata
+      - name: Validate package metadata and tag
+        id: meta
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: |
           python - <<'PY'
+          import os
           import pathlib
           import tomllib
 
           data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
           project_name = data["project"]["name"]
+          version = data["project"]["version"]
+          tag = os.getenv("GITHUB_REF_NAME", "")
+          event = os.getenv("GITHUB_EVENT_NAME", "")
+
           if project_name != "netbox-cli":
               raise SystemExit(
                   f"Expected project name 'netbox-cli' in pyproject.toml, got {project_name!r}"
               )
-          print(f"Package name OK: {project_name}")
+          if event == "push" and tag:
+              expected_tag = f"v{version}"
+              if tag != expected_tag:
+                  raise SystemExit(
+                      f"Tag/version mismatch: pushed tag {tag!r} but pyproject version is {version!r} "
+                      f"(expected tag {expected_tag!r})"
+                  )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"package_name={project_name}\n")
+              fh.write(f"version={version}\n")
+              fh.write(f"tag_name={tag}\n")
+          print(f"Package metadata OK: {project_name}=={version}")
           PY
 
       - name: Build distribution artifacts
         run: uv run --with build python -m build
 
-      - name: Publish to TestPyPI
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+          if-no-files-found: error
+
+  publish-testpypi:
+    name: publish to TestPyPI
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Upload to TestPyPI
         env:
           TEST_PYPI_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
           TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
@@ -55,7 +97,15 @@ jobs:
             exit 1
           fi
 
-          REPOSITORY_URL="${TEST_PYPI_REPOSITORY_URL%/}/legacy/"
+          REPOSITORY_BASE="${TEST_PYPI_REPOSITORY_URL/http:\/\//https://}"
+          case "$REPOSITORY_BASE" in
+            *test.pypi.org*)
+              REPOSITORY_URL="https://test.pypi.org/legacy/"
+              ;;
+            *)
+              REPOSITORY_URL="${REPOSITORY_BASE%/}/legacy/"
+              ;;
+          esac
 
           uv run --with twine python -m twine upload \
             --non-interactive \
@@ -65,16 +115,56 @@ jobs:
             --repository-url "$REPOSITORY_URL" \
             dist/*
 
-      - name: Smoke test install from TestPyPI
-        run: |
-          VERSION="$(python - <<'PY'
-          import pathlib
-          import tomllib
-          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
-          print(data["project"]["version"])
-          PY
-          )"
+  validate-testpypi-pre:
+    name: validate TestPyPI pre-CI / py${{ matrix.python-version }}
+    needs: [prepare-release, publish-testpypi]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --locked
+
+      - name: Run pre-commit checks (3.13 only)
+        if: matrix.python-version == '3.13'
+        run: uv run pre-commit run --all-files --show-diff-on-failure --color=always
+
+      - name: Run tests
+        run: uv run pytest -v --tb=short
+
+  validate-testpypi-post:
+    name: validate TestPyPI post-CI
+    needs: [prepare-release, publish-testpypi]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Smoke test package install from TestPyPI
+        env:
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
           python -m venv /tmp/nbx-testpypi-venv
           source /tmp/nbx-testpypi-venv/bin/activate
           python -m pip install --upgrade pip
@@ -85,10 +175,147 @@ jobs:
 
           python -m playwright install --with-deps chromium
           python - <<'PY'
+          from importlib.metadata import version
           from playwright.sync_api import sync_playwright
 
+          assert version("netbox-cli"), "netbox-cli not installed"
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               browser.close()
           print("Playwright Chromium launch OK")
           PY
+
+          /tmp/nbx-testpypi-venv/bin/nbx --help
+
+      - name: Sync development environment
+        run: uv sync --dev --locked
+
+      - name: Simulate demo TUI interaction
+        run: uv run pytest -v --tb=short tests/test_tui_interaction.py tests/test_dev_tui.py
+
+      - name: Run full test suite
+        run: uv run pytest -v --tb=short
+
+  publish-pypi:
+    name: publish to official PyPI
+    needs:
+      - prepare-release
+      - publish-testpypi
+      - validate-testpypi-pre
+      - validate-testpypi-post
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Upload to official PyPI
+        env:
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          PYPI_REPOSITORY_URL: ${{ secrets.PYPI_REPOSITORY_URL }}
+        run: |
+          if [ -z "${PYPI_USERNAME:-}" ] || [ -z "${PYPI_TOKEN:-}" ] || [ -z "${PYPI_REPOSITORY_URL:-}" ]; then
+            echo "Missing required PyPI secrets: PYPI_USERNAME, PYPI_TOKEN, PYPI_REPOSITORY_URL"
+            exit 1
+          fi
+
+          REPOSITORY_BASE="${PYPI_REPOSITORY_URL/http:\/\//https://}"
+          case "$REPOSITORY_BASE" in
+            *pypi.org*)
+              REPOSITORY_URL="https://upload.pypi.org/legacy/"
+              ;;
+            *)
+              REPOSITORY_URL="${REPOSITORY_BASE%/}/legacy/"
+              ;;
+          esac
+
+          uv run --with twine python -m twine upload \
+            --non-interactive \
+            --skip-existing \
+            --username "$PYPI_USERNAME" \
+            --password "$PYPI_TOKEN" \
+            --repository-url "$REPOSITORY_URL" \
+            dist/*
+
+  validate-pypi-pre:
+    name: validate PyPI pre-CI / py${{ matrix.python-version }}
+    needs: [prepare-release, publish-pypi]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --locked
+
+      - name: Run pre-commit checks (3.13 only)
+        if: matrix.python-version == '3.13'
+        run: uv run pre-commit run --all-files --show-diff-on-failure --color=always
+
+      - name: Run tests
+        run: uv run pytest -v --tb=short
+
+  validate-pypi-post:
+    name: validate PyPI post-CI
+    needs: [prepare-release, publish-pypi]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Smoke test package install from official PyPI
+        env:
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+        run: |
+          python -m venv /tmp/nbx-pypi-venv
+          source /tmp/nbx-pypi-venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install \
+            --index-url https://pypi.org/simple/ \
+            "netbox-cli==$VERSION"
+
+          python -m playwright install --with-deps chromium
+          python - <<'PY'
+          from importlib.metadata import version
+          from playwright.sync_api import sync_playwright
+
+          assert version("netbox-cli"), "netbox-cli not installed"
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              browser.close()
+          print("Playwright Chromium launch OK")
+          PY
+
+          /tmp/nbx-pypi-venv/bin/nbx --help
+
+      - name: Sync development environment
+        run: uv sync --dev --locked
+
+      - name: Simulate demo TUI interaction
+        run: uv run pytest -v --tb=short tests/test_tui_interaction.py tests/test_dev_tui.py
+
+      - name: Run full test suite
+        run: uv run pytest -v --tb=short

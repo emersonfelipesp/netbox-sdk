@@ -27,7 +27,7 @@ Pass `--live` to run them against your own NetBox instance instead.
 From the `netbox-cli` repository root, with the package installed:
 
 ```bash
-uv tool install --force .
+pip install netbox-cli
 
 # Default: live-API specs hit demo.netbox.dev (demo profile)
 nbx docs generate-capture
