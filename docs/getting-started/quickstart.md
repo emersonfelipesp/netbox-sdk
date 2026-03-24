@@ -7,7 +7,7 @@ Get up and running in under a minute.
 ## 1. Install and configure
 
 ```bash
-pip install netbox-cli
+pip install netbox-console
 nbx init
 # enter your NetBox URL and API token when prompted
 ```

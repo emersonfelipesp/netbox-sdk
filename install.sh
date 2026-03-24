@@ -6,7 +6,7 @@ set -e
 
 REPO="https://github.com/emersonfelipesp/netbox-cli.git"
 BRANCH="main"
-PACKAGE="netbox-cli"
+PACKAGE="netbox-console"
 
 # ── ANSI colors (disabled when not a TTY) ────────────────────────────────────
 if [ -t 1 ]; then

@@ -53,9 +53,9 @@ jobs:
           tag = os.getenv("GITHUB_REF_NAME", "")
           event = os.getenv("GITHUB_EVENT_NAME", "")
 
-          if project_name != "netbox-cli":
+          if project_name != "netbox-console":
               raise SystemExit(
-                  f"Expected project name 'netbox-cli' in pyproject.toml, got {project_name!r}"
+                  f"Expected project name 'netbox-console' in pyproject.toml, got {project_name!r}"
               )
           if event == "push" and tag:
               expected_tag = f"v{version}"
@@ -187,14 +187,14 @@ jobs:
               if pip install \
                 --index-url https://test.pypi.org/simple/ \
                 --extra-index-url https://pypi.org/simple/ \
-                "netbox-cli==$package_version"; then
+                "netbox-console==$package_version"; then
                 return 0
               fi
               echo "Package not visible on TestPyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
               sleep 10
               attempt=$((attempt + 1))
             done
-            echo "Timed out waiting for netbox-cli==$package_version on TestPyPI"
+            echo "Timed out waiting for netbox-console==$package_version on TestPyPI"
             return 1
           }
 
@@ -208,7 +208,7 @@ jobs:
           from importlib.metadata import version
           from playwright.sync_api import sync_playwright
 
-          assert version("netbox-cli"), "netbox-cli not installed"
+          assert version("netbox-console"), "netbox-console not installed"
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               browser.close()
@@ -338,14 +338,14 @@ jobs:
             while [ "$attempt" -le "$max_attempts" ]; do
               if pip install \
                 --index-url https://pypi.org/simple/ \
-                "netbox-cli==$package_version"; then
+                "netbox-console==$package_version"; then
                 return 0
               fi
               echo "Package not visible on PyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
               sleep 10
               attempt=$((attempt + 1))
             done
-            echo "Timed out waiting for netbox-cli==$package_version on PyPI"
+            echo "Timed out waiting for netbox-console==$package_version on PyPI"
             return 1
           }
 
@@ -359,7 +359,7 @@ jobs:
           from importlib.metadata import version
           from playwright.sync_api import sync_playwright
 
-          assert version("netbox-cli"), "netbox-cli not installed"
+          assert version("netbox-console"), "netbox-console not installed"
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               browser.close()

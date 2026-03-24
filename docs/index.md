@@ -63,7 +63,7 @@ If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a fu
     Install, configure, and run your first command in under a minute.
 
     ```bash
-    pip install netbox-cli
+    pip install netbox-console
     nbx init
     nbx dcim devices list
     ```
