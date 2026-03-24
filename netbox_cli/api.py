@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
@@ -319,8 +320,6 @@ class NetBoxApiClient:
         return response
 
     def _now(self) -> float:
-        import time
-
         return time.time()
 
     async def probe_connection(self) -> ConnectionProbe:

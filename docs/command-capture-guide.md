@@ -66,8 +66,6 @@ python docs/generate_command_docs.py --help
 |------|---------|--------|
 | `--output` / `-o` | `docs/generated/nbx-command-capture.md` | Markdown destination |
 | `--raw-dir` | `docs/generated/raw/` next to the Markdown file | Raw JSON artifact directory |
-| `--max-lines` | `200` | Lines of output embedded per command in Markdown (full text stays in `raw/*.json`) |
-| `--max-chars` | `120000` | Characters of output embedded per command in Markdown |
 | `--live` | off | Use the **default profile** (your real NetBox) instead of the demo profile |
 
 ---
@@ -151,7 +149,7 @@ produce output when the generator runs from a `netbox-cli` git checkout.
 For each spec the generator writes:
 
 - **A Markdown section** in `docs/generated/nbx-command-capture.md` with the input, notes,
-  exit code, wall time, and truncated output.
+  exit code, wall time, and captured output.
 - **A raw JSON file** in `docs/generated/raw/NNN-<slug>.json` with the full untruncated output.
 - **`docs/generated/raw/index.json`** — summary of all runs including generation metadata.
 

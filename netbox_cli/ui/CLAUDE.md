@@ -6,9 +6,13 @@ This subpackage contains the full Textual TUI. Every module here is UI-layer ori
 
 | File | Purpose |
 |---|---|
-| `__init__.py` | Public re-exports: `NetBoxTuiApp`, `NetBoxDevTuiApp`, theme helpers, `run_tui`, `run_dev_tui` |
+| `__init__.py` | Public re-exports: `NetBoxTuiApp`, `NetBoxDevTuiApp`, `NbxCliTuiApp`, `DjangoModelTuiApp`, `NetBoxLogsTuiApp`, theme helpers, `run_tui`, `run_dev_tui`, `run_cli_tui`, `run_django_model_tui`, `run_logs_tui` |
 | `app.py` | `NetBoxTuiApp` — root Textual `App[None]` with layout, data loading, and event handling |
+| `cli_tui.py` | `NbxCliTuiApp` — interactive CLI command builder TUI (`nbx cli tui`); navigable group→resource→action tree that constructs and runs `nbx` commands |
+| `cli_completions.py` | `CliCommandNode` and `nbx_root_command_nodes()` — builds the full navigation tree from `SchemaIndex` for the CLI builder TUI |
 | `dev_app.py` | `NetBoxDevTuiApp` — request workbench / API dev shell |
+| `django_model_app.py` | `DjangoModelTuiApp` — Django model inspector TUI (`nbx dev django-model tui`); browse models, relationships, ASCII diagrams, and source code |
+| `django_model_state.py` | Persistent state models and JSON storage helpers for the Django Model Inspector TUI |
 | `chrome.py` | Shared theme, logo, clock, and connection-badge behavior |
 | `filter_overlay.py` | `FilterOverlayMixin` — filter picker dialog, overlay, and active-filter display logic |
 | `formatting.py` | Field/value humanization and Rich `Text` semantic styling |

@@ -402,12 +402,6 @@ def docs_generate_capture(
         "--raw-dir",
         help="Raw JSON artifacts directory. Default: <repo>/docs/generated/raw/",
     ),
-    max_lines: int = typer.Option(
-        200, "--max-lines", help="Max lines per command output in the Markdown."
-    ),
-    max_chars: int = typer.Option(
-        120_000, "--max-chars", help="Max chars per command output in the Markdown."
-    ),
     live: bool = typer.Option(
         False,
         "--live",
@@ -451,8 +445,6 @@ def docs_generate_capture(
     code = generate_command_capture_docs(
         output=out,
         raw_dir=raw,
-        max_lines=max_lines,
-        max_chars=max_chars,
         use_demo=not live,
         markdown_output=markdown,
         max_concurrency=concurrency,

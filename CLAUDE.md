@@ -49,6 +49,12 @@ Security Reference:
 
 ---
 
+## Core Rules
+
+The canonical collaboration rules (including **No Co-Author** and **No Self-Promotion**) are defined once in the [Core Principles](#core-principles) section; refer there for the full policy text.
+
+---
+
 ## Contributor Workflow
 
 Use `uv` as the default local environment manager and `pre-commit` as the default gate before commits and pushes.
@@ -89,6 +95,64 @@ Minimum internal prompting loop:
 Use the heavier metaprompting patterns from `./PROMPTING-GUIDE.md` for architecture, code generation, debugging, code review, design work, security-sensitive changes, and other high-impact tasks.
 
 For trivial requests, use the compact version of the same workflow rather than skipping it entirely.
+
+---
+
+## Workflow Orchestration
+
+### 1. Plan Mode Default
+- Enter plan mode for any non-trivial task (3+ steps, architectural decisions, or cross-cutting changes)
+- If something goes sideways mid-task, STOP and re-plan before continuing
+- Write specs upfront for UI changes — describe the target state before touching TCSS or widget code
+
+### 2. Subagent Strategy
+- Offload codebase exploration, Textual internals research, and parallel analysis to subagents
+- Keep the main context clean: one subagent per investigation thread
+- For complex TUI layout or theme problems, throw more compute at it rather than guessing
+
+### 3. Self-Improvement Loop
+- After any correction: record the pattern in `tasks/lessons.md`
+- Write a rule that prevents the same mistake, not just a note about what went wrong
+- Review lessons at the start of each session before touching TUI or theme code
+
+### 4. Verification Before Done
+- Never mark a task complete without visually or programmatically confirming the output
+- For TUI changes: confirm all theme switch paths, focus states, and nested widget internals
+- For CLI changes: run the command and confirm output matches expected behavior
+- Run `uv run pre-commit run --all-files` and `uv run pytest` before calling anything done
+
+### 5. Demand Elegance (Balanced)
+- For non-trivial changes: ask "is there a more elegant way?" before committing to an approach
+- If a fix feels hacky, step back: "Knowing everything I know now, implement the elegant solution"
+- Skip this for simple, obvious fixes — don't over-engineer one-liners
+- Prefer small composable Textual widgets over large monolithic ones
+
+### 6. Autonomous Bug Fixing
+- When given a bug report: diagnose and fix it — don't ask for hand-holding
+- Use logs at `~/.config/netbox-cli/logs/netbox-cli.log` as first-line evidence
+- Fix failing CI tests without being told how; check `.github/` workflows for context
+
+---
+
+## Task Management
+
+1. **Plan First:** Write a plan to `tasks/todo.md` with checkable items before starting
+2. **Verify Plan:** Align with the user before beginning implementation on non-trivial tasks
+3. **Track Progress:** Mark items complete as you go — never batch completions at the end
+4. **Explain Changes:** Give a high-level summary at each step, not a line-by-line recap
+5. **Document Results:** Add a review section to `tasks/todo.md` when done
+6. **Capture Lessons:** Update `tasks/lessons.md` after any user correction
+
+---
+
+## Core Principles
+
+- **Simplicity First:** Make every change as simple as possible. Impact minimal code.
+- **No Laziness:** Find root causes. No temporary fixes. Senior developer standards.
+- **Minimal Impact:** Only touch what's necessary. No side effects, no incidental refactors.
+- **API-Only NetBox:** Never bypass the REST API. No pynetbox, no direct model access — `aiohttp` only.
+- **No Co-Author:** Never add `Co-Authored-By: Claude` or any Claude/Anthropic co-authorship trailer to git commits.
+- **No Self-Promotion:** Never add "Generated with Claude Code" or any Claude/Anthropic attribution to PR descriptions, commit messages, or any user-facing content.
 
 ---
 
