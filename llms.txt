@@ -1,0 +1,60 @@
+# netbox-cli — LLM Project Guide
+
+API-first NetBox client for the terminal, featuring both a CLI and a full interactive TUI. Driven by OpenAPI schema discovery.
+
+## AI Search & Discovery Tools
+- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from the NetBox OpenAPI schema (`netbox_cli/reference/openapi/netbox-openapi.json`), alongside built-in static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `tui`, `logs`, `docs`, `demo`, `dev`).
+- **Schema Indexing**: `netbox_cli/schema.py` indexes the OpenAPI bundle once to map groups, resources, and actions to API paths.
+- **Dynamic Command Resolution**: `netbox_cli/cli/` handles runtime command discovery and Typer subcommand generation.
+- **Plugin Discovery**: Automatically discovers and surfaces NetBox plugin endpoints under `/api/plugins/`.
+
+## AI Agent Entry Points
+- **AGENTS.md**: Central index for AI agents. Provides a quick start guide, directory-specific `CLAUDE.md` map, and documentation index.
+- **CLAUDE.md**: The project-wide guide located in the root. Contains the architecture diagram, data flow, contributor workflow, prompting contract, and TUI design rules.
+  - Sub-directories (e.g., `netbox_cli/`, `tests/`, `docs/`) have their own `CLAUDE.md` files with localized module maps and rules.
+
+## Documentation Index
+
+### Getting Started
+- `docs/getting-started/installation.md`: Installation via pip, uv, brew, etc.
+- `docs/getting-started/configuration.md`: Profile configuration (default/demo), environment variables, and token versions.
+- `docs/getting-started/quickstart.md`: First-run walkthrough and basic commands.
+
+### CLI Reference
+- `docs/cli/commands.md`: Reference for static (built-in) commands.
+- `docs/cli/dynamic-commands.md`: Explanation of the OpenAPI-driven dynamic command system.
+- `docs/cli/demo-profile.md`: Using the public `demo.netbox.dev` instance for zero-config testing.
+
+### TUI Reference
+- `docs/tui/index.md`: Overview of the interactive Textual interface.
+- `docs/tui/themes.md`: User documentation for the JSON-based theme system.
+- `docs/tui/keybindings.md`: Keyboard shortcut reference for the TUI.
+
+### Developer Guide
+- `docs/developer/architecture.md`: Deep dive into system architecture and data flow.
+- `docs/developer/textual-composition.md`: Guideline for React-style Textual widget composition.
+- `docs/developer/docgen.md`: Details on the documentation generation and command capture pipeline.
+
+### Design & Security
+- `reference/design/NETBOX-DARK-PATTERNS.md`: Primary visual reference for mirroring NetBox UI styles.
+- `reference/design/TOAD-DESIGN-GUIDE.md`: Secondary reference for idiomatic Textual visual language.
+- `SECURITY-GUIDE.md`: Hardening controls, URL validation, and secret storage.
+
+## Workflow Orchestration
+- **Plan Mode Default**: Enter plan mode for any non-trivial task (3+ steps, architectural decisions, or cross-cutting changes). Write specs upfront for UI changes.
+- **Subagent Strategy**: Offload codebase exploration, Textual internals research, and parallel analysis to subagents. Keep the main context clean: one subagent per investigation thread.
+- **Self-Improvement Loop**: Capture recurring correction patterns and prevention rules in session artifacts or repository-approved docs (there is no `tasks/lessons.md` file in this repo).
+- **Verification Before Done**: Programmatically or visually confirm all outputs. For TUI changes, confirm theme paths and focus states. Run `uv run pytest` before completion.
+- **Demand Elegance**: Ask if there's a more elegant way for non-trivial changes. Prefer small composable Textual widgets.
+
+## Core Rules & Workflow
+- **Prompting Workflow**: Defined in `PROMPTING-GUIDE.md`. Mandatory metaprompting process (restate objective, list assumptions, define criteria) for all non-trivial tasks.
+- **API-Only**: Use `aiohttp` for all NetBox interactions; do not use `pynetbox` or direct model access.
+- **Simplicity & Elegance**: Favor small, composable Textual widgets and minimal code impact.
+- **CLI/TUI Parity**: Every feature must be interchangeable between CLI and TUI modes.
+- **Testing**: Use `uv run pytest` and `uv run pre-commit run --all-files` for validation.
+
+## Packaging Status
+- **Repository name**: `netbox-cli`
+- **Current published package name**: `netbox-console` (temporary due PyPI naming policy)
+- **Current project version**: `0.0.3`
