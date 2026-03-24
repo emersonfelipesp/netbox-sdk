@@ -5,6 +5,12 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      publish_pypi:
+        description: "Also publish to official PyPI after TestPyPI validation"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -222,6 +228,7 @@ jobs:
 
   publish-pypi:
     name: publish to official PyPI
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_pypi == true }}
     needs:
       - prepare-release
       - publish-testpypi
@@ -274,6 +281,7 @@ jobs:
 
   validate-pypi-pre:
     name: validate PyPI pre-CI / py${{ matrix.python-version }}
+    if: ${{ needs.publish-pypi.result == 'success' }}
     needs: [prepare-release, publish-pypi]
     runs-on: ubuntu-latest
     strategy:
@@ -304,6 +312,7 @@ jobs:
 
   validate-pypi-post:
     name: validate PyPI post-CI
+    if: ${{ needs.publish-pypi.result == 'success' }}
     needs: [prepare-release, publish-pypi]
     runs-on: ubuntu-latest
     steps:
