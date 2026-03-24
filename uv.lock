@@ -868,7 +868,7 @@ wheels = [
 ]
 
 [[package]]
-name = "netbox-cli"
+name = "netbox-console"
 version = "0.0.2"
 source = { editable = "." }
 dependencies = [

@@ -28,14 +28,14 @@ uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 ## From official PyPI (recommended)
 
 ```bash
-pip install netbox-cli
+pip install netbox-console
 nbx --help
 ```
 
 If you want isolated CLI installation with `uv`:
 
 ```bash
-uv tool install --force netbox-cli
+uv tool install --force netbox-console
 nbx --help
 ```
 

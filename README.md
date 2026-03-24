@@ -41,13 +41,13 @@ nbx demo dev tui
 Install from official PyPI:
 
 ```bash
-pip install netbox-cli
+pip install netbox-console
 ```
 
 or with `uv`:
 
 ```bash
-uv tool install --force netbox-cli
+uv tool install --force netbox-console
 ```
 
 Install from a local checkout (developer workflow):

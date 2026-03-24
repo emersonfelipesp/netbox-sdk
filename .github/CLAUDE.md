@@ -72,7 +72,7 @@ Runs on:
 **Pipeline stages (gated):**
 
 1. **Prepare release artifacts**:
-   - validate package metadata (`project.name == netbox-cli`)
+   - validate package metadata (`project.name == netbox-console`)
    - validate tag/version match on tag pushes (`v<version>`)
    - build `sdist` + `wheel` once and publish as workflow artifact
 2. **Publish to TestPyPI**:
