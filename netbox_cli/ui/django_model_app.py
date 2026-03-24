@@ -157,7 +157,7 @@ class DjangoModelTuiApp(App[None]):
                 if self._version_options:
                     yield Select(
                         options=self._version_options,
-                        value=None,
+                        value=self._version_options[0][1],
                         prompt="NetBox",
                         id="version_select",
                     )
@@ -295,10 +295,9 @@ class DjangoModelTuiApp(App[None]):
 
         try:
             from netbox_cli.cli import _get_client  # noqa: PLC0415
-            from netbox_cli.cli.support import run_with_spinner  # noqa: PLC0415
 
             client = _get_client()
-            probe = run_with_spinner(client.probe_connection())
+            probe = await client.probe_connection()
             if probe.ok and probe.version:
                 self._detected_api_version = probe.version
                 matched = _match_version(probe.version, tags)
@@ -353,7 +352,7 @@ class DjangoModelTuiApp(App[None]):
 
     @on(Select.Changed, "#version_select")
     def _on_version_changed(self, event: Select.Changed) -> None:
-        if event.value is None or not isinstance(event.value, str):
+        if event.value in (None, Select.BLANK) or not isinstance(event.value, str):
             return
         self._active_version = event.value
         self._load_version(event.value)
