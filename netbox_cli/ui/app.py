@@ -137,6 +137,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._results_spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
         self._results_spinner_index = 0
         self._results_spinner_timer: Timer | None = None
+        self._results_loading_active = False
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
@@ -855,17 +856,24 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self.query_one("#results_status", Static).update(text)
 
     def _results_spinner_tick(self, label: str) -> None:
+        if not self._results_loading_active:
+            return
         frame = self._results_spinner_frames[
             self._results_spinner_index % len(self._results_spinner_frames)
         ]
         self._results_spinner_index += 1
-        self.query_one("#results_loading_spinner", Static).update(frame)
-        self.query_one("#results_loading_text", Static).update(label)
+        try:
+            self.query_one("#results_loading_spinner", Static).update(frame)
+            self.query_one("#results_loading_text", Static).update(label)
+        except NoMatches:
+            # Widget removed between timer scheduling and tick — safe to skip.
+            self._results_loading_active = False
 
     def _set_results_loading(self, label: str) -> None:
         self._stop_results_loading()
         overlay = self.query_one("#results_loading_overlay", Vertical)
         self._results_spinner_index = 0
+        self._results_loading_active = True
         overlay.remove_class("hidden")
         self._results_spinner_tick(label)
         self._results_spinner_timer = self.set_interval(
@@ -877,6 +885,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._set_status(label)
 
     def _stop_results_loading(self) -> None:
+        self._results_loading_active = False
         if self._results_spinner_timer is not None:
             self._results_spinner_timer.stop()
             self._results_spinner_timer = None
