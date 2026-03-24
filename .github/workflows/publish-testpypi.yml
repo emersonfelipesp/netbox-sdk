@@ -1,0 +1,65 @@
+name: Publish to TestPyPI
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish-testpypi:
+    name: build + publish / TestPyPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Validate package metadata
+        run: |
+          python - <<'PY'
+          import pathlib
+          import tomllib
+
+          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          project_name = data["project"]["name"]
+          if project_name != "netbox-cli":
+              raise SystemExit(
+                  f"Expected project name 'netbox-cli' in pyproject.toml, got {project_name!r}"
+              )
+          print(f"Package name OK: {project_name}")
+          PY
+
+      - name: Build distribution artifacts
+        run: uv run --with build python -m build
+
+      - name: Publish to TestPyPI
+        env:
+          TEST_PYPI_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
+          TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
+          TEST_PYPI_REPOSITORY_URL: ${{ secrets.TEST_PYPI_REPOSITORY_URL }}
+        run: |
+          if [ -z "${TEST_PYPI_USERNAME:-}" ] || [ -z "${TEST_PYPI_TOKEN:-}" ] || [ -z "${TEST_PYPI_REPOSITORY_URL:-}" ]; then
+            echo "Missing required TestPyPI secrets: TEST_PYPI_USERNAME, TEST_PYPI_TOKEN, TEST_PYPI_REPOSITORY_URL"
+            exit 1
+          fi
+
+          REPOSITORY_URL="${TEST_PYPI_REPOSITORY_URL%/}/legacy/"
+
+          uv run --with twine python -m twine upload \
+            --non-interactive \
+            --username "$TEST_PYPI_USERNAME" \
+            --password "$TEST_PYPI_TOKEN" \
+            --repository-url "$REPOSITORY_URL" \
+            dist/*
