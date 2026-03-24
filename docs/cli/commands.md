@@ -96,6 +96,36 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 
 ---
 
+## `nbx graphql QUERY`
+
+Execute a GraphQL query against the NetBox API.
+
+```bash
+# Simple query
+nbx graphql "{ sites { name } }"
+
+# Query with variables
+nbx graphql "query($id: Int!) { device(id: $id) { name } }" --variables '{"id": 1}'
+
+# Query with key=value variables
+nbx graphql "query($name: String!) { devices(name: $name) { id } }" --variables name=sw01
+
+# Output as JSON
+nbx graphql "{ sites { name } }" --json
+```
+
+**Options**
+
+| Flag | Description |
+|------|-------------|
+| `--variables` / `-v TEXT` | GraphQL variables as JSON string or `key=value` pairs |
+| `--json` | Output raw JSON instead of formatted table |
+| `--yaml` | Output as YAML |
+
+The GraphQL endpoint is available at `/api/graphql/` on all NetBox instances.
+
+---
+
 ## `nbx tui`
 
 Launch the interactive Textual TUI.

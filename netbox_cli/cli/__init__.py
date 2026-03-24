@@ -249,6 +249,37 @@ def operations_command(
     console.print(table)
 
 
+@app.command("graphql")
+def graphql_command(
+    query: str = typer.Argument(..., help="GraphQL query string"),
+    variables: str | None = typer.Option(
+        None,
+        "--variables",
+        "-v",
+        help="GraphQL variables as JSON string or key=value pairs",
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+) -> None:
+    """Execute a GraphQL query against the NetBox API."""
+    client = _get_client()
+
+    vars_dict: dict[str, Any] | None = None
+    if variables:
+        if "=" in variables:
+            vars_dict = parse_key_value_pairs([variables])
+        else:
+            vars_dict = json.loads(variables)
+
+    response = run_with_spinner(client.graphql(query, vars_dict))
+    print_response(
+        response.status,
+        response.text,
+        as_json=output_json,
+        as_yaml=output_yaml,
+    )
+
+
 @app.command("call")
 def call_command(
     method: str = typer.Argument(...),

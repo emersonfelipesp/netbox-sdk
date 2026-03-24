@@ -65,10 +65,18 @@ def _handle_dynamic_invocation(
         as_markdown,
         trace,
         trace_only,
+        select_path,
+        columns,
+        max_columns,
+        dry_run,
     ) = _parse_dynamic_options(option_args)
     resolve_output_format(as_json=as_json, as_yaml=as_yaml, as_markdown=as_markdown)
     if trace and trace_only:
         raise typer.BadParameter("Use either --trace or --trace-only, not both.")
+    if dry_run and action.lower() not in {"create", "update", "patch", "delete"}:
+        raise typer.BadParameter(
+            "--dry-run is only supported for write operations (create, update, patch, delete)"
+        )
     response = _execute_dynamic_action(
         group=group,
         resource=resource,
@@ -77,17 +85,27 @@ def _handle_dynamic_invocation(
         query_pairs=query_pairs,
         body_json=body_json,
         body_file=body_file,
+        select_path=select_path,
+        columns=columns,
+        max_columns=max_columns,
+        dry_run=dry_run,
         client=client_factory(),
         index=index_factory(),
     )
     if not trace_only:
-        print_response(
-            response.status,
-            response.text,
-            as_json=as_json,
-            as_yaml=as_yaml,
-            as_markdown=as_markdown,
-        )
+        if response is None:
+            pass
+        else:
+            print_response(
+                response.status,
+                response.text,
+                as_json=as_json,
+                as_yaml=as_yaml,
+                as_markdown=as_markdown,
+                select_path=select_path,
+                columns=columns,
+                max_columns=max_columns,
+            )
     if trace or trace_only:
         print_trace_output(
             group=group,
@@ -101,7 +119,21 @@ def _handle_dynamic_invocation(
 
 def _parse_dynamic_options(
     args: list[str],
-) -> tuple[int | None, list[str], str | None, str | None, bool, bool, bool, bool, bool]:
+) -> tuple[
+    int | None,
+    list[str],
+    str | None,
+    str | None,
+    bool,
+    bool,
+    bool,
+    bool,
+    bool,
+    str | None,
+    list[str] | None,
+    int,
+    bool,
+]:
     object_id: int | None = None
     query_pairs: list[str] = []
     body_json: str | None = None
@@ -111,6 +143,10 @@ def _parse_dynamic_options(
     as_markdown: bool = False
     trace: bool = False
     trace_only: bool = False
+    select_path: str | None = None
+    columns: list[str] | None = None
+    max_columns: int = 6
+    dry_run: bool = False
 
     i = 0
     while i < len(args):
@@ -159,6 +195,33 @@ def _parse_dynamic_options(
             trace_only = True
             i += 1
             continue
+        if token == "--select":
+            if i + 1 >= len(args):
+                raise typer.BadParameter("--select requires a value")
+            select_path = args[i + 1]
+            i += 2
+            continue
+        if token == "--columns":
+            if i + 1 >= len(args):
+                raise typer.BadParameter("--columns requires a comma-separated list")
+            columns = [c.strip() for c in args[i + 1].split(",") if c.strip()]
+            i += 2
+            continue
+        if token == "--max-columns":
+            if i + 1 >= len(args):
+                raise typer.BadParameter("--max-columns requires a number")
+            try:
+                max_columns = int(args[i + 1])
+                if max_columns < 1:
+                    raise typer.BadParameter("--max-columns must be at least 1")
+            except ValueError:
+                raise typer.BadParameter("--max-columns must be a number")
+            i += 2
+            continue
+        if token == "--dry-run":
+            dry_run = True
+            i += 1
+            continue
         raise typer.BadParameter(f"Unknown option: {token}")
 
     return (
@@ -171,6 +234,10 @@ def _parse_dynamic_options(
         as_markdown,
         trace,
         trace_only,
+        select_path,
+        columns,
+        max_columns,
+        dry_run,
     )
 
 
@@ -183,9 +250,36 @@ def _execute_dynamic_action(
     query_pairs: list[str],
     body_json: str | None,
     body_file: str | None,
+    select_path: str | None = None,
+    columns: list[str] | None = None,
+    max_columns: int = 6,
+    dry_run: bool = False,
     client: NetBoxApiClient | None = None,
     index: SchemaIndex | None = None,
 ) -> Any:
+    action_lower = action.lower()
+    write_actions = {"create", "update", "patch", "delete"}
+
+    if dry_run and action_lower in write_actions:
+        from ..services import load_json_payload, resolve_dynamic_request
+        from .support import print_dry_run
+
+        resolved = resolve_dynamic_request(
+            index or _get_index(),
+            group,
+            resource,
+            action,
+            object_id=object_id,
+            query={},
+            payload=None,
+        )
+        body = load_json_payload(body_json, body_file)
+        return print_dry_run(
+            method=resolved.method,
+            path=resolved.path,
+            body=body,
+        )
+
     return run_with_spinner(
         _run_dynamic_command(
             client=client or _get_client(),
@@ -262,6 +356,20 @@ def _build_action_command(
             "--trace-only",
             help="Render only the cable trace ASCII output when supported.",
         ),
+        select_path: str | None = typer.Option(
+            None, "--select", help="JSON dot-path to extract specific field from response"
+        ),
+        columns: str | None = typer.Option(
+            None, "--columns", help="Comma-separated list of columns to display"
+        ),
+        max_columns: int = typer.Option(
+            6, "--max-columns", help="Maximum number of columns to display"
+        ),
+        dry_run: bool = typer.Option(
+            False,
+            "--dry-run",
+            help="Preview write operation without executing (create/update/patch/delete only)",
+        ),
     ) -> None:
         if requires_id and object_id is None:
             raise typer.BadParameter("--id is required for this action")
@@ -277,8 +385,15 @@ def _build_action_command(
         if (trace or trace_only) and action != "get":
             raise typer.BadParameter("--trace and --trace-only are only supported for get actions")
 
+        write_actions = {"create", "update", "patch", "delete"}
+        if dry_run and action.lower() not in write_actions:
+            raise typer.BadParameter(
+                "--dry-run is only supported for write operations (create, update, patch, delete)"
+            )
+
         client = client_factory()
         index = index_factory()
+        columns_list = [c.strip() for c in columns.split(",")] if columns else None
         response = _execute_dynamic_action(
             group=group,
             resource=resource,
@@ -287,17 +402,27 @@ def _build_action_command(
             query_pairs=query or [],
             body_json=body_json,
             body_file=body_file,
+            select_path=select_path,
+            columns=columns_list,
+            max_columns=max_columns,
+            dry_run=dry_run,
             client=client,
             index=index,
         )
         if not trace_only:
-            print_response(
-                response.status,
-                response.text,
-                as_json=output_json,
-                as_yaml=output_yaml,
-                as_markdown=output_markdown,
-            )
+            if response is None:
+                pass
+            else:
+                print_response(
+                    response.status,
+                    response.text,
+                    as_json=output_json,
+                    as_yaml=output_yaml,
+                    as_markdown=output_markdown,
+                    select_path=select_path,
+                    columns=columns_list,
+                    max_columns=max_columns,
+                )
         if trace or trace_only:
             print_trace_output(
                 group=group,
