@@ -45,7 +45,7 @@ def _cell_text(value: Any) -> str:
     if isinstance(value, str):
         return sanitize_terminal_text(value)
     if isinstance(value, (dict, list)):
-        return _compact_json(value)
+        return sanitize_terminal_text(_compact_json(value))
     return sanitize_terminal_text(str(value))
 
 
