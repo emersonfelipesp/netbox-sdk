@@ -58,3 +58,32 @@ Runs on:
 | `DEMO_PASSWORD` | demo.netbox.dev account password |
 
 **Important:** Do NOT use `if:` conditions to check secrets in GitHub Actions YAML — it causes "workflow file issue" errors. Always guard with shell-level `[ -z ]` after exporting secrets as `env:` variables.
+
+---
+
+### `workflows/publish-testpypi.yml` — Build & Publish to TestPyPI
+
+Runs on:
+- Manual `workflow_dispatch`
+- Push tags matching `v*`
+
+**Permissions:** `contents: read`
+
+**Steps:**
+
+1. **Checkout** repository
+2. **Set up Python 3.13**
+3. **Set up uv**
+4. **Validate package metadata** — fails if `project.name` in `pyproject.toml` is not `netbox-cli`
+5. **Build artifacts** — `sdist` + `wheel` via `python -m build`
+6. **Publish** — Twine upload to TestPyPI legacy endpoint with `--skip-existing` (safe reruns)
+7. **Smoke test install** — installs `netbox-cli==<project version>` using:
+   - `--index-url https://test.pypi.org/simple/`
+   - `--extra-index-url https://pypi.org/simple/`
+
+**Required repository secrets:**
+| Secret | Value |
+|---|---|
+| `TEST_PYPI_USERNAME` | usually `__token__` |
+| `TEST_PYPI_TOKEN` | TestPyPI API token |
+| `TEST_PYPI_REPOSITORY_URL` | `https://test.pypi.org/` |

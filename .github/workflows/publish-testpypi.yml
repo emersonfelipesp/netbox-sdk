@@ -59,7 +59,26 @@ jobs:
 
           uv run --with twine python -m twine upload \
             --non-interactive \
+            --skip-existing \
             --username "$TEST_PYPI_USERNAME" \
             --password "$TEST_PYPI_TOKEN" \
             --repository-url "$REPOSITORY_URL" \
             dist/*
+
+      - name: Smoke test install from TestPyPI
+        run: |
+          VERSION="$(python - <<'PY'
+          import pathlib
+          import tomllib
+          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          print(data["project"]["version"])
+          PY
+          )"
+
+          python -m venv /tmp/nbx-testpypi-venv
+          source /tmp/nbx-testpypi-venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install \
+            --index-url https://test.pypi.org/simple/ \
+            --extra-index-url https://pypi.org/simple/ \
+            "netbox-cli==$VERSION"
