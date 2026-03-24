@@ -1434,7 +1434,7 @@ async def test_nav_tree_selection_populates_results_table(mock_client, real_inde
 @pytest.mark.asyncio
 async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real_index):
     async def _slow_request(*args, **kwargs):
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.5)  # Longer delay for CI stability
         return _list_response(FAKE_DEVICES)
 
     mock_client.request = AsyncMock(side_effect=_slow_request)
