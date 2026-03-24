@@ -8,6 +8,8 @@ imports ``_RUNTIME_CONFIGS`` by name stays in sync automatically.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from contextvars import ContextVar
 from copy import deepcopy
 
 import typer
@@ -55,6 +57,21 @@ def _get_client_for_config(cfg: Config) -> NetBoxApiClient:
 def _get_demo_client() -> NetBoxApiClient:
     logger.debug("creating demo profile api client")
     return _get_client_for_config(_ensure_demo_runtime_config())
+
+
+def _default_dev_http_client_factory() -> NetBoxApiClient:
+    return _get_client()
+
+
+_dev_http_client_factory_ctx: ContextVar[Callable[[], NetBoxApiClient]] = ContextVar(
+    "_dev_http_client_factory_ctx",
+    default=_default_dev_http_client_factory,
+)
+
+
+def dev_http_api_client() -> NetBoxApiClient:
+    """Return the NetBox client for ``nbx dev http`` / ``nbx demo dev http``."""
+    return _dev_http_client_factory_ctx.get()()
 
 
 def _verify_runtime_config(cfg: Config, *, context: str) -> None:

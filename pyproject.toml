@@ -24,6 +24,8 @@ dev = [
   "pre-commit>=4.0.0",
   "pytest>=8.0.0",
   "pytest-asyncio>=0.23.0",
+  "pytest-timeout>=2.3.0",
+  "pytest-xdist>=3.5.0",
   "ruff>=0.11.0",
 ]
 docs = [
@@ -35,6 +37,8 @@ dev = [
   "pre-commit>=4.0.0",
   "pytest>=8.0.0",
   "pytest-asyncio>=0.23.0",
+  "pytest-timeout>=2.3.0",
+  "pytest-xdist>=3.5.0",
   "ruff>=0.11.0",
 ]
 docs = [
@@ -58,6 +62,8 @@ netbox_cli = ["*.tcss", "themes/*.json", "reference/openapi/*.json"]
 pythonpath = ["."]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+addopts = "--tb=short -n auto"
+timeout = 60
 
 [tool.ruff]
 target-version = "py311"

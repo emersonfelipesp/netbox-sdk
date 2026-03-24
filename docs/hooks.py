@@ -2,6 +2,13 @@
 
 One Markdown file is generated per section (e.g. ``top-level.md``, ``schema-discovery.md``).
 An ``index.md`` overview page is also written with links to every section.
+
+Each command gets up to five tabs:
+- Command — the CLI invocation
+- Output — human-readable Rich/text output
+- JSON Output — ``--json`` variant (when available)
+- YAML Output — YAML derived from JSON (when available)
+- Markdown Output — ``--markdown`` variant (when available)
 """
 
 from __future__ import annotations
@@ -41,7 +48,7 @@ def _duration_badge(seconds: float) -> str:
 def _render_section(
     section: str,
     runs: list[dict],
-    stdout_map: dict[tuple[str, str], str],
+    stdout_map: dict[tuple[str, str], dict],
 ) -> str:
     """Render a single section as a Markdown page."""
     lines: list[str] = [
@@ -57,7 +64,12 @@ def _render_section(
         truncated = run.get("truncated", False)
         notes = run.get("notes", "")
 
-        stdout = stdout_map.get((section, title), "").rstrip()
+        data = stdout_map.get((section, title), {})
+        stdout = (data.get("stdout_full") or "(empty)").rstrip()
+        stdout_json = data.get("stdout_json")
+        stdout_yaml = data.get("stdout_yaml")
+        stdout_md = data.get("stdout_markdown")
+
         cmd = "nbx " + " ".join(argv)
 
         lines.append(f"### `{title}`")
@@ -68,19 +80,50 @@ def _render_section(
             lines.append(f"    {notes}")
             lines.append("")
 
+        # ── Tab 1: Command ────────────────────────────────────────────────────
         lines.append('=== ":material-console: Command"')
         lines.append("")
         lines.append("    ```bash")
         lines.append(f"    {cmd}")
         lines.append("    ```")
         lines.append("")
+
+        # ── Tab 2: Output (human-readable) ────────────────────────────────────
         lines.append('=== ":material-text-box-outline: Output"')
         lines.append("")
         lines.append("    ```text")
-        for out_line in (stdout or "(empty)").splitlines():
+        for out_line in stdout.splitlines():
             lines.append(f"    {out_line}")
         lines.append("    ```")
         lines.append("")
+
+        # ── Tab 3: JSON Output ────────────────────────────────────────────────
+        if stdout_json:
+            lines.append('=== ":material-code-json: JSON Output"')
+            lines.append("")
+            lines.append("    ```json")
+            for json_line in stdout_json.splitlines():
+                lines.append(f"    {json_line}")
+            lines.append("    ```")
+            lines.append("")
+
+        # ── Tab 4: YAML Output ────────────────────────────────────────────────
+        if stdout_yaml:
+            lines.append('=== ":material-file-document-outline: YAML Output"')
+            lines.append("")
+            lines.append("    ```yaml")
+            for yaml_line in stdout_yaml.splitlines():
+                lines.append(f"    {yaml_line}")
+            lines.append("    ```")
+            lines.append("")
+
+        # ── Tab 5: Markdown Output ────────────────────────────────────────────
+        if stdout_md:
+            lines.append('=== ":material-language-markdown: Markdown Output"')
+            lines.append("")
+            for md_line in stdout_md.splitlines():
+                lines.append(f"    {md_line}")
+            lines.append("")
 
         badge_exit = _badge(exit_code)
         badge_dur = _duration_badge(elapsed)
@@ -126,16 +169,21 @@ def _build_command_examples() -> None:
     netbox_url = meta.get("netbox_url", "https://demo.netbox.dev")
     token_ok = meta.get("token_configured", False)
 
-    # Build a lookup from (section, title) → full stdout
+    # Build a lookup from (section, title) → full stdout data (dict with all formats)
     raw_files = sorted(_RAW_DIR.glob("*.json"))
-    stdout_map: dict[tuple[str, str], str] = {}
+    stdout_map: dict[tuple[str, str], dict] = {}
     for f in raw_files:
         if f.name == "index.json":
             continue
         try:
             d = json.loads(f.read_text(encoding="utf-8"))
             key = (d.get("section", ""), d.get("title", ""))
-            stdout_map[key] = _strip_ansi(d.get("stdout_full", ""))
+            stdout_map[key] = {
+                "stdout_full": _strip_ansi(d.get("stdout_full", "")),
+                "stdout_json": d.get("stdout_json"),
+                "stdout_yaml": d.get("stdout_yaml"),
+                "stdout_markdown": d.get("stdout_markdown"),
+            }
         except (json.JSONDecodeError, KeyError):
             continue
 

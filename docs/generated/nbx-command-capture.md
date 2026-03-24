@@ -4,10 +4,10 @@ This file is **machine-generated**. Regenerate with:
 
 ```bash
 cd /path/to/netbox-cli
-pip install -e .   # once
-nbx docs generate-capture            # demo profile (default)
-nbx docs generate-capture --live     # default profile (real NetBox)
-# or: python docs/generate_command_docs.py
+uv sync --group docs --group dev   # once
+uv run nbx docs generate-capture            # demo profile (default)
+uv run nbx docs generate-capture --live     # default profile (real NetBox)
+# or: uv run python docs/generate_command_docs.py
 ```
 
 Run the capture **in the background** (log + pid):
@@ -18,7 +18,7 @@ Run the capture **in the background** (log + pid):
 
 ## Generation metadata
 
-- **UTC time:** `2026-03-21T00:34:43.457455+00:00`
+- **UTC time:** `2026-03-23T19:36:19.521095+00:00`
 - **Profile used:** **demo profile** (`nbx demo …` commands → demo.netbox.dev)
 - **Effective NetBox URL:** `https://demo.netbox.dev`
 - **Effective timeout (s):** `30`
@@ -40,43 +40,40 @@ Run the capture **in the background** (log + pid):
 nbx --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.357`
+**Exit code:** `0`  ·  **Wall time (s):** `1.922`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot [OPTIONS] COMMAND [ARGS]...[0m[1m                                       [0m[1m [0m
-[1m                                                                                [0m
- NetBox API-first CLI/TUI. Dynamic command form: nbx [1;33m<group>[0m [1;33m<resource>[0m         
- [1;33m<action>[0m                                                                       
                                                                                 
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m          Show this message and exit.                                  [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
-[2m╭─[0m[2m Commands [0m[2m──────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36minit          [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mconfig        [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mgroups        [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mresources     [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mops           [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mcall          [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mtui           [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mdocs          [0m[1;36m [0m Generate reference documentation (captured CLI               [2m│[0m
-[2m│[0m [1;36m               [0m input/output).                                               [2m│[0m
-[2m│[0m [1;36mdemo          [0m[1;36m [0m NetBox demo.netbox.dev profile and command tree.             [2m│[0m
-[2m│[0m [1;36mcircuits      [0m[1;36m [0m OpenAPI app group: circuits                                  [2m│[0m
-[2m│[0m [1;36mcore          [0m[1;36m [0m OpenAPI app group: core                                      [2m│[0m
-[2m│[0m [1;36mdcim          [0m[1;36m [0m OpenAPI app group: dcim                                      [2m│[0m
-[2m│[0m [1;36mextras        [0m[1;36m [0m OpenAPI app group: extras                                    [2m│[0m
-[2m│[0m [1;36mipam          [0m[1;36m [0m OpenAPI app group: ipam                                      [2m│[0m
-[2m│[0m [1;36mplugins       [0m[1;36m [0m OpenAPI app group: plugins                                   [2m│[0m
-[2m│[0m [1;36mtenancy       [0m[1;36m [0m OpenAPI app group: tenancy                                   [2m│[0m
-[2m│[0m [1;36musers         [0m[1;36m [0m OpenAPI app group: users                                     [2m│[0m
-[2m│[0m [1;36mvirtualization[0m[1;36m [0m OpenAPI app group: virtualization                            [2m│[0m
-[2m│[0m [1;36mvpn           [0m[1;36m [0m OpenAPI app group: vpn                                       [2m│[0m
-[2m│[0m [1;36mwireless      [0m[1;36m [0m OpenAPI app group: wireless                                  [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+ Usage: root [OPTIONS] COMMAND [ARGS]...                                        
+                                                                                
+ NetBox API-first CLI/TUI. Dynamic command form: nbx <group> <resource>         
+ <action>                                                                       
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ init            Create or update the default NetBox CLI profile.             │
+│ config          Show the current default profile configuration.              │
+│ groups          List all available OpenAPI app groups.                       │
+│ resources       List resources available within a group.                     │
+│ ops             Show available HTTP operations for a resource.               │
+│ call            Call an arbitrary NetBox API path.                           │
+│ tui             Launch the interactive NetBox terminal UI.                   │
+│ logs            Show recent application logs from the shared on-disk log     │
+│                 file.                                                        │
+│ cli             CLI utilities: interactive command builder and helpers.      │
+│ docs            Generate reference documentation (captured CLI               │
+│                 input/output).                                               │
+│ demo            NetBox demo.netbox.dev profile and command tree.             │
+│ dev             Developer-focused tools and experimental interfaces.         │
+│ circuits        OpenAPI app group: circuits           
+
+… (truncated by character limit)
 ```
 
 ---
@@ -89,23 +86,20 @@ nbx --help
 nbx init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.290`
+**Exit code:** `0`  ·  **Wall time (s):** `1.953`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot init [OPTIONS][0m[1m                                                    [0m[1m [0m
-[1m                                                                                [0m
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [31m*[0m  [1;36m-[0m[1;36m-base[0m[1;36m-url[0m            [1;33mTEXT [0m  NetBox base URL, e.g.                        [2m│[0m
-[2m│[0m                                 https://netbox.example.com                   [2m│[0m
-[2m│[0m                                 [2;31m[required]                                  [0m [2m│[0m
-[2m│[0m [31m*[0m  [1;36m-[0m[1;36m-token[0m[1;36m-key[0m           [1;33mTEXT [0m  NetBox API token key [2;31m[required][0m              [2m│[0m
-[2m│[0m [31m*[0m  [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m        [1;33mTEXT [0m  NetBox API token secret [2;31m[required][0m           [2m│[0m
-[2m│[0m    [1;36m-[0m[1;36m-timeout[0m             [1;33mFLOAT[0m  HTTP timeout in seconds [2m[default: 30.0][0m      [2m│[0m
-[2m│[0m    [1;36m-[0m[1;36m-help[0m                [1;33m     [0m  Show this message and exit.                  [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+                                                                                
+ Usage: root init [OPTIONS]                                                     
+                                                                                
+ Create or update the default NetBox CLI profile.                               
+                                                                                
+
+… (10 more lines truncated)
 ```
 
 ---
@@ -118,15 +112,20 @@ nbx init --help
 nbx config --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.287`
+**Exit code:** `0`  ·  **Wall time (s):** `1.932`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root config [OPTIONS]                                                   
+                                                                                
+ Show the current default profile configuration.                                
+                                                                                
+
+… (5 more lines truncated)
 ```
 
 ---
@@ -139,15 +138,20 @@ NetBox host (example: https://netbox.example.com):
 nbx groups --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.381`
+**Exit code:** `0`  ·  **Wall time (s):** `1.999`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root groups [OPTIONS]                                                   
+                                                                                
+ List all available OpenAPI app groups.                                         
+                                                                                
+
+… (4 more lines truncated)
 ```
 
 ---
@@ -160,15 +164,20 @@ NetBox host (example: https://netbox.example.com):
 nbx resources --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.307`
+**Exit code:** `0`  ·  **Wall time (s):** `1.841`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root resources [OPTIONS] GROUP                                          
+                                                                                
+ List resources available within a group.                                       
+                                                                                
+
+… (7 more lines truncated)
 ```
 
 ---
@@ -181,15 +190,20 @@ NetBox host (example: https://netbox.example.com):
 nbx ops --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.322`
+**Exit code:** `0`  ·  **Wall time (s):** `1.711`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root ops [OPTIONS] GROUP RESOURCE                                       
+                                                                                
+ Show available HTTP operations for a resource.                                 
+                                                                                
+
+… (8 more lines truncated)
 ```
 
 ---
@@ -202,15 +216,20 @@ NetBox host (example: https://netbox.example.com):
 nbx call --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.319`
+**Exit code:** `0`  ·  **Wall time (s):** `1.878`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root call [OPTIONS] METHOD PATH                                         
+                                                                                
+ Call an arbitrary NetBox API path.                                             
+                                                                                
+
+… (15 more lines truncated)
 ```
 
 ---
@@ -223,21 +242,20 @@ NetBox host (example: https://netbox.example.com):
 nbx tui --help
 ```
 
-*Launches the full Textual TUI when invoked without flags. --help shown here only.*
+**Exit code:** `0`  ·  **Wall time (s):** `1.677`
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.305`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot tui [OPTIONS][0m[1m                                                     [0m[1m [0m
-[1m                                                                                [0m
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-theme[0m          Theme selector. Use '[1;36m-[0m[1;36m-theme[0m' to list available themes or   [2m│[0m
-[2m│[0m                  '[1;36m-[0m[1;36m-theme[0m [1;33m<name>[0m' to launch with one.                        [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m           Show this message and exit.                                 [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+                                                                                
+ Usage: root tui [OPTIONS]                                                      
+                                                                                
+ Launch the interactive NetBox terminal UI.                                     
+                                                                                
+
+… (6 more lines truncated)
 ```
 
 ---
@@ -250,16 +268,20 @@ nbx tui --help
 nbx tui --theme
 ```
 
-*Lists available themes without launching the TUI.*
+**Exit code:** `0`  ·  **Wall time (s):** `1.852`
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.305`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
 Available themes:
-- default
 - dracula
+- netbox-dark
+- netbox-light
+- onedark-pro
+
+… (1 more lines truncated)
 ```
 
 ---
@@ -272,23 +294,20 @@ Available themes:
 nbx docs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.353`
+**Exit code:** `0`  ·  **Wall time (s):** `1.909`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot docs [OPTIONS] COMMAND [ARGS]...[0m[1m                                  [0m[1m [0m
-[1m                                                                                [0m
+                                                                                
+ Usage: root docs [OPTIONS] COMMAND [ARGS]...                                   
+                                                                                
  Generate reference documentation (captured CLI input/output).                  
                                                                                 
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m          Show this message and exit.                                  [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
-[2m╭─[0m[2m Commands [0m[2m──────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36mgenerate-capture[0m[1;36m [0m Capture every nbx command (input + output) and write       [2m│[0m
-[2m│[0m [1;36m                 [0m docs/generated/nbx-command-capture.md.                     [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+… (8 more lines truncated)
 ```
 
 ---
@@ -301,35 +320,428 @@ nbx docs --help
 nbx docs generate-capture --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.313`
+**Exit code:** `0`  ·  **Wall time (s):** `1.947`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot docs generate-capture [OPTIONS][0m[1m                                   [0m[1m [0m
-[1m                                                                                [0m
+                                                                                
+ Usage: root docs generate-capture [OPTIONS]                                    
+                                                                                
  Capture every nbx command (input + output) and write                           
  docs/generated/nbx-command-capture.md.                                         
                                                                                 
- [2mBy default live-API specs run through ``nbx demo …`` (demo.netbox.dev).[0m        
- [2mPass ``[0m[1;2;36m-[0m[1;2;36m-live[0m[2m`` to run them against your configured default profile instead.[0m   
+ By default live-API specs run through ``nbx demo …`` (demo.netbox.dev).        
+ Pass ``--live`` to run them against your configured default profile instead.   
                                                                                 
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-output[0m     [1;32m-o[0m      [1;33mPATH   [0m  Markdown destination. Default:                 [2m│[0m
-[2m│[0m                               [1;33m<repo>[0m/docs/generated/nbx-command-capture.md   [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-raw[0m[1;36m-dir[0m            [1;33mPATH   [0m  Raw JSON artifacts directory. Default:         [2m│[0m
-[2m│[0m                               [1;33m<repo>[0m/docs/generated/raw/                     [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-max[0m[1;36m-lines[0m          [1;33mINTEGER[0m  Max lines per command output in the Markdown.  [2m│[0m
-[2m│[0m                               [2m[default: 200]                               [0m  [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-max[0m[1;36m-chars[0m          [1;33mINTEGER[0m  Max chars per command output in the Markdown.  [2m│[0m
-[2m│[0m                               [2m[default: 120000]                            [0m  [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-live[0m               [1;33m       [0m  Use the default profile (your real NetBox)     [2m│[0m
-[2m│[0m                               instead of the demo profile. By default the    [2m│[0m
-[2m│[0m                               generator captures live-API specs against      [2m│[0m
-[2m│[0m                               demo.netbox.dev.                               [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m               [1;33m       [0m  Show this message and exit.                    [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --output       -o                   PATH                Markdown             │
+│                                                         destination.         │
+│                                                         Default:             │
+│                                                         <repo>/docs/generat… │
+│ --raw-dir                           PATH                Raw JSON artifacts   │
+│                                                         directory. Default:  │
+│                                                         <repo>/docs/generat… │
+│ --max-lines                         INTEGER             Max lines per        │
+│                                                         command output in    │
+│                                                         the Markdown.        │
+│                                                         [default: 200]       │
+│ --max-chars                         INTEGER             Max chars per        │
+│                                                         command output in    │
+│                                                         the Markdown.        │
+│                                                       
+
+… (truncated by character limit)
+```
+
+---
+
+## Logs Viewer
+
+### nbx logs --help
+
+**Input:**
+
+```bash
+nbx logs --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.878`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root logs [OPTIONS]                                                     
+                                                                                
+ Show recent application logs from the shared on-disk log file.                 
+                                                                                
+
+… (9 more lines truncated)
+```
+
+---
+
+## Developer Tools
+
+### nbx dev --help
+
+**Input:**
+
+```bash
+nbx dev --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.816`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev [OPTIONS] COMMAND [ARGS]...                                    
+                                                                                
+ Developer-focused tools and experimental interfaces.                           
+                                                                                
+
+… (9 more lines truncated)
+```
+
+---
+
+### nbx dev tui --help
+
+**Input:**
+
+```bash
+nbx dev tui --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.797`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev tui [OPTIONS]                                                  
+                                                                                
+ Launch the developer request workbench TUI.                                    
+                                                                                
+
+… (6 more lines truncated)
+```
+
+---
+
+### nbx dev tui --theme
+
+**Input:**
+
+```bash
+nbx dev tui --theme
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.529`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+Available themes:
+- dracula
+- netbox-dark
+- netbox-light
+- onedark-pro
+
+… (1 more lines truncated)
+```
+
+---
+
+### nbx dev http --help
+
+**Input:**
+
+```bash
+nbx dev http --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.762`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http [OPTIONS] COMMAND [ARGS]...                               
+                                                                                
+ Direct HTTP operations mapped from OpenAPI paths (nbx dev http <method> --path 
+ ...).                                                                          
+
+… (14 more lines truncated)
+```
+
+---
+
+### nbx dev http get --help
+
+**Input:**
+
+```bash
+nbx dev http get --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.765`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http get [OPTIONS]                                             
+                                                                                
+ GET a list or detail endpoint. Use --id for a single object.                   
+                                                                                
+
+… (14 more lines truncated)
+```
+
+---
+
+### nbx dev http post --help
+
+**Input:**
+
+```bash
+nbx dev http post --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.990`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http post [OPTIONS]                                            
+                                                                                
+ POST to create a new object.                                                   
+                                                                                
+
+… (16 more lines truncated)
+```
+
+---
+
+### nbx dev http put --help
+
+**Input:**
+
+```bash
+nbx dev http put --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.012`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http put [OPTIONS]                                             
+                                                                                
+ PUT to fully replace an existing object. Requires --id.                        
+                                                                                
+
+… (16 more lines truncated)
+```
+
+---
+
+### nbx dev http patch --help
+
+**Input:**
+
+```bash
+nbx dev http patch --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.870`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http patch [OPTIONS]                                           
+                                                                                
+ PATCH to partially update an existing object. Requires --id.                   
+                                                                                
+
+… (16 more lines truncated)
+```
+
+---
+
+### nbx dev http delete --help
+
+**Input:**
+
+```bash
+nbx dev http delete --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.936`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http delete [OPTIONS]                                          
+                                                                                
+ DELETE an object by ID. Requires --id.                                         
+                                                                                
+
+… (10 more lines truncated)
+```
+
+---
+
+### nbx dev http paths --help
+
+**Input:**
+
+```bash
+nbx dev http paths --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.863`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http paths [OPTIONS] [SEARCH]                                  
+                                                                                
+ List all OpenAPI paths from the bundled NetBox schema.                         
+                                                                                
+
+… (10 more lines truncated)
+```
+
+---
+
+### nbx dev http ops --help
+
+**Input:**
+
+```bash
+nbx dev http ops --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.743`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root dev http ops [OPTIONS]                                             
+                                                                                
+ Show available HTTP operations for a specific OpenAPI path.                    
+                                                                                
+
+… (5 more lines truncated)
+```
+
+---
+
+### nbx dev http paths
+
+**Input:**
+
+```bash
+nbx dev http paths
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.144`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                  312 path(s)                                   
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+┃ Path                                                     ┃ Methods           ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+│ /api/authentication-check/                               │ GET               │
+│ /api/circuits/circuit-group-assignments/                 │ DELETE, GET,      │
+│                                                          │ PATCH, POST, PUT  │
+│ /api/circuits/circuit-group-assignments/{id}/            │ DELETE, GET,      │
+│                                                          │ PATCH, PUT        │
+│ /api/circuits/circuit-groups/                            │ DELETE, GET,      │
+│                                                          │ PATCH, POST, PUT  │
+│ /api/circuits/circuit-groups/{id}/                       │ DELETE, GET,      │
+│                                                          │ PATCH, PUT        │
+│ /api/circuits/circuit-terminations/                      │ DELETE, GET,      │
+│                                                          │ PATCH, POST, PUT  │
+│ /api/circuits/circuit-terminations/{id}/                 │ DELETE, GET,      │
+│                                                          │ PATCH, PUT        │
+│ /api/circuits/circuit-terminations/{id}/paths/           │ GET               │
+│ /api/circuits/circuit-types/                             │ DELETE, GET,      │
+│                                                          │ PATCH, POST, PUT  │
+│ /api/circuits/circuit-types/{id}/                        │ DELETE, GET,      │
+│                                                          │ PATCH, PUT        │
+│ /api/circuits/circuits/                                  │ DELETE, GET,      │
+│                                                          │ PATCH, POST, PUT  │
+│ /api/circuits/circuits/{id}/                          
+
+… (truncated by character limit)
+```
+
+---
+
+### nbx dev http ops --path /api/dcim/devices/
+
+**Input:**
+
+```bash
+nbx dev http ops --path /api/dcim/devices/
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.852`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+            Operations: /api/dcim/devices/             
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Method ┃ Operation ID                     ┃ Summary ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ GET    │ dcim_devices_list                │ -       │
+
+… (5 more lines truncated)
 ```
 
 ---
@@ -344,41 +756,40 @@ nbx docs generate-capture --help
 nbx demo --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.293`
+**Exit code:** `0`  ·  **Wall time (s):** `1.890`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot demo [OPTIONS] COMMAND [ARGS]...[0m[1m                                  [0m[1m [0m
-[1m                                                                                [0m
+                                                                                
+ Usage: root demo [OPTIONS] COMMAND [ARGS]...                                   
+                                                                                
  NetBox demo.netbox.dev profile and command tree.                               
                                                                                 
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-key[0m           [1;33mTEXT[0m  Set the demo profile directly without            [2m│[0m
-[2m│[0m                             Playwright.                                      [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m        [1;33mTEXT[0m  Set the demo profile directly without            [2m│[0m
-[2m│[0m                             Playwright.                                      [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m                [1;33m    [0m  Show this message and exit.                      [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
-[2m╭─[0m[2m Commands [0m[2m──────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36minit          [0m[1;36m [0m Authenticate with demo.netbox.dev via Playwright and save    [2m│[0m
-[2m│[0m [1;36m               [0m the demo profile.                                            [2m│[0m
-[2m│[0m [1;36mconfig        [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mreset         [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mtui           [0m[1;36m [0m                                                              [2m│[0m
-[2m│[0m [1;36mcircuits      [0m[1;36m [0m OpenAPI app group: circuits                                  [2m│[0m
-[2m│[0m [1;36mcore          [0m[1;36m [0m OpenAPI app group: core                                      [2m│[0m
-[2m│[0m [1;36mdcim          [0m[1;36m [0m OpenAPI app group: dcim                                      [2m│[0m
-[2m│[0m [1;36mextras        [0m[1;36m [0m OpenAPI app group: extras                                    [2m│[0m
-[2m│[0m [1;36mipam          [0m[1;36m [0m OpenAPI app group: ipam                                      [2m│[0m
-[2m│[0m [1;36mplugins       [0m[1;36m [0m OpenAPI app group: plugins                                   [2m│[0m
-[2m│[0m [1;36mtenancy       [0m[1;36m [0m OpenAPI app group: tenancy                                   [2m│[0m
-[2m│[0m [1;36musers         [0m[1;36m [0m OpenAPI app group: users                                     [2m│[0m
-[2m│[0m [1;36mvirtualization[0m[1;36m [0m OpenAPI app group: virtualization                            [2m│[0m
-[2m│[0m [1;36mvpn           [0m[1;36m [0m OpenAPI app group: vpn                                       [2m│[0m
-[2m│[0m [1;36mwireless      [0m[1;36m [0m OpenAPI app group: wireless                                  [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --token-key           TEXT  Set the demo profile directly without            │
+│                             Playwright.                                      │
+│ --token-secret        TEXT  Set the demo profile directly without            │
+│                             Playwright.                                      │
+│ --help                      Show this message and exit.                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ init            Authenticate with demo.netbox.dev via Playwright and save    │
+│                 the demo profile.                                            │
+│ config          Show the configured demo profile settings.                   │
+│ test            Test connectivity to demo.netbox.dev using the configured    │
+│                 demo profile.                                                │
+│ reset           Remove the saved demo profile configuration.                 │
+│ tui             Launch the TUI against the demo profile.                     │
+│ cli             CLI builder tools against the demo.netbox.dev profile.       │
+│ dev             Developer-focused tools against the demo.netbox.dev profile. │
+│ circuits        OpenAPI app group: circuits                                  │
+│ core            OpenAPI app group: core                                      │
+│ dcim            OpenAPI app group: dcim               
+
+… (truncated by character limit)
 ```
 
 ---
@@ -391,35 +802,20 @@ nbx demo --help
 nbx demo init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.297`
+**Exit code:** `0`  ·  **Wall time (s):** `1.858`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot demo init [OPTIONS][0m[1m                                               [0m[1m [0m
-[1m                                                                                [0m
+                                                                                
+ Usage: root demo init [OPTIONS]                                                
+                                                                                
  Authenticate with demo.netbox.dev via Playwright and save the demo profile.    
                                                                                 
- [2mPass ``[0m[1;2;36m-[0m[1;2;36m-username[0m[2m`` and ``[0m[1;2;36m-[0m[1;2;36m-password[0m[2m`` for non-interactive / CI use.[0m           
- [2mAlternatively, supply an existing token directly with ``[0m[1;2;36m-[0m[1;2;36m-token[0m[1;2;36m-key[0m[2m`` and[0m      
- [2m``[0m[1;2;36m-[0m[1;2;36m-token[0m[1;2;36m-secret[0m[2m`` to skip Playwright entirely.[0m                                
-                                                                                
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-headless[0m          [1;35m-[0m[1;35m-headed[0m    [1;33m    [0m  Run Playwright headless (default). Use [2m│[0m
-[2m│[0m                                       [1;36m-[0m[1;36m-headed[0m only when a desktop/X server  [2m│[0m
-[2m│[0m                                       is available.                          [2m│[0m
-[2m│[0m                                       [2m[default: headless]                   [0m [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-username[0m      [1;32m-u[0m              [1;33mTEXT[0m  demo.netbox.dev username. Prompted     [2m│[0m
-[2m│[0m                                       interactively when omitted.            [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-password[0m      [1;32m-p[0m              [1;33mTEXT[0m  demo.netbox.dev password. Prompted     [2m│[0m
-[2m│[0m                                       interactively when omitted.            [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-key[0m                     [1;33mTEXT[0m  Set the demo profile directly without  [2m│[0m
-[2m│[0m                                       Playwright (requires [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m).  [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-token[0m[1;36m-secret[0m                  [1;33mTEXT[0m  Set the demo profile directly without  [2m│[0m
-[2m│[0m                                       Playwright (requires [1;36m-[0m[1;36m-token[0m[1;36m-key[0m).     [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m                          [1;33m    [0m  Show this message and exit.            [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+
+… (20 more lines truncated)
 ```
 
 ---
@@ -432,18 +828,202 @@ nbx demo init --help
 nbx demo config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.403`
+**Exit code:** `0`  ·  **Wall time (s):** `1.973`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-[1m                                                                                [0m
-[1m [0m[1;33mUsage: [0m[1mroot demo config [OPTIONS][0m[1m                                             [0m[1m [0m
-[1m                                                                                [0m
-[2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
-[2m│[0m [1;36m-[0m[1;36m-show[0m[1;36m-token[0m          Include API token in output                            [2m│[0m
-[2m│[0m [1;36m-[0m[1;36m-help[0m                Show this message and exit.                            [2m│[0m
-[2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+                                                                                
+ Usage: root demo config [OPTIONS]                                              
+                                                                                
+ Show the configured demo profile settings.                                     
+                                                                                
+
+… (5 more lines truncated)
+```
+
+---
+
+### nbx demo test --help
+
+**Input:**
+
+```bash
+nbx demo test --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.729`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root demo test [OPTIONS]                                                
+                                                                                
+ Test connectivity to demo.netbox.dev using the configured demo profile.        
+                                                                                
+
+… (4 more lines truncated)
+```
+
+---
+
+### nbx demo reset --help
+
+**Input:**
+
+```bash
+nbx demo reset --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.786`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root demo reset [OPTIONS]                                               
+                                                                                
+ Remove the saved demo profile configuration.                                   
+                                                                                
+
+… (4 more lines truncated)
+```
+
+---
+
+### nbx demo tui --help
+
+**Input:**
+
+```bash
+nbx demo tui --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.871`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root demo tui [OPTIONS]                                                 
+                                                                                
+ Launch the TUI against the demo profile.                                       
+                                                                                
+
+… (6 more lines truncated)
+```
+
+---
+
+### nbx demo tui --theme
+
+**Input:**
+
+```bash
+nbx demo tui --theme
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.934`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+Available themes:
+- dracula
+- netbox-dark
+- netbox-light
+- onedark-pro
+
+… (1 more lines truncated)
+```
+
+---
+
+### nbx demo dev --help
+
+**Input:**
+
+```bash
+nbx demo dev --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.009`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root demo dev [OPTIONS] COMMAND [ARGS]...                               
+                                                                                
+ Developer-focused tools against the demo.netbox.dev profile.                   
+                                                                                
+
+… (9 more lines truncated)
+```
+
+---
+
+### nbx demo dev tui --help
+
+**Input:**
+
+```bash
+nbx demo dev tui --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `1.722`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+                                                                                
+ Usage: root demo dev tui [OPTIONS]                                             
+                                                                                
+ Launch the developer request workbench TUI against the demo profile.           
+                                                                                
+
+… (6 more lines truncated)
+```
+
+---
+
+### nbx demo dev tui --theme
+
+**Input:**
+
+```bash
+nbx demo dev tui --theme
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `2.090`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
+
+**Output:**
+
+```text
+Available themes:
+- dracula
+- netbox-dark
+- netbox-light
+- onedark-pro
+
+… (1 more lines truncated)
 ```
 
 ---
@@ -458,17 +1038,20 @@ nbx demo config --help
 nbx groups
 ```
 
-*Lists all OpenAPI app groups from the local schema file. No network call.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.450`
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.367`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+circuits
+core
+dcim
+extras
+ipam
+
+… (6 more lines truncated)
 ```
 
 ---
@@ -481,17 +1064,20 @@ NetBox host (example: https://netbox.example.com):
 nbx resources dcim
 ```
 
-*Lists all resources under the 'dcim' app group.*
+**Exit code:** `0`  ·  **Wall time (s):** `1.950`
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.316`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+cable-terminations
+cables
+connected-device
+console-port-templates
+console-ports
+
+… (40 more lines truncated)
 ```
 
 ---
@@ -504,17 +1090,20 @@ NetBox host (example: https://netbox.example.com):
 nbx ops dcim devices
 ```
 
-*Lists HTTP operations (method, path, operationId) for dcim/devices.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.319`
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.321`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                  dcim/devices                                  
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Method ┃ Path                             ┃ Operation ID                     ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ DELETE │ /api/dcim/devices/               │ dcim_devices_bulk_destroy        │
+
+… (10 more lines truncated)
 ```
 
 ---
@@ -527,15 +1116,20 @@ NetBox host (example: https://netbox.example.com):
 nbx resources ipam
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.312`
+**Exit code:** `0`  ·  **Wall time (s):** `2.162`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+aggregates
+asn-ranges
+asns
+fhrp-group-assignments
+fhrp-groups
+
+… (13 more lines truncated)
 ```
 
 ---
@@ -550,17 +1144,40 @@ NetBox host (example: https://netbox.example.com):
 nbx dcim --help
 ```
 
-*Auto-generated Typer sub-app for the 'dcim' OpenAPI group.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.014`
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.308`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root dcim [OPTIONS] COMMAND [ARGS]...                                   
+                                                                                
+ OpenAPI app group: dcim                                                        
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ cable-terminations             Resource: dcim/cable-terminations             │
+│ cables                         Resource: dcim/cables                         │
+│ connected-device               Resource: dcim/connected-device               │
+│ console-port-templates         Resource: dcim/console-port-templates         │
+│ console-ports                  Resource: dcim/console-ports                  │
+│ console-server-port-templates  Resource: dcim/console-server-port-templates  │
+│ console-server-ports           Resource: dcim/console-server-ports           │
+│ device-bay-templates           Resource: dcim/device-bay-templates           │
+│ device-bays                    Resource: dcim/device-bays                    │
+│ device-roles                   Resource: dcim/device-roles                   │
+│ device-types                   Resource: dcim/device-types                   │
+│ devices                        Resource: dcim/devices                        │
+│ front-port-templates           Resource: dcim/front-port-templates           │
+│ front-ports                    Resource: dcim/front-ports                    │
+│ interface-templates            Resource: dcim/interface-templates            │
+│ interfaces                     Resource: dcim/interfac
+
+… (truncated by character limit)
 ```
 
 ---
@@ -573,17 +1190,20 @@ NetBox host (example: https://netbox.example.com):
 nbx dcim devices --help
 ```
 
-*Auto-generated Typer sub-app for dcim/devices.*
+**Exit code:** `0`  ·  **Wall time (s):** `1.913`
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.309`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root dcim devices [OPTIONS] COMMAND [ARGS]...                           
+                                                                                
+ Resource: dcim/devices                                                         
+                                                                                
+
+… (12 more lines truncated)
 ```
 
 ---
@@ -596,15 +1216,20 @@ NetBox host (example: https://netbox.example.com):
 nbx dcim devices list --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.303`
+**Exit code:** `0`  ·  **Wall time (s):** `2.860`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root dcim devices list [OPTIONS]                                        
+                                                                                
+ list dcim/devices                                                              
+                                                                                
+
+… (16 more lines truncated)
 ```
 
 ---
@@ -617,15 +1242,20 @@ NetBox host (example: https://netbox.example.com):
 nbx ipam prefixes --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.295`
+**Exit code:** `0`  ·  **Wall time (s):** `2.888`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root ipam prefixes [OPTIONS] COMMAND [ARGS]...                          
+                                                                                
+ Resource: ipam/prefixes                                                        
+                                                                                
+
+… (12 more lines truncated)
 ```
 
 ---
@@ -638,17 +1268,20 @@ NetBox host (example: https://netbox.example.com):
 nbx dcim interfaces get --help
 ```
 
-*Shows ``--trace`` and ``--trace-only`` flags available on ``get`` actions.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.243`
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.304`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root dcim interfaces get [OPTIONS]                                      
+                                                                                
+ get dcim/interfaces                                                            
+                                                                                
+
+… (16 more lines truncated)
 ```
 
 ---
@@ -661,15 +1294,20 @@ NetBox host (example: https://netbox.example.com):
 nbx circuits circuit-terminations get --help
 ```
 
-**Exit code:** `1`  ·  **Wall time (s):** `1.298`
+**Exit code:** `0`  ·  **Wall time (s):** `2.472`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
-NetBox endpoint configuration is required.
-NetBox host (example: https://netbox.example.com): 
---- stderr ---
-[31mAborted.[0m
+                                                                                
+ Usage: root circuits circuit-terminations get [OPTIONS]                        
+                                                                                
+ get circuits/circuit-terminations                                              
+                                                                                
+
+… (16 more lines truncated)
 ```
 
 ---
@@ -681,220 +1319,25 @@ NetBox host (example: https://netbox.example.com):
 **Input:**
 
 ```bash
-nbx demo dcim devices list
+nbx demo dcim devices list --markdown
 ```
 
-*Runs against demo.netbox.dev using the configured demo profile. Returns real data when the demo token is valid; 401/403 otherwise.*
+**Exit code:** `0`  ·  **Wall time (s):** `3.459`
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.321`
-
-*Output truncated for this doc (max 200 lines / 120000 chars).*
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
 Status: 200
-                                  79 result(s)                                  
-┏━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━┓
-┃ ID  ┃ Name     ┃ Display  ┃ Status ┃ Role     ┃ Site    ┃ Location ┃ Tenant  ┃
-┡━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━┩
-│ 27  │ dmi01-ak │ dmi01-ak │ Active │ PDU (ID  │ DM-Akro │ —        │ Dunder- │
-│     │ ron-pdu0 │ ron-pdu0 │        │ 5)       │ n (ID   │          │ Mifflin │
-│     │ 1        │ 1        │        │          │ 2)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 1   │ dmi01-ak │ dmi01-ak │ Active │ Router   │ DM-Akro │ —        │ Dunder- │
-│     │ ron-rtr0 │ ron-rtr0 │        │ (ID 1)   │ n (ID   │          │ Mifflin │
-│     │ 1        │ 1        │        │          │ 2)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 14  │ dmi01-ak │ dmi01-ak │ Active │ Access   │ DM-Akro │ —        │ Dunder- │
-│     │ ron-sw01 │ ron-sw01 │        │ Switch   │ n (ID   │          │ Mifflin │
-│     │          │          │        │ (ID 4)   │ 2)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 34  │ dmi01-al │ dmi01-al │ Active │ PDU (ID  │ DM-Alba │ —        │ Dunder- │
-│     │ bany-pdu │ bany-pdu │        │ 5)       │ ny (ID  │          │ Mifflin │
-│     │ 01       │ 01       │        │          │ 3)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 2   │ dmi01-al │ dmi01-al │ Active │ Router   │ DM-Alba │ —        │ Dunder- │
-│     │ bany-rtr │ bany-rtr │        │ (ID 1)   │ ny (ID  │          │ Mifflin │
-│     │ 01       │ 01       │        │          │ 3)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 15  │ dmi01-al │ dmi01-al │ Active │ Access   │ DM-Alba │ —        │ Dunder- │
-│     │ bany-sw0 │ bany-sw0 │        │ Switch   │ ny (ID  │          │ Mifflin │
-│     │ 1        │ 1        │        │ (ID 4)   │ 3)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 35  │ dmi01-bi │ dmi01-bi │ Active │ PDU (ID  │ DM-Bing │ —        │ Dunder- │
-│     │ nghamton │ nghamton │        │ 5)       │ hamton  │          │ Mifflin │
-│     │ -pdu01   │ -pdu01   │        │          │ (ID 4)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 3   │ dmi01-bi │ dmi01-bi │ Active │ Router   │ DM-Bing │ —        │ Dunder- │
-│     │ nghamton │ nghamton │        │ (ID 1)   │ hamton  │          │ Mifflin │
-│     │ -rtr01   │ -rtr01   │        │          │ (ID 4)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 16  │ dmi01-bi │ dmi01-bi │ Active │ Access   │ DM-Bing │ —        │ Dunder- │
-│     │ nghamton │ nghamton │        │ Switch   │ hamton  │          │ Mifflin │
-│     │ -sw01    │ -sw01    │        │ (ID 4)   │ (ID 4)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 36  │ dmi01-bu │ dmi01-bu │ Active │ PDU (ID  │ DM-Buff │ —        │ Dunder- │
-│     │ ffalo-pd │ ffalo-pd │        │ 5)       │ alo (ID │          │ Mifflin │
-│     │ u01      │ u01      │        │          │ 5)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 4   │ dmi01-bu │ dmi01-bu │ Active │ Router   │ DM-Buff │ —        │ Dunder- │
-│     │ ffalo-rt │ ffalo-rt │        │ (ID 1)   │ alo (ID │          │ Mifflin │
-│     │ r01      │ r01      │        │          │ 5)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 17  │ dmi01-bu │ dmi01-bu │ Active │ Access   │ DM-Buff │ —        │ Dunder- │
-│     │ ffalo-sw │ ffalo-sw │        │ Switch   │ alo (ID │          │ Mifflin │
-│     │ 01       │ 01       │        │ (ID 4)   │ 5)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 37  │ dmi01-ca │ dmi01-ca │ Active │ PDU (ID  │ DM-Camd │ —        │ Dunder- │
-│     │ mden-pdu │ mden-pdu │        │ 5)       │ en (ID  │          │ Mifflin │
-│     │ 01       │ 01       │        │          │ 6)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 5   │ dmi01-ca │ dmi01-ca │ Active │ Router   │ DM-Camd │ —        │ Dunder- │
-│     │ mden-rtr │ mden-rtr │        │ (ID 1)   │ en (ID  │          │ Mifflin │
-│     │ 01       │ 01       │        │          │ 6)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 18  │ dmi01-ca │ dmi01-ca │ Active │ Access   │ DM-Camd │ —        │ Dunder- │
-│     │ mden-sw0 │ mden-sw0 │        │ Switch   │ en (ID  │          │ Mifflin │
-│     │ 1        │ 1        │        │ (ID 4)   │ 6)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 38  │ dmi01-na │ dmi01-na │ Active │ PDU (ID  │ DM-Nash │ —        │ Dunder- │
-│     │ shua-pdu │ shua-pdu │        │ 5)       │ ua (ID  │          │ Mifflin │
-│     │ 01       │ 01       │        │          │ 7)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 6   │ dmi01-na │ dmi01-na │ Active │ Router   │ DM-Nash │ —        │ Dunder- │
-│     │ shua-rtr │ shua-rtr │        │ (ID 1)   │ ua (ID  │          │ Mifflin │
-│     │ 01       │ 01       │        │          │ 7)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 19  │ dmi01-na │ dmi01-na │ Active │ Access   │ DM-Nash │ —        │ Dunder- │
-│     │ shua-sw0 │ shua-sw0 │        │ Switch   │ ua (ID  │          │ Mifflin │
-│     │ 1        │ 1        │        │ (ID 4)   │ 7)      │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 39  │ dmi01-pi │ dmi01-pi │ Active │ PDU (ID  │ DM-Pitt │ —        │ Dunder- │
-│     │ ttsfield │ ttsfield │        │ 5)       │ sfield  │          │ Mifflin │
-│     │ -pdu01   │ -pdu01   │        │          │ (ID 8)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 7   │ dmi01-pi │ dmi01-pi │ Active │ Router   │ DM-Pitt │ —        │ Dunder- │
-│     │ ttsfield │ ttsfield │        │ (ID 1)   │ sfield  │          │ Mifflin │
-│     │ -rtr01   │ -rtr01   │        │          │ (ID 8)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 20  │ dmi01-pi │ dmi01-pi │ Active │ Access   │ DM-Pitt │ —        │ Dunder- │
-│     │ ttsfield │ ttsfield │        │ Switch   │ sfield  │          │ Mifflin │
-│     │ -sw01    │ -sw01    │        │ (ID 4)   │ (ID 8)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 40  │ dmi01-ro │ dmi01-ro │ Active │ PDU (ID  │ DM-Roch │ —        │ Dunder- │
-│     │ chester- │ chester- │        │ 5)       │ ester   │          │ Mifflin │
-│     │ pdu01    │ pdu01    │        │          │ (ID 9)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 8   │ dmi01-ro │ dmi01-ro │ Active │ Router   │ DM-Roch │ —        │ Dunder- │
-│     │ chester- │ chester- │        │ (ID 1)   │ ester   │          │ Mifflin │
-│     │ rtr01    │ rtr01    │        │          │ (ID 9)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 21  │ dmi01-ro │ dmi01-ro │ Active │ Access   │ DM-Roch │ —        │ Dunder- │
-│     │ chster-s │ chster-s │        │ Switch   │ ester   │          │ Mifflin │
-│     │ w01      │ w01      │        │ (ID 4)   │ (ID 9)  │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 41  │ dmi01-sc │ dmi01-sc │ Active │ PDU (ID  │ DM-Scra │ —        │ Dunder- │
-│     │ ranton-p │ ranton-p │        │ 5)       │ nton    │          │ Mifflin │
-│     │ du01     │ du01     │        │          │ (ID 10) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 9   │ dmi01-sc │ dmi01-sc │ Active │ Router   │ DM-Scra │ —        │ Dunder- │
-│     │ ranton-r │ ranton-r │        │ (ID 1)   │ nton    │          │ Mifflin │
-│     │ tr01     │ tr01     │        │          │ (ID 10) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 22  │ dmi01-sc │ dmi01-sc │ Active │ Access   │ DM-Scra │ —        │ Dunder- │
-│     │ ranton-s │ ranton-s │        │ Switch   │ nton    │          │ Mifflin │
-│     │ w01      │ w01      │        │ (ID 4)   │ (ID 10) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 42  │ dmi01-st │ dmi01-st │ Active │ PDU (ID  │ DM-Stam │ —        │ Dunder- │
-│     │ amford-p │ amford-p │        │ 5)       │ ford    │          │ Mifflin │
-│     │ du01     │ du01     │        │          │ (ID 11) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 10  │ dmi01-st │ dmi01-st │ Active │ Router   │ DM-Stam │ —        │ Dunder- │
-│     │ amford-r │ amford-r │        │ (ID 1)   │ ford    │          │ Mifflin │
-│     │ tr01     │ tr01     │        │          │ (ID 11) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 23  │ dmi01-st │ dmi01-st │ Active │ Access   │ DM-Stam │ —        │ Dunder- │
-│     │ amford-s │ amford-s │        │ Switch   │ ford    │          │ Mifflin │
-│     │ w01      │ w01      │        │ (ID 4)   │ (ID 11) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 43  │ dmi01-sy │ dmi01-sy │ Active │ PDU (ID  │ DM-Syra │ —        │ Dunder- │
-│     │ racuse-p │ racuse-p │        │ 5)       │ cuse    │          │ Mifflin │
-│     │ du01     │ du01     │        │          │ (ID 12) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 11  │ dmi01-sy │ dmi01-sy │ Active │ Router   │ DM-Syra │ —        │ Dunder- │
-│     │ racuse-r │ racuse-r │        │ (ID 1)   │ cuse    │          │ Mifflin │
-│     │ tr01     │ tr01     │        │          │ (ID 12) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 24  │ dmi01-sy │ dmi01-sy │ Active │ Access   │ DM-Syra │ —        │ Dunder- │
-│     │ racuse-s │ racuse-s │        │ Switch   │ cuse    │          │ Mifflin │
-│     │ w01      │ w01      │        │ (ID 4)   │ (ID 12) │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 44  │ dmi01-ut │ dmi01-ut │ Active │ PDU (ID  │ DM-Utic │ —        │ Dunder- │
-│     │ ica-pdu0 │ ica-pdu0 │        │ 5)       │ a (ID   │          │ Mifflin │
-│     │ 1        │ 1        │        │          │ 13)     │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 12  │ dmi01-ut │ dmi01-ut │ Active │ Router   │ DM-Utic │ —        │ Dunder- │
-│     │ ica-rtr0 │ ica-rtr0 │        │ (ID 1)   │ a (ID   │          │ Mifflin │
-│     │ 1        │ 1        │        │          │ 13)     │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 25  │ dmi01-ut │ dmi01-ut │ Active │ Access   │ DM-Utic │ —        │ Dunder- │
-│     │ ica-sw01 │ ica-sw01 │        │ Switch   │ a (ID   │          │ Mifflin │
-│     │          │          │        │ (ID 4)   │ 13)     │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 45  │ dmi01-yo │ dmi01-yo │ Active │ PDU (ID  │ DM-Yonk │ —        │ Dunder- │
-│     │ nkers-pd │ nkers-pd │        │ 5)       │ ers (ID │          │ Mifflin │
-│     │ u01      │ u01      │        │          │ 14)     │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 13  │ dmi01-yo │ dmi01-yo │ Active │ Router   │ DM-Yonk │ —        │ Dunder- │
-│     │ nkers-rt │ nkers-rt │        │ (ID 1)   │ ers (ID │          │ Mifflin │
-│     │ r01      │ r01      │        │          │ 14)     │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 26  │ dmi01-yo │ dmi01-yo │ Active │ Access   │ DM-Yonk │ —        │ Dunder- │
-│     │ nkers-sw │ nkers-sw │        │ Switch   │ ers (ID │          │ Mifflin │
-│     │ 01       │ 01       │        │ (ID 4)   │ 14)     │          │ , Inc.  │
-│     │          │          │        │          │         │          │ (ID 5)  │
-│ 107 │ kphb     │ kphb     │ Active │ Core     │ Butler  │ —        │ —       │
-│     │          │          │        │ Switch   │ Communi │          │         │
-│     │          │          │        │ (ID 2)   │ cations │          │         │
-│     │          │          │        │          │  (ID    │          │         │
-│     │          │          │        │          │ 24)     │          │         │
-│ 96  │ ncsu-cor │ ncsu-cor │ Active │ Core     │ MDF (ID │ Row 1    │ NC      │
-│     │ eswitch1 │ eswitch1 │        │ Switch   │ 21)     │ (ID 1)   │ State   │
-│     │          │          │        │ (ID 2)   │         │          │ Univers │
-│     │          │          │        │          │         │          │ ity (ID │
-│     │          │          │        │          │         │          │ 13)     │
-│ 97  │ ncsu-cor │ ncsu-cor │ Active │ Core     │ MDF (ID │ Row 1    │ NC      │
-│     │ eswitch2 │ eswitch2 │        │ Switch   │ 21)     │ (ID 1)   │ State   │
-│     │          │          │        │ (ID 2)   │         │          │ Univers │
-│     │          │          │        │          │         │          │ ity (ID │
-│     │          │          │        │          │         │          │ 13)     │
-│ 94  │ ncsu117- │ ncsu117- │ Active │ Distribu │ D. S.   │ —        │ NC      │
-│     │ distswit │ distswit │        │ tion     │ Weaver  │          │ State   │
-│     │ ch1      │ ch1      │        │ Switch   │ Labs    │          │ Univers │
-│     │          │          │        │ (ID 3)   │ (ID 22) │          │ ity (ID │
-│     │          │          │        │          │         │          │ 13)     │
-│ 95  │ ncsu118- │ ncsu118- │ Active │ Distribu │ Grinnel │ —        │ NC      │
-│     │ distswit │ distswit │        │ tion     │ ls Lab  │          │ State   │
-│     │ ch1      │ ch1      │        │ Switch   │ (ID 23) │          │ Univers │
-│     │          │          │        │ (ID 3)   │         │          │ ity (ID │
-│     │          │          │        │          │         │          │ 13)     │
-│ 93  │ ncsu128- │ ncsu128- │ Active │ Distribu │ Butler  │ —        │ NC      │
-│     │ distswit │ distswit │        │ tion     │ Communi │          │ State   │
-│     │ ch1      │ ch1      │        │ Switch   │ cations │          │ Univers │
-│     │          │          │        │ (ID 3)   │  (ID    │          │ ity (ID │
-│     │          │          │        │          │ 24)     │          │ 13)     │
-│ 88  │ PP:B117  │ PP:B117  │ Active │ Patch    │ MDF (ID │ —        │ NC      │
-│     │          │          │        │ Panel    │ 21)     │          │ State   │
-│     │          │          │        │ (ID 6)   │         │          │ Univers │
-│     │          │          │        │          │         │          │ ity (ID │
-│     │          │          │        │          │         │          │ 13)     │
-│ 89  │ PP:B118  │ PP:B118  │ Active │ Patch    │ MDF (ID │ —        │ NC      │
-│     │          │          │        │ Panel    │ 21)     │          │ State   │
-│     │          │          │        │ (ID 6)   │         │          │ Univers │
-│     │          │          │        │          │         │          │ ity (ID │
+| ID | Name | Display | Status | Role | Site | Location | Tenant |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 27 | dmi01-akron-pdu01 | dmi01-akron-pdu01 | {"label":"Active","value":"active"} | {"_depth":0,"description":"","device_count":0,"display":"PDU","id":5,"name":"PDU","slug":"pdu","url":"https://demo.netbox.dev/api/dcim/device-roles/5/","virtualmachine_count":0} | {"description":"","display":"DM-Akron","id":2,"name":"DM-Akron","slug":"dm-akron","url":"https://demo.netbox.dev/api/dcim/sites/2/"} | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 1 | dmi01-akron-rtr01 | dmi01-akron-rtr01 | {"label":"Active","value":"active"} | {"_depth":0,"description":"","device_count":0,"display":"Router","id":1,"name":"Router","slug":"router","url":"https://demo.netbox.dev/api/dcim/device-roles/1/","virtualmachine_count":0} | {"description":"","display":"DM-Akron","id":2,"name":"DM-Akron","slug":"dm-akron","url":"https://demo.netbox.dev/api/dcim/sites/2/"} | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 14 | dmi01-akron-sw01 | dmi01-akron-sw01 | {"label":"Active","value":"active"} | {"_depth":0,"description":"","device_count":0,"display":"Access Switch","id":4,"name":"Access Switch","slug":"access-switch","url":"https://demo.netbox.dev/api/dcim/device-roles/4/","virtualmachine_count":0} | {"description":"","display":"DM-Akron","id":2,"name":"DM-Akron","slug":"dm-akron","url":"https://demo.netbox.dev/api/dcim/sites/2/"} | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 34 | dmi01-albany-pdu01 | dmi01-albany-pdu01 | {"label":"Active","value":"active"} | {"_depth":0,"description":
 
-… (17 more lines truncated)
+… (truncated by character limit)
 ```
 
 ---
@@ -904,172 +1347,27 @@ Status: 200
 **Input:**
 
 ```bash
-nbx demo ipam prefixes list
+nbx demo ipam prefixes list --markdown
 ```
 
-*Requires a valid demo profile token.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.995`
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.069`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
 Status: 200
-                                  96 result(s)                                  
-┏━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┓
-┃ ID ┃ Display   ┃ Status    ┃ Role      ┃ Prefix     ┃ VLAN      ┃ Tenant     ┃
-┡━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━┩
-│ 1  │ 10.112.0. │ Container │ —         │ 10.112.0.0 │ —         │ Dunder-Mif │
-│    │ 0/15      │           │           │ /15        │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 2  │ 10.112.0. │ Container │ —         │ 10.112.0.0 │ —         │ Dunder-Mif │
-│    │ 0/17      │           │           │ /17        │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 3  │ 10.112.12 │ Container │ —         │ 10.112.128 │ —         │ Dunder-Mif │
-│    │ 8.0/17    │           │           │ .0/17      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 60 │ 10.112.12 │ Container │ —         │ 10.112.128 │ —         │ Dunder-Mif │
-│    │ 8.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 7  │ 10.112.12 │ Active    │ Managemen │ 10.112.128 │ —         │ Dunder-Mif │
-│    │ 8.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 8  │ 10.112.12 │ Active    │ Access -  │ 10.112.129 │ Data      │ Dunder-Mif │
-│    │ 9.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 1)        │ (ID 5)     │
-│ 9  │ 10.112.13 │ Active    │ Access -  │ 10.112.130 │ Voice     │ Dunder-Mif │
-│    │ 0.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 2)        │ (ID 5)     │
-│ 10 │ 10.112.13 │ Active    │ Access -  │ 10.112.131 │ Wireless  │ Dunder-Mif │
-│    │ 1.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 27)       │ (ID 5)     │
-│ 61 │ 10.112.13 │ Container │ —         │ 10.112.132 │ —         │ Dunder-Mif │
-│    │ 2.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 11 │ 10.112.13 │ Active    │ Managemen │ 10.112.132 │ —         │ Dunder-Mif │
-│    │ 2.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 12 │ 10.112.13 │ Active    │ Access -  │ 10.112.133 │ Data      │ Dunder-Mif │
-│    │ 3.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 3)        │ (ID 5)     │
-│ 13 │ 10.112.13 │ Active    │ Access -  │ 10.112.134 │ Voice     │ Dunder-Mif │
-│    │ 4.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 4)        │ (ID 5)     │
-│ 14 │ 10.112.13 │ Active    │ Access -  │ 10.112.135 │ Wireless  │ Dunder-Mif │
-│    │ 5.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 28)       │ (ID 5)     │
-│ 62 │ 10.112.13 │ Container │ —         │ 10.112.136 │ —         │ Dunder-Mif │
-│    │ 6.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 15 │ 10.112.13 │ Active    │ Managemen │ 10.112.136 │ —         │ Dunder-Mif │
-│    │ 6.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 16 │ 10.112.13 │ Active    │ Access -  │ 10.112.137 │ Data      │ Dunder-Mif │
-│    │ 7.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 5)        │ (ID 5)     │
-│ 17 │ 10.112.13 │ Active    │ Access -  │ 10.112.138 │ Voice     │ Dunder-Mif │
-│    │ 8.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 6)        │ (ID 5)     │
-│ 18 │ 10.112.13 │ Active    │ Access -  │ 10.112.139 │ Wireless  │ Dunder-Mif │
-│    │ 9.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 29)       │ (ID 5)     │
-│ 63 │ 10.112.14 │ Container │ —         │ 10.112.140 │ —         │ Dunder-Mif │
-│    │ 0.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 19 │ 10.112.14 │ Active    │ Managemen │ 10.112.140 │ —         │ Dunder-Mif │
-│    │ 0.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 20 │ 10.112.14 │ Active    │ Access -  │ 10.112.141 │ Data      │ Dunder-Mif │
-│    │ 1.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 7)        │ (ID 5)     │
-│ 21 │ 10.112.14 │ Active    │ Access -  │ 10.112.142 │ Voice     │ Dunder-Mif │
-│    │ 2.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 8)        │ (ID 5)     │
-│ 22 │ 10.112.14 │ Active    │ Access -  │ 10.112.143 │ Wireless  │ Dunder-Mif │
-│    │ 3.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 30)       │ (ID 5)     │
-│ 64 │ 10.112.14 │ Container │ —         │ 10.112.144 │ —         │ Dunder-Mif │
-│    │ 4.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 23 │ 10.112.14 │ Active    │ Managemen │ 10.112.144 │ —         │ Dunder-Mif │
-│    │ 4.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 24 │ 10.112.14 │ Active    │ Access -  │ 10.112.145 │ Data      │ Dunder-Mif │
-│    │ 5.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 9)        │ (ID 5)     │
-│ 25 │ 10.112.14 │ Active    │ Access -  │ 10.112.146 │ Voice     │ Dunder-Mif │
-│    │ 6.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 10)       │ (ID 5)     │
-│ 26 │ 10.112.14 │ Active    │ Access -  │ 10.112.147 │ Wireless  │ Dunder-Mif │
-│    │ 7.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 31)       │ (ID 5)     │
-│ 65 │ 10.112.14 │ Container │ —         │ 10.112.148 │ —         │ Dunder-Mif │
-│    │ 8.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 27 │ 10.112.14 │ Active    │ Managemen │ 10.112.148 │ —         │ Dunder-Mif │
-│    │ 8.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 28 │ 10.112.14 │ Active    │ Access -  │ 10.112.149 │ Data      │ Dunder-Mif │
-│    │ 9.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 11)       │ (ID 5)     │
-│ 29 │ 10.112.15 │ Active    │ Access -  │ 10.112.150 │ Voice     │ Dunder-Mif │
-│    │ 0.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 12)       │ (ID 5)     │
-│ 30 │ 10.112.15 │ Active    │ Access -  │ 10.112.151 │ Wireless  │ Dunder-Mif │
-│    │ 1.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 32)       │ (ID 5)     │
-│ 66 │ 10.112.15 │ Container │ —         │ 10.112.152 │ —         │ Dunder-Mif │
-│    │ 2.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 31 │ 10.112.15 │ Active    │ Managemen │ 10.112.152 │ —         │ Dunder-Mif │
-│    │ 2.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 32 │ 10.112.15 │ Active    │ Access -  │ 10.112.153 │ Data      │ Dunder-Mif │
-│    │ 3.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 13)       │ (ID 5)     │
-│ 33 │ 10.112.15 │ Active    │ Access -  │ 10.112.154 │ Voice     │ Dunder-Mif │
-│    │ 4.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 14)       │ (ID 5)     │
-│ 34 │ 10.112.15 │ Active    │ Access -  │ 10.112.155 │ Wireless  │ Dunder-Mif │
-│    │ 5.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 33)       │ (ID 5)     │
-│ 67 │ 10.112.15 │ Container │ —         │ 10.112.156 │ —         │ Dunder-Mif │
-│    │ 6.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 35 │ 10.112.15 │ Active    │ Managemen │ 10.112.156 │ —         │ Dunder-Mif │
-│    │ 6.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 36 │ 10.112.15 │ Active    │ Access -  │ 10.112.157 │ Data      │ Dunder-Mif │
-│    │ 7.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 15)       │ (ID 5)     │
-│ 37 │ 10.112.15 │ Active    │ Access -  │ 10.112.158 │ Voice     │ Dunder-Mif │
-│    │ 8.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 16)       │ (ID 5)     │
-│ 38 │ 10.112.15 │ Active    │ Access -  │ 10.112.159 │ Wireless  │ Dunder-Mif │
-│    │ 9.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 34)       │ (ID 5)     │
-│ 68 │ 10.112.16 │ Container │ —         │ 10.112.160 │ —         │ Dunder-Mif │
-│    │ 0.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 39 │ 10.112.16 │ Active    │ Managemen │ 10.112.160 │ —         │ Dunder-Mif │
-│    │ 0.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 40 │ 10.112.16 │ Active    │ Access -  │ 10.112.161 │ Data      │ Dunder-Mif │
-│    │ 1.0/24    │           │ Data (ID  │ .0/24      │ (100) (ID │ flin, Inc. │
-│    │           │           │ 1)        │            │ 17)       │ (ID 5)     │
-│ 41 │ 10.112.16 │ Active    │ Access -  │ 10.112.162 │ Voice     │ Dunder-Mif │
-│    │ 2.0/24    │           │ Voice (ID │ .0/24      │ (200) (ID │ flin, Inc. │
-│    │           │           │ 2)        │            │ 18)       │ (ID 5)     │
-│ 42 │ 10.112.16 │ Active    │ Access -  │ 10.112.163 │ Wireless  │ Dunder-Mif │
-│    │ 3.0/24    │           │ Wireless  │ .0/24      │ (300) (ID │ flin, Inc. │
-│    │           │           │ (ID 3)    │            │ 35)       │ (ID 5)     │
-│ 69 │ 10.112.16 │ Container │ —         │ 10.112.164 │ —         │ Dunder-Mif │
-│    │ 4.0/22    │           │           │ .0/22      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-│ 43 │ 10.112.16 │ Active    │ Managemen │ 10.112.164 │ —         │ Dunder-Mif │
-│    │ 4.0/28    │           │ t (ID 4)  │ .0/28      │           │ flin, Inc. │
-│    │           │           │           │            │           │ (ID 5)     │
-└────┴───────────┴───────────┴───────────┴────────────┴───────────┴────────────┘
+| ID | Display | Status | Role | Prefix | VLAN | Tenant |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 10.112.0.0/15 | {"label":"Container","value":"container"} | - | 10.112.0.0/15 | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 2 | 10.112.0.0/17 | {"label":"Container","value":"container"} | - | 10.112.0.0/17 | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 3 | 10.112.128.0/17 | {"label":"Container","value":"container"} | - | 10.112.128.0/17 | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 60 | 10.112.128.0/22 | {"label":"Container","value":"container"} | - | 10.112.128.0/22 | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 7 | 10.112.128.0/28 | {"label":"Active","value":"active"} | {"description":"","display":"Management","id":4,"name":"Management","slug":"management","url":"https://demo.netbox.dev/api/ipam/roles/4/"} | 10.112.128.0/28 | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 8 | 10.112.129.0/24 | {"label":"Active","value":"active"} | {"description":"","display":"Access - Data","id":1,"name":"Access - Data","slug":"access-data","url":"https://demo.netbox.dev/api/ipam/roles/1/"} | 10.112.129.0/24 | {"description":"","display":"Data (100)","id":1,"name":"Data","url":"https://demo.netbox.dev/api/ipam/vlans/1/","vid":100} | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","
+
+… (truncated by character limit)
 ```
 
 ---
@@ -1079,73 +1377,31 @@ Status: 200
 **Input:**
 
 ```bash
-nbx demo dcim sites list
+nbx demo dcim sites list --markdown
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.900`
+**Exit code:** `0`  ·  **Wall time (s):** `2.780`
+
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
 Status: 200
-                                  28 result(s)                                  
-┏━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
-┃ ID ┃ Name               ┃ Display             ┃ Status  ┃ Tenant             ┃
-┡━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
-│ 24 │ Butler             │ Butler              │ Active  │ NC State           │
-│    │ Communications     │ Communications      │         │ University (ID 13) │
-│ 22 │ D. S. Weaver Labs  │ D. S. Weaver Labs   │ Active  │ NC State           │
-│    │                    │                     │         │ University (ID 13) │
-│ 2  │ DM-Akron           │ DM-Akron            │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 3  │ DM-Albany          │ DM-Albany           │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 4  │ DM-Binghamton      │ DM-Binghamton       │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 5  │ DM-Buffalo         │ DM-Buffalo          │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 6  │ DM-Camden          │ DM-Camden           │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 7  │ DM-Nashua          │ DM-Nashua           │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 1  │ DM-NYC             │ DM-NYC              │ Retired │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 8  │ DM-Pittsfield      │ DM-Pittsfield       │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 9  │ DM-Rochester       │ DM-Rochester        │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 10 │ DM-Scranton        │ DM-Scranton         │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 11 │ DM-Stamford        │ DM-Stamford         │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 12 │ DM-Syracuse        │ DM-Syracuse         │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 13 │ DM-Utica           │ DM-Utica            │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 14 │ DM-Yonkers         │ DM-Yonkers          │ Active  │ Dunder-Mifflin,    │
-│    │                    │                     │         │ Inc. (ID 5)        │
-│ 23 │ Grinnells Lab      │ Grinnells Lab       │ Active  │ NC State           │
-│    │                    │                     │         │ University (ID 13) │
-│ 15 │ JBB Branch 104     │ JBB Branch 104      │ Active  │ Jimbob's Banking & │
-│    │                    │                     │         │ Trust (ID 10)      │
-│ 16 │ JBB Branch 109     │ JBB Branch 109      │ Active  │ Jimbob's Banking & │
-│    │                    │                     │         │ Trust (ID 10)      │
-│ 17 │ JBB Branch 115     │ JBB Branch 115      │ Active  │ Jimbob's Banking & │
-│    │                    │                     │         │ Trust (ID 10)      │
-│ 18 │ JBB Branch 120     │ JBB Branch 120      │ Active  │ Jimbob's Banking & │
-│    │                    │                     │         │ Trust (ID 10)      │
-│ 19 │ JBB Branch 127     │ JBB Branch 127      │ Active  │ Jimbob's Banking & │
-│    │                    │                     │         │ Trust (ID 10)      │
-│ 20 │ JBB Branch 133     │ JBB Branch 133      │ Active  │ Jimbob's Banking & │
-│    │                    │                     │         │ Trust (ID 10)      │
-│ 21 │ MDF                │ MDF                 │ Active  │ NC State           │
-│    │                    │                     │         │ University (ID 13) │
-│ 28 │ Outta Site         │ Outta Site          │ Active  │ —                  │
-│ 25 │ Servidor de        │ Servidor de Ignacio │ Active  │ —                  │
-│    │ Ignacio            │                     │         │                    │
-│ 26 │ ZIDRENN-SITE-A     │ ZIDRENN-SITE-A      │ Active  │ —                  │
-│ 27 │ ZIDRENN-SITE-B     │ ZIDRENN-SITE-B      │ Active  │ —                  │
-└────┴────────────────────┴─────────────────────┴─────────┴────────────────────┘
+| ID | Name | Display | Status | Tenant |
+| --- | --- | --- | --- | --- |
+| 26 | Amsterdam-DC | Amsterdam-DC | {"label":"Active","value":"active"} | - |
+| 24 | Butler Communications | Butler Communications | {"label":"Active","value":"active"} | {"description":"","display":"NC State University","id":13,"name":"NC State University","slug":"nc-state","url":"https://demo.netbox.dev/api/tenancy/tenants/13/"} |
+| 22 | D. S. Weaver Labs | D. S. Weaver Labs | {"label":"Active","value":"active"} | {"description":"","display":"NC State University","id":13,"name":"NC State University","slug":"nc-state","url":"https://demo.netbox.dev/api/tenancy/tenants/13/"} |
+| 27 | Demo site with contact | Demo site with contact | {"label":"Active","value":"active"} | - |
+| 2 | DM-Akron | DM-Akron | {"label":"Active","value":"active"} | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 3 | DM-Albany | DM-Albany | {"label":"Active","value":"active"} | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 4 | DM-Binghamton | DM-Binghamton | {"label":"Active","value":"active"} | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 5 | DM-Buffalo | DM-Buffalo | {"label":"Active","value":"active"} | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 6 | DM-Camden | DM-Camden | {"label":"Active","value":"active"} | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
+| 7 | DM-Nashua | DM-Nashua | {"
+
+… (truncated by character limit)
 ```
 
 ---
@@ -1157,147 +1413,63 @@ Status: 200
 **Input:**
 
 ```bash
-nbx demo dcim interfaces get --id 1 --trace
+nbx demo dcim interfaces get --id 1 --trace --markdown
 ```
 
-*Fetches the interface object and appends an ASCII cable trace diagram. Requires the interface to have a connected cable in demo.netbox.dev.*
+**Exit code:** `0`  ·  **Wall time (s):** `3.015`
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.037`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
 Status: 200
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Field                         ┃ Value                                        ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ ID                            │ 1                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Name                          │ GigabitEthernet0/0/0                         │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Display                       │ GigabitEthernet0/0/0                         │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Label                         │                                              │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Type                          │  Sfp (1Ge)                                   │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Device                        │ dmi01-akron-rtr01 (ID 1)                     │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Description                   │                                              │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Created                       │ 2021-04-14 00:00:00 UTC                      │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Last Updated                  │ 2021-04-14 17:36:01 UTC                      │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ URL                           │ https://demo.netbox.dev/api/dcim/interfaces/ │
-│                               │ 1/                                           │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Connected Endpoints Type      │  Circuits.Providernetwork                    │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Link Peers Type               │  Circuits.Circuittermination                 │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Poe Type                      │  —                                           │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Rf Role                       │  —                                           │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ MAC Address                   │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Primary MAC Address           │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Untagged VLAN                 │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Display URL                   │ https://demo.netbox.dev/dcim/interfaces/1/   │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Occupied                      │ Yes                                          │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Bridge                        │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Bridge Interfaces             │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Cable                         │ #7 (ID 7)                                    │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Cable End                     │ B                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Connected Endpoints           │ Level3 MPLS (ID 1)                           │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Connected Endpoints Reachable │ Yes                                          │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Count FHRP Groups             │ 0                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Count Ipaddresses             │ 0                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Custom Fields                 │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Duplex                        │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Enabled                       │ Yes                                          │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ L2VPN Termination             │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Lag                           │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Link Peers                    │ KKDG4923: Termination Z (ID 1)               │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ MAC Addresses                 │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Mark Connected                │ No                                           │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Mgmt Only                     │ No                                           │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Mode                          │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Module                        │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Mtu                           │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Owner                         │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Parent                        │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Poe Mode                      │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Qinq Svlan                    │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Rf Channel                    │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Rf Channel Frequency          │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Rf Channel Width              │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Speed                         │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Tagged Vlans                  │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Tags                          │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Tx Power                      │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Vdcs                          │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ VLAN Translation Policy       │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ VRF                           │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Wireless Lans                 │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Wireless Link                 │ —                                            │
-├───────────────────────────────┼──────────────────────────────────────────────┤
-│ Wwn                           │ —                                            │
-└───────────────────────────────┴──────────────────────────────────────────────┘
-Cable Trace:
-┌────────────────────────────────────┐
-│         dmi01-akron-rtr01          │
-│        GigabitEthernet0/0/0        │
-└────────────────────────────────────┘
-                │
-                │  Cable
-                │  Connected
-                │
-┌────────────────────────────────────┐
-│      KKDG4923: Termination Z       │
-└────────────────────────────────────┘
+| Field | Value |
+| --- | --- |
+| ID | 1 |
+| Name | GigabitEthernet0/0/0 |
+| Display | GigabitEthernet0/0/0 |
+| Label |  |
+| Type | {"label":"SFP (1GE)","value":"1000base-x-sfp"} |
+| Device | {"description":"","display":"dmi01-akron-rtr01","id":1,"name":"dmi01-akron-rtr01","url":"https://demo.netbox.dev/api/dcim/devices/1/"} |
+| Description |  |
+| URL | https://demo.netbox.dev/api/dcim/interfaces/1/ |
+| Connected Endpoints Type | circuits.providernetwork |
+| Link Peers Type | circuits.circuittermination |
+| Poe Type | - |
+| Rf Role | - |
+| MAC Address | - |
+| Primary MAC Address | - |
+| Untagged VLAN | - |
+| Display URL | https://demo.netbox.dev/dcim/interfaces/1/ |
+| Occupied | true |
+| Bridge | - |
+| Bridge Interfaces | [] |
+| Cable | {"description":"","display":"#7","id":7,"label":"","url":"https://demo.netbox.dev/api/dcim/cables/7/"} |
+| Cable End | B |
+| Connected Endpoints | [{"description":"","display":"Level3 MPLS","id":1,"name":"Level3 MPLS","url":"https://demo.netbox.dev/api/circuits/provider-networks/1/"}] |
+| Connected Endpoints Reachable | true |
+| Count FHRP Groups | 0 |
+| Count Ipaddresses | 0 |
+| Custom Fields | {} |
+| Duplex | - |
+| Enabled | true |
+| L2VPN Termination | - |
+| Lag | - |
+| Link Peers | [{"_occupied":true,"cable":{"description":"","display":"#7","id":7,"label":"","url":"https://demo.netbox.dev/api/dcim/cables/7/"},"circuit":{"cid":"KKDG4923","description":"","display":"KKDG4923","id":1,"provider":{"description":"","display":"Level 3","id":5,"name":"Level 3","slug":"level-3","url":"https://demo.netbox.dev/api/circuits/providers/5/"},"url":"https://demo.netbox.dev/api/circuits/circuits/1/"},"description":"","display":"KKDG4923: Termination Z","id":1,"term_side":"Z","url":"https://demo.netbox.dev/api/circuits/circuit-terminations/1/"}] |
+| MAC Addresses | [] |
+| Mark Connected | false |
+| Mgmt Only | false |
+| Mode | - |
+| Module | - |
+| Mtu | - |
+| Owner | - |
+| Parent | - |
+| Poe Mode | - |
+| Qinq Svlan | - |
+| Rf Channel |
 
-Trace Completed - 1 segment(s)
+… (truncated by character limit)
 ```
 
 ---
@@ -1307,12 +1479,12 @@ Trace Completed - 1 segment(s)
 **Input:**
 
 ```bash
-nbx demo dcim interfaces get --id 1 --trace-only
+nbx demo dcim interfaces get --id 1 --trace-only --markdown
 ```
 
-*Renders only the cable trace, omitting the object detail table.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.080`
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.344`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
@@ -1322,15 +1494,8 @@ Cable Trace:
 │         dmi01-akron-rtr01          │
 │        GigabitEthernet0/0/0        │
 └────────────────────────────────────┘
-                │
-                │  Cable
-                │  Connected
-                │
-┌────────────────────────────────────┐
-│      KKDG4923: Termination Z       │
-└────────────────────────────────────┘
 
-Trace Completed - 1 segment(s)
+… (9 more lines truncated)
 ```
 
 ---
@@ -1340,102 +1505,59 @@ Trace Completed - 1 segment(s)
 **Input:**
 
 ```bash
-nbx demo circuits circuit-terminations get --id 15 --trace
+nbx demo circuits circuit-terminations get --id 15 --trace --markdown
 ```
 
-*Circuit terminations also expose a ``/trace/`` endpoint. Renders the full path from the physical interface through the circuit.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.767`
 
-**Exit code:** `0`  ·  **Wall time (s):** `2.119`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
 ```text
 Status: 200
-┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Field            ┃ Value                                                     ┃
-┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ ID               │ 15                                                        │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Display          │ DEOW4921: Termination Z                                   │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Description      │                                                           │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Created          │ 2021-04-14 00:00:00 UTC                                   │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Last Updated     │ 2021-04-14 17:36:14 UTC                                   │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ URL              │ https://demo.netbox.dev/api/circuits/circuit-terminations │
-│                  │ /15/                                                      │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Termination ID   │ 14                                                        │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Xconnect ID      │                                                           │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Link Peers Type  │  Dcim.Interface                                           │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Termination Type │  Dcim.Site                                                │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Display URL      │ https://demo.netbox.dev/circuits/circuit-terminations/15/ │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Occupied         │ Yes                                                       │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Cable            │ HQ1 (ID 1)                                                │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Cable End        │ A                                                         │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Circuit          │ DEOW4921 (ID 14)                                          │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Custom Fields    │ —                                                         │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Link Peers       │ GigabitEthernet0/0/0 (ID 157)                             │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Mark Connected   │ No                                                        │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Port Speed       │ —                                                         │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Pp Info          │                                                           │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Tags             │ —                                                         │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Term Side        │ Z                                                         │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Termination      │ DM-Yonkers (ID 14)                                        │
-├──────────────────┼───────────────────────────────────────────────────────────┤
-│ Upstream Speed   │ —                                                         │
-└──────────────────┴───────────────────────────────────────────────────────────┘
+| Field | Value |
+| --- | --- |
+| ID | 15 |
+| Display | DEOW4921: Termination Z |
+| Description |  |
+| URL | https://demo.netbox.dev/api/circuits/circuit-terminations/15/ |
+| Termination ID | 14 |
+| Xconnect ID |  |
+| Link Peers Type | dcim.interface |
+| Termination Type | dcim.site |
+| Display URL | https://demo.netbox.dev/circuits/circuit-terminations/15/ |
+| Occupied | true |
+| Cable | {"description":"","display":"#1","id":1,"label":"","url":"https://demo.netbox.dev/api/dcim/cables/1/"} |
+| Cable End | A |
+| Circuit | {"cid":"DEOW4921","description":"","display":"DEOW4921","id":14,"provider":{"description":"","display":"Level 3","id":5,"name":"Level 3","slug":"level-3","url":"https://demo.netbox.dev/api/circuits/providers/5/"},"url":"https://demo.netbox.dev/api/circuits/circuits/14/"} |
+| Custom Fields | {} |
+| Link Peers | [{"_occupied":true,"cable":{"description":"","display":"#1","id":1,"label":"","url":"https://demo.netbox.dev/api/dcim/cables/1/"},"description":"","device":{"description":"","display":"dmi01-yonkers-rtr01","id":13,"name":"dmi01-yonkers-rtr01","url":"https://demo.netbox.dev/api/dcim/devices/13/"},"display":"GigabitEthernet0/0/0","id":157,"name":"GigabitEthernet0/0/0","url":"https://demo.netbox.dev/api/dcim/interfaces/157/"}] |
+| Mark Connected | false |
+| Port Speed | - |
+| Pp Info |  |
+| Tags | [] |
+| Term Side | Z |
+| Termination | {"description":"","display":"DM-Yonkers","id":14,"name":"DM-Yonkers","slug":"dm-yonkers","url":"https://demo.netbox.dev/api/dcim/sites/14/"} |
+| Upstream Speed | - |
+| Created | 2021-04-14T00:00:00Z |
+| Last Updated | 2021-04-14T17:36:14.032000Z |
 Cable Trace:
 ┌────────────────────────────────────┐
 │        dmi01-yonkers-rtr01         │
 │        GigabitEthernet0/0/0        │
 └────────────────────────────────────┘
                 │
-                │  Cable HQ1
+                │  Cable #1
                 │  Connected
                 │
                 │
                 │
                 │
 ┌────────────────────────────────────┐
-│      DEOW4921: Termination Z       │
-│          Circuit DEOW4921          │
-│              Level 3               │
-└────────────────────────────────────┘
-                ┆
-                ┆
-                ┆
-┌────────────────────────────────────┐
-│      DEOW4921: Termination A       │
-│          Circuit DEOW4921          │
-│              Level 3               │
-└────────────────────────────────────┘
-                │
-                │
-                │
-┌────────────────────────────────────┐
-│            Level3 MPLS             │
-└────────────────────────────────────┘
+│      
 
-Trace Completed - 1 segment(s)
+… (truncated by character limit)
 ```
 
 ---
@@ -1445,12 +1567,12 @@ Trace Completed - 1 segment(s)
 **Input:**
 
 ```bash
-nbx demo circuits circuit-terminations get --id 15 --trace-only
+nbx demo circuits circuit-terminations get --id 15 --trace-only --markdown
 ```
 
-*Trace-only view for a circuit termination — no object detail table.*
+**Exit code:** `0`  ·  **Wall time (s):** `2.192`
 
-**Exit code:** `0`  ·  **Wall time (s):** `1.331`
+*Output truncated for this doc (max 5 lines / 2000 chars).*
 
 **Output:**
 
@@ -1460,34 +1582,8 @@ Cable Trace:
 │        dmi01-yonkers-rtr01         │
 │        GigabitEthernet0/0/0        │
 └────────────────────────────────────┘
-                │
-                │  Cable HQ1
-                │  Connected
-                │
-                │
-                │
-                │
-┌────────────────────────────────────┐
-│      DEOW4921: Termination Z       │
-│          Circuit DEOW4921          │
-│              Level 3               │
-└────────────────────────────────────┘
-                ┆
-                ┆
-                ┆
-┌────────────────────────────────────┐
-│      DEOW4921: Termination A       │
-│          Circuit DEOW4921          │
-│              Level 3               │
-└────────────────────────────────────┘
-                │
-                │
-                │
-┌────────────────────────────────────┐
-│            Level3 MPLS             │
-└────────────────────────────────────┘
 
-Trace Completed - 1 segment(s)
+… (28 more lines truncated)
 ```
 
 ---

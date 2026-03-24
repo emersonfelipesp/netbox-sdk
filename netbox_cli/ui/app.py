@@ -34,7 +34,9 @@ from netbox_cli.logging_runtime import get_logger
 from netbox_cli.schema import SchemaIndex, parse_group_resource
 
 from .chrome import (
+    SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
+    SWITCH_TO_DJANGO_TUI,
     SWITCH_TO_MAIN_TUI,
     apply_theme,
     badge_state_for_probe,
@@ -64,7 +66,9 @@ from .widgets import ContextBreadcrumb, NbxButton, SupportModal
 TOPBAR_CLI_LABEL = "CLI"
 _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
+    ("- CLI", "cli"),
     ("- Dev", "dev"),
+    ("- Models", "django"),
 )
 logger = get_logger(__name__)
 
@@ -133,6 +137,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._results_spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
         self._results_spinner_index = 0
         self._results_spinner_timer: Timer | None = None
+        self._results_loading_active = False
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
@@ -431,6 +436,10 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             return
         if str(event.value) == "dev":
             self.exit(result=SWITCH_TO_DEV_TUI)
+        if str(event.value) == "cli":
+            self.exit(result=SWITCH_TO_CLI_TUI)
+        if str(event.value) == "django":
+            self.exit(result=SWITCH_TO_DJANGO_TUI)
 
     @on(Select.Changed, "#theme_select")
     def on_theme_changed(self, event: Select.Changed) -> None:
@@ -847,17 +856,24 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self.query_one("#results_status", Static).update(text)
 
     def _results_spinner_tick(self, label: str) -> None:
+        if not self._results_loading_active:
+            return
         frame = self._results_spinner_frames[
             self._results_spinner_index % len(self._results_spinner_frames)
         ]
         self._results_spinner_index += 1
-        self.query_one("#results_loading_spinner", Static).update(frame)
-        self.query_one("#results_loading_text", Static).update(label)
+        try:
+            self.query_one("#results_loading_spinner", Static).update(frame)
+            self.query_one("#results_loading_text", Static).update(label)
+        except NoMatches:
+            # Widget removed between timer scheduling and tick — safe to skip.
+            self._results_loading_active = False
 
     def _set_results_loading(self, label: str) -> None:
         self._stop_results_loading()
         overlay = self.query_one("#results_loading_overlay", Vertical)
         self._results_spinner_index = 0
+        self._results_loading_active = True
         overlay.remove_class("hidden")
         self._results_spinner_tick(label)
         self._results_spinner_timer = self.set_interval(
@@ -869,6 +885,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._set_status(label)
 
     def _stop_results_loading(self) -> None:
+        self._results_loading_active = False
         if self._results_spinner_timer is not None:
             self._results_spinner_timer.stop()
             self._results_spinner_timer = None
@@ -1126,6 +1143,21 @@ def run_tui(
                     next_mode = "dev"
                     next_theme = app.theme_name
                     continue
+                if result == SWITCH_TO_CLI_TUI:
+                    from .cli_tui import run_cli_tui
+
+                    run_cli_tui(
+                        client=client,
+                        index=index,
+                        theme_name=app.theme_name,
+                        demo_mode=demo_mode,
+                    )
+                    return
+                if result == SWITCH_TO_DJANGO_TUI:
+                    from .django_model_app import run_django_model_tui
+
+                    run_django_model_tui(theme_name=app.theme_name)
+                    return
                 return
 
             from .dev_app import NetBoxDevTuiApp
@@ -1136,6 +1168,11 @@ def run_tui(
                 next_mode = "main"
                 next_theme = app.theme_name
                 continue
+            if result == SWITCH_TO_DJANGO_TUI:
+                from .django_model_app import run_django_model_tui
+
+                run_django_model_tui(theme_name=app.theme_name)
+                return
             return
     except KeyboardInterrupt:
         raise SystemExit(130) from None

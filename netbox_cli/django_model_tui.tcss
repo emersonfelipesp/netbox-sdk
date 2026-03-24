@@ -1,0 +1,165 @@
+/* Django Model Inspector TUI — specific layout rules.
+   Shared foundation lives in ui_common.tcss (loaded first). */
+
+Screen {
+    layout: vertical;
+}
+
+.hidden {
+    display: none;
+}
+
+* {
+    scrollbar-background: $panel;
+    scrollbar-background-hover: $panel;
+    scrollbar-color: $primary 50%;
+    scrollbar-color-hover: $primary;
+}
+
+/* ── Shell ────────────────────────────────────────────────────────────── */
+
+#dm_shell {
+    height: 1fr;
+}
+
+#dm_sidebar {
+    width: 32;
+    min-width: 24;
+    max-width: 48;
+    background: $panel;
+    border-right: tall $primary 20%;
+    overflow: hidden scroll;
+    scrollbar-size: 1 0;
+    scrollbar-background: $surface;
+    scrollbar-background-hover: $surface;
+    scrollbar-color: $primary 30%;
+    scrollbar-color-hover: $primary 50%;
+}
+
+#dm_sidebar_title {
+    height: 3;
+    padding: 1 2;
+    content-align: center middle;
+    background: $primary 10%;
+    text-style: bold;
+    color: $primary;
+}
+
+#dm_nav_tree {
+    height: 1fr;
+    padding: 0 1;
+}
+
+#dm_help {
+    height: 3;
+    padding: 0 2;
+    content-align: left middle;
+    color: $nb-muted-text;
+}
+
+#dm_main {
+    width: 1fr;
+    padding: 0 1;
+}
+
+#dm_main_tabs {
+    height: 1fr;
+}
+
+/* ── Version selector (only widget unique to this TUI) ────────────────── */
+
+#version_select {
+    width: 20;
+    min-width: 20;
+    margin-right: 1;
+    border: none;
+    background: transparent;
+}
+
+#version_select SelectCurrent {
+    height: 3;
+    min-height: 2;
+    border: tall $nb-border-subtle;
+    color: $foreground;
+    background: transparent;
+    padding: 0 1;
+    margin: 0;
+    content-align: left middle;
+}
+
+/* ── Query bar ────────────────────────────────────────────────────────── */
+
+#query_bar {
+    width: 1fr;
+    background: $panel 50%;
+    border-bottom: tall $primary 10%;
+    padding: 0 1 1 1;
+    margin: 0 0 1 0;
+}
+
+#model_search {
+    width: 1fr;
+    height: 3;
+    margin: 0 1;
+}
+
+/* ── Content styling ─────────────────────────────────────────────────────── */
+
+/* Static widgets inside VerticalScroll containers - no overflow needed */
+#dm_diagram {
+    padding: 1 2;
+}
+
+#dm_diagram:hover {
+    background: $panel 5%;
+}
+
+#dm_source_code {
+    padding: 1 2;
+}
+
+#dm_fields {
+    padding: 1 2;
+}
+
+#dm_stats {
+    padding: 1 2;
+}
+
+/* ── Interactive elements and loading states ─────────────────────────────── */
+
+.dm-loading {
+    opacity: 0.6;
+    text-style: dim;
+}
+
+.dm-clickable-hint {
+    background: $primary 5%;
+    border-left: thick $primary 20%;
+    padding: 0 1;
+}
+
+.dm-expand-icon {
+    color: $primary;
+    text-style: bold;
+}
+
+/* ── Enhanced focus and selection states ─────────────────────────────────── */
+
+#dm_nav_tree Tree {
+    scrollbar-size: 1 1;
+    scrollbar-background: $panel;
+    scrollbar-background-hover: $panel;
+    scrollbar-color: $primary 80%;
+    scrollbar-color-hover: $primary;
+    scrollbar-color-active: $primary;
+}
+
+#dm_nav_tree .tree--cursor {
+    background: $primary 20%;
+    color: $text;
+}
+
+#dm_nav_tree .tree--cursor:focus {
+    background: $primary 30%;
+}

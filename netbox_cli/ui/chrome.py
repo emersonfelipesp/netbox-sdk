@@ -18,6 +18,8 @@ from .logo_render import build_netbox_logo
 _THEME_CATALOG: ThemeCatalog | None = None
 SWITCH_TO_MAIN_TUI = "switch-to-main-tui"
 SWITCH_TO_DEV_TUI = "switch-to-dev-tui"
+SWITCH_TO_CLI_TUI = "switch-to-cli-tui"
+SWITCH_TO_DJANGO_TUI = "switch-to-django-tui"
 
 
 def get_theme_catalog() -> ThemeCatalog:
@@ -71,6 +73,7 @@ def apply_theme(
     )
     app.refresh_css(animate=False)
     app.refresh(repaint=True, layout=True)
+    _refresh_theme_bound_widgets(app)
     state.theme_name = new_theme_name
     refresh_logo_widget(app, definition=definition, widget_id=logo_widget_id)
     if notify:
@@ -80,6 +83,26 @@ def apply_theme(
         )
         app.notify(f"Theme switched to {label}")
     return new_theme_name
+
+
+def _refresh_theme_bound_widgets(app: Any) -> None:
+    """Repaint widgets that combine TCSS with Rich styles so theme switches fully apply."""
+    for selector in (
+        "#results_table",
+        "#detail_table",
+        "#nav_tree",
+        "#global_search",
+        "#active_filters",
+        # Django Model Inspector TUI widgets
+        "#dm_diagram",
+        "#dm_source_code",
+        "#dm_fields",
+        "#dm_stats",
+    ):
+        try:
+            app.query_one(selector).refresh(repaint=True, layout=False)
+        except NoMatches:
+            continue
 
 
 def _sync_screen_theme_classes(

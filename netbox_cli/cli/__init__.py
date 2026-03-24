@@ -69,6 +69,7 @@ from .support import (
     emit_cli_error,
     format_click_exception,
     print_response,
+    resolve_output_format,
     run_with_spinner,
 )
 
@@ -110,7 +111,7 @@ def root_callback(ctx: typer.Context) -> None:
     setup_logging()
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand not in {"init", "tui", "docs", "demo", "dev", "logs"}:
+    if ctx.invoked_subcommand not in {"init", "tui", "cli", "docs", "demo", "dev", "logs"}:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
@@ -159,6 +160,52 @@ def config_command(
         payload["token_key"] = "set" if cfg.token_key else "unset"
         payload["token_secret"] = "set" if cfg.token_secret else "unset"
     typer.echo(json.dumps(payload, indent=2))
+
+
+@app.command("test")
+def test_command(
+    fetch: bool = typer.Option(
+        False,
+        "--fetch",
+        "-f",
+        help="If no matching build exists, fetch the release from GitHub and build it.",
+    ),
+) -> None:
+    """Test connectivity to your configured NetBox instance (default profile).
+
+    Also checks if a Django model graph build exists for the detected version.
+    Use --fetch to automatically clone and build from GitHub if missing.
+    """
+    from ..django_models.fetcher import (  # noqa: PLC0415
+        available_build_tags,
+        fetch_and_build,
+    )
+    from .support import run_with_spinner  # noqa: PLC0415
+
+    _ensure_runtime_config()
+    probe = run_with_spinner(_get_client().probe_connection())
+    if not probe.ok:
+        detail = probe.error or f"HTTP {probe.status}"
+        typer.echo(f"Connection failed: {detail}", err=True)
+        raise typer.Exit(code=1)
+
+    version_text = probe.version or "unknown"
+    typer.echo(f"Connection OK (status={probe.status}, api_version={version_text})")
+
+    # ── Check for matching build ──────────────────────────────────────────
+    if probe.version:
+        from ..django_models.fetcher import _match_tag  # noqa: PLC0415
+
+        tags = available_build_tags()
+        matched = _match_tag(probe.version, tags)
+        if matched:
+            typer.echo(f"Matching build found: {matched}")
+        elif fetch:
+            typer.echo(f"No build found for NetBox API {probe.version}.")
+            fetch_and_build(probe.version, confirm=True)
+        else:
+            typer.echo(f"No build found for NetBox API {probe.version}.")
+            typer.echo("Run with --fetch to clone from GitHub and build it.")
 
 
 @app.command("groups")
@@ -213,15 +260,31 @@ def call_command(
     ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """Call an arbitrary NetBox API path."""
+    resolve_output_format(
+        as_json=output_json,
+        as_yaml=output_yaml,
+        as_markdown=output_markdown,
+    )
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
     response = run_with_spinner(
         _get_client().request(method, path, query=query_dict, payload=payload)
     )
-    print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
+    print_response(
+        response.status,
+        response.text,
+        as_json=output_json,
+        as_yaml=output_yaml,
+        as_markdown=output_markdown,
+    )
 
 
 @app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
@@ -301,6 +364,25 @@ def logs_command(
     typer.echo(render_log_entries(entries, include_source=include_source))
 
 
+cli_app = typer.Typer(
+    no_args_is_help=True,
+    help="CLI utilities: interactive command builder and helpers.",
+)
+
+
+@cli_app.command("tui")
+def cli_tui_command() -> None:
+    """Launch the interactive CLI command builder TUI.
+
+    Presents a navigable menu tree (group → resource → action) that
+    progressively builds an ``nbx`` command, then executes it and
+    shows the output — all without leaving the terminal.
+    """
+    from ..ui.cli_tui import run_cli_tui  # noqa: PLC0415
+
+    run_cli_tui(client=_get_client(), index=_get_index())
+
+
 docs_app = typer.Typer(
     no_args_is_help=True,
     help="Generate reference documentation (captured CLI input/output).",
@@ -334,6 +416,22 @@ def docs_generate_capture(
             "By default the generator captures live-API specs against demo.netbox.dev."
         ),
     ),
+    markdown: bool = typer.Option(
+        True,
+        "--markdown/--no-markdown",
+        help=(
+            "Append --markdown to dynamic list/get/… and ``nbx call`` captures so tables "
+            "are plain Markdown (not Rich). Default: on."
+        ),
+    ),
+    concurrency: int = typer.Option(
+        4,
+        "--concurrency",
+        "-j",
+        min=1,
+        max=16,
+        help="Max parallel CLI captures. Higher values speed up generation but increase NetBox load.",
+    ),
 ) -> None:
     """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md.
 
@@ -356,10 +454,13 @@ def docs_generate_capture(
         max_lines=max_lines,
         max_chars=max_chars,
         use_demo=not live,
+        markdown_output=markdown,
+        max_concurrency=concurrency,
     )
     raise typer.Exit(code=code)
 
 
+app.add_typer(cli_app, name="cli")
 app.add_typer(docs_app, name="docs")
 app.add_typer(demo_app, name="demo")
 app.add_typer(dev_app, name="dev")

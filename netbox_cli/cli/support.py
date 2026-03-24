@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Callable
+from enum import StrEnum
 from typing import Any
 
 import click
@@ -14,6 +15,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ..api import NetBoxApiClient
+from ..markdown_output import render_markdown
 from ..output_safety import safe_text, sanitize_terminal_text
 from ..schema import SchemaIndex
 from ..theme_registry import ThemeCatalogError
@@ -44,6 +46,41 @@ _LIST_COLUMNS = {
     "vlan",
     "tenant",
 }
+
+
+OUTPUT_FORMAT_CONFLICT_MESSAGE = (
+    "Options --json, --yaml, and --markdown are mutually exclusive; pick one"
+)
+
+
+class OutputFormat(StrEnum):
+    HUMAN = "human"
+    JSON = "json"
+    YAML = "yaml"
+    MARKDOWN = "markdown"
+
+
+def resolve_output_format(
+    *,
+    as_json: bool = False,
+    as_yaml: bool = False,
+    as_markdown: bool = False,
+    error_factory: Callable[[str], Exception] | None = None,
+) -> OutputFormat:
+    selected: list[OutputFormat] = []
+    if as_json:
+        selected.append(OutputFormat.JSON)
+    if as_yaml:
+        selected.append(OutputFormat.YAML)
+    if as_markdown:
+        selected.append(OutputFormat.MARKDOWN)
+
+    if len(selected) > 1:
+        if error_factory is not None:
+            raise error_factory(OUTPUT_FORMAT_CONFLICT_MESSAGE)
+        raise typer.BadParameter(OUTPUT_FORMAT_CONFLICT_MESSAGE)
+
+    return selected[0] if selected else OutputFormat.HUMAN
 
 
 def emit_cli_error(message: str, *, exit_code: int = 1) -> int:
@@ -170,7 +207,13 @@ def print_response(
     *,
     as_json: bool = False,
     as_yaml: bool = False,
+    as_markdown: bool = False,
 ) -> None:
+    output_format = resolve_output_format(
+        as_json=as_json,
+        as_yaml=as_yaml,
+        as_markdown=as_markdown,
+    )
     typer.echo(f"Status: {status}")
     stripped = text.strip()
     if not stripped:
@@ -181,16 +224,20 @@ def print_response(
         typer.echo(sanitize_terminal_text(stripped))
         return
 
-    if as_json:
+    if output_format is OutputFormat.JSON:
         typer.echo(json.dumps(parsed, indent=2, sort_keys=True))
         return
 
-    if as_yaml:
+    if output_format is OutputFormat.YAML:
         typer.echo(
             yaml.dump(
                 parsed, allow_unicode=True, sort_keys=False, default_flow_style=False
             ).rstrip()
         )
+        return
+
+    if output_format is OutputFormat.MARKDOWN:
+        typer.echo(render_markdown(parsed))
         return
 
     render_table(parsed)

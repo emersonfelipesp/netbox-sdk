@@ -268,6 +268,22 @@ async def test_main_tui_support_modal_opens_sponsors_page(mock_client) -> None:
 
 
 @pytest.mark.asyncio
+async def test_main_tui_support_modal_copy_button_copies_url(mock_client) -> None:
+    app = NetBoxTuiApp(client=mock_client, index=build_schema_index(OPENAPI_PATH))
+    app.copy_to_clipboard = MagicMock()
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        app.on_support_pressed()
+        await pilot.pause()
+        await pilot.click("#support_modal_copy_url")
+        await pilot.pause()
+
+        app.copy_to_clipboard.assert_called_once_with(SPONSOR_URL)
+        app.exit()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("theme_name", ["dracula", "netbox-light", "netbox-dark"])
 async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_name) -> None:
     app = NetBoxTuiApp(
@@ -286,6 +302,7 @@ async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_n
         dialog = modal.query_one("#support_modal_dialog", object)
         title = modal.query_one("#support_modal_title", object)
         copy = modal.query_one("#support_modal_copy", object)
+        copy_url_button = modal.query_one("#support_modal_copy_url", object)
         url = modal.query_one("#support_modal_url", object)
         open_button = modal.query_one("#support_modal_open", object)
         close_button = modal.query_one("#support_modal_close", object)
@@ -295,6 +312,7 @@ async def test_main_tui_support_modal_surfaces_follow_theme(mock_client, theme_n
         assert "⭐" in str(title.content)
         assert "⭐" in str(copy.content)
         assert url.styles.color == Color.parse(theme.variables["nb-muted-text"])
+        assert copy_url_button.styles.color == Color.parse(theme.variables["nb-muted-text"])
         assert open_button.styles.background == Color.parse(theme.colors["panel"])
         assert open_button.styles.color == Color.parse(theme.colors["primary"])
         assert close_button.styles.background == Color.parse("transparent")
@@ -1416,7 +1434,7 @@ async def test_nav_tree_selection_populates_results_table(mock_client, real_inde
 @pytest.mark.asyncio
 async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real_index):
     async def _slow_request(*args, **kwargs):
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.5)  # Longer delay for CI stability
         return _list_response(FAKE_DEVICES)
 
     mock_client.request = AsyncMock(side_effect=_slow_request)
@@ -1429,23 +1447,24 @@ async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real
         assert leaf is not None
 
         app.on_nav_selected(Tree.NodeSelected(leaf))
-        await pilot.pause()
 
+        # Synchronously right after on_nav_selected the overlay must be visible.
         overlay = app.query_one("#results_loading_overlay", object)
         status = app.query_one("#results_status", Static)
         spinner = app.query_one("#results_loading_spinner", Static)
-
         assert "hidden" not in overlay.classes
         assert "-loading" in status.classes
         assert _static_text(spinner) != ""
 
-        for _ in range(10):
+        # Wait for the request to complete and loading to stop.
+        for _ in range(40):
             if "hidden" in overlay.classes:
                 break
             await pilot.pause()
 
         assert "hidden" in overlay.classes
         assert "-loading" not in status.classes
+        mock_client.request.assert_called()
 
 
 @pytest.mark.asyncio
@@ -1470,7 +1489,7 @@ async def test_nav_tree_api_error_shows_status(mock_client, real_index):
 @pytest.mark.asyncio
 async def test_results_loading_status_uses_theme_primary(mock_client, real_index):
     async def _slow_request(*args, **kwargs):
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.5)  # Longer delay for CI stability
         return _list_response(FAKE_DEVICES)
 
     mock_client.request = AsyncMock(side_effect=_slow_request)
@@ -1484,7 +1503,7 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
         tree.post_message(Tree.NodeSelected(leaf))
-        for _ in range(5):
+        for _ in range(40):  # Increased for parallel test stability
             await pilot.pause()
             status = app.query_one("#results_status", Static)
             if "-loading" in status.classes:

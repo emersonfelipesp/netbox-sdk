@@ -1,0 +1,14 @@
+{
+  "section": "Dynamic Commands",
+  "title": "nbx dcim interfaces get --help",
+  "argv": [
+    "dcim",
+    "interfaces",
+    "get",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.243,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root dcim interfaces get [OPTIONS]                                      \n                                                                                \n get dcim/interfaces                                                            \n                                                                                \n\n\u2026 (16 more lines truncated)\n"
+}

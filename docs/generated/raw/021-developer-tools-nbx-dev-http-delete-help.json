@@ -1,0 +1,14 @@
+{
+  "section": "Developer Tools",
+  "title": "nbx dev http delete --help",
+  "argv": [
+    "dev",
+    "http",
+    "delete",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.936,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root dev http delete [OPTIONS]                                          \n                                                                                \n DELETE an object by ID. Requires --id.                                         \n                                                                                \n\n\u2026 (10 more lines truncated)\n"
+}

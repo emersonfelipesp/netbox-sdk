@@ -2,6 +2,7 @@
     "name": "netbox-light",
     "label": "NetBox Light",
     "dark": false,
+    "foreground": "#111827",
     "aliases": ["light"],
     "colors": {
         "primary": "#00857D",

@@ -2,6 +2,7 @@
     "name": "dracula",
     "label": "Dracula",
     "dark": true,
+    "foreground": "#F8F8F2",
     "aliases": ["dracula-dark"],
     "colors": {
         "primary": "#BD93F9",

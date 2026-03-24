@@ -1,0 +1,14 @@
+{
+  "section": "Dynamic Commands",
+  "title": "nbx dcim devices list --help",
+  "argv": [
+    "dcim",
+    "devices",
+    "list",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.86,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root dcim devices list [OPTIONS]                                        \n                                                                                \n list dcim/devices                                                              \n                                                                                \n\n\u2026 (16 more lines truncated)\n"
+}

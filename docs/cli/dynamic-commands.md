@@ -66,7 +66,10 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 | `--body-file PATH` | Path to JSON file for request body |
 | `--json` | Output raw JSON |
 | `--yaml` | Output YAML |
+| `--markdown` | Output table-first Markdown |
 | `--trace` | Fetch and render ASCII cable trace (interfaces only, `get` only) |
+
+`--json`, `--yaml`, and `--markdown` are mutually exclusive.
 
 ---
 
@@ -110,6 +113,14 @@ Multiple `-q` flags are ANDed together.
     ```
 
     Renders the response as YAML.
+
+=== "Markdown"
+
+    ```bash
+    nbx dcim devices list --markdown
+    ```
+
+    Renders API JSON as table-first Markdown output.
 
 ---
 

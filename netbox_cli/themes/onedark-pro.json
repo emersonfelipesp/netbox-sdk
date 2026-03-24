@@ -1,0 +1,39 @@
+{
+    "name": "onedark-pro",
+    "label": "OneDark Pro",
+    "dark": true,
+    "foreground": "#ABB2BF",
+    "aliases": ["onedark", "one-dark"],
+    "colors": {
+        "primary": "#61AFEF",
+        "secondary": "#C678DD",
+        "warning": "#E5C07B",
+        "error": "#E06C75",
+        "success": "#98C379",
+        "accent": "#56B6C2",
+        "background": "#282C34",
+        "surface": "#3B414D",
+        "panel": "#4F5666",
+        "boost": "#5C6370"
+    },
+    "variables": {
+        "nb-success-text": "#98C379",
+        "nb-info-text": "#61AFEF",
+        "nb-warning-text": "#E5C07B",
+        "nb-danger-text": "#E06C75",
+        "nb-secondary-text": "#828997",
+        "nb-success-bg": "#1E2A20",
+        "nb-info-bg": "#1A2531",
+        "nb-warning-bg": "#2A2317",
+        "nb-danger-bg": "#2E1C1E",
+        "nb-secondary-bg": "#3B414D",
+        "nb-border": "#5C6370",
+        "nb-border-subtle": "#4F5666",
+        "nb-muted-text": "#5C6370",
+        "nb-link-text": "#56B6C2",
+        "nb-id-text": "#C678DD",
+        "nb-key-text": "#61AFEF",
+        "nb-logo-accent": "#61AFEF",
+        "nb-logo-wordmark": "#ABB2BF"
+    }
+}

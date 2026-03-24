@@ -83,7 +83,7 @@ run_dynamic_command()      services.py — resolves path, calls client.request()
 NetBoxApiClient.request()  api.py — async aiohttp GET with Bearer token
         │
         ▼
-_print_response()          Rich table or raw JSON/YAML
+_print_response()          Rich table or raw JSON/YAML/Markdown
 ```
 
 ---

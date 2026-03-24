@@ -1,0 +1,18 @@
+{
+  "section": "Cable Trace \u2014 demo.netbox.dev",
+  "title": "nbx demo dcim interfaces get --id 1 --trace",
+  "argv": [
+    "demo",
+    "dcim",
+    "interfaces",
+    "get",
+    "--id",
+    "1",
+    "--trace",
+    "--markdown"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.015,
+  "truncated": true,
+  "stdout_full": "Status: 200\n| Field | Value |\n| --- | --- |\n| ID | 1 |\n| Name | GigabitEthernet0/0/0 |\n| Display | GigabitEthernet0/0/0 |\n| Label |  |\n| Type | {\"label\":\"SFP (1GE)\",\"value\":\"1000base-x-sfp\"} |\n| Device | {\"description\":\"\",\"display\":\"dmi01-akron-rtr01\",\"id\":1,\"name\":\"dmi01-akron-rtr01\",\"url\":\"https://demo.netbox.dev/api/dcim/devices/1/\"} |\n| Description |  |\n| URL | https://demo.netbox.dev/api/dcim/interfaces/1/ |\n| Connected Endpoints Type | circuits.providernetwork |\n| Link Peers Type | circuits.circuittermination |\n| Poe Type | - |\n| Rf Role | - |\n| MAC Address | - |\n| Primary MAC Address | - |\n| Untagged VLAN | - |\n| Display URL | https://demo.netbox.dev/dcim/interfaces/1/ |\n| Occupied | true |\n| Bridge | - |\n| Bridge Interfaces | [] |\n| Cable | {\"description\":\"\",\"display\":\"#7\",\"id\":7,\"label\":\"\",\"url\":\"https://demo.netbox.dev/api/dcim/cables/7/\"} |\n| Cable End | B |\n| Connected Endpoints | [{\"description\":\"\",\"display\":\"Level3 MPLS\",\"id\":1,\"name\":\"Level3 MPLS\",\"url\":\"https://demo.netbox.dev/api/circuits/provider-networks/1/\"}] |\n| Connected Endpoints Reachable | true |\n| Count FHRP Groups | 0 |\n| Count Ipaddresses | 0 |\n| Custom Fields | {} |\n| Duplex | - |\n| Enabled | true |\n| L2VPN Termination | - |\n| Lag | - |\n| Link Peers | [{\"_occupied\":true,\"cable\":{\"description\":\"\",\"display\":\"#7\",\"id\":7,\"label\":\"\",\"url\":\"https://demo.netbox.dev/api/dcim/cables/7/\"},\"circuit\":{\"cid\":\"KKDG4923\",\"description\":\"\",\"display\":\"KKDG4923\",\"id\":1,\"provider\":{\"description\":\"\",\"display\":\"Level 3\",\"id\":5,\"name\":\"Level 3\",\"slug\":\"level-3\",\"url\":\"https://demo.netbox.dev/api/circuits/providers/5/\"},\"url\":\"https://demo.netbox.dev/api/circuits/circuits/1/\"},\"description\":\"\",\"display\":\"KKDG4923: Termination Z\",\"id\":1,\"term_side\":\"Z\",\"url\":\"https://demo.netbox.dev/api/circuits/circuit-terminations/1/\"}] |\n| MAC Addresses | [] |\n| Mark Connected | false |\n| Mgmt Only | false |\n| Mode | - |\n| Module | - |\n| Mtu | - |\n| Owner | - |\n| Parent | - |\n| Poe Mode | - |\n| Qinq Svlan | - |\n| Rf Channel |\n\n\u2026 (truncated by character limit)\n"
+}

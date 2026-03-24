@@ -17,11 +17,12 @@ from rich.table import Table
 from ..schema import HTTP_METHODS
 from ..services import load_json_payload, parse_key_value_pairs
 from ..theme_registry import ThemeCatalogError
-from .runtime import _get_client, _get_index
+from .runtime import _get_client, _get_index, dev_http_api_client
 from .support import (
     console,
     emit_cli_error,
     print_response,
+    resolve_output_format,
     resolve_requested_theme,
     run_with_spinner,
 )
@@ -66,6 +67,7 @@ class _DevHttpGetInput(BaseModel):
     query: list[str] = []
     output_json: bool = False
     output_yaml: bool = False
+    output_markdown: bool = False
     extra: dict[str, Any] = {}
 
     @field_validator("path")
@@ -94,8 +96,12 @@ class _DevHttpGetInput(BaseModel):
 
     @model_validator(mode="after")
     def output_exclusive(self) -> _DevHttpGetInput:
-        if self.output_json and self.output_yaml:
-            raise ValueError("--json and --yaml are mutually exclusive; pick one")
+        resolve_output_format(
+            as_json=self.output_json,
+            as_yaml=self.output_yaml,
+            as_markdown=self.output_markdown,
+            error_factory=ValueError,
+        )
         return self
 
 
@@ -107,6 +113,7 @@ class _DevHttpBodyInput(BaseModel):
     body_file: str | None = None
     output_json: bool = False
     output_yaml: bool = False
+    output_markdown: bool = False
     extra: dict[str, Any] = {}
 
     @field_validator("path")
@@ -155,8 +162,12 @@ class _DevHttpBodyInput(BaseModel):
                 json.loads(self.body_json)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"--body-json is not valid JSON: {exc}") from exc
-        if self.output_json and self.output_yaml:
-            raise ValueError("--json and --yaml are mutually exclusive; pick one")
+        resolve_output_format(
+            as_json=self.output_json,
+            as_yaml=self.output_yaml,
+            as_markdown=self.output_markdown,
+            error_factory=ValueError,
+        )
         return self
 
 
@@ -165,6 +176,7 @@ class _DevHttpDeleteInput(BaseModel):
     object_id: int
     output_json: bool = False
     output_yaml: bool = False
+    output_markdown: bool = False
 
     @field_validator("path")
     @classmethod
@@ -182,8 +194,12 @@ class _DevHttpDeleteInput(BaseModel):
 
     @model_validator(mode="after")
     def output_exclusive(self) -> _DevHttpDeleteInput:
-        if self.output_json and self.output_yaml:
-            raise ValueError("--json and --yaml are mutually exclusive; pick one")
+        resolve_output_format(
+            as_json=self.output_json,
+            as_yaml=self.output_yaml,
+            as_markdown=self.output_markdown,
+            error_factory=ValueError,
+        )
         return self
 
 
@@ -236,6 +252,7 @@ _FIELD_TO_CLI: dict[str, str] = {
     "body_file": "--body-file",
     "output_json": "--json",
     "output_yaml": "--yaml",
+    "output_markdown": "--markdown",
     "extra": "field flags",
 }
 
@@ -288,6 +305,7 @@ _DEV_HTTP_RESERVED = frozenset(
         "body-file",
         "json",
         "yaml",
+        "markdown",
         "help",
     }
 )
@@ -369,7 +387,7 @@ def _run_http(method: str, inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpD
 
     try:
         response = run_with_spinner(
-            _get_client().request(method, normalized, query=query_dict, payload=payload)
+            dev_http_api_client().request(method, normalized, query=query_dict, payload=payload)
         )
     except RuntimeError as exc:
         raise typer.BadParameter(str(exc)) from exc
@@ -387,6 +405,7 @@ def _run_http(method: str, inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpD
         response.text,
         as_json=inp.output_json,
         as_yaml=inp.output_yaml,
+        as_markdown=inp.output_markdown,
     )
 
 
@@ -400,6 +419,11 @@ def dev_http_get(
     ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """GET a list or detail endpoint. Use --id for a single object.
 
@@ -413,6 +437,7 @@ def dev_http_get(
         query=query or [],
         output_json=output_json,
         output_yaml=output_yaml,
+        output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
     _run_http("GET", inp)
@@ -429,6 +454,11 @@ def dev_http_post(
     body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON body file"),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """POST to create a new object.
 
@@ -444,6 +474,7 @@ def dev_http_post(
         body_file=body_file,
         output_json=output_json,
         output_yaml=output_yaml,
+        output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
     _run_http("POST", inp)
@@ -461,6 +492,11 @@ def dev_http_put(
     body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON body file"),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """PUT to fully replace an existing object. Requires --id.
 
@@ -476,6 +512,7 @@ def dev_http_put(
         body_file=body_file,
         output_json=output_json,
         output_yaml=output_yaml,
+        output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
     _run_http("PUT", inp)
@@ -493,6 +530,11 @@ def dev_http_patch(
     body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON body file"),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """PATCH to partially update an existing object. Requires --id.
 
@@ -508,6 +550,7 @@ def dev_http_patch(
         body_file=body_file,
         output_json=output_json,
         output_yaml=output_yaml,
+        output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
     _run_http("PATCH", inp)
@@ -519,6 +562,11 @@ def dev_http_delete(
     object_id: int = typer.Option(..., "--id", help="Object ID (required for DELETE)"),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    output_markdown: bool = typer.Option(
+        False,
+        "--markdown",
+        help="Output Markdown (mutually exclusive with --json/--yaml)",
+    ),
 ) -> None:
     """DELETE an object by ID. Requires --id."""
     inp = _validate_dev_input(
@@ -527,6 +575,7 @@ def dev_http_delete(
         object_id=object_id,
         output_json=output_json,
         output_yaml=output_yaml,
+        output_markdown=output_markdown,
     )
     _run_http("DELETE", inp)
 
@@ -639,3 +688,7 @@ def dev_tui_command(
 
 
 dev_app.add_typer(dev_http_app, name="http")
+
+from .django_model import django_model_app as _django_model_app  # noqa: E402, PLC0415
+
+dev_app.add_typer(_django_model_app, name="django-model")

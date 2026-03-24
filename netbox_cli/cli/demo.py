@@ -1,7 +1,8 @@
 """Demo command group for the nbx CLI.
 
-Registers ``nbx demo`` and its subcommands (init, config, test, reset, tui)
-that interact with the demo.netbox.dev hosted NetBox instance.
+Registers ``nbx demo`` and its subcommands (init, config, test, reset, TUI,
+OpenAPI command tree, ``demo dev http``, etc.) that target the demo.netbox.dev
+hosted NetBox instance with the same surface area as the default profile CLI.
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ from ..theme_registry import ThemeCatalogError
 from .runtime import (
     _RUNTIME_CONFIGS,
     _cache_profile,
+    _dev_http_client_factory_ctx,
     _ensure_demo_runtime_config,
     _get_client_for_config,
     _get_demo_client,
@@ -45,6 +47,25 @@ demo_dev_app = typer.Typer(
     add_completion=False,
     context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
     help="Developer-focused tools against the demo.netbox.dev profile.",
+    no_args_is_help=True,
+)
+
+
+@demo_dev_app.callback()
+def _demo_dev_profile(ctx: typer.Context) -> None:
+    """Route ``nbx demo dev http`` through the demo profile API client."""
+    token = _dev_http_client_factory_ctx.set(_get_demo_client)
+
+    def _reset_factory() -> None:
+        _dev_http_client_factory_ctx.reset(token)
+
+    ctx.call_on_close(_reset_factory)
+
+
+demo_cli_app = typer.Typer(
+    add_completion=False,
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+    help="CLI builder tools against the demo.netbox.dev profile.",
     no_args_is_help=True,
 )
 
@@ -466,4 +487,49 @@ def demo_dev_tui_command(
         raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
 
 
+@demo_cli_app.command(
+    "tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
+def demo_cli_tui_command(
+    ctx: typer.Context,
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
+    ),
+) -> None:
+    """Launch the interactive CLI command builder against the demo profile."""
+    from ..ui.cli_tui import available_theme_names, resolve_theme_name, run_cli_tui  # noqa: PLC0415
+
+    selected_theme = resolve_requested_theme(
+        ctx,
+        theme=theme,
+        available_theme_names=available_theme_names,
+        resolve_theme_name=resolve_theme_name,
+        usage="nbx demo cli tui --theme <name>",
+    )
+    if theme and not ctx.args:
+        return
+
+    try:
+        run_cli_tui(
+            client=_get_demo_client(),
+            index=_get_index(),
+            theme_name=selected_theme,
+            demo_mode=True,
+        )
+    except ThemeCatalogError as exc:
+        raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
+
+
+demo_app.add_typer(demo_cli_app, name="cli")
 demo_app.add_typer(demo_dev_app, name="dev")
+
+
+def _register_demo_dev_http() -> None:
+    from .dev import dev_http_app  # noqa: PLC0415
+
+    demo_dev_app.add_typer(dev_http_app, name="http")
+
+
+_register_demo_dev_http()

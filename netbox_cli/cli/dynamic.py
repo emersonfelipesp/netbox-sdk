@@ -16,7 +16,7 @@ import typer
 from ..api import NetBoxApiClient
 from ..schema import SchemaIndex
 from .runtime import _get_client, _get_index
-from .support import print_response, print_trace_output, run_with_spinner
+from .support import print_response, print_trace_output, resolve_output_format, run_with_spinner
 
 
 def _run_dynamic_command(
@@ -62,9 +62,11 @@ def _handle_dynamic_invocation(
         body_file,
         as_json,
         as_yaml,
+        as_markdown,
         trace,
         trace_only,
     ) = _parse_dynamic_options(option_args)
+    resolve_output_format(as_json=as_json, as_yaml=as_yaml, as_markdown=as_markdown)
     if trace and trace_only:
         raise typer.BadParameter("Use either --trace or --trace-only, not both.")
     response = _execute_dynamic_action(
@@ -79,7 +81,13 @@ def _handle_dynamic_invocation(
         index=index_factory(),
     )
     if not trace_only:
-        print_response(response.status, response.text, as_json=as_json, as_yaml=as_yaml)
+        print_response(
+            response.status,
+            response.text,
+            as_json=as_json,
+            as_yaml=as_yaml,
+            as_markdown=as_markdown,
+        )
     if trace or trace_only:
         print_trace_output(
             group=group,
@@ -93,13 +101,14 @@ def _handle_dynamic_invocation(
 
 def _parse_dynamic_options(
     args: list[str],
-) -> tuple[int | None, list[str], str | None, str | None, bool, bool, bool, bool]:
+) -> tuple[int | None, list[str], str | None, str | None, bool, bool, bool, bool, bool]:
     object_id: int | None = None
     query_pairs: list[str] = []
     body_json: str | None = None
     body_file: str | None = None
     as_json: bool = False
     as_yaml: bool = False
+    as_markdown: bool = False
     trace: bool = False
     trace_only: bool = False
 
@@ -138,6 +147,10 @@ def _parse_dynamic_options(
             as_yaml = True
             i += 1
             continue
+        if token == "--markdown":
+            as_markdown = True
+            i += 1
+            continue
         if token == "--trace":
             trace = True
             i += 1
@@ -155,6 +168,7 @@ def _parse_dynamic_options(
         body_file,
         as_json,
         as_yaml,
+        as_markdown,
         trace,
         trace_only,
     )
@@ -233,6 +247,11 @@ def _build_action_command(
         ),
         output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
         output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+        output_markdown: bool = typer.Option(
+            False,
+            "--markdown",
+            help="Output Markdown (mutually exclusive with --json/--yaml)",
+        ),
         trace: bool = typer.Option(
             False,
             "--trace",
@@ -248,6 +267,11 @@ def _build_action_command(
             raise typer.BadParameter("--id is required for this action")
         if not allows_body and (body_json is not None or body_file is not None):
             raise typer.BadParameter("This action does not accept a request body")
+        resolve_output_format(
+            as_json=output_json,
+            as_yaml=output_yaml,
+            as_markdown=output_markdown,
+        )
         if trace and trace_only:
             raise typer.BadParameter("Use either --trace or --trace-only, not both.")
         if (trace or trace_only) and action != "get":
@@ -267,7 +291,13 @@ def _build_action_command(
             index=index,
         )
         if not trace_only:
-            print_response(response.status, response.text, as_json=output_json, as_yaml=output_yaml)
+            print_response(
+                response.status,
+                response.text,
+                as_json=output_json,
+                as_yaml=output_yaml,
+                as_markdown=output_markdown,
+            )
         if trace or trace_only:
             print_trace_output(
                 group=group,

@@ -55,6 +55,8 @@ class ThemeDefinition(BaseModel):
     dark: bool
     colors: dict[str, str]
     variables: dict[str, str]
+    # When set, drives Textual ``$foreground`` so themes diverge (auto-derived fg is often too similar).
+    foreground: str | None = None
     aliases: tuple[str, ...] = ()
     source_path: Path
 
@@ -86,6 +88,17 @@ class ThemeDefinition(BaseModel):
     def _validate_label(cls, v: str) -> str:
         if not v.strip():
             raise ValueError("label must not be empty")
+        return v
+
+    @field_validator("foreground")
+    @classmethod
+    def _validate_foreground(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        if not isinstance(v, str):
+            raise ValueError("foreground must be a string or null")
+        if not _HEX_COLOR_RE.match(v):
+            raise ValueError("foreground must be in #RRGGBB format")
         return v
 
     @field_validator("colors")
@@ -150,6 +163,7 @@ class ThemeDefinition(BaseModel):
             error=self.colors["error"],
             success=self.colors["success"],
             accent=self.colors["accent"],
+            foreground=self.foreground,
             background=self.colors["background"],
             surface=self.colors["surface"],
             panel=self.colors["panel"],

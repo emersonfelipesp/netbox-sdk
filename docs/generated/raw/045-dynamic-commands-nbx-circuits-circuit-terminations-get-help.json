@@ -1,0 +1,14 @@
+{
+  "section": "Dynamic Commands",
+  "title": "nbx circuits circuit-terminations get --help",
+  "argv": [
+    "circuits",
+    "circuit-terminations",
+    "get",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.472,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root circuits circuit-terminations get [OPTIONS]                        \n                                                                                \n get circuits/circuit-terminations                                              \n                                                                                \n\n\u2026 (16 more lines truncated)\n"
+}

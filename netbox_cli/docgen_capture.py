@@ -1,22 +1,77 @@
-"""Generate Markdown + JSON capturing `nbx` CLI invocations (Typer CliRunner)."""
+"""Backward-compatible facade for the docgen capture pipeline.
+
+Public API (preserved):
+    ``generate_command_capture_docs()``  — main entry point
+    ``resolve_capture_paths()``          — path resolution
+    ``argv_with_markdown_output()``      — flag injection helper
+
+Internal implementation delegates to ``netbox_cli.docgen`` sub-package.
+
+Documentation guidelines (AGENTS):
+- All captured output MUST come from demo.netbox.dev only.  Never use a
+  production instance to generate docs — it will leak customer data.
+- Commands documented without the ``demo`` prefix (e.g. ``nbx dcim devices
+  list``) must still execute against the demo profile.
+- Commands that fail with configuration errors (interactive prompts, aborted)
+  are skipped and never included in final output.
+- Each command gets tabs: Command, Output (human), JSON Output, YAML Output,
+  Markdown Output.
+"""
 
 from __future__ import annotations
 
 import json
 import os
 import sys
-import time
 from datetime import UTC, datetime
-from inspect import signature
 from pathlib import Path
-from typing import Any, TextIO
+from typing import TextIO
 
-from .docgen_specs import CaptureSpec
-from .docgen_specs import all_specs as _all_specs
+from .docgen.engine import CaptureEngine
+from .docgen.models import (
+    DEFAULT_MAX_CONCURRENCY,
+    CaptureResult,
+)
+from .docgen.specs import load_specs
+
+# Re-exported for tests that import from this module.
+from .docgen_specs import CaptureSpec as CaptureSpec  # noqa: F401
+
+# OpenAPI dynamic actions that render via ``print_response`` (tabular / Markdown-friendly).
+_MARKDOWN_ACTIONS = frozenset({"list", "get", "create", "update", "patch", "delete"})
+_OUTPUT_FORMAT_FLAGS = frozenset({"--json", "--yaml", "--markdown"})
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parent.parent
+# ── Public helpers ──────────────────────────────────────────────────────────
+
+
+def argv_with_markdown_output(argv: list[str], *, enabled: bool) -> list[str]:
+    """Return argv, appending ``--markdown`` when doc capture should use Markdown tables.
+
+    Skips ``--help``, leaves argv unchanged when ``--json`` / ``--yaml`` / ``--markdown``
+    is already present, and only targets ``call`` plus dynamic
+    ``[<demo>] <group> <resource> <action>`` invocations.
+    """
+    if not enabled:
+        return list(argv)
+    if "--help" in argv:
+        return list(argv)
+    if any(t in _OUTPUT_FORMAT_FLAGS for t in argv):
+        return list(argv)
+
+    opt_idx = next((i for i, t in enumerate(argv) if t.startswith("-")), len(argv))
+    pos = argv[:opt_idx]
+    if not pos:
+        return list(argv)
+
+    if pos[0] == "call" and len(pos) >= 3:
+        return [*argv, "--markdown"]
+
+    body = pos[1:] if pos[0] == "demo" else pos
+    if len(body) >= 3 and body[-1] in _MARKDOWN_ACTIONS:
+        return [*argv, "--markdown"]
+
+    return list(argv)
 
 
 def resolve_capture_paths(
@@ -40,107 +95,7 @@ def resolve_capture_paths(
     return output, raw_dir
 
 
-def _inject_stub_config(profile: str) -> bool:
-    """Ensure ``cli._RUNTIME_CONFIGS[profile]`` is populated before CliRunner invocations.
-
-    If a complete config already exists on disk for this profile it is loaded into the
-    in-process cache (so commands don't re-read disk on every spec) and ``False`` is
-    returned — meaning the caller should *not* clear the cache afterwards.
-
-    If no real config exists, a placeholder stub is injected so that live-API specs
-    produce a 401/403 response instead of triggering interactive prompts.  ``True`` is
-    returned so the caller knows to clear the injected entry after the invocation.
-    """
-    from netbox_cli import cli as cli_mod
-    from netbox_cli.config import (
-        DEMO_BASE_URL,
-        Config,
-        is_runtime_config_complete,
-        load_profile_config,
-        normalize_base_url,
-    )
-
-    existing = load_profile_config(profile)
-    if is_runtime_config_complete(existing):
-        cli_mod._RUNTIME_CONFIGS[profile] = existing
-        return False  # real config loaded — caller must not clear it
-
-    # No real config — inject a placeholder so live calls fail gracefully.
-    if profile == "demo":
-        base_url = DEMO_BASE_URL
-    else:
-        raw = os.environ.get("NETBOX_URL", "https://netbox.example.com").strip()
-        base_url = normalize_base_url(raw)
-
-    token_key = os.environ.get("NETBOX_TOKEN_KEY", "docgen-placeholder").strip()
-    token_secret = os.environ.get("NETBOX_TOKEN_SECRET", "placeholder").strip()
-    timeout = float(os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"))
-    cli_mod._RUNTIME_CONFIGS[profile] = Config(
-        base_url=base_url,
-        token_key=token_key,
-        token_secret=token_secret,
-        timeout=timeout,
-    )
-    return True  # stub injected — caller must clear it afterwards
-
-
-def _clear_stub_config(profile: str) -> None:
-    from netbox_cli import cli as cli_mod
-
-    cli_mod._RUNTIME_CONFIGS.pop(profile, None)
-
-
-def _truncate(text: str, max_lines: int, max_chars: int) -> tuple[str, bool]:
-    if len(text) > max_chars:
-        text = text[:max_chars] + "\n\n… (truncated by character limit)\n"
-        return text, True
-    lines = text.splitlines()
-    if len(lines) > max_lines:
-        head = "\n".join(lines[:max_lines])
-        return head + f"\n\n… ({len(lines) - max_lines} more lines truncated)\n", True
-    return text, False
-
-
-def _make_cli_runner() -> Any:
-    from typer.testing import CliRunner
-
-    if "mix_stderr" in signature(CliRunner).parameters:
-        return CliRunner(mix_stderr=False)
-    return CliRunner()
-
-
-def _run_capture(spec: CaptureSpec, app: Any, *, profile: str) -> tuple[int, str, float]:
-    was_stub = _inject_stub_config(profile)
-    try:
-        runner = _make_cli_runner()
-        started = time.perf_counter()
-        result = runner.invoke(
-            app,
-            spec.argv,
-            catch_exceptions=not spec.safe,
-            color=False,
-        )
-        elapsed = time.perf_counter() - started
-        out = result.stdout or ""
-        err = getattr(result, "stderr", "") or ""
-        if err.strip():
-            out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
-        # Surface captured exceptions (catch_exceptions=True path) as readable text.
-        if result.exception is not None and not isinstance(result.exception, SystemExit):
-            import traceback
-
-            tb = "".join(
-                traceback.format_exception(
-                    type(result.exception),
-                    result.exception,
-                    result.exception.__traceback__,
-                )
-            )
-            out = f"{out}\n--- exception ---\n{tb}" if out.strip() else f"--- exception ---\n{tb}"
-        return result.exit_code or 0, out, elapsed
-    finally:
-        if was_stub:
-            _clear_stub_config(profile)
+# ── Main entry point ────────────────────────────────────────────────────────
 
 
 def generate_command_capture_docs(
@@ -150,43 +105,112 @@ def generate_command_capture_docs(
     max_lines: int = 200,
     max_chars: int = 120_000,
     use_demo: bool = True,
+    markdown_output: bool = True,
+    max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     log: TextIO | None = None,
 ) -> int:
-    """Write capture Markdown and raw JSON artifacts. Returns 0 on success."""
-    log = log or sys.stderr
-    from netbox_cli.cli import app as cli_app
-    from netbox_cli.config import DEFAULT_PROFILE, DEMO_PROFILE
+    """Write capture Markdown and raw JSON artifacts.  Returns 0 on success.
 
-    profile = DEMO_PROFILE if use_demo else DEFAULT_PROFILE
+    Args:
+        max_concurrency: Max parallel CLI captures (default 4).
+            Set to 1 for fully sequential execution.
+    """
+    log = log or sys.stderr
+    profile = "demo" if use_demo else "default"
 
     output.parent.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Determine effective base_url for the chosen profile for metadata display.
-    from netbox_cli.config import DEMO_BASE_URL, load_profile_config
+    # ── Resolve metadata ──────────────────────────────────────────────────
+    meta = _build_meta(use_demo, markdown_output)
 
+    # ── Load specs and run capture engine ──────────────────────────────────
+    specs = load_specs(use_demo=use_demo)
+
+    engine = CaptureEngine(
+        max_concurrency=max_concurrency,
+        max_lines=max_lines,
+        max_chars=max_chars,
+        markdown_output=markdown_output,
+        log=log,
+    )
+
+    results = engine.capture_all(specs, profile=profile)
+
+    # ── Separate skipped from valid results ───────────────────────────────
+    valid: list[CaptureResult] = []
+    skipped: list[str] = []
+    for r in results:
+        if r.is_config_error:
+            skipped.append(r.title)
+            print(f"  SKIPPED (config error): {r.title}", file=log)
+        else:
+            valid.append(r)
+
+    # ── Write artifacts ───────────────────────────────────────────────────
+    engine.write_artifacts(valid, raw_dir)
+
+    # ── Write Markdown capture file ───────────────────────────────────────
+    md_text = _render_markdown_capture(meta, valid, max_lines, max_chars)
+    output.write_text(md_text, encoding="utf-8")
+
+    # ── Write index.json for the MkDocs hook ──────────────────────────────
+    index_data = {
+        "meta": meta,
+        "runs": [r.to_dict() for r in valid],
+    }
+    (raw_dir / "index.json").write_text(
+        json.dumps(index_data, indent=2),
+        encoding="utf-8",
+    )
+
+    print(f"Wrote {output}", file=log)
+    print(f"Wrote {len(valid)} raw JSON files under {raw_dir}", file=log)
+    if skipped:
+        print(f"Skipped {len(skipped)} commands (config errors): {skipped}", file=log)
+    return 0
+
+
+# ── Private helpers ─────────────────────────────────────────────────────────
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parent.parent
+
+
+def _build_meta(use_demo: bool, markdown_output: bool) -> dict:
+    from .config import DEMO_BASE_URL, load_profile_config  # noqa: PLC0415
+
+    profile = "demo" if use_demo else "default"
     cfg = load_profile_config(profile)
     effective_url = cfg.base_url or (
         DEMO_BASE_URL if use_demo else os.environ.get("NETBOX_URL", "https://netbox.example.com")
     )
-    token_configured = bool(cfg.token_key and cfg.token_secret)
-
-    meta = {
+    return {
         "generated_at": datetime.now(UTC).isoformat(),
         "profile": profile,
         "netbox_url": effective_url,
         "timeout": os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"),
-        "token_configured": token_configured,
+        "token_configured": bool(cfg.token_key and cfg.token_secret),
+        "markdown_output": markdown_output,
     }
 
+
+def _render_markdown_capture(
+    meta: dict,
+    results: list[CaptureResult],
+    max_lines: int,
+    max_chars: int,
+) -> str:
+    """Render the human-readable Markdown capture file."""
     profile_note = (
-        "**demo profile** (`nbx demo …` commands → demo.netbox.dev)"
-        if use_demo
-        else "**default profile** (`nbx …` commands → your configured NetBox)"
+        "**demo profile** (`nbx demo \u2026` commands \u2192 demo.netbox.dev)"
+        if meta["profile"] == "demo"
+        else "**default profile** (`nbx \u2026` commands \u2192 your configured NetBox)"
     )
 
     lines: list[str] = [
-        "# NetBox CLI — captured command input and output",
+        "# NetBox CLI \u2014 captured command input and output",
         "",
         "This file is **machine-generated**. Regenerate with:",
         "",
@@ -228,38 +252,14 @@ def generate_command_capture_docs(
     ]
 
     section_last = ""
-    artifacts: list[dict] = []
-
-    for spec in _all_specs(use_demo=use_demo):
-        if spec.section != section_last:
-            lines.append(f"## {spec.section}")
+    for r in results:
+        if r.section != section_last:
+            lines.append(f"## {r.section}")
             lines.append("")
-            section_last = spec.section
+            section_last = r.section
 
-        cmd_display = "nbx " + " ".join(spec.argv)
-        code, out, elapsed = _run_capture(spec, cli_app, profile=profile)
-
-        truncated, did_trunc = _truncate(out, max_lines, max_chars)
-        slug = f"{spec.section}-{spec.title}"[:80].lower().replace(" ", "-").replace("/", "-")
-        slug = "".join(c if c.isalnum() or c == "-" else "-" for c in slug)
-        while "--" in slug:
-            slug = slug.replace("--", "-")
-
-        art = {
-            "section": spec.section,
-            "title": spec.title,
-            "argv": spec.argv,
-            "exit_code": code,
-            "elapsed_seconds": round(elapsed, 3),
-            "truncated": did_trunc,
-        }
-        artifacts.append(art)
-        (raw_dir / f"{len(artifacts):03d}-{slug}.json").write_text(
-            json.dumps({**art, "stdout_full": out}, indent=2),
-            encoding="utf-8",
-        )
-
-        lines.append(f"### {spec.title}")
+        cmd_display = "nbx " + " ".join(r.argv)
+        lines.append(f"### {r.title}")
         lines.append("")
         lines.append("**Input:**")
         lines.append("")
@@ -267,11 +267,10 @@ def generate_command_capture_docs(
         lines.append(cmd_display)
         lines.append("```")
         lines.append("")
-        if spec.notes:
-            lines.append(f"*{spec.notes}*")
-            lines.append("")
-        lines.append(f"**Exit code:** `{code}`  ·  **Wall time (s):** `{elapsed:.3f}`")
-        if did_trunc:
+        lines.append(
+            f"**Exit code:** `{r.exit_code}`  \u00b7  **Wall time (s):** `{r.elapsed_seconds:.3f}`"
+        )
+        if r.truncated:
             lines.append("")
             lines.append(
                 f"*Output truncated for this doc (max {max_lines} lines / {max_chars} chars).*"
@@ -280,17 +279,10 @@ def generate_command_capture_docs(
         lines.append("**Output:**")
         lines.append("")
         lines.append("```text")
-        lines.append(truncated.rstrip() or "(empty)")
+        lines.append(r.stdout_full.rstrip() or "(empty)")
         lines.append("```")
         lines.append("")
         lines.append("---")
         lines.append("")
 
-    output.write_text("\n".join(lines), encoding="utf-8")
-    (raw_dir / "index.json").write_text(
-        json.dumps({"meta": meta, "runs": artifacts}, indent=2),
-        encoding="utf-8",
-    )
-    print(f"Wrote {output}", file=log)
-    print(f"Wrote {len(artifacts)} raw JSON files under {raw_dir}", file=log)
-    return 0
+    return "\n".join(lines)
