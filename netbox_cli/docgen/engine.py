@@ -22,10 +22,10 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from inspect import signature
 from pathlib import Path
 from typing import TextIO
 
@@ -51,9 +51,6 @@ def _worker_capture(
     Returns a plain dict (not ``CaptureResult``) so that results are
     picklable across process boundaries.
     """
-    # Lazy imports — each process loads its own modules.
-    from typer.testing import CliRunner
-
     from netbox_cli import cli as cli_mod
     from netbox_cli.cli import runtime as _rt
     from netbox_cli.config import (
@@ -69,7 +66,6 @@ def _worker_capture(
         supports_format_variants,
     )
 
-    # ── Ensure config is available in this process ────────────────────────
     existing = load_profile_config(profile)
     if is_runtime_config_complete(existing):
         cli_mod._RUNTIME_CONFIGS[profile] = existing
@@ -89,18 +85,16 @@ def _worker_capture(
             timeout=timeout,
         )
 
-    # Pre-load schema index so lazy init doesn't race.
     _rt._get_index()
 
-    # ── Build spec from dict ──────────────────────────────────────────────
-    argv: list[str] = spec_dict["argv"]
+    argv: list[str] = list(spec_dict["argv"])
+    argv_base: list[str] = list(argv)
     safe: bool = spec_dict["safe"]
 
-    # ── Apply --markdown flag ─────────────────────────────────────────────
-    if markdown_output:
-        _MARKDOWN_ACTIONS = frozenset({"list", "get", "create", "update", "patch", "delete"})
-        _FORMAT_FLAGS = frozenset({"--json", "--yaml", "--markdown"})
+    _MARKDOWN_ACTIONS = frozenset({"list", "get", "create", "update", "patch", "delete"})
+    _FORMAT_FLAGS = frozenset({"--json", "--yaml", "--markdown"})
 
+    if markdown_output:
         if "--help" not in argv and not any(f in argv for f in _FORMAT_FLAGS):
             opt_idx = next((i for i, t in enumerate(argv) if t.startswith("-")), len(argv))
             pos = argv[:opt_idx]
@@ -112,35 +106,31 @@ def _worker_capture(
                     if len(body) >= 3 and body[-1] in _MARKDOWN_ACTIONS:
                         argv = [*argv, "--markdown"]
 
-    # ── Run CLI ───────────────────────────────────────────────────────────
     def _invoke(args: list[str], catch: bool) -> tuple[int, str, float]:
-        if "mix_stderr" in signature(CliRunner).parameters:
-            runner = CliRunner(mix_stderr=False)
-        else:
-            runner = CliRunner()
         started = time.perf_counter()
-        result = runner.invoke(cli_mod.app, args, catch_exceptions=catch, color=False)
-        elapsed = time.perf_counter() - started
-        out = result.stdout or ""
-        err = getattr(result, "stderr", "") or ""
-        if err.strip():
-            out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
-        if result.exception is not None and not isinstance(result.exception, SystemExit):
-            import traceback
-
-            tb = "".join(
-                traceback.format_exception(
-                    type(result.exception),
-                    result.exception,
-                    result.exception.__traceback__,
-                )
+        try:
+            result = subprocess.run(
+                ["nbx", *args],
+                capture_output=True,
+                text=True,
+                timeout=60,
             )
-            out = f"{out}\n--- exception ---\n{tb}" if out.strip() else f"--- exception ---\n{tb}"
-        return result.exit_code or 0, out, elapsed
+            elapsed = time.perf_counter() - started
+            out = result.stdout or ""
+            err = result.stderr or ""
+            if err.strip():
+                out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
+            return result.returncode, out, elapsed
+        except subprocess.TimeoutExpired:
+            elapsed = time.perf_counter() - started
+            return 124, "", elapsed
+        except Exception as e:
+            elapsed = time.perf_counter() - started
+            out = f"--- exception ---\n{type(e).__name__}: {e}"
+            return 1, out, elapsed
 
     code, stdout, elapsed = _invoke(argv, catch=not safe)
 
-    # ── Format variants ───────────────────────────────────────────────────
     stdout_json = None
     stdout_yaml = None
     stdout_markdown = None
@@ -158,6 +148,7 @@ def _worker_capture(
         "section": spec_dict["section"],
         "title": spec_dict["title"],
         "argv": argv,
+        "argv_base": argv_base,
         "exit_code": code,
         "elapsed_seconds": round(elapsed, 3),
         "stdout_full": stdout,
@@ -290,6 +281,7 @@ class CaptureEngine:
         from .format import convert_json_to_variants  # noqa: PLC0415
         from .models import inject_format_flag, supports_format_variants  # noqa: PLC0415
 
+        argv_base = list(spec.argv)
         argv = argv_with_markdown_output(spec.argv, enabled=self._markdown_output)
         code, stdout, elapsed = self._invoke_cli(argv, safe=spec.safe)
 
@@ -297,6 +289,7 @@ class CaptureEngine:
             section=spec.section,
             title=spec.title,
             argv=argv,
+            argv_base=argv_base,
             exit_code=code,
             elapsed_seconds=elapsed,
             stdout_full=stdout,
@@ -315,33 +308,27 @@ class CaptureEngine:
         return result
 
     def _invoke_cli(self, argv: list[str], *, safe: bool) -> tuple[int, str, float]:
-        from typer.testing import CliRunner  # noqa: PLC0415
-
-        if "mix_stderr" in signature(CliRunner).parameters:
-            runner = CliRunner(mix_stderr=False)
-        else:
-            runner = CliRunner()
-        from netbox_cli.cli import app as cli_app  # noqa: PLC0415
-
         started = time.perf_counter()
-        result = runner.invoke(cli_app, argv, catch_exceptions=not safe, color=False)
-        elapsed = time.perf_counter() - started
-        out = result.stdout or ""
-        err = getattr(result, "stderr", "") or ""
-        if err.strip():
-            out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
-        if result.exception is not None and not isinstance(result.exception, SystemExit):
-            import traceback
-
-            tb = "".join(
-                traceback.format_exception(
-                    type(result.exception),
-                    result.exception,
-                    result.exception.__traceback__,
-                )
+        try:
+            result = subprocess.run(
+                ["nbx", *argv],
+                capture_output=True,
+                text=True,
+                timeout=60,
             )
-            out = f"{out}\n--- exception ---\n{tb}" if out.strip() else f"--- exception ---\n{tb}"
-        return result.exit_code or 0, out, elapsed
+            elapsed = time.perf_counter() - started
+            out = result.stdout or ""
+            err = result.stderr or ""
+            if err.strip():
+                out = f"{out}\n--- stderr ---\n{err}" if out.strip() else f"--- stderr ---\n{err}"
+            return result.returncode, out, elapsed
+        except subprocess.TimeoutExpired:
+            elapsed = time.perf_counter() - started
+            return 124, "", elapsed
+        except Exception as e:
+            elapsed = time.perf_counter() - started
+            out = f"--- exception ---\n{type(e).__name__}: {e}"
+            return 1, out, elapsed
 
     # ── Parallel execution (ProcessPoolExecutor) ──────────────────────────
 
@@ -380,6 +367,7 @@ class CaptureEngine:
                 section=d["section"],
                 title=d["title"],
                 argv=d["argv"],
+                argv_base=d.get("argv_base", d["argv"]),
                 exit_code=d["exit_code"],
                 elapsed_seconds=d["elapsed_seconds"],
                 stdout_full=d["stdout_full"],

@@ -62,6 +62,7 @@ class CaptureResult:
     section: str
     title: str
     argv: list[str]
+    argv_base: list[str]
     exit_code: int
     elapsed_seconds: float
     stdout_full: str
@@ -82,6 +83,7 @@ class CaptureResult:
             "section": self.section,
             "title": self.title,
             "argv": list(self.argv),
+            "argv_base": list(self.argv_base),
             "exit_code": self.exit_code,
             "elapsed_seconds": round(self.elapsed_seconds, 3),
             "truncated": self.truncated,

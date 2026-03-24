@@ -59,6 +59,7 @@ def _render_section(
     for run in runs:
         title = run.get("title", "")
         argv = run.get("argv", [])
+        argv_base = run.get("argv_base", argv)
         exit_code = run.get("exit_code", 0)
         elapsed = run.get("elapsed_seconds", 0.0)
         notes = run.get("notes", "")
@@ -69,7 +70,10 @@ def _render_section(
         stdout_yaml = data.get("stdout_yaml")
         stdout_md = data.get("stdout_markdown")
 
-        cmd = "nbx " + " ".join(argv)
+        cmd_base = "nbx " + " ".join(argv_base)
+        cmd_json = "nbx " + " ".join(argv_base + ["--json"])
+        cmd_yaml = "nbx " + " ".join(argv_base + ["--yaml"])
+        cmd_markdown = "nbx " + " ".join(argv)
 
         lines.append(f"### `{title}`")
         lines.append("")
@@ -83,12 +87,16 @@ def _render_section(
         lines.append('=== ":material-console: Command"')
         lines.append("")
         lines.append("    ```bash")
-        lines.append(f"    {cmd}")
+        lines.append(f"    {cmd_base}")
         lines.append("    ```")
         lines.append("")
 
         # ── Tab 2: Output (human-readable) ────────────────────────────────────
         lines.append('=== ":material-text-box-outline: Output"')
+        lines.append("")
+        lines.append("    ```bash")
+        lines.append(f"    {cmd_base}")
+        lines.append("    ```")
         lines.append("")
         lines.append("    ```text")
         for out_line in stdout.splitlines():
@@ -100,6 +108,10 @@ def _render_section(
         if stdout_json:
             lines.append('=== ":material-code-json: JSON Output"')
             lines.append("")
+            lines.append("    ```bash")
+            lines.append(f"    {cmd_json}")
+            lines.append("    ```")
+            lines.append("")
             lines.append("    ```json")
             for json_line in stdout_json.splitlines():
                 lines.append(f"    {json_line}")
@@ -110,6 +122,10 @@ def _render_section(
         if stdout_yaml:
             lines.append('=== ":material-file-document-outline: YAML Output"')
             lines.append("")
+            lines.append("    ```bash")
+            lines.append(f"    {cmd_yaml}")
+            lines.append("    ```")
+            lines.append("")
             lines.append("    ```yaml")
             for yaml_line in stdout_yaml.splitlines():
                 lines.append(f"    {yaml_line}")
@@ -119,6 +135,10 @@ def _render_section(
         # ── Tab 5: Markdown Output ────────────────────────────────────────────
         if stdout_md:
             lines.append('=== ":material-language-markdown: Markdown Output"')
+            lines.append("")
+            lines.append("    ```bash")
+            lines.append(f"    {cmd_markdown}")
+            lines.append("    ```")
             lines.append("")
             for md_line in stdout_md.splitlines():
                 lines.append(f"    {md_line}")
