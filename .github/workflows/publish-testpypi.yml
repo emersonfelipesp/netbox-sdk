@@ -173,13 +173,29 @@ jobs:
         env:
           VERSION: ${{ needs.prepare-release.outputs.version }}
         run: |
+          wait_for_installable () {
+            local package_version="$1"
+            local max_attempts=24
+            local attempt=1
+            while [ "$attempt" -le "$max_attempts" ]; do
+              if pip install \
+                --index-url https://test.pypi.org/simple/ \
+                --extra-index-url https://pypi.org/simple/ \
+                "netbox-cli==$package_version"; then
+                return 0
+              fi
+              echo "Package not visible on TestPyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
+              sleep 10
+              attempt=$((attempt + 1))
+            done
+            echo "Timed out waiting for netbox-cli==$package_version on TestPyPI"
+            return 1
+          }
+
           python -m venv /tmp/nbx-testpypi-venv
           source /tmp/nbx-testpypi-venv/bin/activate
           python -m pip install --upgrade pip
-          pip install \
-            --index-url https://test.pypi.org/simple/ \
-            --extra-index-url https://pypi.org/simple/ \
-            "netbox-cli==$VERSION"
+          wait_for_installable "$VERSION"
 
           python -m playwright install --with-deps chromium
           python - <<'PY'
@@ -306,12 +322,28 @@ jobs:
         env:
           VERSION: ${{ needs.prepare-release.outputs.version }}
         run: |
+          wait_for_installable () {
+            local package_version="$1"
+            local max_attempts=24
+            local attempt=1
+            while [ "$attempt" -le "$max_attempts" ]; do
+              if pip install \
+                --index-url https://pypi.org/simple/ \
+                "netbox-cli==$package_version"; then
+                return 0
+              fi
+              echo "Package not visible on PyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
+              sleep 10
+              attempt=$((attempt + 1))
+            done
+            echo "Timed out waiting for netbox-cli==$package_version on PyPI"
+            return 1
+          }
+
           python -m venv /tmp/nbx-pypi-venv
           source /tmp/nbx-pypi-venv/bin/activate
           python -m pip install --upgrade pip
-          pip install \
-            --index-url https://pypi.org/simple/ \
-            "netbox-cli==$VERSION"
+          wait_for_installable "$VERSION"
 
           python -m playwright install --with-deps chromium
           python - <<'PY'
