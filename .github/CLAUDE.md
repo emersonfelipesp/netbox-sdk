@@ -61,32 +61,52 @@ Runs on:
 
 ---
 
-### `workflows/publish-testpypi.yml` — Build & Publish to TestPyPI
+### `workflows/publish-testpypi.yml` — Release Validation and Publishing (TestPyPI → PyPI)
 
 Runs on:
-- Manual `workflow_dispatch`
 - Push tags matching `v*`
+- Manual `workflow_dispatch`
 
 **Permissions:** `contents: read`
 
-**Steps:**
+**Pipeline stages (gated):**
 
-1. **Checkout** repository
-2. **Set up Python 3.13**
-3. **Set up uv**
-4. **Validate package metadata** — fails if `project.name` in `pyproject.toml` is not `netbox-cli`
-5. **Build artifacts** — `sdist` + `wheel` via `python -m build`
-6. **Publish** — Twine upload to TestPyPI legacy endpoint with `--skip-existing` (safe reruns)
-7. **Smoke test install** — installs `netbox-cli==<project version>` using:
+1. **Prepare release artifacts**:
+   - validate package metadata (`project.name == netbox-cli`)
+   - validate tag/version match on tag pushes (`v<version>`)
+   - build `sdist` + `wheel` once and publish as workflow artifact
+2. **Publish to TestPyPI**:
+   - Twine upload with `--skip-existing`
+3. **Validate TestPyPI release**:
+   - pre-CI style checks (`pre-commit` + `pytest` matrix)
+   - post-CI style checks (package install + demo TUI tests + full pytest)
+4. **Publish to official PyPI** *(only if all TestPyPI validations pass)*:
+   - Twine upload with `--skip-existing`
+5. **Validate official PyPI release**:
+   - pre-CI style checks (`pre-commit` + `pytest` matrix)
+   - post-CI style checks (package install + demo TUI tests + full pytest)
+
+**Package install rules in validation:**
+- TestPyPI package + official PyPI dependencies:
    - `--index-url https://test.pypi.org/simple/`
    - `--extra-index-url https://pypi.org/simple/`
-8. **Playwright runtime validation** — runs:
-   - `python -m playwright install --with-deps chromium`
-   - a minimal Python launch check for Chromium (`browser = p.chromium.launch(headless=True)`)
+- Official PyPI package:
+   - `--index-url https://pypi.org/simple/`
 
-**Required repository secrets:**
+**Playwright runtime validation** is included in both TestPyPI and PyPI smoke checks:
+- `python -m playwright install --with-deps chromium`
+- minimal Chromium launch check (`browser = p.chromium.launch(headless=True)`)
+
+**Required repository secrets (TestPyPI):**
 | Secret | Value |
 |---|---|
 | `TEST_PYPI_USERNAME` | usually `__token__` |
 | `TEST_PYPI_TOKEN` | TestPyPI API token |
 | `TEST_PYPI_REPOSITORY_URL` | `https://test.pypi.org/` |
+
+**Required repository secrets (PyPI):**
+| Secret | Value |
+|---|---|
+| `PYPI_USERNAME` | usually `__token__` |
+| `PYPI_TOKEN` | PyPI API token |
+| `PYPI_REPOSITORY_URL` | `https://pypi.org/` |

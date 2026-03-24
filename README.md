@@ -7,7 +7,7 @@
 
 ## Quick Start with the Demo Instance
 
-Install from GitHub:
+Install (official PyPI):
 
 ```bash
 sudo apt-get update && sudo apt-get install -y curl
@@ -38,7 +38,19 @@ nbx demo dev tui
 
 ## Install
 
-Install from a local checkout:
+Install from official PyPI:
+
+```bash
+pip install netbox-cli
+```
+
+or with `uv`:
+
+```bash
+uv tool install --force netbox-cli
+```
+
+Install from a local checkout (developer workflow):
 
 ```bash
 cd <path-to-netbox-cli>
