@@ -17,9 +17,12 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 | `cli/` | Typer CLI subpackage — see `cli/CLAUDE.md` |
 | `config.py` | Profile management (`~/.config/netbox-cli/config.json`) |
 | `demo_auth.py` | Playwright-based demo.netbox.dev account/token provisioning |
-| `docgen_capture.py` | Captures `nbx` CLI output and writes Markdown + JSON to `docs/generated/` |
+| `docgen_capture.py` | Entry-point shim: delegates to `docgen/engine.py` to run the capture pipeline |
 | `docgen_specs.py` | `CaptureSpec` model and `all_specs()` — ordered list of commands to capture for docs |
+| `docgen/` | Capture pipeline subpackage: `engine.py` (orchestration), `models.py` (value objects), `format.py` (JSON→YAML/Markdown), `specs.py` (re-exports) |
+| `django_models/` | Django model graph subpackage: `parser.py` (AST scan), `store.py` (JSON cache), `fetcher.py` (GitHub clone+build), `diagram.py` (ASCII diagrams), `rich_rendering.py` (Rich/TUI rendering) |
 | `http_cache.py` | Filesystem HTTP cache with TTL (fresh/stale-if-error) |
+| `markdown_output.py` | Markdown rendering helpers for API JSON payloads (used by `--output markdown` flag) |
 | `output_safety.py` | Strips ANSI escapes and control characters from terminal output |
 | `schema.py` | Indexes the bundled OpenAPI JSON for groups, resources, paths, filters |
 | `services.py` | Maps (group, resource, action, id) → (method, path, query, payload) |
@@ -31,7 +34,8 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 | `tui.tcss` | Main TUI Textual CSS — **all colors via semantic variables, never hardcoded hex** |
 | `dev_tui.tcss` | Dev TUI Textual CSS — same semantic-variable contract |
 | `logs_tui.tcss` | Logs viewer TUI Textual CSS — same semantic-variable contract |
-| `ui_common.tcss` | Shared visual design layer imported by all three TUI stylesheets |
+| `django_model_tui.tcss` | Django Model Inspector TUI Textual CSS — same semantic-variable contract |
+| `ui_common.tcss` | Shared visual design layer imported by all TUI stylesheets |
 
 ---
 
