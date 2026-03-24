@@ -100,7 +100,9 @@ def test_nbx_call_rejects_conflicting_output_flags(monkeypatch) -> None:
     assert result.exit_code != 0
     import re
 
-    cleaned = re.sub(r"[│╭╮╰╯─]", "", result.output)
+    # Strip ANSI color codes and box-drawing characters
+    ansi_stripped = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+    cleaned = re.sub(r"[│╭╮╰╯─]", "", ansi_stripped)
     normalized_output = re.sub(r"\s+", " ", cleaned)
     assert OUTPUT_FORMAT_CONFLICT_MESSAGE in normalized_output
 
@@ -116,7 +118,9 @@ def test_dev_http_rejects_conflicting_output_flags(monkeypatch) -> None:
     assert result.exit_code != 0
     import re
 
-    cleaned = re.sub(r"[│╭╮╰╯─]", "", result.output)
+    # Strip ANSI color codes and box-drawing characters
+    ansi_stripped = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+    cleaned = re.sub(r"[│╭╮╰╯─]", "", ansi_stripped)
     normalized_output = re.sub(r"\s+", " ", cleaned)
     assert OUTPUT_FORMAT_CONFLICT_MESSAGE in normalized_output
 
