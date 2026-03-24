@@ -65,7 +65,7 @@ Runs on:
 
 Runs on:
 - Push tags matching `v*`
-- Manual `workflow_dispatch`
+- Manual `workflow_dispatch` (supports `publish_pypi` boolean input)
 
 **Permissions:** `contents: read`
 
@@ -80,7 +80,7 @@ Runs on:
 3. **Validate TestPyPI release**:
    - pre-CI style checks (`pre-commit` + `pytest` matrix)
    - post-CI style checks (package install + demo TUI tests + full pytest)
-4. **Publish to official PyPI** *(only if all TestPyPI validations pass)*:
+4. **Publish to official PyPI** *(only if all TestPyPI validations pass and `publish_pypi=true` on manual dispatch)*:
    - Twine upload with `--skip-existing`
 5. **Validate official PyPI release**:
    - pre-CI style checks (`pre-commit` + `pytest` matrix)
