@@ -80,6 +80,14 @@ jobs:
     needs: prepare-release
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
         with:
@@ -205,6 +213,14 @@ jobs:
       - validate-testpypi-post
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
         with:
