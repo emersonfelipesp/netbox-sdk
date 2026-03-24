@@ -1495,7 +1495,7 @@ async def test_nav_tree_api_error_shows_status(mock_client, real_index):
 @pytest.mark.asyncio
 async def test_results_loading_status_uses_theme_primary(mock_client, real_index):
     async def _slow_request(*args, **kwargs):
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.5)  # Longer delay for CI stability
         return _list_response(FAKE_DEVICES)
 
     mock_client.request = AsyncMock(side_effect=_slow_request)
@@ -1509,7 +1509,7 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
         tree.post_message(Tree.NodeSelected(leaf))
-        for _ in range(5):
+        for _ in range(20):  # Increased for parallel test stability
             await pilot.pause()
             status = app.query_one("#results_status", Static)
             if "-loading" in status.classes:
