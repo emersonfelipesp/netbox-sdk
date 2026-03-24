@@ -1,0 +1,18 @@
+{
+  "section": "Cable Trace \u2014 demo.netbox.dev",
+  "title": "nbx demo circuits circuit-terminations get --id 15 --trace-only",
+  "argv": [
+    "demo",
+    "circuits",
+    "circuit-terminations",
+    "get",
+    "--id",
+    "15",
+    "--trace-only",
+    "--markdown"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.192,
+  "truncated": true,
+  "stdout_full": "Cable Trace:\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502        dmi01-yonkers-rtr01         \u2502\n\u2502        GigabitEthernet0/0/0        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\n\u2026 (28 more lines truncated)\n"
+}

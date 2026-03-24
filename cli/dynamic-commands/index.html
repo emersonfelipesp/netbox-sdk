@@ -1217,7 +1217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/command-examples/logs-viewer.md" class="md-nav__link">
+      <a href="../../reference/command-examples/logs-viewer/" class="md-nav__link">
         
   
   
@@ -1245,7 +1245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/command-examples/developer-tools.md" class="md-nav__link">
+      <a href="../../reference/command-examples/developer-tools/" class="md-nav__link">
         
   
   
@@ -1829,11 +1829,16 @@
 <td>Output YAML</td>
 </tr>
 <tr>
+<td><code>--markdown</code></td>
+<td>Output table-first Markdown</td>
+</tr>
+<tr>
 <td><code>--trace</code></td>
 <td>Fetch and render ASCII cable trace (interfaces only, <code>get</code> only)</td>
 </tr>
 </tbody>
 </table>
+<p><code>--json</code>, <code>--yaml</code>, and <code>--markdown</code> are mutually exclusive.</p>
 <hr />
 <h2 id="filtering">Filtering<a class="headerlink" href="#filtering" title="Permanent link">&para;</a></h2>
 <p>The <code>-q</code> / <code>--query</code> flag maps to NetBox API query parameters:</p>
@@ -1845,7 +1850,7 @@
 <p>Multiple <code>-q</code> flags are ANDed together.</p>
 <hr />
 <h2 id="output-formats">Output formats<a class="headerlink" href="#output-formats" title="Permanent link">&para;</a></h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Rich table (default)</label><label for="__tabbed_1_2">JSON</label><label for="__tabbed_1_3">YAML</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Rich table (default)</label><label for="__tabbed_1_2">JSON</label><label for="__tabbed_1_3">YAML</label><label for="__tabbed_1_4">Markdown</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
@@ -1862,36 +1867,41 @@
 </span></code></pre></div>
 <p>Renders the response as YAML.</p>
 </div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--markdown
+</span></code></pre></div>
+<p>Renders API JSON as table-first Markdown output.</p>
+</div>
 </div>
 </div>
 <hr />
 <h2 id="cable-trace">Cable trace<a class="headerlink" href="#cable-trace" title="Permanent link">&para;</a></h2>
 <p>For <code>dcim/interfaces</code>, the <code>get</code> action supports <code>--trace</code> to fetch and display the cable path as an ASCII diagram:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
 </span></code></pre></div>
 <p>Output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Cable Trace:
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>┌────────────────────────────────────┐
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│         dmi01-akron-rtr01          │
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│       GigabitEthernet0/1/1         │
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>└────────────────────────────────────┘
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>                │
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>                │  Cable #36
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>                │  Connected
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                │
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>┌────────────────────────────────────┐
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>│       GigabitEthernet1/0/2         │
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>│         dmi01-akron-sw01           │
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>└────────────────────────────────────┘
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>Trace Completed - 1 segment(s)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Cable Trace:
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>┌────────────────────────────────────┐
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>│         dmi01-akron-rtr01          │
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│       GigabitEthernet0/1/1         │
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>└────────────────────────────────────┘
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>                │
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>                │  Cable #36
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>                │  Connected
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>                │
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>┌────────────────────────────────────┐
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>│       GigabitEthernet1/0/2         │
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>│         dmi01-akron-sw01           │
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>└────────────────────────────────────┘
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>Trace Completed - 1 segment(s)
 </span></code></pre></div>
 <hr />
 <h2 id="demo-profile-variant">Demo profile variant<a class="headerlink" href="#demo-profile-variant" title="Permanent link">&para;</a></h2>
 <p>The same dynamic command tree is registered under <code>nbx demo</code> and targets <code>demo.netbox.dev</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>ipam<span class="w"> </span>prefixes<span class="w"> </span>list
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>ipam<span class="w"> </span>prefixes<span class="w"> </span>list
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
 </span></code></pre></div>
 <p>See <a href="../demo-profile/">Demo Profile</a> for setup.</p>
 <hr />

@@ -1,0 +1,13 @@
+{
+  "section": "Developer Tools",
+  "title": "nbx dev http --help",
+  "argv": [
+    "dev",
+    "http",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.762,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root dev http [OPTIONS] COMMAND [ARGS]...                               \n                                                                                \n Direct HTTP operations mapped from OpenAPI paths (nbx dev http <method> --path \n ...).                                                                          \n\n\u2026 (14 more lines truncated)\n"
+}

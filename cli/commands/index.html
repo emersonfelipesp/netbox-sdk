@@ -1239,7 +1239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/command-examples/logs-viewer.md" class="md-nav__link">
+      <a href="../../reference/command-examples/logs-viewer/" class="md-nav__link">
         
   
   
@@ -1267,7 +1267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/command-examples/developer-tools.md" class="md-nav__link">
+      <a href="../../reference/command-examples/developer-tools/" class="md-nav__link">
         
   
   
@@ -1813,8 +1813,9 @@
 <p>Make an explicit HTTP request to any NetBox API path.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/status/
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--json
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>nbx<span class="w"> </span>call<span class="w"> </span>PUT<span class="w"> </span>/api/dcim/devices/1/<span class="w"> </span>--body-file<span class="w"> </span>./device.json
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--markdown
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>nbx<span class="w"> </span>call<span class="w"> </span>PUT<span class="w"> </span>/api/dcim/devices/1/<span class="w"> </span>--body-file<span class="w"> </span>./device.json
 </span></code></pre></div>
 <p><strong>Options</strong></p>
 <table>
@@ -1845,8 +1846,13 @@
 <td><code>--yaml</code></td>
 <td>Output as YAML</td>
 </tr>
+<tr>
+<td><code>--markdown</code></td>
+<td>Output API responses as table-first Markdown</td>
+</tr>
 </tbody>
 </table>
+<p><code>--json</code>, <code>--yaml</code>, and <code>--markdown</code> are mutually exclusive.</p>
 <hr />
 <h2 id="nbx-tui"><code>nbx tui</code><a class="headerlink" href="#nbx-tui" title="Permanent link">&para;</a></h2>
 <p>Launch the interactive Textual TUI.</p>

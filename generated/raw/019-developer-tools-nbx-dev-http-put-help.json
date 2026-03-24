@@ -1,0 +1,14 @@
+{
+  "section": "Developer Tools",
+  "title": "nbx dev http put --help",
+  "argv": [
+    "dev",
+    "http",
+    "put",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.012,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root dev http put [OPTIONS]                                             \n                                                                                \n PUT to fully replace an existing object. Requires --id.                        \n                                                                                \n\n\u2026 (16 more lines truncated)\n"
+}

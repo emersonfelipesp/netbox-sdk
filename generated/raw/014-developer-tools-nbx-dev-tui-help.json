@@ -1,0 +1,13 @@
+{
+  "section": "Developer Tools",
+  "title": "nbx dev tui --help",
+  "argv": [
+    "dev",
+    "tui",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.797,
+  "truncated": true,
+  "stdout_full": "                                                                                \n Usage: root dev tui [OPTIONS]                                                  \n                                                                                \n Launch the developer request workbench TUI.                                    \n                                                                                \n\n\u2026 (6 more lines truncated)\n"
+}

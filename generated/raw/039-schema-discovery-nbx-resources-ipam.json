@@ -1,0 +1,12 @@
+{
+  "section": "Schema Discovery",
+  "title": "nbx resources ipam",
+  "argv": [
+    "resources",
+    "ipam"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.162,
+  "truncated": true,
+  "stdout_full": "aggregates\nasn-ranges\nasns\nfhrp-group-assignments\nfhrp-groups\n\n\u2026 (13 more lines truncated)\n"
+}

@@ -23,6 +23,20 @@ def main() -> int:
             "By default live specs run through the demo profile (demo.netbox.dev)."
         ),
     )
+    md = parser.add_mutually_exclusive_group()
+    md.add_argument(
+        "--markdown",
+        dest="markdown_output",
+        action="store_true",
+        help="Append --markdown to list/get/call captures (default).",
+    )
+    md.add_argument(
+        "--no-markdown",
+        dest="markdown_output",
+        action="store_false",
+        help="Do not append --markdown (keep Rich table output in captures).",
+    )
+    parser.set_defaults(markdown_output=True)
     args = parser.parse_args()
 
     from netbox_cli.docgen_capture import generate_command_capture_docs, resolve_capture_paths
@@ -38,6 +52,7 @@ def main() -> int:
         max_lines=args.max_lines,
         max_chars=args.max_chars,
         use_demo=not args.live,
+        markdown_output=args.markdown_output,
     )
 
 
