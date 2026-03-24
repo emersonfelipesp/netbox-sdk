@@ -41,7 +41,7 @@ Every subdirectory with non-trivial logic has its own `CLAUDE.md`. **Read the re
 
 | File | Covers |
 |---|---|
-| [tests/CLAUDE.md](tests/CLAUDE.md) | Test file map (21 test files), mocking patterns, live-test skip behavior, filesystem isolation, TCSS color enforcement |
+| [tests/CLAUDE.md](tests/CLAUDE.md) | Test file map, mocking patterns, live-test skip behavior, filesystem isolation, TCSS color enforcement |
 | [docs/CLAUDE.md](docs/CLAUDE.md) | MkDocs site structure, `hooks.py` build hook, `generated/` pipeline, navigation tree, local preview commands |
 | [.github/CLAUDE.md](.github/CLAUDE.md) | CI workflows: `lint.yml`, `test.yml` (matrix 3.11–3.13), `docs.yml` (docgen + gh-deploy), required secrets |
 

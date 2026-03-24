@@ -38,8 +38,6 @@ tail -f docs/generated/capture-run.log
 |------|---------|-------------|
 | `-o` / `--output` | `docs/generated/nbx-command-capture.md` | Markdown output path |
 | `--raw-dir` | `docs/generated/raw/` | Per-command JSON directory |
-| `--max-lines` | `200` | Max lines embedded in Markdown |
-| `--max-chars` | `120000` | Max characters embedded in Markdown |
 | `--live` | off | Use default profile instead of demo |
 
 ---

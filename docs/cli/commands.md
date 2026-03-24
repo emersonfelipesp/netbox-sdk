@@ -187,8 +187,6 @@ nbx docs generate-capture --live   # use default profile instead of demo
 |------|---------|-------------|
 | `-o` / `--output` | `docs/generated/nbx-command-capture.md` | Markdown output path |
 | `--raw-dir` | `docs/generated/raw/` | Directory for per-command JSON files |
-| `--max-lines` | `200` | Max output lines embedded in Markdown |
-| `--max-chars` | `120000` | Max output characters embedded in Markdown |
 | `--live` | off | Use default profile (real NetBox) instead of demo profile |
 
 See [Documentation Generation](../developer/docgen.md) for the full guide.

@@ -51,8 +51,7 @@ Security Reference:
 
 ## Core Rules
 
-- **No Co-Author:** Never add `Co-Authored-By: Claude` or any Claude/Anthropic co-authorship trailer to git commits.
-- **No Self-Promotion:** Never add "Generated with Claude Code" or any Claude/Anthropic attribution to PR descriptions, commit messages, or any user-facing content.
+The canonical collaboration rules (including **No Co-Author** and **No Self-Promotion**) are defined once in the [Core Principles](#core-principles) section; refer there for the full policy text.
 
 ---
 

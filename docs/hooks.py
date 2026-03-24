@@ -68,6 +68,7 @@ def _render_section(
         stdout_json = data.get("stdout_json")
         stdout_yaml = data.get("stdout_yaml")
         stdout_md = data.get("stdout_markdown")
+        truncated = bool(data.get("truncated", False))
 
         cmd = "nbx " + " ".join(argv)
 
@@ -124,6 +125,14 @@ def _render_section(
                 lines.append(f"    {md_line}")
             lines.append("")
 
+        if truncated:
+            lines.append(
+                '!!! warning "Output truncated in generated docs"\n'
+                "    This command output was truncated in the rendered page. "
+                "See `docs/generated/raw/` artifacts for full output."
+            )
+            lines.append("")
+
         badge_exit = _badge(exit_code)
         badge_dur = _duration_badge(elapsed)
         lines.append(f"{badge_exit} {badge_dur}")
@@ -175,6 +184,7 @@ def _build_command_examples() -> None:
                 "stdout_json": d.get("stdout_json"),
                 "stdout_yaml": d.get("stdout_yaml"),
                 "stdout_markdown": d.get("stdout_markdown"),
+                "truncated": bool(d.get("truncated", False)),
             }
         except (json.JSONDecodeError, KeyError):
             continue
