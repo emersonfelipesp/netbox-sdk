@@ -82,6 +82,13 @@ nav:
     - Demo Profile: cli/demo-profile.md
   - TUI:
     - tui/index.md
+    - Screenshots:
+      - tui/screenshots.md
+      - Default TUI: tui/screenshots-default.md
+      - Dev TUI: tui/screenshots-dev.md
+      - Logs TUI: tui/screenshots-logs.md
+      - CLI TUI: tui/screenshots-cli.md
+      - Django Models TUI: tui/screenshots-django.md
     - Themes: tui/themes.md
     - Keyboard Shortcuts: tui/keybindings.md
   - Command Examples:
