@@ -8,7 +8,13 @@ version = "0.0.2"
 description = "API-first NetBox CLI + Textual TUI"
 readme = "README.md"
 requires-python = ">=3.11"
-authors = [{ name = "netbox-cli contributors" }]
+authors = [
+  { name = "Emerson Felipe", email = "emerson@netdevopsbr.com" }
+]
+maintainers = [
+  {name = "Emerson Felipe", email = "emerson@netdevopsbr.com"}
+]
+keywords = ["netbox", "terminal", "netbox-integration", "tui", "cli", "terminal", "api", "integration"]
 dependencies = [
   "aiohttp>=3.9.0",
   "playwright>=1.52.0",
