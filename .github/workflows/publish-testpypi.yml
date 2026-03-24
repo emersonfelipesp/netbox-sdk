@@ -82,3 +82,13 @@ jobs:
             --index-url https://test.pypi.org/simple/ \
             --extra-index-url https://pypi.org/simple/ \
             "netbox-cli==$VERSION"
+
+          python -m playwright install --with-deps chromium
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              browser.close()
+          print("Playwright Chromium launch OK")
+          PY

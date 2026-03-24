@@ -80,6 +80,9 @@ Runs on:
 7. **Smoke test install** — installs `netbox-cli==<project version>` using:
    - `--index-url https://test.pypi.org/simple/`
    - `--extra-index-url https://pypi.org/simple/`
+8. **Playwright runtime validation** — runs:
+   - `python -m playwright install --with-deps chromium`
+   - a minimal Python launch check for Chromium (`browser = p.chromium.launch(headless=True)`)
 
 **Required repository secrets:**
 | Secret | Value |
