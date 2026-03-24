@@ -72,6 +72,10 @@ nbx = "netbox_cli.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/emersonfelipesp/netbox-cli"
+Documentation = "https://emersonfelipesp.com/netbox-cli"
+Repository = "https://github.com/emersonfelipesp/netbox-cli"
+Issues = "https://github.com/emersonfelipesp/netbox-cli/issues"
+Changelog = "https://github.com/emersonfelipesp/netbox-cli/releases"
 
 [tool.setuptools]
 include-package-data = true
