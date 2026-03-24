@@ -6,7 +6,7 @@ set -e
 
 REPO="https://github.com/emersonfelipesp/netbox-cli.git"
 BRANCH="main"
-PACKAGE="git+${REPO}@${BRANCH}"
+PACKAGE="netbox-cli"
 
 # ── ANSI colors (disabled when not a TTY) ────────────────────────────────────
 if [ -t 1 ]; then
@@ -106,11 +106,11 @@ else
     spinner_ok "uv installed  ($("$UV_BIN" --version 2>/dev/null))"
 fi
 
-# ── 2. Install netbox-cli from GitHub ────────────────────────────────────────
-step "Installing netbox-cli from GitHub"
-info "branch: ${BRANCH}  ·  repo: ${REPO}"
+# ── 2. Install netbox-cli from official PyPI ─────────────────────────────────
+step "Installing netbox-cli from official PyPI"
+info "package: ${PACKAGE}"
 
-spinner_start "Fetching and building netbox-cli"
+spinner_start "Downloading and installing netbox-cli"
 run_silent "$UV_BIN" tool install --reinstall --force "$PACKAGE"
 spinner_ok "netbox-cli installed"
 

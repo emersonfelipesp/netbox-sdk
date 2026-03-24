@@ -25,6 +25,22 @@ uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 
 ---
 
+## From official PyPI (recommended)
+
+```bash
+pip install netbox-cli
+nbx --help
+```
+
+If you want isolated CLI installation with `uv`:
+
+```bash
+uv tool install --force netbox-cli
+nbx --help
+```
+
+---
+
 ## Global install with uv tool
 
 [`uv tool`](https://docs.astral.sh/uv/concepts/tools/) installs Python CLIs in isolated environments and puts the executable on your PATH.
