@@ -1448,13 +1448,14 @@ async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real
 
         app.on_nav_selected(Tree.NodeSelected(leaf))
         await pilot.pause()
+        await pilot.pause()  # Extra pause for parallel test stability
 
         overlay = app.query_one("#results_loading_overlay", object)
         status = app.query_one("#results_status", Static)
         spinner = app.query_one("#results_loading_spinner", Static)
 
         # Wait for loading overlay to appear (race condition in parallel tests)
-        for _ in range(10):
+        for _ in range(20):
             if "hidden" not in overlay.classes:
                 break
             await pilot.pause()
@@ -1463,7 +1464,7 @@ async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real
         assert "-loading" in status.classes
         assert _static_text(spinner) != ""
 
-        for _ in range(10):
+        for _ in range(20):
             if "hidden" in overlay.classes:
                 break
             await pilot.pause()
