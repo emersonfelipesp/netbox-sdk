@@ -1447,30 +1447,24 @@ async def test_nav_tree_selection_shows_center_loading_overlay(mock_client, real
         assert leaf is not None
 
         app.on_nav_selected(Tree.NodeSelected(leaf))
-        await pilot.pause()
-        await pilot.pause()  # Extra pause for parallel test stability
 
+        # Synchronously right after on_nav_selected the overlay must be visible.
         overlay = app.query_one("#results_loading_overlay", object)
         status = app.query_one("#results_status", Static)
         spinner = app.query_one("#results_loading_spinner", Static)
-
-        # Wait for loading overlay to appear (race condition in parallel tests)
-        for _ in range(20):
-            if "hidden" not in overlay.classes:
-                break
-            await pilot.pause()
-
         assert "hidden" not in overlay.classes
         assert "-loading" in status.classes
         assert _static_text(spinner) != ""
 
-        for _ in range(20):
+        # Wait for the request to complete and loading to stop.
+        for _ in range(40):
             if "hidden" in overlay.classes:
                 break
             await pilot.pause()
 
         assert "hidden" in overlay.classes
         assert "-loading" not in status.classes
+        mock_client.request.assert_called()
 
 
 @pytest.mark.asyncio
@@ -1509,7 +1503,7 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
         tree.post_message(Tree.NodeSelected(leaf))
-        for _ in range(20):  # Increased for parallel test stability
+        for _ in range(40):  # Increased for parallel test stability
             await pilot.pause()
             status = app.query_one("#results_status", Static)
             if "-loading" in status.classes:
