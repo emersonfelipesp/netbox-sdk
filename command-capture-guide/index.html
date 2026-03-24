@@ -1628,7 +1628,7 @@
 
 
 <h1 id="command-capture-documentation">Command capture documentation<a class="headerlink" href="#command-capture-documentation" title="Permanent link">&para;</a></h1>
-<p>This folder contains tooling to produce <strong>reference documentation</strong> where each section shows:</p>
+<p>This folder contains tooling to produce <strong>reference documentation</strong> where each section shows full command output as-is (no truncation):</p>
 <ol>
 <li>The <strong>command input</strong> (what you would type).</li>
 <li>The <strong>command output</strong> (stdout/stderr as captured at generation time).</li>
@@ -1842,7 +1842,7 @@ produce output when the generator runs from a <code>netbox-cli</code> git checko
 <ul>
 <li><strong>A Markdown section</strong> in <code>docs/generated/nbx-command-capture.md</code> with the input, notes,
   exit code, wall time, and captured output.</li>
-<li><strong>A raw JSON file</strong> in <code>docs/generated/raw/NNN-&lt;slug&gt;.json</code> with the full untruncated output.</li>
+<li><strong>A raw JSON file</strong> in <code>docs/generated/raw/NNN-&lt;slug&gt;.json</code> with the full output (never truncated).</li>
 <li><strong><code>docs/generated/raw/index.json</code></strong> — summary of all runs including generation metadata.</li>
 </ul>
 <hr />
