@@ -1720,16 +1720,6 @@ Pass <code>--live</code> to run them against your own NetBox instance instead.</
 <td>Raw JSON artifact directory</td>
 </tr>
 <tr>
-<td><code>--max-lines</code></td>
-<td><code>200</code></td>
-<td>Lines of output embedded per command in Markdown (full text stays in <code>raw/*.json</code>)</td>
-</tr>
-<tr>
-<td><code>--max-chars</code></td>
-<td><code>120000</code></td>
-<td>Characters of output embedded per command in Markdown</td>
-</tr>
-<tr>
 <td><code>--live</code></td>
 <td>off</td>
 <td>Use the <strong>default profile</strong> (your real NetBox) instead of the demo profile</td>
@@ -1851,7 +1841,7 @@ produce output when the generator runs from a <code>netbox-cli</code> git checko
 <p>For each spec the generator writes:</p>
 <ul>
 <li><strong>A Markdown section</strong> in <code>docs/generated/nbx-command-capture.md</code> with the input, notes,
-  exit code, wall time, and truncated output.</li>
+  exit code, wall time, and captured output.</li>
 <li><strong>A raw JSON file</strong> in <code>docs/generated/raw/NNN-&lt;slug&gt;.json</code> with the full untruncated output.</li>
 <li><strong><code>docs/generated/raw/index.json</code></strong> — summary of all runs including generation metadata.</li>
 </ul>
