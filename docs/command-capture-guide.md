@@ -18,7 +18,7 @@ Pass `--live` to run them against your own NetBox instance instead.
 | [`run_capture_in_background.sh`](run_capture_in_background.sh) | Starts the generator under `nohup`, appends to `generated/capture-run.log`, writes PID to `generated/capture-run.pid`. |
 | [`generated/nbx-command-capture.md`](generated/nbx-command-capture.md) | **Generated** long-form reference (input + output per command). |
 | [`generated/raw/`](generated/raw/) | **Generated** per-command JSON files (`stdout_full`, exit code, timing). |
-| [`../.github/workflows/docs-capture.yml`](../.github/workflows/docs-capture.yml) | CI workflow that runs on every push to `main`, authenticates with demo.netbox.dev, and commits the regenerated snapshot. |
+| [`docs.yml` workflow](https://github.com/emersonfelipesp/netbox-cli/blob/main/.github/workflows/docs.yml) | CI workflow that builds and deploys docs; when demo secrets are present, it regenerates command-capture content against demo.netbox.dev before deploy. |
 
 ---
 
@@ -157,8 +157,8 @@ For each spec the generator writes:
 
 ## GitHub Actions CI
 
-The workflow at [`.github/workflows/docs-capture.yml`](../.github/workflows/docs-capture.yml)
-runs automatically on every push to `main` (which includes merged pull requests).
+The workflow at [`docs.yml` on GitHub](https://github.com/emersonfelipesp/netbox-cli/blob/main/.github/workflows/docs.yml)
+runs automatically on pushes to `main` (and can be started manually via `workflow_dispatch`).
 
 ### What it does
 
