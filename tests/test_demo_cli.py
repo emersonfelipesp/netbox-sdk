@@ -504,12 +504,12 @@ def test_demo_cli_tui_command_uses_demo_profile(monkeypatch) -> None:
         called["theme_name"] = theme_name
         called["demo_mode"] = demo_mode
 
-    import netbox_cli.cli.demo as demo_module
     import netbox_cli.ui.cli_tui as cli_tui_module
 
-    monkeypatch.setattr(cli_tui_module, "run_cli_tui", _fake_run_cli_tui)
-    if hasattr(demo_module, "run_cli_tui"):
-        monkeypatch.setattr(demo_module, "run_cli_tui", _fake_run_cli_tui)
+    def _patched_run_cli_tui(*args, **kwargs):
+        return _fake_run_cli_tui(*args, **kwargs)
+
+    monkeypatch.setattr(cli_tui_module, "run_cli_tui", _patched_run_cli_tui)
 
     result = runner.invoke(cli.app, ["demo", "cli", "tui"])
 
