@@ -95,6 +95,9 @@ class TestGraphQLCommand:
 
     def test_graphql_help(self):
         result = runner.invoke(cli.app, ["graphql", "--help"])
+        if result.exit_code != 0:
+            print(f"CLI output: {result.output}")
+            print(f"Exception: {result.exception}")
         assert result.exit_code == 0
         assert "GraphQL" in result.output
         assert "--variables" in result.output or "-v" in result.output

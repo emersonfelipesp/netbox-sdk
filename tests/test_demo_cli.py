@@ -508,6 +508,10 @@ def test_demo_cli_tui_command_uses_demo_profile(monkeypatch) -> None:
 
     result = runner.invoke(cli.app, ["demo", "cli", "tui"])
 
+    if result.exit_code != 0:
+        print(f"CLI output: {result.output}")
+        print(f"Exception: {result.exception}")
+
     assert result.exit_code == 0
     assert called["demo_mode"] is True
     assert called["theme_name"] is None
