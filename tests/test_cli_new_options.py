@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 from click.exceptions import BadParameter
 from typer.testing import CliRunner
@@ -21,6 +23,27 @@ def _mock_config() -> cli.Config:
         token_key="abc",
         token_secret="def",
         timeout=30.0,
+    )
+
+
+class _FakeListClient:
+    """Minimal async client so list/select/columns tests avoid real HTTP."""
+
+    async def request(self, method: str, path: str, **kwargs: object):
+        del method, path, kwargs
+
+        class _Response:
+            status = 200
+            text = json.dumps({"count": 0, "results": []})
+
+        return _Response()
+
+
+def _patch_list_client(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+    monkeypatch.setattr(
+        "netbox_cli.cli.runtime._get_client",
+        lambda: _FakeListClient(),
     )
 
 
@@ -221,7 +244,7 @@ class TestColumnControl:
 
     def test_columns_option_accepted(self, monkeypatch):
         """Test that --columns option is accepted by the CLI."""
-        monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+        _patch_list_client(monkeypatch)
 
         result = runner.invoke(
             cli.app,
@@ -231,7 +254,7 @@ class TestColumnControl:
 
     def test_max_columns_option_accepted(self, monkeypatch):
         """Test that --max-columns option is accepted by the CLI."""
-        monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+        _patch_list_client(monkeypatch)
 
         result = runner.invoke(
             cli.app,
@@ -245,7 +268,7 @@ class TestSelectOption:
 
     def test_select_option_accepted(self, monkeypatch):
         """Test that --select option is accepted by the CLI."""
-        monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+        _patch_list_client(monkeypatch)
 
         result = runner.invoke(
             cli.app,
