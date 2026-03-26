@@ -15,8 +15,21 @@ import typer
 
 from ..api import NetBoxApiClient
 from ..schema import SchemaIndex
-from .runtime import _get_client, _get_index
 from .support import print_response, print_trace_output, resolve_output_format, run_with_spinner
+
+
+def _runtime_get_client() -> NetBoxApiClient:
+    from .runtime import (
+        _get_client,  # noqa: PLC0415 — call-time import so tests can patch runtime._get_client
+    )
+
+    return _get_client()
+
+
+def _runtime_get_index() -> SchemaIndex:
+    from .runtime import _get_index  # noqa: PLC0415
+
+    return _get_index()
 
 
 def _run_dynamic_command(
@@ -44,8 +57,8 @@ def _run_dynamic_command(
 def _handle_dynamic_invocation(
     raw_args: list[str],
     *,
-    client_factory: Callable[[], NetBoxApiClient] = _get_client,
-    index_factory: Callable[[], SchemaIndex] = _get_index,
+    client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
+    index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> None:
     if len(raw_args) < 3:
         raise typer.BadParameter(
@@ -77,6 +90,10 @@ def _handle_dynamic_invocation(
         raise typer.BadParameter(
             "--dry-run is only supported for write operations (create, update, patch, delete)"
         )
+    action_lower = action.lower()
+    write_actions = {"create", "update", "patch", "delete"}
+    # Dry-run previews only need the OpenAPI index; avoid building an API client (and loading config).
+    skip_client = bool(dry_run and action_lower in write_actions)
     response = _execute_dynamic_action(
         group=group,
         resource=resource,
@@ -89,7 +106,7 @@ def _handle_dynamic_invocation(
         columns=columns,
         max_columns=max_columns,
         dry_run=dry_run,
-        client=client_factory(),
+        client=None if skip_client else client_factory(),
         index=index_factory(),
     )
     if not trace_only:
@@ -265,7 +282,7 @@ def _execute_dynamic_action(
         from .support import print_dry_run
 
         resolved = resolve_dynamic_request(
-            index or _get_index(),
+            index or _runtime_get_index(),
             group,
             resource,
             action,
@@ -282,8 +299,8 @@ def _execute_dynamic_action(
 
     return run_with_spinner(
         _run_dynamic_command(
-            client=client or _get_client(),
-            index=index or _get_index(),
+            client=client or _runtime_get_client(),
+            index=index or _runtime_get_index(),
             group=group,
             resource=resource,
             action=action,
@@ -296,7 +313,7 @@ def _execute_dynamic_action(
 
 
 def _supported_actions(group: str, resource: str, *, index: SchemaIndex | None = None) -> list[str]:
-    active_index = index or _get_index()
+    active_index = index or _runtime_get_index()
     rows = active_index.operations_for(group, resource)
     by_pair = {(item.path, item.method.upper()) for item in rows}
     paths = active_index.resource_paths(group, resource)
@@ -324,8 +341,8 @@ def _build_action_command(
     group: str,
     resource: str,
     action: str,
-    client_factory: Callable[[], NetBoxApiClient] = _get_client,
-    index_factory: Callable[[], SchemaIndex] = _get_index,
+    client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
+    index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> Callable[..., None]:
     requires_id = action in {"get", "update", "patch", "delete"}
     allows_body = action in {"create", "update", "patch"}
@@ -439,8 +456,8 @@ def _build_action_command(
 def _register_openapi_subcommands(
     target_app: typer.Typer,
     *,
-    client_factory: Callable[[], NetBoxApiClient] = _get_client,
-    index_factory: Callable[[], SchemaIndex] = _get_index,
+    client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
+    index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> None:
     index = index_factory()
     for group in index.groups():

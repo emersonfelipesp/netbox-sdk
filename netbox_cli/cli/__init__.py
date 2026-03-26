@@ -111,7 +111,16 @@ def root_callback(ctx: typer.Context) -> None:
     setup_logging()
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand not in {"init", "tui", "cli", "docs", "demo", "dev", "logs"}:
+    if ctx.invoked_subcommand not in {
+        "init",
+        "tui",
+        "cli",
+        "docs",
+        "demo",
+        "dev",
+        "logs",
+        "graphql",
+    }:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)

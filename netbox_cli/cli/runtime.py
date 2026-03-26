@@ -47,7 +47,9 @@ def _get_index() -> SchemaIndex:
 
 def _get_client() -> NetBoxApiClient:
     logger.debug("creating default profile api client")
-    return NetBoxApiClient(_ensure_runtime_config())
+    import netbox_cli.cli as cli_mod  # noqa: PLC0415 — late import so tests can patch cli_mod._ensure_runtime_config
+
+    return NetBoxApiClient(cli_mod._ensure_runtime_config())
 
 
 def _get_client_for_config(cfg: Config) -> NetBoxApiClient:
