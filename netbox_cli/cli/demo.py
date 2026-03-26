@@ -444,8 +444,12 @@ def demo_tui_command(
 
     try:
         run_tui(
-            client=_get_demo_client(),
-            index=_get_index(),
+            client=_call_cli_override(
+                "_get_demo_client",
+                _get_demo_client,
+                _ORIGINAL_GET_DEMO_CLIENT,
+            ),
+            index=_call_cli_override("_get_index", _get_index, _ORIGINAL_GET_INDEX),
             theme_name=selected_theme,
             demo_mode=True,
         )
@@ -479,8 +483,12 @@ def demo_dev_tui_command(
 
     try:
         run_dev_tui(
-            client=_get_demo_client(),
-            index=_get_index(),
+            client=_call_cli_override(
+                "_get_demo_client",
+                _get_demo_client,
+                _ORIGINAL_GET_DEMO_CLIENT,
+            ),
+            index=_call_cli_override("_get_index", _get_index, _ORIGINAL_GET_INDEX),
             theme_name=selected_theme,
         )
     except ThemeCatalogError as exc:
@@ -513,8 +521,12 @@ def demo_cli_tui_command(
 
     try:
         run_cli_tui(
-            client=_get_demo_client(),
-            index=_get_index(),
+            client=_call_cli_override(
+                "_get_demo_client",
+                _get_demo_client,
+                _ORIGINAL_GET_DEMO_CLIENT,
+            ),
+            index=_call_cli_override("_get_index", _get_index, _ORIGINAL_GET_INDEX),
             theme_name=selected_theme,
             demo_mode=True,
         )
