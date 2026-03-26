@@ -32,7 +32,12 @@ from netbox_cli.schema import build_schema_index
 from netbox_cli.theme_registry import load_theme_catalog
 from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
 from netbox_cli.ui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp, run_tui
-from netbox_cli.ui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
+from netbox_cli.ui.chrome import (
+    SWITCH_TO_CLI_TUI,
+    SWITCH_TO_DEV_TUI,
+    SWITCH_TO_DJANGO_TUI,
+    SWITCH_TO_MAIN_TUI,
+)
 from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
 from netbox_cli.ui.navigation import build_navigation_menus
 from netbox_cli.ui.state import TuiState, ViewState
@@ -402,6 +407,24 @@ def test_tui_view_selector_requests_dev_mode(mock_client, real_index) -> None:
     app.on_view_changed(MagicMock(value="dev"))
 
     app.exit.assert_called_once_with(result=SWITCH_TO_DEV_TUI)
+
+
+def test_tui_view_selector_requests_cli_mode(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index)
+    app.exit = MagicMock()
+
+    app.on_view_changed(MagicMock(value="cli"))
+
+    app.exit.assert_called_once_with(result=SWITCH_TO_CLI_TUI)
+
+
+def test_tui_view_selector_requests_django_mode(mock_client, real_index) -> None:
+    app = _make_app(mock_client, real_index)
+    app.exit = MagicMock()
+
+    app.on_view_changed(MagicMock(value="django"))
+
+    app.exit.assert_called_once_with(result=SWITCH_TO_DJANGO_TUI)
 
 
 def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:

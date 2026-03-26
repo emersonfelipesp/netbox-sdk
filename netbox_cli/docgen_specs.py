@@ -45,6 +45,7 @@ def all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             section="Top-level", title="nbx resources --help", argv=["resources", "--help"]
         ),
         CaptureSpec(section="Top-level", title="nbx ops --help", argv=["ops", "--help"]),
+        CaptureSpec(section="Top-level", title="nbx graphql --help", argv=["graphql", "--help"]),
         CaptureSpec(section="Top-level", title="nbx call --help", argv=["call", "--help"]),
         CaptureSpec(
             section="Top-level",
@@ -249,6 +250,38 @@ def all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
             title="nbx circuits circuit-terminations get --help",
             argv=["circuits", "circuit-terminations", "get", "--help"],
         ),
+        # New option flags: --select, --columns, --max-columns, --dry-run
+        CaptureSpec(
+            section="Dynamic Commands",
+            title="nbx dcim devices list --select results.0.name",
+            argv=["dcim", "devices", "list", "--select", "results.0.name"],
+            notes="Extract specific field from response using dot notation.",
+        ),
+        CaptureSpec(
+            section="Dynamic Commands",
+            title="nbx dcim devices list --columns id,name,status",
+            argv=["dcim", "devices", "list", "--columns", "id,name,status"],
+            notes="Display only specific columns in table output.",
+        ),
+        CaptureSpec(
+            section="Dynamic Commands",
+            title="nbx dcim devices list --max-columns 3",
+            argv=["dcim", "devices", "list", "--max-columns", "3"],
+            notes="Limit table to first 3 columns.",
+        ),
+        CaptureSpec(
+            section="Dynamic Commands",
+            title="nbx dcim devices create --dry-run",
+            argv=["dcim", "devices", "create", "--dry-run", "--body-json", '{"name":"test"}'],
+            notes="Preview write operation without executing.",
+        ),
+        # GraphQL API
+        CaptureSpec(
+            section="GraphQL API",
+            title="nbx graphql --help",
+            argv=["graphql", "--help"],
+            notes="Execute GraphQL queries against NetBox API.",
+        ),
     ]
 
     # ── Live API specs: differ between demo and default profile ───────────────
@@ -275,6 +308,14 @@ def all_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
                 section="Live API — demo.netbox.dev",
                 title="nbx demo dcim sites list",
                 argv=["demo", "dcim", "sites", "list"],
+                safe=False,
+            ),
+            # GraphQL live tests
+            CaptureSpec(
+                section="GraphQL API — demo.netbox.dev",
+                title="nbx demo graphql query",
+                argv=["demo", "graphql", "{ sites { name } }"],
+                notes="Execute GraphQL query against demo.netbox.dev.",
                 safe=False,
             ),
             # ── Cable trace: dcim/interfaces ──────────────────────────────────

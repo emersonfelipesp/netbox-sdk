@@ -68,6 +68,10 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 | `--yaml` | Output YAML |
 | `--markdown` | Output table-first Markdown |
 | `--trace` | Fetch and render ASCII cable trace (interfaces only, `get` only) |
+| `--select TEXT` | JSON dot-path to extract specific field from response (e.g., `results.0.name`) |
+| `--columns TEXT` | Comma-separated list of columns to display in table output |
+| `--max-columns INTEGER` | Maximum number of columns to display (default: 6) |
+| `--dry-run` | Preview write operation without executing (create/update/patch/delete only) |
 
 `--json`, `--yaml`, and `--markdown` are mutually exclusive.
 
@@ -121,6 +125,61 @@ Multiple `-q` flags are ANDed together.
     ```
 
     Renders API JSON as table-first Markdown output.
+
+---
+
+## Field selection (`--select`)
+
+Extract specific fields from the JSON response using dot notation:
+
+```bash
+# Get the first device's name
+nbx dcim devices list --select results.0.name
+```
+
+Only numeric list indices are supported in paths (no wildcards such as `[*]`).
+
+Supported path patterns:
+- `results.0.name` — Access nested object at a numeric index
+- `count` — Access top-level fields
+
+---
+
+## Column control (`--columns`, `--max-columns`)
+
+Limit which columns appear in table output:
+
+```bash
+# Display only specific columns
+nbx dcim devices list --columns id,name,status
+
+# Limit total columns to 3
+nbx dcim devices list --max-columns 3
+
+# Combine both
+nbx dcim devices list --columns id,name,status --max-columns 2
+```
+
+The `--columns` flag accepts a comma-separated list of field names to display. The `--max-columns` flag limits the total number of columns shown, defaulting to 6.
+
+---
+
+## Dry run (`--dry-run`)
+
+Preview what a write operation would send without actually executing it:
+
+```bash
+# Preview a create operation
+nbx dcim devices create --dry-run --body-json '{"name":"test-device","site":1}'
+
+# Preview an update operation
+nbx dcim devices update --dry-run --id 1 --body-json '{"name":"updated-name"}'
+
+# Preview a delete operation
+nbx dcim devices delete --dry-run --id 1
+```
+
+Output shows the HTTP method, path, and request body in a formatted table. The `--dry-run` flag is only valid for write operations (`create`, `update`, `patch`, `delete`).
 
 ---
 

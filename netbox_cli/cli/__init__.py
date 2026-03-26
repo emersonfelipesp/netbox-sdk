@@ -111,7 +111,16 @@ def root_callback(ctx: typer.Context) -> None:
     setup_logging()
     if ctx.resilient_parsing:
         return
-    if ctx.invoked_subcommand not in {"init", "tui", "cli", "docs", "demo", "dev", "logs"}:
+    if ctx.invoked_subcommand not in {
+        "init",
+        "tui",
+        "cli",
+        "docs",
+        "demo",
+        "dev",
+        "logs",
+        "graphql",
+    }:
         _ensure_runtime_config()
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
@@ -247,6 +256,52 @@ def operations_command(
     for row in rows:
         table.add_row(row.method, row.path, row.operation_id or "-")
     console.print(table)
+
+
+@app.command("graphql")
+def graphql_command(
+    query: str = typer.Argument(..., help="GraphQL query string"),
+    variables: list[str] = typer.Option(
+        None,
+        "--variables",
+        "-v",
+        help="GraphQL variables: one JSON object, or repeat for multiple key=value pairs",
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+) -> None:
+    """Execute a GraphQL query against the NetBox API."""
+    client = _get_client()
+
+    vars_dict: dict[str, Any] | None = None
+    pairs = variables or []
+    if pairs:
+        if len(pairs) == 1:
+            raw = pairs[0]
+            try:
+                decoded = json.loads(raw)
+            except json.JSONDecodeError:
+                try:
+                    vars_dict = parse_key_value_pairs(pairs)
+                except ValueError as exc:
+                    raise typer.BadParameter(str(exc)) from exc
+            else:
+                if not isinstance(decoded, dict):
+                    raise typer.BadParameter("GraphQL variables JSON must decode to an object")
+                vars_dict = decoded
+        else:
+            try:
+                vars_dict = parse_key_value_pairs(pairs)
+            except ValueError as exc:
+                raise typer.BadParameter(str(exc)) from exc
+
+    response = run_with_spinner(client.graphql(query, vars_dict))
+    print_response(
+        response.status,
+        response.text,
+        as_json=output_json,
+        as_yaml=output_yaml,
+    )
 
 
 @app.command("call")

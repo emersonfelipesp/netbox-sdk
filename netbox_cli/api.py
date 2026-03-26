@@ -347,3 +347,10 @@ class NetBoxApiClient:
         if probe.ok:
             return probe.version
         raise RequestError(ApiResponse(status=probe.status, text=probe.error or "", headers={}))
+
+    async def graphql(self, query: str, variables: dict[str, Any] | None = None) -> ApiResponse:
+        """Execute a GraphQL query against the NetBox API."""
+        payload: dict[str, Any] = {"query": query}
+        if variables:
+            payload["variables"] = variables
+        return await self.request("POST", "/api/graphql/", payload=payload)

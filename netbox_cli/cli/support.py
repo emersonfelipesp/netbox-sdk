@@ -29,6 +29,29 @@ from ..ui.formatting import (
 
 console = Console()
 
+
+def select_json_path(data: Any, path: str) -> Any:
+    """Extract a value from nested data using dot notation (e.g., 'results.0.name')."""
+    if not path:
+        return data
+    parts = path.split(".")
+    current = data
+    for part in parts:
+        if current is None:
+            return None
+        if isinstance(current, list):
+            try:
+                idx = int(part)
+                current = current[idx] if idx < len(current) else None
+            except ValueError:
+                return None
+        elif isinstance(current, dict):
+            current = current.get(part)
+        else:
+            return None
+    return current
+
+
 _LIST_COLUMNS = {
     "id",
     "name",
@@ -148,23 +171,29 @@ def run_with_spinner(coro: Any) -> Any:
         return asyncio.run(coro)
 
 
-def render_table(parsed: Any) -> None:
+def render_table(parsed: Any, columns: list[str] | None = None, max_columns: int = 6) -> None:
     if isinstance(parsed, dict) and "results" in parsed and isinstance(parsed["results"], list):
         rows_data = [r for r in parsed["results"] if isinstance(r, dict)]
         count = parsed.get("count")
-        render_list_table(rows_data, count=count)
+        render_list_table(rows_data, count=count, columns=columns, max_columns=max_columns)
     elif isinstance(parsed, dict):
         render_detail_table(parsed)
     elif isinstance(parsed, list):
         rows_data = [r for r in parsed if isinstance(r, dict)]
         if not rows_data and parsed:
             rows_data = [{"value": sanitize_terminal_text(item)} for item in parsed]
-        render_list_table(rows_data, count=None)
+        render_list_table(rows_data, count=None, columns=columns, max_columns=max_columns)
     else:
         console.print(safe_text(parsed))
 
 
-def render_list_table(rows_data: list[dict[str, Any]], *, count: int | None) -> None:
+def render_list_table(
+    rows_data: list[dict[str, Any]],
+    *,
+    count: int | None = None,
+    columns: list[str] | None = None,
+    max_columns: int = 6,
+) -> None:
     if not rows_data:
         console.print("[dim]No results.[/dim]")
         return
@@ -175,8 +204,26 @@ def render_list_table(rows_data: list[dict[str, Any]], *, count: int | None) -> 
             if key not in all_keys:
                 all_keys.append(str(key))
 
-    priority_keys = [k for k in all_keys if k in _LIST_COLUMNS]
-    display_keys = order_field_names(priority_keys if priority_keys else all_keys)
+    if columns:
+        display_keys = [k for k in columns if k in all_keys]
+        if not display_keys:
+            if not all_keys:
+                raise typer.BadParameter(
+                    "None of the requested columns exist in the response (rows have no keys)."
+                )
+            sample = ", ".join(all_keys[:12])
+            if len(all_keys) > 12:
+                sample += ", …"
+            raise typer.BadParameter(
+                f"None of the requested columns exist in the response. "
+                f"Available keys include: {sample}"
+            )
+    else:
+        priority_keys = [k for k in all_keys if k in _LIST_COLUMNS]
+        display_keys = order_field_names(priority_keys if priority_keys else all_keys)
+
+    if max_columns and len(display_keys) > max_columns:
+        display_keys = display_keys[:max_columns]
 
     title = f"{count} result(s)" if count is not None else None
     table = Table(title=title, show_header=True, header_style="bold")
@@ -208,6 +255,9 @@ def print_response(
     as_json: bool = False,
     as_yaml: bool = False,
     as_markdown: bool = False,
+    select_path: str | None = None,
+    columns: list[str] | None = None,
+    max_columns: int = 6,
 ) -> None:
     output_format = resolve_output_format(
         as_json=as_json,
@@ -240,7 +290,16 @@ def print_response(
         typer.echo(render_markdown(parsed))
         return
 
-    render_table(parsed)
+    if select_path is not None:
+        selected = select_json_path(parsed, select_path)
+        if selected is not None:
+            if isinstance(selected, (dict, list)):
+                typer.echo(json.dumps(selected, indent=2, sort_keys=True))
+            else:
+                typer.echo(safe_text(selected))
+        return
+
+    render_table(parsed, columns=columns, max_columns=max_columns)
 
 
 def trace_message(message: str) -> None:
@@ -305,3 +364,29 @@ def print_trace_output(
 
     typer.echo("Cable Trace:")
     typer.echo(sanitize_terminal_text(rendered))
+
+
+def print_dry_run(
+    *,
+    method: str,
+    path: str,
+    body: dict[str, Any] | list[Any] | None,
+) -> None:
+    """Print a dry-run preview of a write operation."""
+    from rich.console import Console
+    from rich.table import Table
+
+    console = Console()
+    table = Table(title="[bold]Dry Run Preview[/bold]", show_header=True, header_style="bold")
+    table.add_column("Field", style="bold", no_wrap=True)
+    table.add_column("Value", overflow="fold")
+
+    table.add_row("Method", method)
+    table.add_row("Path", path)
+    if body:
+        body_str = json.dumps(body, indent=2)
+        table.add_row("Body", body_str)
+    else:
+        table.add_row("Body", "[dim](none)[/dim]")
+
+    console.print(table)

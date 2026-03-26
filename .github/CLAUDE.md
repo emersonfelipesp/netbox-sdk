@@ -72,19 +72,24 @@ Runs on:
 **Pipeline stages (gated):**
 
 1. **Prepare release artifacts**:
-   - validate package metadata (`project.name == netbox-console`)
+   - validate package metadata (`project.name == netbox-console` in the committed `pyproject.toml`)
    - validate tag/version match on tag pushes (`v<version>`)
-   - build `sdist` + `wheel` once and publish as workflow artifact
-2. **Publish to TestPyPI**:
+   - build `sdist` + `wheel` for **`netbox-console`**, then patch `pyproject.toml` to `name = "netbox-sdk"` and build again (same code; second distribution name only)
+   - upload one workflow artifact containing both sets of files under `dist/`
+2. **Publish to TestPyPI** (matrix, parallel):
+   - one job uploads `dist/netbox_console-*`, the other `dist/netbox_sdk-*`
    - Twine upload with `--skip-existing`
 3. **Validate TestPyPI release**:
    - pre-CI style checks (`pre-commit` + `pytest` matrix)
-   - post-CI style checks (package install + demo TUI tests + full pytest)
-4. **Publish to official PyPI** *(only if all TestPyPI validations pass and `publish_pypi=true` on manual dispatch)*:
+   - post-CI style checks (fresh venv install smoke for `netbox-console` and `netbox-sdk`, then demo TUI tests + full pytest from source)
+4. **Publish to official PyPI** *(only if all TestPyPI validations pass)*:
+   - same matrix as TestPyPI: parallel uploads per distribution prefix
    - Twine upload with `--skip-existing`
 5. **Validate official PyPI release**:
    - pre-CI style checks (`pre-commit` + `pytest` matrix)
-   - post-CI style checks (package install + demo TUI tests + full pytest)
+   - post-CI style checks (fresh venv install smoke for `netbox-console` and `netbox-sdk`, then demo TUI tests + full pytest from source)
+
+**Maintainer setup for `netbox-sdk`:** Create the `netbox-sdk` project on Test PyPI and PyPI (in addition to `netbox-console`). Ensure CI tokens or trusted publishing can upload to both projects; see the comment at the top of `workflows/publish-testpypi.yml`.
 
 **Package install rules in validation:**
 - TestPyPI package + official PyPI dependencies:
