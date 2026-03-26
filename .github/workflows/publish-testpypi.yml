@@ -1,3 +1,6 @@
+# Publishes two PyPI distribution names per release (same code): netbox-console and netbox-sdk.
+# Create both projects on Test PyPI and PyPI and ensure CI tokens (or trusted publishing) can upload to each.
+
 name: Release validation and publish
 
 on:
@@ -65,8 +68,36 @@ jobs:
           print(f"Package metadata OK: {project_name}=={version}")
           PY
 
-      - name: Build distribution artifacts
+      - name: Build netbox-console distribution
         run: uv run --with build python -m build
+
+      - name: Patch pyproject.toml for netbox-sdk mirror build
+        run: |
+          python - <<'PY'
+          import pathlib
+
+          path = pathlib.Path("pyproject.toml")
+          text = path.read_text(encoding="utf-8")
+          old = 'name = "netbox-console"'
+          if text.count(old) != 1:
+              raise SystemExit(f"Expected exactly one {old!r} in pyproject.toml")
+          path.write_text(text.replace(old, 'name = "netbox-sdk"', 1), encoding="utf-8")
+          PY
+
+      - name: Build netbox-sdk distribution
+        run: uv run --with build python -m build
+
+      - name: Verify dual distribution artifacts
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          c=(dist/netbox_console-*)
+          s=(dist/netbox_sdk-*)
+          if [ ${#c[@]} -lt 1 ] || [ ${#s[@]} -lt 1 ]; then
+            echo "Expected netbox_console-* and netbox_sdk-* under dist/; got:"
+            ls -la dist/
+            exit 1
+          fi
 
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
@@ -76,9 +107,13 @@ jobs:
           if-no-files-found: error
 
   publish-testpypi:
-    name: publish to TestPyPI
+    name: publish ${{ matrix.dist_prefix }} to TestPyPI
     needs: prepare-release
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dist_prefix: [netbox_console, netbox_sdk]
     steps:
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -115,13 +150,21 @@ jobs:
               ;;
           esac
 
+          shopt -s nullglob
+          files=(dist/${{ matrix.dist_prefix }}-*)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No dist artifacts matched dist/${{ matrix.dist_prefix }}-*"
+            ls -la dist/
+            exit 1
+          fi
+
           uv run --with twine python -m twine upload \
             --non-interactive \
             --skip-existing \
             --username "$TEST_PYPI_USERNAME" \
             --password "$TEST_PYPI_TOKEN" \
             --repository-url "$REPOSITORY_URL" \
-            dist/*
+            "${files[@]}"
 
   validate-testpypi-pre:
     name: validate TestPyPI pre-CI / py${{ matrix.python-version }}
@@ -173,43 +216,59 @@ jobs:
         env:
           VERSION: ${{ needs.prepare-release.outputs.version }}
         run: |
-          wait_for_installable () {
-            local package_version="$1"
+          set -euo pipefail
+
+          wait_for_testpypi () {
+            local pkg="$1"
+            local package_version="$2"
             local max_attempts=24
             local attempt=1
             while [ "$attempt" -le "$max_attempts" ]; do
               if pip install \
                 --index-url https://test.pypi.org/simple/ \
                 --extra-index-url https://pypi.org/simple/ \
-                "netbox-console==$package_version"; then
+                "${pkg}==${package_version}"; then
                 return 0
               fi
-              echo "Package not visible on TestPyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
+              echo "${pkg} not visible on TestPyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
               sleep 10
               attempt=$((attempt + 1))
             done
-            echo "Timed out waiting for netbox-console==$package_version on TestPyPI"
+            echo "Timed out waiting for ${pkg}==${package_version} on TestPyPI"
             return 1
           }
 
-          python -m venv /tmp/nbx-testpypi-venv
-          source /tmp/nbx-testpypi-venv/bin/activate
-          python -m pip install --upgrade pip
-          wait_for_installable "$VERSION"
+          smoke_pkg () {
+            local pkg="$1"
+            local venv_path="$2"
+            python -m venv "$venv_path"
+            # shellcheck disable=SC1090
+            source "$venv_path/bin/activate"
+            python -m pip install --upgrade pip
+            wait_for_testpypi "$pkg" "$VERSION"
 
-          python -m playwright install --with-deps chromium
-          python - <<'PY'
+            python -m playwright install --with-deps chromium
+            export SMOKE_DIST_NAME="$pkg"
+            python -c '
+          import os
+
           from importlib.metadata import version
           from playwright.sync_api import sync_playwright
 
-          assert version("netbox-console"), "netbox-console not installed"
+          pkg = os.environ["SMOKE_DIST_NAME"]
+          assert version(pkg), f"{pkg} not installed"
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               browser.close()
-          print("Playwright Chromium launch OK")
-          PY
+          print(f"Playwright Chromium launch OK ({pkg})")
+          '
 
-          /tmp/nbx-testpypi-venv/bin/nbx --help
+            "${venv_path}/bin/nbx" --help
+            deactivate
+          }
+
+          smoke_pkg netbox-console /tmp/nbx-testpypi-console-venv
+          smoke_pkg netbox-sdk /tmp/nbx-testpypi-sdk-venv
 
       - name: Sync development environment
         run: uv sync --dev --locked
@@ -221,13 +280,17 @@ jobs:
         run: uv run pytest -v --tb=short
 
   publish-pypi:
-    name: publish to official PyPI
+    name: publish ${{ matrix.dist_prefix }} to official PyPI
     needs:
       - prepare-release
       - publish-testpypi
       - validate-testpypi-pre
       - validate-testpypi-post
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dist_prefix: [netbox_console, netbox_sdk]
     steps:
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -264,13 +327,21 @@ jobs:
               ;;
           esac
 
+          shopt -s nullglob
+          files=(dist/${{ matrix.dist_prefix }}-*)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No dist artifacts matched dist/${{ matrix.dist_prefix }}-*"
+            ls -la dist/
+            exit 1
+          fi
+
           uv run --with twine python -m twine upload \
             --non-interactive \
             --skip-existing \
             --username "$PYPI_USERNAME" \
             --password "$PYPI_TOKEN" \
             --repository-url "$REPOSITORY_URL" \
-            dist/*
+            "${files[@]}"
 
   validate-pypi-pre:
     name: validate PyPI pre-CI / py${{ matrix.python-version }}
@@ -324,42 +395,58 @@ jobs:
         env:
           VERSION: ${{ needs.prepare-release.outputs.version }}
         run: |
-          wait_for_installable () {
-            local package_version="$1"
+          set -euo pipefail
+
+          wait_for_pypi () {
+            local pkg="$1"
+            local package_version="$2"
             local max_attempts=24
             local attempt=1
             while [ "$attempt" -le "$max_attempts" ]; do
               if pip install \
                 --index-url https://pypi.org/simple/ \
-                "netbox-console==$package_version"; then
+                "${pkg}==${package_version}"; then
                 return 0
               fi
-              echo "Package not visible on PyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
+              echo "${pkg} not visible on PyPI yet (attempt ${attempt}/${max_attempts}); retrying in 10s..."
               sleep 10
               attempt=$((attempt + 1))
             done
-            echo "Timed out waiting for netbox-console==$package_version on PyPI"
+            echo "Timed out waiting for ${pkg}==${package_version} on PyPI"
             return 1
           }
 
-          python -m venv /tmp/nbx-pypi-venv
-          source /tmp/nbx-pypi-venv/bin/activate
-          python -m pip install --upgrade pip
-          wait_for_installable "$VERSION"
+          smoke_pkg () {
+            local pkg="$1"
+            local venv_path="$2"
+            python -m venv "$venv_path"
+            # shellcheck disable=SC1090
+            source "$venv_path/bin/activate"
+            python -m pip install --upgrade pip
+            wait_for_pypi "$pkg" "$VERSION"
 
-          python -m playwright install --with-deps chromium
-          python - <<'PY'
+            python -m playwright install --with-deps chromium
+            export SMOKE_DIST_NAME="$pkg"
+            python -c '
+          import os
+
           from importlib.metadata import version
           from playwright.sync_api import sync_playwright
 
-          assert version("netbox-console"), "netbox-console not installed"
+          pkg = os.environ["SMOKE_DIST_NAME"]
+          assert version(pkg), f"{pkg} not installed"
           with sync_playwright() as p:
               browser = p.chromium.launch(headless=True)
               browser.close()
-          print("Playwright Chromium launch OK")
-          PY
+          print(f"Playwright Chromium launch OK ({pkg})")
+          '
 
-          /tmp/nbx-pypi-venv/bin/nbx --help
+            "${venv_path}/bin/nbx" --help
+            deactivate
+          }
+
+          smoke_pkg netbox-console /tmp/nbx-pypi-console-venv
+          smoke_pkg netbox-sdk /tmp/nbx-pypi-sdk-venv
 
       - name: Sync development environment
         run: uv sync --dev --locked
