@@ -13,7 +13,7 @@
 | `docs/` | [→](docs/CLAUDE.md) | MkDocs sources |
 | `.github/` | [→](.github/CLAUDE.md) | GitHub Actions workflows |
 | `reference/` | [→](reference/CLAUDE.md) | Design, Textual, and prior-art client references |
-| `reference/PYNETBOX.md` | n/a | Internal reference for pynetbox architecture and prior-art behavior |
+| `reference/PYNETBOX.md` | n/a | Maintainer reference for `pynetbox` architecture and prior-art client behavior |
 
 ## Architecture In One Page
 
@@ -92,8 +92,8 @@ pip install -e '.[all]'
 - TUI code in `netbox_tui/` may depend on `netbox_sdk` and `textual`, not on old `netbox_cli/ui` paths.
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
-- Consult `reference/PYNETBOX.md` when evaluating prior-art client behavior or SDK ergonomics.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
+- Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 
 ## TUI Design Rules
 

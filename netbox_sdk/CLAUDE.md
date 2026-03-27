@@ -43,3 +43,4 @@ netbox_sdk/
 
 - `python -c 'import netbox_sdk'` must work without CLI or TUI extras.
 - SDK tests should import from `netbox_sdk`, not `sdk`.
+- Consult [`reference/PYNETBOX.md`](../reference/PYNETBOX.md) when comparing SDK ergonomics to historical NetBox Python client behavior or prior-art feature patterns.

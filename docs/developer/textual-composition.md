@@ -1,6 +1,6 @@
 # Textual Composition Pattern
 
-`netbox-cli` uses a React-style composition pattern for Textual UI work: build screens from small reusable widgets, pass configuration through constructor arguments, and compose behavior by nesting widgets instead of building deep inheritance trees.
+`netbox-sdk` uses a React-style composition pattern for Textual UI work: build screens from small reusable widgets, pass configuration through constructor arguments, and compose behavior by nesting widgets instead of building deep inheritance trees.
 
 ## Why
 
@@ -183,7 +183,7 @@ Avoid:
 
 ## Project-Wide Standard
 
-For new Textual work in `netbox-cli`:
+For new Textual work in `netbox-sdk`:
 
 1. Start with composition.
 2. Pass theme/styling intent as semantic props on reusable widgets.
