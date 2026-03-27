@@ -1,6 +1,6 @@
 # TUI Screenshots
 
-The NetBox CLI ships with 5 different TUI applications, each designed for a specific use case. Below you'll find screenshots of each TUI across all available themes.
+`netbox-sdk` ships with 5 different TUI applications, each designed for a specific use case. Below you'll find screenshots of each TUI across all available themes.
 
 ## Available TUI Applications
 

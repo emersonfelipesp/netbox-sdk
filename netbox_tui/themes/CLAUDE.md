@@ -1,4 +1,4 @@
-# netbox_cli/themes — JSON Theme Files
+# netbox_tui/themes — JSON Theme Files
 
 Each `.json` file here is auto-discovered by `theme_registry.load_theme_catalog()`. No code changes are needed to add a new theme — just drop a valid JSON file into this directory.
 
@@ -66,7 +66,8 @@ All themes must be valid JSON with this structure:
 
 ## Semantic Variable Reference
 
-These 16 `variables` map directly to TCSS custom variables used throughout `tui.tcss` and `ui/formatting.py`.
+These 16 `variables` map directly to TCSS custom variables used throughout the
+runtime TCSS files and the shared formatting helpers.
 
 | Variable | Usage |
 |---|---|

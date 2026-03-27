@@ -1,8 +1,8 @@
-site_name: NetBox CLI
-site_description: API-first NetBox CLI and TUI — manage NetBox from your terminal
-site_url: https://emersonfelipesp.github.io/netbox-cli/
-repo_url: https://github.com/emersonfelipesp/netbox-cli
-repo_name: emersonfelipesp/netbox-cli
+site_name: netbox-sdk
+site_description: API-first NetBox SDK, CLI, and Textual TUI for NetBox
+site_url: https://emersonfelipesp.github.io/netbox-sdk/
+repo_url: https://github.com/emersonfelipesp/netbox-sdk
+repo_name: emersonfelipesp/netbox-sdk
 edit_uri: edit/main/docs/
 
 theme:
@@ -105,6 +105,7 @@ nav:
     - sdk/index.md
     - Authentication: sdk/authentication.md
     - Facade API: sdk/facade.md
+    - Typed API: sdk/typed.md
     - Making Requests: sdk/making-requests.md
     - Schema Indexing: sdk/schema.md
     - Error Handling: sdk/error-handling.md
@@ -117,7 +118,7 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/emersonfelipesp/netbox-cli
+      link: https://github.com/emersonfelipesp/netbox-sdk
 
 extra_css:
   - assets/extra.css

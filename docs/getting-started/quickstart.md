@@ -106,9 +106,37 @@ No NetBox instance required — `demo.netbox.dev` is a public playground.
 
 ---
 
+## 7. Use the typed SDK
+
+```python
+import asyncio
+
+from netbox_sdk import typed_api
+
+
+async def main() -> None:
+    nb = typed_api(
+        "https://netbox.example.com",
+        token="your-token",
+        netbox_version="4.5",
+    )
+    device = await nb.dcim.devices.get(42)
+    if device is not None:
+        print(device.name)
+
+
+asyncio.run(main())
+```
+
+The typed client validates request and response payloads with committed Pydantic
+models for NetBox `4.5`, `4.4`, and `4.3`.
+
+---
+
 ## Next steps
 
 - [CLI commands reference](../cli/commands.md) — all top-level commands
 - [Dynamic commands](../cli/dynamic-commands.md) — how group/resource/action commands work
 - [TUI guide](../tui/index.md) — navigation, themes, keyboard shortcuts
-- [Command examples](../reference/command-examples.md) — live-captured output for every command
+- [SDK guide](../sdk/index.md) — low-level, facade, and typed SDK entrypoints
+- [Command examples](../reference/command-examples/index.md) — live-captured output for every command

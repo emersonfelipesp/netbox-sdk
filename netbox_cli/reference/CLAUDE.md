@@ -7,11 +7,12 @@ Static data files bundled with the package at install time (declared in `pyproje
 | Path | Description |
 |---|---|
 | `openapi/netbox-openapi.json` | NetBox OpenAPI 3.0 schema (JSON) |
-| `openapi/netbox-openapi.yaml` | NetBox OpenAPI 3.0 schema (YAML) |
 
 ## How It's Used
 
-`netbox_cli/schema.py` loads `openapi/netbox-openapi.json` at startup via `importlib.resources` (or a path relative to `__file__`). The schema is loaded **once**, indexed into `SchemaIndex`, and reused for the entire process lifetime.
+This package-local JSON file is a compatibility/reference copy used by CLI-facing
+workflows. The active schema/index logic lives in `netbox_sdk.schema`, and the
+typed SDK uses committed versioned schemas from `netbox_sdk/reference/openapi/`.
 
 This schema drives:
 - `nbx groups` — lists all API groups
@@ -22,13 +23,13 @@ This schema drives:
 
 ## Updating the Schema
 
-When a new NetBox version is released, replace both files with the updated schema from the target NetBox instance:
+When the CLI reference copy needs to be refreshed, replace the JSON file with an
+updated schema from a target NetBox instance:
 
 ```bash
 curl https://<your-netbox>/api/schema/?format=json -o netbox_cli/reference/openapi/netbox-openapi.json
-curl https://<your-netbox>/api/schema/?format=yaml -o netbox_cli/reference/openapi/netbox-openapi.yaml
 ```
 
-Or download from the official NetBox GitHub releases.
-
-> **Do not** reference the live NetBox API schema at runtime. The bundled file ensures the CLI works offline and pins the supported schema version.
+Do not treat this directory as the source of truth for typed version support.
+That contract is owned by `netbox_sdk/reference/openapi/`, `netbox_sdk.models`,
+and `netbox_sdk.typed_versions`.

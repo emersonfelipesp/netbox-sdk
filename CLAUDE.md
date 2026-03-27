@@ -8,7 +8,7 @@
 | `netbox_tui/` | [→](netbox_tui/CLAUDE.md) | Textual TUI package: apps, chrome, widgets, navigation, state, TCSS, theme registry |
 | `netbox_tui/themes/` | [→](netbox_tui/themes/CLAUDE.md) | JSON theme files auto-discovered by the TUI |
 | `netbox_cli/` | [→](netbox_cli/CLAUDE.md) | Typer CLI package: root app, runtime, dynamic commands, demo/dev/docgen wiring |
-| `netbox_sdk/reference/` | [→](netbox_sdk/reference/CLAUDE.md) | Bundled SDK schema assets |
+| `netbox_sdk/reference/` | [→](netbox_sdk/reference/CLAUDE.md) | Bundled SDK OpenAPI assets for supported NetBox release lines |
 | `tests/` | [→](tests/CLAUDE.md) | pytest suite |
 | `docs/` | [→](docs/CLAUDE.md) | MkDocs sources |
 | `.github/` | [→](.github/CLAUDE.md) | GitHub Actions workflows |
@@ -30,6 +30,12 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── output_safety.py
     ├── trace_ascii.py
     ├── demo_auth.py
+    ├── facade.py
+    ├── typed_api.py
+    ├── typed_runtime.py
+    ├── versioning.py
+    ├── models/
+    ├── typed_versions/
     ├── django_models/
     └── reference/openapi/
 
@@ -92,6 +98,8 @@ pip install -e '.[all]'
 - TUI code in `netbox_tui/` may depend on `netbox_sdk` and `textual`, not on old `netbox_cli/ui` paths.
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
+- The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
+- Bundled typed support currently targets NetBox release lines `4.5`, `4.4`, and `4.3`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 

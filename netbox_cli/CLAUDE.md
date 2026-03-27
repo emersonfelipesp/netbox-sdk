@@ -26,6 +26,8 @@
 
 - Import SDK types/functions from `netbox_sdk.*`.
 - Import TUI entrypoints only inside function bodies unless the module is explicitly TUI-only.
+- Use `netbox_sdk.schema` as the source of truth for schema/index behavior; do not reintroduce separate CLI-local schema loaders.
+- Treat `typed_api()` as an SDK-facing surface, not a CLI dependency unless a command explicitly needs versioned typed validation.
 - Keep root app references on `netbox_cli`, for example:
   - `from netbox_cli import app, main`
   - `from netbox_cli.runtime import _get_client, _get_index`

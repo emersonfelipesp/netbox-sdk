@@ -1,4 +1,4 @@
-# NetBox CLI and TUI
+# netbox-sdk
 
 `netbox-sdk` is a terminal client and SDK for NetBox with two interfaces built on one core runtime:
 
@@ -6,7 +6,10 @@
 - `netbox_tui` — Textual terminal applications
 - `netbox_sdk` — standalone REST API SDK shared by both
 
-The published package name is `netbox-sdk`.
+Published package names remain:
+
+- `netbox-sdk`
+- `netbox-console`
 
 ## Quick Start with the Demo Instance
 

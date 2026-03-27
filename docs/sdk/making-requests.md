@@ -4,6 +4,7 @@
 
 - the low-level `NetBoxApiClient` for direct HTTP calls
 - the higher-level facade returned by `api()` for PyNetBox-style workflows
+- the versioned typed client returned by `typed_api()` for validated Pydantic I/O
 
 Both layers are async and can be used in the same project.
 
@@ -76,6 +77,52 @@ plugins = await nb.plugins.installed_plugins()
 async for olt in nb.plugins.gpon.olts.filter(status="active"):
     print(olt.name)
 ```
+
+---
+
+## Typed client usage
+
+Use the typed client when you want validated request payloads, validated response
+payloads, and version-specific endpoint models.
+
+```python
+from netbox_sdk import typed_api
+
+nb = typed_api(
+    "https://netbox.example.com",
+    token="mytoken",
+    netbox_version="4.5",
+)
+```
+
+### Retrieve a typed record
+
+```python
+device = await nb.dcim.devices.get(42)
+if device is not None:
+    print(device.name)
+```
+
+### Validate a request before HTTP
+
+```python
+from netbox_sdk import TypedRequestValidationError
+
+try:
+    await nb.ipam.prefixes.available_ips.create(7, body=[{"prefix_length": "invalid"}])
+except TypedRequestValidationError as exc:
+    print(exc)
+```
+
+### Version selection
+
+```python
+typed_api("https://netbox.example.com", token="tok", netbox_version="4.5")
+typed_api("https://netbox.example.com", token="tok", netbox_version="4.5.5")
+```
+
+The typed client supports NetBox `4.5`, `4.4`, and `4.3`. Generated models for
+those release lines are committed in the repository and shipped with the package.
 
 ---
 
