@@ -99,7 +99,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         index: SchemaIndex,
         theme_name: str | None = None,
         demo_mode: bool = False,
-    ):
+    ) -> None:
         super().__init__()
         self.client = client
         self.index = index
@@ -1108,7 +1108,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             notify=notify,
         )
 
-    def _logo_renderable(self):
+    def _logo_renderable(self) -> Text:
         return logo_renderable(self.theme_catalog, self.theme_name)
 
 

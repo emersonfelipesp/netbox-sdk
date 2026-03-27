@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-
+from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.css.query import NoMatches
 from textual.timer import Timer
@@ -17,14 +16,14 @@ from netbox_tui.widgets import NbxPanelBody, NbxPanelHeader
 class ObjectAttributesPanel(Vertical):
     """Render selected row data as key/value attributes."""
 
-    def __init__(self, *, panel_id: str = "detail_panel"):
+    def __init__(self, *, panel_id: str = "detail_panel") -> None:
         super().__init__(id=panel_id)
         self._spinner_frames = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
         self._spinner_index = 0
         self._spinner_timer: Timer | None = None
         self._row_values: list[tuple[str, Any]] = []
 
-    def compose(self):
+    def compose(self) -> ComposeResult:
         yield NbxPanelHeader(
             "Object Attributes",
             "NetBox detail-style panel",

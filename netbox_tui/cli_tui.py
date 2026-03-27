@@ -1057,7 +1057,7 @@ class NbxCliTuiApp(App[None]):
         )
         self._refresh_nav()
 
-    def _logo_renderable(self):
+    def _logo_renderable(self) -> Text:
         return logo_renderable(self.theme_catalog, self.theme_name)
 
 

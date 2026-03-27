@@ -840,7 +840,7 @@ class NetBoxDevTuiApp(App[None]):
         )
         _set("#dev_copy_response_button", copy_button_css)
 
-    def _logo_renderable(self):
+    def _logo_renderable(self) -> Text:
         return logo_renderable(self.theme_catalog, self.theme_name)
 
     def _sync_text_area_syntax_themes(self) -> None:

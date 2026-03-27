@@ -235,6 +235,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         "",
         "from pydantic import BaseModel, Field",
         "",
+        "from netbox_sdk.client import NetBoxApiClient",
         f"from netbox_sdk.models.v{suffix} import *",
         "from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase, build_typed_client",
         "from netbox_sdk.versioning import SupportedNetBoxVersion",
@@ -263,7 +264,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
             resource_name, _, action_name = resource_key.partition(":")
             class_name = pascal_case(f"{group}_{resource_name}_{action_name or 'endpoint'}")
             lines = [f"class {class_name}(TypedAppBase):"]
-            lines.append("    def __init__(self, api: TypedApiBase):")
+            lines.append("    def __init__(self, api: TypedApiBase) -> None:")
             lines.append("        super().__init__(api)")
             lines.append("")
             if not action_name:
@@ -320,7 +321,12 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
             endpoint_classes.append("")
 
         app_class_name = pascal_case(f"{group}_app")
-        lines = [f"class {app_class_name}(TypedAppBase):", "    def __init__(self, api: TypedApiBase):", "        super().__init__(api)", ""]
+        lines = [
+            f"class {app_class_name}(TypedAppBase):",
+            "    def __init__(self, api: TypedApiBase) -> None:",
+            "        super().__init__(api)",
+            "",
+        ]
         for resource in root_resources:
             endpoint_class = pascal_case(f"{group}_{resource}_endpoint")
             lines.append("    @property")
@@ -337,7 +343,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
     api_class_name = f"TypedApiV{suffix}"
     api_lines = [
         f"class {api_class_name}(TypedApiBase):",
-        "    def __init__(self, client):",
+        "    def __init__(self, client: NetBoxApiClient) -> None:",
         f"        super().__init__(client=client, netbox_version={version!r})",
         *api_assignments,
         "",

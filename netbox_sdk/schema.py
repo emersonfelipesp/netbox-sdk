@@ -84,7 +84,7 @@ def _classify_param(schema: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
 
 
 class SchemaIndex:
-    def __init__(self, schema: dict[str, Any]):
+    def __init__(self, schema: dict[str, Any]) -> None:
         self.schema = schema
         self.operations: list[Operation] = []
         self._resource_paths: dict[tuple[str, str], ResourcePaths] = {}

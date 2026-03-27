@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from rich.text import Text
 from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -196,7 +197,7 @@ class NetBoxLogsTuiApp(App[None]):
             notify=notify,
         )
 
-    def _logo_renderable(self):
+    def _logo_renderable(self) -> Text:
         return logo_renderable(self.theme_catalog, self.theme_name)
 
     def _strip_theme_select_prefix(self) -> None:

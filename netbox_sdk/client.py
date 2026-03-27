@@ -6,9 +6,9 @@ import json
 import logging
 import time
 from contextlib import contextmanager
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, IO, TypeAlias
 from urllib.parse import urljoin, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,6 +25,10 @@ from netbox_sdk.http_cache import CachePolicy, HttpCacheStore, build_cache_key
 
 logger = logging.getLogger(__name__)
 
+JSONScalar: TypeAlias = str | int | float | bool | None
+JSONValue: TypeAlias = JSONScalar | list["JSONValue"] | dict[str, "JSONValue"]
+FileLike: TypeAlias = IO[bytes] | IO[str]
+
 
 class ApiResponse(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -33,12 +37,12 @@ class ApiResponse(BaseModel):
     text: str
     headers: dict[str, str] = Field(default_factory=dict)
 
-    def json(self) -> Any:
+    def json(self) -> JSONValue:
         return json.loads(self.text)
 
 
 class RequestError(RuntimeError):
-    def __init__(self, response: ApiResponse):
+    def __init__(self, response: ApiResponse) -> None:
         self.response = response
         super().__init__(f"Request failed with status {response.status}")
 
@@ -56,12 +60,12 @@ class NetBoxApiClient:
         config: Config,
         *,
         on_token_refresh: Callable[[Config], tuple[str | None, Config] | str | None] | None = None,
-    ):
+    ) -> None:
         self.config = config
         self._cache = HttpCacheStore(cache_dir())
         self._on_token_refresh = on_token_refresh or self._default_token_refresh_callback()
         self._default_headers: dict[str, str] = {}
-        self._openapi_cache: Any = None
+        self._openapi_cache: dict[str, JSONValue] | None = None
         logger.debug("initialized api client for %s", self.config.base_url or "<unset>")
 
     def _default_token_refresh_callback(
@@ -287,8 +291,8 @@ class NetBoxApiClient:
         return clean_payload, form
 
     def _coerce_file_field(
-        self, value: Any, *, field_name: str
-    ) -> tuple[str, Any, str | None] | None:
+        self, value: object, *, field_name: str
+    ) -> tuple[str, FileLike, str | None] | None:
         if self._is_file_like(value):
             return self._file_tuple(getattr(value, "name", field_name), value, None)
         if isinstance(value, tuple) and len(value) >= 2 and self._is_file_like(value[1]):
@@ -299,12 +303,12 @@ class NetBoxApiClient:
         return None
 
     def _file_tuple(
-        self, filename: Any, file_obj: Any, content_type: Any
-    ) -> tuple[str, Any, str | None]:
+        self, filename: object, file_obj: FileLike, content_type: object
+    ) -> tuple[str, FileLike, str | None]:
         name = Path(str(filename)).name if filename else "upload"
         return name, file_obj, str(content_type) if content_type else None
 
-    def _is_file_like(self, value: Any) -> bool:
+    def _is_file_like(self, value: object) -> bool:
         if isinstance(value, (str, bytes, bytearray)):
             return False
         return hasattr(value, "read") and callable(getattr(value, "read"))
@@ -439,11 +443,14 @@ class NetBoxApiClient:
             return probe.version
         raise RequestError(ApiResponse(status=probe.status, text=probe.error or "", headers={}))
 
-    async def status(self) -> dict[str, Any]:
+    async def status(self) -> dict[str, JSONValue]:
         response = await self.request("GET", "/api/status/")
-        return response.json()
+        payload = response.json()
+        if not isinstance(payload, dict):
+            raise RequestError(response)
+        return payload
 
-    async def openapi(self) -> dict[str, Any]:
+    async def openapi(self) -> dict[str, JSONValue]:
         if self._openapi_cache is not None:
             return self._openapi_cache
         version = await self.get_version()
@@ -456,7 +463,10 @@ class NetBoxApiClient:
             path = "/api/docs/"
         query = None if path == "/api/schema/" else {"format": "openapi"}
         response = await self.request("GET", path, query=query)
-        self._openapi_cache = response.json()
+        payload = response.json()
+        if not isinstance(payload, dict):
+            raise RequestError(response)
+        self._openapi_cache = payload
         return self._openapi_cache
 
     async def create_token(self, username: str, password: str) -> ApiResponse:
@@ -476,7 +486,7 @@ class NetBoxApiClient:
         return response
 
     @contextmanager
-    def header_scope(self, **headers: str):
+    def header_scope(self, **headers: str) -> Iterator["NetBoxApiClient"]:
         previous = dict(self._default_headers)
         self._default_headers.update({k: v for k, v in headers.items() if v})
         try:

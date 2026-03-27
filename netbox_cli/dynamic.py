@@ -38,8 +38,17 @@ def _runtime_get_index() -> SchemaIndex:
 
 
 def _run_dynamic_command(
-    *, client, index, group, resource, action, object_id, query_pairs, body_json, body_file
-):
+    *,
+    client: NetBoxApiClient,
+    index: SchemaIndex,
+    group: str,
+    resource: str,
+    action: str,
+    object_id: int | None,
+    query_pairs: list[str],
+    body_json: str | None,
+    body_file: str | None,
+) -> Any:
     cli_module = import_module("netbox_cli")
     fn = getattr(cli_module, "run_dynamic_command", None)
     if fn is None:

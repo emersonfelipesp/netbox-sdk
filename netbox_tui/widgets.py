@@ -84,7 +84,7 @@ class NbxPanelHeader(Vertical):
         self._title = title
         self._subtitle = subtitle
 
-    def compose(self):
+    def compose(self) -> ComposeResult:
         yield Static(self._title, classes="panel-title")
         if self._subtitle:
             yield Static(self._subtitle, classes="panel-subtitle")

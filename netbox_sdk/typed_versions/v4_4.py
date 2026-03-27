@@ -4,6 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from netbox_sdk.client import NetBoxApiClient
 from netbox_sdk.models.v4_4 import *
 from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase, build_typed_client
 from netbox_sdk.versioning import SupportedNetBoxVersion
@@ -13058,7 +13059,7 @@ class WirelessWirelessLinksRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsCircuitGroupAssignmentsRootGetQuery | dict[str, Any] | None = None) -> PaginatedCircuitGroupAssignmentList:
@@ -13099,7 +13100,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
 
 
 class CircuitsCircuitGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsCircuitGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedCircuitGroupList:
@@ -13140,7 +13141,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
 
 
 class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -13185,7 +13186,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
 
 
 class CircuitsCircuitTerminationsPaths(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> CircuitTermination:
@@ -13194,7 +13195,7 @@ class CircuitsCircuitTerminationsPaths(TypedAppBase):
 
 
 class CircuitsCircuitTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsCircuitTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedCircuitTypeList:
@@ -13235,7 +13236,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
 
 
 class CircuitsCircuitsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsCircuitsRootGetQuery | dict[str, Any] | None = None) -> PaginatedCircuitList:
@@ -13276,7 +13277,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
 
 
 class CircuitsProviderAccountsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsProviderAccountsRootGetQuery | dict[str, Any] | None = None) -> PaginatedProviderAccountList:
@@ -13317,7 +13318,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
 
 
 class CircuitsProviderNetworksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsProviderNetworksRootGetQuery | dict[str, Any] | None = None) -> PaginatedProviderNetworkList:
@@ -13358,7 +13359,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
 
 
 class CircuitsProvidersEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsProvidersRootGetQuery | dict[str, Any] | None = None) -> PaginatedProviderList:
@@ -13399,7 +13400,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
 
 
 class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -13444,7 +13445,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
 
 
 class CircuitsVirtualCircuitTerminationsPaths(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> VirtualCircuitTermination:
@@ -13453,7 +13454,7 @@ class CircuitsVirtualCircuitTerminationsPaths(TypedAppBase):
 
 
 class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsVirtualCircuitTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedVirtualCircuitTypeList:
@@ -13494,7 +13495,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
 
 
 class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CircuitsVirtualCircuitsRootGetQuery | dict[str, Any] | None = None) -> PaginatedVirtualCircuitList:
@@ -13535,7 +13536,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
 
 
 class CoreBackgroundQueuesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self) -> dict[str, Any]:
@@ -13548,7 +13549,7 @@ class CoreBackgroundQueuesEndpoint(TypedAppBase):
 
 
 class CoreBackgroundTasksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -13577,7 +13578,7 @@ class CoreBackgroundTasksEndpoint(TypedAppBase):
 
 
 class CoreBackgroundTasksDelete(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: BackgroundTaskRequest) -> BackgroundTask:
@@ -13586,7 +13587,7 @@ class CoreBackgroundTasksDelete(TypedAppBase):
 
 
 class CoreBackgroundTasksEnqueue(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: BackgroundTaskRequest) -> BackgroundTask:
@@ -13595,7 +13596,7 @@ class CoreBackgroundTasksEnqueue(TypedAppBase):
 
 
 class CoreBackgroundTasksRequeue(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: BackgroundTaskRequest) -> BackgroundTask:
@@ -13604,7 +13605,7 @@ class CoreBackgroundTasksRequeue(TypedAppBase):
 
 
 class CoreBackgroundTasksStop(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: BackgroundTaskRequest) -> BackgroundTask:
@@ -13613,7 +13614,7 @@ class CoreBackgroundTasksStop(TypedAppBase):
 
 
 class CoreBackgroundWorkersEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self) -> dict[str, Any]:
@@ -13626,7 +13627,7 @@ class CoreBackgroundWorkersEndpoint(TypedAppBase):
 
 
 class CoreDataFilesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CoreDataFilesRootGetQuery | dict[str, Any] | None = None) -> PaginatedDataFileList:
@@ -13639,7 +13640,7 @@ class CoreDataFilesEndpoint(TypedAppBase):
 
 
 class CoreDataSourcesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -13684,7 +13685,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
 
 
 class CoreDataSourcesSync(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: WritableDataSourceRequest) -> DataSource:
@@ -13693,7 +13694,7 @@ class CoreDataSourcesSync(TypedAppBase):
 
 
 class CoreJobsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CoreJobsRootGetQuery | dict[str, Any] | None = None) -> PaginatedJobList:
@@ -13706,7 +13707,7 @@ class CoreJobsEndpoint(TypedAppBase):
 
 
 class CoreObjectChangesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CoreObjectChangesRootGetQuery | dict[str, Any] | None = None) -> PaginatedObjectChangeList:
@@ -13719,7 +13720,7 @@ class CoreObjectChangesEndpoint(TypedAppBase):
 
 
 class CoreObjectTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: CoreObjectTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedObjectTypeList:
@@ -13732,7 +13733,7 @@ class CoreObjectTypesEndpoint(TypedAppBase):
 
 
 class DcimCableTerminationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimCableTerminationsRootGetQuery | dict[str, Any] | None = None) -> PaginatedCableTerminationList:
@@ -13773,7 +13774,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
 
 
 class DcimCablesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimCablesRootGetQuery | dict[str, Any] | None = None) -> PaginatedCableList:
@@ -13814,7 +13815,7 @@ class DcimCablesEndpoint(TypedAppBase):
 
 
 class DcimConnectedDeviceEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimConnectedDeviceRootGetQuery | dict[str, Any] | None = None) -> list[Device]:
@@ -13823,7 +13824,7 @@ class DcimConnectedDeviceEndpoint(TypedAppBase):
 
 
 class DcimConsolePortTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimConsolePortTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedConsolePortTemplateList:
@@ -13864,7 +13865,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
 
 
 class DcimConsolePortsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -13909,7 +13910,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
 
 
 class DcimConsolePortsTrace(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> ConsolePort:
@@ -13918,7 +13919,7 @@ class DcimConsolePortsTrace(TypedAppBase):
 
 
 class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimConsoleServerPortTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedConsoleServerPortTemplateList:
@@ -13959,7 +13960,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
 
 
 class DcimConsoleServerPortsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -14004,7 +14005,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
 
 
 class DcimConsoleServerPortsTrace(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> ConsoleServerPort:
@@ -14013,7 +14014,7 @@ class DcimConsoleServerPortsTrace(TypedAppBase):
 
 
 class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimDeviceBayTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedDeviceBayTemplateList:
@@ -14054,7 +14055,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
 
 
 class DcimDeviceBaysEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimDeviceBaysRootGetQuery | dict[str, Any] | None = None) -> PaginatedDeviceBayList:
@@ -14095,7 +14096,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
 
 
 class DcimDeviceRolesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimDeviceRolesRootGetQuery | dict[str, Any] | None = None) -> PaginatedDeviceRoleList:
@@ -14136,7 +14137,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
 
 
 class DcimDeviceTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimDeviceTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedDeviceTypeList:
@@ -14177,7 +14178,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
 
 
 class DcimDevicesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -14222,7 +14223,7 @@ class DcimDevicesEndpoint(TypedAppBase):
 
 
 class DcimDevicesRenderConfig(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: WritableDeviceWithConfigContextRequest, query: DcimDevicesRenderConfigPostQuery | dict[str, Any] | None = None) -> DeviceWithConfigContext:
@@ -14231,7 +14232,7 @@ class DcimDevicesRenderConfig(TypedAppBase):
 
 
 class DcimFrontPortTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimFrontPortTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedFrontPortTemplateList:
@@ -14272,7 +14273,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
 
 
 class DcimFrontPortsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -14317,7 +14318,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
 
 
 class DcimFrontPortsPaths(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> FrontPort:
@@ -14326,7 +14327,7 @@ class DcimFrontPortsPaths(TypedAppBase):
 
 
 class DcimInterfaceTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimInterfaceTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedInterfaceTemplateList:
@@ -14367,7 +14368,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
 
 
 class DcimInterfacesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -14412,7 +14413,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
 
 
 class DcimInterfacesTrace(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> Interface:
@@ -14421,7 +14422,7 @@ class DcimInterfacesTrace(TypedAppBase):
 
 
 class DcimInventoryItemRolesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimInventoryItemRolesRootGetQuery | dict[str, Any] | None = None) -> PaginatedInventoryItemRoleList:
@@ -14462,7 +14463,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
 
 
 class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimInventoryItemTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedInventoryItemTemplateList:
@@ -14503,7 +14504,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
 
 
 class DcimInventoryItemsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimInventoryItemsRootGetQuery | dict[str, Any] | None = None) -> PaginatedInventoryItemList:
@@ -14544,7 +14545,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
 
 
 class DcimLocationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimLocationsRootGetQuery | dict[str, Any] | None = None) -> PaginatedLocationList:
@@ -14585,7 +14586,7 @@ class DcimLocationsEndpoint(TypedAppBase):
 
 
 class DcimMacAddressesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimMacAddressesRootGetQuery | dict[str, Any] | None = None) -> PaginatedMACAddressList:
@@ -14626,7 +14627,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
 
 
 class DcimManufacturersEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimManufacturersRootGetQuery | dict[str, Any] | None = None) -> PaginatedManufacturerList:
@@ -14667,7 +14668,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
 
 
 class DcimModuleBayTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimModuleBayTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedModuleBayTemplateList:
@@ -14708,7 +14709,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
 
 
 class DcimModuleBaysEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimModuleBaysRootGetQuery | dict[str, Any] | None = None) -> PaginatedModuleBayList:
@@ -14749,7 +14750,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
 
 
 class DcimModuleTypeProfilesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimModuleTypeProfilesRootGetQuery | dict[str, Any] | None = None) -> PaginatedModuleTypeProfileList:
@@ -14790,7 +14791,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
 
 
 class DcimModuleTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimModuleTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedModuleTypeList:
@@ -14831,7 +14832,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
 
 
 class DcimModulesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimModulesRootGetQuery | dict[str, Any] | None = None) -> PaginatedModuleList:
@@ -14872,7 +14873,7 @@ class DcimModulesEndpoint(TypedAppBase):
 
 
 class DcimPlatformsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimPlatformsRootGetQuery | dict[str, Any] | None = None) -> PaginatedPlatformList:
@@ -14913,7 +14914,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
 
 
 class DcimPowerFeedsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -14958,7 +14959,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
 
 
 class DcimPowerFeedsTrace(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> PowerFeed:
@@ -14967,7 +14968,7 @@ class DcimPowerFeedsTrace(TypedAppBase):
 
 
 class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimPowerOutletTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedPowerOutletTemplateList:
@@ -15008,7 +15009,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
 
 
 class DcimPowerOutletsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15053,7 +15054,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
 
 
 class DcimPowerOutletsTrace(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> PowerOutlet:
@@ -15062,7 +15063,7 @@ class DcimPowerOutletsTrace(TypedAppBase):
 
 
 class DcimPowerPanelsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimPowerPanelsRootGetQuery | dict[str, Any] | None = None) -> PaginatedPowerPanelList:
@@ -15103,7 +15104,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
 
 
 class DcimPowerPortTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimPowerPortTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedPowerPortTemplateList:
@@ -15144,7 +15145,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
 
 
 class DcimPowerPortsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15189,7 +15190,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
 
 
 class DcimPowerPortsTrace(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> PowerPort:
@@ -15198,7 +15199,7 @@ class DcimPowerPortsTrace(TypedAppBase):
 
 
 class DcimRackReservationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimRackReservationsRootGetQuery | dict[str, Any] | None = None) -> PaginatedRackReservationList:
@@ -15239,7 +15240,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
 
 
 class DcimRackRolesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimRackRolesRootGetQuery | dict[str, Any] | None = None) -> PaginatedRackRoleList:
@@ -15280,7 +15281,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
 
 
 class DcimRackTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimRackTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedRackTypeList:
@@ -15321,7 +15322,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
 
 
 class DcimRacksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15366,7 +15367,7 @@ class DcimRacksEndpoint(TypedAppBase):
 
 
 class DcimRacksElevation(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str, query: DcimRacksElevationGetQuery | dict[str, Any] | None = None) -> PaginatedRackUnitList:
@@ -15375,7 +15376,7 @@ class DcimRacksElevation(TypedAppBase):
 
 
 class DcimRearPortTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimRearPortTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedRearPortTemplateList:
@@ -15416,7 +15417,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
 
 
 class DcimRearPortsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15461,7 +15462,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
 
 
 class DcimRearPortsPaths(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> RearPort:
@@ -15470,7 +15471,7 @@ class DcimRearPortsPaths(TypedAppBase):
 
 
 class DcimRegionsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimRegionsRootGetQuery | dict[str, Any] | None = None) -> PaginatedRegionList:
@@ -15511,7 +15512,7 @@ class DcimRegionsEndpoint(TypedAppBase):
 
 
 class DcimSiteGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimSiteGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedSiteGroupList:
@@ -15552,7 +15553,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
 
 
 class DcimSitesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimSitesRootGetQuery | dict[str, Any] | None = None) -> PaginatedSiteList:
@@ -15593,7 +15594,7 @@ class DcimSitesEndpoint(TypedAppBase):
 
 
 class DcimVirtualChassisEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimVirtualChassisRootGetQuery | dict[str, Any] | None = None) -> PaginatedVirtualChassisList:
@@ -15634,7 +15635,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
 
 
 class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: DcimVirtualDeviceContextsRootGetQuery | dict[str, Any] | None = None) -> PaginatedVirtualDeviceContextList:
@@ -15675,7 +15676,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
 
 
 class ExtrasBookmarksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasBookmarksRootGetQuery | dict[str, Any] | None = None) -> PaginatedBookmarkList:
@@ -15716,7 +15717,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
 
 
 class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15761,7 +15762,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
 
 
 class ExtrasConfigContextProfilesSync(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: ConfigContextProfileRequest) -> ConfigContextProfile:
@@ -15770,7 +15771,7 @@ class ExtrasConfigContextProfilesSync(TypedAppBase):
 
 
 class ExtrasConfigContextsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15815,7 +15816,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
 
 
 class ExtrasConfigContextsSync(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: ConfigContextRequest) -> ConfigContext:
@@ -15824,7 +15825,7 @@ class ExtrasConfigContextsSync(TypedAppBase):
 
 
 class ExtrasConfigTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15873,7 +15874,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
 
 
 class ExtrasConfigTemplatesRender(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: ConfigTemplateRequest, query: ExtrasConfigTemplatesRenderPostQuery | dict[str, Any] | None = None) -> ConfigTemplate:
@@ -15882,7 +15883,7 @@ class ExtrasConfigTemplatesRender(TypedAppBase):
 
 
 class ExtrasConfigTemplatesSync(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: ConfigTemplateRequest) -> ConfigTemplate:
@@ -15891,7 +15892,7 @@ class ExtrasConfigTemplatesSync(TypedAppBase):
 
 
 class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -15936,7 +15937,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
 
 
 class ExtrasCustomFieldChoiceSetsChoices(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> CustomFieldChoiceSet:
@@ -15945,7 +15946,7 @@ class ExtrasCustomFieldChoiceSetsChoices(TypedAppBase):
 
 
 class ExtrasCustomFieldsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasCustomFieldsRootGetQuery | dict[str, Any] | None = None) -> PaginatedCustomFieldList:
@@ -15986,7 +15987,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
 
 
 class ExtrasCustomLinksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasCustomLinksRootGetQuery | dict[str, Any] | None = None) -> PaginatedCustomLinkList:
@@ -16027,7 +16028,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
 
 
 class ExtrasDashboardEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self) -> Dashboard:
@@ -16048,7 +16049,7 @@ class ExtrasDashboardEndpoint(TypedAppBase):
 
 
 class ExtrasEventRulesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasEventRulesRootGetQuery | dict[str, Any] | None = None) -> PaginatedEventRuleList:
@@ -16089,7 +16090,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
 
 
 class ExtrasExportTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -16134,7 +16135,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
 
 
 class ExtrasExportTemplatesSync(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: ExportTemplateRequest) -> ExportTemplate:
@@ -16143,7 +16144,7 @@ class ExtrasExportTemplatesSync(TypedAppBase):
 
 
 class ExtrasImageAttachmentsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasImageAttachmentsRootGetQuery | dict[str, Any] | None = None) -> PaginatedImageAttachmentList:
@@ -16184,7 +16185,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
 
 
 class ExtrasJournalEntriesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasJournalEntriesRootGetQuery | dict[str, Any] | None = None) -> PaginatedJournalEntryList:
@@ -16225,7 +16226,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
 
 
 class ExtrasNotificationGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasNotificationGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedNotificationGroupList:
@@ -16266,7 +16267,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
 
 
 class ExtrasNotificationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasNotificationsRootGetQuery | dict[str, Any] | None = None) -> PaginatedNotificationList:
@@ -16307,7 +16308,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
 
 
 class ExtrasObjectTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasObjectTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedObjectTypeList:
@@ -16320,7 +16321,7 @@ class ExtrasObjectTypesEndpoint(TypedAppBase):
 
 
 class ExtrasSavedFiltersEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasSavedFiltersRootGetQuery | dict[str, Any] | None = None) -> PaginatedSavedFilterList:
@@ -16361,7 +16362,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
 
 
 class ExtrasScriptsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasScriptsRootGetQuery | dict[str, Any] | None = None) -> PaginatedScriptList:
@@ -16390,7 +16391,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
 
 
 class ExtrasSubscriptionsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasSubscriptionsRootGetQuery | dict[str, Any] | None = None) -> PaginatedSubscriptionList:
@@ -16431,7 +16432,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
 
 
 class ExtrasTableConfigsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasTableConfigsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTableConfigList:
@@ -16472,7 +16473,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
 
 
 class ExtrasTaggedObjectsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasTaggedObjectsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTaggedItemList:
@@ -16485,7 +16486,7 @@ class ExtrasTaggedObjectsEndpoint(TypedAppBase):
 
 
 class ExtrasTagsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasTagsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTagList:
@@ -16526,7 +16527,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
 
 
 class ExtrasWebhooksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: ExtrasWebhooksRootGetQuery | dict[str, Any] | None = None) -> PaginatedWebhookList:
@@ -16567,7 +16568,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
 
 
 class IpamAggregatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamAggregatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedAggregateList:
@@ -16608,7 +16609,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
 
 
 class IpamAsnRangesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -16653,7 +16654,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
 
 
 class IpamAsnRangesAvailableAsns(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> list[AvailableASN]:
@@ -16666,7 +16667,7 @@ class IpamAsnRangesAvailableAsns(TypedAppBase):
 
 
 class IpamAsnsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamAsnsRootGetQuery | dict[str, Any] | None = None) -> PaginatedASNList:
@@ -16707,7 +16708,7 @@ class IpamAsnsEndpoint(TypedAppBase):
 
 
 class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamFhrpGroupAssignmentsRootGetQuery | dict[str, Any] | None = None) -> PaginatedFHRPGroupAssignmentList:
@@ -16748,7 +16749,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
 
 
 class IpamFhrpGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamFhrpGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedFHRPGroupList:
@@ -16789,7 +16790,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
 
 
 class IpamIpAddressesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamIpAddressesRootGetQuery | dict[str, Any] | None = None) -> PaginatedIPAddressList:
@@ -16830,7 +16831,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
 
 
 class IpamIpRangesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -16875,7 +16876,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
 
 
 class IpamIpRangesAvailableIps(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> list[AvailableIP]:
@@ -16888,7 +16889,7 @@ class IpamIpRangesAvailableIps(TypedAppBase):
 
 
 class IpamPrefixesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -16937,7 +16938,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
 
 
 class IpamPrefixesAvailableIps(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> list[AvailableIP]:
@@ -16950,7 +16951,7 @@ class IpamPrefixesAvailableIps(TypedAppBase):
 
 
 class IpamPrefixesAvailablePrefixes(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> list[AvailablePrefix]:
@@ -16963,7 +16964,7 @@ class IpamPrefixesAvailablePrefixes(TypedAppBase):
 
 
 class IpamRirsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamRirsRootGetQuery | dict[str, Any] | None = None) -> PaginatedRIRList:
@@ -17004,7 +17005,7 @@ class IpamRirsEndpoint(TypedAppBase):
 
 
 class IpamRolesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamRolesRootGetQuery | dict[str, Any] | None = None) -> PaginatedRoleList:
@@ -17045,7 +17046,7 @@ class IpamRolesEndpoint(TypedAppBase):
 
 
 class IpamRouteTargetsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamRouteTargetsRootGetQuery | dict[str, Any] | None = None) -> PaginatedRouteTargetList:
@@ -17086,7 +17087,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
 
 
 class IpamServiceTemplatesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamServiceTemplatesRootGetQuery | dict[str, Any] | None = None) -> PaginatedServiceTemplateList:
@@ -17127,7 +17128,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
 
 
 class IpamServicesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamServicesRootGetQuery | dict[str, Any] | None = None) -> PaginatedServiceList:
@@ -17168,7 +17169,7 @@ class IpamServicesEndpoint(TypedAppBase):
 
 
 class IpamVlanGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -17213,7 +17214,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
 
 
 class IpamVlanGroupsAvailableVlans(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> list[AvailableVLAN]:
@@ -17226,7 +17227,7 @@ class IpamVlanGroupsAvailableVlans(TypedAppBase):
 
 
 class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamVlanTranslationPoliciesRootGetQuery | dict[str, Any] | None = None) -> PaginatedVLANTranslationPolicyList:
@@ -17267,7 +17268,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
 
 
 class IpamVlanTranslationRulesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamVlanTranslationRulesRootGetQuery | dict[str, Any] | None = None) -> PaginatedVLANTranslationRuleList:
@@ -17308,7 +17309,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
 
 
 class IpamVlansEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamVlansRootGetQuery | dict[str, Any] | None = None) -> PaginatedVLANList:
@@ -17349,7 +17350,7 @@ class IpamVlansEndpoint(TypedAppBase):
 
 
 class IpamVrfsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: IpamVrfsRootGetQuery | dict[str, Any] | None = None) -> PaginatedVRFList:
@@ -17390,7 +17391,7 @@ class IpamVrfsEndpoint(TypedAppBase):
 
 
 class PluginsBranchingBranchEvents(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: PluginsBranchingBranchEventsGetQuery | dict[str, Any] | None = None) -> PaginatedBranchEventList:
@@ -17399,7 +17400,7 @@ class PluginsBranchingBranchEvents(TypedAppBase):
 
 
 class PluginsBranchingBranchEventsId(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> BranchEvent:
@@ -17408,7 +17409,7 @@ class PluginsBranchingBranchEventsId(TypedAppBase):
 
 
 class PluginsBranchingBranches(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: PluginsBranchingBranchesGetQuery | dict[str, Any] | None = None) -> PaginatedBranchList:
@@ -17421,7 +17422,7 @@ class PluginsBranchingBranches(TypedAppBase):
 
 
 class PluginsBranchingBranchesId(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> Branch:
@@ -17442,7 +17443,7 @@ class PluginsBranchingBranchesId(TypedAppBase):
 
 
 class PluginsBranchingBranchesIdArchive(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: WritableBranchRequest) -> Branch:
@@ -17451,7 +17452,7 @@ class PluginsBranchingBranchesIdArchive(TypedAppBase):
 
 
 class PluginsBranchingBranchesIdMerge(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: CommitRequest) -> Job:
@@ -17460,7 +17461,7 @@ class PluginsBranchingBranchesIdMerge(TypedAppBase):
 
 
 class PluginsBranchingBranchesIdRevert(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: CommitRequest) -> Job:
@@ -17469,7 +17470,7 @@ class PluginsBranchingBranchesIdRevert(TypedAppBase):
 
 
 class PluginsBranchingBranchesIdSync(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: CommitRequest) -> Job:
@@ -17478,7 +17479,7 @@ class PluginsBranchingBranchesIdSync(TypedAppBase):
 
 
 class PluginsBranchingChanges(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: PluginsBranchingChangesGetQuery | dict[str, Any] | None = None) -> PaginatedChangeDiffList:
@@ -17487,7 +17488,7 @@ class PluginsBranchingChanges(TypedAppBase):
 
 
 class PluginsBranchingChangesId(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, id: int | str) -> ChangeDiff:
@@ -17496,7 +17497,7 @@ class PluginsBranchingChangesId(TypedAppBase):
 
 
 class TenancyContactAssignmentsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: TenancyContactAssignmentsRootGetQuery | dict[str, Any] | None = None) -> PaginatedContactAssignmentList:
@@ -17537,7 +17538,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
 
 
 class TenancyContactGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: TenancyContactGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedContactGroupList:
@@ -17578,7 +17579,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
 
 
 class TenancyContactRolesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: TenancyContactRolesRootGetQuery | dict[str, Any] | None = None) -> PaginatedContactRoleList:
@@ -17619,7 +17620,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
 
 
 class TenancyContactsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: TenancyContactsRootGetQuery | dict[str, Any] | None = None) -> PaginatedContactList:
@@ -17660,7 +17661,7 @@ class TenancyContactsEndpoint(TypedAppBase):
 
 
 class TenancyTenantGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: TenancyTenantGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTenantGroupList:
@@ -17701,7 +17702,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
 
 
 class TenancyTenantsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: TenancyTenantsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTenantList:
@@ -17742,7 +17743,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
 
 
 class UsersConfigEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self) -> dict[str, Any]:
@@ -17751,7 +17752,7 @@ class UsersConfigEndpoint(TypedAppBase):
 
 
 class UsersGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: UsersGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedGroupList:
@@ -17792,7 +17793,7 @@ class UsersGroupsEndpoint(TypedAppBase):
 
 
 class UsersPermissionsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: UsersPermissionsRootGetQuery | dict[str, Any] | None = None) -> PaginatedObjectPermissionList:
@@ -17833,7 +17834,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
 
 
 class UsersTokensEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -17878,7 +17879,7 @@ class UsersTokensEndpoint(TypedAppBase):
 
 
 class UsersTokensProvision(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, body: TokenProvisionRequest) -> TokenProvision:
@@ -17887,7 +17888,7 @@ class UsersTokensProvision(TypedAppBase):
 
 
 class UsersUsersEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: UsersUsersRootGetQuery | dict[str, Any] | None = None) -> PaginatedUserList:
@@ -17928,7 +17929,7 @@ class UsersUsersEndpoint(TypedAppBase):
 
 
 class VirtualizationClusterGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VirtualizationClusterGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedClusterGroupList:
@@ -17969,7 +17970,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
 
 
 class VirtualizationClusterTypesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VirtualizationClusterTypesRootGetQuery | dict[str, Any] | None = None) -> PaginatedClusterTypeList:
@@ -18010,7 +18011,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
 
 
 class VirtualizationClustersEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VirtualizationClustersRootGetQuery | dict[str, Any] | None = None) -> PaginatedClusterList:
@@ -18051,7 +18052,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
 
 
 class VirtualizationInterfacesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VirtualizationInterfacesRootGetQuery | dict[str, Any] | None = None) -> PaginatedVMInterfaceList:
@@ -18092,7 +18093,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
 
 
 class VirtualizationVirtualDisksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VirtualizationVirtualDisksRootGetQuery | dict[str, Any] | None = None) -> PaginatedVirtualDiskList:
@@ -18133,7 +18134,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
 
 
 class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -18178,7 +18179,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
 
 
 class VirtualizationVirtualMachinesRenderConfig(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def create(self, id: int | str, body: WritableVirtualMachineWithConfigContextRequest, query: VirtualizationVirtualMachinesRenderConfigPostQuery | dict[str, Any] | None = None) -> VirtualMachineWithConfigContext:
@@ -18187,7 +18188,7 @@ class VirtualizationVirtualMachinesRenderConfig(TypedAppBase):
 
 
 class VpnIkePoliciesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnIkePoliciesRootGetQuery | dict[str, Any] | None = None) -> PaginatedIKEPolicyList:
@@ -18228,7 +18229,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
 
 
 class VpnIkeProposalsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnIkeProposalsRootGetQuery | dict[str, Any] | None = None) -> PaginatedIKEProposalList:
@@ -18269,7 +18270,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
 
 
 class VpnIpsecPoliciesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnIpsecPoliciesRootGetQuery | dict[str, Any] | None = None) -> PaginatedIPSecPolicyList:
@@ -18310,7 +18311,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
 
 
 class VpnIpsecProfilesEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnIpsecProfilesRootGetQuery | dict[str, Any] | None = None) -> PaginatedIPSecProfileList:
@@ -18351,7 +18352,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
 
 
 class VpnIpsecProposalsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnIpsecProposalsRootGetQuery | dict[str, Any] | None = None) -> PaginatedIPSecProposalList:
@@ -18392,7 +18393,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
 
 
 class VpnL2vpnTerminationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnL2vpnTerminationsRootGetQuery | dict[str, Any] | None = None) -> PaginatedL2VPNTerminationList:
@@ -18433,7 +18434,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
 
 
 class VpnL2vpnsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnL2vpnsRootGetQuery | dict[str, Any] | None = None) -> PaginatedL2VPNList:
@@ -18474,7 +18475,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
 
 
 class VpnTunnelGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnTunnelGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTunnelGroupList:
@@ -18515,7 +18516,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
 
 
 class VpnTunnelTerminationsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnTunnelTerminationsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTunnelTerminationList:
@@ -18556,7 +18557,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
 
 
 class VpnTunnelsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: VpnTunnelsRootGetQuery | dict[str, Any] | None = None) -> PaginatedTunnelList:
@@ -18597,7 +18598,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
 
 
 class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: WirelessWirelessLanGroupsRootGetQuery | dict[str, Any] | None = None) -> PaginatedWirelessLANGroupList:
@@ -18638,7 +18639,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
 
 
 class WirelessWirelessLansEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: WirelessWirelessLansRootGetQuery | dict[str, Any] | None = None) -> PaginatedWirelessLANList:
@@ -18679,7 +18680,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
 
 
 class WirelessWirelessLinksEndpoint(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     async def list(self, query: WirelessWirelessLinksRootGetQuery | dict[str, Any] | None = None) -> PaginatedWirelessLinkList:
@@ -18720,7 +18721,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
 
 
 class CircuitsApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -18769,7 +18770,7 @@ class CircuitsApp(TypedAppBase):
 
 
 class CoreApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -18806,7 +18807,7 @@ class CoreApp(TypedAppBase):
 
 
 class DcimApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -18991,7 +18992,7 @@ class DcimApp(TypedAppBase):
 
 
 class ExtrasApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19084,7 +19085,7 @@ class ExtrasApp(TypedAppBase):
 
 
 class IpamApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19161,14 +19162,14 @@ class IpamApp(TypedAppBase):
 
 
 class PluginsApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     pass
 
 
 class TenancyApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19197,7 +19198,7 @@ class TenancyApp(TypedAppBase):
 
 
 class UsersApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19222,7 +19223,7 @@ class UsersApp(TypedAppBase):
 
 
 class VirtualizationApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19251,7 +19252,7 @@ class VirtualizationApp(TypedAppBase):
 
 
 class VpnApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19296,7 +19297,7 @@ class VpnApp(TypedAppBase):
 
 
 class WirelessApp(TypedAppBase):
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
     @property
@@ -19313,7 +19314,7 @@ class WirelessApp(TypedAppBase):
 
 
 class TypedApiV4_4(TypedApiBase):
-    def __init__(self, client):
+    def __init__(self, client: NetBoxApiClient) -> None:
         super().__init__(client=client, netbox_version='4.4')
         self.circuits = CircuitsApp(self)
         self.core = CoreApp(self)

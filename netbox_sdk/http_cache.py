@@ -70,7 +70,7 @@ def build_cache_key(
 
 
 class HttpCacheStore:
-    def __init__(self, root: Path):
+    def __init__(self, root: Path) -> None:
         self.root = root
         self.root.mkdir(parents=True, exist_ok=True)
         self._set_private_permissions(self.root, stat.S_IRWXU)

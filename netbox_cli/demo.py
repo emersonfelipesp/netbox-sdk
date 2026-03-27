@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import json
 from importlib import import_module
-from typing import Any
+from types import ModuleType
+from typing import Any, Callable
 
 import typer
 
@@ -75,7 +76,7 @@ demo_cli_app = typer.Typer(
 )
 
 
-def _cli_exports():
+def _cli_exports() -> ModuleType:
     return import_module("netbox_cli")
 
 
@@ -88,7 +89,9 @@ _ORIGINAL_GET_DEMO_CLIENT = _get_demo_client
 _ORIGINAL_GET_INDEX = _get_index
 
 
-def _resolve_cli_override(name: str, current, original):
+def _resolve_cli_override(
+    name: str, current: Callable[..., Any], original: Callable[..., Any]
+) -> Callable[..., Any]:
     if current is not original:
         return current
     candidate = getattr(_cli_exports(), name, None)
@@ -97,7 +100,13 @@ def _resolve_cli_override(name: str, current, original):
     return current
 
 
-def _call_cli_override(name: str, current, original, *args, **kwargs):
+def _call_cli_override(
+    name: str,
+    current: Callable[..., Any],
+    original: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
     return _resolve_cli_override(name, current, original)(*args, **kwargs)
 
 

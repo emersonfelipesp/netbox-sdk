@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import json
 from contextlib import contextmanager
+from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
 
 from netbox_sdk.client import ApiResponse, NetBoxApiClient, RequestError
 from netbox_sdk.config import Config
-from netbox_sdk.schema import SchemaIndex, build_schema_index, parse_group_resource
+from netbox_sdk.schema import ResourcePaths, SchemaIndex, build_schema_index, parse_group_resource
 
 APP_NAMES = (
     "circuits",
@@ -27,19 +28,19 @@ APP_NAMES = (
 
 
 class ContentError(RuntimeError):
-    def __init__(self, response: ApiResponse):
+    def __init__(self, response: ApiResponse) -> None:
         self.response = response
         super().__init__("The server returned invalid (non-json) data.")
 
 
 class AllocationError(RuntimeError):
-    def __init__(self, response: ApiResponse):
+    def __init__(self, response: ApiResponse) -> None:
         self.response = response
         super().__init__("The requested allocation could not be fulfilled.")
 
 
 class ParameterValidationError(ValueError):
-    def __init__(self, errors: list[str] | str):
+    def __init__(self, errors: list[str] | str) -> None:
         self.error = errors
         super().__init__(f"The request parameter validation returned an error: {errors}")
 
@@ -82,7 +83,7 @@ class Api:
         client: NetBoxApiClient,
         schema: SchemaIndex | None = None,
         strict_filters: bool = False,
-    ):
+    ) -> None:
         self.client = client
         self.schema = schema or build_schema_index()
         self.strict_filters = strict_filters
@@ -109,7 +110,7 @@ class Api:
         return Record(self, None, payload, has_details=True)
 
     @contextmanager
-    def activate_branch(self, branch: Any):
+    def activate_branch(self, branch: Any) -> Iterator["Api"]:
         schema_id = getattr(branch, "schema_id", None) or getattr(branch, "id", None) or str(branch)
         with self.client.header_scope(**{"X-NetBox-Branch": str(schema_id)}):
             yield self
@@ -131,7 +132,7 @@ class Api:
 
 
 class App:
-    def __init__(self, api: Api, name: str):
+    def __init__(self, api: Api, name: str) -> None:
         self.api = api
         self.name = name
 
@@ -145,7 +146,7 @@ class App:
 
 
 class PluginsApp:
-    def __init__(self, api: Api):
+    def __init__(self, api: Api) -> None:
         self.api = api
         self.name = "plugins"
 
@@ -200,7 +201,7 @@ DETAIL_ENDPOINT_SPECS: dict[tuple[str, str], dict[str, DetailEndpointSpec]] = {
 
 
 class Endpoint:
-    def __init__(self, api: Api, app: App | PluginsApp, name: str):
+    def __init__(self, api: Api, app: App | PluginsApp, name: str) -> None:
         self.api = api
         self.app = app
         self.name = name.replace("_", "-")
@@ -210,7 +211,7 @@ class Endpoint:
         )
 
     @property
-    def _paths(self):
+    def _paths(self) -> ResourcePaths | None:
         return self.api.schema.resource_paths(self.group, self.resource)
 
     @property
@@ -329,7 +330,7 @@ class Endpoint:
 
 
 class DetailEndpoint:
-    def __init__(self, api: Api, endpoint: Endpoint, name: str):
+    def __init__(self, api: Api, endpoint: Endpoint, name: str) -> None:
         self.api = api
         self.endpoint = endpoint
         self.name = name
@@ -373,7 +374,14 @@ class ROMultiFormatDetailEndpoint(RODetailEndpoint):
 
 
 class RecordSet:
-    def __init__(self, endpoint: Endpoint, *, query: dict[str, str], limit: int = 0, offset: int | None = None):
+    def __init__(
+        self,
+        endpoint: Endpoint,
+        *,
+        query: dict[str, str],
+        limit: int = 0,
+        offset: int | None = None,
+    ) -> None:
         self.endpoint = endpoint
         self.query = dict(query)
         self.limit = limit
@@ -472,7 +480,9 @@ class RecordSet:
 
 
 class Record:
-    def __init__(self, api: Api, endpoint: Endpoint | None, values: dict[str, Any], *, has_details: bool):
+    def __init__(
+        self, api: Api, endpoint: Endpoint | None, values: dict[str, Any], *, has_details: bool
+    ) -> None:
         object.__setattr__(self, "api", api)
         object.__setattr__(self, "endpoint", endpoint or api.endpoint_for_path(values.get("url", "")))
         object.__setattr__(self, "_data", {})
@@ -498,7 +508,7 @@ class Record:
         else:
             self._data[name] = _coerce_nested(self.api, self.endpoint, value)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[str, Any]]:
         return iter(self._data.items())
 
     def __str__(self) -> str:
@@ -660,7 +670,7 @@ RECORD_TYPES: dict[tuple[str, str], type[Record]] = {
 
 
 class BoundDetailEndpoint:
-    def __init__(self, endpoint: DetailEndpoint, record: Record):
+    def __init__(self, endpoint: DetailEndpoint, record: Record) -> None:
         self._endpoint = endpoint
         self._record = record
 

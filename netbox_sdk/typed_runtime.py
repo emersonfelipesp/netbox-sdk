@@ -20,7 +20,9 @@ TResponse = TypeVar("TResponse")
 class TypedRequestValidationError(ValueError):
     """Raised when a typed request payload fails validation."""
 
-    def __init__(self, method: str, path: str, version: SupportedNetBoxVersion, error: ValidationError):
+    def __init__(
+        self, method: str, path: str, version: SupportedNetBoxVersion, error: ValidationError
+    ) -> None:
         self.method = method
         self.path = path
         self.version = version
@@ -31,7 +33,9 @@ class TypedRequestValidationError(ValueError):
 class TypedResponseValidationError(ValueError):
     """Raised when a typed response payload fails validation."""
 
-    def __init__(self, method: str, path: str, version: SupportedNetBoxVersion, error: ValidationError):
+    def __init__(
+        self, method: str, path: str, version: SupportedNetBoxVersion, error: ValidationError
+    ) -> None:
         self.method = method
         self.path = path
         self.version = version
@@ -129,7 +133,7 @@ class TypedApiBase:
 
 
 class TypedOperationMixin:
-    def __init__(self, api: TypedApiBase):
+    def __init__(self, api: TypedApiBase) -> None:
         self._api = api
 
     async def _typed_json_request(
