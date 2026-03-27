@@ -117,7 +117,9 @@ def render_query_model(name: str, parameters: list[dict[str, Any]]) -> str:
             expr = f"{expr} | None"
         alias = str(param.get("name", field_name))
         if field_name != alias:
-            default = f"Field(None, alias={alias!r})" if not required else f"Field(..., alias={alias!r})"
+            default = (
+                f"Field(None, alias={alias!r})" if not required else f"Field(..., alias={alias!r})"
+            )
         else:
             default = "..." if required else "None"
         lines.append(f"    {field_name}: {expr} = {default}")
@@ -168,7 +170,9 @@ def path_param_names(path: str) -> tuple[str, ...]:
 
 def build_bindings(version: str, schema: dict[str, Any]) -> str:
     suffix = version.replace(".", "_")
-    per_group_resources: dict[str, dict[str, list[OperationSpec]]] = defaultdict(lambda: defaultdict(list))
+    per_group_resources: dict[str, dict[str, list[OperationSpec]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     query_models: dict[str, str] = {}
     list_detail_pairs: dict[tuple[str, str], dict[str, str]] = defaultdict(dict)
 
@@ -194,7 +198,11 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
                 continue
             if not isinstance(operation, dict):
                 continue
-            params = [param for param in operation.get("parameters", []) if isinstance(param, dict) and param.get("in") == "query"]
+            params = [
+                param
+                for param in operation.get("parameters", [])
+                if isinstance(param, dict) and param.get("in") == "query"
+            ]
             query_model_name = None
             if params:
                 query_model_name = f"{class_key}{pascal_case(method)}Query"
@@ -213,7 +221,9 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
             if method_name is None:
                 method_name = SPECIAL_METHOD_NAMES.get((method.lower(), is_detail, is_action))
             if method_name is None:
-                method_name = snake_case(operation.get("operationId") or f"{method}_{action_name or 'call'}")
+                method_name = snake_case(
+                    operation.get("operationId") or f"{method}_{action_name or 'call'}"
+                )
             spec = OperationSpec(
                 method=method.upper(),
                 operation_id=str(operation.get("operationId") or ""),
@@ -236,9 +246,8 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         "from pydantic import BaseModel, Field",
         "",
         "from netbox_sdk.client import NetBoxApiClient",
-        f"from netbox_sdk.models.v{suffix} import *",
+        f"from netbox_sdk.models.v{suffix} import *  # noqa: F403, F405",
         "from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase, build_typed_client",
-        "from netbox_sdk.versioning import SupportedNetBoxVersion",
         "",
     ]
     body = []
@@ -292,7 +301,10 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
                 if spec.method_name == "get" and spec.response_model_expr is not None:
                     return_expr = f"{return_expr} | None"
                 lines.append(f"    async def {spec.method_name}({signature}) -> {return_expr}:")
-                lines.append(f'        path = f"{path_expr}"')
+                if spec.path_param_names:
+                    lines.append(f'        path = f"{path_expr}"')
+                else:
+                    lines.append(f'        path = "{path_expr}"')
                 if spec.raw_response:
                     query_arg = "query=query" if spec.query_model_name is not None else "query=None"
                     query_model = spec.query_model_name or "None"
@@ -403,7 +415,12 @@ def load_schema(path: Path) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", action="append", choices=sorted(SCHEMA_SOURCES), help="Specific release line(s) to generate")
+    parser.add_argument(
+        "--version",
+        action="append",
+        choices=sorted(SCHEMA_SOURCES),
+        help="Specific release line(s) to generate",
+    )
     args = parser.parse_args()
     versions = args.version or sorted(SCHEMA_SOURCES)
     for version in versions:
