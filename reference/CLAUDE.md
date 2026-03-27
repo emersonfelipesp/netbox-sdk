@@ -1,8 +1,20 @@
 # reference — Design and Framework References
 
-Read-only reference material for guiding TUI visual design and Textual framework usage. **No code lives here.** These files are consulted before making any UI/styling changes.
+Read-only reference material for guiding TUI design, Textual usage, and prior-art NetBox client architecture. **No code lives here.** These files are consulted before making design or architecture changes.
 
 ## Contents
+
+### `PYNETBOX.md` — Prior-Art NetBox Client Reference
+
+| File | Purpose |
+|---|---|
+| `PYNETBOX.md` | Maintainer reference for `pynetbox`: architecture, request/response model, major features, and what matters relative to `netbox-sdk` |
+
+**When to consult:**
+- Before adding client-library convenience APIs to `netbox_sdk`
+- When comparing `netbox-sdk` behavior to historical NetBox Python client expectations
+- When evaluating prior-art for filters, detail endpoints, record mutation, or plugin/branch support
+- When deciding whether a `pynetbox` pattern is worth reusing or explicitly avoiding
 
 ### `design/` — Visual Design Guides
 
@@ -36,6 +48,8 @@ Annotated source / documentation extracts from real-world Textual apps, used to 
 
 **When to consult:** Before implementing new Textual patterns, especially: `@work` usage, `Pilot` testing, reactive attributes, CSS selectors, `on_*` message handlers, `compose()` patterns.
 
-### `openapi/` — NetBox OpenAPI Schema (symlink / copy)
+### `openapi/` — NetBox OpenAPI Schema (repo-level copy)
 
-These may be copies of or symlinks to `netbox_cli/reference/openapi/`. The canonical bundled schema used at runtime is in `netbox_cli/reference/openapi/`. See [`netbox_cli/reference/CLAUDE.md`](../netbox_cli/reference/CLAUDE.md) for details.
+These are reference copies only. The runtime and typed SDK source of truth is in
+`netbox_sdk/reference/openapi/`, including versioned bundles for `4.5`, `4.4`,
+and `4.3`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.

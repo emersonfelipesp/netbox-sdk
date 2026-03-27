@@ -1,29 +1,22 @@
-# NetBox CLI and TUI
+# netbox-sdk
 
-`netbox-cli` is a terminal client for NetBox with two ways to work:
+`netbox-sdk` is a terminal client and SDK for NetBox with two interfaces built on one core runtime:
 
-- fast command-line operations such as `nbx dcim devices get --id 1`
-- interactive terminal apps such as `nbx tui` and `nbx dev tui`
+- `netbox_cli` — Typer command-line interface
+- `netbox_tui` — Textual terminal applications
+- `netbox_sdk` — standalone REST API SDK shared by both
 
-> Temporary naming note: the GitHub repository remains `netbox-cli`, but the
-> published PyPI package is currently `netbox-console` due to PyPI naming policy
-> constraints tracked in https://github.com/pypi/support/issues/9925. This will
-> be reverted to `netbox-cli` on PyPI after that issue is resolved.
+Published package names remain:
+
+- `netbox-sdk`
+- `netbox-console`
 
 ## Quick Start with the Demo Instance
 
-Install (official PyPI):
+Install:
 
 ```bash
-sudo apt-get update && sudo apt-get install -y curl
-curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash
-```
-
-Reload your shell:
-
-```bash
-source ~/.bashrc   # bash
-source ~/.zshrc    # zsh
+pip install 'netbox-sdk[all]'
 ```
 
 Authenticate against the public demo instance:
@@ -43,141 +36,67 @@ nbx demo dev tui
 
 ## Install
 
-Install from official PyPI:
+Minimal SDK only:
 
 ```bash
-pip install netbox-console
+pip install netbox-sdk
 ```
 
-or with `uv`:
+CLI:
 
 ```bash
-uv tool install --force netbox-console
+pip install 'netbox-sdk[cli]'
 ```
 
-Install from a local checkout (developer workflow):
+TUI:
 
 ```bash
-cd <path-to-netbox-cli>
-uv tool install --force .
+pip install 'netbox-sdk[tui]'
 ```
 
-If `nbx` is not available after install, make sure `~/.local/bin` is in your `PATH`.
-
-## Configure
-
-Set up your normal profile:
+Everything:
 
 ```bash
-nbx init
+pip install 'netbox-sdk[all]'
 ```
 
-Set up the demo profile:
+With `uv` as a user tool:
 
 ```bash
-nbx demo init
+uv tool install --force 'netbox-sdk[cli]'
 ```
 
-You can also pass credentials directly when needed:
+Developer checkout:
 
 ```bash
-nbx demo init --username <your-demo-user> --password <your-demo-password>
+git clone https://github.com/emersonfelipesp/netbox-sdk.git
+cd netbox-sdk
+uv sync --dev --extra cli --extra tui --extra demo
+uv run nbx --help
 ```
 
 ## Common Commands
 
-List and inspect resources:
-
 ```bash
+nbx init
 nbx dcim devices list
 nbx dcim devices get --id 1
-nbx ipam prefixes list
-```
-
-Create or update objects:
-
-```bash
-nbx ipam ip-addresses create --body-json '{"address":"192.0.2.10/24","status":"active"}'
-nbx dcim devices patch --id 1 --body-json '{"name":"edge-sw01"}'
-```
-
-Send direct HTTP requests:
-
-```bash
-nbx call GET /api/status/
-nbx call POST /api/ipam/ip-addresses/ --body-file ./payload.json
-```
-
-Explore available groups, resources, and operations:
-
-```bash
-nbx groups
-nbx resources dcim
-nbx ops dcim devices
-```
-
-## TUI Modes
-
-Main TUI:
-
-```bash
 nbx tui
-nbx demo tui
-```
-
-Developer workbench:
-
-```bash
 nbx dev tui
-nbx demo dev tui
-```
-
-Log viewer:
-
-```bash
 nbx logs
 ```
 
-## Themes
+## Architecture
 
-List available themes:
+- `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, shared formatting, and demo helpers.
+- `netbox_cli` owns the `nbx` command tree and lazy-loads `netbox_tui` where needed.
+- `netbox_tui` owns all Textual apps, themes, widgets, and TCSS.
 
-```bash
-nbx tui --theme
-```
-
-Start with a specific theme:
+## Contributor Workflow
 
 ```bash
-nbx tui --theme dracula
-nbx tui --theme netbox-light
-nbx dev tui --theme netbox-dark
+uv sync --dev --extra cli --extra tui --extra demo
+uv run pre-commit install --hook-type pre-commit --hook-type pre-push
+uv run pre-commit run --all-files
+uv run pytest
 ```
-
-You can also change themes live from the top-left theme selector in the TUI.
-
-## Useful TUI Keys
-
-- `/` focus search
-- `g` focus navigation
-- `s` focus results
-- `r` refresh current resource
-- `f` open filters
-- `d` switch to details
-- `q` quit
-
-## Custom Themes
-
-Built-in themes include:
-
-- `netbox-dark`
-- `dracula`
-- `netbox-light`
-
-You can add your own theme by placing a JSON theme file in `netbox_cli/themes/`.
-
-## Tips
-
-- `nbx demo ...` uses a separate demo profile from your normal `nbx ...` profile.
-- If a command works in the CLI, there is usually a matching flow in the TUI.
-- The Dev TUI is useful for exploring endpoints, request timing, and raw JSON responses.

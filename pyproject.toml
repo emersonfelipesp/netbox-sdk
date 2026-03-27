@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "netbox-console"
+name = "netbox-sdk"
 version = "0.0.4"
 description = "API-first NetBox CLI + Textual TUI"
 readme = "README.md"
@@ -33,15 +33,22 @@ classifiers = [
 ]
 dependencies = [
   "aiohttp>=3.9.0",
-  "playwright>=1.52.0",
   "pydantic>=2.0",
-  "typer>=0.12.0",
+  "email-validator>=2.2.0",
   "rich>=13.7.0",
-  "textual>=0.62.0",
   "pyyaml>=6.0.0",
 ]
 
 [project.optional-dependencies]
+sdk = []
+tui = ["textual>=0.62.0"]
+cli = ["typer>=0.12.0"]
+demo = ["playwright>=1.52.0"]
+all = [
+  "textual>=0.62.0",
+  "typer>=0.12.0",
+  "playwright>=1.52.0",
+]
 dev = [
   "pre-commit>=4.0.0",
   "pytest>=8.0.0",
@@ -49,6 +56,9 @@ dev = [
   "pytest-timeout>=2.3.0",
   "pytest-xdist>=3.5.0",
   "ruff>=0.11.0",
+  "textual>=0.62.0",
+  "typer>=0.12.0",
+  "playwright>=1.52.0",
 ]
 docs = [
   "mkdocs-material>=9.5",
@@ -62,30 +72,34 @@ dev = [
   "pytest-timeout>=2.3.0",
   "pytest-xdist>=3.5.0",
   "ruff>=0.11.0",
+  "textual>=0.62.0",
+  "typer>=0.12.0",
+  "playwright>=1.52.0",
 ]
 docs = [
   "mkdocs-material>=9.5",
 ]
 
 [project.scripts]
-nbx = "netbox_cli.cli:main"
+nbx = "netbox_cli:main"
 
 [project.urls]
-Homepage = "https://github.com/emersonfelipesp/netbox-cli"
-Documentation = "https://emersonfelipesp.com/netbox-cli"
-Repository = "https://github.com/emersonfelipesp/netbox-cli"
-Issues = "https://github.com/emersonfelipesp/netbox-cli/issues"
-Changelog = "https://github.com/emersonfelipesp/netbox-cli/releases"
+Homepage = "https://github.com/emersonfelipesp/netbox-sdk"
+Documentation = "https://emersonfelipesp.github.io/netbox-sdk/"
+Repository = "https://github.com/emersonfelipesp/netbox-sdk"
+Issues = "https://github.com/emersonfelipesp/netbox-sdk/issues"
+Changelog = "https://github.com/emersonfelipesp/netbox-sdk/releases"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["netbox_cli*"]
+include = ["netbox_sdk*", "netbox_tui*", "netbox_cli*"]
 
 [tool.setuptools.package-data]
-netbox_cli = ["*.tcss", "themes/*.json", "reference/openapi/*.json"]
+netbox_sdk = ["reference/openapi/*.json", "py.typed"]
+netbox_tui = ["*.tcss", "themes/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -93,6 +107,11 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "--tb=short -n auto"
 timeout = 60
+markers = [
+  "suite_sdk: tests owned by the standalone netbox_sdk package",
+  "suite_cli: tests owned by the optional netbox_cli package",
+  "suite_tui: tests owned by the optional netbox_tui package",
+]
 
 [tool.ruff]
 target-version = "py311"
@@ -100,6 +119,9 @@ line-length = 100
 
 [tool.ruff.lint]
 select = [
+  "ANN201",
+  "ANN202",
+  "ANN204",
   "E",
   "F",
   "I",
@@ -109,7 +131,11 @@ select = [
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["netbox_cli"]
+known-first-party = ["netbox_sdk", "netbox_tui", "netbox_cli"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["ANN"]
+"netbox_sdk/typed_versions/*.py" = ["F403", "F405", "I001"]
 
 [tool.ruff.format]
 quote-style = "double"

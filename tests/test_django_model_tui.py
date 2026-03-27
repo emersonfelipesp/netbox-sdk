@@ -12,22 +12,22 @@ import pytest
 from textual.containers import VerticalScroll
 from textual.widgets import Static
 
-from netbox_cli.ui.django_model_app import DjangoModelTuiApp
+from netbox_tui.django_model_app import DjangoModelTuiApp
+
+pytestmark = pytest.mark.suite_tui
 
 
 @pytest.fixture(autouse=True)
 def isolate_django_model_state():
     """Prevent tests from reading/writing real Django model cache."""
-    from netbox_cli.ui.django_model_state import DjangoModelTuiState
+    from netbox_tui.django_model_state import DjangoModelTuiState
 
     mock_state = DjangoModelTuiState()
     mock_state.theme_name = "netbox-dark"
 
     with (
-        patch(
-            "netbox_cli.ui.django_model_app.load_django_model_tui_state", return_value=mock_state
-        ),
-        patch("netbox_cli.ui.django_model_app.save_django_model_tui_state"),
+        patch("netbox_tui.django_model_app.load_django_model_tui_state", return_value=mock_state),
+        patch("netbox_tui.django_model_app.save_django_model_tui_state"),
     ):
         yield
 

@@ -1,10 +1,10 @@
-# NetBox CLI — captured command input and output
+# netbox-sdk — captured command input and output
 
 This file is **machine-generated**. Regenerate with:
 
 ```bash
-cd /path/to/netbox-cli
-uv sync --group docs --group dev   # once
+cd /path/to/netbox-sdk
+uv sync --group docs --group dev --extra cli --extra tui --extra demo   # once
 uv run nbx docs generate-capture            # demo profile (default)
 uv run nbx docs generate-capture --live     # default profile (real NetBox)
 # or: uv run python docs/generate_command_docs.py

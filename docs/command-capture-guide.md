@@ -18,16 +18,16 @@ Pass `--live` to run them against your own NetBox instance instead.
 | [`run_capture_in_background.sh`](run_capture_in_background.sh) | Starts the generator under `nohup`, appends to `generated/capture-run.log`, writes PID to `generated/capture-run.pid`. |
 | [`generated/nbx-command-capture.md`](generated/nbx-command-capture.md) | **Generated** long-form reference (input + output per command). |
 | [`generated/raw/`](generated/raw/) | **Generated** per-command JSON files (`stdout_full`, exit code, timing). |
-| [`docs.yml` workflow](https://github.com/emersonfelipesp/netbox-cli/blob/main/.github/workflows/docs.yml) | CI workflow that builds and deploys docs; when demo secrets are present, it regenerates command-capture content against demo.netbox.dev before deploy. |
+| [`docs.yml` workflow](https://github.com/emersonfelipesp/netbox-sdk/blob/main/.github/workflows/docs.yml) | CI workflow that builds and deploys docs; when demo secrets are present, it regenerates command-capture content against demo.netbox.dev before deploy. |
 
 ---
 
 ## Quick start
 
-From the `netbox-cli` repository root, with the package installed:
+From the `netbox-sdk` repository root, with the package installed:
 
 ```bash
-pip install netbox-console
+pip install 'netbox-sdk[cli,demo]'
 
 # Default: live-API specs hit demo.netbox.dev (demo profile)
 nbx docs generate-capture
@@ -142,7 +142,7 @@ When no config exists (offline local run), a placeholder is injected and live ca
 
 `groups`, `resources`, and `ops` read from `reference/openapi/netbox-openapi.json` via
 `build_schema_index()`. This path is resolved relative to the repo root, so these specs only
-produce output when the generator runs from a `netbox-cli` git checkout.
+produce output when the generator runs from a `netbox-sdk` git checkout.
 
 ### Output format
 
@@ -157,13 +157,13 @@ For each spec the generator writes:
 
 ## GitHub Actions CI
 
-The workflow at [`docs.yml` on GitHub](https://github.com/emersonfelipesp/netbox-cli/blob/main/.github/workflows/docs.yml)
+The workflow at [`docs.yml` on GitHub](https://github.com/emersonfelipesp/netbox-sdk/blob/main/.github/workflows/docs.yml)
 runs automatically on pushes to `main` (and can be started manually via `workflow_dispatch`).
 
 ### What it does
 
 1. Checks out the repository.
-2. Installs `netbox-console` (the published package for this repo) and its dependencies.
+2. Installs `netbox-sdk` (the published package for this repo) and its dependencies.
 3. Installs Playwright and the Chromium browser (`uv tool run --from playwright playwright install chromium --with-deps`).
 4. Runs `nbx demo init --username … --password … --headless` to authenticate with
    demo.netbox.dev and save the demo profile to disk.

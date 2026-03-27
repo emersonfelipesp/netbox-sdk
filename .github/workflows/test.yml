@@ -7,15 +7,81 @@ on:
     branches: ["**"]
 
 jobs:
-  test:
-    name: pytest / Python ${{ matrix.python-version }}
+  changes:
+    name: detect test scope
     runs-on: ubuntu-latest
+    outputs:
+      run_all: ${{ steps.filter.outputs.run_all }}
+      sdk: ${{ steps.filter.outputs.sdk }}
+      cli: ${{ steps.filter.outputs.cli }}
+      tui: ${{ steps.filter.outputs.tui }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Detect changed areas
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            run_all:
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - 'tests/conftest.py'
+              - '.github/workflows/test.yml'
+              - '.github/workflows/main-post-merge.yml'
+              - '.github/workflows/publish-testpypi.yml'
+            sdk:
+              - 'netbox_sdk/**'
+              - 'tests/test_api_auth.py'
+              - 'tests/test_api_cache.py'
+              - 'tests/test_config_profiles.py'
+              - 'tests/test_demo_auth.py'
+              - 'tests/test_logging_runtime.py'
+              - 'tests/test_output_safety.py'
+              - 'tests/test_plugin_discovery.py'
+              - 'tests/test_schema_index.py'
+              - 'tests/test_docs_alignment.py'
+              - 'tests/test_return_annotations.py'
+              - 'tests/test_sdk_completeness.py'
+              - 'tests/test_sdk_imports.py'
+              - 'tests/test_sdk_pynetbox_parity.py'
+              - 'tests/test_services.py'
+              - 'tests/test_typed_sdk.py'
+            cli:
+              - 'netbox_cli/**'
+              - 'tests/test_cli_error_handling.py'
+              - 'tests/test_cli_new_options.py'
+              - 'tests/test_cli_trace.py'
+              - 'tests/test_demo_cli.py'
+              - 'tests/test_demo_runtime_refresh.py'
+              - 'tests/test_docgen_paths.py'
+              - 'tests/test_graphql.py'
+              - 'tests/test_instance_isolation.py'
+              - 'tests/test_markdown_output.py'
+            tui:
+              - 'netbox_tui/**'
+              - 'tests/test_cli_tui.py'
+              - 'tests/test_cli_tui_theme.py'
+              - 'tests/test_dev_tui.py'
+              - 'tests/test_django_model_tui.py'
+              - 'tests/test_logo_render.py'
+              - 'tests/test_logs_tui.py'
+              - 'tests/test_no_hardcoded_colors.py'
+              - 'tests/test_theme_registry.py'
+              - 'tests/test_tui_interaction.py'
+
+  test-sdk:
+    name: sdk suite / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'main') && needs.changes.outputs.run_all != 'true' && needs.changes.outputs.sdk == 'true' }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,11 +90,93 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
 
       - name: Sync development environment
-        run: uv sync --dev --locked
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
 
-      - name: Run tests
+      - name: Run netbox_sdk suite
+        run: uv run pytest -v --tb=short -p no:randomly -m suite_sdk
+
+  test-cli:
+    name: cli suite / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'main') && needs.changes.outputs.run_all != 'true' && needs.changes.outputs.cli == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+
+      - name: Run netbox_cli suite
+        run: uv run pytest -v --tb=short -p no:randomly -m suite_cli
+
+  test-tui:
+    name: tui suite / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'main') && needs.changes.outputs.run_all != 'true' && needs.changes.outputs.tui == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+
+      - name: Run netbox_tui suite
+        run: uv run pytest -v --tb=short -p no:randomly -m suite_tui
+
+  test-all:
+    name: full suite / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ (github.event_name == 'push' && github.ref_name == 'main') || needs.changes.outputs.run_all == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+
+      - name: Run full test suite
         run: uv run pytest -v --tb=short -p no:randomly

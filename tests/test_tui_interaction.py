@@ -27,22 +27,24 @@ from textual.widgets import (
     Tree,
 )
 
-from netbox_cli.api import ApiResponse, ConnectionProbe
-from netbox_cli.schema import build_schema_index
-from netbox_cli.theme_registry import load_theme_catalog
-from netbox_cli.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
-from netbox_cli.ui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp, run_tui
-from netbox_cli.ui.chrome import (
+from netbox_sdk.client import ApiResponse, ConnectionProbe
+from netbox_sdk.formatting import configure_semantic_styles, semantic_cell
+from netbox_sdk.schema import build_schema_index
+from netbox_sdk.trace_ascii import render_any_trace_ascii, render_cable_trace_ascii
+from netbox_tui.app import TOPBAR_CLI_LABEL, NetBoxTuiApp, run_tui
+from netbox_tui.chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
     SWITCH_TO_DJANGO_TUI,
     SWITCH_TO_MAIN_TUI,
 )
-from netbox_cli.ui.formatting import configure_semantic_styles, semantic_cell
-from netbox_cli.ui.navigation import build_navigation_menus
-from netbox_cli.ui.state import TuiState, ViewState
-from netbox_cli.ui.widgets import SPONSOR_URL, ContextBreadcrumb
+from netbox_tui.navigation import build_navigation_menus
+from netbox_tui.state import TuiState, ViewState
+from netbox_tui.theme_registry import load_theme_catalog
+from netbox_tui.widgets import SPONSOR_URL, ContextBreadcrumb
 from tests.conftest import OPENAPI_PATH
+
+pytestmark = pytest.mark.suite_tui
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
@@ -374,8 +376,8 @@ def isolate_tui_state():
     """Prevent all tests from reading/writing ~/.config/netbox-cli/tui_state.json."""
     fresh = TuiState(last_view=ViewState())
     with (
-        patch("netbox_cli.ui.app.load_tui_state", return_value=fresh),
-        patch("netbox_cli.ui.app.save_tui_state"),
+        patch("netbox_tui.app.load_tui_state", return_value=fresh),
+        patch("netbox_tui.app.save_tui_state"),
     ):
         yield
 
@@ -447,8 +449,8 @@ def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
             return None
 
     with (
-        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
-        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_tui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_tui.dev_app.NetBoxDevTuiApp", FakeDevApp),
     ):
         run_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
 
@@ -485,8 +487,8 @@ def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) 
             return SWITCH_TO_MAIN_TUI if dev_runs == 1 else None
 
     with (
-        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
-        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_tui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_tui.dev_app.NetBoxDevTuiApp", FakeDevApp),
     ):
         run_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=True)
 
@@ -520,8 +522,8 @@ def test_run_tui_preserves_runtime_changed_theme_across_view_switch(
             return None
 
     with (
-        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
-        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_tui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_tui.dev_app.NetBoxDevTuiApp", FakeDevApp),
     ):
         run_tui(client=mock_client, index=real_index, theme_name="netbox-dark", demo_mode=False)
 
@@ -748,7 +750,7 @@ async def test_context_breadcrumb_link_matches_plain_text_style(mock_client, rea
 async def test_plugin_breadcrumb_root_opens_descendant_dropdown(mock_client, real_index) -> None:
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
     with patch(
-        "netbox_cli.ui.app.discover_plugin_resource_paths",
+        "netbox_tui.app.discover_plugin_resource_paths",
         AsyncMock(
             return_value=[
                 ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/"),
@@ -792,7 +794,7 @@ async def test_plugin_group_breadcrumb_dropdown_navigates_to_selected_resource(
 ) -> None:
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
     with patch(
-        "netbox_cli.ui.app.discover_plugin_resource_paths",
+        "netbox_tui.app.discover_plugin_resource_paths",
         AsyncMock(
             return_value=[
                 ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/"),
@@ -861,7 +863,7 @@ async def test_demo_tui_does_not_restore_stale_plugin_view_when_runtime_has_no_p
     mock_client, real_index
 ) -> None:
     stale = TuiState(last_view=ViewState(group="plugins", resource="gpon/boards"))
-    with patch("netbox_cli.ui.app.load_tui_state", return_value=stale):
+    with patch("netbox_tui.app.load_tui_state", return_value=stale):
         app = NetBoxTuiApp(
             client=mock_client,
             index=real_index,

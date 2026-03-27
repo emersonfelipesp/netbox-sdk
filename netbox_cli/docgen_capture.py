@@ -27,15 +27,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TextIO
 
-from .docgen.engine import CaptureEngine
-from .docgen.models import (
+from netbox_cli.docgen.engine import CaptureEngine
+from netbox_cli.docgen.models import (
     DEFAULT_MAX_CONCURRENCY,
     CaptureResult,
 )
-from .docgen.specs import load_specs
+from netbox_cli.docgen.specs import load_specs
 
 # Re-exported for tests that import from this module.
-from .docgen_specs import CaptureSpec as CaptureSpec  # noqa: F401
+from netbox_cli.docgen_specs import CaptureSpec as CaptureSpec  # noqa: F401
 
 # OpenAPI dynamic actions that render via ``print_response`` (tabular / Markdown-friendly).
 _MARKDOWN_ACTIONS = frozenset({"list", "get", "create", "update", "patch", "delete"})
@@ -85,7 +85,7 @@ def resolve_capture_paths(
         if output is None or raw_dir is None:
             raise FileNotFoundError(
                 "Cannot infer default paths: no docs/ directory next to netbox_cli. "
-                "Run from the netbox-cli git checkout or pass --output and --raw-dir."
+                "Run from the netbox-sdk git checkout or pass --output and --raw-dir."
             )
         return output, raw_dir
     if output is None:
@@ -175,7 +175,7 @@ def _repo_root() -> Path:
 
 
 def _build_meta(use_demo: bool, markdown_output: bool) -> dict:
-    from .config import DEMO_BASE_URL, load_profile_config  # noqa: PLC0415
+    from netbox_sdk.config import DEMO_BASE_URL, load_profile_config  # noqa: PLC0415
 
     profile = "demo" if use_demo else "default"
     cfg = load_profile_config(profile)
@@ -204,12 +204,12 @@ def _render_markdown_capture(
     )
 
     lines: list[str] = [
-        "# NetBox CLI \u2014 captured command input and output",
+        "# netbox-sdk \u2014 captured command input and output",
         "",
         "This file is **machine-generated**. Regenerate with:",
         "",
         "```bash",
-        "cd /path/to/netbox-cli",
+        "cd /path/to/netbox-sdk",
         "uv sync --group docs --group dev   # once",
         "uv run nbx docs generate-capture            # demo profile (default)",
         "uv run nbx docs generate-capture --live     # default profile (real NetBox)",

@@ -12,8 +12,8 @@ from typing import Any
 
 import yaml
 
-from ..markdown_output import render_markdown
-from .models import strip_status_header
+from netbox_cli.docgen.models import strip_status_header
+from netbox_cli.markdown_output import render_markdown
 
 
 @dataclass(frozen=True, slots=True)

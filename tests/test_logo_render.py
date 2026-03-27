@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
-from netbox_cli.theme_registry import load_theme_catalog
-from netbox_cli.ui.logo_render import build_netbox_logo
+import pytest
+
+from netbox_tui.logo_render import build_netbox_logo
+from netbox_tui.theme_registry import load_theme_catalog
+
+pytestmark = pytest.mark.suite_tui
 
 
 def _hex(span_index: int, logo) -> str:

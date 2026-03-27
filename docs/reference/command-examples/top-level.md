@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx --help
+    ```
+
     ```text
                                                                                     
      Usage: root [OPTIONS] COMMAND [ARGS]...                                        
@@ -54,6 +58,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx init --help
+    ```
+
     ```text
                                                                                     
      Usage: root init [OPTIONS]                                                     
@@ -77,6 +85,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx config --help
+    ```
 
     ```text
                                                                                     
@@ -102,6 +114,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx groups --help
+    ```
+
     ```text
                                                                                     
      Usage: root groups [OPTIONS]                                                   
@@ -125,6 +141,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx resources --help
+    ```
 
     ```text
                                                                                     
@@ -150,6 +170,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx ops --help
+    ```
+
     ```text
                                                                                     
      Usage: root ops [OPTIONS] GROUP RESOURCE                                       
@@ -173,6 +197,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx call --help
+    ```
 
     ```text
                                                                                     
@@ -198,6 +226,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx tui --help
+    ```
+
     ```text
                                                                                     
      Usage: root tui [OPTIONS]                                                      
@@ -221,6 +253,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx tui --theme
+    ```
 
     ```text
     Available themes:
@@ -246,6 +282,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx docs --help
+    ```
+
     ```text
                                                                                     
      Usage: root docs [OPTIONS] COMMAND [ARGS]...                                   
@@ -269,6 +309,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx docs generate-capture --help
+    ```
 
     ```text
                                                                                     

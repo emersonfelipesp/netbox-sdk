@@ -1,117 +1,51 @@
 # .github — GitHub Actions Workflows
 
-## Workflows
+## Local Equivalents
 
-### `workflows/lint.yml` — Lint + Format Checks
+Lint/local style check:
 
-Runs on every push and pull request.
+```bash
+uv sync --dev --extra cli --extra tui --extra demo --locked
+uv run pre-commit run --all-files --show-diff-on-failure --color=always
+```
 
-- **Python:** 3.13
-- **Tooling:** `uv sync --dev --locked`
-- **Command:** `uv run pre-commit run --all-files --show-diff-on-failure --color=always`
+Test suite:
 
-This workflow is the source of truth for Python style enforcement. It executes the same `.pre-commit-config.yaml` hooks contributors should install locally, so local commits, local pushes, and GitHub Actions all use the same Ruff lint/format rules.
+```bash
+uv sync --dev --extra cli --extra tui --extra demo --locked
+uv run pytest -v --tb=short
+uv run pytest -v --tb=short -m suite_sdk
+uv run pytest -v --tb=short -m suite_cli
+uv run pytest -v --tb=short -m suite_tui
+```
 
----
+Docs build:
 
-### `workflows/test.yml` — CI Tests
+```bash
+uv sync --group docs --group dev --extra cli --extra tui --extra demo --locked
+uv run mkdocs build --strict
+```
 
-Runs the full pytest suite on every push and pull request.
+## Workflow Summary
 
-- **Matrix:** Python 3.11, 3.12, 3.13
-- **fail-fast:** false (all versions run even if one fails)
-- **Install:** `uv sync --dev --locked`
-- **Command:** `uv run pytest`
-
-Live tests (`test_demo_auth.py`, `test_demo_cli.py`) that require `DEMO_USERNAME` / `DEMO_PASSWORD` skip gracefully when those secrets are absent in a fork or external PR.
-
----
-
-### `workflows/docs.yml` — Build & Deploy Documentation
-
-Runs on:
-- Every push to `main`
-- Manual `workflow_dispatch`
-
-**Permissions:** `contents: write` (needed for `mkdocs gh-deploy` to push to the `gh-pages` branch).
-
-**Steps:**
-
-1. **Checkout** — full history (`fetch-depth: 0`) for MkDocs git-committer-date support
-2. **Set up Python 3.12** with pip cache
-3. **Install** `pip install -e ".[docs,dev]"` — gets `mkdocs-material` + `netbox-cli` itself
-4. **Docgen** (conditional) — runs only when both `DEMO_USERNAME` and `DEMO_PASSWORD` secrets are set:
-   ```bash
-   pip install playwright
-   playwright install chromium --with-deps
-   nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
-   nbx docs generate-capture
-   ```
-   If secrets are absent, prints a message and exits 0 (skips silently).
-5. **Configure git identity** — sets `github-actions[bot]` name/email for the push
-6. **Deploy** — `mkdocs gh-deploy --force --clean --verbose`
-
-**Required repository secrets:**
-| Secret | Value |
-|---|---|
-| `DEMO_USERNAME` | demo.netbox.dev account username |
-| `DEMO_PASSWORD` | demo.netbox.dev account password |
-
-**Important:** Do NOT use `if:` conditions to check secrets in GitHub Actions YAML — it causes "workflow file issue" errors. Always guard with shell-level `[ -z ]` after exporting secrets as `env:` variables.
-
----
-
-### `workflows/publish-testpypi.yml` — Release Validation and Publishing (TestPyPI → PyPI)
-
-Runs on:
-- Push tags matching `v*`
-- Manual `workflow_dispatch` (supports `publish_pypi` boolean input)
-
-**Permissions:** `contents: read`
-
-**Pipeline stages (gated):**
-
-1. **Prepare release artifacts**:
-   - validate package metadata (`project.name == netbox-console` in the committed `pyproject.toml`)
-   - validate tag/version match on tag pushes (`v<version>`)
-   - build `sdist` + `wheel` for **`netbox-console`**, then patch `pyproject.toml` to `name = "netbox-sdk"` and build again (same code; second distribution name only)
-   - upload one workflow artifact containing both sets of files under `dist/`
-2. **Publish to TestPyPI** (matrix, parallel):
-   - one job uploads `dist/netbox_console-*`, the other `dist/netbox_sdk-*`
-   - Twine upload with `--skip-existing`
-3. **Validate TestPyPI release**:
-   - pre-CI style checks (`pre-commit` + `pytest` matrix)
-   - post-CI style checks (fresh venv install smoke for `netbox-console` and `netbox-sdk`, then demo TUI tests + full pytest from source)
-4. **Publish to official PyPI** *(only if all TestPyPI validations pass)*:
-   - same matrix as TestPyPI: parallel uploads per distribution prefix
-   - Twine upload with `--skip-existing`
-5. **Validate official PyPI release**:
-   - pre-CI style checks (`pre-commit` + `pytest` matrix)
-   - post-CI style checks (fresh venv install smoke for `netbox-console` and `netbox-sdk`, then demo TUI tests + full pytest from source)
-
-**Maintainer setup for `netbox-sdk`:** Create the `netbox-sdk` project on Test PyPI and PyPI (in addition to `netbox-console`). Ensure CI tokens or trusted publishing can upload to both projects; see the comment at the top of `workflows/publish-testpypi.yml`.
-
-**Package install rules in validation:**
-- TestPyPI package + official PyPI dependencies:
-   - `--index-url https://test.pypi.org/simple/`
-   - `--extra-index-url https://pypi.org/simple/`
-- Official PyPI package:
-   - `--index-url https://pypi.org/simple/`
-
-**Playwright runtime validation** is included in both TestPyPI and PyPI smoke checks:
-- `python -m playwright install --with-deps chromium`
-- minimal Chromium launch check (`browser = p.chromium.launch(headless=True)`)
-
-**Required repository secrets (TestPyPI):**
-| Secret | Value |
-|---|---|
-| `TEST_PYPI_USERNAME` | usually `__token__` |
-| `TEST_PYPI_TOKEN` | TestPyPI API token |
-| `TEST_PYPI_REPOSITORY_URL` | `https://test.pypi.org/` |
-
-**Required repository secrets (PyPI):**
-| Secret | Value |
-|---|---|
-| `PYPI_USERNAME` | usually `__token__` |
-| `PYPI_TOKEN` | PyPI API token |
-| `PYPI_REPOSITORY_URL` | `https://pypi.org/` |
+- `workflows/lint.yml`
+  - installs dev dependencies plus `cli`, `tui`, and `demo` extras
+  - runs pre-commit as the formatting/lint gate
+- `workflows/test.yml`
+  - detects whether a change affects `netbox_sdk`, `netbox_cli`, `netbox_tui`, or shared repo-wide validation inputs
+  - runs `suite_sdk`, `suite_cli`, or `suite_tui` on Python 3.11, 3.12, and 3.13 for branch/PR changes
+  - escalates to a full `pytest` matrix when shared files change or when the push targets `main`
+- `workflows/docs.yml`
+  - builds docs with docs+dev groups plus CLI/TUI/demo extras
+  - optionally regenerates captured docs when demo secrets are available
+  - deploys to the current repository's `gh-pages` branch via `mkdocs gh-deploy`
+  - must keep `mkdocs.yml` `site_url` and repo links aligned with `emersonfelipesp/netbox-sdk`
+- `workflows/main-post-merge.yml`
+  - validates the published `netbox-sdk[cli]` install
+  - then runs source-based full-suite pytest coverage with full extras
+- `workflows/django-model-builds.yml`
+  - installs `netbox-sdk[cli]` from PyPI and rebuilds cached Django model graphs
+- `workflows/publish-testpypi.yml`
+  - validates metadata and version tags
+  - builds and uploads the single `netbox-sdk` distribution to TestPyPI and optionally PyPI
+  - runs the full pytest matrix as release validation before publish

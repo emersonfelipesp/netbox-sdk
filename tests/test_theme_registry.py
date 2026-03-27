@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from netbox_cli.theme_registry import ThemeCatalogError, load_theme_catalog
+from netbox_tui.theme_registry import ThemeCatalogError, load_theme_catalog
+
+pytestmark = pytest.mark.suite_tui
 
 
 def test_themes_set_explicit_foreground_for_textual() -> None:

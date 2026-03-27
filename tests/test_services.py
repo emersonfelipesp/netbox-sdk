@@ -2,9 +2,11 @@
 
 import pytest
 
-from netbox_cli.schema import build_schema_index
-from netbox_cli.services import parse_key_value_pairs, resolve_dynamic_request
+from netbox_sdk.schema import build_schema_index
+from netbox_sdk.services import parse_key_value_pairs, resolve_dynamic_request
 from tests.conftest import OPENAPI_PATH
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def _index():

@@ -19,6 +19,7 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+from unittest.mock import MagicMock, patch
 
 # Configuration
 SCRIPT_DIR = Path(__file__).parent
@@ -86,7 +87,7 @@ def get_demo_client() -> Any:
     return NetBoxApiClient(config)
 
 
-def get_mock_executor():
+def get_mock_executor() -> Any:
     """Create a mock CLI executor for CLI TUI."""
 
     def executor(cmd: list[str]) -> tuple[int, str]:
@@ -95,9 +96,9 @@ def get_mock_executor():
     return executor
 
 
-def create_django_store():
+def create_django_store() -> Any:
     """Create a mock DjangoModelStore for Django TUI."""
-    from netbox_cli.django_models.store import DjangoModelStore
+    from netbox_sdk.django_models.store import DjangoModelStore
 
     # Create a minimal cache file for testing
     cache_data = {
@@ -256,7 +257,7 @@ def get_app_kwargs(app_id: str, theme: str, index: Any, client: Any) -> dict:
     return {}
 
 
-async def main():
+async def main() -> None:
     """Main entry point - capture all TUI screenshots from demo.netbox.dev."""
 
     # Create output directory
@@ -330,7 +331,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    from unittest.mock import MagicMock, patch
-
     asyncio = __import__("asyncio")
     asyncio.run(main())

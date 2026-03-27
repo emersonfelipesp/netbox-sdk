@@ -6,9 +6,9 @@ into the stdlib ``CaptureSpec`` dataclass used by the capture engine.
 
 from __future__ import annotations
 
-from ..docgen_specs import CaptureSpec as _PydanticSpec
-from ..docgen_specs import all_specs as _pydantic_all_specs
-from .models import CaptureSpec
+from netbox_cli.docgen.models import CaptureSpec
+from netbox_cli.docgen_specs import CaptureSpec as _PydanticSpec
+from netbox_cli.docgen_specs import all_specs as _pydantic_all_specs
 
 
 def _from_pydantic(spec: _PydanticSpec) -> CaptureSpec:

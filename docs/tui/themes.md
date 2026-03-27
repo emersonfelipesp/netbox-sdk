@@ -63,7 +63,7 @@ When a custom widget composes nested Textual widgets internally, propagate seman
 
 Project rules:
 
-- Never hardcode runtime colors in Python or TCSS outside `netbox_cli/themes/*.json`
+- Never hardcode runtime colors in Python or TCSS outside `netbox_tui/themes/*.json`
 - Never leave Textual default colors visible after a theme switch
 - Avoid built-in widget palettes when they bypass the repo theme tokens; style component classes with semantic variables instead
 
@@ -83,7 +83,7 @@ Practical lesson from the Dracula fix:
 - the remaining blue support-modal and Dev-TUI pane backgrounds were not only widget-style leaks
 - Dracula's own `surface` / `panel` / `boost` / border tokens were too blue compared with the calmer NetBox Dark surface stack
 - the durable fix was two-part:
-  - rebalance the Dracula surface hierarchy in `netbox_cli/themes/dracula.json`
+  - rebalance the Dracula surface hierarchy in `netbox_tui/themes/dracula.json`
   - explicitly account for Textual ANSI-mode screen / modal behavior and runtime-mounted inner widgets
 
 When reviewing or creating a dark theme, treat the following as a built-in sanity check:
@@ -97,7 +97,7 @@ When reviewing or creating a dark theme, treat the following as a built-in sanit
 
 ## Creating a custom theme
 
-Place a JSON file in `netbox_cli/themes/`. It will be discovered automatically — no code changes required.
+Place a JSON file in `netbox_tui/themes/`. It will be discovered automatically — no code changes required.
 
 ### Required structure
 

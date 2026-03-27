@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import pytest
+
 from netbox_cli import cli
-from netbox_cli.config import Config
+from netbox_sdk.config import Config
+
+pytestmark = pytest.mark.suite_cli
 
 
 def _mock_config() -> Config:

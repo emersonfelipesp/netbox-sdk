@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import pytest
 import typer
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.config import Config
+from netbox_sdk.config import Config
+
+pytestmark = pytest.mark.suite_tui
 
 runner = CliRunner()
 
@@ -43,7 +46,7 @@ def test_tui_theme_dracula(monkeypatch) -> None:
         called["theme_name"] = theme_name
         called["demo_mode"] = demo_mode
 
-    import netbox_cli.tui as tui_module
+    import netbox_tui as tui_module
 
     monkeypatch.setattr(tui_module, "run_tui", _fake_run_tui)
 
@@ -91,7 +94,7 @@ def test_logs_command_does_not_require_runtime_config(monkeypatch) -> None:
 
 
 def test_logs_command_renders_recent_entries(monkeypatch) -> None:
-    from netbox_cli.logging_runtime import LogEntry
+    from netbox_sdk.logging_runtime import LogEntry
 
     monkeypatch.setattr(cli, "log_file_path", lambda: "/tmp/netbox-cli.log")
     monkeypatch.setattr(
@@ -128,7 +131,7 @@ def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
         called["theme_name"] = str(theme_name)
         called["demo_mode"] = demo_mode
 
-    import netbox_cli.tui as tui_module
+    import netbox_tui as tui_module
 
     monkeypatch.setattr(tui_module, "run_tui", _fake_run_tui)
 
@@ -150,7 +153,7 @@ def test_tui_theme_alias_netbox(monkeypatch) -> None:
         called["theme_name"] = str(theme_name)
         called["demo_mode"] = demo_mode
 
-    import netbox_cli.tui as tui_module
+    import netbox_tui as tui_module
 
     monkeypatch.setattr(tui_module, "run_tui", _fake_run_tui)
 
@@ -172,7 +175,7 @@ def test_tui_logs_dispatch(monkeypatch) -> None:
     def _fake_run_logs_tui(*, theme_name: str | None) -> None:
         called["theme_name"] = theme_name
 
-    import netbox_cli.ui.logs_app as logs_app_module
+    import netbox_tui.logs_app as logs_app_module
 
     monkeypatch.setattr(logs_app_module, "run_logs_tui", _fake_run_logs_tui)
 
@@ -193,7 +196,7 @@ def test_demo_tui_sets_demo_mode(monkeypatch) -> None:
         called["theme_name"] = str(theme_name)
         called["demo_mode"] = demo_mode
 
-    import netbox_cli.tui as tui_module
+    import netbox_tui as tui_module
 
     monkeypatch.setattr(tui_module, "run_tui", _fake_run_tui)
 
@@ -222,8 +225,8 @@ def test_dev_tui_theme_dispatch(monkeypatch) -> None:
     def _fake_run_dev_tui(*, client, index, theme_name: str | None) -> None:
         called["theme_name"] = str(theme_name)
 
-    import netbox_cli.cli.dev as dev_cli_module
-    import netbox_cli.dev_tui as dev_tui_module
+    import netbox_cli.dev as dev_cli_module
+    import netbox_tui.dev_app as dev_tui_module
 
     monkeypatch.setattr(dev_cli_module, "_get_client", lambda: object())
     monkeypatch.setattr(dev_cli_module, "_get_index", lambda: object())
@@ -243,8 +246,8 @@ def test_demo_dev_tui_theme_dispatch(monkeypatch) -> None:
     def _fake_run_dev_tui(*, client, index, theme_name: str | None) -> None:
         called["theme_name"] = str(theme_name)
 
-    import netbox_cli.cli.demo as demo_cli_module
-    import netbox_cli.dev_tui as dev_tui_module
+    import netbox_cli.demo as demo_cli_module
+    import netbox_tui.dev_app as dev_tui_module
 
     monkeypatch.setattr(demo_cli_module, "_get_demo_client", lambda: object())
     monkeypatch.setattr(demo_cli_module, "_get_index", lambda: object())

@@ -10,12 +10,14 @@ import pytest
 from textual.color import Color
 from textual.widgets import Button, Input, OptionList, Select, Static, TabbedContent, TextArea
 
-from netbox_cli.api import ApiResponse, ConnectionProbe
-from netbox_cli.schema import build_schema_index
-from netbox_cli.ui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
-from netbox_cli.ui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for, run_dev_tui
-from netbox_cli.ui.dev_state import DevTuiState
-from netbox_cli.ui.widgets import SPONSOR_URL, NbxButton, NbxPanelBody, NbxPanelHeader
+from netbox_sdk.client import ApiResponse, ConnectionProbe
+from netbox_sdk.schema import build_schema_index
+from netbox_tui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
+from netbox_tui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for, run_dev_tui
+from netbox_tui.dev_state import DevTuiState
+from netbox_tui.widgets import SPONSOR_URL, NbxButton, NbxPanelBody, NbxPanelHeader
+
+pytestmark = pytest.mark.suite_tui
 
 _OPENAPI_PATH = Path(__file__).parent.parent / "reference" / "openapi" / "netbox-openapi.json"
 
@@ -29,10 +31,10 @@ def real_index():
 def isolate_dev_tui_state():
     with (
         patch(
-            "netbox_cli.ui.dev_app.load_dev_tui_state",
+            "netbox_tui.dev_app.load_dev_tui_state",
             return_value=DevTuiState(),
         ),
-        patch("netbox_cli.ui.dev_app.save_dev_tui_state", return_value=None),
+        patch("netbox_tui.dev_app.save_dev_tui_state", return_value=None),
     ):
         yield
 
@@ -419,8 +421,8 @@ def test_run_dev_tui_can_switch_back_into_main_tui(mock_client, real_index) -> N
             return None
 
     with (
-        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
-        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_tui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_tui.app.NetBoxTuiApp", FakeMainApp),
     ):
         run_dev_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
 
@@ -457,8 +459,8 @@ def test_run_dev_tui_can_switch_back_to_dev_from_main(mock_client, real_index) -
             return SWITCH_TO_DEV_TUI if main_runs == 1 else None
 
     with (
-        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
-        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_tui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_tui.app.NetBoxTuiApp", FakeMainApp),
     ):
         run_dev_tui(client=mock_client, index=real_index, theme_name="dracula", demo_mode=False)
 
@@ -492,8 +494,8 @@ def test_run_dev_tui_preserves_runtime_changed_theme_across_view_switch(
             return None
 
     with (
-        patch("netbox_cli.ui.dev_app.NetBoxDevTuiApp", FakeDevApp),
-        patch("netbox_cli.ui.app.NetBoxTuiApp", FakeMainApp),
+        patch("netbox_tui.dev_app.NetBoxDevTuiApp", FakeDevApp),
+        patch("netbox_tui.app.NetBoxTuiApp", FakeMainApp),
     ):
         run_dev_tui(client=mock_client, index=real_index, theme_name="netbox-dark", demo_mode=False)
 

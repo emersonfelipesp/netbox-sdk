@@ -9,8 +9,10 @@ import pytest
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.api import NetBoxApiClient
-from netbox_cli.config import Config
+from netbox_sdk.client import NetBoxApiClient
+from netbox_sdk.config import Config
+
+pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
 

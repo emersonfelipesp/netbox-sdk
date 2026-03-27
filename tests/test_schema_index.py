@@ -1,7 +1,11 @@
 """Tests for schema parsing and indexed NetBox resource lookup behavior."""
 
-from netbox_cli.schema import build_schema_index, parse_group_resource
+import pytest
+
+from netbox_sdk.schema import build_schema_index, parse_group_resource
 from tests.conftest import OPENAPI_PATH
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def test_parse_group_resource():

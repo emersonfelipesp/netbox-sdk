@@ -314,6 +314,28 @@ wheels = [
 ]
 
 [[package]]
+name = "dnspython"
+version = "2.8.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/8b/57666417c0f90f08bcafa776861060426765fdb422eb10212086fb811d26/dnspython-2.8.0.tar.gz", hash = "sha256:181d3c6996452cb1189c4046c61599b84a5a86e099562ffde77d26984ff26d0f", size = 368251, upload-time = "2025-09-07T18:58:00.022Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ba/5a/18ad964b0086c6e62e2e7500f7edc89e3faa45033c71c1893d34eed2b2de/dnspython-2.8.0-py3-none-any.whl", hash = "sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af", size = 331094, upload-time = "2025-09-07T18:57:58.071Z" },
+]
+
+[[package]]
+name = "email-validator"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+    { name = "idna" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
+]
+
+[[package]]
 name = "execnet"
 version = "2.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -868,40 +890,58 @@ wheels = [
 ]
 
 [[package]]
-name = "netbox-console"
-version = "0.0.3"
+name = "netbox-sdk"
+version = "0.0.4"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
-    { name = "playwright" },
+    { name = "email-validator" },
     { name = "pydantic" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "textual" },
-    { name = "typer" },
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "playwright" },
+    { name = "textual" },
+    { name = "typer" },
+]
+cli = [
+    { name = "typer" },
+]
+demo = [
+    { name = "playwright" },
+]
 dev = [
+    { name = "playwright" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "textual" },
+    { name = "typer" },
 ]
 docs = [
     { name = "mkdocs-material" },
 ]
+tui = [
+    { name = "textual" },
+]
 
 [package.dev-dependencies]
 dev = [
+    { name = "playwright" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "textual" },
+    { name = "typer" },
 ]
 docs = [
     { name = "mkdocs-material" },
@@ -910,8 +950,11 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.9.0" },
+    { name = "email-validator", specifier = ">=2.2.0" },
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5" },
-    { name = "playwright", specifier = ">=1.52.0" },
+    { name = "playwright", marker = "extra == 'all'", specifier = ">=1.52.0" },
+    { name = "playwright", marker = "extra == 'demo'", specifier = ">=1.52.0" },
+    { name = "playwright", marker = "extra == 'dev'", specifier = ">=1.52.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pydantic", specifier = ">=2.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
@@ -921,19 +964,26 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "rich", specifier = ">=13.7.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.0" },
-    { name = "textual", specifier = ">=0.62.0" },
-    { name = "typer", specifier = ">=0.12.0" },
+    { name = "textual", marker = "extra == 'all'", specifier = ">=0.62.0" },
+    { name = "textual", marker = "extra == 'dev'", specifier = ">=0.62.0" },
+    { name = "textual", marker = "extra == 'tui'", specifier = ">=0.62.0" },
+    { name = "typer", marker = "extra == 'all'", specifier = ">=0.12.0" },
+    { name = "typer", marker = "extra == 'cli'", specifier = ">=0.12.0" },
+    { name = "typer", marker = "extra == 'dev'", specifier = ">=0.12.0" },
 ]
-provides-extras = ["dev", "docs"]
+provides-extras = ["sdk", "tui", "cli", "demo", "all", "dev", "docs"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "playwright", specifier = ">=1.52.0" },
     { name = "pre-commit", specifier = ">=4.0.0" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", specifier = ">=0.23.0" },
     { name = "pytest-timeout", specifier = ">=2.3.0" },
     { name = "pytest-xdist", specifier = ">=3.5.0" },
     { name = "ruff", specifier = ">=0.11.0" },
+    { name = "textual", specifier = ">=0.62.0" },
+    { name = "typer", specifier = ">=0.12.0" },
 ]
 docs = [{ name = "mkdocs-material", specifier = ">=9.5" }]
 

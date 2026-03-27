@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from netbox_cli.demo_auth import (
+import pytest
+
+from netbox_sdk.demo_auth import (
     DEMO_CREATE_USER_URL,
     LOGIN_URL,
     DemoToken,
@@ -13,6 +15,8 @@ from netbox_cli.demo_auth import (
     _parse_token,
     _parse_v1_token,
 )
+
+pytestmark = pytest.mark.suite_sdk
 
 
 class _Locator:

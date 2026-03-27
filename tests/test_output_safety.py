@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
-from netbox_cli.output_safety import sanitize_terminal_text
-from netbox_cli.ui.formatting import humanize_value, semantic_cell
+import pytest
+
+from netbox_sdk.formatting import humanize_value, semantic_cell
+from netbox_sdk.output_safety import sanitize_terminal_text
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def test_sanitize_terminal_text_strips_ansi_sequences() -> None:
