@@ -44,6 +44,14 @@ docs/
 │   ├── commands.md                 # Static command reference
 │   ├── dynamic-commands.md         # How dynamic commands work
 │   └── demo-profile.md             # Demo profile setup
+├── sdk/
+│   ├── index.md
+│   ├── authentication.md
+│   ├── facade.md
+│   ├── typed.md                    # Typed versioned SDK guide
+│   ├── making-requests.md
+│   ├── schema.md
+│   └── error-handling.md
 ├── tui/
 │   ├── index.md
 │   ├── themes.md                   # Theme system documentation
@@ -107,6 +115,7 @@ In CI (`docs.yml`), docgen runs against `demo.netbox.dev` using `DEMO_USERNAME` 
 Home
 Getting Started → Installation, Configuration, Quick Start
 CLI Reference   → Commands, Dynamic Commands, Demo Profile
+SDK             → Authentication, Facade API, Typed API, Making Requests, Schema Indexing, Error Handling
 TUI             → Themes, Keyboard Shortcuts
 Command Examples → index, Top-level, Schema Discovery, Dynamic Commands,
                    Logs Viewer, Developer Tools, Demo Profile, Live API, Cable Trace
@@ -114,3 +123,8 @@ Developer Guide → Architecture, Textual Composition Pattern, Documentation Gen
 ```
 
 To add a new page: create the `.md` file and add an entry to the `nav:` section in `mkdocs.yml`.
+
+Keep repo metadata aligned with the docs:
+- `mkdocs.yml` branding and repo links should point to `netbox-sdk`
+- `pyproject.toml` `project.urls.Documentation` should match the site URL
+- SDK docs must describe all three supported access layers: raw client, facade, and typed client

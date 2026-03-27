@@ -1,6 +1,6 @@
 # Theme JSON Schema
 
-`netbox-cli` discovers theme files from this directory at runtime.
+`netbox-sdk` discovers theme files from this directory at runtime via the TUI package.
 
 Required keys:
 

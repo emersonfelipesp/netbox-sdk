@@ -30,6 +30,7 @@
 - Import API/config/schema/formatting helpers from `netbox_sdk.*`.
 - Do not import from removed `netbox_cli.ui.*` paths.
 - If the TUI needs CLI runtime helpers, import from `netbox_cli` or `netbox_cli.runtime`, not old `netbox_cli.cli.*` paths.
+- Keep the TUI decoupled from the generated typed SDK unless a screen explicitly needs versioned typed models; the default TUI data path remains `netbox_sdk` client/facade utilities.
 
 ## Packaging
 

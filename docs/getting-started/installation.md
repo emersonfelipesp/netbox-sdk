@@ -10,6 +10,9 @@ SDK only:
 pip install netbox-sdk
 ```
 
+The base package already includes the dependencies required by the typed SDK,
+including `pydantic` and `email-validator`.
+
 CLI:
 
 ```bash
@@ -43,6 +46,11 @@ cd netbox-sdk
 uv sync --dev --extra cli --extra tui --extra demo
 uv run nbx --help
 ```
+
+## Typed SDK support
+
+The repository ships committed OpenAPI bundles and generated Pydantic models for
+NetBox `4.5`, `4.4`, and `4.3`. Users do not need to run code generation locally.
 
 ## Contributor workflow
 

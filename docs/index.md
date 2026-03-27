@@ -4,7 +4,7 @@ hide:
   - toc
 ---
 
-# NetBox SDK
+# netbox-sdk
 
 **API-first NetBox client for your terminal: CLI, TUI, and reusable SDK.**
 
@@ -13,6 +13,14 @@ hide:
 - `netbox_sdk` — standalone NetBox REST SDK
 - `netbox_cli` — Typer-powered CLI
 - `netbox_tui` — Textual-powered TUI
+
+The SDK itself exposes three layers:
+
+- `NetBoxApiClient` for low-level async HTTP control
+- `api()` / `Api` for the async facade layer
+- `typed_api()` for the versioned typed client backed by committed Pydantic models
+
+The current typed SDK release lines are NetBox `4.5`, `4.4`, and `4.3`.
 
 <div class="grid cards" markdown>
 

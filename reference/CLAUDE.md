@@ -8,7 +8,7 @@ Read-only reference material for guiding TUI design, Textual usage, and prior-ar
 
 | File | Purpose |
 |---|---|
-| `PYNETBOX.md` | Maintainer reference for `@pynetbox`: architecture, request/response model, major features, and what matters relative to `netbox-sdk` |
+| `PYNETBOX.md` | Maintainer reference for `pynetbox`: architecture, request/response model, major features, and what matters relative to `netbox-sdk` |
 
 **When to consult:**
 - Before adding client-library convenience APIs to `netbox_sdk`
@@ -50,4 +50,6 @@ Annotated source / documentation extracts from real-world Textual apps, used to 
 
 ### `openapi/` — NetBox OpenAPI Schema (repo-level copy)
 
-These may be copies of or symlinks to the bundled SDK schema. The canonical bundled schema used at runtime is in `netbox_sdk/reference/openapi/`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.
+These are reference copies only. The runtime and typed SDK source of truth is in
+`netbox_sdk/reference/openapi/`, including versioned bundles for `4.5`, `4.4`,
+and `4.3`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.

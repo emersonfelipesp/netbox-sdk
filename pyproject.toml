@@ -85,7 +85,7 @@ nbx = "netbox_cli:main"
 
 [project.urls]
 Homepage = "https://github.com/emersonfelipesp/netbox-sdk"
-Documentation = "https://emersonfelipesp.com/netbox-cli"
+Documentation = "https://emersonfelipesp.github.io/netbox-sdk/"
 Repository = "https://github.com/emersonfelipesp/netbox-sdk"
 Issues = "https://github.com/emersonfelipesp/netbox-sdk/issues"
 Changelog = "https://github.com/emersonfelipesp/netbox-sdk/releases"

@@ -6,7 +6,7 @@ Standalone NetBox REST API client library.
 
 - `netbox_sdk` must not import `netbox_cli` or `netbox_tui`.
 - Public imports use `netbox_sdk.*`, never legacy `sdk.*`.
-- Bundled schema lives at `netbox_sdk/reference/openapi/netbox-openapi.json`.
+- Bundled OpenAPI release-line schemas live under `netbox_sdk/reference/openapi/`.
 
 ## Package Structure
 
@@ -24,15 +24,24 @@ netbox_sdk/
 ├── trace_ascii.py
 ├── formatting.py
 ├── demo_auth.py
+├── facade.py
+├── typed_api.py
+├── typed_runtime.py
+├── versioning.py
+├── models/
+├── typed_versions/
 ├── django_models/
 ├── py.typed
-└── reference/openapi/netbox-openapi.json
+└── reference/openapi/netbox-openapi-*.json
 ```
 
 ## Public Surface
 
 - `netbox_sdk.config` — config model, profile persistence, auth headers
 - `netbox_sdk.client` — async API client and connection probe
+- `netbox_sdk.facade` — async convenience facade exposed via `api()`
+- `netbox_sdk.typed_api` — versioned typed client factory exposed via `typed_api()`
+- `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
 - `netbox_sdk.http_cache` — filesystem cache primitives
 - `netbox_sdk.schema` — OpenAPI loading and indexing
 - `netbox_sdk.services` — dynamic request resolution
@@ -42,5 +51,6 @@ netbox_sdk/
 ## Validation Expectations
 
 - `python -c 'import netbox_sdk'` must work without CLI or TUI extras.
+- `typed_api()` currently supports NetBox release lines `4.5`, `4.4`, and `4.3`.
 - SDK tests should import from `netbox_sdk`, not `sdk`.
 - Consult [`reference/PYNETBOX.md`](../reference/PYNETBOX.md) when comparing SDK ergonomics to historical NetBox Python client behavior or prior-art feature patterns.

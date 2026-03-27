@@ -203,3 +203,39 @@ else:
 
 The facade wraps this case as `ContentError` when a higher-level operation
 requires JSON decoding.
+
+---
+
+## Typed SDK validation errors
+
+The typed client adds explicit Pydantic-backed validation failures.
+
+### TypedRequestValidationError
+
+Raised before HTTP when the request body does not match the versioned request
+model for the selected NetBox release line.
+
+```python
+from netbox_sdk import TypedRequestValidationError, typed_api
+
+nb = typed_api("https://netbox.example.com", token="tok", netbox_version="4.5")
+
+try:
+    await nb.ipam.prefixes.available_ips.create(7, body=[{"prefix_length": "invalid"}])
+except TypedRequestValidationError as exc:
+    print(exc)
+```
+
+### TypedResponseValidationError
+
+Raised after HTTP when NetBox returns JSON that does not match the expected
+typed response model.
+
+```python
+from netbox_sdk import TypedResponseValidationError
+
+try:
+    await nb.dcim.devices.get(42)
+except TypedResponseValidationError as exc:
+    print(exc)
+```
