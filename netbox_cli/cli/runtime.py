@@ -20,6 +20,7 @@ from ..config import (
     DEMO_BASE_URL,
     DEMO_PROFILE,
     Config,
+    authorization_header_value,
     is_runtime_config_complete,
     load_profile_config,
     normalize_base_url,
@@ -52,8 +53,21 @@ def _get_client() -> NetBoxApiClient:
     return NetBoxApiClient(cli_mod._ensure_runtime_config())
 
 
+def _demo_token_refresh_callback(
+    config: Config,
+) -> tuple[str | None, Config]:
+    """Injected into NetBoxApiClient for automatic demo token refresh."""
+    from ..demo_auth import refresh_demo_profile  # noqa: PLC0415
+
+    refreshed = refresh_demo_profile(config, headless=True)
+    save_profile_config(DEMO_PROFILE, refreshed)
+    _cache_profile(DEMO_PROFILE, refreshed)
+    return authorization_header_value(refreshed), refreshed
+
+
 def _get_client_for_config(cfg: Config) -> NetBoxApiClient:
-    return NetBoxApiClient(cfg)
+    on_refresh = _demo_token_refresh_callback if cfg.base_url == DEMO_BASE_URL else None
+    return NetBoxApiClient(cfg, on_token_refresh=on_refresh)
 
 
 def _get_demo_client() -> NetBoxApiClient:

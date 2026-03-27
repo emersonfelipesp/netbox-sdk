@@ -1,5 +1,40 @@
 # Architecture
 
+`netbox-cli` is organized into two layers: the **`sdk` package** (standalone NetBox REST API client) and the **`netbox_cli` package** (CLI + TUI built on top of the SDK).
+
+The SDK has zero dependency on `netbox_cli`, Typer, Textual, or Rich. It can be imported and used directly from any Python project that needs to connect to NetBox.
+
+## Layer overview
+
+```
+┌──────────────────────────────────────────────────────┐
+│   netbox_cli (CLI / TUI)                             │
+│                                                      │
+│   cli/ (Typer)              ui/ (Textual)            │
+│   ├── __init__.py           ├── app.py               │
+│   ├── runtime.py            ├── dev_app.py           │
+│   ├── dynamic.py            ├── navigation.py        │
+│   └── support.py            └── panels.py            │
+│                                                      │
+│   demo_auth.py  logging_runtime.py  theme_registry.py│
+└──────────────────────────┬───────────────────────────┘
+                           │ imports from
+┌──────────────────────────▼───────────────────────────┐
+│   sdk (standalone NetBox REST API client)            │
+│                                                      │
+│   client.py          NetBoxApiClient, ApiResponse    │
+│   config.py          Config, profiles, auth headers  │
+│   http_cache.py      HttpCacheStore, CachePolicy     │
+│   schema.py          SchemaIndex, OpenAPI indexing   │
+│   services.py        resolve_dynamic_request         │
+│   plugin_discovery.py  discover_plugin_resource_paths│
+└──────────────────────────────────────────────────────┘
+```
+
+The `netbox_cli` modules `api.py`, `config.py`, `http_cache.py`, `schema.py`, `services.py`, and `ui/plugin_discovery.py` are **thin re-export shims** that forward all symbols from `sdk.*` for backward compatibility.
+
+---
+
 `netbox-cli` is organized around a shared API client and OpenAPI schema index that power both the CLI (Typer) and the TUI (Textual) from the same data layer.
 
 In addition to the bundled OpenAPI schema, the TUI runtime can augment the schema index by discovering live plugin REST resources exposed under `/api/plugins/`. This lets plugin-backed resources appear in the TUI automatically when a plugin implements a full REST API.

@@ -101,6 +101,12 @@ nav:
     - Demo Profile: reference/command-examples/demo-profile.md
     - Live API: reference/command-examples/live-api-demo-netbox-dev.md
     - Cable Trace: reference/command-examples/cable-trace-demo-netbox-dev.md
+  - SDK:
+    - sdk/index.md
+    - Authentication: sdk/authentication.md
+    - Making Requests: sdk/making-requests.md
+    - Schema Indexing: sdk/schema.md
+    - Error Handling: sdk/error-handling.md
   - Developer Guide:
     - developer/index.md
     - Architecture: developer/architecture.md

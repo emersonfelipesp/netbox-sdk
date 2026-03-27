@@ -82,10 +82,11 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["netbox_cli*"]
+include = ["netbox_cli*", "sdk*"]
 
 [tool.setuptools.package-data]
 netbox_cli = ["*.tcss", "themes/*.json", "reference/openapi/*.json"]
+sdk = ["reference/openapi/*.json", "py.typed"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -109,7 +110,7 @@ select = [
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["netbox_cli"]
+known-first-party = ["netbox_cli", "sdk"]
 
 [tool.ruff.format]
 quote-style = "double"

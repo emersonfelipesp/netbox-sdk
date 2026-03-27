@@ -1,0 +1,149 @@
+# Error Handling
+
+---
+
+## RequestError
+
+`request()` does **not** raise on non-2xx status codes by default — it returns an `ApiResponse` with the status code. Inspect the status yourself:
+
+```python
+response = await client.request("GET", "/api/dcim/devices/99/")
+
+if response.status == 404:
+    print("Device not found")
+elif response.status == 403:
+    print("Forbidden — check your token")
+elif response.status >= 500:
+    print(f"Server error: {response.text}")
+elif response.status == 200:
+    device = response.json()
+```
+
+`RequestError` is raised only by `get_version()`:
+
+```python
+from sdk import RequestError
+
+try:
+    version = await client.get_version()
+except RequestError as exc:
+    print(f"HTTP {exc.response.status}: {exc.response.text}")
+```
+
+---
+
+## ConnectionProbe
+
+Use `probe_connection()` before any API calls to validate connectivity and surface human-readable errors:
+
+```python
+probe = await client.probe_connection()
+
+if not probe.ok:
+    # Common cases:
+    # probe.status == 0  → network unreachable (DNS, TCP, TLS failure)
+    # probe.status == 404 → base_url points to wrong path
+    # probe.status == 401 → auth rejected (invalid token)
+    print(f"Cannot reach NetBox (HTTP {probe.status}): {probe.error}")
+    return
+
+print(f"NetBox API version: {probe.version}")
+```
+
+`ConnectionProbe` fields:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `ok` | `bool` | `True` if NetBox is reachable (status < 400, or 403) |
+| `status` | `int` | HTTP status code; `0` on network-level failure |
+| `version` | `str` | Value of the `API-Version` response header |
+| `error` | `str \| None` | Human-readable error, or `None` if `ok` is `True` |
+
+Note: 403 counts as `ok=True` because it means the URL is valid — only the token is wrong.
+
+---
+
+## Network errors
+
+Network-level failures (DNS failure, TCP timeout, TLS error) are raised as exceptions from `request()`. The client catches them internally when a stale cache entry exists; otherwise they propagate:
+
+```python
+import aiohttp
+
+try:
+    response = await client.request("GET", "/api/dcim/devices/")
+except aiohttp.ClientConnectorError as exc:
+    print(f"Cannot connect: {exc}")
+except TimeoutError:
+    print("Request timed out")
+```
+
+If a stale cache entry exists for the failed request, `request()` returns the stale response with `X-NBX-Cache: STALE` instead of raising.
+
+---
+
+## Timeout configuration
+
+The default timeout is 30 seconds. Adjust per connection:
+
+```python
+from sdk import Config
+
+cfg = Config(
+    base_url="https://netbox.example.com",
+    token_version="v1",
+    token_secret="tok",
+    timeout=10.0,   # 10 second timeout
+)
+```
+
+---
+
+## Missing configuration
+
+Check completeness before making calls:
+
+```python
+from sdk.config import is_runtime_config_complete
+
+cfg = Config(base_url="https://nb.example.com", token_version="v2", token_secret="s")
+if not is_runtime_config_complete(cfg):
+    # For v2: missing token_key
+    # For v1: missing token_secret
+    # For both: missing base_url
+    raise RuntimeError("Incomplete configuration")
+```
+
+`build_url()` raises `RuntimeError("NetBox base URL is not configured")` if `base_url` is `None`.
+
+---
+
+## Schema resolution errors
+
+```python
+from sdk.services import resolve_dynamic_request
+
+try:
+    req = resolve_dynamic_request(idx, "dcim", "typo", "list", ...)
+except ValueError as exc:
+    print(exc)   # "Resource not found: dcim/typo"
+
+try:
+    req = resolve_dynamic_request(idx, "dcim", "devices", "get", object_id=None, ...)
+except ValueError as exc:
+    print(exc)   # "Action 'get' requires --id"
+```
+
+---
+
+## JSON parse errors
+
+`ApiResponse.json()` raises `json.JSONDecodeError` if the response body is not valid JSON. Always check the status code first — error responses (4xx/5xx) are sometimes HTML:
+
+```python
+response = await client.request("GET", "/api/dcim/devices/")
+if response.status == 200:
+    data = response.json()
+else:
+    print(f"Error {response.status}: {response.text[:200]}")
+```

@@ -1,31 +1,31 @@
 # netbox_cli — Main Package
 
-Core library: API client, CLI app, TUI app, config, schema, services, and shared utilities.
+CLI/TUI application layer. The core NetBox connection logic lives in the [`sdk/`](../sdk/CLAUDE.md) sibling package. `netbox_cli` imports from `sdk` and adds the CLI (Typer), TUI (Textual), and related tooling on top.
 
 ## Subpackages
 - [`cli/`](cli/CLAUDE.md) — Typer CLI application split into focused modules
 - [`ui/`](ui/CLAUDE.md) — Textual TUI application (app, panels, navigation, formatting, state)
 - [`themes/`](themes/CLAUDE.md) — JSON theme files auto-discovered by `theme_registry.py`
-- [`reference/openapi/`](reference/CLAUDE.md) — Bundled NetBox OpenAPI schema
+- [`reference/openapi/`](reference/CLAUDE.md) — Bundled NetBox OpenAPI schema (also copied to `sdk/reference/`)
 
 ## Module Map
 
 | File | Purpose |
 |---|---|
 | `__init__.py` | Package version (`0.1.0`) |
-| `api.py` | Async `aiohttp` NetBox API client with caching and token fallback |
+| `api.py` | **Re-export shim** → `sdk.client` (`NetBoxApiClient`, `ApiResponse`, `RequestError`, `ConnectionProbe`) |
 | `cli/` | Typer CLI subpackage — see `cli/CLAUDE.md` |
-| `config.py` | Profile management (`~/.config/netbox-cli/config.json`) |
+| `config.py` | **Re-export shim** → `sdk.config` (profile management, auth, URL normalization) |
 | `demo_auth.py` | Playwright-based demo.netbox.dev account/token provisioning |
 | `docgen_capture.py` | Entry-point shim: delegates to `docgen/engine.py` to run the capture pipeline |
 | `docgen_specs.py` | `CaptureSpec` model and `all_specs()` — ordered list of commands to capture for docs |
 | `docgen/` | Capture pipeline subpackage: `engine.py` (orchestration), `models.py` (value objects), `format.py` (JSON→YAML/Markdown), `specs.py` (re-exports) |
 | `django_models/` | Django model graph subpackage: `parser.py` (AST scan), `store.py` (JSON cache), `fetcher.py` (GitHub clone+build), `diagram.py` (ASCII diagrams), `rich_rendering.py` (Rich/TUI rendering) |
-| `http_cache.py` | Filesystem HTTP cache with TTL (fresh/stale-if-error) |
+| `http_cache.py` | **Re-export shim** → `sdk.http_cache` (`HttpCacheStore`, `CachePolicy`, `CacheEntry`) |
 | `markdown_output.py` | Markdown rendering helpers for API JSON payloads (used by `--output markdown` flag) |
 | `output_safety.py` | Strips ANSI escapes and control characters from terminal output |
-| `schema.py` | Indexes the bundled OpenAPI JSON for groups, resources, paths, filters |
-| `services.py` | Maps (group, resource, action, id) → (method, path, query, payload) |
+| `schema.py` | **Re-export shim** → `sdk.schema` (`SchemaIndex`, `Operation`, `FilterParam`, `build_schema_index`) |
+| `services.py` | **Re-export shim** → `sdk.services` (`resolve_dynamic_request`, `run_dynamic_command`) |
 | `theme_registry.py` | Loads, validates, and registers JSON themes with Textual |
 | `trace_ascii.py` | Renders cable-trace JSON as Unicode box-drawing ASCII art |
 | `tui.py` | Re-export shim: `NetBoxTuiApp`, `run_tui`, theme utilities from `ui/` |
@@ -39,7 +39,13 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 
 ---
 
-## api.py
+## sdk shims
+
+`api.py`, `config.py`, `http_cache.py`, `schema.py`, `services.py`, and `ui/plugin_discovery.py` are **thin re-export shims** that forward all symbols from the corresponding `sdk.*` module. They exist only for backward compatibility. New code should import directly from `sdk.*`.
+
+See [`sdk/CLAUDE.md`](../sdk/CLAUDE.md) for the full API documentation of these modules.
+
+## api.py (shim → sdk.client)
 
 Async HTTP client that wraps `aiohttp`. All NetBox calls go through here.
 
