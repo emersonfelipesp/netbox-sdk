@@ -318,6 +318,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
                         f"body_model={spec.body_model_expr or 'None'}",
                         f"body={'body' if spec.body_model_expr is not None else 'None'}",
                         f"response_model={spec.response_model_expr or 'None'}",
+                        f"return_none_on_404={'True' if spec.method_name == 'get' else 'False'}",
                     ]
                     lines.append(
                         f"        return await self._typed_json_request({spec.method!r}, path, {', '.join(kwargs)})"

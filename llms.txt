@@ -56,5 +56,5 @@ API-first NetBox client for the terminal, featuring both a CLI and a full intera
 
 ## Packaging Status
 - **Repository name**: `netbox-sdk`
-- **Current published package name**: `netbox-console` (temporary due PyPI naming policy)
-- **Current project version**: `0.0.3`
+- **Current published package names**: `netbox-sdk`, `netbox-console`
+- **Current project version**: `0.0.4`

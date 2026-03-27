@@ -9,7 +9,8 @@ from netbox_sdk import (
     load_openapi_schema,
     typed_api,
 )
-from netbox_sdk.client import ApiResponse
+from netbox_sdk.client import ApiResponse, RequestError
+from netbox_sdk.typed_runtime import validate_query
 
 
 def _require_email_validator() -> None:
@@ -88,6 +89,43 @@ async def test_typed_get_returns_none_on_404(monkeypatch) -> None:
     monkeypatch.setattr(api.client, "request", fake_request)
 
     assert await api.dcim.devices.get(404) is None
+
+
+@pytest.mark.asyncio
+async def test_typed_non_get_endpoint_raises_on_404(monkeypatch) -> None:
+    _require_email_validator()
+    api = typed_api("https://netbox.example.com", token="tok", netbox_version="4.4")
+
+    async def fake_request(method, path, **kwargs):
+        assert method == "GET"
+        assert path == "/api/ipam/prefixes/404/available-ips/"
+        return ApiResponse(status=404, text='{"detail":"Not found."}')
+
+    monkeypatch.setattr(api.client, "request", fake_request)
+
+    with pytest.raises(RequestError):
+        await api.ipam.prefixes.available_ips.list(404)
+
+
+def test_validate_query_preserves_array_parameters() -> None:
+    _require_email_validator()
+    query = validate_query(
+        None,
+        {
+            "tag": ["core", "edge"],
+            "limit": 50,
+            "brief": True,
+        },
+        method="GET",
+        path="/api/dcim/devices/",
+        version="4.5",
+    )
+
+    assert query == {
+        "tag": ["core", "edge"],
+        "limit": "50",
+        "brief": "True",
+    }
 
 
 @pytest.mark.asyncio

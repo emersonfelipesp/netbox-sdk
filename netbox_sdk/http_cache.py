@@ -16,6 +16,9 @@ from pydantic import BaseModel, ValidationError
 if TYPE_CHECKING:
     from netbox_sdk.client import ApiResponse
 
+QueryParamValue = str | list[str]
+QueryParams = dict[str, QueryParamValue]
+
 DEFAULT_FRESH_TTL_SECONDS = 60.0
 DEFAULT_STALE_IF_ERROR_SECONDS = 300.0
 
@@ -52,7 +55,7 @@ def build_cache_key(
     base_url: str,
     method: str,
     path: str,
-    query: dict[str, str] | None,
+    query: QueryParams | None,
     authorization: str | None,
 ) -> str:
     encoded_query = urlencode(sorted((query or {}).items()), doseq=True)

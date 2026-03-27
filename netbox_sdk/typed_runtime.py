@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from netbox_sdk.client import NetBoxApiClient, RequestError
-from netbox_sdk.facade import _is_v2_token
 from netbox_sdk.config import Config
+from netbox_sdk.facade import _is_v2_token
 from netbox_sdk.versioning import SupportedNetBoxVersion
 
-TQuery = TypeVar("TQuery")
-TBody = TypeVar("TBody")
-TResponse = TypeVar("TResponse")
+QueryParamValue = str | list[str]
+QueryParams = dict[str, QueryParamValue]
 
 
 class TypedRequestValidationError(ValueError):
@@ -40,7 +39,9 @@ class TypedResponseValidationError(ValueError):
         self.path = path
         self.version = version
         self.error = error
-        super().__init__(f"{method} {path} response validation failed for NetBox {version}: {error}")
+        super().__init__(
+            f"{method} {path} response validation failed for NetBox {version}: {error}"
+        )
 
 
 def build_typed_client(url: str, token: str | None) -> NetBoxApiClient:
@@ -76,7 +77,7 @@ def validate_query(
     method: str,
     path: str,
     version: SupportedNetBoxVersion,
-) -> dict[str, str] | None:
+) -> QueryParams | None:
     if query is None:
         return None
     if model_type is None:
@@ -90,7 +91,15 @@ def validate_query(
         except ValidationError as exc:
             raise TypedRequestValidationError(method, path, version, exc) from exc
         raw = _dump_validated(raw)
-    return {str(key): str(value) for key, value in raw.items() if value is not None}
+    normalized: QueryParams = {}
+    for key, value in raw.items():
+        if value is None:
+            continue
+        if isinstance(value, list):
+            normalized[str(key)] = [str(item) for item in value if item is not None]
+            continue
+        normalized[str(key)] = str(value)
+    return normalized
 
 
 def validate_payload(
@@ -146,6 +155,7 @@ class TypedOperationMixin:
         body_model: type[Any] | None = None,
         body: Any = None,
         response_model: type[Any] | None = None,
+        return_none_on_404: bool = False,
     ) -> Any:
         request_query = validate_query(
             query_model,
@@ -167,9 +177,7 @@ class TypedOperationMixin:
             query=request_query,
             payload=request_payload,
         )
-        if response.status == 404 and method.upper() == "GET" and "{id}" not in path:
-            return None
-        if response.status == 404 and method.upper() == "GET":
+        if response.status == 404 and return_none_on_404:
             return None
         if response.status >= 400:
             raise RequestError(response)
@@ -198,7 +206,9 @@ class TypedOperationMixin:
             path=path,
             version=self._api.netbox_version,
         )
-        response = await self._api.client.request(method, path, query=request_query, expect_json=False)
+        response = await self._api.client.request(
+            method, path, query=request_query, expect_json=False
+        )
         if response.status >= 400:
             raise RequestError(response)
         return response.text

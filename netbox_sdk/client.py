@@ -5,10 +5,10 @@ from __future__ import annotations
 import json
 import logging
 import time
-from contextlib import contextmanager
 from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, IO, TypeAlias
+from typing import IO, Any, TypeAlias
 from urllib.parse import urljoin, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,7 +21,7 @@ from netbox_sdk.config import (
     cache_dir,
     load_profile_config,
 )
-from netbox_sdk.http_cache import CachePolicy, HttpCacheStore, build_cache_key
+from netbox_sdk.http_cache import CachePolicy, HttpCacheStore, QueryParams, build_cache_key
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ class NetBoxApiClient:
         method: str,
         path: str,
         *,
-        query: dict[str, str] | None = None,
+        query: QueryParams | None = None,
         payload: dict[str, Any] | list[Any] | None = None,
         headers: dict[str, str] | None = None,
         expect_json: bool = True,
@@ -181,11 +181,11 @@ class NetBoxApiClient:
                     method=method,
                     path=path,
                     query=query,
-                        payload=payload,
-                        headers=req_headers,
-                        authorization=self._v1_fallback_header(),
-                        expect_json=expect_json,
-                    )
+                    payload=payload,
+                    headers=req_headers,
+                    authorization=self._v1_fallback_header(),
+                    expect_json=expect_json,
+                )
             elif self._should_refresh_demo_v1_token(response):
                 authorization = self._refresh_demo_v1_authorization()
                 if authorization:
@@ -220,7 +220,7 @@ class NetBoxApiClient:
         *,
         method: str,
         path: str,
-        query: dict[str, str] | None,
+        query: QueryParams | None,
         payload: dict[str, Any] | list[Any] | None,
         headers: dict[str, str] | None,
         authorization: str | None,
@@ -254,9 +254,7 @@ class NetBoxApiClient:
             )
             return ApiResponse(status=response.status, text=text, headers=dict(response.headers))
 
-    def _extract_files(
-        self, payload: dict[str, Any]
-    ) -> tuple[dict[str, Any], Any | None]:
+    def _extract_files(self, payload: dict[str, Any]) -> tuple[dict[str, Any], Any | None]:
         try:
             import aiohttp
         except ModuleNotFoundError as exc:
@@ -365,7 +363,7 @@ class NetBoxApiClient:
         *,
         method: str,
         path: str,
-        query: dict[str, str] | None,
+        query: QueryParams | None,
         payload: dict[str, Any] | list[Any] | None,
     ) -> CachePolicy | None:
         if method.upper() != "GET" or payload is not None:
@@ -486,7 +484,7 @@ class NetBoxApiClient:
         return response
 
     @contextmanager
-    def header_scope(self, **headers: str) -> Iterator["NetBoxApiClient"]:
+    def header_scope(self, **headers: str) -> Iterator[NetBoxApiClient]:
         previous = dict(self._default_headers)
         self._default_headers.update({k: v for k, v in headers.items() if v})
         try:

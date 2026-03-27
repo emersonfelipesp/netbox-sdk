@@ -5,21 +5,24 @@ from __future__ import annotations
 import pytest
 
 pytestmark = pytest.mark.suite_sdk
+
+
 def test_sdk_top_level_imports() -> None:
     from netbox_sdk import (  # noqa: F401
         ACTION_METHOD_MAP,
         DEFAULT_PROFILE,
         DEMO_BASE_URL,
         DEMO_PROFILE,
+        SUPPORTED_NETBOX_VERSIONS,
         AllocationError,
         Api,
         ApiResponse,
         App,
         CacheEntry,
         CachePolicy,
-        ContentError,
         Config,
         ConnectionProbe,
+        ContentError,
         DetailEndpoint,
         Endpoint,
         FilterParam,
@@ -28,15 +31,14 @@ def test_sdk_top_level_imports() -> None:
         Operation,
         ParameterValidationError,
         PluginsApp,
-        RODetailEndpoint,
-        ROMultiFormatDetailEndpoint,
         Record,
         RecordSet,
         RequestError,
         ResolvedRequest,
         ResourcePaths,
+        RODetailEndpoint,
+        ROMultiFormatDetailEndpoint,
         SchemaIndex,
-        SUPPORTED_NETBOX_VERSIONS,
         SupportedNetBoxVersion,
         TypedRequestValidationError,
         TypedResponseValidationError,

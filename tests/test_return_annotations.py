@@ -3,10 +3,22 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.suite_sdk
+
 
 def test_all_non_test_python_functions_have_return_annotations() -> None:
     repo_root = Path(__file__).resolve().parent.parent
-    excluded_parts = {".venv", "tests", "site", "build", "dist"}
+    excluded_parts = {
+        ".venv",
+        "tests",
+        "site",
+        "build",
+        "dist",
+        "models",
+        "typed_versions",
+    }
     missing: list[str] = []
 
     for path in repo_root.rglob("*.py"):

@@ -1,4 +1,4 @@
-"""Textual UI package for netbox-cli."""
+"""Textual UI package for netbox-sdk."""
 
 try:
     from netbox_tui.app import NetBoxTuiApp, available_theme_names, resolve_theme_name, run_tui

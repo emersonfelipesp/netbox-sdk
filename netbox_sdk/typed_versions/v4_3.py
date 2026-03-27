@@ -12198,6 +12198,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCircuitGroupAssignmentList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableCircuitGroupAssignmentRequest) -> CircuitGroupAssignment:
@@ -12210,6 +12211,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=WritableCircuitGroupAssignmentRequest,
             body=body,
             response_model=CircuitGroupAssignment,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -12224,6 +12226,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=list[CircuitGroupAssignmentRequest],
             body=body,
             response_model=list[CircuitGroupAssignment],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -12238,6 +12241,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=list[CircuitGroupAssignmentRequest],
             body=body,
             response_model=list[CircuitGroupAssignment],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CircuitGroupAssignmentRequest]) -> None:
@@ -12250,6 +12254,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=list[CircuitGroupAssignmentRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CircuitGroupAssignment | None:
@@ -12262,6 +12267,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CircuitGroupAssignment,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -12276,6 +12282,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=WritableCircuitGroupAssignmentRequest,
             body=body,
             response_model=CircuitGroupAssignment,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -12290,6 +12297,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=PatchedWritableCircuitGroupAssignmentRequest,
             body=body,
             response_model=CircuitGroupAssignment,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -12302,6 +12310,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -12321,6 +12330,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCircuitGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: CircuitGroupRequest) -> CircuitGroup:
@@ -12333,6 +12343,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=CircuitGroupRequest,
             body=body,
             response_model=CircuitGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CircuitGroupRequest]) -> list[CircuitGroup]:
@@ -12345,6 +12356,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=list[CircuitGroupRequest],
             body=body,
             response_model=list[CircuitGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[CircuitGroupRequest]) -> list[CircuitGroup]:
@@ -12357,6 +12369,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=list[CircuitGroupRequest],
             body=body,
             response_model=list[CircuitGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CircuitGroupRequest]) -> None:
@@ -12369,6 +12382,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=list[CircuitGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CircuitGroup | None:
@@ -12381,6 +12395,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CircuitGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: CircuitGroupRequest) -> CircuitGroup:
@@ -12393,6 +12408,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=CircuitGroupRequest,
             body=body,
             response_model=CircuitGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedCircuitGroupRequest) -> CircuitGroup:
@@ -12405,6 +12421,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=PatchedCircuitGroupRequest,
             body=body,
             response_model=CircuitGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -12417,6 +12434,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -12440,6 +12458,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCircuitTerminationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: CircuitTerminationRequest) -> CircuitTermination:
@@ -12452,6 +12471,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=CircuitTerminationRequest,
             body=body,
             response_model=CircuitTermination,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CircuitTerminationRequest]) -> list[CircuitTermination]:
@@ -12464,6 +12484,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=list[CircuitTerminationRequest],
             body=body,
             response_model=list[CircuitTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -12478,6 +12499,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=list[CircuitTerminationRequest],
             body=body,
             response_model=list[CircuitTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CircuitTerminationRequest]) -> None:
@@ -12490,6 +12512,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=list[CircuitTerminationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CircuitTermination | None:
@@ -12502,6 +12525,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CircuitTermination,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: CircuitTerminationRequest) -> CircuitTermination:
@@ -12514,6 +12538,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=CircuitTerminationRequest,
             body=body,
             response_model=CircuitTermination,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -12528,6 +12553,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=PatchedCircuitTerminationRequest,
             body=body,
             response_model=CircuitTermination,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -12540,6 +12566,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -12557,6 +12584,7 @@ class CircuitsCircuitTerminationsPaths(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CircuitTermination,
+            return_none_on_404=False,
         )
 
 
@@ -12576,6 +12604,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCircuitTypeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: CircuitTypeRequest) -> CircuitType:
@@ -12588,6 +12617,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=CircuitTypeRequest,
             body=body,
             response_model=CircuitType,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CircuitTypeRequest]) -> list[CircuitType]:
@@ -12600,6 +12630,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=list[CircuitTypeRequest],
             body=body,
             response_model=list[CircuitType],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[CircuitTypeRequest]) -> list[CircuitType]:
@@ -12612,6 +12643,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=list[CircuitTypeRequest],
             body=body,
             response_model=list[CircuitType],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CircuitTypeRequest]) -> None:
@@ -12624,6 +12656,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=list[CircuitTypeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CircuitType | None:
@@ -12636,6 +12669,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CircuitType,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: CircuitTypeRequest) -> CircuitType:
@@ -12648,6 +12682,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=CircuitTypeRequest,
             body=body,
             response_model=CircuitType,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedCircuitTypeRequest) -> CircuitType:
@@ -12660,6 +12695,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=PatchedCircuitTypeRequest,
             body=body,
             response_model=CircuitType,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -12672,6 +12708,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -12691,6 +12728,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCircuitList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableCircuitRequest) -> Circuit:
@@ -12703,6 +12741,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=WritableCircuitRequest,
             body=body,
             response_model=Circuit,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CircuitRequest]) -> list[Circuit]:
@@ -12715,6 +12754,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=list[CircuitRequest],
             body=body,
             response_model=list[Circuit],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[CircuitRequest]) -> list[Circuit]:
@@ -12727,6 +12767,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=list[CircuitRequest],
             body=body,
             response_model=list[Circuit],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CircuitRequest]) -> None:
@@ -12739,6 +12780,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=list[CircuitRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Circuit | None:
@@ -12751,6 +12793,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Circuit,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableCircuitRequest) -> Circuit:
@@ -12763,6 +12806,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=WritableCircuitRequest,
             body=body,
             response_model=Circuit,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableCircuitRequest) -> Circuit:
@@ -12775,6 +12819,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=PatchedWritableCircuitRequest,
             body=body,
             response_model=Circuit,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -12787,6 +12832,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -12806,6 +12852,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedProviderAccountList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ProviderAccountRequest) -> ProviderAccount:
@@ -12818,6 +12865,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=ProviderAccountRequest,
             body=body,
             response_model=ProviderAccount,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ProviderAccountRequest]) -> list[ProviderAccount]:
@@ -12830,6 +12878,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=list[ProviderAccountRequest],
             body=body,
             response_model=list[ProviderAccount],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -12844,6 +12893,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=list[ProviderAccountRequest],
             body=body,
             response_model=list[ProviderAccount],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ProviderAccountRequest]) -> None:
@@ -12856,6 +12906,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=list[ProviderAccountRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ProviderAccount | None:
@@ -12868,6 +12919,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ProviderAccount,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ProviderAccountRequest) -> ProviderAccount:
@@ -12880,6 +12932,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=ProviderAccountRequest,
             body=body,
             response_model=ProviderAccount,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -12894,6 +12947,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=PatchedProviderAccountRequest,
             body=body,
             response_model=ProviderAccount,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -12906,6 +12960,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -12925,6 +12980,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedProviderNetworkList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ProviderNetworkRequest) -> ProviderNetwork:
@@ -12937,6 +12993,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=ProviderNetworkRequest,
             body=body,
             response_model=ProviderNetwork,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ProviderNetworkRequest]) -> list[ProviderNetwork]:
@@ -12949,6 +13006,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=list[ProviderNetworkRequest],
             body=body,
             response_model=list[ProviderNetwork],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -12963,6 +13021,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=list[ProviderNetworkRequest],
             body=body,
             response_model=list[ProviderNetwork],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ProviderNetworkRequest]) -> None:
@@ -12975,6 +13034,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=list[ProviderNetworkRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ProviderNetwork | None:
@@ -12987,6 +13047,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ProviderNetwork,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ProviderNetworkRequest) -> ProviderNetwork:
@@ -12999,6 +13060,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=ProviderNetworkRequest,
             body=body,
             response_model=ProviderNetwork,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -13013,6 +13075,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=PatchedProviderNetworkRequest,
             body=body,
             response_model=ProviderNetwork,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -13025,6 +13088,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13044,6 +13108,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedProviderList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ProviderRequest) -> Provider:
@@ -13056,6 +13121,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=ProviderRequest,
             body=body,
             response_model=Provider,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ProviderRequest]) -> list[Provider]:
@@ -13068,6 +13134,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=list[ProviderRequest],
             body=body,
             response_model=list[Provider],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ProviderRequest]) -> list[Provider]:
@@ -13080,6 +13147,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=list[ProviderRequest],
             body=body,
             response_model=list[Provider],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ProviderRequest]) -> None:
@@ -13092,6 +13160,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=list[ProviderRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Provider | None:
@@ -13104,6 +13173,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Provider,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ProviderRequest) -> Provider:
@@ -13116,6 +13186,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=ProviderRequest,
             body=body,
             response_model=Provider,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedProviderRequest) -> Provider:
@@ -13128,6 +13199,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=PatchedProviderRequest,
             body=body,
             response_model=Provider,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -13140,6 +13212,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13163,6 +13236,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualCircuitTerminationList,
+            return_none_on_404=False,
         )
 
     async def create(
@@ -13177,6 +13251,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=WritableVirtualCircuitTerminationRequest,
             body=body,
             response_model=VirtualCircuitTermination,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -13191,6 +13266,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitTerminationRequest],
             body=body,
             response_model=list[VirtualCircuitTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -13205,6 +13281,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitTerminationRequest],
             body=body,
             response_model=list[VirtualCircuitTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualCircuitTerminationRequest]) -> None:
@@ -13217,6 +13294,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitTerminationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualCircuitTermination | None:
@@ -13229,6 +13307,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualCircuitTermination,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -13243,6 +13322,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=WritableVirtualCircuitTerminationRequest,
             body=body,
             response_model=VirtualCircuitTermination,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -13257,6 +13337,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=PatchedWritableVirtualCircuitTerminationRequest,
             body=body,
             response_model=VirtualCircuitTermination,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -13269,6 +13350,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13286,6 +13368,7 @@ class CircuitsVirtualCircuitTerminationsPaths(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualCircuitTermination,
+            return_none_on_404=False,
         )
 
 
@@ -13305,6 +13388,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualCircuitTypeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: VirtualCircuitTypeRequest) -> VirtualCircuitType:
@@ -13317,6 +13401,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=VirtualCircuitTypeRequest,
             body=body,
             response_model=VirtualCircuitType,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VirtualCircuitTypeRequest]) -> list[VirtualCircuitType]:
@@ -13329,6 +13414,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitTypeRequest],
             body=body,
             response_model=list[VirtualCircuitType],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -13343,6 +13429,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitTypeRequest],
             body=body,
             response_model=list[VirtualCircuitType],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualCircuitTypeRequest]) -> None:
@@ -13355,6 +13442,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitTypeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualCircuitType | None:
@@ -13367,6 +13455,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualCircuitType,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: VirtualCircuitTypeRequest) -> VirtualCircuitType:
@@ -13379,6 +13468,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=VirtualCircuitTypeRequest,
             body=body,
             response_model=VirtualCircuitType,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -13393,6 +13483,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=PatchedVirtualCircuitTypeRequest,
             body=body,
             response_model=VirtualCircuitType,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -13405,6 +13496,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13424,6 +13516,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualCircuitList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableVirtualCircuitRequest) -> VirtualCircuit:
@@ -13436,6 +13529,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=WritableVirtualCircuitRequest,
             body=body,
             response_model=VirtualCircuit,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VirtualCircuitRequest]) -> list[VirtualCircuit]:
@@ -13448,6 +13542,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitRequest],
             body=body,
             response_model=list[VirtualCircuit],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VirtualCircuitRequest]) -> list[VirtualCircuit]:
@@ -13460,6 +13555,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitRequest],
             body=body,
             response_model=list[VirtualCircuit],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualCircuitRequest]) -> None:
@@ -13472,6 +13568,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=list[VirtualCircuitRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualCircuit | None:
@@ -13484,6 +13581,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualCircuit,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableVirtualCircuitRequest) -> VirtualCircuit:
@@ -13496,6 +13594,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=WritableVirtualCircuitRequest,
             body=body,
             response_model=VirtualCircuit,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -13510,6 +13609,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=PatchedWritableVirtualCircuitRequest,
             body=body,
             response_model=VirtualCircuit,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -13522,6 +13622,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13539,6 +13640,7 @@ class CoreBackgroundQueuesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=dict[str, Any],
+            return_none_on_404=False,
         )
 
     async def get(self, name: int | str) -> dict[str, Any] | None:
@@ -13551,6 +13653,7 @@ class CoreBackgroundQueuesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=dict[str, Any],
+            return_none_on_404=True,
         )
 
 
@@ -13584,6 +13687,7 @@ class CoreBackgroundTasksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=dict[str, Any],
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> dict[str, Any] | None:
@@ -13596,6 +13700,7 @@ class CoreBackgroundTasksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=dict[str, Any],
+            return_none_on_404=True,
         )
 
 
@@ -13613,6 +13718,7 @@ class CoreBackgroundTasksDelete(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13630,6 +13736,7 @@ class CoreBackgroundTasksEnqueue(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13647,6 +13754,7 @@ class CoreBackgroundTasksRequeue(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13664,6 +13772,7 @@ class CoreBackgroundTasksStop(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13681,6 +13790,7 @@ class CoreBackgroundWorkersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=dict[str, Any],
+            return_none_on_404=False,
         )
 
     async def get(self, name: int | str) -> None:
@@ -13693,6 +13803,7 @@ class CoreBackgroundWorkersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=True,
         )
 
 
@@ -13712,6 +13823,7 @@ class CoreDataFilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDataFileList,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DataFile | None:
@@ -13724,6 +13836,7 @@ class CoreDataFilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DataFile,
+            return_none_on_404=True,
         )
 
 
@@ -13747,6 +13860,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDataSourceList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableDataSourceRequest) -> DataSource:
@@ -13759,6 +13873,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=WritableDataSourceRequest,
             body=body,
             response_model=DataSource,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[DataSourceRequest]) -> list[DataSource]:
@@ -13771,6 +13886,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=list[DataSourceRequest],
             body=body,
             response_model=list[DataSource],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[DataSourceRequest]) -> list[DataSource]:
@@ -13783,6 +13899,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=list[DataSourceRequest],
             body=body,
             response_model=list[DataSource],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[DataSourceRequest]) -> None:
@@ -13795,6 +13912,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=list[DataSourceRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DataSource | None:
@@ -13807,6 +13925,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DataSource,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableDataSourceRequest) -> DataSource:
@@ -13819,6 +13938,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=WritableDataSourceRequest,
             body=body,
             response_model=DataSource,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -13833,6 +13953,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=PatchedWritableDataSourceRequest,
             body=body,
             response_model=DataSource,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -13845,6 +13966,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -13862,6 +13984,7 @@ class CoreDataSourcesSync(TypedAppBase):
             body_model=WritableDataSourceRequest,
             body=body,
             response_model=DataSource,
+            return_none_on_404=False,
         )
 
 
@@ -13881,6 +14004,7 @@ class CoreJobsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedJobList,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Job | None:
@@ -13893,6 +14017,7 @@ class CoreJobsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Job,
+            return_none_on_404=True,
         )
 
 
@@ -13912,6 +14037,7 @@ class CoreObjectChangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedObjectChangeList,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ObjectChange | None:
@@ -13924,6 +14050,7 @@ class CoreObjectChangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ObjectChange,
+            return_none_on_404=True,
         )
 
 
@@ -13943,6 +14070,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCableTerminationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: CableTerminationRequest) -> CableTermination:
@@ -13955,6 +14083,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=CableTerminationRequest,
             body=body,
             response_model=CableTermination,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CableTerminationRequest]) -> list[CableTermination]:
@@ -13967,6 +14096,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=list[CableTerminationRequest],
             body=body,
             response_model=list[CableTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -13981,6 +14111,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=list[CableTerminationRequest],
             body=body,
             response_model=list[CableTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CableTerminationRequest]) -> None:
@@ -13993,6 +14124,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=list[CableTerminationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CableTermination | None:
@@ -14005,6 +14137,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CableTermination,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: CableTerminationRequest) -> CableTermination:
@@ -14017,6 +14150,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=CableTerminationRequest,
             body=body,
             response_model=CableTermination,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -14031,6 +14165,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=PatchedCableTerminationRequest,
             body=body,
             response_model=CableTermination,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14043,6 +14178,7 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14062,6 +14198,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCableList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableCableRequest) -> Cable:
@@ -14074,6 +14211,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=WritableCableRequest,
             body=body,
             response_model=Cable,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CableRequest]) -> list[Cable]:
@@ -14086,6 +14224,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=list[CableRequest],
             body=body,
             response_model=list[Cable],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[CableRequest]) -> list[Cable]:
@@ -14098,6 +14237,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=list[CableRequest],
             body=body,
             response_model=list[Cable],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CableRequest]) -> None:
@@ -14110,6 +14250,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=list[CableRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Cable | None:
@@ -14122,6 +14263,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Cable,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableCableRequest) -> Cable:
@@ -14134,6 +14276,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=WritableCableRequest,
             body=body,
             response_model=Cable,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableCableRequest) -> Cable:
@@ -14146,6 +14289,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=PatchedWritableCableRequest,
             body=body,
             response_model=Cable,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14158,6 +14302,7 @@ class DcimCablesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14177,6 +14322,7 @@ class DcimConnectedDeviceEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=list[Device],
+            return_none_on_404=False,
         )
 
 
@@ -14196,6 +14342,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedConsolePortTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableConsolePortTemplateRequest) -> ConsolePortTemplate:
@@ -14208,6 +14355,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=WritableConsolePortTemplateRequest,
             body=body,
             response_model=ConsolePortTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -14222,6 +14370,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=list[ConsolePortTemplateRequest],
             body=body,
             response_model=list[ConsolePortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -14236,6 +14385,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=list[ConsolePortTemplateRequest],
             body=body,
             response_model=list[ConsolePortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ConsolePortTemplateRequest]) -> None:
@@ -14248,6 +14398,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=list[ConsolePortTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ConsolePortTemplate | None:
@@ -14260,6 +14411,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConsolePortTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -14274,6 +14426,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=WritableConsolePortTemplateRequest,
             body=body,
             response_model=ConsolePortTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -14288,6 +14441,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritableConsolePortTemplateRequest,
             body=body,
             response_model=ConsolePortTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14300,6 +14454,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14323,6 +14478,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedConsolePortList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableConsolePortRequest) -> ConsolePort:
@@ -14335,6 +14491,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=WritableConsolePortRequest,
             body=body,
             response_model=ConsolePort,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ConsolePortRequest]) -> list[ConsolePort]:
@@ -14347,6 +14504,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=list[ConsolePortRequest],
             body=body,
             response_model=list[ConsolePort],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ConsolePortRequest]) -> list[ConsolePort]:
@@ -14359,6 +14517,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=list[ConsolePortRequest],
             body=body,
             response_model=list[ConsolePort],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ConsolePortRequest]) -> None:
@@ -14371,6 +14530,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=list[ConsolePortRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ConsolePort | None:
@@ -14383,6 +14543,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConsolePort,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableConsolePortRequest) -> ConsolePort:
@@ -14395,6 +14556,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=WritableConsolePortRequest,
             body=body,
             response_model=ConsolePort,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -14409,6 +14571,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=PatchedWritableConsolePortRequest,
             body=body,
             response_model=ConsolePort,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14421,6 +14584,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14438,6 +14602,7 @@ class DcimConsolePortsTrace(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConsolePort,
+            return_none_on_404=False,
         )
 
 
@@ -14457,6 +14622,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedConsoleServerPortTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(
@@ -14471,6 +14637,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=WritableConsoleServerPortTemplateRequest,
             body=body,
             response_model=ConsoleServerPortTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -14485,6 +14652,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=list[ConsoleServerPortTemplateRequest],
             body=body,
             response_model=list[ConsoleServerPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -14499,6 +14667,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=list[ConsoleServerPortTemplateRequest],
             body=body,
             response_model=list[ConsoleServerPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ConsoleServerPortTemplateRequest]) -> None:
@@ -14511,6 +14680,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=list[ConsoleServerPortTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ConsoleServerPortTemplate | None:
@@ -14523,6 +14693,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConsoleServerPortTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -14537,6 +14708,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=WritableConsoleServerPortTemplateRequest,
             body=body,
             response_model=ConsoleServerPortTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -14551,6 +14723,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritableConsoleServerPortTemplateRequest,
             body=body,
             response_model=ConsoleServerPortTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14563,6 +14736,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14586,6 +14760,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedConsoleServerPortList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableConsoleServerPortRequest) -> ConsoleServerPort:
@@ -14598,6 +14773,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=WritableConsoleServerPortRequest,
             body=body,
             response_model=ConsoleServerPort,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ConsoleServerPortRequest]) -> list[ConsoleServerPort]:
@@ -14610,6 +14786,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=list[ConsoleServerPortRequest],
             body=body,
             response_model=list[ConsoleServerPort],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -14624,6 +14801,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=list[ConsoleServerPortRequest],
             body=body,
             response_model=list[ConsoleServerPort],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ConsoleServerPortRequest]) -> None:
@@ -14636,6 +14814,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=list[ConsoleServerPortRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ConsoleServerPort | None:
@@ -14648,6 +14827,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConsoleServerPort,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -14662,6 +14842,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=WritableConsoleServerPortRequest,
             body=body,
             response_model=ConsoleServerPort,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -14676,6 +14857,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=PatchedWritableConsoleServerPortRequest,
             body=body,
             response_model=ConsoleServerPort,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14688,6 +14870,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14705,6 +14888,7 @@ class DcimConsoleServerPortsTrace(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConsoleServerPort,
+            return_none_on_404=False,
         )
 
 
@@ -14724,6 +14908,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDeviceBayTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: DeviceBayTemplateRequest) -> DeviceBayTemplate:
@@ -14736,6 +14921,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=DeviceBayTemplateRequest,
             body=body,
             response_model=DeviceBayTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[DeviceBayTemplateRequest]) -> list[DeviceBayTemplate]:
@@ -14748,6 +14934,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=list[DeviceBayTemplateRequest],
             body=body,
             response_model=list[DeviceBayTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -14762,6 +14949,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=list[DeviceBayTemplateRequest],
             body=body,
             response_model=list[DeviceBayTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[DeviceBayTemplateRequest]) -> None:
@@ -14774,6 +14962,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=list[DeviceBayTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DeviceBayTemplate | None:
@@ -14786,6 +14975,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DeviceBayTemplate,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: DeviceBayTemplateRequest) -> DeviceBayTemplate:
@@ -14798,6 +14988,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=DeviceBayTemplateRequest,
             body=body,
             response_model=DeviceBayTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -14812,6 +15003,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=PatchedDeviceBayTemplateRequest,
             body=body,
             response_model=DeviceBayTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14824,6 +15016,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14843,6 +15036,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDeviceBayList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: DeviceBayRequest) -> DeviceBay:
@@ -14855,6 +15049,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=DeviceBayRequest,
             body=body,
             response_model=DeviceBay,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[DeviceBayRequest]) -> list[DeviceBay]:
@@ -14867,6 +15062,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=list[DeviceBayRequest],
             body=body,
             response_model=list[DeviceBay],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[DeviceBayRequest]) -> list[DeviceBay]:
@@ -14879,6 +15075,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=list[DeviceBayRequest],
             body=body,
             response_model=list[DeviceBay],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[DeviceBayRequest]) -> None:
@@ -14891,6 +15088,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=list[DeviceBayRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DeviceBay | None:
@@ -14903,6 +15101,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DeviceBay,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: DeviceBayRequest) -> DeviceBay:
@@ -14915,6 +15114,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=DeviceBayRequest,
             body=body,
             response_model=DeviceBay,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedDeviceBayRequest) -> DeviceBay:
@@ -14927,6 +15127,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=PatchedDeviceBayRequest,
             body=body,
             response_model=DeviceBay,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -14939,6 +15140,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -14958,6 +15160,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDeviceRoleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableDeviceRoleRequest) -> DeviceRole:
@@ -14970,6 +15173,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=WritableDeviceRoleRequest,
             body=body,
             response_model=DeviceRole,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[DeviceRoleRequest]) -> list[DeviceRole]:
@@ -14982,6 +15186,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=list[DeviceRoleRequest],
             body=body,
             response_model=list[DeviceRole],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[DeviceRoleRequest]) -> list[DeviceRole]:
@@ -14994,6 +15199,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=list[DeviceRoleRequest],
             body=body,
             response_model=list[DeviceRole],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[DeviceRoleRequest]) -> None:
@@ -15006,6 +15212,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=list[DeviceRoleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DeviceRole | None:
@@ -15018,6 +15225,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DeviceRole,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableDeviceRoleRequest) -> DeviceRole:
@@ -15030,6 +15238,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=WritableDeviceRoleRequest,
             body=body,
             response_model=DeviceRole,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15044,6 +15253,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=PatchedWritableDeviceRoleRequest,
             body=body,
             response_model=DeviceRole,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15056,6 +15266,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15075,6 +15286,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDeviceTypeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableDeviceTypeRequest) -> DeviceType:
@@ -15087,6 +15299,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=WritableDeviceTypeRequest,
             body=body,
             response_model=DeviceType,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[DeviceTypeRequest]) -> list[DeviceType]:
@@ -15099,6 +15312,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=list[DeviceTypeRequest],
             body=body,
             response_model=list[DeviceType],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[DeviceTypeRequest]) -> list[DeviceType]:
@@ -15111,6 +15325,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=list[DeviceTypeRequest],
             body=body,
             response_model=list[DeviceType],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[DeviceTypeRequest]) -> None:
@@ -15123,6 +15338,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=list[DeviceTypeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DeviceType | None:
@@ -15135,6 +15351,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DeviceType,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableDeviceTypeRequest) -> DeviceType:
@@ -15147,6 +15364,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=WritableDeviceTypeRequest,
             body=body,
             response_model=DeviceType,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15161,6 +15379,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=PatchedWritableDeviceTypeRequest,
             body=body,
             response_model=DeviceType,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15173,6 +15392,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15196,6 +15416,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedDeviceWithConfigContextList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableDeviceWithConfigContextRequest) -> DeviceWithConfigContext:
@@ -15208,6 +15429,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=WritableDeviceWithConfigContextRequest,
             body=body,
             response_model=DeviceWithConfigContext,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -15222,6 +15444,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=list[DeviceWithConfigContextRequest],
             body=body,
             response_model=list[DeviceWithConfigContext],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -15236,6 +15459,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=list[DeviceWithConfigContextRequest],
             body=body,
             response_model=list[DeviceWithConfigContext],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[DeviceWithConfigContextRequest]) -> None:
@@ -15248,6 +15472,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=list[DeviceWithConfigContextRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> DeviceWithConfigContext | None:
@@ -15260,6 +15485,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=DeviceWithConfigContext,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -15274,6 +15500,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=WritableDeviceWithConfigContextRequest,
             body=body,
             response_model=DeviceWithConfigContext,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15288,6 +15515,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=PatchedWritableDeviceWithConfigContextRequest,
             body=body,
             response_model=DeviceWithConfigContext,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15300,6 +15528,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15322,6 +15551,7 @@ class DcimDevicesRenderConfig(TypedAppBase):
             body_model=WritableDeviceWithConfigContextRequest,
             body=body,
             response_model=DeviceWithConfigContext,
+            return_none_on_404=False,
         )
 
 
@@ -15341,6 +15571,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedFrontPortTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableFrontPortTemplateRequest) -> FrontPortTemplate:
@@ -15353,6 +15584,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=WritableFrontPortTemplateRequest,
             body=body,
             response_model=FrontPortTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[FrontPortTemplateRequest]) -> list[FrontPortTemplate]:
@@ -15365,6 +15597,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=list[FrontPortTemplateRequest],
             body=body,
             response_model=list[FrontPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -15379,6 +15612,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=list[FrontPortTemplateRequest],
             body=body,
             response_model=list[FrontPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[FrontPortTemplateRequest]) -> None:
@@ -15391,6 +15625,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=list[FrontPortTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> FrontPortTemplate | None:
@@ -15403,6 +15638,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=FrontPortTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -15417,6 +15653,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=WritableFrontPortTemplateRequest,
             body=body,
             response_model=FrontPortTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15431,6 +15668,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritableFrontPortTemplateRequest,
             body=body,
             response_model=FrontPortTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15443,6 +15681,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15466,6 +15705,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedFrontPortList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableFrontPortRequest) -> FrontPort:
@@ -15478,6 +15718,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=WritableFrontPortRequest,
             body=body,
             response_model=FrontPort,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[FrontPortRequest]) -> list[FrontPort]:
@@ -15490,6 +15731,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=list[FrontPortRequest],
             body=body,
             response_model=list[FrontPort],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[FrontPortRequest]) -> list[FrontPort]:
@@ -15502,6 +15744,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=list[FrontPortRequest],
             body=body,
             response_model=list[FrontPort],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[FrontPortRequest]) -> None:
@@ -15514,6 +15757,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=list[FrontPortRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> FrontPort | None:
@@ -15526,6 +15770,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=FrontPort,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableFrontPortRequest) -> FrontPort:
@@ -15538,6 +15783,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=WritableFrontPortRequest,
             body=body,
             response_model=FrontPort,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15552,6 +15798,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=PatchedWritableFrontPortRequest,
             body=body,
             response_model=FrontPort,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15564,6 +15811,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15581,6 +15829,7 @@ class DcimFrontPortsPaths(TypedAppBase):
             body_model=None,
             body=None,
             response_model=FrontPort,
+            return_none_on_404=False,
         )
 
 
@@ -15600,6 +15849,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedInterfaceTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableInterfaceTemplateRequest) -> InterfaceTemplate:
@@ -15612,6 +15862,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=WritableInterfaceTemplateRequest,
             body=body,
             response_model=InterfaceTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[InterfaceTemplateRequest]) -> list[InterfaceTemplate]:
@@ -15624,6 +15875,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=list[InterfaceTemplateRequest],
             body=body,
             response_model=list[InterfaceTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -15638,6 +15890,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=list[InterfaceTemplateRequest],
             body=body,
             response_model=list[InterfaceTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[InterfaceTemplateRequest]) -> None:
@@ -15650,6 +15903,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=list[InterfaceTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> InterfaceTemplate | None:
@@ -15662,6 +15916,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=InterfaceTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -15676,6 +15931,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=WritableInterfaceTemplateRequest,
             body=body,
             response_model=InterfaceTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15690,6 +15946,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritableInterfaceTemplateRequest,
             body=body,
             response_model=InterfaceTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15702,6 +15959,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15725,6 +15983,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedInterfaceList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableInterfaceRequest) -> Interface:
@@ -15737,6 +15996,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=WritableInterfaceRequest,
             body=body,
             response_model=Interface,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[InterfaceRequest]) -> list[Interface]:
@@ -15749,6 +16009,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=list[InterfaceRequest],
             body=body,
             response_model=list[Interface],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[InterfaceRequest]) -> list[Interface]:
@@ -15761,6 +16022,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=list[InterfaceRequest],
             body=body,
             response_model=list[Interface],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[InterfaceRequest]) -> None:
@@ -15773,6 +16035,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=list[InterfaceRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Interface | None:
@@ -15785,6 +16048,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Interface,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableInterfaceRequest) -> Interface:
@@ -15797,6 +16061,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=WritableInterfaceRequest,
             body=body,
             response_model=Interface,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15811,6 +16076,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=PatchedWritableInterfaceRequest,
             body=body,
             response_model=Interface,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15823,6 +16089,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15840,6 +16107,7 @@ class DcimInterfacesTrace(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Interface,
+            return_none_on_404=False,
         )
 
 
@@ -15859,6 +16127,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedInventoryItemRoleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: InventoryItemRoleRequest) -> InventoryItemRole:
@@ -15871,6 +16140,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=InventoryItemRoleRequest,
             body=body,
             response_model=InventoryItemRole,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[InventoryItemRoleRequest]) -> list[InventoryItemRole]:
@@ -15883,6 +16153,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=list[InventoryItemRoleRequest],
             body=body,
             response_model=list[InventoryItemRole],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -15897,6 +16168,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=list[InventoryItemRoleRequest],
             body=body,
             response_model=list[InventoryItemRole],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[InventoryItemRoleRequest]) -> None:
@@ -15909,6 +16181,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=list[InventoryItemRoleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> InventoryItemRole | None:
@@ -15921,6 +16194,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=InventoryItemRole,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: InventoryItemRoleRequest) -> InventoryItemRole:
@@ -15933,6 +16207,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=InventoryItemRoleRequest,
             body=body,
             response_model=InventoryItemRole,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -15947,6 +16222,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=PatchedInventoryItemRoleRequest,
             body=body,
             response_model=InventoryItemRole,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -15959,6 +16235,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -15978,6 +16255,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedInventoryItemTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: InventoryItemTemplateRequest) -> InventoryItemTemplate:
@@ -15990,6 +16268,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=InventoryItemTemplateRequest,
             body=body,
             response_model=InventoryItemTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -16004,6 +16283,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=list[InventoryItemTemplateRequest],
             body=body,
             response_model=list[InventoryItemTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -16018,6 +16298,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=list[InventoryItemTemplateRequest],
             body=body,
             response_model=list[InventoryItemTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[InventoryItemTemplateRequest]) -> None:
@@ -16030,6 +16311,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=list[InventoryItemTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> InventoryItemTemplate | None:
@@ -16042,6 +16324,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=InventoryItemTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -16056,6 +16339,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=InventoryItemTemplateRequest,
             body=body,
             response_model=InventoryItemTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -16070,6 +16354,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=PatchedInventoryItemTemplateRequest,
             body=body,
             response_model=InventoryItemTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16082,6 +16367,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16101,6 +16387,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedInventoryItemList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableInventoryItemRequest) -> InventoryItem:
@@ -16113,6 +16400,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=WritableInventoryItemRequest,
             body=body,
             response_model=InventoryItem,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[InventoryItemRequest]) -> list[InventoryItem]:
@@ -16125,6 +16413,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=list[InventoryItemRequest],
             body=body,
             response_model=list[InventoryItem],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[InventoryItemRequest]) -> list[InventoryItem]:
@@ -16137,6 +16426,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=list[InventoryItemRequest],
             body=body,
             response_model=list[InventoryItem],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[InventoryItemRequest]) -> None:
@@ -16149,6 +16439,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=list[InventoryItemRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> InventoryItem | None:
@@ -16161,6 +16452,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=InventoryItem,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableInventoryItemRequest) -> InventoryItem:
@@ -16173,6 +16465,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=WritableInventoryItemRequest,
             body=body,
             response_model=InventoryItem,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -16187,6 +16480,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=PatchedWritableInventoryItemRequest,
             body=body,
             response_model=InventoryItem,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16199,6 +16493,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16218,6 +16513,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedLocationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableLocationRequest) -> Location:
@@ -16230,6 +16526,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=WritableLocationRequest,
             body=body,
             response_model=Location,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[LocationRequest]) -> list[Location]:
@@ -16242,6 +16539,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=list[LocationRequest],
             body=body,
             response_model=list[Location],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[LocationRequest]) -> list[Location]:
@@ -16254,6 +16552,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=list[LocationRequest],
             body=body,
             response_model=list[Location],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[LocationRequest]) -> None:
@@ -16266,6 +16565,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=list[LocationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Location | None:
@@ -16278,6 +16578,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Location,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableLocationRequest) -> Location:
@@ -16290,6 +16591,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=WritableLocationRequest,
             body=body,
             response_model=Location,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableLocationRequest) -> Location:
@@ -16302,6 +16604,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=PatchedWritableLocationRequest,
             body=body,
             response_model=Location,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16314,6 +16617,7 @@ class DcimLocationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16333,6 +16637,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedMACAddressList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: MACAddressRequest) -> MACAddress:
@@ -16345,6 +16650,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=MACAddressRequest,
             body=body,
             response_model=MACAddress,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[MACAddressRequest]) -> list[MACAddress]:
@@ -16357,6 +16663,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=list[MACAddressRequest],
             body=body,
             response_model=list[MACAddress],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[MACAddressRequest]) -> list[MACAddress]:
@@ -16369,6 +16676,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=list[MACAddressRequest],
             body=body,
             response_model=list[MACAddress],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[MACAddressRequest]) -> None:
@@ -16381,6 +16689,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=list[MACAddressRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> MACAddress | None:
@@ -16393,6 +16702,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=MACAddress,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: MACAddressRequest) -> MACAddress:
@@ -16405,6 +16715,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=MACAddressRequest,
             body=body,
             response_model=MACAddress,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedMACAddressRequest) -> MACAddress:
@@ -16417,6 +16728,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=PatchedMACAddressRequest,
             body=body,
             response_model=MACAddress,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16429,6 +16741,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16448,6 +16761,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedManufacturerList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ManufacturerRequest) -> Manufacturer:
@@ -16460,6 +16774,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=ManufacturerRequest,
             body=body,
             response_model=Manufacturer,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ManufacturerRequest]) -> list[Manufacturer]:
@@ -16472,6 +16787,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=list[ManufacturerRequest],
             body=body,
             response_model=list[Manufacturer],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ManufacturerRequest]) -> list[Manufacturer]:
@@ -16484,6 +16800,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=list[ManufacturerRequest],
             body=body,
             response_model=list[Manufacturer],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ManufacturerRequest]) -> None:
@@ -16496,6 +16813,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=list[ManufacturerRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Manufacturer | None:
@@ -16508,6 +16826,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Manufacturer,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ManufacturerRequest) -> Manufacturer:
@@ -16520,6 +16839,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=ManufacturerRequest,
             body=body,
             response_model=Manufacturer,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedManufacturerRequest) -> Manufacturer:
@@ -16532,6 +16852,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=PatchedManufacturerRequest,
             body=body,
             response_model=Manufacturer,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16544,6 +16865,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16563,6 +16885,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedModuleBayTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ModuleBayTemplateRequest) -> ModuleBayTemplate:
@@ -16575,6 +16898,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=ModuleBayTemplateRequest,
             body=body,
             response_model=ModuleBayTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ModuleBayTemplateRequest]) -> list[ModuleBayTemplate]:
@@ -16587,6 +16911,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=list[ModuleBayTemplateRequest],
             body=body,
             response_model=list[ModuleBayTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -16601,6 +16926,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=list[ModuleBayTemplateRequest],
             body=body,
             response_model=list[ModuleBayTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ModuleBayTemplateRequest]) -> None:
@@ -16613,6 +16939,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=list[ModuleBayTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ModuleBayTemplate | None:
@@ -16625,6 +16952,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ModuleBayTemplate,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ModuleBayTemplateRequest) -> ModuleBayTemplate:
@@ -16637,6 +16965,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=ModuleBayTemplateRequest,
             body=body,
             response_model=ModuleBayTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -16651,6 +16980,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=PatchedModuleBayTemplateRequest,
             body=body,
             response_model=ModuleBayTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16663,6 +16993,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16682,6 +17013,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedModuleBayList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ModuleBayRequest) -> ModuleBay:
@@ -16694,6 +17026,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=ModuleBayRequest,
             body=body,
             response_model=ModuleBay,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ModuleBayRequest]) -> list[ModuleBay]:
@@ -16706,6 +17039,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=list[ModuleBayRequest],
             body=body,
             response_model=list[ModuleBay],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ModuleBayRequest]) -> list[ModuleBay]:
@@ -16718,6 +17052,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=list[ModuleBayRequest],
             body=body,
             response_model=list[ModuleBay],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ModuleBayRequest]) -> None:
@@ -16730,6 +17065,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=list[ModuleBayRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ModuleBay | None:
@@ -16742,6 +17078,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ModuleBay,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ModuleBayRequest) -> ModuleBay:
@@ -16754,6 +17091,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=ModuleBayRequest,
             body=body,
             response_model=ModuleBay,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedModuleBayRequest) -> ModuleBay:
@@ -16766,6 +17104,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=PatchedModuleBayRequest,
             body=body,
             response_model=ModuleBay,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16778,6 +17117,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16797,6 +17137,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedModuleTypeProfileList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ModuleTypeProfileRequest) -> ModuleTypeProfile:
@@ -16809,6 +17150,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=ModuleTypeProfileRequest,
             body=body,
             response_model=ModuleTypeProfile,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ModuleTypeProfileRequest]) -> list[ModuleTypeProfile]:
@@ -16821,6 +17163,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=list[ModuleTypeProfileRequest],
             body=body,
             response_model=list[ModuleTypeProfile],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -16835,6 +17178,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=list[ModuleTypeProfileRequest],
             body=body,
             response_model=list[ModuleTypeProfile],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ModuleTypeProfileRequest]) -> None:
@@ -16847,6 +17191,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=list[ModuleTypeProfileRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ModuleTypeProfile | None:
@@ -16859,6 +17204,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ModuleTypeProfile,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ModuleTypeProfileRequest) -> ModuleTypeProfile:
@@ -16871,6 +17217,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=ModuleTypeProfileRequest,
             body=body,
             response_model=ModuleTypeProfile,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -16885,6 +17232,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=PatchedModuleTypeProfileRequest,
             body=body,
             response_model=ModuleTypeProfile,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -16897,6 +17245,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -16916,6 +17265,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedModuleTypeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableModuleTypeRequest) -> ModuleType:
@@ -16928,6 +17278,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=WritableModuleTypeRequest,
             body=body,
             response_model=ModuleType,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ModuleTypeRequest]) -> list[ModuleType]:
@@ -16940,6 +17291,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=list[ModuleTypeRequest],
             body=body,
             response_model=list[ModuleType],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ModuleTypeRequest]) -> list[ModuleType]:
@@ -16952,6 +17304,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=list[ModuleTypeRequest],
             body=body,
             response_model=list[ModuleType],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ModuleTypeRequest]) -> None:
@@ -16964,6 +17317,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=list[ModuleTypeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ModuleType | None:
@@ -16976,6 +17330,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ModuleType,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableModuleTypeRequest) -> ModuleType:
@@ -16988,6 +17343,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=WritableModuleTypeRequest,
             body=body,
             response_model=ModuleType,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -17002,6 +17358,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=PatchedWritableModuleTypeRequest,
             body=body,
             response_model=ModuleType,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17014,6 +17371,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17033,6 +17391,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedModuleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableModuleRequest) -> Module:
@@ -17045,6 +17404,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=WritableModuleRequest,
             body=body,
             response_model=Module,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ModuleRequest]) -> list[Module]:
@@ -17057,6 +17417,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=list[ModuleRequest],
             body=body,
             response_model=list[Module],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ModuleRequest]) -> list[Module]:
@@ -17069,6 +17430,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=list[ModuleRequest],
             body=body,
             response_model=list[Module],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ModuleRequest]) -> None:
@@ -17081,6 +17443,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=list[ModuleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Module | None:
@@ -17093,6 +17456,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Module,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableModuleRequest) -> Module:
@@ -17105,6 +17469,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=WritableModuleRequest,
             body=body,
             response_model=Module,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableModuleRequest) -> Module:
@@ -17117,6 +17482,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=PatchedWritableModuleRequest,
             body=body,
             response_model=Module,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17129,6 +17495,7 @@ class DcimModulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17148,6 +17515,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPlatformList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: PlatformRequest) -> Platform:
@@ -17160,6 +17528,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=PlatformRequest,
             body=body,
             response_model=Platform,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PlatformRequest]) -> list[Platform]:
@@ -17172,6 +17541,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=list[PlatformRequest],
             body=body,
             response_model=list[Platform],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[PlatformRequest]) -> list[Platform]:
@@ -17184,6 +17554,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=list[PlatformRequest],
             body=body,
             response_model=list[Platform],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PlatformRequest]) -> None:
@@ -17196,6 +17567,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=list[PlatformRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Platform | None:
@@ -17208,6 +17580,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Platform,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: PlatformRequest) -> Platform:
@@ -17220,6 +17593,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=PlatformRequest,
             body=body,
             response_model=Platform,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedPlatformRequest) -> Platform:
@@ -17232,6 +17606,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=PatchedPlatformRequest,
             body=body,
             response_model=Platform,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17244,6 +17619,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17267,6 +17643,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPowerFeedList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritablePowerFeedRequest) -> PowerFeed:
@@ -17279,6 +17656,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=WritablePowerFeedRequest,
             body=body,
             response_model=PowerFeed,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PowerFeedRequest]) -> list[PowerFeed]:
@@ -17291,6 +17669,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=list[PowerFeedRequest],
             body=body,
             response_model=list[PowerFeed],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[PowerFeedRequest]) -> list[PowerFeed]:
@@ -17303,6 +17682,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=list[PowerFeedRequest],
             body=body,
             response_model=list[PowerFeed],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PowerFeedRequest]) -> None:
@@ -17315,6 +17695,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=list[PowerFeedRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> PowerFeed | None:
@@ -17327,6 +17708,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerFeed,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritablePowerFeedRequest) -> PowerFeed:
@@ -17339,6 +17721,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=WritablePowerFeedRequest,
             body=body,
             response_model=PowerFeed,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -17353,6 +17736,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=PatchedWritablePowerFeedRequest,
             body=body,
             response_model=PowerFeed,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17365,6 +17749,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17382,6 +17767,7 @@ class DcimPowerFeedsTrace(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerFeed,
+            return_none_on_404=False,
         )
 
 
@@ -17401,6 +17787,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPowerOutletTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritablePowerOutletTemplateRequest) -> PowerOutletTemplate:
@@ -17413,6 +17800,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=WritablePowerOutletTemplateRequest,
             body=body,
             response_model=PowerOutletTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -17427,6 +17815,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=list[PowerOutletTemplateRequest],
             body=body,
             response_model=list[PowerOutletTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -17441,6 +17830,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=list[PowerOutletTemplateRequest],
             body=body,
             response_model=list[PowerOutletTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PowerOutletTemplateRequest]) -> None:
@@ -17453,6 +17843,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=list[PowerOutletTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> PowerOutletTemplate | None:
@@ -17465,6 +17856,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerOutletTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -17479,6 +17871,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=WritablePowerOutletTemplateRequest,
             body=body,
             response_model=PowerOutletTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -17493,6 +17886,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritablePowerOutletTemplateRequest,
             body=body,
             response_model=PowerOutletTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17505,6 +17899,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17528,6 +17923,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPowerOutletList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritablePowerOutletRequest) -> PowerOutlet:
@@ -17540,6 +17936,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=WritablePowerOutletRequest,
             body=body,
             response_model=PowerOutlet,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PowerOutletRequest]) -> list[PowerOutlet]:
@@ -17552,6 +17949,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=list[PowerOutletRequest],
             body=body,
             response_model=list[PowerOutlet],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[PowerOutletRequest]) -> list[PowerOutlet]:
@@ -17564,6 +17962,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=list[PowerOutletRequest],
             body=body,
             response_model=list[PowerOutlet],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PowerOutletRequest]) -> None:
@@ -17576,6 +17975,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=list[PowerOutletRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> PowerOutlet | None:
@@ -17588,6 +17988,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerOutlet,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritablePowerOutletRequest) -> PowerOutlet:
@@ -17600,6 +18001,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=WritablePowerOutletRequest,
             body=body,
             response_model=PowerOutlet,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -17614,6 +18016,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=PatchedWritablePowerOutletRequest,
             body=body,
             response_model=PowerOutlet,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17626,6 +18029,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17643,6 +18047,7 @@ class DcimPowerOutletsTrace(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerOutlet,
+            return_none_on_404=False,
         )
 
 
@@ -17662,6 +18067,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPowerPanelList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: PowerPanelRequest) -> PowerPanel:
@@ -17674,6 +18080,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=PowerPanelRequest,
             body=body,
             response_model=PowerPanel,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PowerPanelRequest]) -> list[PowerPanel]:
@@ -17686,6 +18093,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=list[PowerPanelRequest],
             body=body,
             response_model=list[PowerPanel],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[PowerPanelRequest]) -> list[PowerPanel]:
@@ -17698,6 +18106,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=list[PowerPanelRequest],
             body=body,
             response_model=list[PowerPanel],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PowerPanelRequest]) -> None:
@@ -17710,6 +18119,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=list[PowerPanelRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> PowerPanel | None:
@@ -17722,6 +18132,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerPanel,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: PowerPanelRequest) -> PowerPanel:
@@ -17734,6 +18145,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=PowerPanelRequest,
             body=body,
             response_model=PowerPanel,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedPowerPanelRequest) -> PowerPanel:
@@ -17746,6 +18158,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=PatchedPowerPanelRequest,
             body=body,
             response_model=PowerPanel,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17758,6 +18171,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17777,6 +18191,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPowerPortTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritablePowerPortTemplateRequest) -> PowerPortTemplate:
@@ -17789,6 +18204,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=WritablePowerPortTemplateRequest,
             body=body,
             response_model=PowerPortTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PowerPortTemplateRequest]) -> list[PowerPortTemplate]:
@@ -17801,6 +18217,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=list[PowerPortTemplateRequest],
             body=body,
             response_model=list[PowerPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -17815,6 +18232,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=list[PowerPortTemplateRequest],
             body=body,
             response_model=list[PowerPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PowerPortTemplateRequest]) -> None:
@@ -17827,6 +18245,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=list[PowerPortTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> PowerPortTemplate | None:
@@ -17839,6 +18258,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerPortTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -17853,6 +18273,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=WritablePowerPortTemplateRequest,
             body=body,
             response_model=PowerPortTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -17867,6 +18288,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritablePowerPortTemplateRequest,
             body=body,
             response_model=PowerPortTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -17879,6 +18301,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -17902,6 +18325,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPowerPortList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritablePowerPortRequest) -> PowerPort:
@@ -17914,6 +18338,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=WritablePowerPortRequest,
             body=body,
             response_model=PowerPort,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PowerPortRequest]) -> list[PowerPort]:
@@ -17926,6 +18351,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=list[PowerPortRequest],
             body=body,
             response_model=list[PowerPort],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[PowerPortRequest]) -> list[PowerPort]:
@@ -17938,6 +18364,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=list[PowerPortRequest],
             body=body,
             response_model=list[PowerPort],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PowerPortRequest]) -> None:
@@ -17950,6 +18377,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=list[PowerPortRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> PowerPort | None:
@@ -17962,6 +18390,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerPort,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritablePowerPortRequest) -> PowerPort:
@@ -17974,6 +18403,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=WritablePowerPortRequest,
             body=body,
             response_model=PowerPort,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -17988,6 +18418,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=PatchedWritablePowerPortRequest,
             body=body,
             response_model=PowerPort,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18000,6 +18431,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18017,6 +18449,7 @@ class DcimPowerPortsTrace(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PowerPort,
+            return_none_on_404=False,
         )
 
 
@@ -18036,6 +18469,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRackReservationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: RackReservationRequest) -> RackReservation:
@@ -18048,6 +18482,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=RackReservationRequest,
             body=body,
             response_model=RackReservation,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RackReservationRequest]) -> list[RackReservation]:
@@ -18060,6 +18495,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=list[RackReservationRequest],
             body=body,
             response_model=list[RackReservation],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -18074,6 +18510,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=list[RackReservationRequest],
             body=body,
             response_model=list[RackReservation],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RackReservationRequest]) -> None:
@@ -18086,6 +18523,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=list[RackReservationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RackReservation | None:
@@ -18098,6 +18536,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RackReservation,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: RackReservationRequest) -> RackReservation:
@@ -18110,6 +18549,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=RackReservationRequest,
             body=body,
             response_model=RackReservation,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -18124,6 +18564,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=PatchedRackReservationRequest,
             body=body,
             response_model=RackReservation,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18136,6 +18577,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18155,6 +18597,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRackRoleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: RackRoleRequest) -> RackRole:
@@ -18167,6 +18610,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=RackRoleRequest,
             body=body,
             response_model=RackRole,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RackRoleRequest]) -> list[RackRole]:
@@ -18179,6 +18623,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=list[RackRoleRequest],
             body=body,
             response_model=list[RackRole],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RackRoleRequest]) -> list[RackRole]:
@@ -18191,6 +18636,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=list[RackRoleRequest],
             body=body,
             response_model=list[RackRole],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RackRoleRequest]) -> None:
@@ -18203,6 +18649,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=list[RackRoleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RackRole | None:
@@ -18215,6 +18662,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RackRole,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: RackRoleRequest) -> RackRole:
@@ -18227,6 +18675,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=RackRoleRequest,
             body=body,
             response_model=RackRole,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedRackRoleRequest) -> RackRole:
@@ -18239,6 +18688,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=PatchedRackRoleRequest,
             body=body,
             response_model=RackRole,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18251,6 +18701,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18270,6 +18721,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRackTypeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableRackTypeRequest) -> RackType:
@@ -18282,6 +18734,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=WritableRackTypeRequest,
             body=body,
             response_model=RackType,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RackTypeRequest]) -> list[RackType]:
@@ -18294,6 +18747,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=list[RackTypeRequest],
             body=body,
             response_model=list[RackType],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RackTypeRequest]) -> list[RackType]:
@@ -18306,6 +18760,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=list[RackTypeRequest],
             body=body,
             response_model=list[RackType],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RackTypeRequest]) -> None:
@@ -18318,6 +18773,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=list[RackTypeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RackType | None:
@@ -18330,6 +18786,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RackType,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableRackTypeRequest) -> RackType:
@@ -18342,6 +18799,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=WritableRackTypeRequest,
             body=body,
             response_model=RackType,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableRackTypeRequest) -> RackType:
@@ -18354,6 +18812,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=PatchedWritableRackTypeRequest,
             body=body,
             response_model=RackType,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18366,6 +18825,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18389,6 +18849,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRackList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableRackRequest) -> Rack:
@@ -18401,6 +18862,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=WritableRackRequest,
             body=body,
             response_model=Rack,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RackRequest]) -> list[Rack]:
@@ -18413,6 +18875,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=list[RackRequest],
             body=body,
             response_model=list[Rack],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RackRequest]) -> list[Rack]:
@@ -18425,6 +18888,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=list[RackRequest],
             body=body,
             response_model=list[Rack],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RackRequest]) -> None:
@@ -18437,6 +18901,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=list[RackRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Rack | None:
@@ -18449,6 +18914,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Rack,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableRackRequest) -> Rack:
@@ -18461,6 +18927,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=WritableRackRequest,
             body=body,
             response_model=Rack,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableRackRequest) -> Rack:
@@ -18473,6 +18940,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=PatchedWritableRackRequest,
             body=body,
             response_model=Rack,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18485,6 +18953,7 @@ class DcimRacksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18504,6 +18973,7 @@ class DcimRacksElevation(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRackUnitList,
+            return_none_on_404=False,
         )
 
 
@@ -18523,6 +18993,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRearPortTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableRearPortTemplateRequest) -> RearPortTemplate:
@@ -18535,6 +19006,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=WritableRearPortTemplateRequest,
             body=body,
             response_model=RearPortTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RearPortTemplateRequest]) -> list[RearPortTemplate]:
@@ -18547,6 +19019,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=list[RearPortTemplateRequest],
             body=body,
             response_model=list[RearPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -18561,6 +19034,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=list[RearPortTemplateRequest],
             body=body,
             response_model=list[RearPortTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RearPortTemplateRequest]) -> None:
@@ -18573,6 +19047,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=list[RearPortTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RearPortTemplate | None:
@@ -18585,6 +19060,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RearPortTemplate,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -18599,6 +19075,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=WritableRearPortTemplateRequest,
             body=body,
             response_model=RearPortTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -18613,6 +19090,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritableRearPortTemplateRequest,
             body=body,
             response_model=RearPortTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18625,6 +19103,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18648,6 +19127,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRearPortList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableRearPortRequest) -> RearPort:
@@ -18660,6 +19140,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=WritableRearPortRequest,
             body=body,
             response_model=RearPort,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RearPortRequest]) -> list[RearPort]:
@@ -18672,6 +19153,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=list[RearPortRequest],
             body=body,
             response_model=list[RearPort],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RearPortRequest]) -> list[RearPort]:
@@ -18684,6 +19166,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=list[RearPortRequest],
             body=body,
             response_model=list[RearPort],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RearPortRequest]) -> None:
@@ -18696,6 +19179,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=list[RearPortRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RearPort | None:
@@ -18708,6 +19192,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RearPort,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableRearPortRequest) -> RearPort:
@@ -18720,6 +19205,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=WritableRearPortRequest,
             body=body,
             response_model=RearPort,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableRearPortRequest) -> RearPort:
@@ -18732,6 +19218,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=PatchedWritableRearPortRequest,
             body=body,
             response_model=RearPort,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18744,6 +19231,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18761,6 +19249,7 @@ class DcimRearPortsPaths(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RearPort,
+            return_none_on_404=False,
         )
 
 
@@ -18780,6 +19269,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRegionList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableRegionRequest) -> Region:
@@ -18792,6 +19282,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=WritableRegionRequest,
             body=body,
             response_model=Region,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RegionRequest]) -> list[Region]:
@@ -18804,6 +19295,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=list[RegionRequest],
             body=body,
             response_model=list[Region],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RegionRequest]) -> list[Region]:
@@ -18816,6 +19308,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=list[RegionRequest],
             body=body,
             response_model=list[Region],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RegionRequest]) -> None:
@@ -18828,6 +19321,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=list[RegionRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Region | None:
@@ -18840,6 +19334,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Region,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableRegionRequest) -> Region:
@@ -18852,6 +19347,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=WritableRegionRequest,
             body=body,
             response_model=Region,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableRegionRequest) -> Region:
@@ -18864,6 +19360,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=PatchedWritableRegionRequest,
             body=body,
             response_model=Region,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18876,6 +19373,7 @@ class DcimRegionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -18895,6 +19393,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedSiteGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableSiteGroupRequest) -> SiteGroup:
@@ -18907,6 +19406,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=WritableSiteGroupRequest,
             body=body,
             response_model=SiteGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[SiteGroupRequest]) -> list[SiteGroup]:
@@ -18919,6 +19419,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=list[SiteGroupRequest],
             body=body,
             response_model=list[SiteGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[SiteGroupRequest]) -> list[SiteGroup]:
@@ -18931,6 +19432,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=list[SiteGroupRequest],
             body=body,
             response_model=list[SiteGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[SiteGroupRequest]) -> None:
@@ -18943,6 +19445,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=list[SiteGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> SiteGroup | None:
@@ -18955,6 +19458,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=SiteGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableSiteGroupRequest) -> SiteGroup:
@@ -18967,6 +19471,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=WritableSiteGroupRequest,
             body=body,
             response_model=SiteGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -18981,6 +19486,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=PatchedWritableSiteGroupRequest,
             body=body,
             response_model=SiteGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18993,6 +19499,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19012,6 +19519,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedSiteList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableSiteRequest) -> Site:
@@ -19024,6 +19532,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=WritableSiteRequest,
             body=body,
             response_model=Site,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[SiteRequest]) -> list[Site]:
@@ -19036,6 +19545,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=list[SiteRequest],
             body=body,
             response_model=list[Site],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[SiteRequest]) -> list[Site]:
@@ -19048,6 +19558,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=list[SiteRequest],
             body=body,
             response_model=list[Site],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[SiteRequest]) -> None:
@@ -19060,6 +19571,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=list[SiteRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Site | None:
@@ -19072,6 +19584,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Site,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableSiteRequest) -> Site:
@@ -19084,6 +19597,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=WritableSiteRequest,
             body=body,
             response_model=Site,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableSiteRequest) -> Site:
@@ -19096,6 +19610,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=PatchedWritableSiteRequest,
             body=body,
             response_model=Site,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19108,6 +19623,7 @@ class DcimSitesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19127,6 +19643,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualChassisList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableVirtualChassisRequest) -> VirtualChassis:
@@ -19139,6 +19656,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=WritableVirtualChassisRequest,
             body=body,
             response_model=VirtualChassis,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VirtualChassisRequest]) -> list[VirtualChassis]:
@@ -19151,6 +19669,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=list[VirtualChassisRequest],
             body=body,
             response_model=list[VirtualChassis],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VirtualChassisRequest]) -> list[VirtualChassis]:
@@ -19163,6 +19682,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=list[VirtualChassisRequest],
             body=body,
             response_model=list[VirtualChassis],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualChassisRequest]) -> None:
@@ -19175,6 +19695,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=list[VirtualChassisRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualChassis | None:
@@ -19187,6 +19708,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualChassis,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableVirtualChassisRequest) -> VirtualChassis:
@@ -19199,6 +19721,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=WritableVirtualChassisRequest,
             body=body,
             response_model=VirtualChassis,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -19213,6 +19736,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=PatchedWritableVirtualChassisRequest,
             body=body,
             response_model=VirtualChassis,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19225,6 +19749,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19244,6 +19769,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualDeviceContextList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableVirtualDeviceContextRequest) -> VirtualDeviceContext:
@@ -19256,6 +19782,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=WritableVirtualDeviceContextRequest,
             body=body,
             response_model=VirtualDeviceContext,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -19270,6 +19797,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=list[VirtualDeviceContextRequest],
             body=body,
             response_model=list[VirtualDeviceContext],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -19284,6 +19812,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=list[VirtualDeviceContextRequest],
             body=body,
             response_model=list[VirtualDeviceContext],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualDeviceContextRequest]) -> None:
@@ -19296,6 +19825,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=list[VirtualDeviceContextRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualDeviceContext | None:
@@ -19308,6 +19838,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualDeviceContext,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -19322,6 +19853,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=WritableVirtualDeviceContextRequest,
             body=body,
             response_model=VirtualDeviceContext,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -19336,6 +19868,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=PatchedWritableVirtualDeviceContextRequest,
             body=body,
             response_model=VirtualDeviceContext,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19348,6 +19881,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19367,6 +19901,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedBookmarkList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: BookmarkRequest) -> Bookmark:
@@ -19379,6 +19914,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=BookmarkRequest,
             body=body,
             response_model=Bookmark,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[BookmarkRequest]) -> list[Bookmark]:
@@ -19391,6 +19927,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=list[BookmarkRequest],
             body=body,
             response_model=list[Bookmark],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[BookmarkRequest]) -> list[Bookmark]:
@@ -19403,6 +19940,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=list[BookmarkRequest],
             body=body,
             response_model=list[Bookmark],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[BookmarkRequest]) -> None:
@@ -19415,6 +19953,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=list[BookmarkRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Bookmark | None:
@@ -19427,6 +19966,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Bookmark,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: BookmarkRequest) -> Bookmark:
@@ -19439,6 +19979,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=BookmarkRequest,
             body=body,
             response_model=Bookmark,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedBookmarkRequest) -> Bookmark:
@@ -19451,6 +19992,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=PatchedBookmarkRequest,
             body=body,
             response_model=Bookmark,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19463,6 +20005,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19486,6 +20029,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedConfigContextList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ConfigContextRequest) -> ConfigContext:
@@ -19498,6 +20042,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=ConfigContextRequest,
             body=body,
             response_model=ConfigContext,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ConfigContextRequest]) -> list[ConfigContext]:
@@ -19510,6 +20055,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=list[ConfigContextRequest],
             body=body,
             response_model=list[ConfigContext],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ConfigContextRequest]) -> list[ConfigContext]:
@@ -19522,6 +20068,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=list[ConfigContextRequest],
             body=body,
             response_model=list[ConfigContext],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ConfigContextRequest]) -> None:
@@ -19534,6 +20081,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=list[ConfigContextRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ConfigContext | None:
@@ -19546,6 +20094,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConfigContext,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ConfigContextRequest) -> ConfigContext:
@@ -19558,6 +20107,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=ConfigContextRequest,
             body=body,
             response_model=ConfigContext,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -19572,6 +20122,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=PatchedConfigContextRequest,
             body=body,
             response_model=ConfigContext,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19584,6 +20135,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19601,6 +20153,7 @@ class ExtrasConfigContextsSync(TypedAppBase):
             body_model=ConfigContextRequest,
             body=body,
             response_model=ConfigContext,
+            return_none_on_404=False,
         )
 
 
@@ -19628,6 +20181,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedConfigTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ConfigTemplateRequest) -> ConfigTemplate:
@@ -19640,6 +20194,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=ConfigTemplateRequest,
             body=body,
             response_model=ConfigTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ConfigTemplateRequest]) -> list[ConfigTemplate]:
@@ -19652,6 +20207,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=list[ConfigTemplateRequest],
             body=body,
             response_model=list[ConfigTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ConfigTemplateRequest]) -> list[ConfigTemplate]:
@@ -19664,6 +20220,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=list[ConfigTemplateRequest],
             body=body,
             response_model=list[ConfigTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ConfigTemplateRequest]) -> None:
@@ -19676,6 +20233,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=list[ConfigTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ConfigTemplate | None:
@@ -19688,6 +20246,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ConfigTemplate,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ConfigTemplateRequest) -> ConfigTemplate:
@@ -19700,6 +20259,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=ConfigTemplateRequest,
             body=body,
             response_model=ConfigTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -19714,6 +20274,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=PatchedConfigTemplateRequest,
             body=body,
             response_model=ConfigTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19726,6 +20287,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19748,6 +20310,7 @@ class ExtrasConfigTemplatesRender(TypedAppBase):
             body_model=ConfigTemplateRequest,
             body=body,
             response_model=ConfigTemplate,
+            return_none_on_404=False,
         )
 
 
@@ -19765,6 +20328,7 @@ class ExtrasConfigTemplatesSync(TypedAppBase):
             body_model=ConfigTemplateRequest,
             body=body,
             response_model=ConfigTemplate,
+            return_none_on_404=False,
         )
 
 
@@ -19788,6 +20352,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCustomFieldChoiceSetList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableCustomFieldChoiceSetRequest) -> CustomFieldChoiceSet:
@@ -19800,6 +20365,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=WritableCustomFieldChoiceSetRequest,
             body=body,
             response_model=CustomFieldChoiceSet,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -19814,6 +20380,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=list[CustomFieldChoiceSetRequest],
             body=body,
             response_model=list[CustomFieldChoiceSet],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -19828,6 +20395,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=list[CustomFieldChoiceSetRequest],
             body=body,
             response_model=list[CustomFieldChoiceSet],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CustomFieldChoiceSetRequest]) -> None:
@@ -19840,6 +20408,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=list[CustomFieldChoiceSetRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CustomFieldChoiceSet | None:
@@ -19852,6 +20421,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CustomFieldChoiceSet,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -19866,6 +20436,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=WritableCustomFieldChoiceSetRequest,
             body=body,
             response_model=CustomFieldChoiceSet,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -19880,6 +20451,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=PatchedWritableCustomFieldChoiceSetRequest,
             body=body,
             response_model=CustomFieldChoiceSet,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -19892,6 +20464,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -19909,6 +20482,7 @@ class ExtrasCustomFieldChoiceSetsChoices(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CustomFieldChoiceSet,
+            return_none_on_404=False,
         )
 
 
@@ -19928,6 +20502,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCustomFieldList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableCustomFieldRequest) -> CustomField:
@@ -19940,6 +20515,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=WritableCustomFieldRequest,
             body=body,
             response_model=CustomField,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CustomFieldRequest]) -> list[CustomField]:
@@ -19952,6 +20528,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=list[CustomFieldRequest],
             body=body,
             response_model=list[CustomField],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[CustomFieldRequest]) -> list[CustomField]:
@@ -19964,6 +20541,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=list[CustomFieldRequest],
             body=body,
             response_model=list[CustomField],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CustomFieldRequest]) -> None:
@@ -19976,6 +20554,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=list[CustomFieldRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CustomField | None:
@@ -19988,6 +20567,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CustomField,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableCustomFieldRequest) -> CustomField:
@@ -20000,6 +20580,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=WritableCustomFieldRequest,
             body=body,
             response_model=CustomField,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -20014,6 +20595,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=PatchedWritableCustomFieldRequest,
             body=body,
             response_model=CustomField,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20026,6 +20608,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20045,6 +20628,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedCustomLinkList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: CustomLinkRequest) -> CustomLink:
@@ -20057,6 +20641,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=CustomLinkRequest,
             body=body,
             response_model=CustomLink,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[CustomLinkRequest]) -> list[CustomLink]:
@@ -20069,6 +20654,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=list[CustomLinkRequest],
             body=body,
             response_model=list[CustomLink],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[CustomLinkRequest]) -> list[CustomLink]:
@@ -20081,6 +20667,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=list[CustomLinkRequest],
             body=body,
             response_model=list[CustomLink],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[CustomLinkRequest]) -> None:
@@ -20093,6 +20680,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=list[CustomLinkRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> CustomLink | None:
@@ -20105,6 +20693,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=CustomLink,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: CustomLinkRequest) -> CustomLink:
@@ -20117,6 +20706,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=CustomLinkRequest,
             body=body,
             response_model=CustomLink,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedCustomLinkRequest) -> CustomLink:
@@ -20129,6 +20719,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=PatchedCustomLinkRequest,
             body=body,
             response_model=CustomLink,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20141,6 +20732,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20158,6 +20750,7 @@ class ExtrasDashboardEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Dashboard,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: DashboardRequest) -> Dashboard:
@@ -20170,6 +20763,7 @@ class ExtrasDashboardEndpoint(TypedAppBase):
             body_model=DashboardRequest,
             body=body,
             response_model=Dashboard,
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: PatchedDashboardRequest) -> Dashboard:
@@ -20182,6 +20776,7 @@ class ExtrasDashboardEndpoint(TypedAppBase):
             body_model=PatchedDashboardRequest,
             body=body,
             response_model=Dashboard,
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self) -> None:
@@ -20194,6 +20789,7 @@ class ExtrasDashboardEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20213,6 +20809,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedEventRuleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableEventRuleRequest) -> EventRule:
@@ -20225,6 +20822,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=WritableEventRuleRequest,
             body=body,
             response_model=EventRule,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[EventRuleRequest]) -> list[EventRule]:
@@ -20237,6 +20835,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=list[EventRuleRequest],
             body=body,
             response_model=list[EventRule],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[EventRuleRequest]) -> list[EventRule]:
@@ -20249,6 +20848,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=list[EventRuleRequest],
             body=body,
             response_model=list[EventRule],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[EventRuleRequest]) -> None:
@@ -20261,6 +20861,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=list[EventRuleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> EventRule | None:
@@ -20273,6 +20874,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=EventRule,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableEventRuleRequest) -> EventRule:
@@ -20285,6 +20887,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=WritableEventRuleRequest,
             body=body,
             response_model=EventRule,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -20299,6 +20902,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=PatchedWritableEventRuleRequest,
             body=body,
             response_model=EventRule,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20311,6 +20915,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20334,6 +20939,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedExportTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ExportTemplateRequest) -> ExportTemplate:
@@ -20346,6 +20952,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=ExportTemplateRequest,
             body=body,
             response_model=ExportTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ExportTemplateRequest]) -> list[ExportTemplate]:
@@ -20358,6 +20965,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=list[ExportTemplateRequest],
             body=body,
             response_model=list[ExportTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ExportTemplateRequest]) -> list[ExportTemplate]:
@@ -20370,6 +20978,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=list[ExportTemplateRequest],
             body=body,
             response_model=list[ExportTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ExportTemplateRequest]) -> None:
@@ -20382,6 +20991,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=list[ExportTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ExportTemplate | None:
@@ -20394,6 +21004,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ExportTemplate,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ExportTemplateRequest) -> ExportTemplate:
@@ -20406,6 +21017,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=ExportTemplateRequest,
             body=body,
             response_model=ExportTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -20420,6 +21032,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=PatchedExportTemplateRequest,
             body=body,
             response_model=ExportTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20432,6 +21045,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20449,6 +21063,7 @@ class ExtrasExportTemplatesSync(TypedAppBase):
             body_model=ExportTemplateRequest,
             body=body,
             response_model=ExportTemplate,
+            return_none_on_404=False,
         )
 
 
@@ -20468,6 +21083,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedImageAttachmentList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ImageAttachmentRequest) -> ImageAttachment:
@@ -20480,6 +21096,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=ImageAttachmentRequest,
             body=body,
             response_model=ImageAttachment,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ImageAttachmentRequest]) -> list[ImageAttachment]:
@@ -20492,6 +21109,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=list[ImageAttachmentRequest],
             body=body,
             response_model=list[ImageAttachment],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -20506,6 +21124,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=list[ImageAttachmentRequest],
             body=body,
             response_model=list[ImageAttachment],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ImageAttachmentRequest]) -> None:
@@ -20518,6 +21137,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=list[ImageAttachmentRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ImageAttachment | None:
@@ -20530,6 +21150,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ImageAttachment,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ImageAttachmentRequest) -> ImageAttachment:
@@ -20542,6 +21163,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=ImageAttachmentRequest,
             body=body,
             response_model=ImageAttachment,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -20556,6 +21178,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=PatchedImageAttachmentRequest,
             body=body,
             response_model=ImageAttachment,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20568,6 +21191,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20587,6 +21211,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedJournalEntryList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableJournalEntryRequest) -> JournalEntry:
@@ -20599,6 +21224,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=WritableJournalEntryRequest,
             body=body,
             response_model=JournalEntry,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[JournalEntryRequest]) -> list[JournalEntry]:
@@ -20611,6 +21237,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=list[JournalEntryRequest],
             body=body,
             response_model=list[JournalEntry],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[JournalEntryRequest]) -> list[JournalEntry]:
@@ -20623,6 +21250,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=list[JournalEntryRequest],
             body=body,
             response_model=list[JournalEntry],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[JournalEntryRequest]) -> None:
@@ -20635,6 +21263,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=list[JournalEntryRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> JournalEntry | None:
@@ -20647,6 +21276,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=JournalEntry,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableJournalEntryRequest) -> JournalEntry:
@@ -20659,6 +21289,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=WritableJournalEntryRequest,
             body=body,
             response_model=JournalEntry,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -20673,6 +21304,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=PatchedWritableJournalEntryRequest,
             body=body,
             response_model=JournalEntry,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20685,6 +21317,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20704,6 +21337,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedNotificationGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: NotificationGroupRequest) -> NotificationGroup:
@@ -20716,6 +21350,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=NotificationGroupRequest,
             body=body,
             response_model=NotificationGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[NotificationGroupRequest]) -> list[NotificationGroup]:
@@ -20728,6 +21363,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=list[NotificationGroupRequest],
             body=body,
             response_model=list[NotificationGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -20742,6 +21378,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=list[NotificationGroupRequest],
             body=body,
             response_model=list[NotificationGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[NotificationGroupRequest]) -> None:
@@ -20754,6 +21391,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=list[NotificationGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> NotificationGroup | None:
@@ -20766,6 +21404,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=NotificationGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: NotificationGroupRequest) -> NotificationGroup:
@@ -20778,6 +21417,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=NotificationGroupRequest,
             body=body,
             response_model=NotificationGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -20792,6 +21432,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=PatchedNotificationGroupRequest,
             body=body,
             response_model=NotificationGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20804,6 +21445,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20823,6 +21465,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedNotificationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: NotificationRequest) -> Notification:
@@ -20835,6 +21478,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=NotificationRequest,
             body=body,
             response_model=Notification,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[NotificationRequest]) -> list[Notification]:
@@ -20847,6 +21491,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=list[NotificationRequest],
             body=body,
             response_model=list[Notification],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[NotificationRequest]) -> list[Notification]:
@@ -20859,6 +21504,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=list[NotificationRequest],
             body=body,
             response_model=list[Notification],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[NotificationRequest]) -> None:
@@ -20871,6 +21517,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=list[NotificationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Notification | None:
@@ -20883,6 +21530,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Notification,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: NotificationRequest) -> Notification:
@@ -20895,6 +21543,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=NotificationRequest,
             body=body,
             response_model=Notification,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedNotificationRequest) -> Notification:
@@ -20907,6 +21556,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=PatchedNotificationRequest,
             body=body,
             response_model=Notification,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -20919,6 +21569,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -20938,6 +21589,7 @@ class ExtrasObjectTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedObjectTypeList,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ObjectType | None:
@@ -20950,6 +21602,7 @@ class ExtrasObjectTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ObjectType,
+            return_none_on_404=True,
         )
 
 
@@ -20969,6 +21622,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedSavedFilterList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: SavedFilterRequest) -> SavedFilter:
@@ -20981,6 +21635,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=SavedFilterRequest,
             body=body,
             response_model=SavedFilter,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[SavedFilterRequest]) -> list[SavedFilter]:
@@ -20993,6 +21648,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=list[SavedFilterRequest],
             body=body,
             response_model=list[SavedFilter],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[SavedFilterRequest]) -> list[SavedFilter]:
@@ -21005,6 +21661,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=list[SavedFilterRequest],
             body=body,
             response_model=list[SavedFilter],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[SavedFilterRequest]) -> None:
@@ -21017,6 +21674,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=list[SavedFilterRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> SavedFilter | None:
@@ -21029,6 +21687,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=SavedFilter,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: SavedFilterRequest) -> SavedFilter:
@@ -21041,6 +21700,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=SavedFilterRequest,
             body=body,
             response_model=SavedFilter,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedSavedFilterRequest) -> SavedFilter:
@@ -21053,6 +21713,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=PatchedSavedFilterRequest,
             body=body,
             response_model=SavedFilter,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21065,6 +21726,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21084,6 +21746,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedScriptList,
+            return_none_on_404=False,
         )
 
     async def create(self) -> Script:
@@ -21096,6 +21759,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Script,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Script | None:
@@ -21108,6 +21772,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Script,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ScriptInputRequest) -> Script:
@@ -21120,6 +21785,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             body_model=ScriptInputRequest,
             body=body,
             response_model=Script,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedScriptInputRequest) -> Script:
@@ -21132,6 +21798,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             body_model=PatchedScriptInputRequest,
             body=body,
             response_model=Script,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21144,6 +21811,7 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21163,6 +21831,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedSubscriptionList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: SubscriptionRequest) -> Subscription:
@@ -21175,6 +21844,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=SubscriptionRequest,
             body=body,
             response_model=Subscription,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[SubscriptionRequest]) -> list[Subscription]:
@@ -21187,6 +21857,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=list[SubscriptionRequest],
             body=body,
             response_model=list[Subscription],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[SubscriptionRequest]) -> list[Subscription]:
@@ -21199,6 +21870,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=list[SubscriptionRequest],
             body=body,
             response_model=list[Subscription],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[SubscriptionRequest]) -> None:
@@ -21211,6 +21883,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=list[SubscriptionRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Subscription | None:
@@ -21223,6 +21896,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Subscription,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: SubscriptionRequest) -> Subscription:
@@ -21235,6 +21909,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=SubscriptionRequest,
             body=body,
             response_model=Subscription,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedSubscriptionRequest) -> Subscription:
@@ -21247,6 +21922,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=PatchedSubscriptionRequest,
             body=body,
             response_model=Subscription,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21259,6 +21935,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21278,6 +21955,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTableConfigList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: TableConfigRequest) -> TableConfig:
@@ -21290,6 +21968,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=TableConfigRequest,
             body=body,
             response_model=TableConfig,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TableConfigRequest]) -> list[TableConfig]:
@@ -21302,6 +21981,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=list[TableConfigRequest],
             body=body,
             response_model=list[TableConfig],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TableConfigRequest]) -> list[TableConfig]:
@@ -21314,6 +21994,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=list[TableConfigRequest],
             body=body,
             response_model=list[TableConfig],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TableConfigRequest]) -> None:
@@ -21326,6 +22007,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=list[TableConfigRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> TableConfig | None:
@@ -21338,6 +22020,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=TableConfig,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: TableConfigRequest) -> TableConfig:
@@ -21350,6 +22033,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=TableConfigRequest,
             body=body,
             response_model=TableConfig,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedTableConfigRequest) -> TableConfig:
@@ -21362,6 +22046,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=PatchedTableConfigRequest,
             body=body,
             response_model=TableConfig,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21374,6 +22059,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21393,6 +22079,7 @@ class ExtrasTaggedObjectsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTaggedItemList,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> TaggedItem | None:
@@ -21405,6 +22092,7 @@ class ExtrasTaggedObjectsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=TaggedItem,
+            return_none_on_404=True,
         )
 
 
@@ -21424,6 +22112,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTagList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: TagRequest) -> Tag:
@@ -21436,6 +22125,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=TagRequest,
             body=body,
             response_model=Tag,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TagRequest]) -> list[Tag]:
@@ -21448,6 +22138,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=list[TagRequest],
             body=body,
             response_model=list[Tag],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TagRequest]) -> list[Tag]:
@@ -21460,6 +22151,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=list[TagRequest],
             body=body,
             response_model=list[Tag],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TagRequest]) -> None:
@@ -21472,6 +22164,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=list[TagRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Tag | None:
@@ -21484,6 +22177,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Tag,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: TagRequest) -> Tag:
@@ -21496,6 +22190,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=TagRequest,
             body=body,
             response_model=Tag,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedTagRequest) -> Tag:
@@ -21508,6 +22203,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=PatchedTagRequest,
             body=body,
             response_model=Tag,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21520,6 +22216,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21539,6 +22236,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedWebhookList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WebhookRequest) -> Webhook:
@@ -21551,6 +22249,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=WebhookRequest,
             body=body,
             response_model=Webhook,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[WebhookRequest]) -> list[Webhook]:
@@ -21563,6 +22262,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=list[WebhookRequest],
             body=body,
             response_model=list[Webhook],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[WebhookRequest]) -> list[Webhook]:
@@ -21575,6 +22275,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=list[WebhookRequest],
             body=body,
             response_model=list[Webhook],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[WebhookRequest]) -> None:
@@ -21587,6 +22288,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=list[WebhookRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Webhook | None:
@@ -21599,6 +22301,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Webhook,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WebhookRequest) -> Webhook:
@@ -21611,6 +22314,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=WebhookRequest,
             body=body,
             response_model=Webhook,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWebhookRequest) -> Webhook:
@@ -21623,6 +22327,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=PatchedWebhookRequest,
             body=body,
             response_model=Webhook,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21635,6 +22340,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21654,6 +22360,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedAggregateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableAggregateRequest) -> Aggregate:
@@ -21666,6 +22373,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=WritableAggregateRequest,
             body=body,
             response_model=Aggregate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[AggregateRequest]) -> list[Aggregate]:
@@ -21678,6 +22386,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=list[AggregateRequest],
             body=body,
             response_model=list[Aggregate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[AggregateRequest]) -> list[Aggregate]:
@@ -21690,6 +22399,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=list[AggregateRequest],
             body=body,
             response_model=list[Aggregate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[AggregateRequest]) -> None:
@@ -21702,6 +22412,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=list[AggregateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Aggregate | None:
@@ -21714,6 +22425,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Aggregate,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableAggregateRequest) -> Aggregate:
@@ -21726,6 +22438,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=WritableAggregateRequest,
             body=body,
             response_model=Aggregate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -21740,6 +22453,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=PatchedWritableAggregateRequest,
             body=body,
             response_model=Aggregate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21752,6 +22466,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21775,6 +22490,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedASNRangeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ASNRangeRequest) -> ASNRange:
@@ -21787,6 +22503,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=ASNRangeRequest,
             body=body,
             response_model=ASNRange,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ASNRangeRequest]) -> list[ASNRange]:
@@ -21799,6 +22516,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=list[ASNRangeRequest],
             body=body,
             response_model=list[ASNRange],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ASNRangeRequest]) -> list[ASNRange]:
@@ -21811,6 +22529,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=list[ASNRangeRequest],
             body=body,
             response_model=list[ASNRange],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ASNRangeRequest]) -> None:
@@ -21823,6 +22542,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=list[ASNRangeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ASNRange | None:
@@ -21835,6 +22555,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ASNRange,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ASNRangeRequest) -> ASNRange:
@@ -21847,6 +22568,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=ASNRangeRequest,
             body=body,
             response_model=ASNRange,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedASNRangeRequest) -> ASNRange:
@@ -21859,6 +22581,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=PatchedASNRangeRequest,
             body=body,
             response_model=ASNRange,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -21871,6 +22594,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -21888,6 +22612,7 @@ class IpamAsnRangesAvailableAsns(TypedAppBase):
             body_model=None,
             body=None,
             response_model=list[AvailableASN],
+            return_none_on_404=False,
         )
 
     async def create(self, id: int | str, body: list[ASNRequest]) -> list[ASN]:
@@ -21900,6 +22625,7 @@ class IpamAsnRangesAvailableAsns(TypedAppBase):
             body_model=list[ASNRequest],
             body=body,
             response_model=list[ASN],
+            return_none_on_404=False,
         )
 
 
@@ -21919,6 +22645,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedASNList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ASNRequest) -> ASN:
@@ -21931,6 +22658,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=ASNRequest,
             body=body,
             response_model=ASN,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ASNRequest]) -> list[ASN]:
@@ -21943,6 +22671,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=list[ASNRequest],
             body=body,
             response_model=list[ASN],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ASNRequest]) -> list[ASN]:
@@ -21955,6 +22684,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=list[ASNRequest],
             body=body,
             response_model=list[ASN],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ASNRequest]) -> None:
@@ -21967,6 +22697,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=list[ASNRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ASN | None:
@@ -21979,6 +22710,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ASN,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ASNRequest) -> ASN:
@@ -21991,6 +22723,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=ASNRequest,
             body=body,
             response_model=ASN,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedASNRequest) -> ASN:
@@ -22003,6 +22736,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=PatchedASNRequest,
             body=body,
             response_model=ASN,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22015,6 +22749,7 @@ class IpamAsnsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22034,6 +22769,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedFHRPGroupAssignmentList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: FHRPGroupAssignmentRequest) -> FHRPGroupAssignment:
@@ -22046,6 +22782,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=FHRPGroupAssignmentRequest,
             body=body,
             response_model=FHRPGroupAssignment,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -22060,6 +22797,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=list[FHRPGroupAssignmentRequest],
             body=body,
             response_model=list[FHRPGroupAssignment],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -22074,6 +22812,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=list[FHRPGroupAssignmentRequest],
             body=body,
             response_model=list[FHRPGroupAssignment],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[FHRPGroupAssignmentRequest]) -> None:
@@ -22086,6 +22825,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=list[FHRPGroupAssignmentRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> FHRPGroupAssignment | None:
@@ -22098,6 +22838,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=FHRPGroupAssignment,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: FHRPGroupAssignmentRequest) -> FHRPGroupAssignment:
@@ -22110,6 +22851,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=FHRPGroupAssignmentRequest,
             body=body,
             response_model=FHRPGroupAssignment,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -22124,6 +22866,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=PatchedFHRPGroupAssignmentRequest,
             body=body,
             response_model=FHRPGroupAssignment,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22136,6 +22879,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22155,6 +22899,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedFHRPGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: FHRPGroupRequest) -> FHRPGroup:
@@ -22167,6 +22912,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=FHRPGroupRequest,
             body=body,
             response_model=FHRPGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[FHRPGroupRequest]) -> list[FHRPGroup]:
@@ -22179,6 +22925,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=list[FHRPGroupRequest],
             body=body,
             response_model=list[FHRPGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[FHRPGroupRequest]) -> list[FHRPGroup]:
@@ -22191,6 +22938,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=list[FHRPGroupRequest],
             body=body,
             response_model=list[FHRPGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[FHRPGroupRequest]) -> None:
@@ -22203,6 +22951,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=list[FHRPGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> FHRPGroup | None:
@@ -22215,6 +22964,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=FHRPGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: FHRPGroupRequest) -> FHRPGroup:
@@ -22227,6 +22977,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=FHRPGroupRequest,
             body=body,
             response_model=FHRPGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedFHRPGroupRequest) -> FHRPGroup:
@@ -22239,6 +22990,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=PatchedFHRPGroupRequest,
             body=body,
             response_model=FHRPGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22251,6 +23003,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22270,6 +23023,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIPAddressList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIPAddressRequest) -> IPAddress:
@@ -22282,6 +23036,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=WritableIPAddressRequest,
             body=body,
             response_model=IPAddress,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IPAddressRequest]) -> list[IPAddress]:
@@ -22294,6 +23049,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=list[IPAddressRequest],
             body=body,
             response_model=list[IPAddress],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IPAddressRequest]) -> list[IPAddress]:
@@ -22306,6 +23062,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=list[IPAddressRequest],
             body=body,
             response_model=list[IPAddress],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IPAddressRequest]) -> None:
@@ -22318,6 +23075,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=list[IPAddressRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IPAddress | None:
@@ -22330,6 +23088,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IPAddress,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIPAddressRequest) -> IPAddress:
@@ -22342,6 +23101,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=WritableIPAddressRequest,
             body=body,
             response_model=IPAddress,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -22356,6 +23116,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=PatchedWritableIPAddressRequest,
             body=body,
             response_model=IPAddress,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22368,6 +23129,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22391,6 +23153,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIPRangeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIPRangeRequest) -> IPRange:
@@ -22403,6 +23166,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=WritableIPRangeRequest,
             body=body,
             response_model=IPRange,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IPRangeRequest]) -> list[IPRange]:
@@ -22415,6 +23179,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=list[IPRangeRequest],
             body=body,
             response_model=list[IPRange],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IPRangeRequest]) -> list[IPRange]:
@@ -22427,6 +23192,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=list[IPRangeRequest],
             body=body,
             response_model=list[IPRange],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IPRangeRequest]) -> None:
@@ -22439,6 +23205,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=list[IPRangeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IPRange | None:
@@ -22451,6 +23218,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IPRange,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIPRangeRequest) -> IPRange:
@@ -22463,6 +23231,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=WritableIPRangeRequest,
             body=body,
             response_model=IPRange,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableIPRangeRequest) -> IPRange:
@@ -22475,6 +23244,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=PatchedWritableIPRangeRequest,
             body=body,
             response_model=IPRange,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22487,6 +23257,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22504,6 +23275,7 @@ class IpamIpRangesAvailableIps(TypedAppBase):
             body_model=None,
             body=None,
             response_model=list[AvailableIP],
+            return_none_on_404=False,
         )
 
     async def create(self, id: int | str, body: list[IPAddressRequest]) -> list[IPAddress]:
@@ -22516,6 +23288,7 @@ class IpamIpRangesAvailableIps(TypedAppBase):
             body_model=list[IPAddressRequest],
             body=body,
             response_model=list[IPAddress],
+            return_none_on_404=False,
         )
 
 
@@ -22543,6 +23316,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedPrefixList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritablePrefixRequest) -> Prefix:
@@ -22555,6 +23329,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=WritablePrefixRequest,
             body=body,
             response_model=Prefix,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[PrefixRequest]) -> list[Prefix]:
@@ -22567,6 +23342,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=list[PrefixRequest],
             body=body,
             response_model=list[Prefix],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[PrefixRequest]) -> list[Prefix]:
@@ -22579,6 +23355,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=list[PrefixRequest],
             body=body,
             response_model=list[Prefix],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[PrefixRequest]) -> None:
@@ -22591,6 +23368,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=list[PrefixRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Prefix | None:
@@ -22603,6 +23381,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Prefix,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritablePrefixRequest) -> Prefix:
@@ -22615,6 +23394,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=WritablePrefixRequest,
             body=body,
             response_model=Prefix,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritablePrefixRequest) -> Prefix:
@@ -22627,6 +23407,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=PatchedWritablePrefixRequest,
             body=body,
             response_model=Prefix,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22639,6 +23420,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22656,6 +23438,7 @@ class IpamPrefixesAvailableIps(TypedAppBase):
             body_model=None,
             body=None,
             response_model=list[AvailableIP],
+            return_none_on_404=False,
         )
 
     async def create(self, id: int | str, body: list[IPAddressRequest]) -> list[IPAddress]:
@@ -22668,6 +23451,7 @@ class IpamPrefixesAvailableIps(TypedAppBase):
             body_model=list[IPAddressRequest],
             body=body,
             response_model=list[IPAddress],
+            return_none_on_404=False,
         )
 
 
@@ -22685,6 +23469,7 @@ class IpamPrefixesAvailablePrefixes(TypedAppBase):
             body_model=None,
             body=None,
             response_model=list[AvailablePrefix],
+            return_none_on_404=False,
         )
 
     async def create(self, id: int | str, body: list[PrefixRequest]) -> list[Prefix]:
@@ -22697,6 +23482,7 @@ class IpamPrefixesAvailablePrefixes(TypedAppBase):
             body_model=list[PrefixRequest],
             body=body,
             response_model=list[Prefix],
+            return_none_on_404=False,
         )
 
 
@@ -22716,6 +23502,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRIRList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: RIRRequest) -> RIR:
@@ -22728,6 +23515,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=RIRRequest,
             body=body,
             response_model=RIR,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RIRRequest]) -> list[RIR]:
@@ -22740,6 +23528,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=list[RIRRequest],
             body=body,
             response_model=list[RIR],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RIRRequest]) -> list[RIR]:
@@ -22752,6 +23541,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=list[RIRRequest],
             body=body,
             response_model=list[RIR],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RIRRequest]) -> None:
@@ -22764,6 +23554,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=list[RIRRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RIR | None:
@@ -22776,6 +23567,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RIR,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: RIRRequest) -> RIR:
@@ -22788,6 +23580,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=RIRRequest,
             body=body,
             response_model=RIR,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedRIRRequest) -> RIR:
@@ -22800,6 +23593,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=PatchedRIRRequest,
             body=body,
             response_model=RIR,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22812,6 +23606,7 @@ class IpamRirsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22831,6 +23626,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRoleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: RoleRequest) -> Role:
@@ -22843,6 +23639,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=RoleRequest,
             body=body,
             response_model=Role,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RoleRequest]) -> list[Role]:
@@ -22855,6 +23652,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=list[RoleRequest],
             body=body,
             response_model=list[Role],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RoleRequest]) -> list[Role]:
@@ -22867,6 +23665,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=list[RoleRequest],
             body=body,
             response_model=list[Role],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RoleRequest]) -> None:
@@ -22879,6 +23678,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=list[RoleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Role | None:
@@ -22891,6 +23691,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Role,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: RoleRequest) -> Role:
@@ -22903,6 +23704,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=RoleRequest,
             body=body,
             response_model=Role,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedRoleRequest) -> Role:
@@ -22915,6 +23717,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=PatchedRoleRequest,
             body=body,
             response_model=Role,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -22927,6 +23730,7 @@ class IpamRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -22946,6 +23750,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedRouteTargetList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: RouteTargetRequest) -> RouteTarget:
@@ -22958,6 +23763,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=RouteTargetRequest,
             body=body,
             response_model=RouteTarget,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[RouteTargetRequest]) -> list[RouteTarget]:
@@ -22970,6 +23776,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=list[RouteTargetRequest],
             body=body,
             response_model=list[RouteTarget],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[RouteTargetRequest]) -> list[RouteTarget]:
@@ -22982,6 +23789,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=list[RouteTargetRequest],
             body=body,
             response_model=list[RouteTarget],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[RouteTargetRequest]) -> None:
@@ -22994,6 +23802,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=list[RouteTargetRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> RouteTarget | None:
@@ -23006,6 +23815,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=RouteTarget,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: RouteTargetRequest) -> RouteTarget:
@@ -23018,6 +23828,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=RouteTargetRequest,
             body=body,
             response_model=RouteTarget,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedRouteTargetRequest) -> RouteTarget:
@@ -23030,6 +23841,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=PatchedRouteTargetRequest,
             body=body,
             response_model=RouteTarget,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23042,6 +23854,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23061,6 +23874,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedServiceTemplateList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableServiceTemplateRequest) -> ServiceTemplate:
@@ -23073,6 +23887,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=WritableServiceTemplateRequest,
             body=body,
             response_model=ServiceTemplate,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ServiceTemplateRequest]) -> list[ServiceTemplate]:
@@ -23085,6 +23900,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=list[ServiceTemplateRequest],
             body=body,
             response_model=list[ServiceTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -23099,6 +23915,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=list[ServiceTemplateRequest],
             body=body,
             response_model=list[ServiceTemplate],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ServiceTemplateRequest]) -> None:
@@ -23111,6 +23928,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=list[ServiceTemplateRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ServiceTemplate | None:
@@ -23123,6 +23941,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ServiceTemplate,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableServiceTemplateRequest) -> ServiceTemplate:
@@ -23135,6 +23954,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=WritableServiceTemplateRequest,
             body=body,
             response_model=ServiceTemplate,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -23149,6 +23969,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=PatchedWritableServiceTemplateRequest,
             body=body,
             response_model=ServiceTemplate,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23161,6 +23982,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23180,6 +24002,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedServiceList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableServiceRequest) -> Service:
@@ -23192,6 +24015,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=WritableServiceRequest,
             body=body,
             response_model=Service,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ServiceRequest]) -> list[Service]:
@@ -23204,6 +24028,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=list[ServiceRequest],
             body=body,
             response_model=list[Service],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ServiceRequest]) -> list[Service]:
@@ -23216,6 +24041,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=list[ServiceRequest],
             body=body,
             response_model=list[Service],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ServiceRequest]) -> None:
@@ -23228,6 +24054,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=list[ServiceRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Service | None:
@@ -23240,6 +24067,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Service,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableServiceRequest) -> Service:
@@ -23252,6 +24080,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=WritableServiceRequest,
             body=body,
             response_model=Service,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableServiceRequest) -> Service:
@@ -23264,6 +24093,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=PatchedWritableServiceRequest,
             body=body,
             response_model=Service,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23276,6 +24106,7 @@ class IpamServicesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23299,6 +24130,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVLANGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: VLANGroupRequest) -> VLANGroup:
@@ -23311,6 +24143,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=VLANGroupRequest,
             body=body,
             response_model=VLANGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VLANGroupRequest]) -> list[VLANGroup]:
@@ -23323,6 +24156,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=list[VLANGroupRequest],
             body=body,
             response_model=list[VLANGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VLANGroupRequest]) -> list[VLANGroup]:
@@ -23335,6 +24169,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=list[VLANGroupRequest],
             body=body,
             response_model=list[VLANGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VLANGroupRequest]) -> None:
@@ -23347,6 +24182,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=list[VLANGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VLANGroup | None:
@@ -23359,6 +24195,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VLANGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: VLANGroupRequest) -> VLANGroup:
@@ -23371,6 +24208,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=VLANGroupRequest,
             body=body,
             response_model=VLANGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedVLANGroupRequest) -> VLANGroup:
@@ -23383,6 +24221,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=PatchedVLANGroupRequest,
             body=body,
             response_model=VLANGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23395,6 +24234,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23412,6 +24252,7 @@ class IpamVlanGroupsAvailableVlans(TypedAppBase):
             body_model=None,
             body=None,
             response_model=list[AvailableVLAN],
+            return_none_on_404=False,
         )
 
     async def create(self, id: int | str, body: list[VLANRequest]) -> list[VLAN]:
@@ -23424,6 +24265,7 @@ class IpamVlanGroupsAvailableVlans(TypedAppBase):
             body_model=list[VLANRequest],
             body=body,
             response_model=list[VLAN],
+            return_none_on_404=False,
         )
 
 
@@ -23443,6 +24285,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVLANTranslationPolicyList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: VLANTranslationPolicyRequest) -> VLANTranslationPolicy:
@@ -23455,6 +24298,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=VLANTranslationPolicyRequest,
             body=body,
             response_model=VLANTranslationPolicy,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -23469,6 +24313,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=list[VLANTranslationPolicyRequest],
             body=body,
             response_model=list[VLANTranslationPolicy],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -23483,6 +24328,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=list[VLANTranslationPolicyRequest],
             body=body,
             response_model=list[VLANTranslationPolicy],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VLANTranslationPolicyRequest]) -> None:
@@ -23495,6 +24341,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=list[VLANTranslationPolicyRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VLANTranslationPolicy | None:
@@ -23507,6 +24354,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VLANTranslationPolicy,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -23521,6 +24369,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=VLANTranslationPolicyRequest,
             body=body,
             response_model=VLANTranslationPolicy,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -23535,6 +24384,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=PatchedVLANTranslationPolicyRequest,
             body=body,
             response_model=VLANTranslationPolicy,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23547,6 +24397,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23566,6 +24417,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVLANTranslationRuleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: VLANTranslationRuleRequest) -> VLANTranslationRule:
@@ -23578,6 +24430,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=VLANTranslationRuleRequest,
             body=body,
             response_model=VLANTranslationRule,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -23592,6 +24445,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=list[VLANTranslationRuleRequest],
             body=body,
             response_model=list[VLANTranslationRule],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -23606,6 +24460,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=list[VLANTranslationRuleRequest],
             body=body,
             response_model=list[VLANTranslationRule],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VLANTranslationRuleRequest]) -> None:
@@ -23618,6 +24473,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=list[VLANTranslationRuleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VLANTranslationRule | None:
@@ -23630,6 +24486,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VLANTranslationRule,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: VLANTranslationRuleRequest) -> VLANTranslationRule:
@@ -23642,6 +24499,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=VLANTranslationRuleRequest,
             body=body,
             response_model=VLANTranslationRule,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -23656,6 +24514,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=PatchedVLANTranslationRuleRequest,
             body=body,
             response_model=VLANTranslationRule,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23668,6 +24527,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23687,6 +24547,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVLANList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableVLANRequest) -> VLAN:
@@ -23699,6 +24560,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=WritableVLANRequest,
             body=body,
             response_model=VLAN,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VLANRequest]) -> list[VLAN]:
@@ -23711,6 +24573,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=list[VLANRequest],
             body=body,
             response_model=list[VLAN],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VLANRequest]) -> list[VLAN]:
@@ -23723,6 +24586,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=list[VLANRequest],
             body=body,
             response_model=list[VLAN],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VLANRequest]) -> None:
@@ -23735,6 +24599,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=list[VLANRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VLAN | None:
@@ -23747,6 +24612,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VLAN,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableVLANRequest) -> VLAN:
@@ -23759,6 +24625,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=WritableVLANRequest,
             body=body,
             response_model=VLAN,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableVLANRequest) -> VLAN:
@@ -23771,6 +24638,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=PatchedWritableVLANRequest,
             body=body,
             response_model=VLAN,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23783,6 +24651,7 @@ class IpamVlansEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23802,6 +24671,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVRFList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: VRFRequest) -> VRF:
@@ -23814,6 +24684,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=VRFRequest,
             body=body,
             response_model=VRF,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VRFRequest]) -> list[VRF]:
@@ -23826,6 +24697,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=list[VRFRequest],
             body=body,
             response_model=list[VRF],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VRFRequest]) -> list[VRF]:
@@ -23838,6 +24710,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=list[VRFRequest],
             body=body,
             response_model=list[VRF],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VRFRequest]) -> None:
@@ -23850,6 +24723,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=list[VRFRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VRF | None:
@@ -23862,6 +24736,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VRF,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: VRFRequest) -> VRF:
@@ -23874,6 +24749,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=VRFRequest,
             body=body,
             response_model=VRF,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedVRFRequest) -> VRF:
@@ -23886,6 +24762,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=PatchedVRFRequest,
             body=body,
             response_model=VRF,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -23898,6 +24775,7 @@ class IpamVrfsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -23917,6 +24795,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedContactAssignmentList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableContactAssignmentRequest) -> ContactAssignment:
@@ -23929,6 +24808,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=WritableContactAssignmentRequest,
             body=body,
             response_model=ContactAssignment,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ContactAssignmentRequest]) -> list[ContactAssignment]:
@@ -23941,6 +24821,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=list[ContactAssignmentRequest],
             body=body,
             response_model=list[ContactAssignment],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -23955,6 +24836,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=list[ContactAssignmentRequest],
             body=body,
             response_model=list[ContactAssignment],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ContactAssignmentRequest]) -> None:
@@ -23967,6 +24849,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=list[ContactAssignmentRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ContactAssignment | None:
@@ -23979,6 +24862,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ContactAssignment,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -23993,6 +24877,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=WritableContactAssignmentRequest,
             body=body,
             response_model=ContactAssignment,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -24007,6 +24892,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=PatchedWritableContactAssignmentRequest,
             body=body,
             response_model=ContactAssignment,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24019,6 +24905,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24038,6 +24925,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedContactGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableContactGroupRequest) -> ContactGroup:
@@ -24050,6 +24938,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=WritableContactGroupRequest,
             body=body,
             response_model=ContactGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ContactGroupRequest]) -> list[ContactGroup]:
@@ -24062,6 +24951,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=list[ContactGroupRequest],
             body=body,
             response_model=list[ContactGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ContactGroupRequest]) -> list[ContactGroup]:
@@ -24074,6 +24964,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=list[ContactGroupRequest],
             body=body,
             response_model=list[ContactGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ContactGroupRequest]) -> None:
@@ -24086,6 +24977,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=list[ContactGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ContactGroup | None:
@@ -24098,6 +24990,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ContactGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableContactGroupRequest) -> ContactGroup:
@@ -24110,6 +25003,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=WritableContactGroupRequest,
             body=body,
             response_model=ContactGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -24124,6 +25018,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=PatchedWritableContactGroupRequest,
             body=body,
             response_model=ContactGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24136,6 +25031,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24155,6 +25051,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedContactRoleList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ContactRoleRequest) -> ContactRole:
@@ -24167,6 +25064,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=ContactRoleRequest,
             body=body,
             response_model=ContactRole,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ContactRoleRequest]) -> list[ContactRole]:
@@ -24179,6 +25077,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=list[ContactRoleRequest],
             body=body,
             response_model=list[ContactRole],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ContactRoleRequest]) -> list[ContactRole]:
@@ -24191,6 +25090,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=list[ContactRoleRequest],
             body=body,
             response_model=list[ContactRole],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ContactRoleRequest]) -> None:
@@ -24203,6 +25103,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=list[ContactRoleRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ContactRole | None:
@@ -24215,6 +25116,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ContactRole,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ContactRoleRequest) -> ContactRole:
@@ -24227,6 +25129,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=ContactRoleRequest,
             body=body,
             response_model=ContactRole,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedContactRoleRequest) -> ContactRole:
@@ -24239,6 +25142,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=PatchedContactRoleRequest,
             body=body,
             response_model=ContactRole,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24251,6 +25155,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24270,6 +25175,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedContactList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ContactRequest) -> Contact:
@@ -24282,6 +25188,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=ContactRequest,
             body=body,
             response_model=Contact,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ContactRequest]) -> list[Contact]:
@@ -24294,6 +25201,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=list[ContactRequest],
             body=body,
             response_model=list[Contact],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ContactRequest]) -> list[Contact]:
@@ -24306,6 +25214,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=list[ContactRequest],
             body=body,
             response_model=list[Contact],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ContactRequest]) -> None:
@@ -24318,6 +25227,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=list[ContactRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Contact | None:
@@ -24330,6 +25240,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Contact,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ContactRequest) -> Contact:
@@ -24342,6 +25253,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=ContactRequest,
             body=body,
             response_model=Contact,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedContactRequest) -> Contact:
@@ -24354,6 +25266,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=PatchedContactRequest,
             body=body,
             response_model=Contact,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24366,6 +25279,7 @@ class TenancyContactsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24385,6 +25299,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTenantGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableTenantGroupRequest) -> TenantGroup:
@@ -24397,6 +25312,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=WritableTenantGroupRequest,
             body=body,
             response_model=TenantGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TenantGroupRequest]) -> list[TenantGroup]:
@@ -24409,6 +25325,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=list[TenantGroupRequest],
             body=body,
             response_model=list[TenantGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TenantGroupRequest]) -> list[TenantGroup]:
@@ -24421,6 +25338,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=list[TenantGroupRequest],
             body=body,
             response_model=list[TenantGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TenantGroupRequest]) -> None:
@@ -24433,6 +25351,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=list[TenantGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> TenantGroup | None:
@@ -24445,6 +25364,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=TenantGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableTenantGroupRequest) -> TenantGroup:
@@ -24457,6 +25377,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=WritableTenantGroupRequest,
             body=body,
             response_model=TenantGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -24471,6 +25392,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=PatchedWritableTenantGroupRequest,
             body=body,
             response_model=TenantGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24483,6 +25405,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24502,6 +25425,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTenantList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: TenantRequest) -> Tenant:
@@ -24514,6 +25438,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=TenantRequest,
             body=body,
             response_model=Tenant,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TenantRequest]) -> list[Tenant]:
@@ -24526,6 +25451,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=list[TenantRequest],
             body=body,
             response_model=list[Tenant],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TenantRequest]) -> list[Tenant]:
@@ -24538,6 +25464,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=list[TenantRequest],
             body=body,
             response_model=list[Tenant],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TenantRequest]) -> None:
@@ -24550,6 +25477,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=list[TenantRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Tenant | None:
@@ -24562,6 +25490,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Tenant,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: TenantRequest) -> Tenant:
@@ -24574,6 +25503,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=TenantRequest,
             body=body,
             response_model=Tenant,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedTenantRequest) -> Tenant:
@@ -24586,6 +25516,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=PatchedTenantRequest,
             body=body,
             response_model=Tenant,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24598,6 +25529,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24615,6 +25547,7 @@ class UsersConfigEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=dict[str, Any],
+            return_none_on_404=False,
         )
 
 
@@ -24634,6 +25567,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: GroupRequest) -> Group:
@@ -24646,6 +25580,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=GroupRequest,
             body=body,
             response_model=Group,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[GroupRequest]) -> list[Group]:
@@ -24658,6 +25593,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=list[GroupRequest],
             body=body,
             response_model=list[Group],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[GroupRequest]) -> list[Group]:
@@ -24670,6 +25606,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=list[GroupRequest],
             body=body,
             response_model=list[Group],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[GroupRequest]) -> None:
@@ -24682,6 +25619,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=list[GroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Group | None:
@@ -24694,6 +25632,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Group,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: GroupRequest) -> Group:
@@ -24706,6 +25645,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=GroupRequest,
             body=body,
             response_model=Group,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedGroupRequest) -> Group:
@@ -24718,6 +25658,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=PatchedGroupRequest,
             body=body,
             response_model=Group,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24730,6 +25671,7 @@ class UsersGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24749,6 +25691,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedObjectPermissionList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ObjectPermissionRequest) -> ObjectPermission:
@@ -24761,6 +25704,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=ObjectPermissionRequest,
             body=body,
             response_model=ObjectPermission,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ObjectPermissionRequest]) -> list[ObjectPermission]:
@@ -24773,6 +25717,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=list[ObjectPermissionRequest],
             body=body,
             response_model=list[ObjectPermission],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -24787,6 +25732,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=list[ObjectPermissionRequest],
             body=body,
             response_model=list[ObjectPermission],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ObjectPermissionRequest]) -> None:
@@ -24799,6 +25745,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=list[ObjectPermissionRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ObjectPermission | None:
@@ -24811,6 +25758,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ObjectPermission,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ObjectPermissionRequest) -> ObjectPermission:
@@ -24823,6 +25771,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=ObjectPermissionRequest,
             body=body,
             response_model=ObjectPermission,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -24837,6 +25786,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=PatchedObjectPermissionRequest,
             body=body,
             response_model=ObjectPermission,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24849,6 +25799,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24872,6 +25823,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTokenList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: TokenRequest) -> Token:
@@ -24884,6 +25836,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=TokenRequest,
             body=body,
             response_model=Token,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TokenRequest]) -> list[Token]:
@@ -24896,6 +25849,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=list[TokenRequest],
             body=body,
             response_model=list[Token],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TokenRequest]) -> list[Token]:
@@ -24908,6 +25862,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=list[TokenRequest],
             body=body,
             response_model=list[Token],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TokenRequest]) -> None:
@@ -24920,6 +25875,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=list[TokenRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Token | None:
@@ -24932,6 +25888,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Token,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: TokenRequest) -> Token:
@@ -24944,6 +25901,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=TokenRequest,
             body=body,
             response_model=Token,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedTokenRequest) -> Token:
@@ -24956,6 +25914,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=PatchedTokenRequest,
             body=body,
             response_model=Token,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -24968,6 +25927,7 @@ class UsersTokensEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -24985,6 +25945,7 @@ class UsersTokensProvision(TypedAppBase):
             body_model=TokenProvisionRequest,
             body=body,
             response_model=TokenProvision,
+            return_none_on_404=False,
         )
 
 
@@ -25004,6 +25965,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedUserList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: UserRequest) -> User:
@@ -25016,6 +25978,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=UserRequest,
             body=body,
             response_model=User,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[UserRequest]) -> list[User]:
@@ -25028,6 +25991,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=list[UserRequest],
             body=body,
             response_model=list[User],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[UserRequest]) -> list[User]:
@@ -25040,6 +26004,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=list[UserRequest],
             body=body,
             response_model=list[User],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[UserRequest]) -> None:
@@ -25052,6 +26017,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=list[UserRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> User | None:
@@ -25064,6 +26030,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=User,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: UserRequest) -> User:
@@ -25076,6 +26043,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=UserRequest,
             body=body,
             response_model=User,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedUserRequest) -> User:
@@ -25088,6 +26056,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=PatchedUserRequest,
             body=body,
             response_model=User,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25100,6 +26069,7 @@ class UsersUsersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25119,6 +26089,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedClusterGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ClusterGroupRequest) -> ClusterGroup:
@@ -25131,6 +26102,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=ClusterGroupRequest,
             body=body,
             response_model=ClusterGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ClusterGroupRequest]) -> list[ClusterGroup]:
@@ -25143,6 +26115,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=list[ClusterGroupRequest],
             body=body,
             response_model=list[ClusterGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ClusterGroupRequest]) -> list[ClusterGroup]:
@@ -25155,6 +26128,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=list[ClusterGroupRequest],
             body=body,
             response_model=list[ClusterGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ClusterGroupRequest]) -> None:
@@ -25167,6 +26141,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=list[ClusterGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ClusterGroup | None:
@@ -25179,6 +26154,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ClusterGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ClusterGroupRequest) -> ClusterGroup:
@@ -25191,6 +26167,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=ClusterGroupRequest,
             body=body,
             response_model=ClusterGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedClusterGroupRequest) -> ClusterGroup:
@@ -25203,6 +26180,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=PatchedClusterGroupRequest,
             body=body,
             response_model=ClusterGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25215,6 +26193,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25234,6 +26213,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedClusterTypeList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: ClusterTypeRequest) -> ClusterType:
@@ -25246,6 +26226,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=ClusterTypeRequest,
             body=body,
             response_model=ClusterType,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ClusterTypeRequest]) -> list[ClusterType]:
@@ -25258,6 +26239,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=list[ClusterTypeRequest],
             body=body,
             response_model=list[ClusterType],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ClusterTypeRequest]) -> list[ClusterType]:
@@ -25270,6 +26252,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=list[ClusterTypeRequest],
             body=body,
             response_model=list[ClusterType],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ClusterTypeRequest]) -> None:
@@ -25282,6 +26265,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=list[ClusterTypeRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> ClusterType | None:
@@ -25294,6 +26278,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=ClusterType,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: ClusterTypeRequest) -> ClusterType:
@@ -25306,6 +26291,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=ClusterTypeRequest,
             body=body,
             response_model=ClusterType,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedClusterTypeRequest) -> ClusterType:
@@ -25318,6 +26304,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=PatchedClusterTypeRequest,
             body=body,
             response_model=ClusterType,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25330,6 +26317,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25349,6 +26337,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedClusterList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableClusterRequest) -> Cluster:
@@ -25361,6 +26350,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=WritableClusterRequest,
             body=body,
             response_model=Cluster,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[ClusterRequest]) -> list[Cluster]:
@@ -25373,6 +26363,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=list[ClusterRequest],
             body=body,
             response_model=list[Cluster],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[ClusterRequest]) -> list[Cluster]:
@@ -25385,6 +26376,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=list[ClusterRequest],
             body=body,
             response_model=list[Cluster],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[ClusterRequest]) -> None:
@@ -25397,6 +26389,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=list[ClusterRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Cluster | None:
@@ -25409,6 +26402,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Cluster,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableClusterRequest) -> Cluster:
@@ -25421,6 +26415,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=WritableClusterRequest,
             body=body,
             response_model=Cluster,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableClusterRequest) -> Cluster:
@@ -25433,6 +26428,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=PatchedWritableClusterRequest,
             body=body,
             response_model=Cluster,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25445,6 +26441,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25464,6 +26461,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVMInterfaceList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableVMInterfaceRequest) -> VMInterface:
@@ -25476,6 +26474,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=WritableVMInterfaceRequest,
             body=body,
             response_model=VMInterface,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VMInterfaceRequest]) -> list[VMInterface]:
@@ -25488,6 +26487,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=list[VMInterfaceRequest],
             body=body,
             response_model=list[VMInterface],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VMInterfaceRequest]) -> list[VMInterface]:
@@ -25500,6 +26500,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=list[VMInterfaceRequest],
             body=body,
             response_model=list[VMInterface],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VMInterfaceRequest]) -> None:
@@ -25512,6 +26513,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=list[VMInterfaceRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VMInterface | None:
@@ -25524,6 +26526,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VMInterface,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableVMInterfaceRequest) -> VMInterface:
@@ -25536,6 +26539,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=WritableVMInterfaceRequest,
             body=body,
             response_model=VMInterface,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -25550,6 +26554,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=PatchedWritableVMInterfaceRequest,
             body=body,
             response_model=VMInterface,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25562,6 +26567,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25581,6 +26587,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualDiskList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: VirtualDiskRequest) -> VirtualDisk:
@@ -25593,6 +26600,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=VirtualDiskRequest,
             body=body,
             response_model=VirtualDisk,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[VirtualDiskRequest]) -> list[VirtualDisk]:
@@ -25605,6 +26613,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=list[VirtualDiskRequest],
             body=body,
             response_model=list[VirtualDisk],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[VirtualDiskRequest]) -> list[VirtualDisk]:
@@ -25617,6 +26626,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=list[VirtualDiskRequest],
             body=body,
             response_model=list[VirtualDisk],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualDiskRequest]) -> None:
@@ -25629,6 +26639,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=list[VirtualDiskRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualDisk | None:
@@ -25641,6 +26652,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualDisk,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: VirtualDiskRequest) -> VirtualDisk:
@@ -25653,6 +26665,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=VirtualDiskRequest,
             body=body,
             response_model=VirtualDisk,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedVirtualDiskRequest) -> VirtualDisk:
@@ -25665,6 +26678,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=PatchedVirtualDiskRequest,
             body=body,
             response_model=VirtualDisk,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25677,6 +26691,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25700,6 +26715,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedVirtualMachineWithConfigContextList,
+            return_none_on_404=False,
         )
 
     async def create(
@@ -25714,6 +26730,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=WritableVirtualMachineWithConfigContextRequest,
             body=body,
             response_model=VirtualMachineWithConfigContext,
+            return_none_on_404=False,
         )
 
     async def bulk_update(
@@ -25728,6 +26745,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=list[VirtualMachineWithConfigContextRequest],
             body=body,
             response_model=list[VirtualMachineWithConfigContext],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -25742,6 +26760,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=list[VirtualMachineWithConfigContextRequest],
             body=body,
             response_model=list[VirtualMachineWithConfigContext],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[VirtualMachineWithConfigContextRequest]) -> None:
@@ -25754,6 +26773,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=list[VirtualMachineWithConfigContextRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> VirtualMachineWithConfigContext | None:
@@ -25766,6 +26786,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=VirtualMachineWithConfigContext,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -25780,6 +26801,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=WritableVirtualMachineWithConfigContextRequest,
             body=body,
             response_model=VirtualMachineWithConfigContext,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -25794,6 +26816,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=PatchedWritableVirtualMachineWithConfigContextRequest,
             body=body,
             response_model=VirtualMachineWithConfigContext,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25806,6 +26829,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25828,6 +26852,7 @@ class VirtualizationVirtualMachinesRenderConfig(TypedAppBase):
             body_model=WritableVirtualMachineWithConfigContextRequest,
             body=body,
             response_model=VirtualMachineWithConfigContext,
+            return_none_on_404=False,
         )
 
 
@@ -25847,6 +26872,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIKEPolicyList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIKEPolicyRequest) -> IKEPolicy:
@@ -25859,6 +26885,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=WritableIKEPolicyRequest,
             body=body,
             response_model=IKEPolicy,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IKEPolicyRequest]) -> list[IKEPolicy]:
@@ -25871,6 +26898,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=list[IKEPolicyRequest],
             body=body,
             response_model=list[IKEPolicy],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IKEPolicyRequest]) -> list[IKEPolicy]:
@@ -25883,6 +26911,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=list[IKEPolicyRequest],
             body=body,
             response_model=list[IKEPolicy],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IKEPolicyRequest]) -> None:
@@ -25895,6 +26924,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=list[IKEPolicyRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IKEPolicy | None:
@@ -25907,6 +26937,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IKEPolicy,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIKEPolicyRequest) -> IKEPolicy:
@@ -25919,6 +26950,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=WritableIKEPolicyRequest,
             body=body,
             response_model=IKEPolicy,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -25933,6 +26965,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=PatchedWritableIKEPolicyRequest,
             body=body,
             response_model=IKEPolicy,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25945,6 +26978,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -25964,6 +26998,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIKEProposalList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIKEProposalRequest) -> IKEProposal:
@@ -25976,6 +27011,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=WritableIKEProposalRequest,
             body=body,
             response_model=IKEProposal,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IKEProposalRequest]) -> list[IKEProposal]:
@@ -25988,6 +27024,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=list[IKEProposalRequest],
             body=body,
             response_model=list[IKEProposal],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IKEProposalRequest]) -> list[IKEProposal]:
@@ -26000,6 +27037,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=list[IKEProposalRequest],
             body=body,
             response_model=list[IKEProposal],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IKEProposalRequest]) -> None:
@@ -26012,6 +27050,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=list[IKEProposalRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IKEProposal | None:
@@ -26024,6 +27063,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IKEProposal,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIKEProposalRequest) -> IKEProposal:
@@ -26036,6 +27076,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=WritableIKEProposalRequest,
             body=body,
             response_model=IKEProposal,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -26050,6 +27091,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=PatchedWritableIKEProposalRequest,
             body=body,
             response_model=IKEProposal,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26062,6 +27104,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26081,6 +27124,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIPSecPolicyList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIPSecPolicyRequest) -> IPSecPolicy:
@@ -26093,6 +27137,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=WritableIPSecPolicyRequest,
             body=body,
             response_model=IPSecPolicy,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IPSecPolicyRequest]) -> list[IPSecPolicy]:
@@ -26105,6 +27150,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=list[IPSecPolicyRequest],
             body=body,
             response_model=list[IPSecPolicy],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IPSecPolicyRequest]) -> list[IPSecPolicy]:
@@ -26117,6 +27163,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=list[IPSecPolicyRequest],
             body=body,
             response_model=list[IPSecPolicy],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IPSecPolicyRequest]) -> None:
@@ -26129,6 +27176,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=list[IPSecPolicyRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IPSecPolicy | None:
@@ -26141,6 +27189,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IPSecPolicy,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIPSecPolicyRequest) -> IPSecPolicy:
@@ -26153,6 +27202,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=WritableIPSecPolicyRequest,
             body=body,
             response_model=IPSecPolicy,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -26167,6 +27217,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=PatchedWritableIPSecPolicyRequest,
             body=body,
             response_model=IPSecPolicy,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26179,6 +27230,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26198,6 +27250,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIPSecProfileList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIPSecProfileRequest) -> IPSecProfile:
@@ -26210,6 +27263,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=WritableIPSecProfileRequest,
             body=body,
             response_model=IPSecProfile,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IPSecProfileRequest]) -> list[IPSecProfile]:
@@ -26222,6 +27276,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=list[IPSecProfileRequest],
             body=body,
             response_model=list[IPSecProfile],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IPSecProfileRequest]) -> list[IPSecProfile]:
@@ -26234,6 +27289,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=list[IPSecProfileRequest],
             body=body,
             response_model=list[IPSecProfile],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IPSecProfileRequest]) -> None:
@@ -26246,6 +27302,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=list[IPSecProfileRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IPSecProfile | None:
@@ -26258,6 +27315,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IPSecProfile,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIPSecProfileRequest) -> IPSecProfile:
@@ -26270,6 +27328,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=WritableIPSecProfileRequest,
             body=body,
             response_model=IPSecProfile,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -26284,6 +27343,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=PatchedWritableIPSecProfileRequest,
             body=body,
             response_model=IPSecProfile,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26296,6 +27356,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26315,6 +27376,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedIPSecProposalList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableIPSecProposalRequest) -> IPSecProposal:
@@ -26327,6 +27389,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=WritableIPSecProposalRequest,
             body=body,
             response_model=IPSecProposal,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[IPSecProposalRequest]) -> list[IPSecProposal]:
@@ -26339,6 +27402,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=list[IPSecProposalRequest],
             body=body,
             response_model=list[IPSecProposal],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[IPSecProposalRequest]) -> list[IPSecProposal]:
@@ -26351,6 +27415,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=list[IPSecProposalRequest],
             body=body,
             response_model=list[IPSecProposal],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[IPSecProposalRequest]) -> None:
@@ -26363,6 +27428,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=list[IPSecProposalRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> IPSecProposal | None:
@@ -26375,6 +27441,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=IPSecProposal,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableIPSecProposalRequest) -> IPSecProposal:
@@ -26387,6 +27454,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=WritableIPSecProposalRequest,
             body=body,
             response_model=IPSecProposal,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -26401,6 +27469,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=PatchedWritableIPSecProposalRequest,
             body=body,
             response_model=IPSecProposal,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26413,6 +27482,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26432,6 +27502,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedL2VPNTerminationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: L2VPNTerminationRequest) -> L2VPNTermination:
@@ -26444,6 +27515,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=L2VPNTerminationRequest,
             body=body,
             response_model=L2VPNTermination,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[L2VPNTerminationRequest]) -> list[L2VPNTermination]:
@@ -26456,6 +27528,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=list[L2VPNTerminationRequest],
             body=body,
             response_model=list[L2VPNTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -26470,6 +27543,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=list[L2VPNTerminationRequest],
             body=body,
             response_model=list[L2VPNTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[L2VPNTerminationRequest]) -> None:
@@ -26482,6 +27556,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=list[L2VPNTerminationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> L2VPNTermination | None:
@@ -26494,6 +27569,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=L2VPNTermination,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: L2VPNTerminationRequest) -> L2VPNTermination:
@@ -26506,6 +27582,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=L2VPNTerminationRequest,
             body=body,
             response_model=L2VPNTermination,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -26520,6 +27597,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=PatchedL2VPNTerminationRequest,
             body=body,
             response_model=L2VPNTermination,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26532,6 +27610,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26551,6 +27630,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedL2VPNList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableL2VPNRequest) -> L2VPN:
@@ -26563,6 +27643,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=WritableL2VPNRequest,
             body=body,
             response_model=L2VPN,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[L2VPNRequest]) -> list[L2VPN]:
@@ -26575,6 +27656,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=list[L2VPNRequest],
             body=body,
             response_model=list[L2VPN],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[L2VPNRequest]) -> list[L2VPN]:
@@ -26587,6 +27669,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=list[L2VPNRequest],
             body=body,
             response_model=list[L2VPN],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[L2VPNRequest]) -> None:
@@ -26599,6 +27682,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=list[L2VPNRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> L2VPN | None:
@@ -26611,6 +27695,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=L2VPN,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableL2VPNRequest) -> L2VPN:
@@ -26623,6 +27708,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=WritableL2VPNRequest,
             body=body,
             response_model=L2VPN,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableL2VPNRequest) -> L2VPN:
@@ -26635,6 +27721,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=PatchedWritableL2VPNRequest,
             body=body,
             response_model=L2VPN,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26647,6 +27734,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26666,6 +27754,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTunnelGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: TunnelGroupRequest) -> TunnelGroup:
@@ -26678,6 +27767,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=TunnelGroupRequest,
             body=body,
             response_model=TunnelGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TunnelGroupRequest]) -> list[TunnelGroup]:
@@ -26690,6 +27780,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=list[TunnelGroupRequest],
             body=body,
             response_model=list[TunnelGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TunnelGroupRequest]) -> list[TunnelGroup]:
@@ -26702,6 +27793,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=list[TunnelGroupRequest],
             body=body,
             response_model=list[TunnelGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TunnelGroupRequest]) -> None:
@@ -26714,6 +27806,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=list[TunnelGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> TunnelGroup | None:
@@ -26726,6 +27819,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=TunnelGroup,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: TunnelGroupRequest) -> TunnelGroup:
@@ -26738,6 +27832,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=TunnelGroupRequest,
             body=body,
             response_model=TunnelGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedTunnelGroupRequest) -> TunnelGroup:
@@ -26750,6 +27845,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=PatchedTunnelGroupRequest,
             body=body,
             response_model=TunnelGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26762,6 +27858,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26781,6 +27878,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTunnelTerminationList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableTunnelTerminationRequest) -> TunnelTermination:
@@ -26793,6 +27891,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=WritableTunnelTerminationRequest,
             body=body,
             response_model=TunnelTermination,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TunnelTerminationRequest]) -> list[TunnelTermination]:
@@ -26805,6 +27904,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=list[TunnelTerminationRequest],
             body=body,
             response_model=list[TunnelTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -26819,6 +27919,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=list[TunnelTerminationRequest],
             body=body,
             response_model=list[TunnelTermination],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TunnelTerminationRequest]) -> None:
@@ -26831,6 +27932,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=list[TunnelTerminationRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> TunnelTermination | None:
@@ -26843,6 +27945,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=TunnelTermination,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -26857,6 +27960,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=WritableTunnelTerminationRequest,
             body=body,
             response_model=TunnelTermination,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -26871,6 +27975,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=PatchedWritableTunnelTerminationRequest,
             body=body,
             response_model=TunnelTermination,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26883,6 +27988,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -26902,6 +28008,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedTunnelList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableTunnelRequest) -> Tunnel:
@@ -26914,6 +28021,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=WritableTunnelRequest,
             body=body,
             response_model=Tunnel,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[TunnelRequest]) -> list[Tunnel]:
@@ -26926,6 +28034,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=list[TunnelRequest],
             body=body,
             response_model=list[Tunnel],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[TunnelRequest]) -> list[Tunnel]:
@@ -26938,6 +28047,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=list[TunnelRequest],
             body=body,
             response_model=list[Tunnel],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[TunnelRequest]) -> None:
@@ -26950,6 +28060,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=list[TunnelRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> Tunnel | None:
@@ -26962,6 +28073,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=Tunnel,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableTunnelRequest) -> Tunnel:
@@ -26974,6 +28086,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=WritableTunnelRequest,
             body=body,
             response_model=Tunnel,
+            return_none_on_404=False,
         )
 
     async def partial_update(self, id: int | str, body: PatchedWritableTunnelRequest) -> Tunnel:
@@ -26986,6 +28099,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=PatchedWritableTunnelRequest,
             body=body,
             response_model=Tunnel,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -26998,6 +28112,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -27017,6 +28132,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedWirelessLANGroupList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableWirelessLANGroupRequest) -> WirelessLANGroup:
@@ -27029,6 +28145,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=WritableWirelessLANGroupRequest,
             body=body,
             response_model=WirelessLANGroup,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[WirelessLANGroupRequest]) -> list[WirelessLANGroup]:
@@ -27041,6 +28158,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=list[WirelessLANGroupRequest],
             body=body,
             response_model=list[WirelessLANGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(
@@ -27055,6 +28173,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=list[WirelessLANGroupRequest],
             body=body,
             response_model=list[WirelessLANGroup],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[WirelessLANGroupRequest]) -> None:
@@ -27067,6 +28186,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=list[WirelessLANGroupRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> WirelessLANGroup | None:
@@ -27079,6 +28199,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=WirelessLANGroup,
+            return_none_on_404=True,
         )
 
     async def update(
@@ -27093,6 +28214,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=WritableWirelessLANGroupRequest,
             body=body,
             response_model=WirelessLANGroup,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -27107,6 +28229,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=PatchedWritableWirelessLANGroupRequest,
             body=body,
             response_model=WirelessLANGroup,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -27119,6 +28242,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -27138,6 +28262,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedWirelessLANList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableWirelessLANRequest) -> WirelessLAN:
@@ -27150,6 +28275,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=WritableWirelessLANRequest,
             body=body,
             response_model=WirelessLAN,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[WirelessLANRequest]) -> list[WirelessLAN]:
@@ -27162,6 +28288,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=list[WirelessLANRequest],
             body=body,
             response_model=list[WirelessLAN],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[WirelessLANRequest]) -> list[WirelessLAN]:
@@ -27174,6 +28301,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=list[WirelessLANRequest],
             body=body,
             response_model=list[WirelessLAN],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[WirelessLANRequest]) -> None:
@@ -27186,6 +28314,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=list[WirelessLANRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> WirelessLAN | None:
@@ -27198,6 +28327,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=WirelessLAN,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableWirelessLANRequest) -> WirelessLAN:
@@ -27210,6 +28340,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=WritableWirelessLANRequest,
             body=body,
             response_model=WirelessLAN,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -27224,6 +28355,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=PatchedWritableWirelessLANRequest,
             body=body,
             response_model=WirelessLAN,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -27236,6 +28368,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
@@ -27255,6 +28388,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=PaginatedWirelessLinkList,
+            return_none_on_404=False,
         )
 
     async def create(self, body: WritableWirelessLinkRequest) -> WirelessLink:
@@ -27267,6 +28401,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=WritableWirelessLinkRequest,
             body=body,
             response_model=WirelessLink,
+            return_none_on_404=False,
         )
 
     async def bulk_update(self, body: list[WirelessLinkRequest]) -> list[WirelessLink]:
@@ -27279,6 +28414,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=list[WirelessLinkRequest],
             body=body,
             response_model=list[WirelessLink],
+            return_none_on_404=False,
         )
 
     async def bulk_partial_update(self, body: list[WirelessLinkRequest]) -> list[WirelessLink]:
@@ -27291,6 +28427,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=list[WirelessLinkRequest],
             body=body,
             response_model=list[WirelessLink],
+            return_none_on_404=False,
         )
 
     async def bulk_delete(self, body: list[WirelessLinkRequest]) -> None:
@@ -27303,6 +28440,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=list[WirelessLinkRequest],
             body=body,
             response_model=None,
+            return_none_on_404=False,
         )
 
     async def get(self, id: int | str) -> WirelessLink | None:
@@ -27315,6 +28453,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=WirelessLink,
+            return_none_on_404=True,
         )
 
     async def update(self, id: int | str, body: WritableWirelessLinkRequest) -> WirelessLink:
@@ -27327,6 +28466,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=WritableWirelessLinkRequest,
             body=body,
             response_model=WirelessLink,
+            return_none_on_404=False,
         )
 
     async def partial_update(
@@ -27341,6 +28481,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=PatchedWritableWirelessLinkRequest,
             body=body,
             response_model=WirelessLink,
+            return_none_on_404=False,
         )
 
     async def delete(self, id: int | str) -> None:
@@ -27353,6 +28494,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             body_model=None,
             body=None,
             response_model=None,
+            return_none_on_404=False,
         )
 
 
