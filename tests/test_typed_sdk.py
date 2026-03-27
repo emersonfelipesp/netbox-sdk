@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+pytestmark = pytest.mark.suite_sdk
+
 from netbox_sdk import (
     TypedRequestValidationError,
     TypedResponseValidationError,

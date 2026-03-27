@@ -43,9 +43,13 @@ jobs:
               - 'tests/test_output_safety.py'
               - 'tests/test_plugin_discovery.py'
               - 'tests/test_schema_index.py'
+              - 'tests/test_docs_alignment.py'
+              - 'tests/test_return_annotations.py'
               - 'tests/test_sdk_completeness.py'
               - 'tests/test_sdk_imports.py'
+              - 'tests/test_sdk_pynetbox_parity.py'
               - 'tests/test_services.py'
+              - 'tests/test_typed_sdk.py'
             cli:
               - 'netbox_cli/**'
               - 'tests/test_cli_error_handling.py'
