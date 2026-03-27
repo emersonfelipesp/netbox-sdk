@@ -33,7 +33,9 @@ def normalize_netbox_version(version: str | None) -> SupportedNetBoxVersion:
 
 
 def bundled_openapi_path(version: SupportedNetBoxVersion) -> Path:
-    return Path(__file__).resolve().parent / "reference" / "openapi" / f"netbox-openapi-{version}.json"
+    return (
+        Path(__file__).resolve().parent / "reference" / "openapi" / f"netbox-openapi-{version}.json"
+    )
 
 
 def version_module_suffix(version: SupportedNetBoxVersion) -> str:

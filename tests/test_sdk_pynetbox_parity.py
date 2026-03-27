@@ -17,7 +17,6 @@ from netbox_sdk import (
 )
 from tests.conftest import OPENAPI_PATH
 
-
 pytestmark = pytest.mark.suite_sdk
 
 
@@ -99,22 +98,7 @@ async def test_api_filter_strict_validation_raises_for_unknown_parameter() -> No
 
 @pytest.mark.asyncio
 async def test_recordset_follows_paginated_next_links() -> None:
-    client = _FakeClient(
-        {
-            ("GET", "/api/dcim/devices/"): ApiResponse(
-                status=200,
-                text='{"count": 2, "next": "https://netbox.example.com/api/dcim/devices/?limit=1&offset=1", "results": [{"id": 1, "name": "leaf1", "url": "https://netbox.example.com/api/dcim/devices/1/"}]}',
-                headers={},
-            ),
-            ("GET", "/api/dcim/devices/"): [
-                ApiResponse(
-                    status=200,
-                    text='{"count": 2, "next": null, "results": [{"id": 2, "name": "leaf2", "url": "https://netbox.example.com/api/dcim/devices/2/"}]}',
-                    headers={},
-                )
-            ],
-        }
-    )
+    client = _FakeClient({})
     client.responses[("GET", "/api/dcim/devices/")] = [
         ApiResponse(
             status=200,
@@ -153,7 +137,9 @@ async def test_detail_endpoint_supports_json_and_raw_modes() -> None:
             ),
             ("GET", "/api/dcim/racks/3/elevation/"): [
                 ApiResponse(status=200, text='[{"id": 30}]', headers={}),
-                ApiResponse(status=200, text="<svg>rack</svg>", headers={"Content-Type": "image/svg+xml"}),
+                ApiResponse(
+                    status=200, text="<svg>rack</svg>", headers={"Content-Type": "image/svg+xml"}
+                ),
             ],
         }
     )

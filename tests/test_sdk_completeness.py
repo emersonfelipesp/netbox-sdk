@@ -14,8 +14,6 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.suite_sdk
-
 # All imports from sdk directly — no netbox_cli dependency
 from netbox_sdk import (
     ApiResponse,
@@ -54,6 +52,8 @@ from netbox_sdk.services import (
     run_dynamic_command,
 )
 from tests.conftest import OPENAPI_PATH
+
+pytestmark = pytest.mark.suite_sdk
 
 # ---------------------------------------------------------------------------
 # Helpers shared across tests
