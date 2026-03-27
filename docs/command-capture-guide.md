@@ -27,7 +27,7 @@ Pass `--live` to run them against your own NetBox instance instead.
 From the `netbox-cli` repository root, with the package installed:
 
 ```bash
-pip install netbox-console
+pip install 'netbox-sdk[cli,demo]'
 
 # Default: live-API specs hit demo.netbox.dev (demo profile)
 nbx docs generate-capture
@@ -163,7 +163,7 @@ runs automatically on pushes to `main` (and can be started manually via `workflo
 ### What it does
 
 1. Checks out the repository.
-2. Installs `netbox-console` (the published package for this repo) and its dependencies.
+2. Installs `netbox-sdk` (the published package for this repo) and its dependencies.
 3. Installs Playwright and the Chromium browser (`uv tool run --from playwright playwright install chromium --with-deps`).
 4. Runs `nbx demo init --username … --password … --headless` to authenticate with
    demo.netbox.dev and save the demo profile to disk.

@@ -7,7 +7,7 @@ Get up and running in under a minute.
 ## 1. Install and configure
 
 ```bash
-pip install netbox-console
+pip install 'netbox-sdk[all]'
 nbx init
 # enter your NetBox URL and API token when prompted
 ```
@@ -20,7 +20,7 @@ If you are developing `netbox-cli` itself, use the repo-local environment and in
 
 ```bash
 cd /path/to/netbox-cli
-uv sync --dev
+uv sync --dev --extra cli --extra tui --extra demo
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 ```

@@ -868,20 +868,28 @@ wheels = [
 ]
 
 [[package]]
-name = "netbox-console"
+name = "netbox-sdk"
 version = "0.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
-    { name = "playwright" },
     { name = "pydantic" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "textual" },
-    { name = "typer" },
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "playwright" },
+    { name = "textual" },
+    { name = "typer" },
+]
+cli = [
+    { name = "typer" },
+]
+demo = [
+    { name = "playwright" },
+]
 dev = [
     { name = "pre-commit" },
     { name = "pytest" },
@@ -892,6 +900,9 @@ dev = [
 ]
 docs = [
     { name = "mkdocs-material" },
+]
+tui = [
+    { name = "textual" },
 ]
 
 [package.dev-dependencies]
@@ -911,7 +922,8 @@ docs = [
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.9.0" },
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5" },
-    { name = "playwright", specifier = ">=1.52.0" },
+    { name = "netbox-sdk", extras = ["tui", "cli", "demo"], marker = "extra == 'all'" },
+    { name = "playwright", marker = "extra == 'demo'", specifier = ">=1.52.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pydantic", specifier = ">=2.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
@@ -921,10 +933,10 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "rich", specifier = ">=13.7.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.0" },
-    { name = "textual", specifier = ">=0.62.0" },
-    { name = "typer", specifier = ">=0.12.0" },
+    { name = "textual", marker = "extra == 'tui'", specifier = ">=0.62.0" },
+    { name = "typer", marker = "extra == 'cli'", specifier = ">=0.12.0" },
 ]
-provides-extras = ["dev", "docs"]
+provides-extras = ["sdk", "tui", "cli", "demo", "all", "dev", "docs"]
 
 [package.metadata.requires-dev]
 dev = [

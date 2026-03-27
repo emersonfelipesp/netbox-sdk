@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import pytest
 
+pytestmark = pytest.mark.suite_sdk
 def test_sdk_top_level_imports() -> None:
-    from sdk import (  # noqa: F401
+    from netbox_sdk import (  # noqa: F401
         ACTION_METHOD_MAP,
         DEFAULT_PROFILE,
         DEMO_BASE_URL,
@@ -46,7 +48,7 @@ def test_sdk_top_level_imports() -> None:
 
 
 def test_sdk_standalone_client_construction() -> None:
-    from sdk import Config, NetBoxApiClient
+    from netbox_sdk import Config, NetBoxApiClient
 
     cfg = Config(
         base_url="https://netbox.example.com",
@@ -61,7 +63,7 @@ def test_sdk_standalone_client_construction() -> None:
 
 
 def test_sdk_standalone_client_no_callback_by_default() -> None:
-    from sdk import Config, NetBoxApiClient
+    from netbox_sdk import Config, NetBoxApiClient
 
     cfg = Config(base_url="https://netbox.example.com", token_version="v1", token_secret="tok")
     client = NetBoxApiClient(cfg)
@@ -69,7 +71,7 @@ def test_sdk_standalone_client_no_callback_by_default() -> None:
 
 
 def test_sdk_standalone_client_with_callback() -> None:
-    from sdk import Config, NetBoxApiClient
+    from netbox_sdk import Config, NetBoxApiClient
 
     def my_refresh(config: Config) -> tuple[str | None, Config]:
         return "Token newtoken", config
@@ -80,7 +82,7 @@ def test_sdk_standalone_client_with_callback() -> None:
 
 
 def test_sdk_schema_index() -> None:
-    from sdk import build_schema_index
+    from netbox_sdk import build_schema_index
 
     idx = build_schema_index()
     groups = idx.groups()
@@ -92,7 +94,7 @@ def test_sdk_schema_index() -> None:
 
 
 def test_sdk_config_auth_header() -> None:
-    from sdk import Config, authorization_header_value
+    from netbox_sdk import Config, authorization_header_value
 
     cfg_v1 = Config(base_url="https://nb.example.com", token_version="v1", token_secret="mytoken")
     assert authorization_header_value(cfg_v1) == "Token mytoken"
@@ -107,7 +109,7 @@ def test_sdk_config_auth_header() -> None:
 
 
 def test_sdk_resolve_dynamic_request() -> None:
-    from sdk import build_schema_index, resolve_dynamic_request
+    from netbox_sdk import build_schema_index, resolve_dynamic_request
 
     idx = build_schema_index()
     req = resolve_dynamic_request(

@@ -1,14 +1,18 @@
 from __future__ import annotations
 
-from netbox_cli.cli import runtime
-from netbox_cli.ui.dev_state import (
+import pytest
+
+from netbox_cli import runtime
+from netbox_tui.dev_state import (
     DevTuiState,
     DevViewState,
     dev_tui_state_path,
     load_dev_tui_state,
     save_dev_tui_state,
 )
-from netbox_cli.ui.state import TuiState, ViewState, load_tui_state, save_tui_state, tui_state_path
+from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state, tui_state_path
+
+pytestmark = pytest.mark.suite_cli
 
 
 def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> None:

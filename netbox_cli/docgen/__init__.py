@@ -9,8 +9,8 @@ Architecture (SOLID):
 Public facade lives in ``netbox_cli.docgen_capture`` (backward compat).
 """
 
-from .engine import CaptureEngine as CaptureEngine
-from .format import convert_json_to_variants as convert_json_to_variants
-from .models import CaptureArtifact as CaptureArtifact
-from .models import CaptureResult as CaptureResult
-from .models import CaptureSpec as CaptureSpec
+from netbox_cli.docgen.engine import CaptureEngine as CaptureEngine
+from netbox_cli.docgen.format import convert_json_to_variants as convert_json_to_variants
+from netbox_cli.docgen.models import CaptureArtifact as CaptureArtifact
+from netbox_cli.docgen.models import CaptureResult as CaptureResult
+from netbox_cli.docgen.models import CaptureSpec as CaptureSpec

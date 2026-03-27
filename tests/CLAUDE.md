@@ -1,13 +1,26 @@
 # tests — Test Suite
 
-pytest + pytest-asyncio. All tests live here; there are no inline tests in the source package.
+pytest + pytest-asyncio. All tests live here; there are no inline tests in the source packages.
 
-**Run all tests:**
+**Canonical commands:**
 ```bash
-pytest
+uv run pytest                 # full suite
+uv run pytest -m suite_sdk    # netbox_sdk-owned tests
+uv run pytest -m suite_cli    # netbox_cli-owned tests
+uv run pytest -m suite_tui    # netbox_tui-owned tests
 ```
 
 **Async mode:** `asyncio_mode = "auto"` (set in `pyproject.toml`) — every `async def test_*` runs automatically under an event loop without needing `@pytest.mark.asyncio`.
+
+## Suite Ownership
+
+Each test module is marked with exactly one package ownership marker:
+
+- `suite_sdk` — tests whose primary contract is the standalone `netbox_sdk` package
+- `suite_cli` — tests whose primary contract is the optional `netbox_cli` package
+- `suite_tui` — tests whose primary contract is the optional `netbox_tui` package
+
+The default `pytest` invocation still means “test everything”. Marker runs are for package-scoped validation and CI routing.
 
 ---
 
@@ -40,6 +53,17 @@ pytest
 | `test_services.py` | Request resolution from (group, resource, action, id) tuples, key-value arg parsing |
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
+
+---
+
+## CI Behavior
+
+- Branch and pull request CI routes to the affected package suites based on changed files.
+- Shared files such as `pyproject.toml`, `uv.lock`, `tests/conftest.py`, and test workflow definitions trigger the full suite instead of package-selective runs.
+- Direct pushes to `main` always run the full `uv run pytest` matrix.
+- Release validation always runs the full `uv run pytest` matrix before publish.
+
+When you add a new test module, assign it to one owning package and add the matching `pytestmark = pytest.mark.suite_*` at module scope.
 
 ---
 

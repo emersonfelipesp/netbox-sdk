@@ -5,8 +5,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.suite_tui
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PACKAGE_ROOT = PROJECT_ROOT / "netbox_cli"
+PACKAGE_ROOT = PROJECT_ROOT / "netbox_tui"
 
 # Quoted hex literals in Python code indicate hardcoded runtime colors.
 _PY_HEX_LITERAL = re.compile(r"""["']#[0-9A-Fa-f]{3,8}["']""")
@@ -24,6 +28,7 @@ _RUNTIME_TCSS_ENTRYPOINTS = (
     PACKAGE_ROOT / "ui_common.tcss",
     PACKAGE_ROOT / "tui.tcss",
     PACKAGE_ROOT / "dev_tui.tcss",
+    PACKAGE_ROOT / "django_model_tui.tcss",
     PACKAGE_ROOT / "logs_tui.tcss",
 )
 _ALLOWED_THEME_TOKENS = {

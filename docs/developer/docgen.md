@@ -8,7 +8,7 @@
 
 ```bash
 cd /path/to/netbox-cli
-uv sync --dev --group docs
+uv sync --group docs --group dev --extra cli --extra tui --extra demo
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 
 # Default: live-API specs hit demo.netbox.dev

@@ -55,7 +55,7 @@ class ObjectAttributesPanel(Vertical):
 
 ## Standard Building Blocks
 
-Current shared composition primitives live in `netbox_cli/ui/widgets.py`:
+Current shared composition primitives live in `netbox_tui/widgets.py`:
 
 | Primitive | Role |
 |-----------|------|
@@ -187,6 +187,6 @@ For new Textual work in `netbox-cli`:
 
 1. Start with composition.
 2. Pass theme/styling intent as semantic props on reusable widgets.
-3. Extract reusable visual primitives into `netbox_cli/ui/widgets.py`.
+3. Extract reusable visual primitives into `netbox_tui/widgets.py`.
 4. Document new primitives in contributor docs if they become project-standard.
 5. Only add inheritance when the widget is truly a behavior-specialized primitive.

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from netbox_cli.api import ApiResponse
-from netbox_cli.schema import build_schema_index
-from netbox_cli.ui.navigation import build_navigation_menus
-from netbox_cli.ui.plugin_discovery import discover_plugin_resource_paths
+from netbox_sdk.client import ApiResponse
+from netbox_sdk.schema import build_schema_index
+from netbox_tui.navigation import build_navigation_menus
+from netbox_tui.plugin_discovery import discover_plugin_resource_paths
 from tests.conftest import OPENAPI_PATH
+
+pytestmark = pytest.mark.suite_sdk
 
 
 @pytest.mark.asyncio

@@ -1,13 +1,13 @@
 # Schema Indexing
 
-The SDK ships a bundled copy of the NetBox OpenAPI schema at `sdk/reference/openapi/netbox-openapi.json`. `SchemaIndex` parses it once and exposes fast query helpers for groups, resources, paths, and filter parameters.
+The SDK ships a bundled copy of the NetBox OpenAPI schema at `netbox_sdk/reference/openapi/netbox-openapi.json`. `SchemaIndex` parses it once and exposes fast query helpers for groups, resources, paths, and filter parameters.
 
 ---
 
 ## Building the index
 
 ```python
-from sdk import build_schema_index
+from netbox_sdk import build_schema_index
 
 # Uses the bundled schema (default)
 idx = build_schema_index()
@@ -137,7 +137,7 @@ Returns `True` if the index changed, `False` if already registered identically.
 ### Live discovery
 
 ```python
-from sdk.plugin_discovery import discover_plugin_resource_paths
+from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
 
 paths = await discover_plugin_resource_paths(client)
 # [("/api/plugins/gpon/olts/", "/api/plugins/gpon/olts/{id}/"), ...]
@@ -168,7 +168,7 @@ idx.remove_group_resources("plugins")  # removes all plugin entries from the ind
 Load a schema from a file you control:
 
 ```python
-from sdk.schema import load_openapi_schema, SchemaIndex
+from netbox_sdk.schema import load_openapi_schema, SchemaIndex
 
 raw = load_openapi_schema(Path("/path/to/schema.json"))   # JSON
 raw = load_openapi_schema(Path("/path/to/schema.yaml"))   # YAML (requires pyyaml)

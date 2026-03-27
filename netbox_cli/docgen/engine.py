@@ -29,7 +29,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import TextIO
 
-from .models import (
+from netbox_cli.docgen.models import (
     DEFAULT_MAX_CONCURRENCY,
     CaptureArtifact,
     CaptureResult,
@@ -51,19 +51,19 @@ def _worker_capture(
     Returns a plain dict (not ``CaptureResult``) so that results are
     picklable across process boundaries.
     """
-    from netbox_cli import cli as cli_mod
-    from netbox_cli.cli import runtime as _rt
-    from netbox_cli.config import (
+    import netbox_cli as cli_mod
+    from netbox_cli import runtime as _rt
+    from netbox_cli.docgen.format import convert_json_to_variants
+    from netbox_cli.docgen.models import (
+        inject_format_flag,
+        supports_format_variants,
+    )
+    from netbox_sdk.config import (
         DEMO_BASE_URL,
         Config,
         is_runtime_config_complete,
         load_profile_config,
         normalize_base_url,
-    )
-    from netbox_cli.docgen.format import convert_json_to_variants
-    from netbox_cli.docgen.models import (
-        inject_format_flag,
-        supports_format_variants,
     )
 
     existing = load_profile_config(profile)
@@ -234,8 +234,8 @@ class CaptureEngine:
         profile: str,
     ) -> list[CaptureResult]:
         from netbox_cli import cli as cli_mod  # noqa: PLC0415
-        from netbox_cli.cli import runtime as _rt  # noqa: PLC0415
-        from netbox_cli.config import (  # noqa: PLC0415
+        from netbox_cli import runtime as _rt  # noqa: PLC0415
+        from netbox_sdk.config import (  # noqa: PLC0415
             DEMO_BASE_URL,
             Config,
             is_runtime_config_complete,
@@ -277,9 +277,12 @@ class CaptureEngine:
         *,
         profile: str,
     ) -> CaptureResult:
-        from ..docgen_capture import argv_with_markdown_output  # noqa: PLC0415
-        from .format import convert_json_to_variants  # noqa: PLC0415
-        from .models import inject_format_flag, supports_format_variants  # noqa: PLC0415
+        from netbox_cli.docgen.format import convert_json_to_variants  # noqa: PLC0415
+        from netbox_cli.docgen.models import (  # noqa: PLC0415
+            inject_format_flag,
+            supports_format_variants,
+        )
+        from netbox_cli.docgen_capture import argv_with_markdown_output  # noqa: PLC0415
 
         argv_base = list(spec.argv)
         argv = argv_with_markdown_output(spec.argv, enabled=self._markdown_output)
@@ -382,7 +385,7 @@ class CaptureEngine:
     @staticmethod
     def _ensure_config_on_disk(profile: str) -> None:
         """Ensure the profile config exists on disk so child processes can load it."""
-        from netbox_cli.config import (  # noqa: PLC0415
+        from netbox_sdk.config import (  # noqa: PLC0415
             DEMO_BASE_URL,
             Config,
             is_runtime_config_complete,

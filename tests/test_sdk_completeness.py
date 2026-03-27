@@ -14,8 +14,10 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.suite_sdk
+
 # All imports from sdk directly — no netbox_cli dependency
-from sdk import (
+from netbox_sdk import (
     ApiResponse,
     Config,
     ConnectionProbe,
@@ -24,7 +26,7 @@ from sdk import (
     build_cache_key,
     build_schema_index,
 )
-from sdk.config import (
+from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_BASE_URL,
     DEMO_PROFILE,
@@ -36,16 +38,16 @@ from sdk.config import (
     resolved_token,
     save_profile_config,
 )
-from sdk.http_cache import CacheEntry, CachePolicy, HttpCacheStore
-from sdk.plugin_discovery import (
+from netbox_sdk.http_cache import CacheEntry, CachePolicy, HttpCacheStore
+from netbox_sdk.plugin_discovery import (
     _extract_child_api_paths,
     _is_collection_payload,
     _normalize_api_path,
     _plugin_detail_path,
     discover_plugin_resource_paths,
 )
-from sdk.schema import FilterParam
-from sdk.services import (
+from netbox_sdk.schema import FilterParam
+from netbox_sdk.services import (
     ACTION_METHOD_MAP,
     load_json_payload,
     resolve_dynamic_request,
@@ -769,7 +771,7 @@ def test_schema_remove_nonexistent_group_returns_false() -> None:
 
 def test_schema_bundled_data_path_resolves() -> None:
     """Verify the SDK's bundled schema file exists at the correct location."""
-    from sdk.schema import load_openapi_schema
+    from netbox_sdk.schema import load_openapi_schema
 
     schema = load_openapi_schema()  # uses Path(__file__).parent — must resolve inside sdk/
     assert isinstance(schema, dict)
@@ -1089,13 +1091,13 @@ def test_sdk_modules_do_not_import_netbox_cli() -> None:
     import importlib
 
     sdk_modules = [
-        "sdk",
-        "sdk.config",
-        "sdk.client",
-        "sdk.http_cache",
-        "sdk.schema",
-        "sdk.services",
-        "sdk.plugin_discovery",
+        "netbox_sdk",
+        "netbox_sdk.config",
+        "netbox_sdk.client",
+        "netbox_sdk.http_cache",
+        "netbox_sdk.schema",
+        "netbox_sdk.services",
+        "netbox_sdk.plugin_discovery",
     ]
     for mod_name in sdk_modules:
         mod = importlib.import_module(mod_name)
@@ -1109,33 +1111,33 @@ def test_sdk_modules_do_not_import_netbox_cli() -> None:
 
 
 def test_sdk_all_symbols_are_importable_directly() -> None:
-    """Every symbol listed in sdk.__all__ must be importable from sdk directly."""
-    import sdk
+    """Every symbol listed in netbox_sdk.__all__ must be importable from sdk directly."""
+    import netbox_sdk
 
-    for name in sdk.__all__:
-        assert hasattr(sdk, name), f"sdk.{name} listed in __all__ but not accessible"
+    for name in netbox_sdk.__all__:
+        assert hasattr(netbox_sdk, name), f"netbox_sdk.{name} listed in __all__ but not accessible"
 
 
 def test_sdk_version_defined() -> None:
-    import sdk
+    import netbox_sdk
 
-    assert sdk.__version__
-    assert isinstance(sdk.__version__, str)
+    assert netbox_sdk.__version__
+    assert isinstance(netbox_sdk.__version__, str)
 
 
 def test_sdk_py_typed_marker_present() -> None:
     """PEP 561 marker file must exist for type checkers."""
-    import sdk
+    import netbox_sdk
 
-    sdk_dir = Path(sdk.__file__).parent  # type: ignore[arg-type]
+    sdk_dir = Path(netbox_sdk.__file__).parent  # type: ignore[arg-type]
     assert (sdk_dir / "py.typed").exists()
 
 
 def test_sdk_bundled_openapi_schema_present() -> None:
     """Bundled OpenAPI schema must ship inside the sdk package."""
-    import sdk
+    import netbox_sdk
 
-    sdk_dir = Path(sdk.__file__).parent  # type: ignore[arg-type]
+    sdk_dir = Path(netbox_sdk.__file__).parent  # type: ignore[arg-type]
     schema_path = sdk_dir / "reference" / "openapi" / "netbox-openapi.json"
     assert schema_path.exists(), f"Missing bundled schema at {schema_path}"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))

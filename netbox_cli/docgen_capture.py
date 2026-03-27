@@ -27,15 +27,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TextIO
 
-from .docgen.engine import CaptureEngine
-from .docgen.models import (
+from netbox_cli.docgen.engine import CaptureEngine
+from netbox_cli.docgen.models import (
     DEFAULT_MAX_CONCURRENCY,
     CaptureResult,
 )
-from .docgen.specs import load_specs
+from netbox_cli.docgen.specs import load_specs
 
 # Re-exported for tests that import from this module.
-from .docgen_specs import CaptureSpec as CaptureSpec  # noqa: F401
+from netbox_cli.docgen_specs import CaptureSpec as CaptureSpec  # noqa: F401
 
 # OpenAPI dynamic actions that render via ``print_response`` (tabular / Markdown-friendly).
 _MARKDOWN_ACTIONS = frozenset({"list", "get", "create", "update", "patch", "delete"})
@@ -175,7 +175,7 @@ def _repo_root() -> Path:
 
 
 def _build_meta(use_demo: bool, markdown_output: bool) -> dict:
-    from .config import DEMO_BASE_URL, load_profile_config  # noqa: PLC0415
+    from netbox_sdk.config import DEMO_BASE_URL, load_profile_config  # noqa: PLC0415
 
     profile = "demo" if use_demo else "default"
     cfg = load_profile_config(profile)

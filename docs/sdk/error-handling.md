@@ -22,7 +22,7 @@ elif response.status == 200:
 `RequestError` is raised only by `get_version()`:
 
 ```python
-from sdk import RequestError
+from netbox_sdk import RequestError
 
 try:
     version = await client.get_version()
@@ -87,7 +87,7 @@ If a stale cache entry exists for the failed request, `request()` returns the st
 The default timeout is 30 seconds. Adjust per connection:
 
 ```python
-from sdk import Config
+from netbox_sdk import Config
 
 cfg = Config(
     base_url="https://netbox.example.com",
@@ -104,7 +104,7 @@ cfg = Config(
 Check completeness before making calls:
 
 ```python
-from sdk.config import is_runtime_config_complete
+from netbox_sdk.config import is_runtime_config_complete
 
 cfg = Config(base_url="https://nb.example.com", token_version="v2", token_secret="s")
 if not is_runtime_config_complete(cfg):
@@ -121,7 +121,7 @@ if not is_runtime_config_complete(cfg):
 ## Schema resolution errors
 
 ```python
-from sdk.services import resolve_dynamic_request
+from netbox_sdk.services import resolve_dynamic_request
 
 try:
     req = resolve_dynamic_request(idx, "dcim", "typo", "list", ...)

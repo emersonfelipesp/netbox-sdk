@@ -8,7 +8,7 @@ import stat
 
 import pytest
 
-from netbox_cli.config import (
+from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_BASE_URL,
     DEMO_PROFILE,
@@ -19,6 +19,8 @@ from netbox_cli.config import (
     normalize_base_url,
     save_profile_config,
 )
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def test_load_profile_config_reads_legacy_default(tmp_path, monkeypatch) -> None:

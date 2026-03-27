@@ -11,7 +11,7 @@ NetBox supports two token formats. The SDK handles both transparently.
     NetBox 4.x issues v2 tokens in two parts: a **key** prefix and a **secret** suffix, combined as `nbt_<key>.<secret>`.
 
     ```python
-    from sdk import Config
+    from netbox_sdk import Config
 
     cfg = Config(
         base_url="https://netbox.example.com",
@@ -54,7 +54,7 @@ If your configuration specifies v2 but the NetBox instance rejects the Bearer to
 ## Auth header helpers
 
 ```python
-from sdk.config import authorization_header_value, resolved_token
+from netbox_sdk.config import authorization_header_value, resolved_token
 
 cfg = Config(base_url="...", token_version="v2", token_key="k", token_secret="s")
 
@@ -69,7 +69,7 @@ authorization_header_value(cfg)  # "Bearer nbt_k.s"
 The SDK stores named connection profiles at `~/.config/netbox-cli/config.json` (or `$XDG_CONFIG_HOME/netbox-cli/config.json`).
 
 ```python
-from sdk.config import (
+from netbox_sdk.config import (
     load_profile_config,
     save_profile_config,
     clear_profile_config,
@@ -117,7 +117,7 @@ python your_script.py
 ```
 
 ```python
-from sdk.config import load_config
+from netbox_sdk.config import load_config
 
 cfg = load_config()   # picks up the environment variables
 ```
@@ -127,7 +127,7 @@ cfg = load_config()   # picks up the environment variables
 ## Validating configuration
 
 ```python
-from sdk.config import is_runtime_config_complete
+from netbox_sdk.config import is_runtime_config_complete
 
 if not is_runtime_config_complete(cfg):
     print("Missing base_url or token credentials")
@@ -148,7 +148,7 @@ The `base_url` field is normalized on assignment:
 - Rejects query strings and fragments
 
 ```python
-from sdk.config import normalize_base_url
+from netbox_sdk.config import normalize_base_url
 
 normalize_base_url("netbox.example.com")         # "https://netbox.example.com"
 normalize_base_url("http://netbox.example.com/") # "http://netbox.example.com"

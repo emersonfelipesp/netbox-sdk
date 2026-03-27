@@ -7,7 +7,7 @@ All NetBox API calls go through `NetBoxApiClient.request()`. The client is async
 ## Basic usage
 
 ```python
-from sdk import Config, NetBoxApiClient
+from netbox_sdk import Config, NetBoxApiClient
 
 cfg = Config(base_url="https://netbox.example.com", token_version="v1", token_secret="mytoken")
 client = NetBoxApiClient(cfg)
@@ -175,7 +175,7 @@ response = await client.graphql(query, variables={"id": 42})
 Before making API calls, verify connectivity:
 
 ```python
-from sdk import ConnectionProbe
+from netbox_sdk import ConnectionProbe
 
 probe = await client.probe_connection()
 
@@ -203,8 +203,8 @@ GET requests to `/api/...` paths are automatically cached to disk (`~/.config/ne
 Tune the cache policy:
 
 ```python
-from sdk.http_cache import CachePolicy, HttpCacheStore
-from sdk.config import cache_dir
+from netbox_sdk.http_cache import CachePolicy, HttpCacheStore
+from netbox_sdk.config import cache_dir
 
 # Default: 60s fresh, 300s stale-if-error for list endpoints
 store = HttpCacheStore(cache_dir())
@@ -216,11 +216,11 @@ POST/PUT/PATCH/DELETE requests are **never cached**.
 
 ## Schema-driven requests
 
-Use `sdk.services` to resolve action names to HTTP calls:
+Use `netbox_sdk.services` to resolve action names to HTTP calls:
 
 ```python
-from sdk import build_schema_index
-from sdk.services import resolve_dynamic_request, run_dynamic_command
+from netbox_sdk import build_schema_index
+from netbox_sdk.services import resolve_dynamic_request, run_dynamic_command
 
 idx = build_schema_index()
 

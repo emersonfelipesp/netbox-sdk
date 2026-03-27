@@ -7,11 +7,14 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import click
+import pytest
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.api import ApiResponse
-from netbox_cli.config import DEMO_BASE_URL, Config
+from netbox_sdk.client import ApiResponse
+from netbox_sdk.config import DEMO_BASE_URL, Config
+
+pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
 

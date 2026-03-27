@@ -348,7 +348,7 @@ Port the *workflow intent*, not HTML mechanics.
 
 Immediate recommendations:
 
-- Introduce `netbox_cli/ui/` package with panel and screen abstractions (mirroring NetBox's `ui/` layering)
+- Introduce `netbox_tui/` package with panel and screen abstractions (mirroring NetBox's `ui/` layering)
 - Add a local state module for list/detail view state persistence
 - Standardize response -> table/attr transformation utilities to keep CLI/TUI formatting consistent
 - Keep one API contract path and avoid branching logic between CLI and TUI
