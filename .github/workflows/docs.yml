@@ -42,6 +42,7 @@ jobs:
             echo "Demo secrets not configured — skipping docgen."
             exit 0
           fi
+          uv run playwright install chromium --with-deps
           uv run nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
           uv run nbx docs generate-capture
 

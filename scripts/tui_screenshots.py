@@ -98,7 +98,7 @@ def get_mock_executor() -> Any:
 
 def create_django_store() -> Any:
     """Create a mock DjangoModelStore for Django TUI."""
-    from netbox_cli.django_models.store import DjangoModelStore
+    from netbox_sdk.django_models.store import DjangoModelStore
 
     # Create a minimal cache file for testing
     cache_data = {
