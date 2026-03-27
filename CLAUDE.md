@@ -190,6 +190,65 @@ For trivial requests, use the compact version of the same workflow rather than s
   - Use `layout: stream` + `align: left bottom` for any feed, log, or event list view.
   - Spacing rhythm: block content margins follow `1 1 1 0` (top right bottom left).
 
+## Release Process
+
+Follow these steps whenever a new release (e.g. `vX.Y.Z`) is needed:
+
+### Pre-flight checks
+1. Confirm all CI workflows are green on `main` before tagging:
+   ```bash
+   gh run list --branch main --limit 5
+   ```
+2. Ensure you are on the latest `main`:
+   ```bash
+   git checkout main && git pull origin main
+   ```
+
+### Version bump
+3. Update `version = "X.Y.Z"` in `pyproject.toml`.
+4. Commit the bump:
+   ```bash
+   git add pyproject.toml
+   git commit -m "release: bump version to vX.Y.Z"
+   ```
+
+### Tag and push
+5. Create an annotated tag:
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   ```
+6. Push commit and tag together:
+   ```bash
+   git push origin main --tags
+   ```
+
+### GitHub Release
+7. Generate a changelog since the previous tag:
+   ```bash
+   git log vPREV..vX.Y.Z --oneline --no-merges
+   ```
+8. Create the GitHub release with a detailed description:
+   ```bash
+   gh release create vX.Y.Z \
+     --title "vX.Y.Z" \
+     --notes "$(cat <<'EOF'
+   ## What's New in vX.Y.Z
+
+   ### <Category>
+   - <change>
+
+   EOF
+   )"
+   ```
+
+### Release notes guidelines
+- Group commits into categories: **Features**, **Bug Fixes**, **Documentation**, **CI/Build**.
+- For each feature, write one sentence describing user-visible impact, not the internal implementation.
+- Reference any new CLI flags, commands, or packages introduced.
+- Check CI is green on the release tag after pushing (GitHub Actions re-runs on tag push).
+
+---
+
 ## Theme System
 - TUI themes are JSON files loaded dynamically from `./netbox_cli/themes/`.
 - Built-in themes live as:
