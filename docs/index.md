@@ -4,11 +4,11 @@ hide:
   - toc
 ---
 
-# NetBox CLI
+# NetBox SDK
 
 **API-first NetBox client for your terminal: CLI, TUI, and reusable SDK.**
 
-`netbox-cli` is built as three sibling packages:
+`netbox-sdk` is built as three sibling packages:
 
 - `netbox_sdk` — standalone NetBox REST SDK
 - `netbox_cli` — Typer-powered CLI

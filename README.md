@@ -1,6 +1,6 @@
 # NetBox CLI and TUI
 
-`netbox-cli` is a terminal client for NetBox with two interfaces built on one core runtime:
+`netbox-sdk` is a terminal client and SDK for NetBox with two interfaces built on one core runtime:
 
 - `netbox_cli` — Typer command-line interface
 - `netbox_tui` — Textual terminal applications
@@ -66,8 +66,8 @@ uv tool install --force 'netbox-sdk[cli]'
 Developer checkout:
 
 ```bash
-git clone https://github.com/emersonfelipesp/netbox-cli.git
-cd netbox-cli
+git clone https://github.com/emersonfelipesp/netbox-sdk.git
+cd netbox-sdk
 uv sync --dev --extra cli --extra tui --extra demo
 uv run nbx --help
 ```

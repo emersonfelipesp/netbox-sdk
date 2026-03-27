@@ -1,6 +1,6 @@
 # Installation
 
-`netbox-cli` requires Python 3.11 or newer.
+`netbox-sdk` requires Python 3.11 or newer.
 
 ## From PyPI
 
@@ -38,8 +38,8 @@ nbx --help
 ## From source
 
 ```bash
-git clone https://github.com/emersonfelipesp/netbox-cli.git
-cd netbox-cli
+git clone https://github.com/emersonfelipesp/netbox-sdk.git
+cd netbox-sdk
 uv sync --dev --extra cli --extra tui --extra demo
 uv run nbx --help
 ```

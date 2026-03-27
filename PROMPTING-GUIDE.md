@@ -313,7 +313,7 @@ Better:
 
 ---
 
-## Project-Specific Usage For netbox-cli
+## Project-Specific Usage For netbox-sdk
 
 This project should use metaprompting as an internal workflow, especially for:
 
@@ -325,7 +325,7 @@ This project should use metaprompting as an internal workflow, especially for:
 - debugging and regression fixing
 - documentation changes that affect contributor workflow
 
-For `netbox-cli`, a strong internal prompt usually includes:
+For `netbox-sdk`, a strong internal prompt usually includes:
 
 - role: senior Python engineer, principal NetDevOps architect, or Textual UI specialist
 - context: NetBox API-first CLI/TUI project
