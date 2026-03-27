@@ -328,8 +328,10 @@ def load_openapi_schema(
     version: SupportedNetBoxVersion | None = None,
 ) -> dict[str, Any]:
     if openapi_path is None:
-        openapi_path = bundled_openapi_path(version or "4.5") if version else (
-            Path(__file__).resolve().parent / "reference" / "openapi" / "netbox-openapi.json"
+        openapi_path = (
+            bundled_openapi_path(version or "4.5")
+            if version
+            else (Path(__file__).resolve().parent / "reference" / "openapi" / "netbox-openapi.json")
         )
     text = openapi_path.read_text(encoding="utf-8")
     if openapi_path.suffix.lower() in {".yaml", ".yml"}:

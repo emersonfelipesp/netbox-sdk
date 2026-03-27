@@ -26,9 +26,7 @@ def isolate_django_model_state():
     mock_state.theme_name = "netbox-dark"
 
     with (
-        patch(
-            "netbox_tui.django_model_app.load_django_model_tui_state", return_value=mock_state
-        ),
+        patch("netbox_tui.django_model_app.load_django_model_tui_state", return_value=mock_state),
         patch("netbox_tui.django_model_app.save_django_model_tui_state"),
     ):
         yield

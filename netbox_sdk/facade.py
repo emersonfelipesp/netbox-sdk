@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-from contextlib import contextmanager
 from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
@@ -56,7 +56,7 @@ def api(
     strict_filters: bool = False,
     client: NetBoxApiClient | None = None,
     schema: SchemaIndex | None = None,
-) -> "Api":
+) -> Api:
     if client is None:
         token_version = "v2" if _is_v2_token(token) else "v1"
         token_key = None
@@ -103,19 +103,19 @@ class Api:
     async def version(self) -> str:
         return await self.get_version()
 
-    async def create_token(self, username: str, password: str) -> "Record":
+    async def create_token(self, username: str, password: str) -> Record:
         response = await self.client.create_token(username, password)
         _raise_for_status(response)
         payload = _decode_json(response)
         return Record(self, None, payload, has_details=True)
 
     @contextmanager
-    def activate_branch(self, branch: Any) -> Iterator["Api"]:
+    def activate_branch(self, branch: Any) -> Iterator[Api]:
         schema_id = getattr(branch, "schema_id", None) or getattr(branch, "id", None) or str(branch)
         with self.client.header_scope(**{"X-NetBox-Branch": str(schema_id)}):
             yield self
 
-    def endpoint_for(self, group: str, resource: str) -> "Endpoint":
+    def endpoint_for(self, group: str, resource: str) -> Endpoint:
         if group == "plugins":
             plugin_name, _, plugin_resource = resource.partition("/")
             if not plugin_name or not plugin_resource:
@@ -124,7 +124,7 @@ class Api:
             return Endpoint(self, app, plugin_resource)
         return Endpoint(self, getattr(self, group), resource)
 
-    def endpoint_for_path(self, path: str) -> "Endpoint | None":
+    def endpoint_for_path(self, path: str) -> Endpoint | None:
         group, resource = parse_group_resource(path)
         if group is None or resource is None:
             return None
@@ -136,7 +136,7 @@ class App:
         self.api = api
         self.name = name
 
-    def __getattr__(self, name: str) -> "Endpoint":
+    def __getattr__(self, name: str) -> Endpoint:
         return Endpoint(self.api, self, name)
 
     async def config(self) -> dict[str, Any]:
@@ -207,7 +207,9 @@ class Endpoint:
         self.name = name.replace("_", "-")
         self.group = "plugins" if str(app.name).startswith("plugins/") else str(app.name)
         self.resource = (
-            f"{str(app.name).split('/', 1)[1]}/{self.name}" if self.group == "plugins" else self.name
+            f"{str(app.name).split('/', 1)[1]}/{self.name}"
+            if self.group == "plugins"
+            else self.name
         )
 
     @property
@@ -228,12 +230,12 @@ class Endpoint:
             raise ValueError(f"Resource does not expose detail path: {self.group}/{self.resource}")
         return paths.detail_path
 
-    def all(self, limit: int = 0, offset: int | None = None) -> "RecordSet":
+    def all(self, limit: int = 0, offset: int | None = None) -> RecordSet:
         if limit == 0 and offset is not None:
             raise ValueError("offset requires a positive limit value")
         return RecordSet(self, query={}, limit=limit, offset=offset)
 
-    def filter(self, *args: str, **kwargs: Any) -> "RecordSet":
+    def filter(self, *args: str, **kwargs: Any) -> RecordSet:
         limit = int(kwargs.pop("limit")) if "limit" in kwargs else 0
         offset = int(kwargs.pop("offset")) if "offset" in kwargs else None
         strict_filters = kwargs.pop("strict_filters", self.api.strict_filters)
@@ -246,7 +248,7 @@ class Endpoint:
             self._validate_filters(query)
         return RecordSet(self, query=query, limit=limit, offset=offset)
 
-    async def get(self, *args: Any, **kwargs: Any) -> "Record | None":
+    async def get(self, *args: Any, **kwargs: Any) -> Record | None:
         key = args[0] if args else None
         if key is None:
             matches = await self.filter(**kwargs).to_list(limit_override=2)
@@ -258,7 +260,9 @@ class Endpoint:
                 )
             return matches[0]
 
-        response = await self.api.client.request("GET", self._detail_path_template.replace("{id}", str(key)))
+        response = await self.api.client.request(
+            "GET", self._detail_path_template.replace("{id}", str(key))
+        )
         if response.status == 404:
             return None
         _raise_for_status(response)
@@ -273,7 +277,9 @@ class Endpoint:
         return self._wrap_result(decoded, has_details=True)
 
     async def update(self, objects: list[Any]) -> Any:
-        response = await self.api.client.request("PATCH", self._list_path, payload=_normalize_bulk_objects(objects))
+        response = await self.api.client.request(
+            "PATCH", self._list_path, payload=_normalize_bulk_objects(objects)
+        )
         _raise_for_status(response)
         decoded = _decode_json(response)
         return self._wrap_result(decoded, has_details=True)
@@ -307,23 +313,29 @@ class Endpoint:
         allowed = {param.name for param in self.api.schema.filter_params(self.group, self.resource)}
         invalid = sorted(key for key in query if key not in allowed)
         if invalid:
-            errors = [f"'{key}' is not allowed as parameter on path '{self._list_path}'." for key in invalid]
+            errors = [
+                f"'{key}' is not allowed as parameter on path '{self._list_path}'."
+                for key in invalid
+            ]
             raise ParameterValidationError(errors)
 
-    def detail_endpoint(self, spec: DetailEndpointSpec) -> "DetailEndpoint":
+    def detail_endpoint(self, spec: DetailEndpointSpec) -> DetailEndpoint:
         if spec.multi_format:
             return ROMultiFormatDetailEndpoint(self.api, self, spec.name)
         if spec.read_only:
             return RODetailEndpoint(self.api, self, spec.name)
         return DetailEndpoint(self.api, self, spec.name)
 
-    def _make_record(self, payload: dict[str, Any], *, has_details: bool) -> "Record":
+    def _make_record(self, payload: dict[str, Any], *, has_details: bool) -> Record:
         record_type = RECORD_TYPES.get((self.group, self.resource), Record)
         return record_type(self.api, self, payload, has_details=has_details)
 
     def _wrap_result(self, payload: Any, *, has_details: bool) -> Any:
         if isinstance(payload, list):
-            return [self._make_record(item, has_details=has_details) if isinstance(item, dict) else item for item in payload]
+            return [
+                self._make_record(item, has_details=has_details) if isinstance(item, dict) else item
+                for item in payload
+            ]
         if isinstance(payload, dict):
             return self._make_record(payload, has_details=has_details)
         return payload
@@ -335,13 +347,13 @@ class DetailEndpoint:
         self.endpoint = endpoint
         self.name = name
 
-    def _path(self, record: "Record") -> str:
+    def _path(self, record: Record) -> str:
         record_id = getattr(record, "id", None)
         if record_id is None:
             raise ValueError("Detail endpoints require a record with an id")
         return f"{self.endpoint._detail_path_template.replace('{id}', str(record_id)).rstrip('/')}/{self.name}/"
 
-    async def list(self, record: "Record", **query: Any) -> Any:
+    async def list(self, record: Record, **query: Any) -> Any:
         response = await self.api.client.request(
             "GET",
             self._path(record),
@@ -353,7 +365,7 @@ class DetailEndpoint:
             return response.text
         return _decode_json(response)
 
-    async def create(self, record: "Record", data: Any = None) -> Any:
+    async def create(self, record: Record, data: Any = None) -> Any:
         response = await self.api.client.request("POST", self._path(record), payload=data)
         _raise_for_status(response, detail_endpoint=True)
         return _decode_json(response)
@@ -363,7 +375,7 @@ class DetailEndpoint:
 
 
 class RODetailEndpoint(DetailEndpoint):
-    async def create(self, record: "Record", data: Any = None) -> Any:
+    async def create(self, record: Record, data: Any = None) -> Any:
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute 'create'")
 
 
@@ -396,10 +408,10 @@ class RecordSet:
         self._buffer: list[Record] = []
         self._started = False
 
-    def __aiter__(self) -> "RecordSet":
+    def __aiter__(self) -> RecordSet:
         return self
 
-    async def __anext__(self) -> "Record":
+    async def __anext__(self) -> Record:
         if self._buffer:
             return self._buffer.pop(0)
         if self._started and self._next_path is None:
@@ -437,7 +449,7 @@ class RecordSet:
             self._next_path = None
             self._next_query = {}
 
-    async def to_list(self, *, limit_override: int | None = None) -> list["Record"]:
+    async def to_list(self, *, limit_override: int | None = None) -> list[Record]:
         items: list[Record] = []
         async for item in self:
             items.append(item)
@@ -484,7 +496,9 @@ class Record:
         self, api: Api, endpoint: Endpoint | None, values: dict[str, Any], *, has_details: bool
     ) -> None:
         object.__setattr__(self, "api", api)
-        object.__setattr__(self, "endpoint", endpoint or api.endpoint_for_path(values.get("url", "")))
+        object.__setattr__(
+            self, "endpoint", endpoint or api.endpoint_for_path(values.get("url", ""))
+        )
         object.__setattr__(self, "_data", {})
         object.__setattr__(self, "_has_details", has_details)
         object.__setattr__(self, "_initial", {})
@@ -522,14 +536,16 @@ class Record:
         for key, value in data.items():
             setattr(self, key, value)
 
-    async def full_details(self) -> "Record":
+    async def full_details(self) -> Record:
         if self._has_details:
             return self
         url = self._data.get("url")
         if not isinstance(url, str) or not url:
             return self
         split = urlsplit(url)
-        response = await self.api.client.request("GET", split.path, query=dict(parse_qsl(split.query)) or None)
+        response = await self.api.client.request(
+            "GET", split.path, query=dict(parse_qsl(split.query)) or None
+        )
         _raise_for_status(response)
         payload = _decode_json(response)
         if not isinstance(payload, dict):
@@ -599,9 +615,7 @@ class TraceableRecord(Record):
         path = endpoint.api.schema.trace_path(endpoint.group, endpoint.resource)
         if path is None:
             raise AttributeError("trace")
-        response = await self.api.client.request(
-            "GET", path.replace("{id}", str(self._data["id"]))
-        )
+        response = await self.api.client.request("GET", path.replace("{id}", str(self._data["id"])))
         _raise_for_status(response, detail_endpoint=True)
         return _decode_json(response)
 
@@ -614,9 +628,7 @@ class PathableRecord(Record):
         path = endpoint.api.schema.paths_path(endpoint.group, endpoint.resource)
         if path is None:
             raise AttributeError("paths")
-        response = await self.api.client.request(
-            "GET", path.replace("{id}", str(self._data["id"]))
-        )
+        response = await self.api.client.request("GET", path.replace("{id}", str(self._data["id"])))
         _raise_for_status(response, detail_endpoint=True)
         return _decode_json(response)
 
@@ -718,7 +730,9 @@ def _coerce_nested(api: Api, endpoint: Endpoint | None, value: Any) -> Any:
         nested_endpoint = api.endpoint_for_path(value.get("url", "")) or endpoint
         record_type = Record
         if nested_endpoint is not None:
-            record_type = RECORD_TYPES.get((nested_endpoint.group, nested_endpoint.resource), Record)
+            record_type = RECORD_TYPES.get(
+                (nested_endpoint.group, nested_endpoint.resource), Record
+            )
         return record_type(api, nested_endpoint, value, has_details=bool(value.get("url")))
     if isinstance(value, list):
         return [_coerce_nested(api, endpoint, item) for item in value]
