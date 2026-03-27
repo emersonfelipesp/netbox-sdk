@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx logs --help
+    ```
+
     ```text
                                                                                     
      Usage: root logs [OPTIONS]                                                     

@@ -85,7 +85,7 @@ def resolve_capture_paths(
         if output is None or raw_dir is None:
             raise FileNotFoundError(
                 "Cannot infer default paths: no docs/ directory next to netbox_cli. "
-                "Run from the netbox-cli git checkout or pass --output and --raw-dir."
+                "Run from the netbox-sdk git checkout or pass --output and --raw-dir."
             )
         return output, raw_dir
     if output is None:
@@ -204,12 +204,12 @@ def _render_markdown_capture(
     )
 
     lines: list[str] = [
-        "# NetBox CLI \u2014 captured command input and output",
+        "# netbox-sdk \u2014 captured command input and output",
         "",
         "This file is **machine-generated**. Regenerate with:",
         "",
         "```bash",
-        "cd /path/to/netbox-cli",
+        "cd /path/to/netbox-sdk",
         "uv sync --group docs --group dev   # once",
         "uv run nbx docs generate-capture            # demo profile (default)",
         "uv run nbx docs generate-capture --live     # default profile (real NetBox)",

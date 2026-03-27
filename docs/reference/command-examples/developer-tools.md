@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dev --help
+    ```
+
     ```text
                                                                                     
      Usage: root dev [OPTIONS] COMMAND [ARGS]...                                    
@@ -33,6 +37,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev tui --help
+    ```
 
     ```text
                                                                                     
@@ -58,6 +66,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dev tui --theme
+    ```
+
     ```text
     Available themes:
     - dracula
@@ -81,6 +93,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev http --help
+    ```
 
     ```text
                                                                                     
@@ -106,6 +122,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dev http get --help
+    ```
+
     ```text
                                                                                     
      Usage: root dev http get [OPTIONS]                                             
@@ -129,6 +149,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev http post --help
+    ```
 
     ```text
                                                                                     
@@ -154,6 +178,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dev http put --help
+    ```
+
     ```text
                                                                                     
      Usage: root dev http put [OPTIONS]                                             
@@ -177,6 +205,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev http patch --help
+    ```
 
     ```text
                                                                                     
@@ -202,6 +234,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dev http delete --help
+    ```
+
     ```text
                                                                                     
      Usage: root dev http delete [OPTIONS]                                          
@@ -225,6 +261,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev http paths --help
+    ```
 
     ```text
                                                                                     
@@ -250,6 +290,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dev http ops --help
+    ```
+
     ```text
                                                                                     
      Usage: root dev http ops [OPTIONS]                                             
@@ -273,6 +317,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev http paths
+    ```
 
     ```text
                                       312 path(s)                                   
@@ -317,6 +365,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dev http ops --path /api/dcim/devices/
+    ```
 
     ```text
                 Operations: /api/dcim/devices/             

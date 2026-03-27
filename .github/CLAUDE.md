@@ -38,6 +38,8 @@ uv run mkdocs build --strict
 - `workflows/docs.yml`
   - builds docs with docs+dev groups plus CLI/TUI/demo extras
   - optionally regenerates captured docs when demo secrets are available
+  - deploys to the current repository's `gh-pages` branch via `mkdocs gh-deploy`
+  - must keep `mkdocs.yml` `site_url` and repo links aligned with `emersonfelipesp/netbox-sdk`
 - `workflows/main-post-merge.yml`
   - validates the published `netbox-sdk[cli]` install
   - then runs source-based full-suite pytest coverage with full extras

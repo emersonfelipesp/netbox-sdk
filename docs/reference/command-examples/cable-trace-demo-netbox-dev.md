@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo dcim interfaces get --id 1 --trace --markdown
+    ```
+
     ```text
     Status: 200
     | Field | Value |
@@ -74,6 +78,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo dcim interfaces get --id 1 --trace-only --markdown
+    ```
+
     ```text
     Cable Trace:
     ┌────────────────────────────────────┐
@@ -97,6 +105,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx demo circuits circuit-terminations get --id 15 --trace --markdown
+    ```
 
     ```text
     Status: 200
@@ -157,6 +169,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx demo circuits circuit-terminations get --id 15 --trace-only --markdown
+    ```
 
     ```text
     Cable Trace:

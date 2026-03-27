@@ -58,3 +58,13 @@ def test_repo_docs_branding_uses_netbox_sdk_urls() -> None:
     assert "github.io/netbox-cli" not in combined
     assert "emersonfelipesp.com/netbox-cli" not in combined
     assert "github.com/emersonfelipesp/netbox-sdk" in combined
+
+
+def test_docs_workflow_still_deploys_pages_for_netbox_sdk_repo() -> None:
+    workflow = _read(".github/workflows/docs.yml")
+    mkdocs = _read("mkdocs.yml")
+
+    assert 'branches:\n      - main' in workflow
+    assert "uv run mkdocs gh-deploy --force --clean --verbose" in workflow
+    assert "site_url: https://emersonfelipesp.github.io/netbox-sdk/" in mkdocs
+    assert "repo_url: https://github.com/emersonfelipesp/netbox-sdk" in mkdocs

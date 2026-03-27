@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo --help
+    ```
+
     ```text
                                                                                     
      Usage: root demo [OPTIONS] COMMAND [ARGS]...                                   
@@ -54,6 +58,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo init --help
+    ```
+
     ```text
                                                                                     
      Usage: root demo init [OPTIONS]                                                
@@ -77,6 +85,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx demo config --help
+    ```
 
     ```text
                                                                                     
@@ -102,6 +114,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo test --help
+    ```
+
     ```text
                                                                                     
      Usage: root demo test [OPTIONS]                                                
@@ -125,6 +141,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx demo reset --help
+    ```
 
     ```text
                                                                                     
@@ -150,6 +170,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo tui --help
+    ```
+
     ```text
                                                                                     
      Usage: root demo tui [OPTIONS]                                                 
@@ -173,6 +197,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx demo tui --theme
+    ```
 
     ```text
     Available themes:
@@ -198,6 +226,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo dev --help
+    ```
+
     ```text
                                                                                     
      Usage: root demo dev [OPTIONS] COMMAND [ARGS]...                               
@@ -222,6 +254,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo dev tui --help
+    ```
+
     ```text
                                                                                     
      Usage: root demo dev tui [OPTIONS]                                             
@@ -245,6 +281,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx demo dev tui --theme
+    ```
 
     ```text
     Available themes:
