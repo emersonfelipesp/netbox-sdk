@@ -28,7 +28,9 @@ from netbox_sdk.schema import SchemaIndex
 from netbox_sdk.trace_ascii import render_any_trace_ascii
 
 console = Console()
-TUI_EXTRA_INSTALL_MESSAGE = "TUI support is not installed. Install with: pip install 'netbox-sdk[tui]'"
+TUI_EXTRA_INSTALL_MESSAGE = (
+    "TUI support is not installed. Install with: pip install 'netbox-sdk[tui]'"
+)
 
 
 def select_json_path(data: Any, path: str) -> Any:

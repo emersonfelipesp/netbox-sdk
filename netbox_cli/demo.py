@@ -8,9 +8,10 @@ hosted NetBox instance with the same surface area as the default profile CLI.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Callable
+from typing import Any
 
 import typer
 

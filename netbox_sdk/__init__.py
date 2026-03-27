@@ -97,21 +97,14 @@ from netbox_sdk.facade import (
     Endpoint,
     ParameterValidationError,
     PluginsApp,
-    RODetailEndpoint,
-    ROMultiFormatDetailEndpoint,
     Record,
     RecordSet,
+    RODetailEndpoint,
+    ROMultiFormatDetailEndpoint,
     api,
 )
 from netbox_sdk.http_cache import CacheEntry, CachePolicy, HttpCacheStore, build_cache_key
 from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
-from netbox_sdk.typed_api import typed_api
-from netbox_sdk.typed_runtime import TypedRequestValidationError, TypedResponseValidationError
-from netbox_sdk.versioning import (
-    SUPPORTED_NETBOX_VERSIONS,
-    SupportedNetBoxVersion,
-    UnsupportedNetBoxVersionError,
-)
 from netbox_sdk.schema import (
     FilterParam,
     Operation,
@@ -120,6 +113,13 @@ from netbox_sdk.schema import (
     build_schema_index,
     load_openapi_schema,
     parse_group_resource,
+)
+from netbox_sdk.typed_api import typed_api
+from netbox_sdk.typed_runtime import TypedRequestValidationError, TypedResponseValidationError
+from netbox_sdk.versioning import (
+    SUPPORTED_NETBOX_VERSIONS,
+    SupportedNetBoxVersion,
+    UnsupportedNetBoxVersionError,
 )
 
 from netbox_sdk.services import (  # isort: skip
