@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = pytest.mark.suite_sdk
-
 from netbox_sdk import (
     TypedRequestValidationError,
     TypedResponseValidationError,
@@ -13,6 +11,8 @@ from netbox_sdk import (
 )
 from netbox_sdk.client import ApiResponse, RequestError
 from netbox_sdk.typed_runtime import validate_query
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def _require_email_validator() -> None:
