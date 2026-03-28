@@ -195,7 +195,6 @@ async def test_api_client_refreshes_demo_v1_token_when_invalid(monkeypatch, tmp_
         demo_username="demo-user",
         demo_password="demo-pass",
     )
-    client = NetBoxApiClient(cfg)
 
     calls: list[str] = []
     responses = deque(
@@ -232,15 +231,19 @@ async def test_api_client_refreshes_demo_v1_token_when_invalid(monkeypatch, tmp_
     monkeypatch.setitem(sys.modules, "aiohttp", _FakeAiohttp())
     monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
-        lambda **kwargs: Config(
+        "netbox_cli.demo_auth.refresh_demo_profile",
+        lambda existing, headless=True: Config(
             base_url=DEMO_BASE_URL,
             token_version="v1",
             token_secret="fresh-v1-token",
-            timeout=kwargs["timeout"],
+            demo_username=existing.demo_username,
+            demo_password=existing.demo_password,
+            timeout=existing.timeout,
         ),
         raising=False,
     )
+
+    client = NetBoxApiClient(cfg)
 
     response = await client.request("GET", "/api/dcim/devices/")
 
@@ -371,6 +374,8 @@ async def test_api_client_refreshes_demo_v1_token_using_saved_profile_credential
         ),
         raising=False,
     )
+
+    client = NetBoxApiClient(cfg)
 
     response = await client.request("GET", "/api/dcim/devices/")
 

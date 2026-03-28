@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx groups
+    ```
+
     ```text
     circuits
     core
@@ -33,6 +37,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx resources dcim
+    ```
 
     ```text
     cable-terminations
@@ -58,6 +66,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx ops dcim devices
+    ```
+
     ```text
                                       dcim/devices                                  
     ┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -81,6 +93,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx resources ipam
+    ```
 
     ```text
     aggregates

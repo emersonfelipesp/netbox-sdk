@@ -2,6 +2,8 @@
 
 `netbox-cli` is organized around a shared API client and OpenAPI schema index that power both the CLI (Typer) and the TUI (Textual) from the same data layer.
 
+For distribution names (`netbox-console` / `netbox-sdk`), import boundaries, and `app_runtime`, see [Package integration](package-integration.md). For SOLID-style conventions, see [Design principles](design-principles.md).
+
 In addition to the bundled OpenAPI schema, the TUI runtime can augment the schema index by discovering live plugin REST resources exposed under `/api/plugins/`. This lets plugin-backed resources appear in the TUI automatically when a plugin implements a full REST API.
 
 The TUI theme system is part of the architecture, not decoration: every Textual widget and subcomponent must derive its runtime styling from the active theme catalog, with no hardcoded colors or stray Textual defaults outside `netbox_cli/themes/*.json`.
@@ -13,14 +15,17 @@ The TUI theme system is part of the architecture, not decoration: every Textual 
 ```
 netbox_cli/
 ├── cli/                Typer CLI subpackage
-│   ├── __init__.py     Root app, main(), all static commands, app wiring
-│   ├── runtime.py      _RUNTIME_CONFIGS cache, client/index factory functions
+│   ├── __init__.py     Root app, main(), re-exports for tests/embedders
+│   ├── commands/       Static command registration (profile, http_api, tui, subapps, …)
+│   ├── runtime.py      Profile prompts, demo repair, Typer verification helpers
 │   ├── support.py      Console output, Rich table rendering, theme resolution
 │   ├── demo.py         nbx demo command group (init, config, test, reset, tui)
 │   ├── dev.py          nbx dev command group + nbx dev http sub-app
 │   └── dynamic.py      _register_openapi_subcommands, _handle_dynamic_invocation
+├── app_runtime.py      Typer-free get_schema_index / client_for_config / get_default_client
 ├── api.py              Async aiohttp HTTP client (ApiResponse, NetBoxApiClient)
 ├── config.py           Profile storage, env overrides, token normalization
+├── profile_cache.py    In-process _RUNTIME_CONFIGS shared by api, CLI, docgen
 ├── schema.py           OpenAPI schema loading and indexing (SchemaIndex)
 ├── services.py         Request resolution and action mapping (run_dynamic_command)
 ├── http_cache.py       Filesystem HTTP cache with TTL (60 s fresh, 300 s stale-if-error)
@@ -108,10 +113,7 @@ NetBoxTuiApp.run()        Textual event loop
 on_tree_node_selected()          on_key() / bindings
     │
     ▼
-_load_resource_list()     @work(thread=True)
-    │
-    ▼
-client.request("GET", list_path)
+_load_rows()              @work — list: services.resolve_dynamic_request(..., "list") + GET
     │
     ▼
 parse_response_rows()     formatting.py
@@ -120,10 +122,10 @@ parse_response_rows()     formatting.py
 DataTable (Results tab)
     │
     ▼ (row selected)
-_load_object_details()    @work(thread=False)
+_load_object_details()    @work — get: resolve_dynamic_request(..., "get", id) + GET
     │
-    ├── client.request("GET", detail_path)
-    └── _load_trace_for_object()   (dcim/interfaces only)
+    ├── _show_detail_for_path() (linked objects may pass explicit paths)
+    └── _load_trace_for_object()   trace/paths templates + GET
             │
             ▼
         render_cable_trace_ascii()   trace_ascii.py
@@ -166,19 +168,20 @@ DEMO_PROFILE    = "demo"
 DEMO_BASE_URL   = "https://demo.netbox.dev"
 ```
 
-In `cli/runtime.py`, the in-process cache is a dict:
+The in-process profile dict lives in `profile_cache.py` (re-exported from `cli.runtime` for compatibility):
 
 ```python
+# profile_cache.py
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 ```
 
-Profile loading sequence (for `_ensure_profile_config(profile)`):
+Profile loading sequence (for `_ensure_profile_config(profile)` in `cli/runtime.py`):
 
 1. Check `_RUNTIME_CONFIGS[profile]` — return immediately if complete.
 2. Call `load_profile_config(profile)` — reads from disk + env vars.
 3. If still incomplete and `profile == DEMO_PROFILE` → call `_initialize_demo_profile()`.
 4. If still incomplete for default profile → interactive prompt.
-5. Save result to `_RUNTIME_CONFIGS[profile]`.
+5. Save result via `_cache_profile(profile, cfg)` (updates `_RUNTIME_CONFIGS`).
 
 ---
 
@@ -210,7 +213,7 @@ For plugin resources, `SchemaIndex` also supports runtime augmentation. The TUI 
 
 - `ApiResponse` dataclass: `status: int`, `text: str`, `headers: dict`
 - `NetBoxApiClient.request()`: builds URL, attaches `Authorization` header, handles v2→v1 token retry on 401/403
-- `NetBoxApiClient.probe_connection()`: `GET /api/` for health checks
+- `NetBoxApiClient.probe_connection()`: `GET /` with `API-Version` header for health checks
 
 ---
 
@@ -232,4 +235,4 @@ for group in index.groups():
             resource_typer.command(name=action)(cmd)
 ```
 
-The `client_factory` parameter is what separates the default and demo command trees: `_get_client` for `app`, `_get_demo_client` for `demo_app`.
+The `client_factory` parameter is what separates the default and demo command trees: default profile uses `_runtime_get_client` (resolves via `netbox_cli.cli`), while `demo_app` uses factories defined in `cli/commands/__init__.py` that call `_ensure_demo_runtime_config` and `_get_client_for_config` at invocation time (so tests can patch `cli` / `runtime` predictably).

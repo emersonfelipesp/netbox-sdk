@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dcim --help
+    ```
+
     ```text
                                                                                     
      Usage: root dcim [OPTIONS] COMMAND [ARGS]...                                   
@@ -54,6 +58,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dcim devices --help
+    ```
+
     ```text
                                                                                     
      Usage: root dcim devices [OPTIONS] COMMAND [ARGS]...                           
@@ -77,6 +85,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx dcim devices list --help
+    ```
 
     ```text
                                                                                     
@@ -102,6 +114,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx ipam prefixes --help
+    ```
+
     ```text
                                                                                     
      Usage: root ipam prefixes [OPTIONS] COMMAND [ARGS]...                          
@@ -126,6 +142,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx dcim interfaces get --help
+    ```
+
     ```text
                                                                                     
      Usage: root dcim interfaces get [OPTIONS]                                      
@@ -149,6 +169,10 @@
     ```
 
 === ":material-text-box-outline: Output"
+
+    ```bash
+    nbx circuits circuit-terminations get --help
+    ```
 
     ```text
                                                                                     

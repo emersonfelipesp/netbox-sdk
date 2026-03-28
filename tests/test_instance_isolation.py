@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import netbox_cli.app_runtime as app_runtime
 from netbox_cli.cli import runtime
 from netbox_cli.ui.dev_state import (
     DevTuiState,
@@ -22,8 +23,8 @@ def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> Non
             },
         }
     }
-    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda: schema)
+    monkeypatch.setattr(app_runtime, "_openapi_document", None)
+    monkeypatch.setattr(app_runtime, "load_openapi_schema", lambda: schema)
 
     first = runtime._get_index()
     assert "plugins" not in first.groups()

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 from pathlib import Path
 from typing import Any
@@ -294,9 +293,9 @@ class DjangoModelTuiApp(App[None]):
             return
 
         try:
-            from netbox_cli.cli import _get_client  # noqa: PLC0415
+            from netbox_cli.app_runtime import get_default_client  # noqa: PLC0415
 
-            client = _get_client()
+            client = get_default_client()
             probe = await client.probe_connection()
             if probe.ok and probe.version:
                 self._detected_api_version = probe.version
@@ -674,38 +673,15 @@ class DjangoModelTuiApp(App[None]):
     async def _probe_connection_health(self) -> None:
         self._set_connection_badge_checking()
         try:
-            from netbox_cli.cli import _get_client  # noqa: PLC0415
+            from netbox_cli.app_runtime import get_default_client  # noqa: PLC0415
 
-            client = _get_client()
-            probe_fn = getattr(client, "probe_connection", None)
-            if callable(probe_fn):
-                probe = probe_fn()
-                if inspect.isawaitable(probe):
-                    probe = await probe
-                if isinstance(probe, ConnectionProbe):
-                    self._render_connection_status(probe)
-                    return
-            response = await client.request(
-                "GET", "/", headers={"Content-Type": "application/json"}
-            )
-            headers = getattr(response, "headers", {}) or {}
-            version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
-            status = int(getattr(response, "status", 0) or 0)
-            ok = status < 400 or status == 403
-            self._render_connection_status(
-                ConnectionProbe(
-                    status=status,
-                    version=version,
-                    ok=ok,
-                    error=None if ok else getattr(response, "text", ""),
-                )
-            )
-            return
+            client = get_default_client()
+            probe = await client.probe_connection()
+            self._render_connection_status(probe)
         except Exception:
-            pass
-        self._render_connection_status(
-            ConnectionProbe(status=0, version="", ok=False, error="no config")
-        )
+            self._render_connection_status(
+                ConnectionProbe(status=0, version="", ok=False, error="no config")
+            )
 
 
 def run_django_model_tui(
@@ -719,30 +695,30 @@ def run_django_model_tui(
     try:
         app = DjangoModelTuiApp(store=store, theme_name=theme_name)
         result = app.run()
-        from netbox_cli.cli import _get_client, _get_index  # noqa: PLC0415
+        from netbox_cli.app_runtime import get_default_client, get_schema_index  # noqa: PLC0415
 
         if result == SWITCH_TO_MAIN_TUI:
             from .app import run_tui
 
             run_tui(
-                client=_get_client(),
-                index=_get_index(),
+                client=get_default_client(),
+                index=get_schema_index(),
                 theme_name=app.theme_name,
             )
         elif result == SWITCH_TO_CLI_TUI:
             from .cli_tui import run_cli_tui
 
             run_cli_tui(
-                client=_get_client(),
-                index=_get_index(),
+                client=get_default_client(),
+                index=get_schema_index(),
                 theme_name=app.theme_name,
             )
         elif result == SWITCH_TO_DEV_TUI:
             from .dev_app import run_dev_tui
 
             run_dev_tui(
-                client=_get_client(),
-                index=_get_index(),
+                client=get_default_client(),
+                index=get_schema_index(),
                 theme_name=app.theme_name,
             )
     except KeyboardInterrupt:

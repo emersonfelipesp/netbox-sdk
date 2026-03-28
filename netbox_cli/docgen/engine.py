@@ -13,7 +13,8 @@ Parallelism strategy:
     overwhelming the NetBox demo instance.
 
 Config lifecycle:
-    1. Main process injects config into ``_RUNTIME_CONFIGS`` and saves to disk.
+    1. Main process injects config into ``netbox_cli.profile_cache._RUNTIME_CONFIGS``
+       and saves to disk.
     2. Each worker process loads config from disk (not from shared memory).
     3. Main process cleans up after the pool shuts down.
 """
@@ -51,8 +52,7 @@ def _worker_capture(
     Returns a plain dict (not ``CaptureResult``) so that results are
     picklable across process boundaries.
     """
-    from netbox_cli import cli as cli_mod
-    from netbox_cli.cli import runtime as _rt
+    from netbox_cli.app_runtime import get_schema_index
     from netbox_cli.config import (
         DEMO_BASE_URL,
         Config,
@@ -65,10 +65,11 @@ def _worker_capture(
         inject_format_flag,
         supports_format_variants,
     )
+    from netbox_cli.profile_cache import _RUNTIME_CONFIGS
 
     existing = load_profile_config(profile)
     if is_runtime_config_complete(existing):
-        cli_mod._RUNTIME_CONFIGS[profile] = existing
+        _RUNTIME_CONFIGS[profile] = existing
     else:
         if profile == "demo":
             base_url = DEMO_BASE_URL
@@ -78,14 +79,14 @@ def _worker_capture(
         token_key = os.environ.get("NETBOX_TOKEN_KEY", "docgen-placeholder").strip()
         token_secret = os.environ.get("NETBOX_TOKEN_SECRET", "placeholder").strip()
         timeout = float(os.environ.get("NBX_DOC_CAPTURE_TIMEOUT", "30"))
-        cli_mod._RUNTIME_CONFIGS[profile] = Config(
+        _RUNTIME_CONFIGS[profile] = Config(
             base_url=base_url,
             token_key=token_key,
             token_secret=token_secret,
             timeout=timeout,
         )
 
-    _rt._get_index()
+    get_schema_index()
 
     argv: list[str] = list(spec_dict["argv"])
     argv_base: list[str] = list(argv)
@@ -233,8 +234,7 @@ class CaptureEngine:
         *,
         profile: str,
     ) -> list[CaptureResult]:
-        from netbox_cli import cli as cli_mod  # noqa: PLC0415
-        from netbox_cli.cli import runtime as _rt  # noqa: PLC0415
+        from netbox_cli.app_runtime import get_schema_index  # noqa: PLC0415
         from netbox_cli.config import (  # noqa: PLC0415
             DEMO_BASE_URL,
             Config,
@@ -242,14 +242,15 @@ class CaptureEngine:
             load_profile_config,
             normalize_base_url,
         )
+        from netbox_cli.profile_cache import _RUNTIME_CONFIGS  # noqa: PLC0415
 
         # Pre-load schema.
-        _rt._get_index()
+        get_schema_index()
 
         # Inject config once.
         existing = load_profile_config(profile)
         if is_runtime_config_complete(existing):
-            cli_mod._RUNTIME_CONFIGS[profile] = existing
+            _RUNTIME_CONFIGS[profile] = existing
             stub = False
         else:
             stub = True
@@ -258,7 +259,7 @@ class CaptureEngine:
             else:
                 raw = os.environ.get("NETBOX_URL", "https://netbox.example.com").strip()
                 base_url = normalize_base_url(raw)
-            cli_mod._RUNTIME_CONFIGS[profile] = Config(
+            _RUNTIME_CONFIGS[profile] = Config(
                 base_url=base_url,
                 token_key=os.environ.get("NETBOX_TOKEN_KEY", "docgen-placeholder").strip(),
                 token_secret=os.environ.get("NETBOX_TOKEN_SECRET", "placeholder").strip(),
@@ -269,7 +270,7 @@ class CaptureEngine:
             return [self._run_one_serial(spec, profile=profile) for spec in specs]
         finally:
             if stub:
-                cli_mod._RUNTIME_CONFIGS.pop(profile, None)
+                _RUNTIME_CONFIGS.pop(profile, None)
 
     def _run_one_serial(
         self,

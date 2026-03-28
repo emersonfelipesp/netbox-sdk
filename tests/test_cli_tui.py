@@ -13,6 +13,7 @@ from unittest.mock import patch
 import pytest
 from textual.widgets import Button, Input, ListItem, ListView, RichLog, Select, Static
 
+from netbox_cli.api import ConnectionProbe
 from netbox_cli.config import Config
 from netbox_cli.schema import build_schema_index
 from netbox_cli.ui.cli_completions import (
@@ -63,6 +64,19 @@ class _FakeClient:
             headers = {"API-Version": "4.2"}
 
         return _Response()
+
+    async def probe_connection(self) -> ConnectionProbe:
+        response = await self.request("GET", "/", headers={"Content-Type": "application/json"})
+        headers = getattr(response, "headers", {}) or {}
+        version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
+        status = int(getattr(response, "status", 0) or 0)
+        ok = status < 400 or status == 403
+        return ConnectionProbe(
+            status=status,
+            version=version,
+            ok=ok,
+            error=None if ok else getattr(response, "text", ""),
+        )
 
 
 def _make_client() -> _FakeClient:
