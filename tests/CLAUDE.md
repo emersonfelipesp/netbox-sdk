@@ -37,6 +37,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_config_profiles.py` | Profile save/load, legacy flat-config migration, file permissions (0o700/0o600) |
 | `test_demo_auth.py` | Playwright demo.netbox.dev automation validation and token provisioning |
 | `test_demo_cli.py` | Demo profile CLI commands; live API calls when `DEMO_USERNAME`/`DEMO_PASSWORD` are set |
+| `test_http_ssl.py` | TLS failure detection, `connector_for_config`, `NETBOX_SSL_VERIFY`, `ssl_verify` save/load |
 | `test_demo_runtime_refresh.py` | Demo profile config cache invalidation and runtime refresh behavior |
 | `test_dev_tui.py` | `NetBoxDevTuiApp` Pilot tests: request workbench layout, textarea/input theme tokens, support modal, theme switching |
 | `test_django_model_tui.py` | `DjangoModelTuiApp` instantiation and basic layout verification |
@@ -54,6 +55,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_sdk_imports.py` | Top-level SDK exports and standalone import/constructor behavior |
 | `test_sdk_pynetbox_parity.py` | Async facade parity behaviors such as detail endpoints, branch scoping, and record helpers |
 | `test_services.py` | Request resolution from (group, resource, action, id) tuples, key-value arg parsing |
+| `test_ssl_verify_cli.py` | TLS verification prompts and `nbx test` probe retry (`_prompt_ssl_verify_if_unset`, `_retry_probe_after_ssl_prompt`) |
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
