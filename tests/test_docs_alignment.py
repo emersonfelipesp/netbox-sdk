@@ -65,15 +65,25 @@ def test_generated_docs_nav_separates_cli_and_tui_outputs() -> None:
     cli_index = _read("docs/cli/index.md")
     tui_index = _read("docs/tui/index.md")
     tui_logs = _read("docs/tui/logs.md")
+    tui_graphql = _read("docs/tui/graphql.md")
+    tui_screenshots = _read("docs/tui/screenshots.md")
+    cli_graphql = _read("docs/cli/graphql.md")
 
     assert "Captured Command Output:" in mkdocs
     assert "reference/cli/command-examples/index.md" in mkdocs
     assert "Launch Command Output:" in mkdocs
     assert "reference/tui/launch-examples/index.md" in mkdocs
+    assert "GraphQL TUI: tui/graphql.md" in mkdocs
+    assert "GraphQL TUI: reference/tui/launch-examples/graphql-tui.md" in mkdocs
+    assert "GraphQL TUI: tui/screenshots-graphql.md" in mkdocs
     assert "../reference/cli/command-examples/index.md" in cli_index
     assert "../reference/tui/launch-examples/index.md" in tui_index
+    assert "nbx graphql tui" in tui_index
     assert "nbx tui logs" in tui_logs
     assert "`--live`" not in tui_logs
+    assert "nbx demo graphql tui" in tui_graphql
+    assert "six Textual applications" in tui_screenshots
+    assert "Interactive GraphQL explorer" in cli_graphql
 
 
 def test_docs_workflow_still_deploys_pages_for_netbox_sdk_repo() -> None:

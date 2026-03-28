@@ -40,6 +40,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_http_ssl.py` | TLS failure detection, `connector_for_config`, `NETBOX_SSL_VERIFY`, `ssl_verify` save/load |
 | `test_demo_runtime_refresh.py` | Demo profile config cache invalidation and runtime refresh behavior |
 | `test_dev_tui.py` | `NetBoxDevTuiApp` Pilot tests: request workbench layout, textarea/input theme tokens, support modal, theme switching |
+| `test_graphql_tui.py` | `NetBoxGraphqlTuiApp` Pilot tests: schema introspection fallback, guided query builders, execution, history restore, clipboard, theme switching |
 | `test_django_model_tui.py` | `DjangoModelTuiApp` instantiation and basic layout verification |
 | `test_docgen_paths.py` | `docgen_capture.py` output path resolution and stub config injection |
 | `test_instance_isolation.py` | Per-process config and schema index isolation (no cross-test state leakage) |
@@ -59,6 +60,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
+| `test_tui_screenshots.py` | Screenshot harness registration and deterministic GraphQL screenshot setup for docs generation |
 
 ---
 
@@ -91,7 +93,7 @@ than failing unrelated suites.
 Tests that write to `~/.config/netbox-cli/` use `tmp_path` (pytest fixture) and patch the config directory to a temporary location so they never pollute the developer's real config.
 
 ### TCSS color and token tests
-`test_no_hardcoded_colors.py` enforces two rules across all five runtime TCSS files (`tui.tcss`, `ui_common.tcss`, `dev_tui.tcss`, `logs_tui.tcss`, `django_model_tui.tcss`):
+`test_no_hardcoded_colors.py` enforces two rules across all six runtime TCSS files (`tui.tcss`, `ui_common.tcss`, `dev_tui.tcss`, `graphql_tui.tcss`, `logs_tui.tcss`, `django_model_tui.tcss`):
 
 1. **No hex literals** — asserts zero `#RRGGBB` occurrences in any runtime TCSS file
 2. **No unknown tokens** — scans every `$token` reference and asserts it appears in `_ALLOWED_THEME_TOKENS`; this prevents stray variable names like the old `$text-muted` from slipping back in
