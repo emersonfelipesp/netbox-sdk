@@ -1,0 +1,126 @@
+name: Security Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  changes:
+    name: detect security test scope
+    runs-on: ubuntu-latest
+    outputs:
+      run_all: ${{ steps.filter.outputs.run_all }}
+      sdk: ${{ steps.filter.outputs.sdk }}
+      cli: ${{ steps.filter.outputs.cli }}
+      tui: ${{ steps.filter.outputs.tui }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed areas
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            run_all:
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - 'tests/conftest.py'
+              - '.github/workflows/security.yml'
+            sdk:
+              - 'netbox_sdk/**'
+              - 'tests/test_security_sdk.py'
+            cli:
+              - 'netbox_cli/**'
+              - 'netbox_sdk/services.py'
+              - 'tests/test_security_cli.py'
+            tui:
+              - 'netbox_tui/**'
+              - 'netbox_sdk/output_safety.py'
+              - 'netbox_sdk/formatting.py'
+              - 'tests/test_security_tui.py'
+
+  security-sdk:
+    name: sdk security / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ needs.changes.outputs.run_all == 'true' || needs.changes.outputs.sdk == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+
+      - name: Run SDK security tests
+        run: uv run pytest -v --tb=short -p no:randomly tests/test_security_sdk.py
+
+  security-cli:
+    name: cli security / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ needs.changes.outputs.run_all == 'true' || needs.changes.outputs.cli == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+
+      - name: Run CLI security tests
+        run: uv run pytest -v --tb=short -p no:randomly tests/test_security_cli.py
+
+  security-tui:
+    name: tui security / Python ${{ matrix.python-version }}
+    needs: changes
+    if: ${{ needs.changes.outputs.run_all == 'true' || needs.changes.outputs.tui == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+
+      - name: Run TUI security tests
+        run: uv run pytest -v --tb=short -p no:randomly tests/test_security_tui.py
