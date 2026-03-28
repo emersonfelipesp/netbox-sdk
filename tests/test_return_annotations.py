@@ -12,6 +12,7 @@ def test_all_non_test_python_functions_have_return_annotations() -> None:
     repo_root = Path(__file__).resolve().parent.parent
     excluded_parts = {
         ".venv",
+        "venv",
         "tests",
         "site",
         "build",
@@ -23,6 +24,10 @@ def test_all_non_test_python_functions_have_return_annotations() -> None:
 
     for path in repo_root.rglob("*.py"):
         if any(part in excluded_parts for part in path.parts):
+            continue
+        if "site-packages" in path.parts:
+            continue
+        if any(part.startswith(".venv") for part in path.parts):
             continue
         module = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(module):
