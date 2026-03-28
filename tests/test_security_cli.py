@@ -20,6 +20,7 @@ pytestmark = pytest.mark.suite_cli
 # JSON payload injection and validation (load_json_payload)
 # ---------------------------------------------------------------------------
 
+
 def test_load_json_payload_rejects_bare_string() -> None:
     """--body-json must reject a bare JSON string (not an object or array)."""
     with pytest.raises(ValueError, match="object or array"):
@@ -104,7 +105,7 @@ def test_load_json_payload_deeply_nested_json_does_not_hang() -> None:
     Python's json module raises RecursionError or processes it; the function
     must terminate and either return a result or raise an exception."""
     depth = 500
-    nested = "{" + '"k":' * (depth - 1) + '1' + "}" * (depth - 1)
+    nested = "{" + '"k":' * (depth - 1) + "1" + "}" * (depth - 1)
     try:
         load_json_payload(nested, None)
     except (ValueError, json.JSONDecodeError, RecursionError):
@@ -123,6 +124,7 @@ def test_load_json_payload_json_with_embedded_null_bytes(tmp_path) -> None:
 # ---------------------------------------------------------------------------
 # Key-value pair injection (parse_key_value_pairs)
 # ---------------------------------------------------------------------------
+
 
 def test_parse_key_value_pairs_rejects_missing_equals() -> None:
     """Input without '=' must raise ValueError."""
@@ -183,6 +185,7 @@ def test_parse_key_value_pairs_unicode_value_preserved() -> None:
 # ---------------------------------------------------------------------------
 # Token / credential masking
 # ---------------------------------------------------------------------------
+
 
 def test_config_token_secret_trimmed_to_none_when_blank() -> None:
     """A blank token_secret must become None, preventing accidental use."""

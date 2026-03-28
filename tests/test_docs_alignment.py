@@ -6,6 +6,25 @@ from typing import Any
 import pytest
 import yaml
 
+
+class _NavLoader(yaml.SafeLoader):
+    """SafeLoader extended to silently ignore !!python/name: and similar tags.
+
+    mkdocs.yml uses !!python/name:material.extensions.emoji.twemoji which
+    UnsafeLoader tries to import at parse time.  The test only needs the nav
+    structure so a loader that maps those tags to plain strings is sufficient.
+    """
+
+
+_NavLoader.add_multi_constructor(
+    "tag:yaml.org,2002:python/",
+    lambda loader, tag_suffix, node: (
+        loader.construct_scalar(node)  # type: ignore[arg-type]
+        if isinstance(node, yaml.ScalarNode)
+        else None
+    ),
+)
+
 pytestmark = pytest.mark.suite_sdk
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -124,8 +143,7 @@ def test_mkdocs_i18n_en_default_and_pt_locale() -> None:
 
 
 def test_nav_markdown_pages_have_portuguese_siblings() -> None:
-    # mkdocs.yml uses Material tags (e.g. !!python/name:...); trusted repo file only.
-    mkdocs = yaml.load(_read("mkdocs.yml"), Loader=yaml.UnsafeLoader)
+    mkdocs = yaml.load(_read("mkdocs.yml"), Loader=_NavLoader)
     docs_dir = REPO_ROOT / "docs"
     for rel in _nav_markdown_paths(mkdocs["nav"]):
         pt = rel[:-3] + ".pt.md" if rel.endswith(".md") else rel

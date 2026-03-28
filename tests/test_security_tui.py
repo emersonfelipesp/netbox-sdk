@@ -23,6 +23,7 @@ pytestmark = pytest.mark.suite_tui
 # Terminal escape injection through rendered API data
 # ---------------------------------------------------------------------------
 
+
 def test_ansi_color_code_stripped_from_humanized_api_response() -> None:
     """API response strings containing ANSI SGR sequences must be neutralized
     by humanize_value before data reaches TUI widgets."""
@@ -98,6 +99,7 @@ def test_mixed_ansi_and_c1_payload_fully_sanitized() -> None:
 # TUI state file permissions
 # ---------------------------------------------------------------------------
 
+
 def test_save_tui_state_creates_file_with_private_permissions(tmp_path, monkeypatch) -> None:
     """save_tui_state must create state files with 0o600 permissions so other
     local users cannot read the stored view state and theme preference."""
@@ -107,11 +109,11 @@ def test_save_tui_state_creates_file_with_private_permissions(tmp_path, monkeypa
     save_tui_state(state)
 
     from netbox_tui.state import tui_state_path
+
     path = tui_state_path()
     if os.name != "nt":
         assert stat.S_IMODE(path.stat().st_mode) == 0o600, (
-            f"Expected 0o600 permissions on {path}, got "
-            f"{oct(stat.S_IMODE(path.stat().st_mode))}"
+            f"Expected 0o600 permissions on {path}, got {oct(stat.S_IMODE(path.stat().st_mode))}"
         )
 
 
@@ -125,11 +127,11 @@ def test_save_tui_state_with_base_url_creates_file_with_private_permissions(
     save_tui_state(state, base_url="https://netbox.example.com")
 
     from netbox_tui.state import tui_state_path
+
     path = tui_state_path(base_url="https://netbox.example.com")
     if os.name != "nt":
         assert stat.S_IMODE(path.stat().st_mode) == 0o600, (
-            f"Expected 0o600 permissions on {path}, got "
-            f"{oct(stat.S_IMODE(path.stat().st_mode))}"
+            f"Expected 0o600 permissions on {path}, got {oct(stat.S_IMODE(path.stat().st_mode))}"
         )
 
 
@@ -137,11 +139,13 @@ def test_save_tui_state_with_base_url_creates_file_with_private_permissions(
 # Corrupt/malicious state file handling
 # ---------------------------------------------------------------------------
 
+
 def test_load_tui_state_handles_corrupt_json_gracefully(tmp_path, monkeypatch) -> None:
     """Corrupt JSON in the TUI state file must not crash the TUI;
     a default TuiState() must be returned instead."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     from netbox_tui.state import tui_state_path
+
     path = tui_state_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("{this is not valid json!!!", encoding="utf-8")
@@ -157,6 +161,7 @@ def test_load_tui_state_handles_wrong_type_in_json(tmp_path, monkeypatch) -> Non
     a default TuiState() is returned."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     from netbox_tui.state import tui_state_path
+
     path = tui_state_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("[1, 2, 3]", encoding="utf-8")
@@ -169,6 +174,7 @@ def test_load_tui_state_handles_malicious_extra_fields(tmp_path, monkeypatch) ->
     """Unknown fields in the state JSON must be silently ignored by Pydantic."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     from netbox_tui.state import tui_state_path
+
     path = tui_state_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -185,6 +191,7 @@ def test_load_tui_state_handles_malicious_extra_fields(tmp_path, monkeypatch) ->
 # Theme name injection via state persistence
 # ---------------------------------------------------------------------------
 
+
 def test_tui_state_theme_name_with_path_traversal_round_trips_as_literal(
     tmp_path, monkeypatch
 ) -> None:
@@ -200,9 +207,7 @@ def test_tui_state_theme_name_with_path_traversal_round_trips_as_literal(
     assert loaded.theme_name == evil_theme  # stored/loaded verbatim
 
 
-def test_tui_state_theme_name_with_escape_sequences_round_trips(
-    tmp_path, monkeypatch
-) -> None:
+def test_tui_state_theme_name_with_escape_sequences_round_trips(tmp_path, monkeypatch) -> None:
     """A theme_name with ANSI escape sequences is stored as JSON-escaped text.
     The round-trip must preserve the exact string."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
@@ -218,11 +223,13 @@ def test_tui_state_theme_name_with_escape_sequences_round_trips(
 # GraphQL query payload structure
 # ---------------------------------------------------------------------------
 
+
 def test_graphql_query_is_sent_as_json_dict_field() -> None:
     """NetBoxApiClient.graphql() must construct a dict payload with a 'query'
     key, not string-interpolate the query into a raw string. This ensures
     GraphQL queries with special characters are JSON-encoded, not injected."""
     import inspect
+
     from netbox_sdk.client import NetBoxApiClient
 
     source = inspect.getsource(NetBoxApiClient.graphql)
@@ -236,6 +243,7 @@ def test_graphql_query_variables_are_in_separate_field() -> None:
     """GraphQL variables must travel in a separate 'variables' field of the
     payload dict, not be interpolated into the query string."""
     import inspect
+
     from netbox_sdk.client import NetBoxApiClient
 
     source = inspect.getsource(NetBoxApiClient.graphql)

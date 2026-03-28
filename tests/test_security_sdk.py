@@ -20,16 +20,18 @@ pytestmark = pytest.mark.suite_sdk
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _client(tmp_path, monkeypatch, *, base_url: str = "https://netbox.example.com") -> NetBoxApiClient:
+
+def _client(
+    tmp_path, monkeypatch, *, base_url: str = "https://netbox.example.com"
+) -> NetBoxApiClient:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-    return NetBoxApiClient(
-        Config(base_url=base_url, token_version="v1", token_secret="testtoken")
-    )
+    return NetBoxApiClient(Config(base_url=base_url, token_version="v1", token_secret="testtoken"))
 
 
 # ---------------------------------------------------------------------------
 # SSRF — scheme/netloc in request path
 # ---------------------------------------------------------------------------
+
 
 def test_ssrf_absolute_http_url_in_request_path_rejected(tmp_path, monkeypatch) -> None:
     """build_url must reject an absolute HTTP URL supplied as a request path."""
@@ -79,6 +81,7 @@ def test_ssrf_empty_path_rejected(tmp_path, monkeypatch) -> None:
 # Path traversal in request paths
 # ---------------------------------------------------------------------------
 
+
 def test_path_traversal_stays_within_base_url(tmp_path, monkeypatch) -> None:
     """../../etc/passwd in a request path must resolve under the base URL."""
     client = _client(tmp_path, monkeypatch)
@@ -103,6 +106,7 @@ def test_encoded_path_traversal_preserved_as_literal(tmp_path, monkeypatch) -> N
 # ---------------------------------------------------------------------------
 # Base URL injection via normalize_base_url
 # ---------------------------------------------------------------------------
+
 
 def test_base_url_rejects_javascript_scheme() -> None:
     with pytest.raises(ValueError, match="http or https"):
@@ -156,6 +160,7 @@ def test_base_url_null_byte_rejected_or_normalized() -> None:
 # ---------------------------------------------------------------------------
 # Cache key isolation
 # ---------------------------------------------------------------------------
+
 
 def test_cache_key_differs_for_different_auth_tokens() -> None:
     """Two identical requests that differ only in Authorization header must
@@ -233,6 +238,7 @@ def test_cache_key_unauthenticated_differs_from_authenticated() -> None:
 # HTTP header injection via token value
 # ---------------------------------------------------------------------------
 
+
 def test_newline_in_v1_token_does_not_inject_header_lines() -> None:
     """A token_secret containing CR+LF must not produce a multi-line
     Authorization header value. The returned string must be a single line."""
@@ -262,6 +268,7 @@ def test_newline_in_v2_token_key_does_not_inject_header_lines() -> None:
 # ---------------------------------------------------------------------------
 # Credential representation
 # ---------------------------------------------------------------------------
+
 
 def test_config_token_secret_field_coerces_whitespace_to_none() -> None:
     """A token_secret that is purely whitespace is treated as absent,
