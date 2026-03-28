@@ -1,0 +1,28 @@
+{
+  "surface": "cli",
+  "section": "Cable Trace",
+  "title": "nbx demo circuits circuit-terminations get --id 15 --trace-only",
+  "argv": [
+    "demo",
+    "circuits",
+    "circuit-terminations",
+    "get",
+    "--id",
+    "15",
+    "--trace-only",
+    "--markdown"
+  ],
+  "argv_base": [
+    "demo",
+    "circuits",
+    "circuit-terminations",
+    "get",
+    "--id",
+    "15",
+    "--trace-only"
+  ],
+  "exit_code": 124,
+  "elapsed_seconds": 60.022,
+  "truncated": false,
+  "stdout_full": ""
+}

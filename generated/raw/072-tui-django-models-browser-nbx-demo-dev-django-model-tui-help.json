@@ -1,0 +1,23 @@
+{
+  "surface": "tui",
+  "section": "Django Models Browser",
+  "title": "nbx demo dev django-model tui --help",
+  "argv": [
+    "demo",
+    "dev",
+    "django-model",
+    "tui",
+    "--help"
+  ],
+  "argv_base": [
+    "demo",
+    "dev",
+    "django-model",
+    "tui",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.863,
+  "truncated": false,
+  "stdout_full": "                                                                                \n Usage: nbx demo dev django-model tui [OPTIONS]                                 \n                                                                                \n Launch the Django Model Inspector TUI.                                         \n                                                                                \n Automatically builds the model cache if it doesn't exist.                      \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme        -t      TEXT  Theme name (e.g. netbox-dark, dracula).         \u2502\n\u2502 --netbox-root  -n      PATH  Path to the NetBox Django project root          \u2502\n\u2502                              (auto-builds if cache missing).                 \u2502\n\u2502                              [default: /root/nms/netbox/netbox]              \u2502\n\u2502 --cache-path   -o      PATH  Path to a specific model graph JSON file.       \u2502\n\u2502 --help                       Show this message and exit.                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+}

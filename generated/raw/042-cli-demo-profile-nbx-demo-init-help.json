@@ -1,0 +1,19 @@
+{
+  "surface": "cli",
+  "section": "Demo Profile",
+  "title": "nbx demo init --help",
+  "argv": [
+    "demo",
+    "init",
+    "--help"
+  ],
+  "argv_base": [
+    "demo",
+    "init",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.884,
+  "truncated": false,
+  "stdout_full": "                                                                                \n Usage: nbx demo init [OPTIONS]                                                 \n                                                                                \n Authenticate with demo.netbox.dev via Playwright and save the demo profile.    \n                                                                                \n Pass ``--username`` and ``--password`` for non-interactive / CI use.           \n Alternatively, supply an existing token directly with ``--token-key`` and      \n ``--token-secret`` to skip Playwright entirely.                                \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --headless          --headed          Run Playwright headless (default). Use \u2502\n\u2502                                       --headed only when a desktop/X server  \u2502\n\u2502                                       is available.                          \u2502\n\u2502                                       [default: headless]                    \u2502\n\u2502 --username      -u              TEXT  demo.netbox.dev username. Prompted     \u2502\n\u2502                                       interactively when omitted.            \u2502\n\u2502 --password      -p              TEXT  demo.netbox.dev password. Prompted     \u2502\n\u2502                                       interactively when omitted.            \u2502\n\u2502 --token-key                     TEXT  Set the demo profile directly without  \u2502\n\u2502                                       Playwright (requires --token-secret).  \u2502\n\u2502 --token-secret                  TEXT  Set the demo profile directly without  \u2502\n\u2502                                       Playwright (requires --token-key).     \u2502\n\u2502 --help                                Show this message and exit.            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+}

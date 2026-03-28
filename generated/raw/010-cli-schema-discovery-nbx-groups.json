@@ -1,0 +1,15 @@
+{
+  "surface": "cli",
+  "section": "Schema Discovery",
+  "title": "nbx groups",
+  "argv": [
+    "groups"
+  ],
+  "argv_base": [
+    "groups"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.844,
+  "truncated": false,
+  "stdout_full": "circuits\ncore\ndcim\nextras\nipam\nplugins\ntenancy\nusers\nvirtualization\nvpn\nwireless\n"
+}

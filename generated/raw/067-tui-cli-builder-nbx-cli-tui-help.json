@@ -1,0 +1,19 @@
+{
+  "surface": "tui",
+  "section": "CLI Builder",
+  "title": "nbx cli tui --help",
+  "argv": [
+    "cli",
+    "tui",
+    "--help"
+  ],
+  "argv_base": [
+    "cli",
+    "tui",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.916,
+  "truncated": false,
+  "stdout_full": "                                                                                \n Usage: nbx cli tui [OPTIONS]                                                   \n                                                                                \n Launch the interactive CLI command builder TUI.                                \n                                                                                \n Presents a navigable menu tree (group \u2192 resource \u2192 action) that                \n progressively builds an ``nbx`` command, then executes it and                  \n shows the output \u2014 all without leaving the terminal.                           \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+}

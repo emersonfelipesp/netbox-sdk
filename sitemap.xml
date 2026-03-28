@@ -73,39 +73,63 @@
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/cable-trace-demo-netbox-dev/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/cable-trace/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/demo-profile/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/core-commands/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/developer-tools/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/demo-profile/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/dynamic-commands/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/developer-tools/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/live-api-demo-netbox-dev/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/dynamic-commands/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/logs-viewer/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/graphql-and-http/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/schema-discovery/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/live-api/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
-         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/command-examples/top-level/</loc>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/cli/command-examples/schema-discovery/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/tui/launch-examples/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/tui/launch-examples/cli-builder/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/tui/launch-examples/developer-workbench/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/tui/launch-examples/django-models-browser/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/tui/launch-examples/logs-viewer/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://emersonfelipesp.github.io/netbox-sdk/reference/tui/launch-examples/main-browser/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
