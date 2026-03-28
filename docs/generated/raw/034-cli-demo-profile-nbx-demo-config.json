@@ -1,0 +1,17 @@
+{
+  "surface": "cli",
+  "section": "Demo Profile",
+  "title": "nbx demo config",
+  "argv": [
+    "demo",
+    "config"
+  ],
+  "argv_base": [
+    "demo",
+    "config"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.726,
+  "truncated": false,
+  "stdout_full": "{\n  \"profile\": \"demo\",\n  \"base_url\": \"https://demo.netbox.dev\",\n  \"timeout\": 30.0,\n  \"token_version\": \"v2\",\n  \"demo_username\": \"unset\",\n  \"demo_password\": \"unset\",\n  \"token\": \"set\",\n  \"token_key\": \"set\",\n  \"token_secret\": \"set\"\n}\n"
+}

@@ -1,0 +1,19 @@
+{
+  "surface": "tui",
+  "section": "Logs Viewer",
+  "title": "nbx tui logs --theme",
+  "argv": [
+    "tui",
+    "logs",
+    "--theme"
+  ],
+  "argv_base": [
+    "tui",
+    "logs",
+    "--theme"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.914,
+  "truncated": false,
+  "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+}

@@ -1,0 +1,1022 @@
+{
+  "meta": {
+    "generated_at": "2026-03-28T02:54:01.319776+00:00",
+    "profile": "demo",
+    "netbox_url": "https://demo.netbox.dev",
+    "timeout": "30",
+    "token_configured": true,
+    "markdown_output": true
+  },
+  "runs": [
+    {
+      "surface": "cli",
+      "section": "Core Commands",
+      "title": "nbx --help",
+      "argv": [
+        "--help"
+      ],
+      "argv_base": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.761,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx [OPTIONS] COMMAND [ARGS]...                                         \n                                                                                \n NetBox SDK CLI. Dynamic command form: nbx <group> <resource> <action>          \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 init            Create or update the default NetBox SDK profile.             \u2502\n\u2502 config          Show the current default profile configuration.              \u2502\n\u2502 test            Test connectivity to your configured NetBox instance         \u2502\n\u2502                 (default profile).                                           \u2502\n\u2502 groups          List all available OpenAPI app groups.                       \u2502\n\u2502 resources       List resources available within a group.                     \u2502\n\u2502 ops             Show available HTTP operations for a resource.               \u2502\n\u2502 graphql         Execute a GraphQL query against the NetBox API, or launch    \u2502\n\u2502                 the GraphQL TUI.                                             \u2502\n\u2502 call            Call an arbitrary NetBox API path.                           \u2502\n\u2502 tui             Launch the interactive NetBox terminal UI.                   \u2502\n\u2502 logs            Show recent application logs from the shared on-disk log     \u2502\n\u2502                 file.                                                        \u2502\n\u2502 cli             CLI utilities: interactive command builder and helpers.      \u2502\n\u2502 docs            Generate reference documentation (captured CLI               \u2502\n\u2502                 input/output).                                               \u2502\n\u2502 demo            NetBox demo.netbox.dev profile and command tree.             \u2502\n\u2502 dev             Developer-focused tools and experimental interfaces.         \u2502\n\u2502 circuits        OpenAPI app group: circuits                                  \u2502\n\u2502 core            OpenAPI app group: core                                      \u2502\n\u2502 dcim            OpenAPI app group: dcim                                      \u2502\n\u2502 extras          OpenAPI app group: extras                                    \u2502\n\u2502 ipam            OpenAPI app group: ipam                                      \u2502\n\u2502 plugins         OpenAPI app group: plugins                                   \u2502\n\u2502 tenancy         OpenAPI app group: tenancy                                   \u2502\n\u2502 users           OpenAPI app group: users                                     \u2502\n\u2502 virtualization  OpenAPI app group: virtualization                            \u2502\n\u2502 vpn             OpenAPI app group: vpn                                       \u2502\n\u2502 wireless        OpenAPI app group: wireless                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Core Commands",
+      "title": "nbx init --help",
+      "argv": [
+        "init",
+        "--help"
+      ],
+      "argv_base": [
+        "init",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.178,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx init [OPTIONS]                                                      \n                                                                                \n Create or update the default NetBox SDK profile.                               \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *  --base-url                           TEXT   NetBox base URL, e.g.         \u2502\n\u2502                                                https://netbox.example.com    \u2502\n\u2502                                                [required]                    \u2502\n\u2502 *  --token-key                          TEXT   NetBox API token key          \u2502\n\u2502                                                [required]                    \u2502\n\u2502 *  --token-secret                       TEXT   NetBox API token secret       \u2502\n\u2502                                                [required]                    \u2502\n\u2502    --timeout                            FLOAT  HTTP timeout in seconds       \u2502\n\u2502                                                [default: 30.0]               \u2502\n\u2502    --verify-ssl      --no-verify-ssl           HTTPS TLS certificate         \u2502\n\u2502                                                verification (default:        \u2502\n\u2502                                                verify; omit to leave unset   \u2502\n\u2502                                                until first failure)          \u2502\n\u2502    --help                                      Show this message and exit.   \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Core Commands",
+      "title": "nbx config --help",
+      "argv": [
+        "config",
+        "--help"
+      ],
+      "argv_base": [
+        "config",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.443,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx config [OPTIONS]                                                    \n                                                                                \n Show the current default profile configuration.                                \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --show-token          Include API token in output                            \u2502\n\u2502 --help                Show this message and exit.                            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Core Commands",
+      "title": "nbx logs --help",
+      "argv": [
+        "logs",
+        "--help"
+      ],
+      "argv_base": [
+        "logs",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.265,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx logs [OPTIONS]                                                      \n                                                                                \n Show recent application logs from the shared on-disk log file.                 \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --limit   -n      INTEGER RANGE [x>=1]  Number of most recent log entries to \u2502\n\u2502                                         display.                             \u2502\n\u2502                                         [default: 200]                       \u2502\n\u2502 --source                                Include module/function/line details \u2502\n\u2502                                         in output.                           \u2502\n\u2502 --help                                  Show this message and exit.          \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Core Commands",
+      "title": "nbx docs --help",
+      "argv": [
+        "docs",
+        "--help"
+      ],
+      "argv_base": [
+        "docs",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.575,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx docs [OPTIONS] COMMAND [ARGS]...                                    \n                                                                                \n Generate reference documentation (captured CLI input/output).                  \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 generate-capture  Capture docs-safe ``nbx`` command output against the demo  \u2502\n\u2502                   profile only.                                              \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Core Commands",
+      "title": "nbx docs generate-capture --help",
+      "argv": [
+        "docs",
+        "generate-capture",
+        "--help"
+      ],
+      "argv_base": [
+        "docs",
+        "generate-capture",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.764,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx docs generate-capture [OPTIONS]                                     \n                                                                                \n Capture docs-safe ``nbx`` command output against the demo profile only.        \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --output       -o                   PATH                Markdown             \u2502\n\u2502                                                         destination.         \u2502\n\u2502                                                         Default:             \u2502\n\u2502                                                         <repo>/docs/generat\u2026 \u2502\n\u2502 --raw-dir                           PATH                Raw JSON artifacts   \u2502\n\u2502                                                         directory. Default:  \u2502\n\u2502                                                         <repo>/docs/generat\u2026 \u2502\n\u2502 --markdown         --no-markdown                        Append --markdown to \u2502\n\u2502                                                         dynamic list/get/\u2026   \u2502\n\u2502                                                         and ``nbx call``     \u2502\n\u2502                                                         captures so tables   \u2502\n\u2502                                                         are plain Markdown   \u2502\n\u2502                                                         (not Rich). Default: \u2502\n\u2502                                                         on.                  \u2502\n\u2502                                                         [default: markdown]  \u2502\n\u2502 --concurrency  -j                   INTEGER RANGE       Max parallel CLI     \u2502\n\u2502                                     [1<=x<=16]          captures. Higher     \u2502\n\u2502                                                         values speed up      \u2502\n\u2502                                                         generation but       \u2502\n\u2502                                                         increase NetBox      \u2502\n\u2502                                                         load.                \u2502\n\u2502                                                         [default: 4]         \u2502\n\u2502 --help                                                  Show this message    \u2502\n\u2502                                                         and exit.            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Schema Discovery",
+      "title": "nbx groups --help",
+      "argv": [
+        "groups",
+        "--help"
+      ],
+      "argv_base": [
+        "groups",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.529,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx groups [OPTIONS]                                                    \n                                                                                \n List all available OpenAPI app groups.                                         \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Schema Discovery",
+      "title": "nbx resources --help",
+      "argv": [
+        "resources",
+        "--help"
+      ],
+      "argv_base": [
+        "resources",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.328,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx resources [OPTIONS] GROUP                                           \n                                                                                \n List resources available within a group.                                       \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    group      TEXT  OpenAPI app group, e.g. dcim [required]                \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Schema Discovery",
+      "title": "nbx ops --help",
+      "argv": [
+        "ops",
+        "--help"
+      ],
+      "argv_base": [
+        "ops",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.989,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx ops [OPTIONS] GROUP RESOURCE                                        \n                                                                                \n Show available HTTP operations for a resource.                                 \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    group         TEXT  [required]                                          \u2502\n\u2502 *    resource      TEXT  [required]                                          \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Schema Discovery",
+      "title": "nbx groups",
+      "argv": [
+        "groups"
+      ],
+      "argv_base": [
+        "groups"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.968,
+      "truncated": false,
+      "stdout_full": "circuits\ncore\ndcim\nextras\nipam\nplugins\ntenancy\nusers\nvirtualization\nvpn\nwireless\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Schema Discovery",
+      "title": "nbx resources dcim",
+      "argv": [
+        "resources",
+        "dcim"
+      ],
+      "argv_base": [
+        "resources",
+        "dcim"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.32,
+      "truncated": false,
+      "stdout_full": "cable-terminations\ncables\nconnected-device\nconsole-port-templates\nconsole-ports\nconsole-server-port-templates\nconsole-server-ports\ndevice-bay-templates\ndevice-bays\ndevice-roles\ndevice-types\ndevices\nfront-port-templates\nfront-ports\ninterface-templates\ninterfaces\ninventory-item-roles\ninventory-item-templates\ninventory-items\nlocations\nmac-addresses\nmanufacturers\nmodule-bay-templates\nmodule-bays\nmodule-type-profiles\nmodule-types\nmodules\nplatforms\npower-feeds\npower-outlet-templates\npower-outlets\npower-panels\npower-port-templates\npower-ports\nrack-reservations\nrack-roles\nrack-types\nracks\nrear-port-templates\nrear-ports\nregions\nsite-groups\nsites\nvirtual-chassis\nvirtual-device-contexts\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Schema Discovery",
+      "title": "nbx ops dcim devices",
+      "argv": [
+        "ops",
+        "dcim",
+        "devices"
+      ],
+      "argv_base": [
+        "ops",
+        "dcim",
+        "devices"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.193,
+      "truncated": false,
+      "stdout_full": "                                  dcim/devices                                  \n\u250f\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2513\n\u2503 Method \u2503 Path                             \u2503 Operation ID                     \u2503\n\u2521\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2529\n\u2502 DELETE \u2502 /api/dcim/devices/               \u2502 dcim_devices_bulk_destroy        \u2502\n\u2502 GET    \u2502 /api/dcim/devices/               \u2502 dcim_devices_list                \u2502\n\u2502 PATCH  \u2502 /api/dcim/devices/               \u2502 dcim_devices_bulk_partial_update \u2502\n\u2502 POST   \u2502 /api/dcim/devices/               \u2502 dcim_devices_create              \u2502\n\u2502 PUT    \u2502 /api/dcim/devices/               \u2502 dcim_devices_bulk_update         \u2502\n\u2502 DELETE \u2502 /api/dcim/devices/{id}/          \u2502 dcim_devices_destroy             \u2502\n\u2502 GET    \u2502 /api/dcim/devices/{id}/          \u2502 dcim_devices_retrieve            \u2502\n\u2502 PATCH  \u2502 /api/dcim/devices/{id}/          \u2502 dcim_devices_partial_update      \u2502\n\u2502 PUT    \u2502 /api/dcim/devices/{id}/          \u2502 dcim_devices_update              \u2502\n\u2502 POST   \u2502 /api/dcim/devices/{id}/render-c\u2026 \u2502 dcim_devices_render_config_crea\u2026 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n"
+    },
+    {
+      "surface": "cli",
+      "section": "GraphQL and HTTP",
+      "title": "nbx graphql --help",
+      "argv": [
+        "graphql",
+        "--help"
+      ],
+      "argv_base": [
+        "graphql",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.968,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx graphql [OPTIONS] QUERY                                             \n                                                                                \n Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   \u2502\n\u2502                       TUI                                                    \u2502\n\u2502                       [required]                                             \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for \u2502\n\u2502                            multiple key=value pairs                          \u2502\n\u2502 --json                     Output raw JSON                                   \u2502\n\u2502 --yaml                     Output YAML                                       \u2502\n\u2502 --theme                    For `nbx graphql tui`: list available themes or   \u2502\n\u2502                            launch with `--theme <name>`.                     \u2502\n\u2502 --help                     Show this message and exit.                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "GraphQL and HTTP",
+      "title": "nbx call --help",
+      "argv": [
+        "call",
+        "--help"
+      ],
+      "argv_base": [
+        "call",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.014,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx call [OPTIONS] METHOD PATH                                          \n                                                                                \n Call an arbitrary NetBox API path.                                             \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    method      TEXT  [required]                                            \u2502\n\u2502 *    path        TEXT  [required]                                            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --query      -q      TEXT  Query parameter key=value                         \u2502\n\u2502 --body-json          TEXT  Inline JSON request body                          \u2502\n\u2502 --body-file          TEXT  Path to JSON request body file                    \u2502\n\u2502 --json                     Output raw JSON                                   \u2502\n\u2502 --yaml                     Output YAML                                       \u2502\n\u2502 --markdown                 Output Markdown (mutually exclusive with          \u2502\n\u2502                            --json/--yaml)                                    \u2502\n\u2502 --help                     Show this message and exit.                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Dynamic Commands",
+      "title": "nbx dcim --help",
+      "argv": [
+        "dcim",
+        "--help"
+      ],
+      "argv_base": [
+        "dcim",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.337,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dcim [OPTIONS] COMMAND [ARGS]...                                    \n                                                                                \n OpenAPI app group: dcim                                                        \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 cable-terminations             Resource: dcim/cable-terminations             \u2502\n\u2502 cables                         Resource: dcim/cables                         \u2502\n\u2502 connected-device               Resource: dcim/connected-device               \u2502\n\u2502 console-port-templates         Resource: dcim/console-port-templates         \u2502\n\u2502 console-ports                  Resource: dcim/console-ports                  \u2502\n\u2502 console-server-port-templates  Resource: dcim/console-server-port-templates  \u2502\n\u2502 console-server-ports           Resource: dcim/console-server-ports           \u2502\n\u2502 device-bay-templates           Resource: dcim/device-bay-templates           \u2502\n\u2502 device-bays                    Resource: dcim/device-bays                    \u2502\n\u2502 device-roles                   Resource: dcim/device-roles                   \u2502\n\u2502 device-types                   Resource: dcim/device-types                   \u2502\n\u2502 devices                        Resource: dcim/devices                        \u2502\n\u2502 front-port-templates           Resource: dcim/front-port-templates           \u2502\n\u2502 front-ports                    Resource: dcim/front-ports                    \u2502\n\u2502 interface-templates            Resource: dcim/interface-templates            \u2502\n\u2502 interfaces                     Resource: dcim/interfaces                     \u2502\n\u2502 inventory-item-roles           Resource: dcim/inventory-item-roles           \u2502\n\u2502 inventory-item-templates       Resource: dcim/inventory-item-templates       \u2502\n\u2502 inventory-items                Resource: dcim/inventory-items                \u2502\n\u2502 locations                      Resource: dcim/locations                      \u2502\n\u2502 mac-addresses                  Resource: dcim/mac-addresses                  \u2502\n\u2502 manufacturers                  Resource: dcim/manufacturers                  \u2502\n\u2502 module-bay-templates           Resource: dcim/module-bay-templates           \u2502\n\u2502 module-bays                    Resource: dcim/module-bays                    \u2502\n\u2502 module-type-profiles           Resource: dcim/module-type-profiles           \u2502\n\u2502 module-types                   Resource: dcim/module-types                   \u2502\n\u2502 modules                        Resource: dcim/modules                        \u2502\n\u2502 platforms                      Resource: dcim/platforms                      \u2502\n\u2502 power-feeds                    Resource: dcim/power-feeds                    \u2502\n\u2502 power-outlet-templates         Resource: dcim/power-outlet-templates         \u2502\n\u2502 power-outlets                  Resource: dcim/power-outlets                  \u2502\n\u2502 power-panels                   Resource: dcim/power-panels                   \u2502\n\u2502 power-port-templates           Resource: dcim/power-port-templates           \u2502\n\u2502 power-ports                    Resource: dcim/power-ports                    \u2502\n\u2502 rack-reservations              Resource: dcim/rack-reservations              \u2502\n\u2502 rack-roles                     Resource: dcim/rack-roles                     \u2502\n\u2502 rack-types                     Resource: dcim/rack-types                     \u2502\n\u2502 racks                          Resource: dcim/racks                          \u2502\n\u2502 rear-port-templates            Resource: dcim/rear-port-templates            \u2502\n\u2502 rear-ports                     Resource: dcim/rear-ports                     \u2502\n\u2502 regions                        Resource: dcim/regions                        \u2502\n\u2502 site-groups                    Resource: dcim/site-groups                    \u2502\n\u2502 sites                          Resource: dcim/sites                          \u2502\n\u2502 virtual-chassis                Resource: dcim/virtual-chassis                \u2502\n\u2502 virtual-device-contexts        Resource: dcim/virtual-device-contexts        \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Dynamic Commands",
+      "title": "nbx dcim devices list --help",
+      "argv": [
+        "dcim",
+        "devices",
+        "list",
+        "--help"
+      ],
+      "argv_base": [
+        "dcim",
+        "devices",
+        "list",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.322,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dcim devices list [OPTIONS]                                         \n                                                                                \n list dcim/devices                                                              \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --id                   INTEGER  Object ID for detail operations              \u2502\n\u2502 --query        -q      TEXT     Query parameter key=value                    \u2502\n\u2502 --body-json            TEXT     Inline JSON request body                     \u2502\n\u2502 --body-file            TEXT     Path to JSON request body file               \u2502\n\u2502 --json                          Output raw JSON                              \u2502\n\u2502 --yaml                          Output YAML                                  \u2502\n\u2502 --markdown                      Output Markdown (mutually exclusive with     \u2502\n\u2502                                 --json/--yaml)                               \u2502\n\u2502 --trace                         Fetch and render the cable trace as ASCII    \u2502\n\u2502                                 when supported.                              \u2502\n\u2502 --trace-only                    Render only the cable trace ASCII output     \u2502\n\u2502                                 when supported.                              \u2502\n\u2502 --select               TEXT     JSON dot-path to extract specific field from \u2502\n\u2502                                 response                                     \u2502\n\u2502 --columns              TEXT     Comma-separated list of columns to display   \u2502\n\u2502 --max-columns          INTEGER  Maximum number of columns to display         \u2502\n\u2502                                 [default: 6]                                 \u2502\n\u2502 --dry-run                       Preview write operation without executing    \u2502\n\u2502                                 (create/update/patch/delete only)            \u2502\n\u2502 --help                          Show this message and exit.                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Dynamic Commands",
+      "title": "nbx dcim interfaces get --help",
+      "argv": [
+        "dcim",
+        "interfaces",
+        "get",
+        "--help"
+      ],
+      "argv_base": [
+        "dcim",
+        "interfaces",
+        "get",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.081,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dcim interfaces get [OPTIONS]                                       \n                                                                                \n get dcim/interfaces                                                            \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --id                   INTEGER  Object ID for detail operations              \u2502\n\u2502 --query        -q      TEXT     Query parameter key=value                    \u2502\n\u2502 --body-json            TEXT     Inline JSON request body                     \u2502\n\u2502 --body-file            TEXT     Path to JSON request body file               \u2502\n\u2502 --json                          Output raw JSON                              \u2502\n\u2502 --yaml                          Output YAML                                  \u2502\n\u2502 --markdown                      Output Markdown (mutually exclusive with     \u2502\n\u2502                                 --json/--yaml)                               \u2502\n\u2502 --trace                         Fetch and render the cable trace as ASCII    \u2502\n\u2502                                 when supported.                              \u2502\n\u2502 --trace-only                    Render only the cable trace ASCII output     \u2502\n\u2502                                 when supported.                              \u2502\n\u2502 --select               TEXT     JSON dot-path to extract specific field from \u2502\n\u2502                                 response                                     \u2502\n\u2502 --columns              TEXT     Comma-separated list of columns to display   \u2502\n\u2502 --max-columns          INTEGER  Maximum number of columns to display         \u2502\n\u2502                                 [default: 6]                                 \u2502\n\u2502 --dry-run                       Preview write operation without executing    \u2502\n\u2502                                 (create/update/patch/delete only)            \u2502\n\u2502 --help                          Show this message and exit.                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Dynamic Commands",
+      "title": "nbx demo dcim devices create --dry-run --body-json {\"name\":\"test\"}",
+      "argv": [
+        "demo",
+        "dcim",
+        "devices",
+        "create",
+        "--dry-run",
+        "--body-json",
+        "{\"name\":\"test\"}",
+        "--markdown"
+      ],
+      "argv_base": [
+        "demo",
+        "dcim",
+        "devices",
+        "create",
+        "--dry-run",
+        "--body-json",
+        "{\"name\":\"test\"}"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.986,
+      "truncated": false,
+      "stdout_full": "        Dry Run Preview        \n\u250f\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2513\n\u2503 Field  \u2503 Value              \u2503\n\u2521\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2529\n\u2502 Method \u2502 POST               \u2502\n\u2502 Path   \u2502 /api/dcim/devices/ \u2502\n\u2502 Body   \u2502 {                  \u2502\n\u2502        \u2502   \"name\": \"test\"   \u2502\n\u2502        \u2502 }                  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev --help",
+      "argv": [
+        "dev",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.926,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev [OPTIONS] COMMAND [ARGS]...                                     \n                                                                                \n Developer-focused tools and experimental interfaces.                           \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 tui           Launch the developer request workbench TUI.                    \u2502\n\u2502 http          Direct HTTP operations mapped from OpenAPI paths (nbx dev http \u2502\n\u2502               <method> --path ...).                                          \u2502\n\u2502 django-model  Inspect NetBox Django models: parse, cache, and visualize      \u2502\n\u2502               relationships.                                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev http --help",
+      "argv": [
+        "dev",
+        "http",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "http",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.831,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev http [OPTIONS] COMMAND [ARGS]...                                \n                                                                                \n Direct HTTP operations mapped from OpenAPI paths (nbx dev http <method> --path \n ...).                                                                          \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 get     GET a list or detail endpoint. Use --id for a single object.         \u2502\n\u2502 post    POST to create a new object.                                         \u2502\n\u2502 put     PUT to fully replace an existing object. Requires --id.              \u2502\n\u2502 patch   PATCH to partially update an existing object. Requires --id.         \u2502\n\u2502 delete  DELETE an object by ID. Requires --id.                               \u2502\n\u2502 paths   List all OpenAPI paths from the bundled NetBox schema.               \u2502\n\u2502 ops     Show available HTTP operations for a specific OpenAPI path.          \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev http paths --help",
+      "argv": [
+        "dev",
+        "http",
+        "paths",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "http",
+        "paths",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.911,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev http paths [OPTIONS] [SEARCH]                                   \n                                                                                \n List all OpenAPI paths from the bundled NetBox schema.                         \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502   search      [SEARCH]  Optional substring filter on path                    \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --method  -m      TEXT  Filter by HTTP method (GET, POST, PUT, PATCH,        \u2502\n\u2502                         DELETE)                                              \u2502\n\u2502 --group   -g      TEXT  Filter by API group, e.g. dcim                       \u2502\n\u2502 --help                  Show this message and exit.                          \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev http ops --help",
+      "argv": [
+        "dev",
+        "http",
+        "ops",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "http",
+        "ops",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.919,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev http ops [OPTIONS]                                              \n                                                                                \n Show available HTTP operations for a specific OpenAPI path.                    \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *  --path  -p      TEXT  API path to inspect [required]                      \u2502\n\u2502    --help                Show this message and exit.                         \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev http paths",
+      "argv": [
+        "dev",
+        "http",
+        "paths"
+      ],
+      "argv_base": [
+        "dev",
+        "http",
+        "paths"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.203,
+      "truncated": false,
+      "stdout_full": "                                  312 path(s)                                   \n\u250f\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2513\n\u2503 Path                                                     \u2503 Methods           \u2503\n\u2521\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2529\n\u2502 /api/authentication-check/                               \u2502 GET               \u2502\n\u2502 /api/circuits/circuit-group-assignments/                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/circuit-group-assignments/{id}/            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/circuit-groups/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/circuit-groups/{id}/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/circuit-terminations/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/circuit-terminations/{id}/                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/circuit-terminations/{id}/paths/           \u2502 GET               \u2502\n\u2502 /api/circuits/circuit-types/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/circuit-types/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/circuits/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/circuits/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/provider-accounts/                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/provider-accounts/{id}/                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/provider-networks/                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/provider-networks/{id}/                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/providers/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/providers/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/virtual-circuit-terminations/              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/virtual-circuit-terminations/{id}/         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/virtual-circuit-terminations/{id}/paths/   \u2502 GET               \u2502\n\u2502 /api/circuits/virtual-circuit-types/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/virtual-circuit-types/{id}/                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/circuits/virtual-circuits/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/circuits/virtual-circuits/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/core/background-queues/                             \u2502 GET               \u2502\n\u2502 /api/core/background-queues/{name}/                      \u2502 GET               \u2502\n\u2502 /api/core/background-tasks/                              \u2502 GET               \u2502\n\u2502 /api/core/background-tasks/{id}/                         \u2502 GET               \u2502\n\u2502 /api/core/background-tasks/{id}/delete/                  \u2502 POST              \u2502\n\u2502 /api/core/background-tasks/{id}/enqueue/                 \u2502 POST              \u2502\n\u2502 /api/core/background-tasks/{id}/requeue/                 \u2502 POST              \u2502\n\u2502 /api/core/background-tasks/{id}/stop/                    \u2502 POST              \u2502\n\u2502 /api/core/background-workers/                            \u2502 GET               \u2502\n\u2502 /api/core/background-workers/{name}/                     \u2502 GET               \u2502\n\u2502 /api/core/data-files/                                    \u2502 GET               \u2502\n\u2502 /api/core/data-files/{id}/                               \u2502 GET               \u2502\n\u2502 /api/core/data-sources/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/core/data-sources/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/core/data-sources/{id}/sync/                        \u2502 POST              \u2502\n\u2502 /api/core/jobs/                                          \u2502 GET               \u2502\n\u2502 /api/core/jobs/{id}/                                     \u2502 GET               \u2502\n\u2502 /api/core/object-changes/                                \u2502 GET               \u2502\n\u2502 /api/core/object-changes/{id}/                           \u2502 GET               \u2502\n\u2502 /api/core/object-types/                                  \u2502 GET               \u2502\n\u2502 /api/core/object-types/{id}/                             \u2502 GET               \u2502\n\u2502 /api/dcim/cable-terminations/                            \u2502 GET               \u2502\n\u2502 /api/dcim/cable-terminations/{id}/                       \u2502 GET               \u2502\n\u2502 /api/dcim/cables/                                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/cables/{id}/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/connected-device/                              \u2502 GET               \u2502\n\u2502 /api/dcim/console-port-templates/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/console-port-templates/{id}/                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/console-ports/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/console-ports/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/console-ports/{id}/trace/                      \u2502 GET               \u2502\n\u2502 /api/dcim/console-server-port-templates/                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/console-server-port-templates/{id}/            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/console-server-ports/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/console-server-ports/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/console-server-ports/{id}/trace/               \u2502 GET               \u2502\n\u2502 /api/dcim/device-bay-templates/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/device-bay-templates/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/device-bays/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/device-bays/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/device-roles/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/device-roles/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/device-types/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/device-types/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/devices/                                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/devices/{id}/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/devices/{id}/render-config/                    \u2502 POST              \u2502\n\u2502 /api/dcim/front-port-templates/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/front-port-templates/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/front-ports/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/front-ports/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/front-ports/{id}/paths/                        \u2502 GET               \u2502\n\u2502 /api/dcim/interface-templates/                           \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/interface-templates/{id}/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/interfaces/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/interfaces/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/interfaces/{id}/trace/                         \u2502 GET               \u2502\n\u2502 /api/dcim/inventory-item-roles/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/inventory-item-roles/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/inventory-item-templates/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/inventory-item-templates/{id}/                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/inventory-items/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/inventory-items/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/locations/                                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/locations/{id}/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/mac-addresses/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/mac-addresses/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/manufacturers/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/manufacturers/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/module-bay-templates/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/module-bay-templates/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/module-bays/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/module-bays/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/module-type-profiles/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/module-type-profiles/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/module-types/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/module-types/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/modules/                                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/modules/{id}/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/platforms/                                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/platforms/{id}/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-feeds/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/power-feeds/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-feeds/{id}/trace/                        \u2502 GET               \u2502\n\u2502 /api/dcim/power-outlet-templates/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/power-outlet-templates/{id}/                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-outlets/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/power-outlets/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-outlets/{id}/trace/                      \u2502 GET               \u2502\n\u2502 /api/dcim/power-panels/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/power-panels/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-port-templates/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/power-port-templates/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-ports/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/power-ports/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/power-ports/{id}/trace/                        \u2502 GET               \u2502\n\u2502 /api/dcim/rack-reservations/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/rack-reservations/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/rack-roles/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/rack-roles/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/rack-types/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/rack-types/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/racks/                                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/racks/{id}/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/racks/{id}/elevation/                          \u2502 GET               \u2502\n\u2502 /api/dcim/rear-port-templates/                           \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/rear-port-templates/{id}/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/rear-ports/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/rear-ports/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/rear-ports/{id}/paths/                         \u2502 GET               \u2502\n\u2502 /api/dcim/regions/                                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/regions/{id}/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/site-groups/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/site-groups/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/sites/                                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/sites/{id}/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/virtual-chassis/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/virtual-chassis/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/dcim/virtual-device-contexts/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/dcim/virtual-device-contexts/{id}/                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/bookmarks/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/bookmarks/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/config-context-profiles/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/config-context-profiles/{id}/                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/config-context-profiles/{id}/sync/           \u2502 POST              \u2502\n\u2502 /api/extras/config-contexts/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/config-contexts/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/config-contexts/{id}/sync/                   \u2502 POST              \u2502\n\u2502 /api/extras/config-templates/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/config-templates/{id}/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/config-templates/{id}/render/                \u2502 POST              \u2502\n\u2502 /api/extras/config-templates/{id}/sync/                  \u2502 POST              \u2502\n\u2502 /api/extras/custom-field-choice-sets/                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/custom-field-choice-sets/{id}/               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/custom-field-choice-sets/{id}/choices/       \u2502 GET               \u2502\n\u2502 /api/extras/custom-fields/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/custom-fields/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/custom-links/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/custom-links/{id}/                           \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/dashboard/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/event-rules/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/event-rules/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/export-templates/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/export-templates/{id}/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/export-templates/{id}/sync/                  \u2502 POST              \u2502\n\u2502 /api/extras/image-attachments/                           \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/image-attachments/{id}/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/journal-entries/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/journal-entries/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/notification-groups/                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/notification-groups/{id}/                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/notifications/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/notifications/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/saved-filters/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/saved-filters/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/scripts/                                     \u2502 GET, POST         \u2502\n\u2502 /api/extras/scripts/{id}/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/subscriptions/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/subscriptions/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/table-configs/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/table-configs/{id}/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/tagged-objects/                              \u2502 GET               \u2502\n\u2502 /api/extras/tagged-objects/{id}/                         \u2502 GET               \u2502\n\u2502 /api/extras/tags/                                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/tags/{id}/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/extras/webhooks/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/extras/webhooks/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/aggregates/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/aggregates/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/asn-ranges/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/asn-ranges/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/asn-ranges/{id}/available-asns/                \u2502 GET, POST         \u2502\n\u2502 /api/ipam/asns/                                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/asns/{id}/                                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/fhrp-group-assignments/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/fhrp-group-assignments/{id}/                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/fhrp-groups/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/fhrp-groups/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/ip-addresses/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/ip-addresses/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/ip-ranges/                                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/ip-ranges/{id}/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/ip-ranges/{id}/available-ips/                  \u2502 GET, POST         \u2502\n\u2502 /api/ipam/prefixes/                                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/prefixes/{id}/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/prefixes/{id}/available-ips/                   \u2502 GET, POST         \u2502\n\u2502 /api/ipam/prefixes/{id}/available-prefixes/              \u2502 GET, POST         \u2502\n\u2502 /api/ipam/rirs/                                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/rirs/{id}/                                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/roles/                                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/roles/{id}/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/route-targets/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/route-targets/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/service-templates/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/service-templates/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/services/                                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/services/{id}/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/vlan-groups/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/vlan-groups/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/vlan-groups/{id}/available-vlans/              \u2502 GET, POST         \u2502\n\u2502 /api/ipam/vlan-translation-policies/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/vlan-translation-policies/{id}/                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/vlan-translation-rules/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/vlan-translation-rules/{id}/                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/vlans/                                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/vlans/{id}/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/ipam/vrfs/                                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/ipam/vrfs/{id}/                                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/plugins/gpon/boards/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/plugins/gpon/boards/{id}/                           \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/plugins/gpon/line-profiles/                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/plugins/gpon/line-profiles/{id}/                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/plugins/gpon/olts/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/plugins/gpon/olts/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/plugins/gpon/onts/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/plugins/gpon/onts/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/plugins/gpon/ports/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/plugins/gpon/ports/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/plugins/gpon/service-profiles/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/plugins/gpon/service-profiles/{id}/                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/schema/                                             \u2502 GET               \u2502\n\u2502 /api/status/                                             \u2502 GET               \u2502\n\u2502 /api/tenancy/contact-assignments/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/tenancy/contact-assignments/{id}/                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/tenancy/contact-groups/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/tenancy/contact-groups/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/tenancy/contact-roles/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/tenancy/contact-roles/{id}/                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/tenancy/contacts/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/tenancy/contacts/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/tenancy/tenant-groups/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/tenancy/tenant-groups/{id}/                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/tenancy/tenants/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/tenancy/tenants/{id}/                               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/users/config/                                       \u2502 GET               \u2502\n\u2502 /api/users/groups/                                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/users/groups/{id}/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/users/owner-groups/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/users/owner-groups/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/users/owners/                                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/users/owners/{id}/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/users/permissions/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/users/permissions/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/users/tokens/                                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/users/tokens/provision/                             \u2502 POST              \u2502\n\u2502 /api/users/tokens/{id}/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/users/users/                                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/users/users/{id}/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/cluster-groups/                      \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/virtualization/cluster-groups/{id}/                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/cluster-types/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/virtualization/cluster-types/{id}/                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/clusters/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/virtualization/clusters/{id}/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/interfaces/                          \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/virtualization/interfaces/{id}/                     \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/virtual-disks/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/virtualization/virtual-disks/{id}/                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/virtual-machines/                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/virtualization/virtual-machines/{id}/               \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/virtualization/virtual-machines/{id}/render-config/ \u2502 POST              \u2502\n\u2502 /api/vpn/ike-policies/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/ike-policies/{id}/                              \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/ike-proposals/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/ike-proposals/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/ipsec-policies/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/ipsec-policies/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/ipsec-profiles/                                 \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/ipsec-profiles/{id}/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/ipsec-proposals/                                \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/ipsec-proposals/{id}/                           \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/l2vpn-terminations/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/l2vpn-terminations/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/l2vpns/                                         \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/l2vpns/{id}/                                    \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/tunnel-groups/                                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/tunnel-groups/{id}/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/tunnel-terminations/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/tunnel-terminations/{id}/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/vpn/tunnels/                                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/vpn/tunnels/{id}/                                   \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/wireless/wireless-lan-groups/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/wireless/wireless-lan-groups/{id}/                  \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/wireless/wireless-lans/                             \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/wireless/wireless-lans/{id}/                        \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2502 /api/wireless/wireless-links/                            \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, POST, PUT  \u2502\n\u2502 /api/wireless/wireless-links/{id}/                       \u2502 DELETE, GET,      \u2502\n\u2502                                                          \u2502 PATCH, PUT        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev http ops --path /api/dcim/devices/",
+      "argv": [
+        "dev",
+        "http",
+        "ops",
+        "--path",
+        "/api/dcim/devices/"
+      ],
+      "argv_base": [
+        "dev",
+        "http",
+        "ops",
+        "--path",
+        "/api/dcim/devices/"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.027,
+      "truncated": false,
+      "stdout_full": "            Operations: /api/dcim/devices/             \n\u250f\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2533\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2513\n\u2503 Method \u2503 Operation ID                     \u2503 Summary \u2503\n\u2521\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2547\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2529\n\u2502 GET    \u2502 dcim_devices_list                \u2502 -       \u2502\n\u2502 POST   \u2502 dcim_devices_create              \u2502 -       \u2502\n\u2502 PUT    \u2502 dcim_devices_bulk_update         \u2502 -       \u2502\n\u2502 PATCH  \u2502 dcim_devices_bulk_partial_update \u2502 -       \u2502\n\u2502 DELETE \u2502 dcim_devices_bulk_destroy        \u2502 -       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev django-model --help",
+      "argv": [
+        "dev",
+        "django-model",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "django-model",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.911,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev django-model [OPTIONS] COMMAND [ARGS]...                        \n                                                                                \n Inspect NetBox Django models: parse, cache, and visualize relationships.       \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 build  Parse NetBox Django models and build the static cache.                \u2502\n\u2502 tui    Launch the Django Model Inspector TUI.                                \u2502\n\u2502 fetch  Fetch a NetBox release from GitHub and build the Django model graph.  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev django-model build --help",
+      "argv": [
+        "dev",
+        "django-model",
+        "build",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "django-model",
+        "build",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.971,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev django-model build [OPTIONS]                                    \n                                                                                \n Parse NetBox Django models and build the static cache.                         \n                                                                                \n Run this once (or when NetBox is updated) to generate the model graph          \n used by the TUI.                                                               \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --netbox-root  -n      PATH  Path to the NetBox Django project root          \u2502\n\u2502                              (contains dcim/, ipam/, etc.).                  \u2502\n\u2502                              [default: /root/nms/netbox/netbox]              \u2502\n\u2502 --rebuild      -r            Force rebuild even if cache exists.             \u2502\n\u2502 --cache-path   -o      PATH  Output path for the JSON build file (default:   \u2502\n\u2502                              ~/.config/netbox-sdk/django_models.json).       \u2502\n\u2502 --help                       Show this message and exit.                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Developer Tools",
+      "title": "nbx dev django-model fetch --help",
+      "argv": [
+        "dev",
+        "django-model",
+        "fetch",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "django-model",
+        "fetch",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.913,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev django-model fetch [OPTIONS] [TAG]                              \n                                                                                \n Fetch a NetBox release from GitHub and build the Django model graph.           \n                                                                                \n Examples::                                                                     \n                                                                                \n nbx dev django-model fetch v4.2.1                                              \n nbx dev django-model fetch --auto                                              \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502   tag      [TAG]  Release tag to fetch (e.g. v4.2.1). Omit with --auto to    \u2502\n\u2502                   detect from connected NetBox.                              \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --auto  -a        Detect NetBox version from the default profile and fetch   \u2502\n\u2502                   the matching release.                                      \u2502\n\u2502 --help            Show this message and exit.                                \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo --help",
+      "argv": [
+        "demo",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.922,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo [OPTIONS] COMMAND [ARGS]...                                    \n                                                                                \n NetBox demo.netbox.dev profile and command tree.                               \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --token-key           TEXT  Set the demo profile directly without            \u2502\n\u2502                             Playwright.                                      \u2502\n\u2502 --token-secret        TEXT  Set the demo profile directly without            \u2502\n\u2502                             Playwright.                                      \u2502\n\u2502 --help                      Show this message and exit.                      \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 graphql         Execute a GraphQL query against the demo NetBox API, or      \u2502\n\u2502                 launch the GraphQL TUI.                                      \u2502\n\u2502 init            Authenticate with demo.netbox.dev via Playwright and save    \u2502\n\u2502                 the demo profile.                                            \u2502\n\u2502 config          Show the configured demo profile settings.                   \u2502\n\u2502 test            Test connectivity to demo.netbox.dev using the configured    \u2502\n\u2502                 demo profile.                                                \u2502\n\u2502 reset           Remove the saved demo profile configuration.                 \u2502\n\u2502 tui             Launch the TUI against the demo profile.                     \u2502\n\u2502 cli             CLI builder tools against the demo.netbox.dev profile.       \u2502\n\u2502 dev             Developer-focused tools against the demo.netbox.dev profile. \u2502\n\u2502 circuits        OpenAPI app group: circuits                                  \u2502\n\u2502 core            OpenAPI app group: core                                      \u2502\n\u2502 dcim            OpenAPI app group: dcim                                      \u2502\n\u2502 extras          OpenAPI app group: extras                                    \u2502\n\u2502 ipam            OpenAPI app group: ipam                                      \u2502\n\u2502 plugins         OpenAPI app group: plugins                                   \u2502\n\u2502 tenancy         OpenAPI app group: tenancy                                   \u2502\n\u2502 users           OpenAPI app group: users                                     \u2502\n\u2502 virtualization  OpenAPI app group: virtualization                            \u2502\n\u2502 vpn             OpenAPI app group: vpn                                       \u2502\n\u2502 wireless        OpenAPI app group: wireless                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo init --help",
+      "argv": [
+        "demo",
+        "init",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "init",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.93,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo init [OPTIONS]                                                 \n                                                                                \n Authenticate with demo.netbox.dev via Playwright and save the demo profile.    \n                                                                                \n Pass ``--username`` and ``--password`` for non-interactive / CI use.           \n Alternatively, supply an existing token directly with ``--token-key`` and      \n ``--token-secret`` to skip Playwright entirely.                                \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --headless          --headed          Run Playwright headless (default). Use \u2502\n\u2502                                       --headed only when a desktop/X server  \u2502\n\u2502                                       is available.                          \u2502\n\u2502                                       [default: headless]                    \u2502\n\u2502 --username      -u              TEXT  demo.netbox.dev username. Prompted     \u2502\n\u2502                                       interactively when omitted.            \u2502\n\u2502 --password      -p              TEXT  demo.netbox.dev password. Prompted     \u2502\n\u2502                                       interactively when omitted.            \u2502\n\u2502 --token-key                     TEXT  Set the demo profile directly without  \u2502\n\u2502                                       Playwright (requires --token-secret).  \u2502\n\u2502 --token-secret                  TEXT  Set the demo profile directly without  \u2502\n\u2502                                       Playwright (requires --token-key).     \u2502\n\u2502 --help                                Show this message and exit.            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo config --help",
+      "argv": [
+        "demo",
+        "config",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "config",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.755,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo config [OPTIONS]                                               \n                                                                                \n Show the configured demo profile settings.                                     \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --show-token          Include API token in output                            \u2502\n\u2502 --help                Show this message and exit.                            \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo dev --help",
+      "argv": [
+        "demo",
+        "dev",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "dev",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.848,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo dev [OPTIONS] COMMAND [ARGS]...                                \n                                                                                \n Developer-focused tools against the demo.netbox.dev profile.                   \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 tui            Launch the developer request workbench TUI against the demo   \u2502\n\u2502                profile.                                                      \u2502\n\u2502 http           Direct HTTP operations mapped from OpenAPI paths (nbx dev     \u2502\n\u2502                http <method> --path ...).                                    \u2502\n\u2502 django-model   Inspect NetBox Django models: parse, cache, and visualize     \u2502\n\u2502                relationships.                                                \u2502\n\u2502 django-models  Inspect NetBox Django models: parse, cache, and visualize     \u2502\n\u2502                relationships.                                                \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo cli --help",
+      "argv": [
+        "demo",
+        "cli",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "cli",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.791,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo cli [OPTIONS] COMMAND [ARGS]...                                \n                                                                                \n CLI builder tools against the demo.netbox.dev profile.                         \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 tui  Launch the interactive CLI command builder against the demo profile.    \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo dev django-model --help",
+      "argv": [
+        "demo",
+        "dev",
+        "django-model",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "dev",
+        "django-model",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.895,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo dev django-model [OPTIONS] COMMAND [ARGS]...                   \n                                                                                \n Inspect NetBox Django models: parse, cache, and visualize relationships.       \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Commands \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 build  Parse NetBox Django models and build the static cache.                \u2502\n\u2502 tui    Launch the Django Model Inspector TUI.                                \u2502\n\u2502 fetch  Fetch a NetBox release from GitHub and build the Django model graph.  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "cli",
+      "section": "Demo Profile",
+      "title": "nbx demo config",
+      "argv": [
+        "demo",
+        "config"
+      ],
+      "argv_base": [
+        "demo",
+        "config"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.726,
+      "truncated": false,
+      "stdout_full": "{\n  \"profile\": \"demo\",\n  \"base_url\": \"https://demo.netbox.dev\",\n  \"timeout\": 30.0,\n  \"token_version\": \"v2\",\n  \"demo_username\": \"unset\",\n  \"demo_password\": \"unset\",\n  \"token\": \"set\",\n  \"token_key\": \"set\",\n  \"token_secret\": \"set\"\n}\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Main Browser",
+      "title": "nbx tui --help",
+      "argv": [
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.835,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx tui [OPTIONS]                                                       \n                                                                                \n Launch the interactive NetBox terminal UI.                                     \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme          Theme selector. Use '--theme' to list available themes or   \u2502\n\u2502                  '--theme <name>' to launch with one.                        \u2502\n\u2502 --help           Show this message and exit.                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Main Browser",
+      "title": "nbx tui --theme",
+      "argv": [
+        "tui",
+        "--theme"
+      ],
+      "argv_base": [
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.97,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Main Browser",
+      "title": "nbx demo tui --help",
+      "argv": [
+        "demo",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.69,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo tui [OPTIONS]                                                  \n                                                                                \n Launch the TUI against the demo profile.                                       \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme          Theme selector. Use '--theme' to list available themes or   \u2502\n\u2502                  '--theme <name>' to launch with one.                        \u2502\n\u2502 --help           Show this message and exit.                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Logs Viewer",
+      "title": "nbx tui logs --theme",
+      "argv": [
+        "tui",
+        "logs",
+        "--theme"
+      ],
+      "argv_base": [
+        "tui",
+        "logs",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.914,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Developer Workbench",
+      "title": "nbx dev tui --help",
+      "argv": [
+        "dev",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.643,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev tui [OPTIONS]                                                   \n                                                                                \n Launch the developer request workbench TUI.                                    \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme          Theme selector. Use '--theme' to list available themes or   \u2502\n\u2502                  '--theme <name>' to launch with one.                        \u2502\n\u2502 --help           Show this message and exit.                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Developer Workbench",
+      "title": "nbx dev tui --theme",
+      "argv": [
+        "dev",
+        "tui",
+        "--theme"
+      ],
+      "argv_base": [
+        "dev",
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.865,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Developer Workbench",
+      "title": "nbx demo dev tui --help",
+      "argv": [
+        "demo",
+        "dev",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "dev",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.808,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo dev tui [OPTIONS]                                              \n                                                                                \n Launch the developer request workbench TUI against the demo profile.           \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme          Theme selector. Use '--theme' to list available themes or   \u2502\n\u2502                  '--theme <name>' to launch with one.                        \u2502\n\u2502 --help           Show this message and exit.                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Developer Workbench",
+      "title": "nbx demo dev tui --theme",
+      "argv": [
+        "demo",
+        "dev",
+        "tui",
+        "--theme"
+      ],
+      "argv_base": [
+        "demo",
+        "dev",
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.158,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "GraphQL TUI",
+      "title": "nbx graphql --help",
+      "argv": [
+        "graphql",
+        "--help"
+      ],
+      "argv_base": [
+        "graphql",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.736,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx graphql [OPTIONS] QUERY                                             \n                                                                                \n Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   \u2502\n\u2502                       TUI                                                    \u2502\n\u2502                       [required]                                             \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for \u2502\n\u2502                            multiple key=value pairs                          \u2502\n\u2502 --json                     Output raw JSON                                   \u2502\n\u2502 --yaml                     Output YAML                                       \u2502\n\u2502 --theme                    For `nbx graphql tui`: list available themes or   \u2502\n\u2502                            launch with `--theme <name>`.                     \u2502\n\u2502 --help                     Show this message and exit.                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "GraphQL TUI",
+      "title": "nbx graphql tui --help",
+      "argv": [
+        "graphql",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "graphql",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.667,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx graphql [OPTIONS] QUERY                                             \n                                                                                \n Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   \u2502\n\u2502                       TUI                                                    \u2502\n\u2502                       [required]                                             \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for \u2502\n\u2502                            multiple key=value pairs                          \u2502\n\u2502 --json                     Output raw JSON                                   \u2502\n\u2502 --yaml                     Output YAML                                       \u2502\n\u2502 --theme                    For `nbx graphql tui`: list available themes or   \u2502\n\u2502                            launch with `--theme <name>`.                     \u2502\n\u2502 --help                     Show this message and exit.                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "GraphQL TUI",
+      "title": "nbx graphql tui --theme",
+      "argv": [
+        "graphql",
+        "tui",
+        "--theme"
+      ],
+      "argv_base": [
+        "graphql",
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.919,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "GraphQL TUI",
+      "title": "nbx demo graphql --help",
+      "argv": [
+        "demo",
+        "graphql",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "graphql",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.578,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo graphql [OPTIONS] QUERY                                        \n                                                                                \n Execute a GraphQL query against the demo NetBox API, or launch the GraphQL     \n TUI.                                                                           \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   \u2502\n\u2502                       TUI                                                    \u2502\n\u2502                       [required]                                             \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for \u2502\n\u2502                            multiple key=value pairs                          \u2502\n\u2502 --json                     Output raw JSON                                   \u2502\n\u2502 --yaml                     Output YAML                                       \u2502\n\u2502 --theme                    For `nbx demo graphql tui`: list available themes \u2502\n\u2502                            or launch with `--theme <name>`.                  \u2502\n\u2502 --help                     Show this message and exit.                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "GraphQL TUI",
+      "title": "nbx demo graphql tui --help",
+      "argv": [
+        "demo",
+        "graphql",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "graphql",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.763,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo graphql [OPTIONS] QUERY                                        \n                                                                                \n Execute a GraphQL query against the demo NetBox API, or launch the GraphQL     \n TUI.                                                                           \n                                                                                \n\u256d\u2500 Arguments \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   \u2502\n\u2502                       TUI                                                    \u2502\n\u2502                       [required]                                             \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for \u2502\n\u2502                            multiple key=value pairs                          \u2502\n\u2502 --json                     Output raw JSON                                   \u2502\n\u2502 --yaml                     Output YAML                                       \u2502\n\u2502 --theme                    For `nbx demo graphql tui`: list available themes \u2502\n\u2502                            or launch with `--theme <name>`.                  \u2502\n\u2502 --help                     Show this message and exit.                       \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "GraphQL TUI",
+      "title": "nbx demo graphql tui --theme",
+      "argv": [
+        "demo",
+        "graphql",
+        "tui",
+        "--theme"
+      ],
+      "argv_base": [
+        "demo",
+        "graphql",
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.188,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "CLI Builder",
+      "title": "nbx cli tui --help",
+      "argv": [
+        "cli",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "cli",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.043,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx cli tui [OPTIONS]                                                   \n                                                                                \n Launch the interactive CLI command builder TUI.                                \n                                                                                \n Presents a navigable menu tree (group \u2192 resource \u2192 action) that                \n progressively builds an ``nbx`` command, then executes it and                  \n shows the output \u2014 all without leaving the terminal.                           \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --help          Show this message and exit.                                  \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "CLI Builder",
+      "title": "nbx demo cli tui --help",
+      "argv": [
+        "demo",
+        "cli",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "cli",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.471,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo cli tui [OPTIONS]                                              \n                                                                                \n Launch the interactive CLI command builder against the demo profile.           \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme          Theme selector. Use '--theme' to list available themes or   \u2502\n\u2502                  '--theme <name>' to launch with one.                        \u2502\n\u2502 --help           Show this message and exit.                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "CLI Builder",
+      "title": "nbx demo cli tui --theme",
+      "argv": [
+        "demo",
+        "cli",
+        "tui",
+        "--theme"
+      ],
+      "argv_base": [
+        "demo",
+        "cli",
+        "tui",
+        "--theme"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.196,
+      "truncated": false,
+      "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Django Models Browser",
+      "title": "nbx dev django-model tui --help",
+      "argv": [
+        "dev",
+        "django-model",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "dev",
+        "django-model",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.369,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx dev django-model tui [OPTIONS]                                      \n                                                                                \n Launch the Django Model Inspector TUI.                                         \n                                                                                \n Automatically builds the model cache if it doesn't exist.                      \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme        -t      TEXT  Theme name (e.g. netbox-dark, dracula).         \u2502\n\u2502 --netbox-root  -n      PATH  Path to the NetBox Django project root          \u2502\n\u2502                              (auto-builds if cache missing).                 \u2502\n\u2502                              [default: /root/nms/netbox/netbox]              \u2502\n\u2502 --cache-path   -o      PATH  Path to a specific model graph JSON file.       \u2502\n\u2502 --help                       Show this message and exit.                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    },
+    {
+      "surface": "tui",
+      "section": "Django Models Browser",
+      "title": "nbx demo dev django-model tui --help",
+      "argv": [
+        "demo",
+        "dev",
+        "django-model",
+        "tui",
+        "--help"
+      ],
+      "argv_base": [
+        "demo",
+        "dev",
+        "django-model",
+        "tui",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.97,
+      "truncated": false,
+      "stdout_full": "                                                                                \n Usage: nbx demo dev django-model tui [OPTIONS]                                 \n                                                                                \n Launch the Django Model Inspector TUI.                                         \n                                                                                \n Automatically builds the model cache if it doesn't exist.                      \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme        -t      TEXT  Theme name (e.g. netbox-dark, dracula).         \u2502\n\u2502 --netbox-root  -n      PATH  Path to the NetBox Django project root          \u2502\n\u2502                              (auto-builds if cache missing).                 \u2502\n\u2502                              [default: /root/nms/netbox/netbox]              \u2502\n\u2502 --cache-path   -o      PATH  Path to a specific model graph JSON file.       \u2502\n\u2502 --help                       Show this message and exit.                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+    }
+  ]
+}
