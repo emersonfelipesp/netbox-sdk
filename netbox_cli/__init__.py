@@ -122,8 +122,19 @@ def root_callback(ctx: typer.Context) -> None:
     setup_logging()
     if ctx.resilient_parsing:
         return
+    if any(flag in sys.argv[1:] for flag in ("--help", "-h")):
+        return
+    if ctx.invoked_subcommand is None and ctx.args:
+        _handle_dynamic_invocation(ctx.args)
+        return
     if ctx.invoked_subcommand not in {
         "init",
+        "config",
+        "test",
+        "groups",
+        "resources",
+        "ops",
+        "call",
         "tui",
         "cli",
         "docs",
@@ -133,8 +144,6 @@ def root_callback(ctx: typer.Context) -> None:
         "graphql",
     }:
         _ensure_runtime_config()
-    if ctx.invoked_subcommand is None and ctx.args:
-        _handle_dynamic_invocation(ctx.args)
 
 
 @app.command("init")
@@ -473,14 +482,6 @@ def docs_generate_capture(
         "--raw-dir",
         help="Raw JSON artifacts directory. Default: <repo>/docs/generated/raw/",
     ),
-    live: bool = typer.Option(
-        False,
-        "--live",
-        help=(
-            "Use the default profile (your real NetBox) instead of the demo profile. "
-            "By default the generator captures live-API specs against demo.netbox.dev."
-        ),
-    ),
     markdown: bool = typer.Option(
         True,
         "--markdown/--no-markdown",
@@ -498,12 +499,8 @@ def docs_generate_capture(
         help="Max parallel CLI captures. Higher values speed up generation but increase NetBox load.",
     ),
 ) -> None:
-    """Capture every nbx command (input + output) and write docs/generated/nbx-command-capture.md.
-
-    By default live-API specs run through ``nbx demo …`` (demo.netbox.dev).
-    Pass ``--live`` to run them against your configured default profile instead.
-    """
-    from docgen_capture import (  # noqa: PLC0415
+    """Capture docs-safe ``nbx`` command output against the demo profile only."""
+    from netbox_cli.docgen_capture import (  # noqa: PLC0415
         generate_command_capture_docs,
         resolve_capture_paths,
     )
@@ -516,7 +513,6 @@ def docs_generate_capture(
     code = generate_command_capture_docs(
         output=out,
         raw_dir=raw,
-        use_demo=not live,
         markdown_output=markdown,
         max_concurrency=concurrency,
     )

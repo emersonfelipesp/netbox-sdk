@@ -87,7 +87,7 @@ hooks:
   - docs/hooks.py
 ```
 
-Called during the MkDocs build phase (`on_pre_build`). Reads `docs/generated/raw/*.json` and generates one Markdown file per section under `docs/reference/command-examples/`, plus an `index.md` overview. See the file directly for current behavior — it evolves alongside the docgen pipeline.
+Called during the MkDocs build phase (`on_pre_build`). Reads `docs/generated/raw/*.json` and generates separate reference trees under `docs/reference/cli/command-examples/` and `docs/reference/tui/launch-examples/`. See the file directly for current behavior — it evolves alongside the docgen pipeline.
 
 ---
 

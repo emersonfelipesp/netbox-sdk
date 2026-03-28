@@ -10,8 +10,6 @@ Internal implementation delegates to ``netbox_cli.docgen`` sub-package.
 Documentation guidelines (AGENTS):
 - All captured output MUST come from demo.netbox.dev only.  Never use a
   production instance to generate docs — it will leak customer data.
-- Commands documented without the ``demo`` prefix (e.g. ``nbx dcim devices
-  list``) must still execute against the demo profile.
 - Commands that fail with configuration errors (interactive prompts, aborted)
   are skipped and never included in final output.
 - Each command gets tabs: Command, Output (human), JSON Output, YAML Output,
@@ -102,7 +100,6 @@ def generate_command_capture_docs(
     *,
     output: Path,
     raw_dir: Path,
-    use_demo: bool = True,
     markdown_output: bool = True,
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     log: TextIO | None = None,
@@ -114,16 +111,16 @@ def generate_command_capture_docs(
             Set to 1 for fully sequential execution.
     """
     log = log or sys.stderr
-    profile = "demo" if use_demo else "default"
+    profile = "demo"
 
     output.parent.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     # ── Resolve metadata ──────────────────────────────────────────────────
-    meta = _build_meta(use_demo, markdown_output)
+    meta = _build_meta(markdown_output)
 
     # ── Load specs and run capture engine ──────────────────────────────────
-    specs = load_specs(use_demo=use_demo)
+    specs = load_specs()
 
     engine = CaptureEngine(
         max_concurrency=max_concurrency,
@@ -143,7 +140,10 @@ def generate_command_capture_docs(
         else:
             valid.append(r)
 
-    # ── Write artifacts ───────────────────────────────────────────────────
+    # ── Remove stale JSON artifacts, then write fresh ones ───────────────
+    for existing in raw_dir.glob("*.json"):
+        existing.unlink()
+
     engine.write_artifacts(valid, raw_dir)
 
     # ── Write Markdown capture file ───────────────────────────────────────
@@ -174,14 +174,12 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
-def _build_meta(use_demo: bool, markdown_output: bool) -> dict:
+def _build_meta(markdown_output: bool) -> dict:
     from netbox_sdk.config import DEMO_BASE_URL, load_profile_config  # noqa: PLC0415
 
-    profile = "demo" if use_demo else "default"
+    profile = "demo"
     cfg = load_profile_config(profile)
-    effective_url = cfg.base_url or (
-        DEMO_BASE_URL if use_demo else os.environ.get("NETBOX_URL", "https://netbox.example.com")
-    )
+    effective_url = cfg.base_url or DEMO_BASE_URL
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "profile": profile,
@@ -197,11 +195,7 @@ def _render_markdown_capture(
     results: list[CaptureResult],
 ) -> str:
     """Render the human-readable Markdown capture file."""
-    profile_note = (
-        "**demo profile** (`nbx demo \u2026` commands \u2192 demo.netbox.dev)"
-        if meta["profile"] == "demo"
-        else "**default profile** (`nbx \u2026` commands \u2192 your configured NetBox)"
-    )
+    profile_note = "**demo profile** (`nbx demo ...` commands -> demo.netbox.dev)"
 
     lines: list[str] = [
         "# netbox-sdk \u2014 captured command input and output",
@@ -211,8 +205,7 @@ def _render_markdown_capture(
         "```bash",
         "cd /path/to/netbox-sdk",
         "uv sync --group docs --group dev   # once",
-        "uv run nbx docs generate-capture            # demo profile (default)",
-        "uv run nbx docs generate-capture --live     # default profile (real NetBox)",
+        "uv run nbx docs generate-capture",
         "# or: uv run python docs/generate_command_docs.py",
         "```",
         "",
@@ -231,9 +224,8 @@ def _render_markdown_capture(
         f"- **Token configured:** `{meta['token_configured']}`",
         "",
         (
-            "> Live API calls reflect whatever is reachable at the configured URL. "
-            "Connection errors and 401/403 responses are still useful documentation "
-            "of real CLI behavior."
+            "> Docgen is restricted to the demo profile only. Any live data shown here "
+            "comes from demo.netbox.dev, never from a production NetBox instance."
         ),
         "",
         (
@@ -245,15 +237,21 @@ def _render_markdown_capture(
         "",
     ]
 
+    surface_last = ""
     section_last = ""
     for r in results:
+        if r.surface != surface_last:
+            lines.append(f"## {r.surface.upper()}")
+            lines.append("")
+            surface_last = r.surface
+            section_last = ""
         if r.section != section_last:
-            lines.append(f"## {r.section}")
+            lines.append(f"### {r.section}")
             lines.append("")
             section_last = r.section
 
         cmd_display = "nbx " + " ".join(r.argv)
-        lines.append(f"### {r.title}")
+        lines.append(f"#### {r.title}")
         lines.append("")
         lines.append("**Input:**")
         lines.append("")

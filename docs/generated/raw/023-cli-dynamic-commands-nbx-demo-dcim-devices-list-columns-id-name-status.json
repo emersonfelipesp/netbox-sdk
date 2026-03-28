@@ -1,0 +1,26 @@
+{
+  "surface": "cli",
+  "section": "Dynamic Commands",
+  "title": "nbx demo dcim devices list --columns id,name,status",
+  "argv": [
+    "demo",
+    "dcim",
+    "devices",
+    "list",
+    "--columns",
+    "id,name,status",
+    "--markdown"
+  ],
+  "argv_base": [
+    "demo",
+    "dcim",
+    "devices",
+    "list",
+    "--columns",
+    "id,name,status"
+  ],
+  "exit_code": 124,
+  "elapsed_seconds": 60.044,
+  "truncated": false,
+  "stdout_full": ""
+}

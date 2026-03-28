@@ -9,7 +9,7 @@ workflow. This gallery collects the themed screenshots for each one.
 |-----|-------------|-----------------|
 | [Default TUI](screenshots-default.md) | Main browsing interface for NetBox resources | `nbx tui` / `nbx demo tui` |
 | [Dev TUI](screenshots-dev.md) | Developer request workbench for API exploration | `nbx dev tui` / `nbx demo dev tui` |
-| [Logs Viewer](screenshots-logs.md) | Structured log viewer for debugging and diagnostics | `nbx logs` |
+| [Logs Viewer](screenshots-logs.md) | Structured log viewer for debugging and diagnostics | `nbx tui logs` |
 | [CLI Builder](screenshots-cli.md) | Guided command composition for `nbx` | `nbx cli tui` / `nbx demo cli tui` |
 | [Django Models Browser](screenshots-django.md) | Browser for NetBox's internal Django models | `nbx dev django-model tui` |
 
@@ -38,3 +38,6 @@ nbx demo init
 ```
 
 Screenshots are saved to `docs/assets/screenshots/`. Each screenshot follows the naming pattern `tui-{app}-{theme}.svg`.
+
+For the non-visual launch/help output of these applications, see
+[TUI Launch Output](../reference/tui/launch-examples/index.md).

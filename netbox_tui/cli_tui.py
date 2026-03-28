@@ -576,7 +576,7 @@ class NbxCliTuiApp(App[None]):
 
     def _update_context_line(self) -> None:
         self.query_one("#context_breadcrumb", ContextBreadcrumb).set_crumbs(
-            [(f"Command Builder: {self._breadcrumb_text}", None, None)]
+            [(f"CLI Builder: {self._breadcrumb_text}", None, None)]
         )
 
     def _styled_nav_label(self, node: CliCommandNode) -> Text:
@@ -965,7 +965,7 @@ class NbxCliTuiApp(App[None]):
         except NoMatches:
             return
         theme = self.theme_catalog.theme_for(self.theme_name)
-        title = Text("NBX Command Builder", style=Style(color=theme.colors["primary"], bold=True))
+        title = Text("NBX CLI Builder", style=Style(color=theme.colors["primary"], bold=True))
         log.write(title)
 
         line1 = Text(

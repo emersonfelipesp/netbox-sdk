@@ -17,7 +17,7 @@ def test_mkdocs_and_package_metadata_point_to_netbox_sdk() -> None:
     mkdocs = _read("mkdocs.yml")
     pyproject = _read("pyproject.toml")
 
-    assert "site_name: netbox-sdk" in mkdocs
+    assert "site_name: NetBox SDK" in mkdocs
     assert "https://github.com/emersonfelipesp/netbox-sdk" in mkdocs
     assert 'Documentation = "https://emersonfelipesp.github.io/netbox-sdk/"' in pyproject
 
@@ -58,6 +58,22 @@ def test_repo_docs_branding_uses_netbox_sdk_urls() -> None:
     assert "github.io/netbox-cli" not in combined
     assert "emersonfelipesp.com/netbox-cli" not in combined
     assert "github.com/emersonfelipesp/netbox-sdk" in combined
+
+
+def test_generated_docs_nav_separates_cli_and_tui_outputs() -> None:
+    mkdocs = _read("mkdocs.yml")
+    cli_index = _read("docs/cli/index.md")
+    tui_index = _read("docs/tui/index.md")
+    tui_logs = _read("docs/tui/logs.md")
+
+    assert "Captured Command Output:" in mkdocs
+    assert "reference/cli/command-examples/index.md" in mkdocs
+    assert "Launch Command Output:" in mkdocs
+    assert "reference/tui/launch-examples/index.md" in mkdocs
+    assert "../reference/cli/command-examples/index.md" in cli_index
+    assert "../reference/tui/launch-examples/index.md" in tui_index
+    assert "nbx tui logs" in tui_logs
+    assert "`--live`" not in tui_logs
 
 
 def test_docs_workflow_still_deploys_pages_for_netbox_sdk_repo() -> None:

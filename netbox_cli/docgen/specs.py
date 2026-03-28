@@ -14,6 +14,7 @@ from netbox_cli.docgen_specs import all_specs as _pydantic_all_specs
 def _from_pydantic(spec: _PydanticSpec) -> CaptureSpec:
     """Convert a Pydantic CaptureSpec to the docgen package's dataclass."""
     return CaptureSpec(
+        surface=spec.surface,
         section=spec.section,
         title=spec.title,
         argv=list(spec.argv),
@@ -22,6 +23,6 @@ def _from_pydantic(spec: _PydanticSpec) -> CaptureSpec:
     )
 
 
-def load_specs(*, use_demo: bool = True) -> list[CaptureSpec]:
+def load_specs() -> list[CaptureSpec]:
     """Return capture specs as docgen-internal dataclasses."""
-    return [_from_pydantic(s) for s in _pydantic_all_specs(use_demo=use_demo)]
+    return [_from_pydantic(s) for s in _pydantic_all_specs()]

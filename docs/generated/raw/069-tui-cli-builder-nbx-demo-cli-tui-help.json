@@ -1,0 +1,21 @@
+{
+  "surface": "tui",
+  "section": "CLI Builder",
+  "title": "nbx demo cli tui --help",
+  "argv": [
+    "demo",
+    "cli",
+    "tui",
+    "--help"
+  ],
+  "argv_base": [
+    "demo",
+    "cli",
+    "tui",
+    "--help"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 4.212,
+  "truncated": false,
+  "stdout_full": "                                                                                \n Usage: nbx demo cli tui [OPTIONS]                                              \n                                                                                \n Launch the interactive CLI command builder against the demo profile.           \n                                                                                \n\u256d\u2500 Options \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 --theme          Theme selector. Use '--theme' to list available themes or   \u2502\n\u2502                  '--theme <name>' to launch with one.                        \u2502\n\u2502 --help           Show this message and exit.                                 \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\n"
+}

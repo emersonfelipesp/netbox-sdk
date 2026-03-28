@@ -48,6 +48,7 @@ class CaptureSpec:
     instead of Pydantic so the docgen package has zero framework deps.
     """
 
+    surface: str
     section: str
     title: str
     argv: list[str]
@@ -59,6 +60,7 @@ class CaptureSpec:
 class CaptureResult:
     """Outcome of a single CLI capture invocation."""
 
+    surface: str
     section: str
     title: str
     argv: list[str]
@@ -80,6 +82,7 @@ class CaptureResult:
     def to_dict(self) -> dict[str, Any]:
         """Serialise to a plain dict suitable for JSON storage."""
         d: dict[str, Any] = {
+            "surface": self.surface,
             "section": self.section,
             "title": self.title,
             "argv": list(self.argv),
@@ -141,9 +144,11 @@ def truncate(text: str, max_lines: int, max_chars: int) -> tuple[str, bool]:
     return text, False
 
 
-def build_slug(section: str, title: str, max_len: int = 80) -> str:
-    """Create a filesystem-safe slug from section + title."""
-    raw = f"{section}-{title}"[:max_len].lower().replace(" ", "-").replace("/", "-")
+def build_slug(surface: str, section: str, title: str, max_len: int = 96) -> str:
+    """Create a filesystem-safe slug from surface + section + title."""
+    raw = (
+        f"{surface}-{section}-{title}"[:max_len].lower().replace(" ", "-").replace("/", "-")
+    )
     slug = "".join(c if c.isalnum() or c == "-" else "-" for c in raw)
     while "--" in slug:
         slug = slug.replace("--", "-")

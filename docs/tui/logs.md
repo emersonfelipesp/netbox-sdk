@@ -1,12 +1,17 @@
 # Logs Viewer
 
-`nbx logs` reads the structured JSON log file written by the CLI and TUI
-runtime. It is a terminal-first debugging view for recent SDK, CLI, and TUI
-activity.
+`netbox-sdk` exposes two log views:
+
+- `nbx tui logs` launches the full-screen Textual logs viewer
+- `nbx logs` prints a plain CLI tail of the same shared log file
+
+Both read the structured JSON log written by the SDK, CLI, and TUI runtime.
 
 ## Launch
 
 ```bash
+nbx tui logs
+nbx tui logs --theme dracula
 nbx logs
 nbx logs --limit 500
 ```
@@ -20,7 +25,8 @@ nbx logs --limit 500
 - optional exception details
 
 Use `nbx logs --source` in the plain CLI view when you also want module,
-function, and line information.
+function, and line information. Use `nbx tui logs --theme` to list available
+themes for the Textual viewer.
 
 ## Storage
 
@@ -31,3 +37,4 @@ root. New installs use `~/.config/netbox-sdk/logs/netbox-sdk.log`, while older
 ## Screenshots
 
 - [Logs Viewer gallery](screenshots-logs.md)
+- [Launch command output](../reference/tui/launch-examples/index.md)

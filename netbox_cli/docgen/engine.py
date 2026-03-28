@@ -37,6 +37,8 @@ from netbox_cli.docgen.models import (
     build_slug,
 )
 
+_SUBPROCESS_TIMEOUT_SECONDS = float(os.environ.get("NBX_DOC_CAPTURE_SUBPROCESS_TIMEOUT", "15"))
+
 # ── Top-level worker function (required for ProcessPoolExecutor) ─────────
 
 
@@ -113,7 +115,7 @@ def _worker_capture(
                 ["nbx", *args],
                 capture_output=True,
                 text=True,
-                timeout=60,
+                timeout=_SUBPROCESS_TIMEOUT_SECONDS,
             )
             elapsed = time.perf_counter() - started
             out = result.stdout or ""
@@ -145,6 +147,7 @@ def _worker_capture(
             stdout_markdown = variants.markdown_text
 
     return {
+        "surface": spec_dict["surface"],
         "section": spec_dict["section"],
         "title": spec_dict["title"],
         "argv": argv,
@@ -215,7 +218,7 @@ class CaptureEngine:
         raw_dir.mkdir(parents=True, exist_ok=True)
         artifacts: list[CaptureArtifact] = []
         for result in results:
-            slug = build_slug(result.section, result.title)
+            slug = build_slug(result.surface, result.section, result.title)
             filename = f"{len(artifacts) + 1:03d}-{slug}.json"
             artifact = CaptureArtifact(result=result, filename=filename)
             (raw_dir / filename).write_text(
@@ -289,6 +292,7 @@ class CaptureEngine:
         code, stdout, elapsed = self._invoke_cli(argv, safe=spec.safe)
 
         result = CaptureResult(
+            surface=spec.surface,
             section=spec.section,
             title=spec.title,
             argv=argv,
@@ -317,7 +321,7 @@ class CaptureEngine:
                 ["nbx", *argv],
                 capture_output=True,
                 text=True,
-                timeout=60,
+                timeout=_SUBPROCESS_TIMEOUT_SECONDS,
             )
             elapsed = time.perf_counter() - started
             out = result.stdout or ""
@@ -346,7 +350,13 @@ class CaptureEngine:
         self._ensure_config_on_disk(profile)
 
         spec_dicts = [
-            {"section": s.section, "title": s.title, "argv": list(s.argv), "safe": s.safe}
+            {
+                "surface": s.surface,
+                "section": s.section,
+                "title": s.title,
+                "argv": list(s.argv),
+                "safe": s.safe,
+            }
             for s in specs
         ]
         results_raw: dict[int, dict] = {}
@@ -367,6 +377,7 @@ class CaptureEngine:
 
         return [
             CaptureResult(
+                surface=d["surface"],
                 section=d["section"],
                 title=d["title"],
                 argv=d["argv"],

@@ -10,7 +10,8 @@ composition, and Django model inspection:
 - `nbx tui` for the main browser
 - `nbx dev tui` for the developer workbench
 - `nbx cli tui` for guided command assembly
-- `nbx logs` for recent structured logs
+- `nbx tui logs` for the full-screen logs viewer
+- `nbx logs` for the plain CLI log tail
 - `nbx dev django-model tui` for contributor-facing model inspection
 
 The main TUI also discovers plugin resources dynamically. If a NetBox plugin
@@ -33,7 +34,8 @@ nbx demo tui --theme dracula
 nbx dev tui                # developer request workbench
 nbx demo dev tui           # developer request workbench on demo.netbox.dev
 nbx cli tui                # guided command builder
-nbx logs                   # recent application logs
+nbx tui logs               # full-screen logs viewer
+nbx logs                   # plain CLI log tail
 ```
 
 ---
@@ -127,5 +129,6 @@ read automatically when present.
 - [CLI Builder](cli-builder.md)
 - [Logs Viewer](logs.md)
 - [Django Models Browser](django-models.md)
+- [Launch Command Output](../reference/tui/launch-examples/index.md)
 - [Themes](themes.md)
 - [Keyboard Shortcuts](keybindings.md)

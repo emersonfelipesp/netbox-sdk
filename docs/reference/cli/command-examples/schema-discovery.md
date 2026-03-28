@@ -1,0 +1,268 @@
+# Schema Discovery
+
+## `nbx groups --help`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx groups --help
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx groups --help
+    ```
+
+    ```text
+                                                                                    
+     Usage: nbx groups [OPTIONS]                                                    
+                                                                                    
+     List all available OpenAPI app groups.                                         
+                                                                                    
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --help          Show this message and exit.                                  │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.824s</span>
+
+---
+
+## `nbx resources --help`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx resources --help
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx resources --help
+    ```
+
+    ```text
+                                                                                    
+     Usage: nbx resources [OPTIONS] GROUP                                           
+                                                                                    
+     List resources available within a group.                                       
+                                                                                    
+    ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+    │ *    group      TEXT  OpenAPI app group, e.g. dcim [required]                │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --help          Show this message and exit.                                  │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.502s</span>
+
+---
+
+## `nbx ops --help`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx ops --help
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx ops --help
+    ```
+
+    ```text
+                                                                                    
+     Usage: nbx ops [OPTIONS] GROUP RESOURCE                                        
+                                                                                    
+     Show available HTTP operations for a resource.                                 
+                                                                                    
+    ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+    │ *    group         TEXT  [required]                                          │
+    │ *    resource      TEXT  [required]                                          │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --help          Show this message and exit.                                  │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.565s</span>
+
+---
+
+## `nbx groups`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx groups
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx groups
+    ```
+
+    ```text
+    circuits
+    core
+    dcim
+    extras
+    ipam
+    plugins
+    tenancy
+    users
+    virtualization
+    vpn
+    wireless
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.592s</span>
+
+---
+
+## `nbx resources dcim`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx resources dcim
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx resources dcim
+    ```
+
+    ```text
+    cable-terminations
+    cables
+    connected-device
+    console-port-templates
+    console-ports
+    console-server-port-templates
+    console-server-ports
+    device-bay-templates
+    device-bays
+    device-roles
+    device-types
+    devices
+    front-port-templates
+    front-ports
+    interface-templates
+    interfaces
+    inventory-item-roles
+    inventory-item-templates
+    inventory-items
+    locations
+    mac-addresses
+    manufacturers
+    module-bay-templates
+    module-bays
+    module-type-profiles
+    module-types
+    modules
+    platforms
+    power-feeds
+    power-outlet-templates
+    power-outlets
+    power-panels
+    power-port-templates
+    power-ports
+    rack-reservations
+    rack-roles
+    rack-types
+    racks
+    rear-port-templates
+    rear-ports
+    regions
+    site-groups
+    sites
+    virtual-chassis
+    virtual-device-contexts
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.512s</span>
+
+---
+
+## `nbx ops dcim devices`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx ops dcim devices
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx ops dcim devices
+    ```
+
+    ```text
+                                      dcim/devices                                  
+    ┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ Method ┃ Path                             ┃ Operation ID                     ┃
+    ┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+    │ DELETE │ /api/dcim/devices/               │ dcim_devices_bulk_destroy        │
+    │ GET    │ /api/dcim/devices/               │ dcim_devices_list                │
+    │ PATCH  │ /api/dcim/devices/               │ dcim_devices_bulk_partial_update │
+    │ POST   │ /api/dcim/devices/               │ dcim_devices_create              │
+    │ PUT    │ /api/dcim/devices/               │ dcim_devices_bulk_update         │
+    │ DELETE │ /api/dcim/devices/{id}/          │ dcim_devices_destroy             │
+    │ GET    │ /api/dcim/devices/{id}/          │ dcim_devices_retrieve            │
+    │ PATCH  │ /api/dcim/devices/{id}/          │ dcim_devices_partial_update      │
+    │ PUT    │ /api/dcim/devices/{id}/          │ dcim_devices_update              │
+    │ POST   │ /api/dcim/devices/{id}/render-c… │ dcim_devices_render_config_crea… │
+    └────────┴──────────────────────────────────┴──────────────────────────────────┘
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.549s</span>
+
+---
+
+## `nbx resources ipam`
+
+=== ":material-console: Command"
+
+    ```bash
+    nbx resources ipam
+    ```
+
+=== ":material-text-box-outline: Output"
+
+    ```bash
+    nbx resources ipam
+    ```
+
+    ```text
+    aggregates
+    asn-ranges
+    asns
+    fhrp-group-assignments
+    fhrp-groups
+    ip-addresses
+    ip-ranges
+    prefixes
+    rirs
+    roles
+    route-targets
+    service-templates
+    services
+    vlan-groups
+    vlan-translation-policies
+    vlan-translation-rules
+    vlans
+    vrfs
+    ```
+
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.543s</span>
+
+---

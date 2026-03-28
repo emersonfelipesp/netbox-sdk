@@ -1,0 +1,19 @@
+{
+  "surface": "tui",
+  "section": "Main Browser",
+  "title": "nbx demo tui --theme",
+  "argv": [
+    "demo",
+    "tui",
+    "--theme"
+  ],
+  "argv_base": [
+    "demo",
+    "tui",
+    "--theme"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 4.123,
+  "truncated": false,
+  "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+}

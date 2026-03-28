@@ -1,0 +1,17 @@
+{
+  "surface": "cli",
+  "section": "Schema Discovery",
+  "title": "nbx resources ipam",
+  "argv": [
+    "resources",
+    "ipam"
+  ],
+  "argv_base": [
+    "resources",
+    "ipam"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.566,
+  "truncated": false,
+  "stdout_full": "aggregates\nasn-ranges\nasns\nfhrp-group-assignments\nfhrp-groups\nip-addresses\nip-ranges\nprefixes\nrirs\nroles\nroute-targets\nservice-templates\nservices\nvlan-groups\nvlan-translation-policies\nvlan-translation-rules\nvlans\nvrfs\n"
+}

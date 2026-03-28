@@ -173,6 +173,8 @@ nbx logs --source
 New installs write logs under `~/.config/netbox-sdk/logs/netbox-sdk.log`, with
 compatibility reads from older `netbox-cli` log files when present.
 
+For the full-screen Textual log viewer, use `nbx tui logs`.
+
 ---
 
 ## `nbx dev tui`
@@ -239,11 +241,11 @@ nbx dev django-model tui
 
 ## `nbx docs generate-capture`
 
-Generate the command capture documentation — runs every `nbx` command, records output, and writes `docs/generated/nbx-command-capture.md` plus per-command JSON files.
+Generate the docs-safe command-capture artifacts used by the MkDocs reference pages.
+Docgen only targets the demo profile and should never run against production.
 
 ```bash
 nbx docs generate-capture
-nbx docs generate-capture --live   # use default profile instead of demo
 ```
 
 **Options**
@@ -252,6 +254,7 @@ nbx docs generate-capture --live   # use default profile instead of demo
 |------|---------|-------------|
 | `-o` / `--output` | `docs/generated/nbx-command-capture.md` | Markdown output path |
 | `--raw-dir` | `docs/generated/raw/` | Directory for per-command JSON files |
-| `--live` | off | Use default profile (real NetBox) instead of demo profile |
+| `--markdown` | on | Append `--markdown` to compatible captures |
+| `-j` / `--concurrency` | `4` | Parallel capture worker count |
 
 See [Documentation Generation](../developer/docgen.md) for the full guide.

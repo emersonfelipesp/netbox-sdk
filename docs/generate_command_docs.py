@@ -12,15 +12,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Generate nbx CLI capture documentation.")
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--raw-dir", type=Path, default=None)
-    parser.add_argument(
-        "--live",
-        action="store_true",
-        default=False,
-        help=(
-            "Use the default profile (your real NetBox) for live-API specs. "
-            "By default live specs run through the demo profile (demo.netbox.dev)."
-        ),
-    )
     md = parser.add_mutually_exclusive_group()
     md.add_argument(
         "--markdown",
@@ -47,7 +38,6 @@ def main() -> int:
     return generate_command_capture_docs(
         output=out,
         raw_dir=raw,
-        use_demo=not args.live,
         markdown_output=args.markdown_output,
     )
 

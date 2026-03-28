@@ -62,4 +62,4 @@ nbx
 - [Dynamic Commands](dynamic-commands.md) for OpenAPI-driven resource operations
 - [GraphQL](graphql.md) for GraphQL-specific usage
 - [Demo Profile](demo-profile.md) for the `nbx demo` command tree
-- [Command Examples](../reference/command-examples/index.md) for captured CLI output
+- [Captured Command Output](../reference/cli/command-examples/index.md) for generated CLI examples

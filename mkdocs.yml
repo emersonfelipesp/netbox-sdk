@@ -89,17 +89,17 @@ nav:
     - Dynamic Commands: cli/dynamic-commands.md
     - GraphQL: cli/graphql.md
     - Demo Profile: cli/demo-profile.md
-    - Command Examples:
-      - reference/command-examples/index.md
-      - Top-level: reference/command-examples/top-level.md
-      - Schema Discovery: reference/command-examples/schema-discovery.md
-      - Dynamic Commands: reference/command-examples/dynamic-commands.md
-      - Logs Viewer: reference/command-examples/logs-viewer.md
-      - Developer Tools: reference/command-examples/developer-tools.md
-      - Demo Profile: reference/command-examples/demo-profile.md
-      - Live API: reference/command-examples/live-api-demo-netbox-dev.md
-      - Cable Trace: reference/command-examples/cable-trace-demo-netbox-dev.md
-      - Raw Capture Artifact: generated/nbx-command-capture.md
+    - Captured Command Output:
+      - reference/cli/command-examples/index.md
+      - Core Commands: reference/cli/command-examples/core-commands.md
+      - Schema Discovery: reference/cli/command-examples/schema-discovery.md
+      - GraphQL and HTTP: reference/cli/command-examples/graphql-and-http.md
+      - Dynamic Commands: reference/cli/command-examples/dynamic-commands.md
+      - Developer Tools: reference/cli/command-examples/developer-tools.md
+      - Demo Profile: reference/cli/command-examples/demo-profile.md
+      - Live API: reference/cli/command-examples/live-api.md
+      - Cable Trace: reference/cli/command-examples/cable-trace.md
+    - Raw Capture Artifact: generated/nbx-command-capture.md
   - TUI:
     - tui/index.md
     - Main Browser: tui/index.md
@@ -107,6 +107,13 @@ nav:
     - CLI Builder: tui/cli-builder.md
     - Logs Viewer: tui/logs.md
     - Django Models Browser: tui/django-models.md
+    - Launch Command Output:
+      - reference/tui/launch-examples/index.md
+      - Main Browser: reference/tui/launch-examples/main-browser.md
+      - Logs Viewer: reference/tui/launch-examples/logs-viewer.md
+      - Developer Workbench: reference/tui/launch-examples/developer-workbench.md
+      - CLI Builder: reference/tui/launch-examples/cli-builder.md
+      - Django Models Browser: reference/tui/launch-examples/django-models-browser.md
     - Themes: tui/themes.md
     - Keyboard Shortcuts: tui/keybindings.md
     - Screenshot Gallery:
