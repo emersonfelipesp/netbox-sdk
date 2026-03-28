@@ -1,4 +1,4 @@
-"""Shared logging setup and log-record helpers for the NetBox CLI/TUI."""
+"""Shared logging setup and log-record helpers for the NetBox SDK CLI/TUI."""
 
 from __future__ import annotations
 
@@ -11,10 +11,11 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
-from netbox_sdk.config import config_path
+from netbox_sdk.config import config_path, legacy_config_path
 
 DEFAULT_LOG_DIRNAME = "logs"
-DEFAULT_LOG_FILENAME = "netbox-cli.log"
+DEFAULT_LOG_FILENAME = "netbox-sdk.log"
+LEGACY_LOG_FILENAME = "netbox-cli.log"
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_LOG_TAIL_LIMIT = 200
 LOG_FORMAT_VERSION = 1
@@ -62,6 +63,20 @@ def log_dir() -> Path:
 
 def log_file_path() -> Path:
     return log_dir() / DEFAULT_LOG_FILENAME
+
+
+def legacy_log_file_path() -> Path:
+    return legacy_config_path().parent / DEFAULT_LOG_DIRNAME / LEGACY_LOG_FILENAME
+
+
+def active_log_file_path() -> Path:
+    current = log_file_path()
+    if current.exists():
+        return current
+    legacy = legacy_log_file_path()
+    if legacy.exists():
+        return legacy
+    return current
 
 
 def setup_logging(level: str = DEFAULT_LOG_LEVEL) -> Path:
@@ -119,7 +134,7 @@ def _entry_from_plain_text(line: str) -> LogEntry:
 
 
 def read_log_entries(limit: int = DEFAULT_LOG_TAIL_LIMIT) -> list[LogEntry]:
-    path = log_file_path()
+    path = active_log_file_path()
     if not path.exists():
         return []
 

@@ -66,10 +66,11 @@ authorization_header_value(cfg)  # "Bearer nbt_k.s"
 
 ## Profile storage
 
-The SDK stores named connection profiles at `~/.config/netbox-cli/config.json` (or `$XDG_CONFIG_HOME/netbox-cli/config.json`).
+The SDK stores named connection profiles at `~/.config/netbox-sdk/config.json`
+(or `$XDG_CONFIG_HOME/netbox-sdk/config.json`).
 
-This path still uses the historical `netbox-cli` directory name because it is the
-current runtime behavior shared by the CLI, TUI, and SDK config helpers.
+If you already have a historical `netbox-cli` config file, the SDK still reads
+it automatically until a new NetBox SDK config is written.
 
 ```python
 from netbox_sdk.config import (

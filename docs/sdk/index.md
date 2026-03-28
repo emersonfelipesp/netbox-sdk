@@ -29,6 +29,9 @@ The SDK exposes three layers:
 pip install netbox-sdk
 ```
 
+You do not need the optional CLI or TUI extras to use `netbox_sdk` as a Python
+dependency.
+
 ## Quick start
 
 ```python

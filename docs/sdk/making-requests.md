@@ -317,7 +317,9 @@ else:
 
 ## HTTP caching
 
-GET requests to `/api/...` paths are automatically cached to disk (`~/.config/netbox-cli/http-cache/`). The `X-NBX-Cache` response header shows the cache outcome:
+GET requests to `/api/...` paths are automatically cached to disk under the
+NetBox SDK config root, typically `~/.config/netbox-sdk/http-cache/`. The
+`X-NBX-Cache` response header shows the cache outcome:
 
 | Value | Meaning |
 |-------|---------|

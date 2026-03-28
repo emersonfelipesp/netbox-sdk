@@ -10,8 +10,8 @@ SDK only:
 pip install netbox-sdk
 ```
 
-The base package already includes the dependencies required by the typed SDK,
-including `pydantic` and `email-validator`.
+The base package already includes the dependencies required by the async SDK and
+the versioned typed SDK, including `pydantic` and `email-validator`.
 
 CLI:
 
@@ -51,6 +51,14 @@ uv run nbx --help
 
 The repository ships committed OpenAPI bundles and generated Pydantic models for
 NetBox `4.5`, `4.4`, and `4.3`. Users do not need to run code generation locally.
+
+## Which install should I pick?
+
+- `pip install netbox-sdk` if you only need the Python SDK
+- `pip install 'netbox-sdk[cli]'` if you want the `nbx` command
+- `pip install 'netbox-sdk[tui]'` if you want to launch Textual TUIs from the
+  package in an existing Python environment
+- `pip install 'netbox-sdk[all]'` if you want every interface available locally
 
 ## Contributor workflow
 

@@ -1,4 +1,4 @@
-"""Typer CLI entrypoints and command registration for the NetBox CLI application."""
+"""Typer CLI entrypoints and command registration for the NetBox SDK CLI."""
 
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ cli = sys.modules[__name__]
 app = typer.Typer(
     add_completion=False,
     context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
-    help="NetBox API-first CLI/TUI. Dynamic command form: nbx <group> <resource> <action>",
+    help="NetBox SDK CLI. Dynamic command form: nbx <group> <resource> <action>",
     no_args_is_help=True,
 )
 
@@ -148,7 +148,7 @@ def init_command(
     ),
     timeout: float = typer.Option(30.0, help="HTTP timeout in seconds"),
 ) -> None:
-    """Create or update the default NetBox CLI profile."""
+    """Create or update the default NetBox SDK profile."""
     cfg = Config(
         base_url=normalize_base_url(base_url),
         token_key=token_key.strip() or None,

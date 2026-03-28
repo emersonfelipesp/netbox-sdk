@@ -1,6 +1,7 @@
 # netbox-sdk
 
-`netbox-sdk` is a terminal client and SDK for NetBox with two interfaces built on one core runtime:
+`netbox-sdk` is an SDK-first NetBox toolkit with terminal interfaces built on
+one shared runtime:
 
 - `netbox_cli` — Typer command-line interface
 - `netbox_tui` — Textual terminal applications
@@ -83,6 +84,7 @@ nbx dcim devices list
 nbx dcim devices get --id 1
 nbx tui
 nbx dev tui
+nbx cli tui
 nbx logs
 ```
 

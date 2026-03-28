@@ -8,7 +8,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
-from netbox_sdk.config import config_path
+from netbox_sdk.config import config_path, legacy_config_path
 
 
 class ViewState(BaseModel):
@@ -77,6 +77,10 @@ def tui_state_path(base_url: str | None = None) -> Path:
 
 def load_tui_state(base_url: str | None = None) -> TuiState:
     path = tui_state_path(base_url)
+    if not path.exists():
+        legacy_path = legacy_config_path().parent / path.name
+        if legacy_path.exists():
+            path = legacy_path
     if not path.exists():
         return TuiState()
     try:

@@ -289,7 +289,7 @@ class SupportModal(ModalScreen[None]):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="support_modal_dialog"):
-            yield Static("⭐ Support netbox-cli", id="support_modal_title")
+            yield Static("⭐ Support netbox-sdk", id="support_modal_title")
             yield Static(
                 "If this project helps you, you can ⭐ support ongoing work on GitHub Sponsors.",
                 id="support_modal_copy",

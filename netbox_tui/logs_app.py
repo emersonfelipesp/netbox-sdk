@@ -13,7 +13,7 @@ from textual.containers import Horizontal, Vertical
 from textual.timer import Timer
 from textual.widgets import Button, DataTable, Footer, Select, Static
 
-from netbox_sdk.logging_runtime import LogEntry, log_file_path, read_log_entries
+from netbox_sdk.logging_runtime import LogEntry, active_log_file_path, read_log_entries
 from netbox_tui.app import TOPBAR_CLI_LABEL
 from netbox_tui.chrome import (
     apply_theme,
@@ -32,7 +32,7 @@ class LogViewerState:
 
 
 class NetBoxLogsTuiApp(App[None]):
-    TITLE = "NetBox CLI Logs"
+    TITLE = "NetBox SDK Logs"
     SUB_TITLE = "Application log viewer"
     CSS_PATH = [
         str(Path(__file__).resolve().parent / "ui_common.tcss"),
@@ -48,7 +48,7 @@ class NetBoxLogsTuiApp(App[None]):
         super().__init__()
         self.state = LogViewerState()
         self.limit = limit
-        self.log_path = log_file_path()
+        self.log_path = active_log_file_path()
         self.entries: list[LogEntry] = []
         self._clock_timer: Timer | None = None
         self.theme_catalog, self.theme_name, self.theme_options = initialize_theme_state(

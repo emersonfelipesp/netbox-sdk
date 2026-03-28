@@ -37,7 +37,7 @@ def django_model_build(
         None,
         "--cache-path",
         "-o",
-        help="Output path for the JSON build file (default: ~/.config/netbox-cli/django_models.json).",
+        help="Output path for the JSON build file (default: ~/.config/netbox-sdk/django_models.json).",
     ),
 ) -> None:
     """Parse NetBox Django models and build the static cache.

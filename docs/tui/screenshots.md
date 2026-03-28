@@ -1,6 +1,7 @@
 # TUI Screenshots
 
-`netbox-sdk` ships with 5 different TUI applications, each designed for a specific use case. Below you'll find screenshots of each TUI across all available themes.
+`netbox-sdk` ships with five Textual applications, each aimed at a different
+workflow. This gallery collects the themed screenshots for each one.
 
 ## Available TUI Applications
 
@@ -8,9 +9,9 @@
 |-----|-------------|-----------------|
 | [Default TUI](screenshots-default.md) | Main browsing interface for NetBox resources | `nbx tui` / `nbx demo tui` |
 | [Dev TUI](screenshots-dev.md) | Developer request workbench for API exploration | `nbx dev tui` / `nbx demo dev tui` |
-| [Logs TUI](screenshots-logs.md) | Log viewer for debugging and diagnostics | `nbx logs tui` |
-| [CLI TUI](screenshots-cli.md) | Interactive CLI with command palette | `nbx cli tui` |
-| [Django Models TUI](screenshots-django.md) | Browser for NetBox's internal Django models | `nbx django tui` |
+| [Logs Viewer](screenshots-logs.md) | Structured log viewer for debugging and diagnostics | `nbx logs` |
+| [CLI Builder](screenshots-cli.md) | Guided command composition for `nbx` | `nbx cli tui` / `nbx demo cli tui` |
+| [Django Models Browser](screenshots-django.md) | Browser for NetBox's internal Django models | `nbx dev django-model tui` |
 
 ## Available Themes
 

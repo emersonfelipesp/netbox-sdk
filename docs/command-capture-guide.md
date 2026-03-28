@@ -17,7 +17,7 @@ Pass `--live` to run them against your own NetBox instance instead.
 | **`nbx docs generate-capture`** | Preferred: built-in Typer command (same generator, accessible via the installed CLI). |
 | [`run_capture_in_background.sh`](run_capture_in_background.sh) | Starts the generator under `nohup`, appends to `generated/capture-run.log`, writes PID to `generated/capture-run.pid`. |
 | [`generated/nbx-command-capture.md`](generated/nbx-command-capture.md) | **Generated** long-form reference (input + output per command). |
-| [`generated/raw/`](generated/raw/) | **Generated** per-command JSON files (`stdout_full`, exit code, timing). |
+| `generated/raw/` | **Generated** per-command JSON files (`stdout_full`, exit code, timing). |
 | [`docs.yml` workflow](https://github.com/emersonfelipesp/netbox-sdk/blob/main/.github/workflows/docs.yml) | CI workflow that builds and deploys docs; when demo secrets are present, it regenerates command-capture content against demo.netbox.dev before deploy. |
 
 ---

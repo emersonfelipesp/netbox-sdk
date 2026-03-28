@@ -11,7 +11,8 @@ from urllib.parse import urlsplit, urlunsplit
 from pydantic import BaseModel, field_validator
 
 DEFAULT_TIMEOUT = 30.0
-DEFAULT_CONFIG_DIRNAME = "netbox-cli"
+DEFAULT_CONFIG_DIRNAME = "netbox-sdk"
+LEGACY_CONFIG_DIRNAME = "netbox-cli"
 DEFAULT_CONFIG_FILENAME = "config.json"
 DEFAULT_HTTP_CACHE_DIRNAME = "http-cache"
 TOKEN_KEY_ENV_VAR = "NETBOX_TOKEN_KEY"
@@ -105,7 +106,7 @@ def _write_private_json(path: Path, payload: dict[str, object]) -> None:
         _set_private_permissions(path, stat.S_IRUSR | stat.S_IWUSR)
 
 
-def config_path() -> Path:
+def config_dir() -> Path:
     root = os.environ.get("XDG_CONFIG_HOME")
     if root:
         cfg_dir = Path(root) / DEFAULT_CONFIG_DIRNAME
@@ -113,7 +114,18 @@ def config_path() -> Path:
         cfg_dir = Path.home() / ".config" / DEFAULT_CONFIG_DIRNAME
     cfg_dir.mkdir(parents=True, exist_ok=True)
     _set_private_permissions(cfg_dir, stat.S_IRWXU)
-    return cfg_dir / DEFAULT_CONFIG_FILENAME
+    return cfg_dir
+
+
+def config_path() -> Path:
+    return config_dir() / DEFAULT_CONFIG_FILENAME
+
+
+def legacy_config_path() -> Path:
+    root = os.environ.get("XDG_CONFIG_HOME")
+    if root:
+        return Path(root) / LEGACY_CONFIG_DIRNAME / DEFAULT_CONFIG_FILENAME
+    return Path.home() / ".config" / LEGACY_CONFIG_DIRNAME / DEFAULT_CONFIG_FILENAME
 
 
 def cache_dir() -> Path:
@@ -123,7 +135,11 @@ def cache_dir() -> Path:
 def _load_raw_document() -> dict[str, object]:
     path = config_path()
     if not path.exists():
-        return {}
+        legacy = legacy_config_path()
+        if legacy.exists():
+            path = legacy
+        else:
+            return {}
     loaded = json.loads(path.read_text(encoding="utf-8"))
     return loaded if isinstance(loaded, dict) else {}
 
@@ -197,8 +213,10 @@ def clear_profile_config(profile: str) -> None:
     stored = _load_raw_document()
 
     if "base_url" in stored or "token_key" in stored or "token_secret" in stored:
-        if profile == DEFAULT_PROFILE and path.exists():
-            path.unlink()
+        if profile == DEFAULT_PROFILE:
+            for candidate in (path, legacy_config_path()):
+                if candidate.exists():
+                    candidate.unlink()
         return
 
     profiles_obj = stored.get("profiles")

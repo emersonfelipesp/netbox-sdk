@@ -1,5 +1,5 @@
 /* =====================================================================
-   netbox-cli — Visual Design
+   netbox-sdk — Visual Design
    Priority 1: reference/design/NETBOX-DARK-PATTERNS.md
    Priority 2: reference/textual/TOAD-DESIGN-GUIDE.md
    All colors via $semantic-variable — no hardcoded hex in TCSS.

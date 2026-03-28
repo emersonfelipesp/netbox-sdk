@@ -62,7 +62,7 @@ from netbox_tui.plugin_discovery import discover_plugin_resource_paths
 from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
 
-TOPBAR_CLI_LABEL = "CLI"
+TOPBAR_CLI_LABEL = "SDK"
 _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
     ("- CLI", "cli"),
@@ -73,7 +73,7 @@ logger = get_logger(__name__)
 
 
 class NetBoxTuiApp(FilterOverlayMixin, App[None]):
-    TITLE = "NetBox CLI"
+    TITLE = "NetBox SDK"
     SUB_TITLE = "NetBox UI-style shell for terminal"
     CSS_PATH = [
         str(Path(__file__).resolve().parent / "ui_common.tcss"),

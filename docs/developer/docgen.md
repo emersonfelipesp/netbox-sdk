@@ -1,6 +1,8 @@
 # Documentation Generation
 
-`netbox-sdk` includes a built-in capture system that runs every `nbx` command, records its output, and produces the [Command Examples](../reference/command-examples/index.md) section automatically — one page per command group.
+`netbox-sdk` includes a built-in capture system that runs `nbx` commands,
+records their output, and produces the [Command Examples](../reference/command-examples/index.md)
+section automatically.
 
 ---
 
@@ -27,7 +29,6 @@ chmod +x docs/run_capture_in_background.sh
 ./docs/run_capture_in_background.sh
 
 tail -f docs/generated/capture-run.log
-# stop: kill "$(cat docs/generated/capture-run.log)"
 ```
 
 ---

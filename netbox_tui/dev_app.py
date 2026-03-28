@@ -102,7 +102,7 @@ class DevResponseReceived(Message):
 
 
 class NetBoxDevTuiApp(App[None]):
-    TITLE = "NetBox CLI Dev"
+    TITLE = "NetBox SDK Dev"
     SUB_TITLE = "Request workbench for API development"
     CSS_PATH = [
         str(Path(__file__).resolve().parent / "ui_common.tcss"),

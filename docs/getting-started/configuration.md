@@ -1,6 +1,7 @@
 # Configuration
 
-`netbox-sdk` stores connection settings in a JSON config file and supports two named profiles: `default` and `demo`.
+`netbox-sdk` stores connection settings in a JSON config file and supports two
+named profiles: `default` and `demo`.
 
 ---
 
@@ -27,8 +28,11 @@ Any command that requires a connection will also prompt automatically if the con
 
 | Condition | Path |
 |-----------|------|
-| `XDG_CONFIG_HOME` is set | `$XDG_CONFIG_HOME/netbox-cli/config.json` |
-| Default | `~/.config/netbox-cli/config.json` |
+| `XDG_CONFIG_HOME` is set | `$XDG_CONFIG_HOME/netbox-sdk/config.json` |
+| Default | `~/.config/netbox-sdk/config.json` |
+
+Older `netbox-cli` config files are still read automatically if the new
+`netbox-sdk` path is not present yet.
 
 The file uses a `profiles` structure:
 

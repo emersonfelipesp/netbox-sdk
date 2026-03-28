@@ -1,8 +1,22 @@
 # TUI Guide
 
-The `nbx tui` command launches a full-screen interactive terminal application built with [Textual](https://textual.textualize.io/). It mirrors the NetBox web UI layout — navigation tree on the left, tabbed workspace in the center — and uses the same API client and schema index as the CLI.
+NetBox SDK ships multiple Textual applications. The main entry point is
+`nbx tui`, a full-screen browser for NetBox resources that shares the same
+config, API client, and schema index as the CLI and Python SDK.
 
-The TUI also discovers plugin resources dynamically. If a NetBox plugin exposes a full REST API under `/api/plugins/`, `nbx tui` and `nbx dev tui` can add those resources to the sidebar automatically and load their data like any built-in NetBox resource.
+Other TUI entry points specialize in development, logs, guided command
+composition, and Django model inspection:
+
+- `nbx tui` for the main browser
+- `nbx dev tui` for the developer workbench
+- `nbx cli tui` for guided command assembly
+- `nbx logs` for recent structured logs
+- `nbx dev django-model tui` for contributor-facing model inspection
+
+The main TUI also discovers plugin resources dynamically. If a NetBox plugin
+exposes a REST API under `/api/plugins/`, `nbx tui` and `nbx dev tui` can add
+those resources to the sidebar automatically and load their data like any
+built-in NetBox resource.
 
 ---
 
@@ -18,6 +32,8 @@ nbx demo tui --theme dracula
 
 nbx dev tui                # developer request workbench
 nbx demo dev tui           # developer request workbench on demo.netbox.dev
+nbx cli tui                # guided command builder
+nbx logs                   # recent application logs
 ```
 
 ---
@@ -26,7 +42,7 @@ nbx demo dev tui           # developer request workbench on demo.netbox.dev
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Theme ▾   [search bar]                          NetBox CLI │
+│  Theme ▾   [search bar]                          NetBox SDK │
 ├────────────────┬────────────────────────────────────────────┤
 │  Navigation    │  Results  │ Details │ Filters              │
 │                │                                            │
@@ -99,11 +115,17 @@ The TUI saves and restores:
 - Applied filters
 - Active theme
 
-State is stored in `~/.config/netbox-cli/tui_state.json`.
+State is stored under the NetBox SDK config root, typically
+`~/.config/netbox-sdk/tui_state.json`. Older `netbox-cli` state files are still
+read automatically when present.
 
 ---
 
 ## See also
 
-- [Themes](themes.md) — built-in and custom themes
-- [Keyboard Shortcuts](keybindings.md) — full key binding reference
+- [Developer Workbench](dev-workbench.md)
+- [CLI Builder](cli-builder.md)
+- [Logs Viewer](logs.md)
+- [Django Models Browser](django-models.md)
+- [Themes](themes.md)
+- [Keyboard Shortcuts](keybindings.md)

@@ -17,12 +17,17 @@ import json
 from pathlib import Path
 from typing import Any
 
+from netbox_sdk.config import config_path, legacy_config_path
 from netbox_sdk.django_models.parser import build_model_graph, parse_netbox_models
 
 
 def _default_cache_path() -> Path:
-    """Default cache location under the netbox-cli config dir."""
-    return Path.home() / ".config" / "netbox-cli" / "django_models.json"
+    """Default cache location under the NetBox SDK config dir."""
+    return config_path().parent / "django_models.json"
+
+
+def _legacy_cache_path() -> Path:
+    return legacy_config_path().parent / "django_models.json"
 
 
 class DjangoModelStore:
@@ -37,17 +42,19 @@ class DjangoModelStore:
 
     def __init__(self, cache_path: Path | None = None) -> None:
         self._path = cache_path or _default_cache_path()
+        self._fallback_path = _legacy_cache_path() if cache_path is None else self._path
 
     @property
     def path(self) -> Path:
         return self._path
 
     def exists(self) -> bool:
-        return self._path.exists()
+        return self._path.exists() or self._fallback_path.exists()
 
     def load(self) -> dict[str, Any]:
         """Load cached graph data.  Raises FileNotFoundError if missing."""
-        return json.loads(self._path.read_text(encoding="utf-8"))
+        path = self._path if self._path.exists() else self._fallback_path
+        return json.loads(path.read_text(encoding="utf-8"))
 
     def build(
         self,

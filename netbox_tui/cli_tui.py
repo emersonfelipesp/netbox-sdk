@@ -88,7 +88,7 @@ class NbxCliTuiApp(App[None]):
     ``nbx`` command, then edit and run it. Results appear in the right panel.
     """
 
-    TITLE = "NetBox CLI"
+    TITLE = "NetBox SDK CLI"
     SUB_TITLE = "Interactive command builder"
     AUTO_FOCUS = "ListView#nav_list"
     CSS_PATH = [
@@ -576,7 +576,7 @@ class NbxCliTuiApp(App[None]):
 
     def _update_context_line(self) -> None:
         self.query_one("#context_breadcrumb", ContextBreadcrumb).set_crumbs(
-            [(f"CLI Builder: {self._breadcrumb_text}", None, None)]
+            [(f"Command Builder: {self._breadcrumb_text}", None, None)]
         )
 
     def _styled_nav_label(self, node: CliCommandNode) -> Text:
@@ -965,7 +965,7 @@ class NbxCliTuiApp(App[None]):
         except NoMatches:
             return
         theme = self.theme_catalog.theme_for(self.theme_name)
-        title = Text("NBX CLI Builder", style=Style(color=theme.colors["primary"], bold=True))
+        title = Text("NBX Command Builder", style=Style(color=theme.colors["primary"], bold=True))
         log.write(title)
 
         line1 = Text(
@@ -1115,7 +1115,7 @@ def run_cli_tui(
     theme_name: str | None = None,
     demo_mode: bool = False,
 ) -> None:
-    """Launch the NBX CLI Builder TUI.
+    """Launch the NBX command-builder TUI.
 
     Called by ``nbx cli tui``.
     """

@@ -1,4 +1,4 @@
-"""Theme-aware Rich renderables for the NetBox CLI wordmark."""
+"""Theme-aware Rich renderables for the NetBox SDK wordmark."""
 
 from __future__ import annotations
 

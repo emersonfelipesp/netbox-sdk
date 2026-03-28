@@ -6,13 +6,13 @@
 
 | Key | Action |
 |-----|--------|
-| `Q` | Quit the TUI |
+| `Q` | Quit the current TUI |
 | `Ctrl+C` | Quit |
 | `/` | Focus the search bar |
 | `G` | Focus the navigation tree |
 | `S` | Focus the results table |
 | `R` | Refresh current resource |
-| `Ctrl+G` | Clear the log / output area |
+| `Ctrl+G` | Clear the visible log or output area when that view supports it |
 
 ## Navigation tree
 
@@ -60,4 +60,6 @@
 ---
 
 !!! note
-    Key bindings follow Textual conventions. Mouse clicks work equivalently for all navigation and selection actions.
+    Key bindings here describe the main browser TUI. Specialized apps such as
+    the logs viewer, CLI builder, and Django models browser keep the same basic
+    Textual navigation conventions but expose different view-specific actions.
