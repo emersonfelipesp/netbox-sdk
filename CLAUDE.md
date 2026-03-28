@@ -115,3 +115,10 @@ pip install -e '.[all]'
 - Run the package-specific marker suite for the package(s) you changed.
 - Run `uv run pytest` when shared files or release/main validation paths are involved.
 - For packaging changes, verify extras and import boundaries.
+
+## Release Process
+
+- Use the Git tag as `vX.Y.Z`.
+- Use the GitHub release title as `netbox-sdk vX.Y.Z`.
+- Do not mix bare tags and package-prefixed titles across releases.
+- Example: tag `v0.0.5`, title `netbox-sdk v0.0.5`.

@@ -100,3 +100,16 @@ uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 uv run pytest
 ```
+
+## Release Process
+
+Use a single GitHub release title pattern for every release:
+
+- `netbox-sdk vX.Y.Z`
+
+Example:
+
+```bash
+gh release create v0.0.5 \
+  --title "netbox-sdk v0.0.5"
+```
