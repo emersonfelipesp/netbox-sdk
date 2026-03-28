@@ -253,7 +253,7 @@ async def test_cli_tui_output_copy_button_copies_log_content(real_index) -> None
     copied_text = mock_copy.call_args.args[0]
     assert isinstance(copied_text, str)
     assert copied_text.strip()
-    assert "NBX Command Builder" in copied_text
+    assert "NBX CLI Builder" in copied_text
 
 
 @pytest.mark.asyncio
