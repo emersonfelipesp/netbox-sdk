@@ -4,11 +4,11 @@ This project does not enforce SOLID through tooling; these are conventions for c
 
 ## Single responsibility (S)
 
-- **HTTP, auth, cache, token retry** live in `api.py` and `http_cache.py`.
-- **OpenAPI indexing** lives in `schema.py`.
-- **Request resolution** from user-facing actions lives in `services.py`.
-- **Typer** lives under `cli/`; **Textual** under `ui/`.
-- **Theme JSON** and validation live in `theme_registry.py` and `themes/*.json`.
+- **HTTP, auth, cache, token retry** live in `netbox_sdk/client.py` and `netbox_sdk/http_cache.py`.
+- **OpenAPI indexing** lives in `netbox_sdk/schema.py`.
+- **Request resolution** from user-facing actions lives in `netbox_sdk/services.py`.
+- **Typer** lives in `netbox_cli/`; **Textual** in `netbox_tui/`.
+- **Theme JSON** and validation live in `netbox_tui/theme_registry.py` and `netbox_tui/themes/*.json`.
 
 Avoid growing “god modules” when adding features; prefer a new small module or extending the closest existing owner.
 
@@ -26,11 +26,11 @@ Prefer small, focused helpers over wide “context” objects. Where tests need 
 
 ## Dependency inversion (D)
 
-- **Preferred:** TUIs and tools receive `client` and `index` from the caller, or use `app_runtime` (`get_schema_index`, `client_for_config`, `get_default_client`) instead of reaching into `cli.runtime` internals.
-- **CLI package:** Command bodies resolve `_get_client`, `_ensure_runtime_config`, and related hooks via lazy imports from `netbox_cli.cli` so tests can patch `cli.*` reliably.
+- **Preferred:** TUIs and tools receive `client` and `index` from the caller instead of reaching into CLI internals.
+- **CLI:** Command bodies resolve `_get_client`, `_ensure_runtime_config`, and related hooks via `netbox_cli` / `netbox_cli.runtime` so tests can patch `netbox_cli.*` reliably.
 - **Documented exceptions:**
-  - `ui/cli_tui.py` imports the real Typer `app` for `CliRunner` parity with `nbx`.
-  - `get_default_client()` in `app_runtime` intentionally calls into `netbox_cli.cli` for interactive profile completion.
+  - `netbox_tui/cli_tui.py` imports the real Typer `app` for `CliRunner` parity with `nbx`.
+  - `_get_client()` in `netbox_cli.runtime` uses a late import of `netbox_cli` so interactive profile completion stays in one place.
 
 ## Quality gates
 

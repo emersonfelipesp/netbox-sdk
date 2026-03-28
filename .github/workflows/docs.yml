@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # needed for gh-deploy to push to gh-pages branch
+  contents: write
 
 jobs:
   build-and-deploy:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0    # full history for git-committer-date in MkDocs
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,14 +30,9 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install netbox-console and docs + dev dependencies
-        run: uv sync --locked --group docs --group dev
+      - name: Install docs and runtime dependencies
+        run: uv sync --locked --group docs --group dev --extra cli --extra tui --extra demo
 
-      # ── Docgen: regenerate captured CLI output ────────────────────────────
-      # Skipped automatically when DEMO_USERNAME / DEMO_PASSWORD are absent.
-      # Required repository secrets:
-      #   DEMO_USERNAME  →  nbxuser
-      #   DEMO_PASSWORD  →  @nm12345678
       - name: Regenerate command capture docs
         env:
           DEMO_USERNAME: ${{ secrets.DEMO_USERNAME }}
@@ -47,12 +42,10 @@ jobs:
             echo "Demo secrets not configured — skipping docgen."
             exit 0
           fi
-          uv pip install playwright
           uv run playwright install chromium --with-deps
           uv run nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
           uv run nbx docs generate-capture
 
-      # ── Build + deploy ────────────────────────────────────────────────────
       - name: Configure git identity for gh-deploy
         run: |
           git config user.name  "github-actions[bot]"

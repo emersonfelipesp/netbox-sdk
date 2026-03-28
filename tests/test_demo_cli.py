@@ -6,11 +6,14 @@ import sys
 from types import SimpleNamespace
 
 import click
+import pytest
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.api import ConnectionProbe
-from netbox_cli.config import DEMO_BASE_URL, Config
+from netbox_sdk.client import ConnectionProbe
+from netbox_sdk.config import DEMO_BASE_URL, Config
+
+pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
 
@@ -176,8 +179,8 @@ def test_demo_dev_http_uses_demo_client(monkeypatch) -> None:
             return _DemoClient()
         return _DefaultClient()
 
-    monkeypatch.setattr("netbox_cli.cli.runtime._ensure_demo_runtime_config", _demo_config)
-    monkeypatch.setattr("netbox_cli.cli.runtime._get_client_for_config", _client_for)
+    monkeypatch.setattr("netbox_cli.runtime._ensure_demo_runtime_config", _demo_config)
+    monkeypatch.setattr("netbox_cli.runtime._get_client_for_config", _client_for)
 
     result = runner.invoke(
         cli.app,
@@ -201,7 +204,7 @@ def test_demo_init_bootstraps_and_saves_profile(monkeypatch) -> None:
         lambda profile: Config(base_url=DEMO_BASE_URL, timeout=42.0),
     )
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: Config(
             base_url=DEMO_BASE_URL,
             token_key="fresh-key",
@@ -238,7 +241,7 @@ def test_demo_init_defaults_to_headless(monkeypatch) -> None:
         lambda profile: Config(base_url=DEMO_BASE_URL, timeout=42.0),
     )
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: (
             called.update(kwargs)
             or Config(
@@ -346,7 +349,7 @@ def test_demo_init_reports_playwright_error(monkeypatch) -> None:
     )
     monkeypatch.setattr(cli.typer, "confirm", lambda *args, **kwargs: True)
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: (_ for _ in ()).throw(
             RuntimeError(
                 "Playwright is required for `nbx demo init`. Install it with:\n"
@@ -374,7 +377,7 @@ def test_demo_init_rejects_unverified_token(monkeypatch) -> None:
         lambda profile: Config(base_url=DEMO_BASE_URL, timeout=42.0),
     )
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: Config(
             base_url=DEMO_BASE_URL,
             token_version="v1",
@@ -409,7 +412,7 @@ def test_demo_init_reports_missing_system_libraries(monkeypatch) -> None:
     )
     monkeypatch.setattr(cli.typer, "confirm", lambda *args, **kwargs: True)
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: (_ for _ in ()).throw(
             RuntimeError(
                 "Playwright Chromium could not start because system libraries are missing.\n"
@@ -438,7 +441,7 @@ def test_demo_init_reports_missing_x_server_for_headed(monkeypatch) -> None:
     )
     monkeypatch.setattr(cli.typer, "confirm", lambda *args, **kwargs: True)
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: (_ for _ in ()).throw(
             RuntimeError(
                 "Playwright was started in headed mode, but no X server is available.\n"
@@ -504,7 +507,7 @@ def test_demo_cli_tui_command_uses_demo_profile(monkeypatch) -> None:
         called["theme_name"] = theme_name
         called["demo_mode"] = demo_mode
 
-    import netbox_cli.ui.cli_tui as cli_tui_module
+    import netbox_tui.cli_tui as cli_tui_module
 
     def _patched_run_cli_tui(*args, **kwargs):
         return _fake_run_cli_tui(*args, **kwargs)

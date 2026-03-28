@@ -1,6 +1,6 @@
 # NetBox UI to Textual TUI Design Guidelines
 
-This document summarizes how NetBox's frontend is built and defines a practical porting strategy to a Textual-based TUI in `netbox-cli`.
+This document summarizes how NetBox's frontend is built and defines a practical porting strategy to a Textual-based TUI in `netbox-sdk`.
 
 ## 1. NetBox Frontend Architecture (What Exists Today)
 
@@ -47,7 +47,7 @@ A key NetBox design choice is that page content is not only raw templates; it is
 
 This declarative composition is important for TUI parity because it naturally maps to Textual widget composition.
 
-For `netbox-cli`, this is now a project guideline: use a React-style composition approach in Textual by building screens from small reusable widgets and nested layout primitives instead of deep inheritance trees.
+For `netbox-sdk`, this is now a project guideline: use a React-style composition approach in Textual by building screens from small reusable widgets and nested layout primitives instead of deep inheritance trees.
 
 ## 1.4 List/Detail Interaction Model
 
@@ -207,7 +207,7 @@ Textual runtime rule:
 - Textual has separate ANSI-mode defaults for surfaces such as `Screen` and `ModalScreen`, and these can still win in real terminals
 - if TCSS alone does not fully bind those runtime paths to the selected theme, add a narrow runtime surface sync using semantic theme tokens for the affected modal, pane stack, or internal widget subtree
 
-## 3. Concrete Porting Blueprint for netbox-cli
+## 3. Concrete Porting Blueprint for netbox-sdk
 
 ## 3.1 Shell Layout
 
@@ -344,11 +344,11 @@ Port the *workflow intent*, not HTML mechanics.
 5. UX parity
 - theme tokens, notifications, hotkeys, persistent preferences
 
-## 6. Implementation Notes for netbox-cli
+## 6. Implementation Notes for netbox-sdk
 
 Immediate recommendations:
 
-- Introduce `netbox_cli/ui/` package with panel and screen abstractions (mirroring NetBox's `ui/` layering)
+- Introduce `netbox_tui/` package with panel and screen abstractions (mirroring NetBox's `ui/` layering)
 - Add a local state module for list/detail view state persistence
 - Standardize response -> table/attr transformation utilities to keep CLI/TUI formatting consistent
 - Keep one API contract path and avoid branching logic between CLI and TUI

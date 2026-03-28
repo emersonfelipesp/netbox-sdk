@@ -4,41 +4,50 @@ hide:
   - toc
 ---
 
-# NetBox CLI
+# NetBox SDK
 
-**API-first NetBox client for your terminal — CLI commands and interactive TUI in one tool.**
+**SDK-first NetBox toolkit for Python, the terminal, and Textual UIs.**
 
-`netbox-cli` connects to any NetBox instance through its REST API and lets you list, inspect, create, update, and delete objects without ever opening a browser. Every resource available in the NetBox API is reachable from the command line, and the same backend powers a full interactive TUI.
+`netbox-sdk` is built as three sibling packages:
 
-If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a full REST implementation, `netbox-cli` can discover those plugin resources automatically and surface them in both the CLI/TUI navigation and data views.
+- `netbox_sdk` — standalone NetBox REST SDK
+- `netbox_cli` — Typer-powered CLI
+- `netbox_tui` — Textual-powered TUI
 
-> Temporary naming note: the repository name is `netbox-cli`, while the package
-> on PyPI is currently `netbox-console` until
-> https://github.com/pypi/support/issues/9925 is resolved.
+The repository ships three public surfaces:
 
----
+- `netbox_sdk` for Python integrations
+- `nbx` for CLI workflows
+- multiple Textual TUIs for browsing, debugging, and guided command execution
+
+The SDK package itself exposes three layers:
+
+- `NetBoxApiClient` for low-level async HTTP control
+- `api()` / `Api` for the async facade layer
+- `typed_api()` for the versioned typed client backed by committed Pydantic models
+
+The current typed SDK release lines are NetBox `4.5`, `4.4`, and `4.3`.
 
 <div class="grid cards" markdown>
 
--   :material-console:{ .lg .middle } **CLI — OpenAPI-driven commands**
+-   :material-api:{ .lg .middle } **SDK**
 
-    ---
+    ```python
+    from netbox_sdk import api, typed_api
+    ```
 
-    Every NetBox resource is a first-class Typer subcommand, auto-generated from the OpenAPI schema. Full `--help` at every level.
+    [:octicons-arrow-right-24: SDK Guide](sdk/index.md)
+
+-   :material-console:{ .lg .middle } **CLI**
 
     ```bash
     nbx dcim devices list
     nbx dcim devices get --id 1
-    nbx ipam prefixes list -q status=active
     ```
 
-    [:octicons-arrow-right-24: CLI Reference](cli/index.md)
+    [:octicons-arrow-right-24: CLI Guide](cli/index.md)
 
--   :material-monitor:{ .lg .middle } **TUI — interactive Textual interface**
-
-    ---
-
-    A shell-style terminal UI that mirrors the NetBox web interface — navigation tree, tabbed workspace, filters, and live data.
+-   :material-monitor:{ .lg .middle } **TUI**
 
     ```bash
     nbx tui
@@ -47,27 +56,10 @@ If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a fu
 
     [:octicons-arrow-right-24: TUI Guide](tui/index.md)
 
--   :material-web:{ .lg .middle } **Demo profile — zero config**
-
-    ---
-
-    Try everything against the public `demo.netbox.dev` instance. Playwright authenticates automatically.
+-   :material-lightning-bolt:{ .lg .middle } **Quick Start**
 
     ```bash
-    nbx demo init
-    nbx demo dcim devices list
-    ```
-
-    [:octicons-arrow-right-24: Demo Profile](cli/demo-profile.md)
-
--   :material-lightning-bolt:{ .lg .middle } **Quick start**
-
-    ---
-
-    Install, configure, and run your first command in under a minute.
-
-    ```bash
-    pip install netbox-console
+    pip install 'netbox-sdk[all]'
     nbx init
     nbx dcim devices list
     ```
@@ -76,40 +68,20 @@ If your NetBox instance exposes plugin endpoints under `/api/plugins/` with a fu
 
 </div>
 
----
+## Product split
 
-## Features at a glance
-
-| Feature | Details |
-|---------|---------|
-| **OpenAPI-driven** | Every resource auto-discovered from the NetBox OpenAPI schema — no hard-coded endpoints |
-| **CLI + TUI parity** | Same API client and schema index power both modes |
-| **Profiles** | Separate `default` and `demo` profiles; environment variable overrides |
-| **Token formats** | v2 (`nbt_key.secret`) and v1 (raw token) with automatic retry fallback |
-| **Themes** | JSON-defined themes, auto-discovered, hot-switchable in TUI |
-| **Cable trace** | ASCII cable trace diagram for interfaces with `--trace` |
-| **Pure async** | `aiohttp` with `asyncio` throughout — no blocking I/O in TUI workers |
-| **Output formats** | Rich tables (default), `--json`, `--yaml`, `--markdown` |
-
----
+- `SDK` docs focus on importable Python APIs, request layers, authentication,
+  and versioned typed clients.
+- `CLI` docs focus on the `nbx` command tree, dynamic commands, GraphQL, demo
+  profile, and captured command examples.
+- `TUI` docs focus on the main browser, developer workbench, CLI builder, logs
+  viewer, and Django model browser.
 
 ## Contributor standard
 
-Development uses `uv`, `ruff`, and `pre-commit` as the default workflow:
-
 ```bash
-uv sync --dev
+uv sync --dev --extra cli --extra tui --extra demo
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 uv run pytest
 ```
-
-The same pre-commit hooks are enforced in GitHub Actions, so local checks and CI stay aligned.
-
----
-
-## Supported NetBox app groups
-
-`circuits` · `core` · `dcim` · `extras` · `ipam` · `plugins` · `tenancy` · `users` · `virtualization` · `vpn` · `wireless`
-
-All groups, resources, and operations are discovered at runtime from `reference/openapi/netbox-openapi.json`.

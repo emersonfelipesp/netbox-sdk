@@ -1,6 +1,6 @@
 # Textual Composition Pattern
 
-`netbox-cli` uses a React-style composition pattern for Textual UI work: build screens from small reusable widgets, pass configuration through constructor arguments, and compose behavior by nesting widgets instead of building deep inheritance trees.
+`netbox-sdk` uses a React-style composition pattern for Textual UI work: build screens from small reusable widgets, pass configuration through constructor arguments, and compose behavior by nesting widgets instead of building deep inheritance trees.
 
 ## Why
 
@@ -55,7 +55,7 @@ class ObjectAttributesPanel(Vertical):
 
 ## Standard Building Blocks
 
-Current shared composition primitives live in `netbox_cli/ui/widgets.py`:
+Current shared composition primitives live in `netbox_tui/widgets.py`:
 
 | Primitive | Role |
 |-----------|------|
@@ -183,10 +183,10 @@ Avoid:
 
 ## Project-Wide Standard
 
-For new Textual work in `netbox-cli`:
+For new Textual work in `netbox-sdk`:
 
 1. Start with composition.
 2. Pass theme/styling intent as semantic props on reusable widgets.
-3. Extract reusable visual primitives into `netbox_cli/ui/widgets.py`.
+3. Extract reusable visual primitives into `netbox_tui/widgets.py`.
 4. Document new primitives in contributor docs if they become project-standard.
 5. Only add inheritance when the widget is truly a behavior-specialized primitive.

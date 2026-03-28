@@ -1,32 +1,32 @@
-# Screenshots: Django Models TUI
+# Screenshots: Django Models Browser
 
-The Django Models TUI is a browser for NetBox's internal Django models. It provides deep insight into the underlying data structures, relationships, and database schema of a NetBox instance. This is invaluable for developers who need to understand the data model or perform advanced troubleshooting.
+The Django models browser is the contributor-oriented TUI for inspecting
+NetBox's internal Django model graph, relationships, and source excerpts.
 
 ## Launch Command
 
 ```bash
-nbx django tui
-nbx django tui --theme dracula
+nbx dev django-model tui
 ```
 
 ## Theme Selection
 
 === "NetBox Dark"
 
-    ![Django Models TUI - NetBox Dark](../assets/screenshots/tui-django-netbox-dark.svg)
+    ![Django Models Browser - NetBox Dark](../assets/screenshots/tui-django-netbox-dark.svg)
 
 === "NetBox Light"
 
-    ![Django Models TUI - NetBox Light](../assets/screenshots/tui-django-netbox-light.svg)
+    ![Django Models Browser - NetBox Light](../assets/screenshots/tui-django-netbox-light.svg)
 
 === "Dracula"
 
-    ![Django Models TUI - Dracula](../assets/screenshots/tui-django-dracula.svg)
+    ![Django Models Browser - Dracula](../assets/screenshots/tui-django-dracula.svg)
 
 === "Tokyo Night"
 
-    ![Django Models TUI - Tokyo Night](../assets/screenshots/tui-django-tokyo-night.svg)
+    ![Django Models Browser - Tokyo Night](../assets/screenshots/tui-django-tokyo-night.svg)
 
 === "One Dark Pro"
 
-    ![Django Models TUI - One Dark Pro](../assets/screenshots/tui-django-onedark-pro.svg)
+    ![Django Models Browser - One Dark Pro](../assets/screenshots/tui-django-onedark-pro.svg)

@@ -6,7 +6,11 @@ All top-level `nbx` commands. Run any command with `--help` for the full option 
 
 ## `nbx init`
 
-Interactive setup for the default profile. Prompts for NetBox URL, token key, token secret, and timeout. Saves to `~/.config/netbox-cli/config.json`.
+Interactive setup for the default profile. Prompts for NetBox URL, token key,
+token secret, and timeout. Saves to `~/.config/netbox-sdk/config.json`.
+
+Older `~/.config/netbox-cli/config.json` files are still read automatically if a
+new NetBox SDK config has not been written yet.
 
 ```bash
 nbx init
@@ -125,13 +129,13 @@ nbx graphql "{ sites { name } }" --json
 | `--json` | Output raw JSON instead of formatted table |
 | `--yaml` | Output as YAML |
 
-The GraphQL endpoint is available at `/api/graphql/` on all NetBox instances.
+See [GraphQL](graphql.md) for focused examples and guidance.
 
 ---
 
 ## `nbx tui`
 
-Launch the interactive Textual TUI.
+Launch the main interactive Textual browser.
 
 ```bash
 nbx tui
@@ -145,18 +149,18 @@ nbx tui --theme          # list available themes
 |------|-------------|
 | `--theme` | List themes (no argument) or launch with a specific theme name |
 
-See [TUI Guide](../tui/index.md) for full navigation documentation.
+See [TUI Guide](../tui/index.md) for the main browser workflow.
 
 ---
 
 ## `nbx logs`
 
-Launch the structured JSON log viewer TUI. Shows entries written to `~/.config/netbox-cli/logs/netbox-cli.log` by the CLI and TUI.
+Print recent structured application logs from the shared log file.
 
 ```bash
 nbx logs
 nbx logs --limit 500     # load up to 500 entries (default: 200)
-nbx logs --theme dracula
+nbx logs --source
 ```
 
 **Options**
@@ -164,9 +168,10 @@ nbx logs --theme dracula
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--limit` | `200` | Maximum number of log entries to load |
-| `--theme` | from saved state | Theme name to use |
+| `--source` | off | Include module/function/line details |
 
-Use `Ctrl+G` inside the log viewer to clear the log file.
+New installs write logs under `~/.config/netbox-sdk/logs/netbox-sdk.log`, with
+compatibility reads from older `netbox-cli` log files when present.
 
 ---
 
@@ -202,6 +207,33 @@ nbx dev http get --path /api/status/
 ```
 
 Use `nbx dev http --help` and the subcommand helps for the full option matrix.
+
+---
+
+## `nbx cli tui`
+
+Launch the guided command-builder TUI.
+
+```bash
+nbx cli tui
+nbx demo cli tui
+```
+
+This is useful when you want to explore the command tree visually and execute an
+assembled `nbx` command without leaving the terminal.
+
+---
+
+## `nbx dev django-model`
+
+Contributor-oriented helpers for parsing, caching, fetching, and browsing
+NetBox's internal Django models.
+
+```bash
+nbx dev django-model build
+nbx dev django-model fetch --auto
+nbx dev django-model tui
+```
 
 ---
 

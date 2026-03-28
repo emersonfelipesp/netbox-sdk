@@ -3,7 +3,11 @@
 import unittest
 from pathlib import Path
 
+import pytest
+
 from netbox_cli import docgen_capture
+
+pytestmark = pytest.mark.suite_cli
 
 
 class ArgvMarkdownOutputTests(unittest.TestCase):

@@ -1,0 +1,1006 @@
+/* =====================================================================
+   netbox-sdk — Visual Design
+   Priority 1: reference/design/NETBOX-DARK-PATTERNS.md
+   Priority 2: reference/textual/TOAD-DESIGN-GUIDE.md
+   All colors via $semantic-variable — no hardcoded hex in TCSS.
+   ===================================================================== */
+
+
+/* ---- Screen --------------------------------------------------------- */
+
+Screen {
+    layout: vertical;
+    background: $background;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ---- Scrollbars ----------------------------------------------------- */
+/* Slim, low-contrast rails by default; accent only on interaction. */
+
+* {
+    scrollbar-size: 1 1;
+    scrollbar-background: transparent;
+    scrollbar-background-hover: $foreground 4%;
+    scrollbar-background-active: $foreground 8%;
+    scrollbar-color: $foreground 30%;
+    scrollbar-color-hover: $primary 65%;
+    scrollbar-color-active: $primary;
+    scrollbar-corner-color: transparent;
+}
+
+.nbx-button {
+    height: 3;
+    min-height: 3;
+    min-width: 9;
+    width: auto;
+    padding: 0 2;
+    content-align: center middle;
+    background: transparent;
+}
+
+.nbx-panel-body {
+    background: transparent;
+    height: 1fr;
+}
+
+.nbx-panel-header {
+    height: auto;
+}
+
+.nbx-panel-body.nbx-surface--background {
+    background: $background;
+}
+
+.nbx-panel-body.nbx-surface--surface {
+    background: $surface;
+}
+
+.nbx-panel-body.nbx-surface--panel {
+    background: $panel;
+}
+
+.nbx-button--small {
+    min-width: 8;
+    padding: 0 1;
+}
+
+.nbx-button--medium {
+    min-width: 10;
+    padding: 0 2;
+}
+
+.nbx-button--large {
+    min-width: 14;
+    padding: 0 3;
+}
+
+.nbx-panel-header.nbx-tone--default .panel-title {
+    color: $foreground;
+}
+
+.nbx-panel-header.nbx-tone--primary .panel-title {
+    color: $primary;
+}
+
+.nbx-panel-header.nbx-tone--secondary .panel-title {
+    color: $secondary;
+}
+
+.nbx-panel-header.nbx-tone--success .panel-title {
+    color: $success;
+}
+
+.nbx-panel-header.nbx-tone--warning .panel-title {
+    color: $warning;
+}
+
+.nbx-panel-header.nbx-tone--error .panel-title {
+    color: $error;
+}
+
+.nbx-panel-header.nbx-tone--muted .panel-title {
+    color: $nb-muted-text;
+}
+
+
+/* ---- Header --------------------------------------------------------- */
+/* Textual's built-in Header uses $primary / $background automatically. */
+
+
+/* ---- Top Bar -------------------------------------------------------- */
+/* border: tall transparent reserves focus-ring space (no layout shift).  */
+/* On :focus-within the border lights up — Toad PromptContainer pattern.  */
+
+#topbar {
+    width: 1fr;
+    height: auto;
+    background: $background;
+    border-bottom: solid $nb-border-subtle;
+    align: left middle;
+}
+
+#topbar:focus-within {
+    border-bottom: solid $secondary;
+}
+
+#topbar_left,
+#topbar_right {
+    width: 1fr;
+    height: auto;
+}
+
+#topbar_left {
+    align: left middle;
+}
+
+#topbar_center {
+    width: auto;
+    min-width: 19;
+    height: auto;
+    align: center middle;
+}
+
+#topbar_right {
+    align: right middle;
+}
+
+#topbar_logo {
+    width: auto;
+    margin: 0 0 0 1;
+    color: $primary;
+    text-style: bold;
+    text-align: center;
+    text-wrap: nowrap;
+}
+
+#topbar_cli_suffix {
+    width: auto;
+    margin: 0 1 0 1;
+    color: $foreground;
+    text-style: bold;
+    text-wrap: nowrap;
+}
+
+#nav_dot {
+    width: 1;
+    margin-right: 1;
+    color: $primary;
+    text-style: bold;
+}
+
+#app_title_wrap {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    align: left middle;
+}
+
+#app_title_demo {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    margin-right: 1;
+    color: $secondary;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#clock {
+    width: auto;
+    min-width: 8;
+    margin-left: 1;
+    color: $nb-muted-text;
+    content-align: right middle;
+}
+
+#global_search {
+    width: 1fr;
+    border: tall transparent;
+    background: transparent;
+}
+
+#query_bar {
+    width: 1fr;
+    height: auto;
+    padding: 0 1 1 1;
+    align: left middle;
+    background: $background;
+    border-bottom: solid $nb-border-subtle;
+}
+
+#global_search {
+    width: 1fr;
+    margin: 0;
+    border: tall $nb-border-subtle;
+    background: $panel;
+}
+
+#global_search:focus {
+    border: tall $primary;
+    background: $surface;
+}
+
+#filter_select {
+    width: 24;
+    min-width: 18;
+    margin: 0 0 0 1;
+    border: tall transparent;
+    background: transparent;
+    color: $foreground;
+    text-align: left;
+    content-align: left middle;
+    padding: 0 1;
+}
+
+#filter_select:hover {
+    background: $panel;
+}
+
+#filter_select:focus {
+    border: tall $secondary;
+    background: $panel;
+}
+
+#active_filters {
+    width: 1fr;
+    padding: 0 2 0 2;
+    margin-bottom: 1;
+    color: $nb-muted-text;
+    text-style: dim;
+}
+
+#connection_badge {
+    width: 1;
+    margin-left: 1;
+    margin-right: 1;
+    padding: 0;
+    border: none;
+    color: $nb-secondary-text;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#connection_badge.-checking {
+    color: $nb-warning-text;
+}
+
+#connection_badge.-ok {
+    color: $nb-success-text;
+}
+
+#connection_badge.-warning {
+    color: $nb-warning-text;
+}
+
+#connection_badge.-error {
+    color: $nb-danger-text;
+}
+
+#context_breadcrumb {
+    width: auto;
+    max-width: 60;
+    height: 3;
+    min-height: 2;
+    align: right middle;
+}
+
+#context_breadcrumb_menu {
+    display: none;
+    width: auto;
+    min-width: 14;
+    height: auto;
+    max-height: 12;
+    overlay: screen;
+    constrain: none inside;
+    layer: overlay;
+    border: tall $nb-border-subtle;
+    background: $surface;
+}
+
+#context_breadcrumb_menu:focus {
+    border: tall $secondary;
+}
+
+#context_breadcrumb_menu > .option-list--option {
+    padding: 0 1;
+}
+
+#context_breadcrumb_menu.hidden {
+    display: none;
+}
+
+.breadcrumb-prefix {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    color: $nb-muted-text;
+    margin-right: 1;
+    content-align: center middle;
+}
+
+.breadcrumb-sep {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    color: $nb-muted-text;
+    margin: 0 1;
+    content-align: center middle;
+}
+
+.breadcrumb-current {
+    width: auto;
+    color: $nb-muted-text;
+    height: 3;
+    min-height: 2;
+    content-align: center middle;
+}
+
+.breadcrumb-link {
+    width: auto;
+    height: 3;
+    min-height: 2;
+    min-width: 1;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: $nb-muted-text;
+    text-style: none;
+    content-align: center middle;
+}
+
+.breadcrumb-link:hover {
+    background: $panel;
+    color: $foreground;
+    text-style: none;
+}
+
+.breadcrumb-link:focus {
+    border: none;
+    background: $panel;
+    color: $foreground;
+    text-style: none;
+}
+
+#close_tui_button {
+    margin-left: 1;
+}
+
+
+/* ---- Shell Layout --------------------------------------------------- */
+
+#shell {
+    height: 1fr;
+    layers: base overlay;
+}
+
+
+/* ---- Sidebar -------------------------------------------------------- */
+/* NetBox sidebar: dark navy base, right separator, teal section labels.  */
+/* Toad pattern: scrollbar hidden, overflow scroll, no visual border box. */
+
+#sidebar {
+    width: 38;
+    max-width: 40%;
+    min-width: 24;
+    background: $background;
+    border-right: tall $nb-border-subtle;
+    padding: 0 1;
+    overflow: hidden scroll;
+    scrollbar-size: 0 0;
+}
+
+#connection_warning_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 80%;
+    padding: 1;
+}
+
+#connection_warning_overlay.hidden {
+    display: none;
+}
+
+#connection_warning {
+    width: 88%;
+    max-width: 100;
+    height: auto;
+    border: round $error;
+    background: $surface;
+    color: $error;
+    padding: 1 2;
+    text-align: center;
+}
+
+#nav_title,
+.panel-title {
+    color: $primary;
+    text-style: bold;
+    margin: 1 0 0 0;
+}
+
+.panel-subtitle {
+    color: $nb-muted-text;
+    text-style: italic;
+    margin: 0 0 1 0;
+}
+
+#nav_tree {
+    height: 1fr;
+    margin-top: 1;
+    background: transparent;
+    color: $foreground;
+}
+
+#nav_tree:focus {
+    background: transparent;
+    background-tint: transparent;
+}
+
+#nav_tree > .tree--label {
+    color: $foreground;
+}
+
+#nav_tree > .tree--guides {
+    color: $nb-border-subtle;
+}
+
+#nav_tree > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#nav_tree > .tree--guides-selected {
+    color: $primary;
+}
+
+#nav_tree > .tree--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#nav_tree > .tree--highlight-line {
+    background: $panel;
+}
+
+#nav_tree > .tree--highlight {
+    background: $panel;
+    color: $foreground;
+}
+
+#nav_tree:focus > .tree--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#nav_tree:focus > .tree--guides {
+    color: $nb-border-subtle;
+}
+
+#nav_tree:focus > .tree--guides-hover {
+    color: $nb-border-subtle;
+}
+
+#nav_tree:focus > .tree--guides-selected {
+    color: $primary;
+}
+
+#nav_help {
+    color: $nb-muted-text;
+    text-style: dim;
+    margin: 1 0;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* ---- Main Content Area ---------------------------------------------- */
+/* NetBox page body uses the slightly lighter surface bg (#081B2A).       */
+
+#main {
+    width: 1fr;
+    background: $background;
+    padding: 0 1 0 2;
+}
+
+#main_tabs {
+    height: 1fr;
+    background: $background;
+}
+
+#main_tabs ContentTabs {
+    background: transparent;
+    color: $foreground;
+    border: none;
+    padding: 0 1;
+    margin: 0 0 1 0;
+}
+
+#main_tabs Container#tabs-scroll,
+#main_tabs Vertical#tabs-list-bar,
+#main_tabs Horizontal#tabs-list,
+#main_tabs Underline {
+    background: transparent;
+}
+
+#main_tabs ContentTabs .underline--bar {
+    background: $nb-border-subtle;
+    color: $nb-border-subtle;
+}
+
+#main_tabs ContentTabs:focus .underline--bar {
+    background: $primary 35%;
+    color: $primary;
+}
+
+#main_tabs ContentTabs:focus .-active {
+    color: $primary;
+    background: transparent;
+    text-style: bold;
+}
+
+#main_tabs Tab {
+    height: 1;
+    min-width: 9;
+    padding: 0 1;
+    background: transparent;
+    color: $nb-muted-text;
+    border: none;
+}
+
+#main_tabs Tab:hover {
+    background: $panel;
+    color: $foreground;
+}
+
+#main_tabs Tab:focus {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#main_tabs Tab.-active {
+    color: $foreground;
+    background: transparent;
+    text-style: bold;
+}
+
+#main_tabs ContentTab,
+#main_tabs ContentTab.-active {
+    height: 1;
+    min-width: 9;
+    padding: 0 1;
+    background: transparent;
+    border: none;
+}
+
+#main_tabs ContentTabs:ansi ContentTab {
+    color: $nb-muted-text;
+    background: transparent;
+}
+
+#main_tabs ContentTabs:ansi ContentTab.-active {
+    color: $foreground;
+    background: transparent;
+}
+
+#main_tabs ContentTabs:ansi:focus ContentTab.-active {
+    color: $primary;
+    background: transparent;
+}
+
+#main_tabs ContentSwitcher {
+    background: $background;
+}
+
+#main_tabs TabPane {
+    background: $background;
+}
+
+#results_tab,
+#details_tab {
+    padding: 0;
+    background: $background;
+}
+
+
+/* ---- Results Tab ---------------------------------------------------- */
+/* border-left: blank $primary — left-stripe categorization (Toad).       */
+/* Margin rhythm: 1 1 1 0 (Toad block-content pattern).                   */
+
+#results_controls {
+    height: auto;
+    margin: 1 1 1 0;
+    border-left: blank $primary;
+    padding: 0 1;
+    color: $nb-muted-text;
+}
+
+#results_table {
+    height: 1fr;
+    background: $background;
+    color: $foreground;
+    background-tint: transparent;
+}
+
+#results_loading_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 72%;
+}
+
+#results_loading_overlay.hidden {
+    display: none;
+}
+
+#results_loading_spinner {
+    width: auto;
+    color: $primary;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#results_loading_text {
+    width: auto;
+    margin-top: 1;
+    color: $foreground;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#results_table > .datatable--header {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#results_table > .datatable--fixed {
+    background: $secondary 20%;
+    color: $foreground;
+}
+
+#results_table > .datatable--odd-row {
+    background: $background;
+}
+
+#results_table > .datatable--even-row {
+    background: $background 6%;
+}
+
+#results_table > .datatable--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#results_table > .datatable--fixed-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#results_table > .datatable--header-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#results_table > .datatable--header-hover {
+    background: $panel;
+    color: $foreground;
+}
+
+#results_table > .datatable--hover {
+    background: $panel;
+}
+
+#results_table:focus {
+    background-tint: transparent;
+}
+
+#results_status {
+    height: auto;
+    margin: 1 1 1 0;
+    color: $nb-muted-text;
+    text-style: dim;
+}
+
+#results_status.-loading {
+    color: $primary;
+    text-style: bold;
+}
+
+
+/* ---- Details Tab ---------------------------------------------------- */
+
+#detail_panel {
+    height: 1fr;
+    background: $background;
+}
+
+
+/* ---- Object Attributes Panel ---------------------------------------- */
+/* Left-stripe in primary color — same category as results (DCIM/main).  */
+/* .-loading CSS class drives status indicator color (Toad state machine). */
+
+ObjectAttributesPanel {
+    border-left: blank $primary;
+    padding: 0 1;
+    margin: 1 1 1 0;
+    height: 1fr;
+}
+
+#detail_status {
+    height: 1;
+    color: $nb-muted-text;
+    text-style: dim;
+    margin: 0 0 1 0;
+}
+
+ObjectAttributesPanel.-loading #detail_status {
+    color: $primary;
+    text-style: bold;
+}
+
+#detail_table {
+    height: 1fr;
+    background: $background;
+    color: $foreground;
+    background-tint: transparent;
+}
+
+#detail_table > .datatable--header {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#detail_table > .datatable--fixed {
+    background: $background;
+    color: $foreground;
+}
+
+#detail_table > .datatable--odd-row {
+    background: $background;
+}
+
+#detail_table > .datatable--even-row {
+    background: $background 6%;
+}
+
+#detail_table > .datatable--cursor {
+    background: $panel;
+    color: $foreground;
+    text-style: bold;
+}
+
+#detail_table > .datatable--fixed-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#detail_table > .datatable--header-cursor {
+    background: $panel;
+    color: $foreground;
+}
+
+#detail_table > .datatable--header-hover {
+    background: $panel;
+    color: $foreground;
+}
+
+#detail_table > .datatable--hover {
+    background: $panel;
+}
+
+#detail_table:focus {
+    background-tint: transparent;
+}
+
+#detail_trace_title {
+    margin: 1 0 0 0;
+}
+
+#detail_trace {
+    margin: 1 0 0 0;
+    padding: 1;
+    border: round $nb-border-subtle;
+    background: $panel;
+    color: $foreground;
+    height: auto;
+    text-wrap: nowrap;
+}
+
+
+#filter_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 80%;
+    padding: 1;
+}
+
+#filter_picker_overlay {
+    layer: overlay;
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    background: $background 80%;
+    padding: 1;
+}
+
+#filter_picker_dialog {
+    width: 48;
+    height: auto;
+    max-height: 22;
+    border: thick $primary 20%;
+    background: $background;
+    padding: 1 2;
+}
+
+#filter_picker_dialog:focus-within {
+    border: thick $primary;
+}
+
+/* Match #filter_dialog Input — picker search was only margin, so it read as empty space. */
+#filter_picker_dialog Input {
+    width: 1fr;
+    margin: 0 0 1 0;
+    border: tall $nb-border-subtle;
+    background: $background;
+    color: $foreground;
+}
+
+#filter_picker_dialog Input:focus {
+    border: tall $primary;
+    background: $panel;
+}
+
+#filter_picker_dialog Input > .input--placeholder {
+    color: $nb-muted-text;
+}
+
+#filter_picker_search {
+    margin: 0 0 1 0;
+    min-height: 3;
+}
+
+#filter_picker_list {
+    height: 12;
+    border: tall $nb-border-subtle;
+    background: $background;
+}
+
+#filter_picker_buttons {
+    height: auto;
+    margin: 1 0 0 0;
+}
+
+#filter_picker_buttons Button {
+    min-width: 12;
+    background: transparent;
+    color: $foreground;
+    border: round $nb-border-subtle;
+}
+
+#filter_picker_buttons Button:hover {
+    background: transparent;
+    tint: $foreground 6%;
+}
+
+#filter_picker_buttons Button:focus {
+    background: transparent;
+    tint: $foreground 8%;
+    border: round $secondary;
+}
+
+#filter_dialog {
+    width: 72;
+    height: auto;
+    border: thick $primary 20%;
+    background: $background;
+    padding: 1 2;
+}
+
+#filter_dialog:focus-within {
+    border: thick $primary;
+}
+
+#filter_dialog .panel-title {
+    margin: 0 0 1 0;
+}
+
+#filter_field_label {
+    margin: 0 0 1 0;
+    color: $secondary;
+}
+
+#filter_dialog Input {
+    margin: 0 0 1 0;
+    border: tall $nb-border-subtle;
+    background: $background;
+    color: $foreground;
+}
+
+#filter_dialog Input:focus {
+    border: tall $primary;
+    background: $panel;
+}
+
+#filter_dialog Input > .input--placeholder {
+    color: $nb-muted-text;
+}
+
+#filter_buttons {
+    height: auto;
+    margin: 1 0 0 0;
+}
+
+#filter_buttons Button {
+    min-width: 12;
+    margin-right: 1;
+    background: transparent;
+    color: $foreground;
+    border: round $nb-border-subtle;
+    text-style: bold;
+}
+
+#filter_buttons Button:hover {
+    background: transparent;
+    tint: $foreground 6%;
+    text-style: bold;
+}
+
+#filter_buttons Button:focus {
+    background: transparent;
+    tint: $foreground 8%;
+    border: round $secondary;
+}
+
+#filter_cancel {
+    background: $background;
+    color: $foreground;
+    border: round $nb-border-subtle;
+}
+
+#filter_cancel:hover {
+    background: transparent;
+    tint: $foreground 6%;
+}
+
+#filter_cancel:focus {
+    border: tall $secondary;
+}
+
+
+/* ---- Focus & Interactive States ------------------------------------- */
+/* Textual Input/Button use theme colors; override where needed.          */
+
+Button.-primary,
+Button.primary {
+    text-style: bold;
+}
+
+Button.-primary:hover,
+Button.primary:hover {
+    text-style: bold;
+}
+
+Button.-primary:focus,
+Button.primary:focus {
+}
+
+/* ---- Footer --------------------------------------------------------- */
+/* Transparent footer bg; key labels use theme text colors.               */
+
+Footer {
+    background: $background;
+    border-top: solid $nb-border-subtle;
+}

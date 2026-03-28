@@ -1,14 +1,16 @@
 # Documentation Generation
 
-`netbox-cli` includes a built-in capture system that runs every `nbx` command, records its output, and produces the [Command Examples](../reference/command-examples/index.md) section automatically — one page per command group.
+`netbox-sdk` includes a built-in capture system that runs `nbx` commands,
+records their output, and produces the [Command Examples](../reference/command-examples/index.md)
+section automatically.
 
 ---
 
 ## Quick start
 
 ```bash
-cd /path/to/netbox-cli
-uv sync --dev --group docs
+cd /path/to/netbox-sdk
+uv sync --group docs --group dev --extra cli --extra tui --extra demo
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 
 # Default: live-API specs hit demo.netbox.dev
@@ -27,7 +29,6 @@ chmod +x docs/run_capture_in_background.sh
 ./docs/run_capture_in_background.sh
 
 tail -f docs/generated/capture-run.log
-# stop: kill "$(cat docs/generated/capture-run.log)"
 ```
 
 ---
@@ -118,7 +119,7 @@ The `docs/hooks.py` MkDocs hook reads the raw JSON artifacts before each build a
 
 The workflow at `.github/workflows/docs-capture.yml` runs on every push to `main`:
 
-1. Installs `netbox-cli` and dependencies.
+1. Installs `netbox-sdk` and dependencies.
 2. Runs `uv tool run --from playwright playwright install chromium --with-deps`.
 3. Authenticates with demo.netbox.dev: `nbx demo init --username $DEMO_USERNAME --password $DEMO_PASSWORD --headless`.
 4. Verifies: `nbx demo config`.

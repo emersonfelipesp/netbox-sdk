@@ -13,10 +13,9 @@ from unittest.mock import patch
 import pytest
 from textual.widgets import Button, Input, ListItem, ListView, RichLog, Select, Static
 
-from netbox_cli.api import ConnectionProbe
-from netbox_cli.config import Config
-from netbox_cli.schema import build_schema_index
-from netbox_cli.ui.cli_completions import (
+from netbox_sdk.config import Config
+from netbox_sdk.schema import build_schema_index
+from netbox_tui.cli_completions import (
     CliCommandNode,
     _action_leaf_nodes,
     _resource_branch_nodes,
@@ -24,8 +23,10 @@ from netbox_cli.ui.cli_completions import (
     _static_leaf_nodes,
     nbx_root_command_nodes,
 )
-from netbox_cli.ui.cli_tui import NbxCliTuiApp, _nbx_cli_execute, run_cli_tui
+from netbox_tui.cli_tui import NbxCliTuiApp, _nbx_cli_execute, run_cli_tui
 from tests.conftest import OPENAPI_PATH
+
+pytestmark = pytest.mark.suite_tui
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -64,19 +65,6 @@ class _FakeClient:
             headers = {"API-Version": "4.2"}
 
         return _Response()
-
-    async def probe_connection(self) -> ConnectionProbe:
-        response = await self.request("GET", "/", headers={"Content-Type": "application/json"})
-        headers = getattr(response, "headers", {}) or {}
-        version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
-        status = int(getattr(response, "status", 0) or 0)
-        ok = status < 400 or status == 403
-        return ConnectionProbe(
-            status=status,
-            version=version,
-            ok=ok,
-            error=None if ok else getattr(response, "text", ""),
-        )
 
 
 def _make_client() -> _FakeClient:
@@ -752,8 +740,8 @@ def test_nbx_cli_execute_returns_tuple() -> None:
 
 def test_nbx_cli_execute_groups_command() -> None:
     """Running ``groups`` via CliRunner must produce schema group names."""
-    with patch("netbox_cli.cli.runtime._ensure_runtime_config") as mock_cfg:
-        from netbox_cli.config import Config
+    with patch("netbox_cli.runtime._ensure_runtime_config") as mock_cfg:
+        from netbox_sdk.config import Config
 
         mock_cfg.return_value = Config(
             base_url="http://fake.example.com",

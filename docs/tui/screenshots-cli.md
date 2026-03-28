@@ -1,32 +1,34 @@
-# Screenshots: CLI TUI
+# Screenshots: CLI Builder
 
-The CLI TUI is an interactive CLI interface with a command palette. It provides a rich terminal experience for executing NetBox CLI commands with real-time feedback, autocomplete suggestions, and visual command history. This combines the power of the CLI with the usability of a TUI.
+The CLI builder is the guided, menu-driven interface for assembling and running
+`nbx` commands interactively.
 
 ## Launch Command
 
 ```bash
 nbx cli tui
 nbx cli tui --theme dracula
+nbx demo cli tui
 ```
 
 ## Theme Selection
 
 === "NetBox Dark"
 
-    ![CLI TUI - NetBox Dark](../assets/screenshots/tui-cli-netbox-dark.svg)
+    ![CLI Builder - NetBox Dark](../assets/screenshots/tui-cli-netbox-dark.svg)
 
 === "NetBox Light"
 
-    ![CLI TUI - NetBox Light](../assets/screenshots/tui-cli-netbox-light.svg)
+    ![CLI Builder - NetBox Light](../assets/screenshots/tui-cli-netbox-light.svg)
 
 === "Dracula"
 
-    ![CLI TUI - Dracula](../assets/screenshots/tui-cli-dracula.svg)
+    ![CLI Builder - Dracula](../assets/screenshots/tui-cli-dracula.svg)
 
 === "Tokyo Night"
 
-    ![CLI TUI - Tokyo Night](../assets/screenshots/tui-cli-tokyo-night.svg)
+    ![CLI Builder - Tokyo Night](../assets/screenshots/tui-cli-tokyo-night.svg)
 
 === "One Dark Pro"
 
-    ![CLI TUI - One Dark Pro](../assets/screenshots/tui-cli-onedark-pro.svg)
+    ![CLI Builder - One Dark Pro](../assets/screenshots/tui-cli-onedark-pro.svg)

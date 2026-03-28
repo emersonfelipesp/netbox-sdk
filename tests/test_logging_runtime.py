@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import logging
 
-from netbox_cli import logging_runtime
+import pytest
+
+from netbox_sdk import logging_runtime
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def test_setup_logging_writes_json_lines(tmp_path, monkeypatch) -> None:

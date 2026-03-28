@@ -1,90 +1,78 @@
 # Package integration
 
-This document describes how the installable artifact, import path, and subsystems fit together.
+This document describes how the installable artifact, import paths, and subsystems fit together.
 
-## One package, two PyPI names
+## PyPI project and optional extras
 
-The Python package is always `netbox_cli`. It is published under two project names from the same source tree:
+The primary PyPI project is `netbox-sdk` (see `pyproject.toml`). The same distribution ships three top-level packages:
 
-| PyPI project       | Use case                                      |
-|--------------------|-----------------------------------------------|
-| `netbox-console`   | Primary name in `pyproject.toml`              |
-| `netbox-sdk`       | Same code; CI builds a second wheel/sdist     |
+| Import package | Role | Typical install |
+|----------------|------|-----------------|
+| `netbox_sdk` | REST client, config, schema, services, typed API | `pip install netbox-sdk` |
+| `netbox_cli` | Typer `nbx` CLI | `pip install 'netbox-sdk[cli]'` |
+| `netbox_tui` | Textual TUIs | `pip install 'netbox-sdk[tui]'` |
 
-After installation, imports are identical: `import netbox_cli`, `from netbox_cli.api import NetBoxApiClient`, etc.
+Use `pip install 'netbox-sdk[all]'` for CLI + TUI + demo tooling.
 
 ## Public SDK surface
 
-Stable symbols for library use are re-exported from `netbox_cli`:
+Stable symbols for library use are exported from `netbox_sdk` (see `netbox_sdk/__init__.py`), including:
 
 - `NetBoxApiClient`, `ApiResponse`, `ConnectionProbe`, `RequestError`
-- `Config`, `load_profile_config`, `save_config`
-- `SchemaIndex`, `load_openapi_schema`
+- `Config`, `load_profile_config`, `save_config`, and related profile helpers
+- `SchemaIndex`, `load_openapi_schema`, `build_schema_index`
 - `ResolvedRequest`, `resolve_dynamic_request`, `run_dynamic_command`
-- `__version__`
+- Typed facade (`api`, `typed_api`, …) and version support types
 
-Everything else is considered internal; it may change between minor releases.
-
-Typer-free factories for apps embedding the client live in `netbox_cli.app_runtime`:
-
-- `get_schema_index()` — fresh `SchemaIndex` from the cached OpenAPI document
-- `client_for_config(cfg)` — `NetBoxApiClient` for an explicit `Config`
-- `get_default_client()` — default profile (may prompt); delegates to `netbox_cli.cli` for interactive setup
+Everything outside that `__all__` is considered internal unless documented otherwise.
 
 ## Layer diagram
 
 ```mermaid
 flowchart TB
-  subgraph core [Core netbox_cli]
+  subgraph sdk [netbox_sdk]
     config[config.py]
     schema[schema.py]
     services[services.py]
-    api[api.py]
-    profile_cache[profile_cache.py]
-    app_runtime[app_runtime.py]
-    config --> api
-    profile_cache --> api
+    client[client.py]
+    config --> client
     schema --> services
-    api --> services
-    app_runtime --> schema
-    app_runtime --> api
+    client --> services
   end
-  subgraph adapters [Adapters]
-    cli[cli Typer]
-    ui[ui Textual]
-    docgen[docgen]
+  subgraph cli [netbox_cli]
+    runtime[runtime.py]
+    dynamic[dynamic.py]
+    runtime --> client
+    runtime --> schema
+    dynamic --> runtime
+    dynamic --> services
   end
-  cli --> api
-  cli --> services
-  ui --> api
-  ui --> schema
-  ui --> app_runtime
-  docgen --> app_runtime
-  docgen --> profile_cache
-  cli --> app_runtime
+  subgraph tui [netbox_tui]
+    app[app.py]
+  end
+  cli --> sdk
+  tui --> sdk
+  cli -. lazy launch .-> tui
 ```
 
 ## Allowed import edges
 
-| From              | May import into core? | Notes |
-|-------------------|----------------------|-------|
-| `netbox_cli.api`  | `config`, `http_cache`, `profile_cache`, `logging_runtime`, `schema` (types only where needed) | Must **not** import `cli` or `ui`. |
-| `netbox_cli.cli`  | Core + `cli/*`       | Typer/Rich wiring; `cli/commands/*` registers commands on the root app. |
-| `netbox_cli.ui`   | Core + `app_runtime` for default client/index when switching TUIs | Prefer injecting `client`/`index` into apps. |
-| `netbox_cli.docgen` | Core, `app_runtime`, `profile_cache` | Workers preload schema via `get_schema_index()`; config via `_RUNTIME_CONFIGS`. |
+| From | May import | Notes |
+|------|------------|-------|
+| `netbox_sdk` | stdlib + declared deps only | Must **not** import `netbox_cli` or `netbox_tui`. |
+| `netbox_cli` | `netbox_sdk`, then `netbox_tui` only via lazy helpers (`support.load_tui_callables`) | Entry: `netbox_cli:main` → `nbx`. |
+| `netbox_tui` | `netbox_sdk` | Receives `NetBoxApiClient` and `SchemaIndex` from the caller or CLI. |
 
-## In-process profile cache
+## In-process runtime state (`netbox_cli.runtime`)
 
-`netbox_cli.profile_cache` holds `_RUNTIME_CONFIGS` and `_cache_profile`. The HTTP client updates this cache when refreshing demo tokens so the CLI process stays consistent without importing Typer from `api.py`.
+`netbox_cli.runtime` holds `_RUNTIME_CONFIGS`, `_cache_profile`, `_get_client`, `_get_index`, and related helpers. Demo token refresh updates the cached profile via `_cache_profile` so the CLI process stays consistent without the SDK client importing Typer.
 
 ## CLI command registration
 
-Static commands are registered by `netbox_cli.cli.commands.register_static_commands(app)`. Modules under `cli/commands/` group commands by concern (`profile`, `http_api`, `tui_launch`, etc.). `cli/commands/_wiring.py` resolves `netbox_cli.cli._get_client` at **call time** so tests can monkeypatch the CLI package.
-
-Dynamic OpenAPI commands are still built in `cli/dynamic.py`; `_runtime_get_client` / `_runtime_get_index` resolve through `netbox_cli.cli` for the same patching reason.
+Commands are registered on the root `Typer` app in `netbox_cli/__init__.py`. Dynamic OpenAPI commands are built in `netbox_cli/dynamic.py`; `_runtime_get_client` / `_runtime_get_index` resolve through `netbox_cli.runtime` at call time so tests can patch those factories.
 
 ## Entry point
 
-Console script `nbx` maps to `netbox_cli.cli:main`. `cli/__init__.py` constructs the root `Typer` app, registers commands, and re-exports several names (`run_dynamic_command`, `load_profile_config`, …) for backward compatibility and tests.
+Console script `nbx` maps to `netbox_cli:main`.
 
 See also: [Architecture](architecture.md), [Design principles](design-principles.md).

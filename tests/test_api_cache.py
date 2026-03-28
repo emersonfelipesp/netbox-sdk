@@ -10,9 +10,11 @@ from collections import deque
 
 import pytest
 
-from netbox_cli.api import ApiResponse, NetBoxApiClient
-from netbox_cli.config import Config
-from netbox_cli.http_cache import CachePolicy, build_cache_key
+from netbox_sdk.client import ApiResponse, NetBoxApiClient
+from netbox_sdk.config import Config
+from netbox_sdk.http_cache import CachePolicy, build_cache_key
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def _install_fake_aiohttp(monkeypatch) -> None:

@@ -1,13 +1,26 @@
 # tests — Test Suite
 
-pytest + pytest-asyncio. All tests live here; there are no inline tests in the source package.
+pytest + pytest-asyncio. All tests live here; there are no inline tests in the source packages.
 
-**Run all tests:**
+**Canonical commands:**
 ```bash
-pytest
+uv run pytest                 # full suite
+uv run pytest -m suite_sdk    # netbox_sdk-owned tests
+uv run pytest -m suite_cli    # netbox_cli-owned tests
+uv run pytest -m suite_tui    # netbox_tui-owned tests
 ```
 
 **Async mode:** `asyncio_mode = "auto"` (set in `pyproject.toml`) — every `async def test_*` runs automatically under an event loop without needing `@pytest.mark.asyncio`.
+
+## Suite Ownership
+
+Each test module is marked with exactly one package ownership marker:
+
+- `suite_sdk` — tests whose primary contract is the standalone `netbox_sdk` package
+- `suite_cli` — tests whose primary contract is the optional `netbox_cli` package
+- `suite_tui` — tests whose primary contract is the optional `netbox_tui` package
+
+The default `pytest` invocation still means “test everything”. Marker runs are for package-scoped validation and CI routing.
 
 ---
 
@@ -36,10 +49,25 @@ pytest
 | `test_no_hardcoded_colors.py` | Two checks: (1) zero hex literals in any runtime TCSS file; (2) all `$token` references in TCSS are in the explicit `_ALLOWED_THEME_TOKENS` allowlist |
 | `test_output_safety.py` | ANSI stripping, control character replacement, safe Rich Text rendering |
 | `test_plugin_discovery.py` | `discover_plugin_resource_paths()` — mock API walk, collection detection, deduplication |
+| `test_return_annotations.py` | Repo-wide non-test return annotation regression guard |
 | `test_schema_index.py` | Group/resource extraction, list/detail path identification, trace path support |
+| `test_sdk_imports.py` | Top-level SDK exports and standalone import/constructor behavior |
+| `test_sdk_pynetbox_parity.py` | Async facade parity behaviors such as detail endpoints, branch scoping, and record helpers |
 | `test_services.py` | Request resolution from (group, resource, action, id) tuples, key-value arg parsing |
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
+| `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
+
+---
+
+## CI Behavior
+
+- Branch and pull request CI routes to the affected package suites based on changed files.
+- Shared files such as `pyproject.toml`, `uv.lock`, `tests/conftest.py`, and test workflow definitions trigger the full suite instead of package-selective runs.
+- Direct pushes to `main` always run the full `uv run pytest` matrix.
+- Release validation always runs the full `uv run pytest` matrix before publish.
+
+When you add a new test module, assign it to one owning package and add the matching `pytestmark = pytest.mark.suite_*` at module scope.
 
 ---
 
@@ -50,6 +78,12 @@ Most tests that touch `NetBoxApiClient` inject a mock via `monkeypatch` or a fix
 
 ### Live tests (skip if secrets absent)
 `test_demo_cli.py` and `test_demo_auth.py` check for `DEMO_USERNAME` / `DEMO_PASSWORD` environment variables and skip gracefully when absent. CI sets these from repository secrets.
+
+### Typed SDK dependency expectation
+The committed generated typed models use Pydantic network/email field types. If
+`email-validator` is unavailable in the active environment, typed SDK tests
+should skip only the affected import/execution paths with a clear reason rather
+than failing unrelated suites.
 
 ### Filesystem isolation
 Tests that write to `~/.config/netbox-cli/` use `tmp_path` (pytest fixture) and patch the config directory to a temporary location so they never pollute the developer's real config.

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# netbox-cli installer — pipe to bash, not sh (uses bash builtins)
-# curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash
+# netbox-sdk installer — pipe to bash, not sh (uses bash builtins)
+# curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-sdk/main/install.sh | bash
 
 set -e
 
-REPO="https://github.com/emersonfelipesp/netbox-cli.git"
+REPO="https://github.com/emersonfelipesp/netbox-sdk.git"
 BRANCH="main"
 PACKAGE="netbox-console"
 
@@ -71,9 +71,9 @@ run_silent() {
 # ── Banner ────────────────────────────────────────────────────────────────────
 printf "\n"
 printf "  ${CYAN}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
-printf "  ${CYAN}${BOLD}│${RESET}        ${WHITE}${BOLD}netbox-cli  installer${RESET}            ${CYAN}${BOLD}│${RESET}\n"
+printf "  ${CYAN}${BOLD}│${RESET}        ${WHITE}${BOLD}netbox-sdk  installer${RESET}            ${CYAN}${BOLD}│${RESET}\n"
 printf "  ${CYAN}${BOLD}│${RESET}  ${DIM}API-first NetBox CLI + Textual TUI${RESET}    ${CYAN}${BOLD}│${RESET}\n"
-printf "  ${CYAN}${BOLD}│${RESET}  ${DIM}github.com/emersonfelipesp/netbox-cli${RESET}  ${CYAN}${BOLD}│${RESET}\n"
+printf "  ${CYAN}${BOLD}│${RESET}  ${DIM}github.com/emersonfelipesp/netbox-sdk${RESET}  ${CYAN}${BOLD}│${RESET}\n"
 printf "  ${CYAN}${BOLD}└─────────────────────────────────────────┘${RESET}\n"
 printf "\n"
 
@@ -99,7 +99,7 @@ else
 
     if [ -z "$UV_BIN" ]; then
         spinner_fail "uv installed but not found — restart your shell and re-run:"
-        printf "\n     ${DIM}curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-cli/main/install.sh | bash${RESET}\n\n"
+        printf "\n     ${DIM}curl -fsSL https://raw.githubusercontent.com/emersonfelipesp/netbox-sdk/main/install.sh | bash${RESET}\n\n"
         exit 0
     fi
 
@@ -167,7 +167,7 @@ if ! $PATH_OK; then
 
     PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\""
     if [ -n "$SHELL_RC" ] && ! grep -qF '.local/bin' "$SHELL_RC" 2>/dev/null; then
-        printf '\n# Added by netbox-cli installer\n%s\n' "$PATH_LINE" >> "$SHELL_RC"
+        printf '\n# Added by netbox-sdk installer\n%s\n' "$PATH_LINE" >> "$SHELL_RC"
         spinner_ok "Added to ${SHELL_RC}"
     fi
 
@@ -178,7 +178,7 @@ fi
 # ── Done ──────────────────────────────────────────────────────────────────────
 printf "\n"
 printf "  ${GREEN}${BOLD}┌─────────────────────────────────────────┐${RESET}\n"
-printf "  ${GREEN}${BOLD}│${RESET}   ${GREEN}${BOLD}✔  netbox-cli is installed!${RESET}           ${GREEN}${BOLD}│${RESET}\n"
+printf "  ${GREEN}${BOLD}│${RESET}   ${GREEN}${BOLD}✔  ${PACKAGE} is installed!${RESET}           ${GREEN}${BOLD}│${RESET}\n"
 printf "  ${GREEN}${BOLD}└─────────────────────────────────────────┘${RESET}\n"
 printf "\n"
 
@@ -204,5 +204,5 @@ printf "     ${CYAN}nbx init${RESET}                        ${DIM}# enter your U
 printf "     ${CYAN}nbx dcim devices list${RESET}\n"
 printf "     ${CYAN}nbx tui${RESET}\n"
 printf "\n"
-printf "  ${DIM}Docs & source: https://github.com/emersonfelipesp/netbox-cli${RESET}\n"
+printf "  ${DIM}Docs & source: https://github.com/emersonfelipesp/netbox-sdk${RESET}\n"
 printf "\n"

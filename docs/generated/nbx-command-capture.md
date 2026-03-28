@@ -1,10 +1,10 @@
-# NetBox CLI — captured command input and output
+# netbox-sdk — captured command input and output
 
 This file is **machine-generated**. Regenerate with:
 
 ```bash
-cd /path/to/netbox-cli
-uv sync --group docs --group dev   # once
+cd /path/to/netbox-sdk
+uv sync --group docs --group dev --extra cli --extra tui --extra demo   # once
 uv run nbx docs generate-capture            # demo profile (default)
 uv run nbx docs generate-capture --live     # default profile (real NetBox)
 # or: uv run python docs/generate_command_docs.py
@@ -50,22 +50,21 @@ nbx --help
                                                                                 
  Usage: root [OPTIONS] COMMAND [ARGS]...                                        
                                                                                 
- NetBox API-first CLI/TUI. Dynamic command form: nbx <group> <resource>         
+ NetBox SDK CLI. Dynamic command form: nbx <group> <resource>                  
  <action>                                                                       
                                                                                 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
 │ --help          Show this message and exit.                                  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ init            Create or update the default NetBox CLI profile.             │
+│ init            Create or update the default NetBox SDK profile.             │
 │ config          Show the current default profile configuration.              │
 │ groups          List all available OpenAPI app groups.                       │
 │ resources       List resources available within a group.                     │
 │ ops             Show available HTTP operations for a resource.               │
 │ call            Call an arbitrary NetBox API path.                           │
-│ tui             Launch the interactive NetBox terminal UI.                   │
-│ logs            Show recent application logs from the shared on-disk log     │
-│                 file.                                                        │
+│ tui             Launch the main Textual browser.                             │
+│ logs            Show recent structured application logs.                     │
 │ cli             CLI utilities: interactive command builder and helpers.      │
 │ docs            Generate reference documentation (captured CLI               │
 │                 input/output).                                               │
@@ -96,7 +95,7 @@ nbx init --help
                                                                                 
  Usage: root init [OPTIONS]                                                     
                                                                                 
- Create or update the default NetBox CLI profile.                               
+ Create or update the default NetBox SDK profile.                               
                                                                                 
 
 … (10 more lines truncated)

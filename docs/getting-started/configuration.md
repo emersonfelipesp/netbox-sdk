@@ -1,6 +1,7 @@
 # Configuration
 
-`netbox-cli` stores connection settings in a JSON config file and supports two named profiles: `default` and `demo`.
+`netbox-sdk` stores connection settings in a JSON config file and supports two
+named profiles: `default` and `demo`.
 
 ---
 
@@ -27,8 +28,11 @@ Any command that requires a connection will also prompt automatically if the con
 
 | Condition | Path |
 |-----------|------|
-| `XDG_CONFIG_HOME` is set | `$XDG_CONFIG_HOME/netbox-cli/config.json` |
-| Default | `~/.config/netbox-cli/config.json` |
+| `XDG_CONFIG_HOME` is set | `$XDG_CONFIG_HOME/netbox-sdk/config.json` |
+| Default | `~/.config/netbox-sdk/config.json` |
+
+Older `netbox-cli` config files are still read automatically if the new
+`netbox-sdk` path is not present yet.
 
 The file uses a `profiles` structure:
 
@@ -94,7 +98,7 @@ NetBox supports two token formats:
     When configuring: leave `token_key` empty, set `token_secret` to the full token string.
     Set `token_version` to `"v1"` in the config file.
 
-`netbox-cli` automatically retries a failed v2 request with a v1 format when it receives a 401 or 403 response, so misconfigured token versions are usually corrected transparently.
+`netbox-sdk` automatically retries a failed v2 request with a v1 format when it receives a 401 or 403 response, so misconfigured token versions are usually corrected transparently.
 
 ---
 

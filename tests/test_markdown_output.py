@@ -8,10 +8,12 @@ import pytest
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.cli.dynamic import _parse_dynamic_options
-from netbox_cli.cli.support import OUTPUT_FORMAT_CONFLICT_MESSAGE, resolve_output_format
-from netbox_cli.config import Config
+from netbox_cli.dynamic import _parse_dynamic_options
 from netbox_cli.markdown_output import render_markdown
+from netbox_cli.support import OUTPUT_FORMAT_CONFLICT_MESSAGE, resolve_output_format
+from netbox_sdk.config import Config
+
+pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
 

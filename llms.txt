@@ -1,11 +1,11 @@
-# netbox-cli — LLM Project Guide
+# netbox-sdk — LLM Project Guide
 
 API-first NetBox client for the terminal, featuring both a CLI and a full interactive TUI. Driven by OpenAPI schema discovery.
 
 ## AI Search & Discovery Tools
-- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from the NetBox OpenAPI schema (`netbox_cli/reference/openapi/netbox-openapi.json`), alongside built-in static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `tui`, `logs`, `docs`, `demo`, `dev`).
-- **Schema Indexing**: `netbox_cli/schema.py` indexes the OpenAPI bundle once to map groups, resources, and actions to API paths.
-- **Dynamic Command Resolution**: `netbox_cli/cli/` handles runtime command discovery and Typer subcommand generation.
+- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from the bundled NetBox OpenAPI schema (`netbox_sdk/reference/openapi/netbox-openapi.json`), alongside built-in static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `tui`, `logs`, `docs`, `demo`, `dev`).
+- **Schema Indexing**: `netbox_sdk/schema.py` indexes the OpenAPI bundle once to map groups, resources, and actions to API paths.
+- **Dynamic Command Resolution**: `netbox_cli/dynamic.py` handles runtime command discovery and Typer subcommand generation.
 - **Plugin Discovery**: Automatically discovers and surfaces NetBox plugin endpoints under `/api/plugins/`.
 
 ## AI Agent Entry Points
@@ -55,6 +55,6 @@ API-first NetBox client for the terminal, featuring both a CLI and a full intera
 - **Testing**: Use `uv run pytest` and `uv run pre-commit run --all-files` for validation.
 
 ## Packaging Status
-- **Repository name**: `netbox-cli`
-- **Current published package name**: `netbox-console` (temporary due PyPI naming policy)
-- **Current project version**: `0.0.3`
+- **Repository name**: `netbox-sdk`
+- **Current published package names**: `netbox-sdk`, `netbox-console`
+- **Current project version**: `0.0.4`

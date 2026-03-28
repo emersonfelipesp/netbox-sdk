@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from .output_safety import sanitize_terminal_text
-from .ui.formatting import humanize_field, order_field_names
+from netbox_sdk.formatting import humanize_field, order_field_names
+from netbox_sdk.output_safety import sanitize_terminal_text
 
 _LIST_COLUMNS = {
     "id",

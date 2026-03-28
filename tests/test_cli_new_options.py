@@ -9,14 +9,17 @@ from click.exceptions import BadParameter
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.cli.dynamic import _parse_dynamic_options
-from netbox_cli.cli.support import select_json_path
-from netbox_cli.config import Config
+from netbox_cli.dynamic import _parse_dynamic_options
+from netbox_cli.support import select_json_path
+
+pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
 
 
-def _mock_config() -> Config:
+def _mock_config() -> cli.Config:
+    from netbox_sdk.config import Config
+
     return Config(
         base_url="https://netbox.example.com",
         token_key="abc",
@@ -40,7 +43,10 @@ class _FakeListClient:
 
 def _patch_list_client(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
-    monkeypatch.setattr(cli, "_get_client", lambda: _FakeListClient())
+    monkeypatch.setattr(
+        "netbox_cli.runtime._get_client",
+        lambda: _FakeListClient(),
+    )
 
 
 class TestSelectJsonPath:
@@ -272,7 +278,10 @@ class TestColumnControl:
                 return _Response()
 
         monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
-        monkeypatch.setattr(cli, "_get_client", lambda: _ClientWithRows())
+        monkeypatch.setattr(
+            "netbox_cli.runtime._get_client",
+            lambda: _ClientWithRows(),
+        )
 
         result = runner.invoke(
             cli.app,

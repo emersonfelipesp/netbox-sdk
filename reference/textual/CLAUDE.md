@@ -1,6 +1,6 @@
-# Textual Project Reference — NMS-CLI Guide
+# Textual Project Reference — netbox-sdk Guide
 
-This directory contains comprehensive reference guides for notable open-source projects built with the [Textual](https://github.com/Textualize/textual) TUI framework. These guides are intended to inform the architecture, design patterns, and UX decisions of **nms-cli**.
+This directory contains comprehensive reference guides for notable open-source projects built with the [Textual](https://github.com/Textualize/textual) TUI framework. These guides are intended to inform the architecture, design patterns, and UX decisions of the `netbox-sdk` TUI layer.
 
 ---
 
@@ -20,7 +20,7 @@ This directory contains comprehensive reference guides for notable open-source p
 
 ## What These Projects Have in Common
 
-These references cover the major patterns you'll encounter when building nms-cli:
+These references cover the major patterns you'll encounter when building the `netbox_tui` applications:
 
 - **Monitoring dashboards** with live data refresh → Dolphie
 - **CLI tools that optionally launch a TUI** → Memray
@@ -81,7 +81,7 @@ Posting's jump mode (letter overlays) and command palette (`Ctrl+P`) minimize mo
 
 ## Textual Patterns Per Project
 
-Quick lookup for "where did I see that pattern?"
+Quick lookup for where a Textual pattern already appears in prior art used by this repo.
 
 ### [DOLPHIE.md](DOLPHIE.md) — 7 patterns
 | # | Pattern | Key API |

@@ -1,6 +1,8 @@
 # Demo Profile
 
-The `demo` profile lets you run every `nbx` command against the public [demo.netbox.dev](https://demo.netbox.dev) instance — no personal NetBox server required.
+The `demo` profile lets you run most `nbx` workflows against the public
+[demo.netbox.dev](https://demo.netbox.dev) instance with the same CLI and TUI
+shape as your normal runtime.
 
 ---
 
@@ -104,6 +106,16 @@ Launches the developer request workbench pre-connected to the demo instance, so 
 
 ---
 
+## Demo CLI Builder
+
+```bash
+nbx demo cli tui
+```
+
+Launches the guided command-builder TUI against the demo profile.
+
+---
+
 ## Demo Dev HTTP
 
 `nbx demo dev http` mirrors `nbx dev http`: the same verbs (`get`, `post`, `put`, `patch`, `delete`, `paths`, `ops`) and output flags (`--json`, `--yaml`, `--markdown`) apply, and every HTTP call uses the demo profile.
@@ -127,7 +139,8 @@ nbx demo reset
 
 ## How the demo profile is stored
 
-The demo profile is stored alongside the default profile in `~/.config/netbox-cli/config.json`:
+The demo profile is stored alongside the default profile in
+`~/.config/netbox-sdk/config.json`:
 
 ```json
 {
@@ -146,5 +159,8 @@ The demo profile is stored alongside the default profile in `~/.config/netbox-cl
 }
 ```
 
-The `base_url` for the demo profile is always hardcoded to `https://demo.netbox.dev` regardless of what is stored in the config file.
-The config file is written with private user-only permissions so the stored demo credentials stay local to your machine.
+Older `netbox-cli` config files are still read automatically for compatibility.
+The `base_url` for the demo profile is always hardcoded to
+`https://demo.netbox.dev` regardless of what is stored in the config file. The
+config file is written with private user-only permissions so the stored demo
+credentials stay local to your machine.

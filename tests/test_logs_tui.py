@@ -6,8 +6,10 @@ import pytest
 from textual.color import Color
 from textual.widgets import DataTable, Select, Static
 
-from netbox_cli.logging_runtime import LogEntry
-from netbox_cli.ui.logs_app import NetBoxLogsTuiApp
+from netbox_sdk.logging_runtime import LogEntry
+from netbox_tui.logs_app import NetBoxLogsTuiApp
+
+pytestmark = pytest.mark.suite_tui
 
 
 async def _pause_twice(pilot) -> None:
@@ -18,7 +20,7 @@ async def _pause_twice(pilot) -> None:
 @pytest.mark.asyncio
 async def test_logs_tui_renders_entries(monkeypatch) -> None:
     monkeypatch.setattr(
-        "netbox_cli.ui.logs_app.read_log_entries",
+        "netbox_tui.logs_app.read_log_entries",
         lambda limit: [
             LogEntry(
                 timestamp="2026-03-22T10:00:00Z",
@@ -29,7 +31,7 @@ async def test_logs_tui_renders_entries(monkeypatch) -> None:
             LogEntry(
                 timestamp="2026-03-22T10:01:00Z",
                 level="ERROR",
-                logger="netbox_cli.ui.app",
+                logger="netbox_tui.app",
                 message="request failed",
             ),
         ],
@@ -52,7 +54,7 @@ async def test_logs_tui_renders_entries(monkeypatch) -> None:
 @pytest.mark.asyncio
 async def test_logs_tui_theme_switch_refreshes_surfaces(monkeypatch) -> None:
     monkeypatch.setattr(
-        "netbox_cli.ui.logs_app.read_log_entries",
+        "netbox_tui.logs_app.read_log_entries",
         lambda limit: [
             LogEntry(
                 timestamp="2026-03-22T10:00:00Z",
@@ -82,7 +84,7 @@ async def test_logs_tui_theme_switch_refreshes_surfaces(monkeypatch) -> None:
 @pytest.mark.parametrize("theme_name", ("dracula", "netbox-dark", "netbox-light"))
 async def test_logs_tui_surfaces_follow_selected_theme(monkeypatch, theme_name: str) -> None:
     monkeypatch.setattr(
-        "netbox_cli.ui.logs_app.read_log_entries",
+        "netbox_tui.logs_app.read_log_entries",
         lambda limit: [
             LogEntry(
                 timestamp="2026-03-22T10:00:00Z",

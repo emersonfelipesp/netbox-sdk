@@ -1,13 +1,13 @@
 # Quick Start
 
-Get up and running in under a minute.
+Get up and running with the interface you actually plan to use.
 
 ---
 
-## 1. Install and configure
+## 1. Install and configure the shared runtime
 
 ```bash
-pip install netbox-console
+pip install 'netbox-sdk[all]'
 nbx init
 # enter your NetBox URL and API token when prompted
 ```
@@ -16,18 +16,18 @@ nbx init
 
 ## 1a. Contributor setup
 
-If you are developing `netbox-cli` itself, use the repo-local environment and install the Git hooks:
+If you are developing `netbox-sdk` itself, use the repo-local environment and install the Git hooks:
 
 ```bash
-cd /path/to/netbox-cli
-uv sync --dev
+cd /path/to/netbox-sdk
+uv sync --dev --extra cli --extra tui --extra demo
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 ```
 
 ---
 
-## 2. Discover what's available
+## 2. Use the CLI
 
 ```bash
 # list all OpenAPI app groups
@@ -63,7 +63,22 @@ nbx dcim devices list --markdown
 
 ---
 
-## 4. Create, update, delete
+## 4. Launch the main TUI
+
+```bash
+nbx tui
+nbx dev tui
+nbx cli tui
+nbx logs
+```
+
+Use the main browser for day-to-day navigation, the dev workbench for request
+inspection, the CLI builder to assemble commands interactively, and `nbx logs`
+to inspect the shared application log.
+
+---
+
+## 5. Create, update, delete
 
 ```bash
 # create a new IP address
@@ -84,17 +99,7 @@ nbx dcim devices delete --id 42
 
 ---
 
-## 5. Use the TUI
-
-```bash
-nbx tui
-```
-
-The TUI opens with a navigation tree on the left. Select a resource group to browse and filter objects interactively.
-
----
-
-## 6. Try the demo profile (no config needed)
+## 6. Try the demo profile
 
 ```bash
 nbx demo init          # authenticates with demo.netbox.dev via Playwright
@@ -102,13 +107,60 @@ nbx demo dcim devices list
 nbx demo tui
 ```
 
-No NetBox instance required — `demo.netbox.dev` is a public playground.
+No personal NetBox instance is required. `demo.netbox.dev` is a public
+playground and exposes the same CLI and TUI surfaces under `nbx demo ...`.
+
+---
+
+## 7. Use the SDK directly
+
+```python
+import asyncio
+
+from netbox_sdk import api
+
+
+async def main() -> None:
+    nb = api("https://netbox.example.com", token="your-token")
+    device = await nb.dcim.devices.get(42)
+    if device is not None:
+        print(device.name)
+
+
+asyncio.run(main())
+```
+
+---
+
+## 8. Use the typed SDK
+
+```python
+import asyncio
+
+from netbox_sdk import typed_api
+
+
+async def main() -> None:
+    nb = typed_api(
+        "https://netbox.example.com",
+        token="your-token",
+        netbox_version="4.5",
+    )
+    device = await nb.dcim.devices.get(42)
+    if device is not None:
+        print(device.name)
+
+
+asyncio.run(main())
+```
+
+The typed client validates request and response payloads with committed Pydantic
+models for NetBox `4.5`, `4.4`, and `4.3`.
 
 ---
 
 ## Next steps
 
-- [CLI commands reference](../cli/commands.md) — all top-level commands
-- [Dynamic commands](../cli/dynamic-commands.md) — how group/resource/action commands work
-- [TUI guide](../tui/index.md) — navigation, themes, keyboard shortcuts
-- [Command examples](../reference/command-examples.md) — live-captured output for every command
+- [SDK guide](../sdk/index.md) for Python entrypoints and transport behavior
+- [CLI guide](../cli/index.md) for `nbx`, GraphQL, and command captures
+- [TUI guide](../tui/index.md) for the main browser and the specialized TUIs

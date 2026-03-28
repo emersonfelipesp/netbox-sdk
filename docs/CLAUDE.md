@@ -4,18 +4,18 @@ Built with MkDocs Material theme. Source lives here; deployed to GitHub Pages by
 
 **Local preview:**
 ```bash
-uv sync --group docs
+uv sync --group docs --extra cli --extra tui --extra demo
 uv run mkdocs serve
 ```
 
 **Contributor hooks:**
 ```bash
-uv sync --dev --group docs
+uv sync --group docs --group dev --extra cli --extra tui --extra demo
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 ```
 
-When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside `netbox_cli/themes/*.json`.
+When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside `netbox_tui/themes/*.json`.
 Also keep the composition contract explicit: contributor guidance should treat Textual widgets as React-style composable building blocks, with composition preferred over inheritance for view structure.
 
 **Deploy (CI only):**
@@ -44,6 +44,14 @@ docs/
 │   ├── commands.md                 # Static command reference
 │   ├── dynamic-commands.md         # How dynamic commands work
 │   └── demo-profile.md             # Demo profile setup
+├── sdk/
+│   ├── index.md
+│   ├── authentication.md
+│   ├── facade.md
+│   ├── typed.md                    # Typed versioned SDK guide
+│   ├── making-requests.md
+│   ├── schema.md
+│   └── error-handling.md
 ├── tui/
 │   ├── index.md
 │   ├── themes.md                   # Theme system documentation
@@ -107,6 +115,7 @@ In CI (`docs.yml`), docgen runs against `demo.netbox.dev` using `DEMO_USERNAME` 
 Home
 Getting Started → Installation, Configuration, Quick Start
 CLI Reference   → Commands, Dynamic Commands, Demo Profile
+SDK             → Authentication, Facade API, Typed API, Making Requests, Schema Indexing, Error Handling
 TUI             → Themes, Keyboard Shortcuts
 Command Examples → index, Top-level, Schema Discovery, Dynamic Commands,
                    Logs Viewer, Developer Tools, Demo Profile, Live API, Cable Trace
@@ -114,3 +123,8 @@ Developer Guide → Architecture, Textual Composition Pattern, Documentation Gen
 ```
 
 To add a new page: create the `.md` file and add an entry to the `nav:` section in `mkdocs.yml`.
+
+Keep repo metadata aligned with the docs:
+- `mkdocs.yml` branding and repo links should point to `netbox-sdk`
+- `pyproject.toml` `project.urls.Documentation` should match the site URL
+- SDK docs must describe all three supported access layers: raw client, facade, and typed client

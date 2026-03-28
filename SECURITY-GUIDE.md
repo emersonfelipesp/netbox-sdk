@@ -1,23 +1,23 @@
 # Security Guide
 
-This document describes the concrete security mechanisms implemented in `netbox-cli`, the attack classes they address, and the tests that enforce them.
+This document describes the concrete security mechanisms implemented in `netbox-sdk`, the attack classes they address, and the tests that enforce them.
 
 ## Scope
 
-`netbox-cli` has four primary security-sensitive areas:
+`netbox-sdk` has four primary security-sensitive areas:
 
 1. NetBox endpoint and request URL handling
 2. On-disk storage of API credentials and HTTP cache data
 3. Rendering untrusted API data into terminal output
 4. Regression coverage for the above
 
-This guide documents the current implementation state in the codebase as of commit `aceaf48`.
+This guide documents the current implementation state in the codebase.
 
 ## Implemented Controls
 
 ### 1. Base URL validation
 
-Implemented in [config.py](./netbox_cli/config.py).
+Implemented in [config.py](./netbox_sdk/config.py).
 
 `normalize_base_url()` now rejects:
 
@@ -37,7 +37,7 @@ Security purpose:
 
 ### 2. Relative-path enforcement for outbound requests
 
-Implemented in [api.py](./netbox_cli/api.py).
+Implemented in [client.py](./netbox_sdk/client.py).
 
 `NetBoxApiClient.build_url()` now normalizes request paths through `_normalize_request_path()` and rejects:
 
@@ -56,8 +56,8 @@ Security purpose:
 
 Implemented in:
 
-- [config.py](./netbox_cli/config.py)
-- [http_cache.py](./netbox_cli/http_cache.py)
+- [config.py](./netbox_sdk/config.py)
+- [http_cache.py](./netbox_sdk/http_cache.py)
 
 Config protections:
 
@@ -79,9 +79,9 @@ Security purpose:
 
 Implemented in:
 
-- [output_safety.py](./netbox_cli/output_safety.py)
-- [ui/formatting.py](./netbox_cli/ui/formatting.py)
-- [cli.py](./netbox_cli/cli.py)
+- [output_safety.py](./netbox_sdk/output_safety.py)
+- [formatting.py](./netbox_sdk/formatting.py)
+- [__init__.py](./netbox_cli/__init__.py)
 
 The sanitizer strips:
 
@@ -105,7 +105,7 @@ Security purpose:
 
 ### 5. TUI regression fixes related to current framework behavior
 
-Implemented in [ui/app.py](./netbox_cli/ui/app.py).
+Implemented in [app.py](./netbox_tui/app.py).
 
 The TUI theme-select label cleanup now uses `Static.content` instead of the removed `renderable` attribute. The structured filter dropdown also excludes the generic `q` search parameter and orders actual filter fields consistently.
 

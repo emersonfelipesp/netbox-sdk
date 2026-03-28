@@ -6,13 +6,15 @@ from collections import deque
 
 import pytest
 
-from netbox_cli.api import ApiResponse, NetBoxApiClient
-from netbox_cli.config import (
+from netbox_sdk.client import ApiResponse, NetBoxApiClient
+from netbox_sdk.config import (
     DEMO_BASE_URL,
     Config,
     authorization_header_value,
     is_runtime_config_complete,
 )
+
+pytestmark = pytest.mark.suite_sdk
 
 
 def test_authorization_header_value_v2() -> None:
@@ -195,6 +197,7 @@ async def test_api_client_refreshes_demo_v1_token_when_invalid(monkeypatch, tmp_
         demo_username="demo-user",
         demo_password="demo-pass",
     )
+    client = NetBoxApiClient(cfg)
 
     calls: list[str] = []
     responses = deque(
@@ -231,19 +234,15 @@ async def test_api_client_refreshes_demo_v1_token_when_invalid(monkeypatch, tmp_
     monkeypatch.setitem(sys.modules, "aiohttp", _FakeAiohttp())
     monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.refresh_demo_profile",
-        lambda existing, headless=True: Config(
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
+        lambda **kwargs: Config(
             base_url=DEMO_BASE_URL,
             token_version="v1",
             token_secret="fresh-v1-token",
-            demo_username=existing.demo_username,
-            demo_password=existing.demo_password,
-            timeout=existing.timeout,
+            timeout=kwargs["timeout"],
         ),
         raising=False,
     )
-
-    client = NetBoxApiClient(cfg)
 
     response = await client.request("GET", "/api/dcim/devices/")
 
@@ -295,7 +294,7 @@ async def test_api_client_keeps_invalid_demo_v1_response_when_refresh_fails(
     monkeypatch.setitem(sys.modules, "aiohttp", _FakeAiohttp())
     monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.bootstrap_demo_profile",
+        "netbox_sdk.demo_auth.bootstrap_demo_profile",
         lambda **kwargs: (_ for _ in ()).throw(RuntimeError("boom")),
         raising=False,
     )
@@ -353,7 +352,7 @@ async def test_api_client_refreshes_demo_v1_token_using_saved_profile_credential
     monkeypatch.setitem(sys.modules, "aiohttp", _FakeAiohttp())
     monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
     monkeypatch.setattr(
-        "netbox_cli.api.load_profile_config",
+        "netbox_sdk.client.load_profile_config",
         lambda profile: Config(
             base_url=DEMO_BASE_URL,
             token_version="v1",
@@ -363,7 +362,7 @@ async def test_api_client_refreshes_demo_v1_token_using_saved_profile_credential
         ),
     )
     monkeypatch.setattr(
-        "netbox_cli.demo_auth.refresh_demo_profile",
+        "netbox_sdk.demo_auth.refresh_demo_profile",
         lambda existing, headless=True: Config(
             base_url=DEMO_BASE_URL,
             token_version="v1",
@@ -374,8 +373,6 @@ async def test_api_client_refreshes_demo_v1_token_using_saved_profile_credential
         ),
         raising=False,
     )
-
-    client = NetBoxApiClient(cfg)
 
     response = await client.request("GET", "/api/dcim/devices/")
 
