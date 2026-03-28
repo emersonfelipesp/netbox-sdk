@@ -10,6 +10,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo dcim devices list --markdown
+    ```
+
     ```text
     Status: 200
     | ID | Name | Display | Status | Role | Site | Location | Tenant |
@@ -23,6 +27,10 @@
     ```
 
 === ":material-code-json: JSON Output"
+
+    ```bash
+    nbx demo dcim devices list --markdown --json
+    ```
 
     ```json
     {
@@ -5623,6 +5631,10 @@
 
 === ":material-file-document-outline: YAML Output"
 
+    ```bash
+    nbx demo dcim devices list --markdown --yaml
+    ```
+
     ```yaml
     count: 79
     next: https://demo.netbox.dev/api/dcim/devices/?limit=50&offset=50
@@ -10630,6 +10642,10 @@
 
 === ":material-language-markdown: Markdown Output"
 
+    ```bash
+    nbx demo dcim devices list --markdown
+    ```
+
     | ID | Name | Display | Status | Role | Site | Location | Tenant |
     | --- | --- | --- | --- | --- | --- | --- | --- |
     | 27 | dmi01-akron-pdu01 | dmi01-akron-pdu01 | {"label":"Active","value":"active"} | {"_depth":0,"description":"","device_count":0,"display":"PDU","id":5,"name":"PDU","slug":"pdu","url":"https://demo.netbox.dev/api/dcim/device-roles/5/","virtualmachine_count":0} | {"description":"","display":"DM-Akron","id":2,"name":"DM-Akron","slug":"dm-akron","url":"https://demo.netbox.dev/api/dcim/sites/2/"} | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
@@ -10697,6 +10713,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo ipam prefixes list --markdown
+    ```
+
     ```text
     Status: 200
     | ID | Display | Status | Role | Prefix | VLAN | Tenant |
@@ -10712,6 +10732,10 @@
     ```
 
 === ":material-code-json: JSON Output"
+
+    ```bash
+    nbx demo ipam prefixes list --markdown --json
+    ```
 
     ```json
     {
@@ -13602,6 +13626,10 @@
 
 === ":material-file-document-outline: YAML Output"
 
+    ```bash
+    nbx demo ipam prefixes list --markdown --yaml
+    ```
+
     ```yaml
     count: 93
     next: https://demo.netbox.dev/api/ipam/prefixes/?limit=50&offset=50
@@ -16077,6 +16105,10 @@
 
 === ":material-language-markdown: Markdown Output"
 
+    ```bash
+    nbx demo ipam prefixes list --markdown
+    ```
+
     | ID | Display | Status | Role | Prefix | VLAN | Tenant |
     | --- | --- | --- | --- | --- | --- | --- |
     | 1 | 10.112.0.0/15 | {"label":"Container","value":"container"} | - | 10.112.0.0/15 | - | {"description":"","display":"Dunder-Mifflin, Inc.","id":5,"name":"Dunder-Mifflin, Inc.","slug":"dunder-mifflin","url":"https://demo.netbox.dev/api/tenancy/tenants/5/"} |
@@ -16144,6 +16176,10 @@
 
 === ":material-text-box-outline: Output"
 
+    ```bash
+    nbx demo dcim sites list --markdown
+    ```
+
     ```text
     Status: 200
     | ID | Name | Display | Status | Tenant |
@@ -16163,6 +16199,10 @@
     ```
 
 === ":material-code-json: JSON Output"
+
+    ```bash
+    nbx demo dcim sites list --markdown --json
+    ```
 
     ```json
     {
@@ -18420,6 +18460,10 @@
 
 === ":material-file-document-outline: YAML Output"
 
+    ```bash
+    nbx demo dcim sites list --markdown --yaml
+    ```
+
     ```yaml
     count: 28
     next: null
@@ -20347,6 +20391,10 @@
     ```
 
 === ":material-language-markdown: Markdown Output"
+
+    ```bash
+    nbx demo dcim sites list --markdown
+    ```
 
     | ID | Name | Display | Status | Tenant |
     | --- | --- | --- | --- | --- |

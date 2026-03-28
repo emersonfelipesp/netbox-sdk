@@ -1012,31 +1012,7 @@ class NbxCliTuiApp(App[None]):
         )
 
     async def _run_connection_probe(self) -> ConnectionProbe:
-        probe_fn = getattr(self.client, "probe_connection", None)
-        if callable(probe_fn):
-            result = probe_fn()
-            if inspect.isawaitable(result):
-                result = await result
-            if isinstance(result, ConnectionProbe):
-                return result
-
-        try:
-            response = await self.client.request(
-                "GET", "/", headers={"Content-Type": "application/json"}
-            )
-        except Exception as exc:  # noqa: BLE001
-            return ConnectionProbe(status=0, version="", ok=False, error=str(exc))
-
-        headers = getattr(response, "headers", {}) or {}
-        version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
-        status = int(getattr(response, "status", 0) or 0)
-        ok = status < 400 or status == 403
-        return ConnectionProbe(
-            status=status,
-            version=version,
-            ok=ok,
-            error=None if ok else getattr(response, "text", ""),
-        )
+        return await self.client.probe_connection()
 
     @work(group="cli_connection_probe", exclusive=True, thread=False)
     async def _probe_connection_health(self) -> None:

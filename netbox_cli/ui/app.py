@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 from pathlib import Path
 from typing import Any
@@ -32,6 +31,7 @@ from textual.widgets import (
 from netbox_cli.api import ConnectionProbe, NetBoxApiClient
 from netbox_cli.logging_runtime import get_logger
 from netbox_cli.schema import SchemaIndex, parse_group_resource
+from netbox_cli.services import resolve_dynamic_request
 
 from .chrome import (
     SWITCH_TO_CLI_TUI,
@@ -536,7 +536,18 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._set_status(f"Loading {group}/{resource}...")
 
         try:
-            response = await self.client.request("GET", paths.list_path, query=query)
+            resolved = resolve_dynamic_request(
+                self.index,
+                group,
+                resource,
+                "list",
+                object_id=None,
+                query=query,
+                payload=None,
+            )
+            response = await self.client.request(
+                resolved.method, resolved.path, query=resolved.query
+            )
         except Exception as exc:  # noqa: BLE001
             logger.exception("main tui failed loading rows for %s/%s", group, resource)
             # Discard if the user navigated away while the request was in-flight.
@@ -622,8 +633,31 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             panel.set_trace(None)
             return
 
-        detail_path = paths.detail_path.replace("{id}", str(object_id))
-        await self._show_detail_for_path(detail_path, row)
+        try:
+            oid = int(object_id)
+        except (TypeError, ValueError):
+            panel = self.query_one("#detail_panel", ObjectAttributesPanel)
+            panel.set_object(row)
+            panel.set_trace(None)
+            return
+
+        try:
+            resolved = resolve_dynamic_request(
+                self.index,
+                group,
+                resource,
+                "get",
+                object_id=oid,
+                query={},
+                payload=None,
+            )
+        except ValueError:
+            panel = self.query_one("#detail_panel", ObjectAttributesPanel)
+            panel.set_object(row)
+            panel.set_trace(None)
+            return
+
+        await self._show_detail_for_path(resolved.path, row)
 
     async def _load_trace_for_object(self, obj: dict[str, Any]) -> None:
         panel = self.query_one("#detail_panel", ObjectAttributesPanel)
@@ -910,31 +944,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._render_connection_status(probe)
 
     async def _run_connection_probe(self) -> ConnectionProbe:
-        probe_fn = getattr(self.client, "probe_connection", None)
-        if callable(probe_fn):
-            result = probe_fn()
-            if inspect.isawaitable(result):
-                result = await result
-            if isinstance(result, ConnectionProbe):
-                return result
-
-        try:
-            response = await self.client.request(
-                "GET", "/", headers={"Content-Type": "application/json"}
-            )
-        except Exception as exc:  # noqa: BLE001
-            return ConnectionProbe(status=0, version="", ok=False, error=str(exc))
-
-        headers = getattr(response, "headers", {}) or {}
-        version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
-        status = int(getattr(response, "status", 0) or 0)
-        ok = status < 400 or status == 403
-        return ConnectionProbe(
-            status=status,
-            version=version,
-            ok=ok,
-            error=None if ok else getattr(response, "text", ""),
-        )
+        return await self.client.probe_connection()
 
     @work(group="plugin_discovery", exclusive=True, thread=False)
     async def _discover_plugin_resources(self) -> None:

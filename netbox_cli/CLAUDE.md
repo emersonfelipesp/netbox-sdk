@@ -14,6 +14,8 @@ Core library: API client, CLI app, TUI app, config, schema, services, and shared
 |---|---|
 | `__init__.py` | Package version (`0.1.0`) |
 | `api.py` | Async `aiohttp` NetBox API client with caching and token fallback |
+| `app_runtime.py` | Typer-free `get_schema_index`, `client_for_config`, `get_default_client` |
+| `profile_cache.py` | In-process `_RUNTIME_CONFIGS` / `_cache_profile` shared by API, CLI, docgen |
 | `cli/` | Typer CLI subpackage — see `cli/CLAUDE.md` |
 | `config.py` | Profile management (`~/.config/netbox-cli/config.json`) |
 | `demo_auth.py` | Playwright-based demo.netbox.dev account/token provisioning |

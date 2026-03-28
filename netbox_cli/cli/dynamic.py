@@ -19,17 +19,15 @@ from .support import print_response, print_trace_output, resolve_output_format, 
 
 
 def _runtime_get_client() -> NetBoxApiClient:
-    from .runtime import (
-        _get_client,  # noqa: PLC0415 — call-time import so tests can patch runtime._get_client
-    )
+    from netbox_cli.cli import _get_client as _gc  # noqa: PLC0415
 
-    return _get_client()
+    return _gc()
 
 
 def _runtime_get_index() -> SchemaIndex:
-    from .runtime import _get_index  # noqa: PLC0415
+    from netbox_cli.cli import _get_index as _gi  # noqa: PLC0415
 
-    return _get_index()
+    return _gi()
 
 
 def _run_dynamic_command(

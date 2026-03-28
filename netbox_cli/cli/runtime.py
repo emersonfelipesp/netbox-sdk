@@ -1,20 +1,19 @@
 """Runtime state and shared factory helpers for the nbx CLI.
 
-Holds the global schema index cache and per-profile config cache so that
-all command modules can share the same in-process state without circular
-imports.  All mutations are in-place (dict operations) so any module that
-imports ``_RUNTIME_CONFIGS`` by name stays in sync automatically.
+Holds the global schema index cache; per-profile config lives in
+``netbox_cli.profile_cache._RUNTIME_CONFIGS`` (re-exported here) so the API
+client, CLI, and docgen share one in-process cache without circular imports.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
 from contextvars import ContextVar
-from copy import deepcopy
 
 import typer
 
 from ..api import NetBoxApiClient
+from ..app_runtime import client_for_config, get_default_client, get_schema_index
 from ..config import (
     DEFAULT_PROFILE,
     DEMO_BASE_URL,
@@ -27,33 +26,24 @@ from ..config import (
     save_profile_config,
 )
 from ..logging_runtime import get_logger
-from ..schema import SchemaIndex, load_openapi_schema
+from ..profile_cache import _RUNTIME_CONFIGS, _cache_profile
+from ..schema import SchemaIndex
 from .support import run_with_spinner
 
-_SCHEMA_DOCUMENT: dict | None = None
-_RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
 
 
 def _get_index() -> SchemaIndex:
-    global _SCHEMA_DOCUMENT
-    if _SCHEMA_DOCUMENT is None:
-        logger.info("loading base openapi schema")
-        _SCHEMA_DOCUMENT = load_openapi_schema()
-    # Return a fresh mutable index for each caller so runtime discoveries from one
-    # NetBox instance can't leak into another app session.
-    return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))
+    return get_schema_index()
 
 
 def _get_client() -> NetBoxApiClient:
     logger.debug("creating default profile api client")
-    import netbox_cli.cli as cli_mod  # noqa: PLC0415 — late import so tests can patch cli_mod._ensure_runtime_config
-
-    return NetBoxApiClient(cli_mod._ensure_runtime_config())
+    return get_default_client()
 
 
 def _get_client_for_config(cfg: Config) -> NetBoxApiClient:
-    return NetBoxApiClient(cfg)
+    return client_for_config(cfg)
 
 
 def _get_demo_client() -> NetBoxApiClient:
@@ -90,12 +80,6 @@ def _load_cached_profile(profile: str) -> Config | None:
     if cfg is not None and is_runtime_config_complete(cfg):
         return cfg
     return None
-
-
-def _cache_profile(profile: str, cfg: Config) -> Config:
-    _RUNTIME_CONFIGS[profile] = cfg
-    logger.debug("cached profile %s", profile)
-    return cfg
 
 
 def _ensure_profile_config(profile: str) -> Config:

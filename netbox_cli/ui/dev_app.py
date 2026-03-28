@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 from pathlib import Path
 from time import perf_counter
@@ -723,29 +722,7 @@ class NetBoxDevTuiApp(App[None]):
         self._render_connection_status(probe)
 
     async def _run_connection_probe(self) -> ConnectionProbe:
-        probe_fn = getattr(self.client, "probe_connection", None)
-        if callable(probe_fn):
-            result = probe_fn()
-            if inspect.isawaitable(result):
-                result = await result
-            if isinstance(result, ConnectionProbe):
-                return result
-        try:
-            response = await self.client.request(
-                "GET", "/", headers={"Content-Type": "application/json"}
-            )
-        except Exception as exc:  # noqa: BLE001
-            return ConnectionProbe(status=0, version="", ok=False, error=str(exc))
-        headers = getattr(response, "headers", {}) or {}
-        version = headers.get("API-Version", "") if isinstance(headers, dict) else ""
-        status = int(getattr(response, "status", 0) or 0)
-        ok = status < 400 or status == 403
-        return ConnectionProbe(
-            status=status,
-            version=version,
-            ok=ok,
-            error=None if ok else getattr(response, "text", ""),
-        )
+        return await self.client.probe_connection()
 
     def _update_clock(self) -> None:
         update_clock_widget(self, widget_id="#dev_clock")

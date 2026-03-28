@@ -20,6 +20,7 @@ from .config import (
 )
 from .http_cache import CachePolicy, HttpCacheStore, build_cache_key
 from .logging_runtime import get_logger
+from .profile_cache import _cache_profile
 
 logger = get_logger(__name__)
 
@@ -257,8 +258,6 @@ class NetBoxApiClient:
             return None
         save_profile_config(DEMO_PROFILE, refreshed)
         try:
-            from .cli.runtime import _cache_profile  # noqa: PLC0415
-
             _cache_profile(DEMO_PROFILE, refreshed)
         except Exception:  # noqa: BLE001
             pass

@@ -6,8 +6,9 @@ Typer-based CLI application for `nbx`. Split into focused modules to keep each f
 
 | File | Purpose |
 |---|---|
-| `__init__.py` | Root `app`, `main()`, static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `tui`, `logs`, `cli tui`, `docs`), app wiring |
-| `runtime.py` | Runtime state: `_RUNTIME_CONFIGS` dict, `_SCHEMA_INDEX` cache, client/index factory functions |
+| `__init__.py` | Root `app`, `main()`, re-exports (`run_dynamic_command`, config helpers) for tests; calls `commands.register_static_commands` |
+| `commands/` | Static Typer command registration: `profile`, `schema_discovery`, `http_api`, `tui_launch`, `subapps`, `_wiring` (lazy `cli` resolution) |
+| `runtime.py` | Profile prompts, demo repair, `_ensure_*_runtime_config`; schema index via `app_runtime.get_schema_index`; re-exports `profile_cache` symbols |
 | `support.py` | CLI output helpers: `console`, `print_response`, `run_with_spinner`, Rich table rendering, theme resolution, cable-trace printing |
 | `demo.py` | `demo_app` Typer sub-app — `nbx demo` commands: `init`, `config`, `test`, `reset`, `tui` |
 | `dev.py` | `dev_app` Typer sub-app — `nbx dev` commands including `nbx dev http` sub-app and Pydantic input models |
@@ -35,4 +36,4 @@ Circular import between `demo.py` and `dynamic.py` is broken with a lazy import 
 
 - `netbox_cli.cli.app` — the root Typer app (used by tests and `pyproject.toml` `[project.scripts]`)
 - `netbox_cli.cli.main` — the programmatic entry point
-- `netbox_cli.cli._RUNTIME_CONFIGS` — in-process config cache (accessed by `docgen_capture.py`)
+- `netbox_cli.cli._RUNTIME_CONFIGS` — re-export of `netbox_cli.profile_cache._RUNTIME_CONFIGS` (docgen workers inject config here)

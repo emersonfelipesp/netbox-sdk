@@ -104,6 +104,8 @@ nav:
   - Developer Guide:
     - developer/index.md
     - Architecture: developer/architecture.md
+    - Package integration: developer/package-integration.md
+    - Design principles: developer/design-principles.md
     - Textual Composition Pattern: developer/textual-composition.md
     - Documentation Generation: developer/docgen.md
 
