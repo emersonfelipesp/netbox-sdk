@@ -133,6 +133,34 @@ See [GraphQL](graphql.md) for focused examples and guidance.
 
 ---
 
+## `nbx graphql tui`
+
+Launch the dedicated interactive GraphQL explorer and query runner.
+
+```bash
+nbx graphql tui
+nbx graphql tui --theme dracula
+nbx graphql tui --theme
+
+nbx demo graphql tui
+nbx demo graphql tui --theme dracula
+```
+
+This TUI loads GraphQL schema introspection from the current NetBox instance,
+lets you browse root fields and their arguments, inserts query/filter/pagination
+skeletons into an editor, and executes arbitrary GraphQL queries with optional
+JSON variables.
+
+**Options**
+
+| Flag | Description |
+|------|-------------|
+| `--theme` | List themes (no argument) or launch with a specific theme name |
+
+See [GraphQL](graphql.md) and [GraphQL TUI](../tui/graphql.md) for the full workflow.
+
+---
+
 ## `nbx tui`
 
 Launch the main interactive Textual browser.

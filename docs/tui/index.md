@@ -5,10 +5,11 @@ NetBox SDK ships multiple Textual applications. The main entry point is
 config, API client, and schema index as the CLI and Python SDK.
 
 Other TUI entry points specialize in development, logs, guided command
-composition, and Django model inspection:
+composition, GraphQL exploration, and Django model inspection:
 
 - `nbx tui` for the main browser
 - `nbx dev tui` for the developer workbench
+- `nbx graphql tui` for interactive GraphQL schema browsing and query execution
 - `nbx cli tui` for guided command assembly
 - `nbx tui logs` for the full-screen logs viewer
 - `nbx logs` for the plain CLI log tail
@@ -33,6 +34,8 @@ nbx demo tui --theme dracula
 
 nbx dev tui                # developer request workbench
 nbx demo dev tui           # developer request workbench on demo.netbox.dev
+nbx graphql tui            # GraphQL explorer and query runner
+nbx demo graphql tui       # GraphQL explorer against demo.netbox.dev
 nbx cli tui                # guided command builder
 nbx tui logs               # full-screen logs viewer
 nbx logs                   # plain CLI log tail
@@ -126,6 +129,7 @@ read automatically when present.
 ## See also
 
 - [Developer Workbench](dev-workbench.md)
+- [GraphQL TUI](graphql.md)
 - [CLI Builder](cli-builder.md)
 - [Logs Viewer](logs.md)
 - [Django Models Browser](django-models.md)

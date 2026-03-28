@@ -97,13 +97,12 @@ nav:
       - Dynamic Commands: reference/cli/command-examples/dynamic-commands.md
       - Developer Tools: reference/cli/command-examples/developer-tools.md
       - Demo Profile: reference/cli/command-examples/demo-profile.md
-      - Live API: reference/cli/command-examples/live-api.md
-      - Cable Trace: reference/cli/command-examples/cable-trace.md
     - Raw Capture Artifact: generated/nbx-command-capture.md
   - TUI:
     - tui/index.md
     - Main Browser: tui/index.md
     - Developer Workbench: tui/dev-workbench.md
+    - GraphQL TUI: tui/graphql.md
     - CLI Builder: tui/cli-builder.md
     - Logs Viewer: tui/logs.md
     - Django Models Browser: tui/django-models.md
@@ -112,6 +111,7 @@ nav:
       - Main Browser: reference/tui/launch-examples/main-browser.md
       - Logs Viewer: reference/tui/launch-examples/logs-viewer.md
       - Developer Workbench: reference/tui/launch-examples/developer-workbench.md
+      - GraphQL TUI: reference/tui/launch-examples/graphql-tui.md
       - CLI Builder: reference/tui/launch-examples/cli-builder.md
       - Django Models Browser: reference/tui/launch-examples/django-models-browser.md
     - Themes: tui/themes.md
@@ -120,6 +120,7 @@ nav:
       - tui/screenshots.md
       - Main Browser: tui/screenshots-default.md
       - Developer Workbench: tui/screenshots-dev.md
+      - GraphQL TUI: tui/screenshots-graphql.md
       - Logs Viewer: tui/screenshots-logs.md
       - CLI Builder: tui/screenshots-cli.md
       - Django Models Browser: tui/screenshots-django.md
