@@ -76,7 +76,6 @@ demo_cli_app = typer.Typer(
     no_args_is_help=True,
 )
 
-
 def _cli_exports() -> ModuleType:
     return import_module("netbox_cli")
 
@@ -109,6 +108,76 @@ def _call_cli_override(
     **kwargs: Any,
 ) -> Any:
     return _resolve_cli_override(name, current, original)(*args, **kwargs)
+
+
+@demo_app.command(
+    "graphql", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
+def demo_graphql_command(
+    ctx: typer.Context,
+    query: str = typer.Argument(..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"),
+    variables: list[str] = typer.Option(
+        None,
+        "--variables",
+        "-v",
+        help="GraphQL variables: one JSON object, or repeat for multiple key=value pairs",
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="For `nbx demo graphql tui`: list available themes or launch with `--theme <name>`.",
+    ),
+) -> None:
+    """Execute a GraphQL query against the demo NetBox API, or launch the GraphQL TUI."""
+    if query == "tui":
+        available_theme_names, resolve_theme_name, run_graphql_tui = load_tui_callables(
+            "netbox_tui.graphql_app",
+            "available_theme_names",
+            "resolve_theme_name",
+            "run_graphql_tui",
+        )
+
+        selected_theme = resolve_requested_theme(
+            ctx,
+            theme=theme,
+            available_theme_names=available_theme_names,
+            resolve_theme_name=resolve_theme_name,
+            usage="nbx demo graphql tui --theme <name>",
+        )
+        if theme and not ctx.args:
+            return
+        if variables or output_json or output_yaml:
+            raise typer.BadParameter(
+                "--variables, --json, and --yaml are only valid for GraphQL query execution."
+            )
+        try:
+            run_graphql_tui(
+                client=_call_cli_override(
+                    "_get_demo_client",
+                    _get_demo_client,
+                    _ORIGINAL_GET_DEMO_CLIENT,
+                ),
+                theme_name=selected_theme,
+            )
+        except Exception as exc:
+            rethrow_theme_catalog_error(exc)
+        return
+
+    if theme:
+        raise typer.BadParameter("--theme is only supported for `nbx demo graphql tui`.")
+    _cli_exports()._run_graphql_cli_query(
+        client=_call_cli_override(
+            "_get_demo_client",
+            _get_demo_client,
+            _ORIGINAL_GET_DEMO_CLIENT,
+        ),
+        query=query,
+        variables=variables,
+        output_json=output_json,
+        output_yaml=output_yaml,
+    )
 
 
 def _demo_payload(cfg: Config, *, show_token: bool) -> dict[str, Any]:
