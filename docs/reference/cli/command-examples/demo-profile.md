@@ -51,7 +51,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.428s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.839s</span>
 
 ---
 
@@ -96,7 +96,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.421s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.859s</span>
 
 ---
 
@@ -126,65 +126,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.477s</span>
-
----
-
-## `nbx demo test --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo test --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo test --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx demo test [OPTIONS]                                                 
-                                                                                    
-     Test connectivity to demo.netbox.dev using the configured demo profile.        
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.415s</span>
-
----
-
-## `nbx demo reset --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo reset --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo reset --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx demo reset [OPTIONS]                                                
-                                                                                    
-     Remove the saved demo profile configuration.                                   
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.432s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.616s</span>
 
 ---
 
@@ -223,7 +165,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.016s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.988s</span>
 
 ---
 
@@ -255,7 +197,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.512s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.834s</span>
 
 ---
 
@@ -289,7 +231,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.390s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.592s</span>
 
 ---
 
@@ -321,6 +263,6 @@
     }
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.358s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.881s</span>
 
 ---

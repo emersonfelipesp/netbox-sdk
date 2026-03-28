@@ -25,7 +25,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.824s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.605s</span>
 
 ---
 
@@ -57,7 +57,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.502s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.606s</span>
 
 ---
 
@@ -90,7 +90,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.565s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.608s</span>
 
 ---
 
@@ -122,7 +122,7 @@
     wireless
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.592s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.894s</span>
 
 ---
 
@@ -188,7 +188,7 @@
     virtual-device-contexts
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.512s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.958s</span>
 
 ---
 
@@ -224,45 +224,6 @@
     └────────┴──────────────────────────────────┴──────────────────────────────────┘
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.549s</span>
-
----
-
-## `nbx resources ipam`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx resources ipam
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx resources ipam
-    ```
-
-    ```text
-    aggregates
-    asn-ranges
-    asns
-    fhrp-group-assignments
-    fhrp-groups
-    ip-addresses
-    ip-ranges
-    prefixes
-    rirs
-    roles
-    route-targets
-    service-templates
-    services
-    vlan-groups
-    vlan-translation-policies
-    vlan-translation-rules
-    vlans
-    vrfs
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.543s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.434s</span>
 
 ---

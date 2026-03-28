@@ -1,37 +1,5 @@
 # CLI Builder
 
-## `nbx cli --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx cli --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx cli --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx cli [OPTIONS] COMMAND [ARGS]...                                     
-                                                                                    
-     CLI utilities: interactive command builder and helpers.                        
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-    │ tui  Launch the interactive CLI command builder TUI.                         │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.407s</span>
-
----
-
 ## `nbx cli tui --help`
 
 === ":material-console: Command"
@@ -61,39 +29,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.402s</span>
-
----
-
-## `nbx demo cli --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo cli --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo cli --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx demo cli [OPTIONS] COMMAND [ARGS]...                                
-                                                                                    
-     CLI builder tools against the demo.netbox.dev profile.                         
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-    │ tui  Launch the interactive CLI command builder against the demo profile.    │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.666s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.577s</span>
 
 ---
 
@@ -124,7 +60,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.400s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.621s</span>
 
 ---
 
@@ -151,6 +87,6 @@
     - tokyo-night
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.582s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.741s</span>
 
 ---

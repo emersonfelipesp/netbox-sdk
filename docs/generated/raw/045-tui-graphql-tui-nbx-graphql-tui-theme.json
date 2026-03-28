@@ -1,0 +1,19 @@
+{
+  "surface": "tui",
+  "section": "GraphQL TUI",
+  "title": "nbx graphql tui --theme",
+  "argv": [
+    "graphql",
+    "tui",
+    "--theme"
+  ],
+  "argv_base": [
+    "graphql",
+    "tui",
+    "--theme"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 3.919,
+  "truncated": false,
+  "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+}
