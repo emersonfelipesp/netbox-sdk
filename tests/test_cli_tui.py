@@ -13,6 +13,7 @@ from unittest.mock import patch
 import pytest
 from textual.widgets import Button, Input, ListItem, ListView, RichLog, Select, Static
 
+from netbox_sdk.client import ConnectionProbe
 from netbox_sdk.config import Config
 from netbox_sdk.schema import build_schema_index
 from netbox_tui.cli_completions import (
@@ -65,6 +66,9 @@ class _FakeClient:
             headers = {"API-Version": "4.2"}
 
         return _Response()
+
+    async def probe_connection(self) -> ConnectionProbe:
+        return ConnectionProbe(status=200, version="4.2", ok=True)
 
 
 def _make_client() -> _FakeClient:
@@ -249,7 +253,7 @@ async def test_cli_tui_output_copy_button_copies_log_content(real_index) -> None
     copied_text = mock_copy.call_args.args[0]
     assert isinstance(copied_text, str)
     assert copied_text.strip()
-    assert "NBX CLI Builder" in copied_text
+    assert "NBX Command Builder" in copied_text
 
 
 @pytest.mark.asyncio

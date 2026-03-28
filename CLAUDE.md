@@ -118,6 +118,10 @@ pip install -e '.[all]'
 
 ## Release Process
 
+### Merging `main` into version branches (e.g. `v0.0.6`)
+
+When updating a release or topic branch from `main`, **`main` has priority on merge conflicts**: resolve by keeping the `main` side. With `git merge origin/main` checked out on the release branch, that is **`git checkout --theirs -- <path>`** (then review and `git add`). Re-port any branch-only work onto the post-merge tree if still needed.
+
 - Use the Git tag as `vX.Y.Z`.
 - Use the GitHub release title as `netbox-sdk vX.Y.Z`.
 - Do not mix bare tags and package-prefixed titles across releases.

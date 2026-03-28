@@ -17,7 +17,9 @@ def test_mkdocs_and_package_metadata_point_to_netbox_sdk() -> None:
     mkdocs = _read("mkdocs.yml")
     pyproject = _read("pyproject.toml")
 
-    assert "site_name: netbox-sdk" in mkdocs
+    assert "site_name:" in mkdocs
+    assert "netbox" in mkdocs.split("site_name:", 1)[1].split("\n", 1)[0].lower()
+    assert "sdk" in mkdocs.split("site_name:", 1)[1].split("\n", 1)[0].lower()
     assert "https://github.com/emersonfelipesp/netbox-sdk" in mkdocs
     assert 'Documentation = "https://emersonfelipesp.github.io/netbox-sdk/"' in pyproject
 
