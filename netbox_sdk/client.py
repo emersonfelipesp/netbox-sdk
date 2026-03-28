@@ -22,6 +22,7 @@ from netbox_sdk.config import (
     load_profile_config,
 )
 from netbox_sdk.http_cache import CachePolicy, HttpCacheStore, QueryParams, build_cache_key
+from netbox_sdk.http_ssl import connector_for_config
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,9 @@ class NetBoxApiClient:
         self._default_headers: dict[str, str] = {}
         self._openapi_cache: dict[str, JSONValue] | None = None
         logger.debug("initialized api client for %s", self.config.base_url or "<unset>")
+        bu = self.config.base_url or ""
+        if bu and urlsplit(bu).scheme.lower() == "https" and self.config.ssl_verify is False:
+            logger.warning("HTTPS TLS certificate verification is disabled for %s", bu)
 
     def _default_token_refresh_callback(
         self,
@@ -155,7 +159,11 @@ class NetBoxApiClient:
                     req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
 
         timeout = aiohttp.ClientTimeout(total=self.config.timeout)
-        async with aiohttp.ClientSession(timeout=timeout) as session:
+        connector = connector_for_config(self.config)
+        session_kwargs: dict[str, Any] = {"timeout": timeout}
+        if connector is not None:
+            session_kwargs["connector"] = connector
+        async with aiohttp.ClientSession(**session_kwargs) as session:
             try:
                 response = await self._request_once(
                     session,

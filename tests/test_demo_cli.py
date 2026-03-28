@@ -217,7 +217,7 @@ def test_demo_init_bootstraps_and_saves_profile(monkeypatch) -> None:
         "save_profile_config",
         lambda profile, cfg: saved.update({"profile": profile, "cfg": cfg}),
     )
-    monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
+    monkeypatch.setattr(cli, "_verify_runtime_config", lambda *a, **k: None)
 
     result = runner.invoke(cli.app, ["demo", "init"])
 
@@ -253,7 +253,7 @@ def test_demo_init_defaults_to_headless(monkeypatch) -> None:
         ),
     )
     monkeypatch.setattr(cli, "save_profile_config", lambda profile, cfg: None)
-    monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
+    monkeypatch.setattr(cli, "_verify_runtime_config", lambda *a, **k: None)
 
     result = runner.invoke(cli.app, ["demo", "init"])
 
@@ -279,7 +279,7 @@ def test_demo_direct_token_setup(monkeypatch) -> None:
         "save_profile_config",
         lambda profile, cfg: saved.update({"profile": profile, "cfg": cfg}),
     )
-    monkeypatch.setattr(cli, "_verify_runtime_config", lambda cfg, context: None)
+    monkeypatch.setattr(cli, "_verify_runtime_config", lambda *a, **k: None)
 
     result = runner.invoke(
         cli.app,
@@ -310,7 +310,7 @@ def test_demo_direct_token_setup_rejects_invalid_token(monkeypatch) -> None:
     monkeypatch.setattr(
         cli,
         "_verify_runtime_config",
-        lambda cfg, context: (_ for _ in ()).throw(
+        lambda *a, **k: (_ for _ in ()).throw(
             cli.typer.BadParameter("Demo token verification failed: Invalid v1 token")
         ),
     )
@@ -389,7 +389,7 @@ def test_demo_init_rejects_unverified_token(monkeypatch) -> None:
     monkeypatch.setattr(
         cli,
         "_verify_runtime_config",
-        lambda cfg, context: (_ for _ in ()).throw(
+        lambda *a, **k: (_ for _ in ()).throw(
             cli.typer.BadParameter("Demo token verification failed: Invalid v1 token")
         ),
     )

@@ -20,6 +20,7 @@ TOKEN_SECRET_ENV_VAR = "NETBOX_TOKEN_SECRET"
 BASE_URL_ENV_VAR = "NETBOX_URL"
 DEMO_USERNAME_ENV_VAR = "DEMO_USERNAME"
 DEMO_PASSWORD_ENV_VAR = "DEMO_PASSWORD"
+SSL_VERIFY_ENV_VAR = "NETBOX_SSL_VERIFY"
 DEFAULT_PROFILE = "default"
 DEMO_PROFILE = "demo"
 DEMO_BASE_URL = "https://demo.netbox.dev"
@@ -33,6 +34,7 @@ class Config(BaseModel):
     demo_username: str | None = None
     demo_password: str | None = None
     timeout: float = DEFAULT_TIMEOUT
+    ssl_verify: bool | None = None
 
     @field_validator("base_url", mode="before")
     @classmethod
@@ -65,6 +67,25 @@ class Config(BaseModel):
             return float(v or DEFAULT_TIMEOUT)
         except (TypeError, ValueError):
             return DEFAULT_TIMEOUT
+
+    @field_validator("ssl_verify", mode="before")
+    @classmethod
+    def _coerce_optional_bool(cls, v: object) -> bool | None:
+        if v is None or v == "":
+            return None
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            if v == 1:
+                return True
+            if v == 0:
+                return False
+        s = str(v).strip().lower()
+        if s in {"1", "true", "yes", "on"}:
+            return True
+        if s in {"0", "false", "no", "off"}:
+            return False
+        return None
 
 
 def normalize_base_url(value: str) -> str:
@@ -132,6 +153,18 @@ def cache_dir() -> Path:
     return config_path().parent / DEFAULT_HTTP_CACHE_DIRNAME
 
 
+def _parse_ssl_verify_env() -> bool | None:
+    raw = os.environ.get(SSL_VERIFY_ENV_VAR)
+    if raw is None:
+        return None
+    s = str(raw).strip().lower()
+    if s in ("1", "true", "yes", "on"):
+        return True
+    if s in ("0", "false", "no", "off"):
+        return False
+    return None
+
+
 def _load_raw_document() -> dict[str, object]:
     path = config_path()
     if not path.exists():
@@ -152,6 +185,10 @@ def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
         raw["token_secret"] = raw.get("token_secret") or os.environ.get(TOKEN_SECRET_ENV_VAR)
     raw["demo_username"] = raw.get("demo_username") or os.environ.get(DEMO_USERNAME_ENV_VAR)
     raw["demo_password"] = raw.get("demo_password") or os.environ.get(DEMO_PASSWORD_ENV_VAR)
+    if apply_env:
+        env_ssl = _parse_ssl_verify_env()
+        if env_ssl is not None:
+            raw["ssl_verify"] = env_ssl
     return Config.model_validate(raw)
 
 
@@ -192,6 +229,7 @@ def save_profile_config(profile: str, cfg: Config) -> None:
                 "token_key": stored.get("token_key"),
                 "token_secret": stored.get("token_secret"),
                 "timeout": stored.get("timeout") or DEFAULT_TIMEOUT,
+                "ssl_verify": stored.get("ssl_verify"),
             }
         }
     else:

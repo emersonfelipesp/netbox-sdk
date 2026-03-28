@@ -30,13 +30,12 @@ from netbox_cli.runtime import (
     _cache_profile,
     _ensure_runtime_config,
     _get_client,
+    _get_client_for_config,
     _get_index,
+    _retry_probe_after_ssl_prompt,
 )
 from netbox_cli.runtime import (
     _ensure_demo_runtime_config as _ensure_demo_runtime_config,
-)
-from netbox_cli.runtime import (
-    _get_client_for_config as _get_client_for_config,
 )
 from netbox_cli.runtime import (
     _get_demo_client as _get_demo_client,
@@ -156,6 +155,11 @@ def init_command(
         ..., prompt=True, hide_input=True, help="NetBox API token secret"
     ),
     timeout: float = typer.Option(30.0, help="HTTP timeout in seconds"),
+    verify_ssl: bool | None = typer.Option(
+        None,
+        "--verify-ssl/--no-verify-ssl",
+        help="HTTPS TLS certificate verification (default: verify; omit to leave unset until first failure)",
+    ),
 ) -> None:
     """Create or update the default NetBox SDK profile."""
     cfg = Config(
@@ -163,6 +167,7 @@ def init_command(
         token_key=token_key.strip() or None,
         token_secret=token_secret.strip() or None,
         timeout=timeout,
+        ssl_verify=verify_ssl,
     )
     save_config(cfg)
     _cache_profile(DEFAULT_PROFILE, cfg)
@@ -179,6 +184,7 @@ def config_command(
         "base_url": cfg.base_url,
         "timeout": cfg.timeout,
         "token_version": cfg.token_version,
+        "ssl_verify": cfg.ssl_verify,
     }
     if show_token:
         payload["token"] = resolved_token(cfg)
@@ -211,8 +217,9 @@ def test_command(
         fetch_and_build,
     )
 
-    _ensure_runtime_config()
-    probe = run_with_spinner(_get_client().probe_connection())
+    cfg = _ensure_runtime_config()
+    probe = run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    probe = _retry_probe_after_ssl_prompt(cfg, DEFAULT_PROFILE, probe)
     if not probe.ok:
         detail = probe.error or f"HTTP {probe.status}"
         typer.echo(f"Connection failed: {detail}", err=True)

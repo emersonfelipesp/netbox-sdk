@@ -178,6 +178,7 @@ def _save_demo_profile_from_token(
         _ORIGINAL_VERIFY_RUNTIME_CONFIG,
         cfg,
         context="Demo token",
+        profile=DEMO_PROFILE,
     )
     _call_cli_override(
         "save_profile_config",
@@ -258,6 +259,7 @@ def _initialize_demo_profile(
             _ORIGINAL_VERIFY_RUNTIME_CONFIG,
             cfg,
             context="Demo token",
+            profile=DEMO_PROFILE,
         )
     except typer.BadParameter as exc:
         typer.echo(str(exc), err=True)

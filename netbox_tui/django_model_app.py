@@ -53,6 +53,7 @@ from netbox_tui.django_model_state import (
     load_django_model_tui_state,
     save_django_model_tui_state,
 )
+from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.widgets import NbxButton, SupportModal
 
 logger = get_logger(__name__)
@@ -682,6 +683,7 @@ class DjangoModelTuiApp(App[None]):
                 if inspect.isawaitable(probe):
                     probe = await probe
                 if isinstance(probe, ConnectionProbe):
+                    probe = await maybe_resolve_ssl_verify_interactive(self, client, probe)
                     self._render_connection_status(probe)
                     return
             response = await client.request(
