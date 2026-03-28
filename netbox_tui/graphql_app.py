@@ -19,7 +19,17 @@ from textual.css.query import NoMatches
 from textual.message import Message
 from textual.reactive import reactive
 from textual.timer import Timer
-from textual.widgets import Button, Footer, Input, OptionList, Select, Static, TabbedContent, TabPane, TextArea
+from textual.widgets import (
+    Button,
+    Footer,
+    Input,
+    OptionList,
+    Select,
+    Static,
+    TabbedContent,
+    TabPane,
+    TextArea,
+)
 from textual.widgets.option_list import Option
 
 from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient
@@ -237,7 +247,9 @@ def _parse_type_ref(node: dict[str, Any] | None) -> TypeRef:
     return TypeRef(
         kind=str(node.get("kind") or "SCALAR"),
         name=node.get("name"),
-        of_type=_parse_type_ref(node.get("ofType")) if isinstance(node.get("ofType"), dict) else None,
+        of_type=_parse_type_ref(node.get("ofType"))
+        if isinstance(node.get("ofType"), dict)
+        else None,
     )
 
 
@@ -414,11 +426,30 @@ class NetBoxGraphqlTuiApp(App[None]):
 
             with Vertical(id="graphql_builder_panel"):
                 with Horizontal(id="graphql_action_bar"):
-                    yield NbxButton("Build Field", id="graphql_build_field_button", size="small", tone="primary")
-                    yield NbxButton("Insert Args", id="graphql_insert_args_button", size="small", tone="muted")
-                    yield NbxButton("Insert Filters", id="graphql_insert_filters_button", size="small", tone="muted")
-                    yield NbxButton("Insert Pagination", id="graphql_insert_pagination_button", size="small", tone="muted")
-                    yield NbxButton("Insert Fragments", id="graphql_insert_fragments_button", size="small", tone="muted")
+                    yield NbxButton(
+                        "Build Field", id="graphql_build_field_button", size="small", tone="primary"
+                    )
+                    yield NbxButton(
+                        "Insert Args", id="graphql_insert_args_button", size="small", tone="muted"
+                    )
+                    yield NbxButton(
+                        "Insert Filters",
+                        id="graphql_insert_filters_button",
+                        size="small",
+                        tone="muted",
+                    )
+                    yield NbxButton(
+                        "Insert Pagination",
+                        id="graphql_insert_pagination_button",
+                        size="small",
+                        tone="muted",
+                    )
+                    yield NbxButton(
+                        "Insert Fragments",
+                        id="graphql_insert_fragments_button",
+                        size="small",
+                        tone="muted",
+                    )
                     yield NbxButton("Run", id="graphql_send_button", size="small", tone="primary")
                 with TabbedContent(id="graphql_request_tabs"):
                     with TabPane("Query", id="graphql_query_tab"):
@@ -506,7 +537,9 @@ class NetBoxGraphqlTuiApp(App[None]):
             self._connection_timer.stop()
         try:
             self.state.last_query_text = self.query_one("#graphql_query_editor", TextArea).text
-            self.state.last_variables_text = self.query_one("#graphql_variables_editor", TextArea).text
+            self.state.last_variables_text = self.query_one(
+                "#graphql_variables_editor", TextArea
+            ).text
         except NoMatches:
             pass
         self.state.selected_root_field = self.selected_field_name
@@ -679,9 +712,9 @@ class NetBoxGraphqlTuiApp(App[None]):
     def _current_root_field(self) -> GraphqlFieldInfo | None:
         if self._explorer is None or self.selected_field_name is None:
             return None
-        for field in self._explorer.root_fields():
-            if field.name == self.selected_field_name:
-                return field
+        for root_field in self._explorer.root_fields():
+            if root_field.name == self.selected_field_name:
+                return root_field
         return None
 
     def _refresh_field_list(self) -> None:
@@ -710,7 +743,10 @@ class NetBoxGraphqlTuiApp(App[None]):
                     Text.assemble(
                         (field.name, Style(color=theme.colors["primary"], bold=True)),
                         ("  "),
-                        (_type_label(field.type_ref), Style(color=theme.variables["nb-muted-text"])),
+                        (
+                            _type_label(field.type_ref),
+                            Style(color=theme.variables["nb-muted-text"]),
+                        ),
                     )
                 )
                 for field in self._visible_root_fields
@@ -763,8 +799,7 @@ class NetBoxGraphqlTuiApp(App[None]):
         if not field.args:
             return ""
         rendered = ", ".join(
-            f"{arg.name}: {self._placeholder_for_type(arg.type_ref)}"
-            for arg in field.args
+            f"{arg.name}: {self._placeholder_for_type(arg.type_ref)}" for arg in field.args
         )
         return f"({rendered})"
 
@@ -778,7 +813,11 @@ class NetBoxGraphqlTuiApp(App[None]):
         if self._explorer is None:
             return ""
         gql_type = self._explorer.named_type(field.type_ref)
-        if gql_type is None or gql_type.kind not in {"UNION", "INTERFACE"} or not gql_type.possible_types:
+        if (
+            gql_type is None
+            or gql_type.kind not in {"UNION", "INTERFACE"}
+            or not gql_type.possible_types
+        ):
             return ""
         parts: list[str] = []
         for possible_name in gql_type.possible_types[:3]:
@@ -797,10 +836,13 @@ class NetBoxGraphqlTuiApp(App[None]):
                 picks.insert(0, "id")
             return "{\n" + "\n".join(f"{indent}  {name}" for name in picks[:4]) + f"\n{indent}}}"
         if gql_type.kind == "UNION" and gql_type.possible_types:
-            return "{\n" + "\n".join(
-                f"{indent}  ... on {name} {{ id }}"
-                for name in gql_type.possible_types[:2]
-            ) + f"\n{indent}}}"
+            return (
+                "{\n"
+                + "\n".join(
+                    f"{indent}  ... on {name} {{ id }}" for name in gql_type.possible_types[:2]
+                )
+                + f"\n{indent}}}"
+            )
         return "{ id }"
 
     def _build_selection_set(self, type_ref: TypeRef, depth: int) -> str:
@@ -839,7 +881,7 @@ class NetBoxGraphqlTuiApp(App[None]):
         if name == "Boolean":
             return "true"
         if name in {"JSONString", "JSON"}:
-            return "{ \"key\": \"value\" }"
+            return '{ "key": "value" }'
         return '"value"'
 
     @work(group="graphql_schema", exclusive=True, thread=False)
@@ -943,9 +985,7 @@ class NetBoxGraphqlTuiApp(App[None]):
 
     def _graphql_error_summary(self, errors: list[Any]) -> str:
         messages = [
-            str(item.get("message") or "GraphQL error")
-            for item in errors
-            if isinstance(item, dict)
+            str(item.get("message") or "GraphQL error") for item in errors if isinstance(item, dict)
         ]
         if not messages:
             return "GraphQL errors were returned."
@@ -972,19 +1012,23 @@ class NetBoxGraphqlTuiApp(App[None]):
             style = Style(color=theme.colors["error"], bold=True)
         self.query_one("#graphql_response_status", Static).update(Text(status_text, style=style))
         self.query_one("#graphql_response_timing", Static).update(f"{execution.duration_ms:.1f} ms")
-        self.query_one("#graphql_response_size", Static).update(f"{len(response.text.encode('utf-8'))} B")
+        self.query_one("#graphql_response_size", Static).update(
+            f"{len(response.text.encode('utf-8'))} B"
+        )
         body_text = self._format_response_body(response.text)
         self.query_one("#graphql_response_body", TextArea).text = body_text
-        self.query_one("#graphql_response_headers", TextArea).text = self._format_headers(response.headers)
-        self.query_one("#graphql_copy_response_button", Button).disabled = not bool(body_text.strip())
+        self.query_one("#graphql_response_headers", TextArea).text = self._format_headers(
+            response.headers
+        )
+        self.query_one("#graphql_copy_response_button", Button).disabled = not bool(
+            body_text.strip()
+        )
         summary_lines = [
             f"Query length: {len(execution.query_text)} chars",
             f"Variables: {'yes' if execution.variables else 'no'}",
         ]
         if payload and isinstance(payload.get("data"), dict):
-            summary_lines.append(
-                "Data keys: " + ", ".join(sorted(payload["data"].keys())[:8])
-            )
+            summary_lines.append("Data keys: " + ", ".join(sorted(payload["data"].keys())[:8]))
         if errors_summary:
             summary_lines.append(f"Errors: {errors_summary}")
             self.notify(errors_summary, severity="error")
@@ -998,7 +1042,9 @@ class NetBoxGraphqlTuiApp(App[None]):
     def _record_history(self, *, query_text: str, variables_text: str) -> None:
         title = next((line.strip() for line in query_text.splitlines() if line.strip()), "Query")
         title = title[:80]
-        fresh = GraphqlHistoryEntry(title=title, query_text=query_text, variables_text=variables_text)
+        fresh = GraphqlHistoryEntry(
+            title=title, query_text=query_text, variables_text=variables_text
+        )
         history = [
             item
             for item in self.state.history
@@ -1035,7 +1081,9 @@ class NetBoxGraphqlTuiApp(App[None]):
             if isinstance(result, ConnectionProbe):
                 return result
         try:
-            response = await self.client.request("GET", "/", headers={"Content-Type": "application/json"})
+            response = await self.client.request(
+                "GET", "/", headers={"Content-Type": "application/json"}
+            )
         except Exception as exc:  # noqa: BLE001
             return ConnectionProbe(status=0, version="", ok=False, error=str(exc))
         headers = getattr(response, "headers", {}) or {}

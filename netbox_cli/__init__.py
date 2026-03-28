@@ -50,8 +50,8 @@ from netbox_cli.support import (
     format_click_exception,
     load_tui_callables,
     print_response,
-    resolve_requested_theme,
     resolve_output_format,
+    resolve_requested_theme,
     rethrow_theme_catalog_error,
     run_with_spinner,
 )
@@ -92,6 +92,7 @@ app = typer.Typer(
     help="NetBox SDK CLI. Dynamic command form: nbx <group> <resource> <action>",
     no_args_is_help=True,
 )
+
 
 def main(argv: list[str] | None = None) -> int:
     setup_logging()
@@ -328,12 +329,12 @@ def _run_graphql_cli_query(
     )
 
 
-@app.command(
-    "graphql", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
-)
+@app.command("graphql", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def graphql_command(
     ctx: typer.Context,
-    query: str = typer.Argument(..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"),
+    query: str = typer.Argument(
+        ..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"
+    ),
     variables: list[str] = typer.Option(
         None,
         "--variables",

@@ -76,6 +76,7 @@ demo_cli_app = typer.Typer(
     no_args_is_help=True,
 )
 
+
 def _cli_exports() -> ModuleType:
     return import_module("netbox_cli")
 
@@ -115,7 +116,9 @@ def _call_cli_override(
 )
 def demo_graphql_command(
     ctx: typer.Context,
-    query: str = typer.Argument(..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"),
+    query: str = typer.Argument(
+        ..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"
+    ),
     variables: list[str] = typer.Option(
         None,
         "--variables",

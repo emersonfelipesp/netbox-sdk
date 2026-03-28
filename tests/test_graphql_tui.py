@@ -35,7 +35,11 @@ def _introspection_payload() -> dict[str, object]:
                                         "name": "filters",
                                         "description": None,
                                         "defaultValue": None,
-                                        "type": {"kind": "INPUT_OBJECT", "name": "DeviceFilter", "ofType": None},
+                                        "type": {
+                                            "kind": "INPUT_OBJECT",
+                                            "name": "DeviceFilter",
+                                            "ofType": None,
+                                        },
                                     },
                                     {
                                         "name": "pagination",
@@ -51,7 +55,11 @@ def _introspection_payload() -> dict[str, object]:
                                 "type": {
                                     "kind": "LIST",
                                     "name": None,
-                                    "ofType": {"kind": "OBJECT", "name": "DeviceType", "ofType": None},
+                                    "ofType": {
+                                        "kind": "OBJECT",
+                                        "name": "DeviceType",
+                                        "ofType": None,
+                                    },
                                 },
                             },
                             {
@@ -74,9 +82,24 @@ def _introspection_payload() -> dict[str, object]:
                         "name": "DeviceType",
                         "description": "Device",
                         "fields": [
-                            {"name": "id", "description": None, "args": [], "type": {"kind": "SCALAR", "name": "ID", "ofType": None}},
-                            {"name": "name", "description": None, "args": [], "type": {"kind": "SCALAR", "name": "String", "ofType": None}},
-                            {"name": "status", "description": None, "args": [], "type": {"kind": "SCALAR", "name": "String", "ofType": None}},
+                            {
+                                "name": "id",
+                                "description": None,
+                                "args": [],
+                                "type": {"kind": "SCALAR", "name": "ID", "ofType": None},
+                            },
+                            {
+                                "name": "name",
+                                "description": None,
+                                "args": [],
+                                "type": {"kind": "SCALAR", "name": "String", "ofType": None},
+                            },
+                            {
+                                "name": "status",
+                                "description": None,
+                                "args": [],
+                                "type": {"kind": "SCALAR", "name": "String", "ofType": None},
+                            },
                         ],
                         "inputFields": [],
                         "enumValues": [],
@@ -127,13 +150,23 @@ def _introspection_payload() -> dict[str, object]:
                         "fields": [],
                         "inputFields": [],
                         "enumValues": [],
-                        "possibleTypes": [{"name": "ConsolePortType"}, {"name": "CircuitTerminationType"}],
+                        "possibleTypes": [
+                            {"name": "ConsolePortType"},
+                            {"name": "CircuitTerminationType"},
+                        ],
                     },
                     {
                         "kind": "OBJECT",
                         "name": "ConsolePortType",
                         "description": "Console port",
-                        "fields": [{"name": "id", "description": None, "args": [], "type": {"kind": "SCALAR", "name": "ID", "ofType": None}}],
+                        "fields": [
+                            {
+                                "name": "id",
+                                "description": None,
+                                "args": [],
+                                "type": {"kind": "SCALAR", "name": "ID", "ofType": None},
+                            }
+                        ],
                         "inputFields": [],
                         "enumValues": [],
                         "possibleTypes": [],
@@ -142,7 +175,14 @@ def _introspection_payload() -> dict[str, object]:
                         "kind": "OBJECT",
                         "name": "CircuitTerminationType",
                         "description": "Circuit termination",
-                        "fields": [{"name": "id", "description": None, "args": [], "type": {"kind": "SCALAR", "name": "ID", "ofType": None}}],
+                        "fields": [
+                            {
+                                "name": "id",
+                                "description": None,
+                                "args": [],
+                                "type": {"kind": "SCALAR", "name": "ID", "ofType": None},
+                            }
+                        ],
                         "inputFields": [],
                         "enumValues": [],
                         "possibleTypes": [],
@@ -223,7 +263,9 @@ async def test_graphql_tui_loads_introspection_and_builds_query(mock_client) -> 
 
 
 @pytest.mark.asyncio
-async def test_graphql_tui_guided_snippets_cover_filters_pagination_and_fragments(mock_client) -> None:
+async def test_graphql_tui_guided_snippets_cover_filters_pagination_and_fragments(
+    mock_client,
+) -> None:
     app = NetBoxGraphqlTuiApp(client=mock_client, theme_name="dracula")
 
     async with app.run_test(size=(180, 50)) as pilot:
@@ -327,7 +369,9 @@ async def test_graphql_tui_copy_response_button_copies_formatted_body(mock_clien
 
 
 @pytest.mark.asyncio
-async def test_graphql_tui_history_selection_restores_saved_query_and_variables(mock_client) -> None:
+async def test_graphql_tui_history_selection_restores_saved_query_and_variables(
+    mock_client,
+) -> None:
     seeded_state = GraphqlTuiState(
         history=[
             GraphqlHistoryEntry(
@@ -350,9 +394,14 @@ async def test_graphql_tui_history_selection_restores_saved_query_and_variables(
             app.on_history_selected(type("Event", (), {"option_index": 0})())
             await pilot.pause()
 
-            assert app.query_one("#graphql_query_editor", TextArea).text == "query { device_list { id } }"
+            assert (
+                app.query_one("#graphql_query_editor", TextArea).text
+                == "query { device_list { id } }"
+            )
             assert app.query_one("#graphql_variables_editor", TextArea).text == '{"limit": 5}'
-            assert "Loaded history item" in str(app.query_one("#graphql_response_summary", Static).content)
+            assert "Loaded history item" in str(
+                app.query_one("#graphql_response_summary", Static).content
+            )
 
 
 @pytest.mark.asyncio
@@ -413,8 +462,16 @@ async def test_graphql_tui_theme_switch_refreshes_existing_surfaces(mock_client)
         assert app.theme_name == "dracula"
         assert app.query_one("#graphql_sidebar", object).styles.background == expected_surface
         assert app.query_one("#graphql_builder_panel", object).styles.background == expected_surface
-        assert app.query_one("#graphql_response_panel", object).styles.background == expected_surface
+        assert (
+            app.query_one("#graphql_response_panel", object).styles.background == expected_surface
+        )
         assert app.query_one("#graphql_response_meta", object).styles.background == expected_panel
-        assert app.query_one("#graphql_field_list", OptionList).styles.background == expected_background
-        assert app.query_one("#graphql_query_editor", TextArea).styles.background == expected_background
+        assert (
+            app.query_one("#graphql_field_list", OptionList).styles.background
+            == expected_background
+        )
+        assert (
+            app.query_one("#graphql_query_editor", TextArea).styles.background
+            == expected_background
+        )
         assert app.query_one("#graphql_build_field_button", object).styles.color == expected_primary
