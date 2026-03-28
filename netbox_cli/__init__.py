@@ -50,6 +50,7 @@ from netbox_cli.support import (
     format_click_exception,
     load_tui_callables,
     print_response,
+    resolve_requested_theme,
     resolve_output_format,
     rethrow_theme_catalog_error,
     run_with_spinner,
@@ -91,7 +92,6 @@ app = typer.Typer(
     help="NetBox SDK CLI. Dynamic command form: nbx <group> <resource> <action>",
     no_args_is_help=True,
 )
-
 
 def main(argv: list[str] | None = None) -> int:
     setup_logging()
@@ -285,21 +285,7 @@ def operations_command(
     console.print(table)
 
 
-@app.command("graphql")
-def graphql_command(
-    query: str = typer.Argument(..., help="GraphQL query string"),
-    variables: list[str] = typer.Option(
-        None,
-        "--variables",
-        "-v",
-        help="GraphQL variables: one JSON object, or repeat for multiple key=value pairs",
-    ),
-    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
-    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
-) -> None:
-    """Execute a GraphQL query against the NetBox API."""
-    client = _get_client()
-
+def _graphql_variables_from_pairs(variables: list[str] | None) -> dict[str, Any] | None:
     vars_dict: dict[str, Any] | None = None
     pairs = variables or []
     if pairs:
@@ -321,13 +307,83 @@ def graphql_command(
                 vars_dict = parse_key_value_pairs(pairs)
             except ValueError as exc:
                 raise typer.BadParameter(str(exc)) from exc
+    return vars_dict
 
+
+def _run_graphql_cli_query(
+    *,
+    client: Any,
+    query: str,
+    variables: list[str] | None,
+    output_json: bool,
+    output_yaml: bool,
+) -> None:
+    vars_dict = _graphql_variables_from_pairs(variables)
     response = run_with_spinner(client.graphql(query, vars_dict))
     print_response(
         response.status,
         response.text,
         as_json=output_json,
         as_yaml=output_yaml,
+    )
+
+
+@app.command(
+    "graphql", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
+def graphql_command(
+    ctx: typer.Context,
+    query: str = typer.Argument(..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"),
+    variables: list[str] = typer.Option(
+        None,
+        "--variables",
+        "-v",
+        help="GraphQL variables: one JSON object, or repeat for multiple key=value pairs",
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="For `nbx graphql tui`: list available themes or launch with `--theme <name>`.",
+    ),
+) -> None:
+    """Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI."""
+    if query == "tui":
+        available_theme_names, resolve_theme_name, run_graphql_tui = load_tui_callables(
+            "netbox_tui.graphql_app",
+            "available_theme_names",
+            "resolve_theme_name",
+            "run_graphql_tui",
+        )
+
+        selected_theme = resolve_requested_theme(
+            ctx,
+            theme=theme,
+            available_theme_names=available_theme_names,
+            resolve_theme_name=resolve_theme_name,
+            usage="nbx graphql tui --theme <name>",
+        )
+        if theme and not ctx.args:
+            return
+        if variables or output_json or output_yaml:
+            raise typer.BadParameter(
+                "--variables, --json, and --yaml are only valid for GraphQL query execution."
+            )
+        try:
+            run_graphql_tui(client=_get_client(), theme_name=selected_theme)
+        except Exception as exc:
+            rethrow_theme_catalog_error(exc)
+        return
+
+    if theme:
+        raise typer.BadParameter("--theme is only supported for `nbx graphql tui`.")
+    _run_graphql_cli_query(
+        client=_get_client(),
+        query=query,
+        variables=variables,
+        output_json=output_json,
+        output_yaml=output_yaml,
     )
 
 

@@ -104,6 +104,11 @@ class TestGraphQLCommand:
         assert "GraphQL" in result.output
         assert "--variables" in result.output or "-v" in result.output
 
+    def test_graphql_help_mentions_tui_mode(self):
+        result = runner.invoke(cli.app, ["graphql", "--help"])
+        assert result.exit_code == 0
+        assert "tui" in result.output.lower()
+
     def test_graphql_simple_query(self, monkeypatch):
         """Test simple GraphQL query execution."""
 
@@ -286,3 +291,8 @@ class TestGraphQLDemo:
             pytest.skip("Demo app does not have graphql command")
         assert result.exit_code == 0
         assert "GraphQL" in result.output
+
+    def test_demo_graphql_help_mentions_tui_mode(self):
+        result = runner.invoke(cli.app, ["demo", "graphql", "--help"])
+        assert result.exit_code == 0
+        assert "tui" in result.output.lower()

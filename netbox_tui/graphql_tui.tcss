@@ -1,0 +1,222 @@
+Screen {
+    layout: vertical;
+    background: $background;
+}
+
+* {
+    scrollbar-size: 1 1;
+    scrollbar-background: transparent;
+    scrollbar-background-hover: $foreground 4%;
+    scrollbar-background-active: $foreground 8%;
+    scrollbar-color: $foreground 30%;
+    scrollbar-color-hover: $primary 65%;
+    scrollbar-color-active: $primary;
+    scrollbar-corner-color: transparent;
+}
+
+#graphql_topbar {
+    width: 1fr;
+    height: auto;
+    background: $background;
+    border-bottom: solid $nb-border-subtle;
+    align: left middle;
+}
+
+#graphql_topbar:focus-within {
+    border-bottom: solid $secondary;
+}
+
+#graphql_topbar_left,
+#graphql_topbar_right {
+    width: 1fr;
+    height: auto;
+}
+
+#graphql_topbar_left {
+    align: left middle;
+}
+
+#graphql_topbar_center {
+    width: auto;
+    min-width: 19;
+    height: auto;
+    align: center middle;
+}
+
+#graphql_topbar_right {
+    align: right middle;
+}
+
+#graphql_nav_dot {
+    width: 1;
+    margin-right: 1;
+    color: $primary;
+    text-style: bold;
+}
+
+#graphql_logo {
+    width: auto;
+    margin: 0 0 0 1;
+    color: $primary;
+    text-style: bold;
+    text-align: center;
+    text-wrap: nowrap;
+}
+
+#graphql_topbar_cli_suffix {
+    width: auto;
+    margin: 0 1 0 1;
+    color: $foreground;
+    text-style: bold;
+    text-wrap: nowrap;
+}
+
+#graphql_clock {
+    width: auto;
+    min-width: 8;
+    margin-right: 1;
+    color: $nb-muted-text;
+}
+
+#graphql_connection_badge {
+    width: 1;
+    margin-right: 1;
+    color: $nb-secondary-text;
+    text-style: bold;
+}
+
+#graphql_connection_badge.-checking {
+    color: $nb-warning-text;
+}
+
+#graphql_connection_badge.-ok {
+    color: $nb-success-text;
+}
+
+#graphql_connection_badge.-warning {
+    color: $nb-warning-text;
+}
+
+#graphql_connection_badge.-error {
+    color: $nb-danger-text;
+}
+
+#graphql_shell {
+    width: 1fr;
+    height: 1fr;
+    padding: 1;
+}
+
+#graphql_sidebar {
+    width: 36;
+    min-width: 32;
+    height: 1fr;
+    margin-right: 1;
+    border: round $nb-border-subtle;
+    padding: 1;
+    background: $surface;
+}
+
+#graphql_builder_panel {
+    width: 1fr;
+    height: 1fr;
+    margin-right: 1;
+    border: round $nb-border-subtle;
+    padding: 1;
+    background: $surface;
+}
+
+#graphql_response_panel {
+    width: 1fr;
+    height: 1fr;
+    border: round $nb-border-subtle;
+    padding: 1;
+    background: $surface;
+}
+
+#graphql_sidebar_title {
+    margin-bottom: 1;
+    color: $primary;
+    text-style: bold;
+}
+
+#graphql_field_search {
+    margin-bottom: 1;
+    border: tall $nb-border-subtle;
+    background: $panel;
+}
+
+#graphql_field_search:focus {
+    border: tall $primary;
+    background: $surface;
+}
+
+#graphql_field_list,
+#graphql_history_list {
+    height: 1fr;
+    border: round $nb-border-subtle;
+    background: $background;
+    margin-bottom: 1;
+}
+
+#graphql_sidebar_tabs {
+    height: 16;
+    margin-bottom: 1;
+}
+
+#graphql_field_details {
+    padding: 1;
+    height: 1fr;
+}
+
+#graphql_help {
+    color: $nb-muted-text;
+}
+
+#graphql_action_bar {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#graphql_action_bar Button {
+    margin-right: 1;
+}
+
+#graphql_request_tabs,
+#graphql_response_tabs {
+    height: 1fr;
+}
+
+#graphql_query_editor,
+#graphql_variables_editor,
+#graphql_response_body,
+#graphql_response_headers {
+    height: 1fr;
+    border: round $nb-border-subtle;
+    background: $background;
+}
+
+#graphql_variables_help {
+    margin-top: 1;
+    color: $nb-muted-text;
+}
+
+#graphql_response_meta {
+    height: auto;
+    margin-bottom: 1;
+    padding: 0 1;
+    background: $panel;
+    border: round $nb-border-subtle;
+    align: left middle;
+}
+
+#graphql_response_status {
+    width: 1fr;
+}
+
+#graphql_response_timing,
+#graphql_response_size {
+    width: auto;
+    margin-left: 2;
+    color: $nb-muted-text;
+}
