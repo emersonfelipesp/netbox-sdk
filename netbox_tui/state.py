@@ -8,7 +8,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
-from netbox_sdk.config import config_path, legacy_config_path
+from netbox_sdk.config import _write_private_json, config_path, legacy_config_path
 
 
 class ViewState(BaseModel):
@@ -91,4 +91,4 @@ def load_tui_state(base_url: str | None = None) -> TuiState:
 
 def save_tui_state(state: TuiState, base_url: str | None = None) -> None:
     path = tui_state_path(base_url)
-    path.write_text(state.model_dump_json(indent=2), encoding="utf-8")
+    _write_private_json(path, state.model_dump())

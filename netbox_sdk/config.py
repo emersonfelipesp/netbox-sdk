@@ -4,11 +4,19 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import stat
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, field_validator
+
+# Matches a URI scheme at the start of a string: one or more letters, digits,
+# +, or - immediately followed by a colon.  Used to detect bare non-HTTP
+# schemes (javascript:, data:, file:, …) before the auto-https prefix step.
+# We only treat single-word tokens (no dots) as real URI schemes, because a
+# string like "netbox.example.com:8080" should be auto-prefixed, not rejected.
+_BARE_SCHEME_RE = re.compile(r"^([a-zA-Z][a-zA-Z0-9+\-]*):", re.ASCII)
 
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_CONFIG_DIRNAME = "netbox-sdk"
@@ -58,6 +66,9 @@ class Config(BaseModel):
         if v is None:
             return None
         s = str(v).strip()
+        # Strip CR, LF, and null bytes so token values cannot inject extra
+        # lines into HTTP Authorization headers.
+        s = s.translate(str.maketrans("", "", "\r\n\x00"))
         return s if s else None
 
     @field_validator("timeout", mode="before")
@@ -92,7 +103,16 @@ def normalize_base_url(value: str) -> str:
     url = value.strip()
     if not url:
         raise ValueError("base_url cannot be empty")
+    if any(c in url for c in ("\r", "\n", "\x00")):
+        raise ValueError("base_url must not contain control characters")
+    # Detect bare non-HTTP schemes (javascript:, data:, file:, etc.) before
+    # the auto-https prefix step.  We only flag single-word scheme tokens
+    # (no dots) so that bare hostnames like "netbox.example.com:8080" are
+    # still auto-prefixed rather than rejected.
     if "://" not in url:
+        m = _BARE_SCHEME_RE.match(url)
+        if m and m.group(1).lower() not in {"http", "https"}:
+            raise ValueError("base_url must use http or https")
         url = f"https://{url}"
     parsed = urlsplit(url)
     scheme = parsed.scheme.lower()

@@ -50,6 +50,7 @@ jobs:
               - 'tests/test_sdk_pynetbox_parity.py'
               - 'tests/test_services.py'
               - 'tests/test_typed_sdk.py'
+              - 'tests/test_security_sdk.py'
             cli:
               - 'netbox_cli/**'
               - 'tests/test_cli_error_handling.py'
@@ -61,6 +62,7 @@ jobs:
               - 'tests/test_graphql.py'
               - 'tests/test_instance_isolation.py'
               - 'tests/test_markdown_output.py'
+              - 'tests/test_security_cli.py'
             tui:
               - 'netbox_tui/**'
               - 'tests/test_cli_tui.py'
@@ -72,6 +74,7 @@ jobs:
               - 'tests/test_no_hardcoded_colors.py'
               - 'tests/test_theme_registry.py'
               - 'tests/test_tui_interaction.py'
+              - 'tests/test_security_tui.py'
 
   test-sdk:
     name: sdk suite / Python ${{ matrix.python-version }}
