@@ -35,6 +35,7 @@ class CachePolicy(BaseModel):
 
 class CacheEntry(BaseModel):
     """Serialized HTTP response plus metadata for cache lookup and conditional requests."""
+
     status: int
     text: str
     headers: dict[str, str]
