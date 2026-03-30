@@ -75,6 +75,10 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
+        with:
+          # No checkout in this job — workspace is empty until artifacts download.
+          enable-cache: false
+          ignore-empty-workdir: true
 
       - name: Download dist artifacts
         uses: actions/download-artifact@v8
@@ -138,6 +142,9 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: false
+          ignore-empty-workdir: true
 
       - name: Download dist artifacts
         uses: actions/download-artifact@v8
