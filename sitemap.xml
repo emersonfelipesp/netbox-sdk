@@ -287,6 +287,18 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/typed/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/snippets/documented-release-en/</loc>
+        <lastmod>2026-03-30</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/snippets/documented-release-en/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/snippets/documented-release-pt/</loc>
+        <lastmod>2026-03-30</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/snippets/documented-release-pt/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/tui/</loc>
         <lastmod>2026-03-30</lastmod>
         <changefreq>daily</changefreq>
