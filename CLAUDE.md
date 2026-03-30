@@ -118,11 +118,12 @@ pip install -e '.[all]'
 
 ## Release Process
 
-### Merging `main` into version branches (e.g. `v0.0.6`)
+### Merging `main` into version branches (e.g. `v0.0.7.post1`)
 
 When updating a release or topic branch from `main`, **`main` has priority on merge conflicts**: resolve by keeping the `main` side. With `git merge origin/main` checked out on the release branch, that is **`git checkout --theirs -- <path>`** (then review and `git add`). Re-port any branch-only work onto the post-merge tree if still needed.
 
-- Use the Git tag as `vX.Y.Z`.
+- Use the Git tag as `vX.Y.Z` (including post-releases such as `v0.0.7.post1` when applicable).
 - Use the GitHub release title as `netbox-sdk vX.Y.Z`.
 - Do not mix bare tags and package-prefixed titles across releases.
-- Example: tag `v0.0.5`, title `netbox-sdk v0.0.5`.
+- Example: tag `v0.0.7.post1`, title `netbox-sdk v0.0.7.post1`.
+- When bumping the package version, also update **`docs/snippets/package-version.txt`**, **`mkdocs.yml`** → **`extra.package_version`**, and the pinned-command snippets under **`docs/snippets/`** (`documented-release-*.md`, `pip-pinned-*.txt`, `uv-pinned-cli.txt`), then run **`uv lock`**. **`tests/test_docs_alignment.py`** guards drift vs **`pyproject.toml`**.

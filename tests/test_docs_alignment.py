@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +33,23 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 def _read(path: str) -> str:
     return (REPO_ROOT / path).read_text(encoding="utf-8")
+
+
+def _pyproject_version() -> str:
+    data = tomllib.loads(_read("pyproject.toml"))
+    return str(data["project"]["version"])
+
+
+_DOC_VERSION_SNIPPETS = (
+    "docs/snippets/package-version.txt",
+    "docs/snippets/documented-release-en.md",
+    "docs/snippets/documented-release-pt.md",
+    "docs/snippets/pip-pinned-sdk.txt",
+    "docs/snippets/pip-pinned-cli.txt",
+    "docs/snippets/pip-pinned-tui.txt",
+    "docs/snippets/pip-pinned-all.txt",
+    "docs/snippets/uv-pinned-cli.txt",
+)
 
 
 def test_mkdocs_and_package_metadata_point_to_netbox_sdk() -> None:
@@ -148,3 +166,23 @@ def test_nav_markdown_pages_have_portuguese_siblings() -> None:
     for rel in _nav_markdown_paths(mkdocs["nav"]):
         pt = rel[:-3] + ".pt.md" if rel.endswith(".md") else rel
         assert (docs_dir / pt).is_file(), f"missing Portuguese mirror: docs/{pt}"
+
+
+def test_docs_package_version_snippet_matches_pyproject() -> None:
+    expected = _pyproject_version()
+    assert (REPO_ROOT / "docs/snippets/package-version.txt").read_text(
+        encoding="utf-8"
+    ).strip() == expected
+
+
+def test_mkdocs_extra_package_version_matches_pyproject() -> None:
+    mkdocs = yaml.load(_read("mkdocs.yml"), Loader=_NavLoader)
+    extra = mkdocs.get("extra") or {}
+    assert extra.get("package_version") == _pyproject_version()
+
+
+def test_docs_version_snippets_reference_pyproject_version() -> None:
+    version = _pyproject_version()
+    for rel in _DOC_VERSION_SNIPPETS:
+        text = _read(rel)
+        assert version in text, f"{rel} must include project version {version!r}"

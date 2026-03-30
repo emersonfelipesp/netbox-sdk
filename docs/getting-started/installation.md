@@ -2,6 +2,8 @@
 
 `netbox-sdk` requires Python 3.11 or newer.
 
+--8<-- "snippets/documented-release-en.md"
+
 ## From PyPI
 
 SDK only:
@@ -31,10 +33,26 @@ Everything:
 pip install 'netbox-sdk[all]'
 ```
 
+Pinned installs for the documented release (same extras, exact version):
+
+```bash
+--8<-- "snippets/pip-pinned-sdk.txt"
+--8<-- "snippets/pip-pinned-cli.txt"
+--8<-- "snippets/pip-pinned-tui.txt"
+--8<-- "snippets/pip-pinned-all.txt"
+```
+
 ## With uv tool
 
 ```bash
 uv tool install --force 'netbox-sdk[cli]'
+nbx --help
+```
+
+Pinned to the documented release:
+
+```bash
+--8<-- "snippets/uv-pinned-cli.txt"
 nbx --help
 ```
 

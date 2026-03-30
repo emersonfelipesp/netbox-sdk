@@ -14,6 +14,8 @@ O projeto PyPI principal é `netbox-sdk` (veja `pyproject.toml`). A mesma distri
 
 Use `pip install 'netbox-sdk[all]'` para CLI + TUI + ferramentas demo.
 
+Para coincidir com a versão descrita pelo site de documentação publicado, fixe com `==` e a mesma versão que `docs/snippets/package-version.txt` (veja [Instalação](../getting-started/installation.pt.md)).
+
 ## Superfície pública do SDK
 
 Símbolos estáveis para uso em biblioteca são exportados de `netbox_sdk` (veja `netbox_sdk/__init__.py`), incluindo:

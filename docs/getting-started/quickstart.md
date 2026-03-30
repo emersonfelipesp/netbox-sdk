@@ -2,12 +2,22 @@
 
 Get up and running with the interface you actually plan to use.
 
+--8<-- "snippets/documented-release-en.md"
+
 ---
 
 ## 1. Install and configure the shared runtime
 
 ```bash
 pip install 'netbox-sdk[all]'
+nbx init
+# enter your NetBox URL and API token when prompted
+```
+
+Pinned to the documented release:
+
+```bash
+--8<-- "snippets/pip-pinned-all.txt"
 nbx init
 # enter your NetBox URL and API token when prompted
 ```

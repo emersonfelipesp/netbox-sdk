@@ -28,6 +28,8 @@ O próprio pacote SDK expõe três camadas:
 
 As linhas de release tipadas atuais do SDK são NetBox `4.5`, `4.4` e `4.3`.
 
+--8<-- "snippets/documented-release-pt.md"
+
 <div class="grid cards" markdown>
 
 -   :material-api:{ .lg .middle } **SDK**
@@ -60,6 +62,7 @@ As linhas de release tipadas atuais do SDK são NetBox `4.5`, `4.4` e `4.3`.
 
     ```bash
     pip install 'netbox-sdk[all]'
+    --8<-- "snippets/pip-pinned-all.txt"
     nbx init
     nbx dcim devices list
     ```
