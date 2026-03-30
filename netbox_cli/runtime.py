@@ -35,6 +35,15 @@ from netbox_sdk.http_ssl import (
 from netbox_sdk.logging_runtime import get_logger
 from netbox_sdk.schema import SchemaIndex, load_openapi_schema
 
+try:
+    import aiohttp
+except ModuleNotFoundError:  # pragma: no cover
+    aiohttp = None  # type: ignore[assignment, misc]
+
+_VERIFY_REQUEST_ERRORS: tuple[type[BaseException], ...] = (RuntimeError, OSError)
+if aiohttp is not None:
+    _VERIFY_REQUEST_ERRORS = (*_VERIFY_REQUEST_ERRORS, aiohttp.ClientError)
+
 _SCHEMA_DOCUMENT: dict | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
@@ -137,12 +146,17 @@ def _verify_runtime_config(cfg: Config, *, context: str, profile: str = DEFAULT_
     client = _get_client_for_config(cfg)
     try:
         response = run_with_spinner(client.request("GET", "/api/status/"))
-    except Exception as exc:
+    except _VERIFY_REQUEST_ERRORS as exc:
         if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
             _prompt_ssl_verify_if_unset(cfg, profile)
             client = _get_client_for_config(cfg)
             response = run_with_spinner(client.request("GET", "/api/status/"))
         else:
+            logger.error(
+                "runtime config verification request failed: %s",
+                exc,
+                extra={"nbx_event": "cli_verify_status_failed", "profile": profile},
+            )
             raise
     if response.status >= 400:
         detail = response.text.strip() or f"HTTP {response.status}"
@@ -197,11 +211,16 @@ def _ensure_profile_config(profile: str) -> Config:
     client = _get_client_for_config(cfg)
     try:
         run_with_spinner(client.request("GET", "/api/status/"))
-    except Exception as exc:
+    except _VERIFY_REQUEST_ERRORS as exc:
         if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
             _prompt_ssl_verify_if_unset(cfg, profile)
             run_with_spinner(_get_client_for_config(cfg).request("GET", "/api/status/"))
         else:
+            logger.error(
+                "post-save status check failed: %s",
+                exc,
+                extra={"nbx_event": "cli_post_save_verify_failed", "profile": profile},
+            )
             raise
     return cfg
 
@@ -221,11 +240,16 @@ def _repair_demo_profile_if_needed(cfg: Config) -> Config:
     client = _get_client_for_config(cfg)
     try:
         response = run_with_spinner(client.request("GET", "/api/status/"))
-    except Exception as exc:
+    except _VERIFY_REQUEST_ERRORS as exc:
         if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
             _prompt_ssl_verify_if_unset(cfg, DEMO_PROFILE)
             response = run_with_spinner(_get_client_for_config(cfg).request("GET", "/api/status/"))
         else:
+            logger.error(
+                "demo repair status check failed: %s",
+                exc,
+                extra={"nbx_event": "cli_demo_repair_status_failed"},
+            )
             raise
     if response.status < 400 or "invalid v1 token" not in response.text.lower():
         return cfg
@@ -235,14 +259,22 @@ def _repair_demo_profile_if_needed(cfg: Config) -> Config:
         from netbox_sdk.demo_auth import refresh_demo_profile  # noqa: PLC0415
 
         refreshed = refresh_demo_profile(cfg, headless=True)
-    except Exception:
-        logger.exception("demo profile token refresh failed")
+    except (RuntimeError, OSError, ValueError) as exc:
+        logger.exception(
+            "demo profile token refresh failed: %s",
+            exc,
+            extra={"nbx_event": "cli_demo_token_refresh_failed"},
+        )
         return cfg
 
     try:
         save_profile_config(DEMO_PROFILE, refreshed)
-    except Exception:
-        logger.exception("failed to persist repaired demo profile")
+    except OSError as exc:
+        logger.exception(
+            "failed to persist repaired demo profile: %s",
+            exc,
+            extra={"nbx_event": "cli_demo_profile_save_failed"},
+        )
         return cfg
 
     typer.echo("Demo token was refreshed automatically.")

@@ -14,21 +14,25 @@ pytestmark = pytest.mark.suite_sdk
 def test_setup_logging_writes_json_lines(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
 
-    logger = logging.getLogger("netbox_cli")
-    for handler in list(logger.handlers):
-        logger.removeHandler(handler)
-        handler.close()
+    for name in ("netbox_cli", "netbox_sdk"):
+        lg = logging.getLogger(name)
+        for handler in list(lg.handlers):
+            lg.removeHandler(handler)
+            handler.close()
     logging_runtime._LOGGING_INITIALIZED = False
 
     path = logging_runtime.setup_logging()
     logging.getLogger("netbox_cli.test").info("hello from test")
+    logging.getLogger("netbox_sdk.test").info("hello from sdk")
 
     entries = logging_runtime.read_log_entries(limit=10)
 
     assert path.exists()
     assert entries
-    assert entries[-1].logger == "netbox_cli.test"
-    assert entries[-1].message == "hello from test"
+    assert entries[-2].logger == "netbox_cli.test"
+    assert entries[-2].message == "hello from test"
+    assert entries[-1].logger == "netbox_sdk.test"
+    assert entries[-1].message == "hello from sdk"
 
 
 def test_render_log_entries_includes_source_metadata() -> None:

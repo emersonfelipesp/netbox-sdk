@@ -45,6 +45,19 @@ def typed_api(
     *,
     netbox_version: SupportedNetBoxVersion | str,
 ) -> TypedApiClient:
+    """Return a version-specific typed NetBox client (Pydantic request/response models).
+
+    Args:
+        url: NetBox base URL.
+        token: API token (same rules as :func:`netbox_sdk.facade.api`).
+        netbox_version: Supported release line, e.g. ``"4.5"`` or ``"v4.4"``.
+
+    Returns:
+        Generated typed API for the requested NetBox line.
+
+    Raises:
+        UnsupportedNetBoxVersionError: If ``netbox_version`` is not a supported line.
+    """
     version = normalize_netbox_version(netbox_version)
     module_name = f"netbox_sdk.typed_versions.v{version_module_suffix(version)}"
     module = import_module(module_name)

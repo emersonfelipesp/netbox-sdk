@@ -650,6 +650,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         try:
             response = await self.client.request("GET", trace_path)
         except Exception:
+            logger.debug(
+                "trace request failed for %s",
+                trace_path,
+                extra={"nbx_event": "tui_trace_request_failed", "request_path": trace_path},
+                exc_info=True,
+            )
             panel.set_trace(None)
             return
 

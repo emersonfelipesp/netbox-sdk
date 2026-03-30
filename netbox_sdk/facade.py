@@ -3,15 +3,24 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
 
-from netbox_sdk.client import ApiResponse, NetBoxApiClient, RequestError
+from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
+from netbox_sdk.exceptions import (
+    AllocationError,
+    ContentError,
+    ParameterValidationError,
+    RequestError,
+)
 from netbox_sdk.schema import ResourcePaths, SchemaIndex, build_schema_index, parse_group_resource
+
+logger = logging.getLogger(__name__)
 
 APP_NAMES = (
     "circuits",
@@ -27,24 +36,6 @@ APP_NAMES = (
 )
 
 
-class ContentError(RuntimeError):
-    def __init__(self, response: ApiResponse) -> None:
-        self.response = response
-        super().__init__("The server returned invalid (non-json) data.")
-
-
-class AllocationError(RuntimeError):
-    def __init__(self, response: ApiResponse) -> None:
-        self.response = response
-        super().__init__("The requested allocation could not be fulfilled.")
-
-
-class ParameterValidationError(ValueError):
-    def __init__(self, errors: list[str] | str) -> None:
-        self.error = errors
-        super().__init__(f"The request parameter validation returned an error: {errors}")
-
-
 def _is_v2_token(token: str | None) -> bool:
     return bool(token and token.startswith("nbt_") and "." in token)
 
@@ -57,6 +48,18 @@ def api(
     client: NetBoxApiClient | None = None,
     schema: SchemaIndex | None = None,
 ) -> Api:
+    """Build a high-level async NetBox API wrapper (PyNetBox-style).
+
+    Args:
+        url: NetBox base URL (with or without trailing slash).
+        token: API token (v1 ``Token`` or v2 ``nbt_`` form). Ignored if ``client`` is passed.
+        strict_filters: When True, unknown filter keys raise instead of being dropped.
+        client: Optional pre-built :class:`~netbox_sdk.client.NetBoxApiClient`.
+        schema: Optional pre-built OpenAPI index (defaults to bundled schema).
+
+    Returns:
+        Root :class:`Api` instance with app attributes (``dcim``, ``ipam``, etc.).
+    """
     if client is None:
         token_version = "v2" if _is_v2_token(token) else "v1"
         token_key = None
@@ -72,6 +75,14 @@ def api(
                 token_key=token_key,
                 token_secret=token_secret,
             )
+        )
+        logger.debug(
+            "api() built default client",
+            extra={
+                "nbx_event": "facade_api_init",
+                "token_version": token_version,
+                "strict_filters": strict_filters,
+            },
         )
     return Api(client=client, schema=schema, strict_filters=strict_filters)
 

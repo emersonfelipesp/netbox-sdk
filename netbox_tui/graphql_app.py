@@ -1001,7 +1001,15 @@ class NetBoxGraphqlTuiApp(App[None]):
                 errors = parsed.get("errors")
                 if isinstance(errors, list) and errors:
                     errors_summary = self._graphql_error_summary(errors)
-        except Exception:  # noqa: BLE001
+        except (TypeError, ValueError, json.JSONDecodeError):
+            logger.debug(
+                "graphql tui could not parse response as json object",
+                extra={
+                    "nbx_event": "tui_graphql_response_parse_failed",
+                    "http_status": response.status,
+                },
+                exc_info=True,
+            )
             payload = None
 
         theme = self._theme_definition()

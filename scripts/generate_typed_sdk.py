@@ -239,6 +239,12 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
             per_group_resources[group][resource_key].append(spec)
 
     imports = [
+        '"""',
+        f"Auto-generated typed NetBox {version} API bindings from OpenAPI.",
+        "",
+        "Do not edit by hand. Regenerate with scripts/generate_typed_sdk.py.",
+        '"""',
+        "",
         "from __future__ import annotations",
         "",
         "from typing import Any, Literal",
@@ -272,7 +278,10 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         for resource_key, operations in sorted(per_group_resources[group].items()):
             resource_name, _, action_name = resource_key.partition(":")
             class_name = pascal_case(f"{group}_{resource_name}_{action_name or 'endpoint'}")
-            lines = [f"class {class_name}(TypedAppBase):"]
+            lines = [
+                f"class {class_name}(TypedAppBase):",
+                f'    """Typed OpenAPI resource `{group}/{resource_key}` for NetBox {version}."""',
+            ]
             lines.append("    def __init__(self, api: TypedApiBase) -> None:")
             lines.append("        super().__init__(api)")
             lines.append("")
@@ -336,6 +345,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         app_class_name = pascal_case(f"{group}_app")
         lines = [
             f"class {app_class_name}(TypedAppBase):",
+            f'    """Typed API group `{group}` for NetBox {version}."""',
             "    def __init__(self, api: TypedApiBase) -> None:",
             "        super().__init__(api)",
             "",
@@ -356,6 +366,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
     api_class_name = f"TypedApiV{suffix}"
     api_lines = [
         f"class {api_class_name}(TypedApiBase):",
+        f'    """Root typed client for NetBox release line {version!r}."""',
         "    def __init__(self, client: NetBoxApiClient) -> None:",
         f"        super().__init__(client=client, netbox_version={version!r})",
         *api_assignments,
@@ -363,6 +374,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
     ]
     factory_lines = [
         f"def build_api(url: str, token: str | None = None) -> {api_class_name}:",
+        f'    """Build :class:`{api_class_name}` using the shared typed HTTP client."""',
         "    client = build_typed_client(url, token)",
         f"    return {api_class_name}(client)",
         "",
@@ -401,6 +413,24 @@ def generate_models(version: str, input_path: Path, output_path: Path) -> None:
     )
 
 
+def _prepend_models_module_doc(output_path: Path, version: str) -> None:
+    """Insert a module docstring after datamodel-codegen banner comments."""
+    text = output_path.read_text(encoding="utf-8")
+    if "Pydantic models generated from NetBox" in text[:800]:
+        return
+    lines = text.splitlines(keepends=True)
+    i = 0
+    while i < len(lines) and (lines[i].startswith("#") or lines[i].strip() == ""):
+        i += 1
+    doc = (
+        '"""\n'
+        f"Pydantic models generated from NetBox {version} OpenAPI.\n\n"
+        "Do not edit by hand. Regenerate with scripts/generate_typed_sdk.py.\n"
+        '"""\n\n'
+    )
+    output_path.write_text("".join(lines[:i]) + doc + "".join(lines[i:]), encoding="utf-8")
+
+
 def load_schema(path: Path) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8")
     if path.suffix.lower() in {".yaml", ".yml"}:
@@ -435,6 +465,7 @@ def main() -> None:
         bundled_path.write_text(json.dumps(schema, indent=2), encoding="utf-8")
         model_output = MODELS_ROOT / f"v{version_suffix}.py"
         generate_models(version, bundled_path, model_output)
+        _prepend_models_module_doc(model_output, version)
         typed_output = TYPED_ROOT / f"v{version_suffix}.py"
         typed_output.write_text(build_bindings(version, schema), encoding="utf-8")
 
