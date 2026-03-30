@@ -2772,6 +2772,10 @@
 
 <h1 id="instalacao">Instalação<a class="headerlink" href="#instalacao" title="Permanent link">&para;</a></h1>
 <p>O <code>netbox-sdk</code> requer Python 3.11 ou mais recente.</p>
+<div class="admonition note">
+<p class="admonition-title">Versão documentada</p>
+<p>Este site documenta o <strong>netbox-sdk</strong> <strong>0.0.7.post1</strong>. Use instalações sem pin para a versão mais recente no PyPI; fixe com <code>==0.0.7.post1</code> para coincidir com a versão documentada.</p>
+</div>
 <h2 id="via-pypi">Via PyPI<a class="headerlink" href="#via-pypi" title="Permanent link">&para;</a></h2>
 <p>Somente SDK:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>netbox-sdk
@@ -2787,15 +2791,25 @@ SDK tipado versionado, incluindo <code>pydantic</code> e <code>email-validator</
 <p>Tudo:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;netbox-sdk[all]&#39;</span>
 </span></code></pre></div>
+<p>Instalações fixas para a versão documentada (mesmos extras, versão exata):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>netbox-sdk<span class="o">==</span><span class="m">0</span>.0.7.post1
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;netbox-sdk[cli]==0.0.7.post1&#39;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;netbox-sdk[tui]==0.0.7.post1&#39;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;netbox-sdk[all]==0.0.7.post1&#39;</span>
+</span></code></pre></div>
 <h2 id="com-a-ferramenta-uv">Com a ferramenta uv<a class="headerlink" href="#com-a-ferramenta-uv" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--force<span class="w"> </span><span class="s1">&#39;netbox-sdk[cli]&#39;</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>nbx<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--force<span class="w"> </span><span class="s1">&#39;netbox-sdk[cli]&#39;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>nbx<span class="w"> </span>--help
+</span></code></pre></div>
+<p>Fixado à versão documentada:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--force<span class="w"> </span><span class="s1">&#39;netbox-sdk[cli]==0.0.7.post1&#39;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>nbx<span class="w"> </span>--help
 </span></code></pre></div>
 <h2 id="a-partir-do-codigo-fonte">A partir do código-fonte<a class="headerlink" href="#a-partir-do-codigo-fonte" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/emersonfelipesp/netbox-sdk.git
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">cd</span><span class="w"> </span>netbox-sdk
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui<span class="w"> </span>--extra<span class="w"> </span>demo
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>uv<span class="w"> </span>run<span class="w"> </span>nbx<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/emersonfelipesp/netbox-sdk.git
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">cd</span><span class="w"> </span>netbox-sdk
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui<span class="w"> </span>--extra<span class="w"> </span>demo
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>uv<span class="w"> </span>run<span class="w"> </span>nbx<span class="w"> </span>--help
 </span></code></pre></div>
 <h2 id="suporte-ao-sdk-tipado">Suporte ao SDK tipado<a class="headerlink" href="#suporte-ao-sdk-tipado" title="Permanent link">&para;</a></h2>
 <p>O repositório inclui bundles OpenAPI versionados e modelos Pydantic gerados para
@@ -2809,13 +2823,13 @@ NetBox <code>4.5</code>, <code>4.4</code> e <code>4.3</code>. Não é necessári
 <li><code>pip install 'netbox-sdk[all]'</code> se você quer todas as interfaces disponíveis localmente</li>
 </ul>
 <h2 id="fluxo-do-contribuidor">Fluxo do contribuidor<a class="headerlink" href="#fluxo-do-contribuidor" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>pre-commit<span class="w"> </span>--hook-type<span class="w"> </span>pre-push
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>pre-commit<span class="w"> </span>--hook-type<span class="w"> </span>pre-push
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
 </span></code></pre></div>
 <h2 id="automacao-demo-opcional">Automação demo opcional<a class="headerlink" href="#automacao-demo-opcional" title="Permanent link">&para;</a></h2>
 <p>O <code>nbx demo init</code> usa Playwright. O runtime do navegador deve ser instalado separadamente:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>--from<span class="w"> </span>playwright<span class="w"> </span>playwright<span class="w"> </span>install<span class="w"> </span>chromium<span class="w"> </span>--with-deps
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>--from<span class="w"> </span>playwright<span class="w"> </span>playwright<span class="w"> </span>install<span class="w"> </span>chromium<span class="w"> </span>--with-deps
 </span></code></pre></div>
 
 
