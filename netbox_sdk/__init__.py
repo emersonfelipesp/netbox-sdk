@@ -69,7 +69,7 @@ __all__ = [
     "discover_plugin_resource_paths",
 ]
 
-__version__ = "0.0.7"
+__version__ = "0.0.7.post1"
 
 from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_sdk.config import (
