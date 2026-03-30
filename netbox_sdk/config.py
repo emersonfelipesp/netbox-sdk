@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import stat
@@ -10,6 +11,8 @@ from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, field_validator
+
+logger = logging.getLogger(__name__)
 
 # Matches a URI scheme at the start of a string: one or more letters, digits,
 # +, or - immediately followed by a colon.  Used to detect bare non-HTTP
@@ -100,6 +103,12 @@ class Config(BaseModel):
 
 
 def normalize_base_url(value: str) -> str:
+    """Normalize user input into an ``http``/``https`` URL without credentials or query parts.
+
+    Raises:
+        ValueError: If the URL is empty, uses a disallowed scheme, embeds credentials, or
+            contains control characters.
+    """
     url = value.strip()
     if not url:
         raise ValueError("base_url cannot be empty")
@@ -148,6 +157,7 @@ def _write_private_json(path: Path, payload: dict[str, object]) -> None:
 
 
 def config_dir() -> Path:
+    """Return (and create) the XDG-style config directory for netbox-sdk."""
     root = os.environ.get("XDG_CONFIG_HOME")
     if root:
         cfg_dir = Path(root) / DEFAULT_CONFIG_DIRNAME
@@ -191,10 +201,37 @@ def _load_raw_document() -> dict[str, object]:
         legacy = legacy_config_path()
         if legacy.exists():
             path = legacy
+            logger.debug(
+                "using legacy config path",
+                extra={"nbx_event": "config_legacy_path", "path": str(path)},
+            )
         else:
             return {}
-    loaded = json.loads(path.read_text(encoding="utf-8"))
-    return loaded if isinstance(loaded, dict) else {}
+    try:
+        raw_text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        logger.warning(
+            "config file unreadable: %s",
+            exc,
+            extra={"nbx_event": "config_read_error", "path": str(path)},
+        )
+        return {}
+    try:
+        loaded = json.loads(raw_text)
+    except json.JSONDecodeError as exc:
+        logger.warning(
+            "config file is not valid JSON: %s",
+            exc,
+            extra={"nbx_event": "config_json_error", "path": str(path)},
+        )
+        return {}
+    if not isinstance(loaded, dict):
+        logger.warning(
+            "config file root must be a JSON object",
+            extra={"nbx_event": "config_shape_error", "path": str(path)},
+        )
+        return {}
+    return loaded
 
 
 def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
@@ -213,6 +250,7 @@ def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
 
 
 def load_profile_config(profile: str = DEFAULT_PROFILE) -> Config:
+    """Load ``Config`` for a named profile, merging environment variables for the default profile."""
     stored = _load_raw_document()
 
     # Backward-compatible flat config: treat root fields as the default profile.
@@ -238,6 +276,7 @@ def load_config() -> Config:
 
 
 def save_profile_config(profile: str, cfg: Config) -> None:
+    """Persist ``cfg`` under ``profile`` in the shared config document (private permissions)."""
     path = config_path()
     stored = _load_raw_document()
     profiles: dict[str, object]
@@ -260,6 +299,10 @@ def save_profile_config(profile: str, cfg: Config) -> None:
         serialized["base_url"] = DEMO_BASE_URL
     profiles[profile] = serialized
     _write_private_json(path, {"profiles": profiles})
+    logger.info(
+        "saved profile config",
+        extra={"nbx_event": "config_save", "profile": profile, "path": str(path)},
+    )
 
 
 def save_config(cfg: Config) -> None:

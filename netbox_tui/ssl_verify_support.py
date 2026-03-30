@@ -17,7 +17,10 @@ from netbox_sdk.config import (
     save_profile_config,
 )
 from netbox_sdk.http_ssl import is_certificate_verify_failure_text
+from netbox_sdk.logging_runtime import get_logger
 from netbox_tui.widgets import NbxButton
+
+logger = get_logger(__name__)
 
 
 def profile_for_netbox_client(client: NetBoxApiClient, *, demo_mode: bool = False) -> str:
@@ -40,7 +43,11 @@ def persist_ssl_verify_choice(client: NetBoxApiClient, profile: str, *, disable:
 
         _cache_profile(profile, client.config)
     except Exception:
-        pass
+        logger.debug(
+            "could not sync ssl_verify choice to CLI runtime cache",
+            extra={"nbx_event": "tui_ssl_verify_cache_sync_failed", "profile": profile},
+            exc_info=True,
+        )
 
 
 class SslVerifyModal(ModalScreen[str | None]):

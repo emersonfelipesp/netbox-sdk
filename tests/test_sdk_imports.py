@@ -27,6 +27,7 @@ def test_sdk_top_level_imports() -> None:
         Endpoint,
         FilterParam,
         HttpCacheStore,
+        JsonPayloadError,
         NetBoxApiClient,
         Operation,
         ParameterValidationError,

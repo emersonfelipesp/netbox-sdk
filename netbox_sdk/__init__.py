@@ -38,6 +38,7 @@ __all__ = [
     "ContentError",
     "AllocationError",
     "ParameterValidationError",
+    "JsonPayloadError",
     "typed_api",
     "SupportedNetBoxVersion",
     "SUPPORTED_NETBOX_VERSIONS",
@@ -68,9 +69,9 @@ __all__ = [
     "discover_plugin_resource_paths",
 ]
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 
-from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient, RequestError
+from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_BASE_URL,
@@ -88,14 +89,18 @@ from netbox_sdk.config import (
     save_config,
     save_profile_config,
 )
-from netbox_sdk.facade import (
+from netbox_sdk.exceptions import (
     AllocationError,
+    ContentError,
+    JsonPayloadError,
+    ParameterValidationError,
+    RequestError,
+)
+from netbox_sdk.facade import (
     Api,
     App,
-    ContentError,
     DetailEndpoint,
     Endpoint,
-    ParameterValidationError,
     PluginsApp,
     Record,
     RecordSet,

@@ -14,11 +14,14 @@ Usage::
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 from netbox_sdk.config import config_path, legacy_config_path
 from netbox_sdk.django_models.parser import build_model_graph, parse_netbox_models
+
+logger = logging.getLogger(__name__)
 
 
 def _default_cache_path() -> Path:
@@ -54,7 +57,14 @@ class DjangoModelStore:
     def load(self) -> dict[str, Any]:
         """Load cached graph data.  Raises FileNotFoundError if missing."""
         path = self._path if self._path.exists() else self._fallback_path
-        return json.loads(path.read_text(encoding="utf-8"))
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            logger.warning(
+                "django model cache is not valid JSON",
+                extra={"nbx_event": "django_models_cache_json_error", "path": str(path)},
+            )
+            raise
 
     def build(
         self,
@@ -75,6 +85,10 @@ class DjangoModelStore:
         if apps is None:
             apps = _DEFAULT_APPS
 
+        logger.info(
+            "building django model graph",
+            extra={"nbx_event": "django_models_build", "netbox_root": str(netbox_root)},
+        )
         models = parse_netbox_models(netbox_root, apps=apps)
         graph = build_model_graph(models)
 
