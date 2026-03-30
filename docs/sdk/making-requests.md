@@ -139,6 +139,25 @@ cfg = Config(base_url="https://netbox.example.com", token_version="v1", token_se
 client = NetBoxApiClient(cfg)
 ```
 
+### HTTPS and TLS verification
+
+`Config` accepts optional `ssl_verify`:
+
+- Omitted or `None`: verify HTTPS certificates (default), with CLI/TUI prompts on first verification failure if you have not stored a preference yet.
+- `True` / `False`: always verify or disable verification for HTTPS (no interactive prompt on failure).
+
+```python
+cfg = Config(
+    base_url="https://netbox.example.com",
+    token_version="v1",
+    token_secret="mytoken",
+    ssl_verify=False,  # only for trusted lab instances; insecure on untrusted networks
+)
+client = NetBoxApiClient(cfg)
+```
+
+For environment variables, saved profiles, and interactive recovery, see [Configuration — HTTPS and TLS verification](../getting-started/configuration.md#https-and-tls-verification).
+
 ### GET — list resources
 
 ```python

@@ -17,13 +17,13 @@ jobs:
       tui: ${{ steps.filter.outputs.tui }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Detect changed areas
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             run_all:
@@ -50,6 +50,7 @@ jobs:
               - 'tests/test_sdk_pynetbox_parity.py'
               - 'tests/test_services.py'
               - 'tests/test_typed_sdk.py'
+              - 'tests/test_security_sdk.py'
             cli:
               - 'netbox_cli/**'
               - 'tests/test_cli_error_handling.py'
@@ -61,6 +62,7 @@ jobs:
               - 'tests/test_graphql.py'
               - 'tests/test_instance_isolation.py'
               - 'tests/test_markdown_output.py'
+              - 'tests/test_security_cli.py'
             tui:
               - 'netbox_tui/**'
               - 'tests/test_cli_tui.py'
@@ -72,6 +74,7 @@ jobs:
               - 'tests/test_no_hardcoded_colors.py'
               - 'tests/test_theme_registry.py'
               - 'tests/test_tui_interaction.py'
+              - 'tests/test_security_tui.py'
 
   test-sdk:
     name: sdk suite / Python ${{ matrix.python-version }}
@@ -84,15 +87,15 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
         run: uv sync --dev --extra cli --extra tui --extra demo --locked
@@ -111,15 +114,15 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
         run: uv sync --dev --extra cli --extra tui --extra demo --locked
@@ -138,15 +141,15 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
         run: uv sync --dev --extra cli --extra tui --extra demo --locked
@@ -165,15 +168,15 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
         run: uv sync --dev --extra cli --extra tui --extra demo --locked

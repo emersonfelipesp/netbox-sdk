@@ -3,12 +3,23 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
+import re
 import stat
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, field_validator
+
+logger = logging.getLogger(__name__)
+
+# Matches a URI scheme at the start of a string: one or more letters, digits,
+# +, or - immediately followed by a colon.  Used to detect bare non-HTTP
+# schemes (javascript:, data:, file:, …) before the auto-https prefix step.
+# We only treat single-word tokens (no dots) as real URI schemes, because a
+# string like "netbox.example.com:8080" should be auto-prefixed, not rejected.
+_BARE_SCHEME_RE = re.compile(r"^([a-zA-Z][a-zA-Z0-9+\-]*):", re.ASCII)
 
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_CONFIG_DIRNAME = "netbox-sdk"
@@ -20,6 +31,7 @@ TOKEN_SECRET_ENV_VAR = "NETBOX_TOKEN_SECRET"
 BASE_URL_ENV_VAR = "NETBOX_URL"
 DEMO_USERNAME_ENV_VAR = "DEMO_USERNAME"
 DEMO_PASSWORD_ENV_VAR = "DEMO_PASSWORD"
+SSL_VERIFY_ENV_VAR = "NETBOX_SSL_VERIFY"
 DEFAULT_PROFILE = "default"
 DEMO_PROFILE = "demo"
 DEMO_BASE_URL = "https://demo.netbox.dev"
@@ -33,6 +45,7 @@ class Config(BaseModel):
     demo_username: str | None = None
     demo_password: str | None = None
     timeout: float = DEFAULT_TIMEOUT
+    ssl_verify: bool | None = None
 
     @field_validator("base_url", mode="before")
     @classmethod
@@ -56,6 +69,9 @@ class Config(BaseModel):
         if v is None:
             return None
         s = str(v).strip()
+        # Strip CR, LF, and null bytes so token values cannot inject extra
+        # lines into HTTP Authorization headers.
+        s = s.translate(str.maketrans("", "", "\r\n\x00"))
         return s if s else None
 
     @field_validator("timeout", mode="before")
@@ -66,12 +82,46 @@ class Config(BaseModel):
         except (TypeError, ValueError):
             return DEFAULT_TIMEOUT
 
+    @field_validator("ssl_verify", mode="before")
+    @classmethod
+    def _coerce_optional_bool(cls, v: object) -> bool | None:
+        if v is None or v == "":
+            return None
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            if v == 1:
+                return True
+            if v == 0:
+                return False
+        s = str(v).strip().lower()
+        if s in {"1", "true", "yes", "on"}:
+            return True
+        if s in {"0", "false", "no", "off"}:
+            return False
+        return None
+
 
 def normalize_base_url(value: str) -> str:
+    """Normalize user input into an ``http``/``https`` URL without credentials or query parts.
+
+    Raises:
+        ValueError: If the URL is empty, uses a disallowed scheme, embeds credentials, or
+            contains control characters.
+    """
     url = value.strip()
     if not url:
         raise ValueError("base_url cannot be empty")
+    if any(c in url for c in ("\r", "\n", "\x00")):
+        raise ValueError("base_url must not contain control characters")
+    # Detect bare non-HTTP schemes (javascript:, data:, file:, etc.) before
+    # the auto-https prefix step.  We only flag single-word scheme tokens
+    # (no dots) so that bare hostnames like "netbox.example.com:8080" are
+    # still auto-prefixed rather than rejected.
     if "://" not in url:
+        m = _BARE_SCHEME_RE.match(url)
+        if m and m.group(1).lower() not in {"http", "https"}:
+            raise ValueError("base_url must use http or https")
         url = f"https://{url}"
     parsed = urlsplit(url)
     scheme = parsed.scheme.lower()
@@ -107,6 +157,7 @@ def _write_private_json(path: Path, payload: dict[str, object]) -> None:
 
 
 def config_dir() -> Path:
+    """Return (and create) the XDG-style config directory for netbox-sdk."""
     root = os.environ.get("XDG_CONFIG_HOME")
     if root:
         cfg_dir = Path(root) / DEFAULT_CONFIG_DIRNAME
@@ -132,16 +183,55 @@ def cache_dir() -> Path:
     return config_path().parent / DEFAULT_HTTP_CACHE_DIRNAME
 
 
+def _parse_ssl_verify_env() -> bool | None:
+    raw = os.environ.get(SSL_VERIFY_ENV_VAR)
+    if raw is None:
+        return None
+    s = str(raw).strip().lower()
+    if s in ("1", "true", "yes", "on"):
+        return True
+    if s in ("0", "false", "no", "off"):
+        return False
+    return None
+
+
 def _load_raw_document() -> dict[str, object]:
     path = config_path()
     if not path.exists():
         legacy = legacy_config_path()
         if legacy.exists():
             path = legacy
+            logger.debug(
+                "using legacy config path",
+                extra={"nbx_event": "config_legacy_path", "path": str(path)},
+            )
         else:
             return {}
-    loaded = json.loads(path.read_text(encoding="utf-8"))
-    return loaded if isinstance(loaded, dict) else {}
+    try:
+        raw_text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        logger.warning(
+            "config file unreadable: %s",
+            exc,
+            extra={"nbx_event": "config_read_error", "path": str(path)},
+        )
+        return {}
+    try:
+        loaded = json.loads(raw_text)
+    except json.JSONDecodeError as exc:
+        logger.warning(
+            "config file is not valid JSON: %s",
+            exc,
+            extra={"nbx_event": "config_json_error", "path": str(path)},
+        )
+        return {}
+    if not isinstance(loaded, dict):
+        logger.warning(
+            "config file root must be a JSON object",
+            extra={"nbx_event": "config_shape_error", "path": str(path)},
+        )
+        return {}
+    return loaded
 
 
 def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
@@ -152,10 +242,15 @@ def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
         raw["token_secret"] = raw.get("token_secret") or os.environ.get(TOKEN_SECRET_ENV_VAR)
     raw["demo_username"] = raw.get("demo_username") or os.environ.get(DEMO_USERNAME_ENV_VAR)
     raw["demo_password"] = raw.get("demo_password") or os.environ.get(DEMO_PASSWORD_ENV_VAR)
+    if apply_env:
+        env_ssl = _parse_ssl_verify_env()
+        if env_ssl is not None:
+            raw["ssl_verify"] = env_ssl
     return Config.model_validate(raw)
 
 
 def load_profile_config(profile: str = DEFAULT_PROFILE) -> Config:
+    """Load ``Config`` for a named profile, merging environment variables for the default profile."""
     stored = _load_raw_document()
 
     # Backward-compatible flat config: treat root fields as the default profile.
@@ -181,6 +276,7 @@ def load_config() -> Config:
 
 
 def save_profile_config(profile: str, cfg: Config) -> None:
+    """Persist ``cfg`` under ``profile`` in the shared config document (private permissions)."""
     path = config_path()
     stored = _load_raw_document()
     profiles: dict[str, object]
@@ -192,6 +288,7 @@ def save_profile_config(profile: str, cfg: Config) -> None:
                 "token_key": stored.get("token_key"),
                 "token_secret": stored.get("token_secret"),
                 "timeout": stored.get("timeout") or DEFAULT_TIMEOUT,
+                "ssl_verify": stored.get("ssl_verify"),
             }
         }
     else:
@@ -202,6 +299,10 @@ def save_profile_config(profile: str, cfg: Config) -> None:
         serialized["base_url"] = DEMO_BASE_URL
     profiles[profile] = serialized
     _write_private_json(path, {"profiles": profiles})
+    logger.info(
+        "saved profile config",
+        extra={"nbx_event": "config_save", "profile": profile, "path": str(path)},
+    )
 
 
 def save_config(cfg: Config) -> None:

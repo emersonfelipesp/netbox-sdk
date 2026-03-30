@@ -30,13 +30,12 @@ from netbox_cli.runtime import (
     _cache_profile,
     _ensure_runtime_config,
     _get_client,
+    _get_client_for_config,
     _get_index,
+    _retry_probe_after_ssl_prompt,
 )
 from netbox_cli.runtime import (
     _ensure_demo_runtime_config as _ensure_demo_runtime_config,
-)
-from netbox_cli.runtime import (
-    _get_client_for_config as _get_client_for_config,
 )
 from netbox_cli.runtime import (
     _get_demo_client as _get_demo_client,
@@ -52,6 +51,7 @@ from netbox_cli.support import (
     load_tui_callables,
     print_response,
     resolve_output_format,
+    resolve_requested_theme,
     rethrow_theme_catalog_error,
     run_with_spinner,
 )
@@ -156,6 +156,11 @@ def init_command(
         ..., prompt=True, hide_input=True, help="NetBox API token secret"
     ),
     timeout: float = typer.Option(30.0, help="HTTP timeout in seconds"),
+    verify_ssl: bool | None = typer.Option(
+        None,
+        "--verify-ssl/--no-verify-ssl",
+        help="HTTPS TLS certificate verification (default: verify; omit to leave unset until first failure)",
+    ),
 ) -> None:
     """Create or update the default NetBox SDK profile."""
     cfg = Config(
@@ -163,6 +168,7 @@ def init_command(
         token_key=token_key.strip() or None,
         token_secret=token_secret.strip() or None,
         timeout=timeout,
+        ssl_verify=verify_ssl,
     )
     save_config(cfg)
     _cache_profile(DEFAULT_PROFILE, cfg)
@@ -179,6 +185,7 @@ def config_command(
         "base_url": cfg.base_url,
         "timeout": cfg.timeout,
         "token_version": cfg.token_version,
+        "ssl_verify": cfg.ssl_verify,
     }
     if show_token:
         payload["token"] = resolved_token(cfg)
@@ -211,8 +218,9 @@ def test_command(
         fetch_and_build,
     )
 
-    _ensure_runtime_config()
-    probe = run_with_spinner(_get_client().probe_connection())
+    cfg = _ensure_runtime_config()
+    probe = run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    probe = _retry_probe_after_ssl_prompt(cfg, DEFAULT_PROFILE, probe)
     if not probe.ok:
         detail = probe.error or f"HTTP {probe.status}"
         typer.echo(f"Connection failed: {detail}", err=True)
@@ -278,21 +286,7 @@ def operations_command(
     console.print(table)
 
 
-@app.command("graphql")
-def graphql_command(
-    query: str = typer.Argument(..., help="GraphQL query string"),
-    variables: list[str] = typer.Option(
-        None,
-        "--variables",
-        "-v",
-        help="GraphQL variables: one JSON object, or repeat for multiple key=value pairs",
-    ),
-    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
-    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
-) -> None:
-    """Execute a GraphQL query against the NetBox API."""
-    client = _get_client()
-
+def _graphql_variables_from_pairs(variables: list[str] | None) -> dict[str, Any] | None:
     vars_dict: dict[str, Any] | None = None
     pairs = variables or []
     if pairs:
@@ -314,13 +308,83 @@ def graphql_command(
                 vars_dict = parse_key_value_pairs(pairs)
             except ValueError as exc:
                 raise typer.BadParameter(str(exc)) from exc
+    return vars_dict
 
+
+def _run_graphql_cli_query(
+    *,
+    client: Any,
+    query: str,
+    variables: list[str] | None,
+    output_json: bool,
+    output_yaml: bool,
+) -> None:
+    vars_dict = _graphql_variables_from_pairs(variables)
     response = run_with_spinner(client.graphql(query, vars_dict))
     print_response(
         response.status,
         response.text,
         as_json=output_json,
         as_yaml=output_yaml,
+    )
+
+
+@app.command("graphql", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def graphql_command(
+    ctx: typer.Context,
+    query: str = typer.Argument(
+        ..., help="GraphQL query string, or 'tui' to launch the GraphQL TUI"
+    ),
+    variables: list[str] = typer.Option(
+        None,
+        "--variables",
+        "-v",
+        help="GraphQL variables: one JSON object, or repeat for multiple key=value pairs",
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
+    output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="For `nbx graphql tui`: list available themes or launch with `--theme <name>`.",
+    ),
+) -> None:
+    """Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI."""
+    if query == "tui":
+        available_theme_names, resolve_theme_name, run_graphql_tui = load_tui_callables(
+            "netbox_tui.graphql_app",
+            "available_theme_names",
+            "resolve_theme_name",
+            "run_graphql_tui",
+        )
+
+        selected_theme = resolve_requested_theme(
+            ctx,
+            theme=theme,
+            available_theme_names=available_theme_names,
+            resolve_theme_name=resolve_theme_name,
+            usage="nbx graphql tui --theme <name>",
+        )
+        if theme and not ctx.args:
+            return
+        if variables or output_json or output_yaml:
+            raise typer.BadParameter(
+                "--variables, --json, and --yaml are only valid for GraphQL query execution."
+            )
+        try:
+            run_graphql_tui(client=_get_client(), theme_name=selected_theme)
+        except Exception as exc:
+            rethrow_theme_catalog_error(exc)
+        return
+
+    if theme:
+        raise typer.BadParameter("--theme is only supported for `nbx graphql tui`.")
+    _run_graphql_cli_query(
+        client=_get_client(),
+        query=query,
+        variables=variables,
+        output_json=output_json,
+        output_yaml=output_yaml,
     )
 
 

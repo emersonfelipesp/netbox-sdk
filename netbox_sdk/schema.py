@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
 from netbox_sdk.versioning import SupportedNetBoxVersion, bundled_openapi_path
+
+logger = logging.getLogger(__name__)
 
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options"}
 
@@ -52,6 +55,8 @@ class FilterParam(BaseModel):
 
 
 class Operation(BaseModel):
+    """One HTTP operation derived from OpenAPI (method, path, ids)."""
+
     model_config = ConfigDict(frozen=True)
 
     group: str
@@ -84,6 +89,8 @@ def _classify_param(schema: dict[str, Any]) -> tuple[str, tuple[str, ...]]:
 
 
 class SchemaIndex:
+    """In-memory index of NetBox OpenAPI paths, operations, and resource route templates."""
+
     def __init__(self, schema: dict[str, Any]) -> None:
         self.schema = schema
         self.operations: list[Operation] = []
@@ -91,6 +98,7 @@ class SchemaIndex:
         self._build()
 
     def _build(self) -> None:
+        """Populate operations and resource path maps from ``self.schema``."""
         resource_paths: dict[tuple[str, str], dict[str, str | None]] = {}
         paths = self.schema.get("paths")
         if not isinstance(paths, dict):
@@ -138,17 +146,21 @@ class SchemaIndex:
         }
 
     def groups(self) -> list[str]:
+        """Sorted unique top-level API groups (e.g. ``dcim``, ``ipam``)."""
         return sorted({item.group for item in self.operations})
 
     def resources(self, group: str) -> list[str]:
+        """Sorted resource names for a given ``group``."""
         return sorted({item.resource for item in self.operations if item.group == group})
 
     def operations_for(self, group: str, resource: str) -> list[Operation]:
+        """All indexed operations for ``group`` / ``resource``."""
         return [
             item for item in self.operations if item.group == group and item.resource == resource
         ]
 
     def resource_paths(self, group: str, resource: str) -> ResourcePaths | None:
+        """List and detail path templates when present in the schema."""
         return self._resource_paths.get((group, resource))
 
     def filter_params(self, group: str, resource: str) -> list[FilterParam]:
@@ -295,6 +307,7 @@ class SchemaIndex:
 
 
 def parse_group_resource(path: str) -> tuple[str | None, str | None]:
+    """Split an OpenAPI path into ``(group, resource)`` for core and plugin routes."""
     parts = [part for part in path.split("/") if part]
     if len(parts) < 3 or parts[0] != "api":
         return None, None
@@ -327,12 +340,22 @@ def load_openapi_schema(
     *,
     version: SupportedNetBoxVersion | None = None,
 ) -> dict[str, Any]:
+    """Load a NetBox OpenAPI document from disk (JSON or YAML).
+
+    Raises:
+        RuntimeError: If YAML is requested but PyYAML is not installed.
+        ValueError: If the document is not a JSON object at the top level.
+    """
     if openapi_path is None:
         openapi_path = (
             bundled_openapi_path(version or "4.5")
             if version
             else (Path(__file__).resolve().parent / "reference" / "openapi" / "netbox-openapi.json")
         )
+    logger.debug(
+        "loading openapi schema",
+        extra={"nbx_event": "schema_load", "path": str(openapi_path)},
+    )
     text = openapi_path.read_text(encoding="utf-8")
     if openapi_path.suffix.lower() in {".yaml", ".yml"}:
         try:
@@ -352,4 +375,5 @@ def build_schema_index(
     *,
     version: SupportedNetBoxVersion | None = None,
 ) -> SchemaIndex:
+    """Load OpenAPI from ``openapi_path`` (or bundled default) and build a :class:`SchemaIndex`."""
     return SchemaIndex(load_openapi_schema(openapi_path, version=version))

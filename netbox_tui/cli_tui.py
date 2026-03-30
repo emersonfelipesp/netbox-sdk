@@ -55,6 +55,7 @@ from netbox_tui.chrome import (
     update_clock_widget,
 )
 from netbox_tui.cli_completions import CliCommandNode, nbx_root_command_nodes
+from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.state import TuiState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
 
@@ -268,9 +269,11 @@ class NbxCliTuiApp(App[None]):
         index: SchemaIndex,
         executor: Callable[[list[str]], tuple[int, str]],
         theme_name: str | None = None,
+        demo_mode: bool = False,
     ) -> None:
         super().__init__()
         self.client = client
+        self._demo_mode = demo_mode
         self._index = index
         self._executor = executor
         self._state_scope = self.client.config.base_url
@@ -1017,6 +1020,9 @@ class NbxCliTuiApp(App[None]):
     async def _probe_connection_health(self) -> None:
         self._set_connection_badge_checking()
         probe = await self._run_connection_probe()
+        probe = await maybe_resolve_ssl_verify_interactive(
+            self, self.client, probe, demo_mode=self._demo_mode
+        )
         self._last_connection_probe = probe
         self._render_connection_status(probe)
 
@@ -1105,6 +1111,7 @@ def run_cli_tui(
                     index=index,
                     executor=_nbx_cli_execute,
                     theme_name=next_theme,
+                    demo_mode=demo_mode,
                 )
                 result = app.run()
                 if result == SWITCH_TO_MAIN_TUI:

@@ -8,7 +8,7 @@ import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Any, TypeAlias
+from typing import IO, TYPE_CHECKING, Any, TypeAlias
 from urllib.parse import urljoin, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -21,7 +21,18 @@ from netbox_sdk.config import (
     cache_dir,
     load_profile_config,
 )
-from netbox_sdk.http_cache import CachePolicy, HttpCacheStore, QueryParams, build_cache_key
+from netbox_sdk.exceptions import RequestError
+from netbox_sdk.http_cache import (
+    CacheEntry,
+    CachePolicy,
+    HttpCacheStore,
+    QueryParams,
+    build_cache_key,
+)
+from netbox_sdk.http_ssl import connector_for_config
+
+if TYPE_CHECKING:
+    import aiohttp
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +49,8 @@ class ApiResponse(BaseModel):
     headers: dict[str, str] = Field(default_factory=dict)
 
     def json(self) -> JSONValue:
+        """Parse the response body as JSON (scalar, object, or array)."""
         return json.loads(self.text)
-
-
-class RequestError(RuntimeError):
-    def __init__(self, response: ApiResponse) -> None:
-        self.response = response
-        super().__init__(f"Request failed with status {response.status}")
 
 
 class ConnectionProbe(BaseModel):
@@ -55,6 +61,8 @@ class ConnectionProbe(BaseModel):
 
 
 class NetBoxApiClient:
+    """Async NetBox REST client with optional HTTP cache, TLS options, and demo token refresh."""
+
     def __init__(
         self,
         config: Config,
@@ -67,6 +75,9 @@ class NetBoxApiClient:
         self._default_headers: dict[str, str] = {}
         self._openapi_cache: dict[str, JSONValue] | None = None
         logger.debug("initialized api client for %s", self.config.base_url or "<unset>")
+        bu = self.config.base_url or ""
+        if bu and urlsplit(bu).scheme.lower() == "https" and self.config.ssl_verify is False:
+            logger.warning("HTTPS TLS certificate verification is disabled for %s", bu)
 
     def _default_token_refresh_callback(
         self,
@@ -155,7 +166,11 @@ class NetBoxApiClient:
                     req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
 
         timeout = aiohttp.ClientTimeout(total=self.config.timeout)
-        async with aiohttp.ClientSession(timeout=timeout) as session:
+        connector = connector_for_config(self.config)
+        session_kwargs: dict[str, Any] = {"timeout": timeout}
+        if connector is not None:
+            session_kwargs["connector"] = connector
+        async with aiohttp.ClientSession(**session_kwargs) as session:
             try:
                 response = await self._request_once(
                     session,
@@ -216,7 +231,7 @@ class NetBoxApiClient:
 
     async def _request_once(
         self,
-        session: Any,
+        session: aiohttp.ClientSession,
         *,
         method: str,
         path: str,
@@ -384,7 +399,7 @@ class NetBoxApiClient:
             return False
         return parts[0] == "api"
 
-    def _cached_response(self, entry: Any, *, cache_status: str) -> ApiResponse:
+    def _cached_response(self, entry: CacheEntry, *, cache_status: str) -> ApiResponse:
         status, text, headers = entry.response_parts(cache_status=cache_status)
         return ApiResponse(status=status, text=text, headers=headers)
 
@@ -393,7 +408,7 @@ class NetBoxApiClient:
         *,
         response: ApiResponse,
         cache_key: str | None,
-        cache_entry: Any,
+        cache_entry: CacheEntry | None,
         cache_policy: CachePolicy | None,
     ) -> ApiResponse:
         if cache_policy is None or cache_key is None:
@@ -455,7 +470,11 @@ class NetBoxApiClient:
         path = "/api/schema/"
         try:
             major, minor = (int(part) for part in version.split(".")[:2])
-        except Exception:
+        except (TypeError, ValueError):
+            logger.debug(
+                "could not parse netbox api version %r; assuming schema path /api/schema/",
+                version,
+            )
             major, minor = 999, 0
         if (major, minor) < (3, 5):
             path = "/api/docs/"
@@ -476,11 +495,16 @@ class NetBoxApiClient:
         if 200 <= response.status < 300:
             try:
                 body = response.json()
-            except Exception:
+            except json.JSONDecodeError:
+                logger.debug(
+                    "create_token success body is not json; returning raw response",
+                    extra={"nbx_event": "create_token_non_json", "status": response.status},
+                )
                 return response
-            token_value = body.get("key")
-            if isinstance(token_value, str) and token_value:
-                self.config.token_secret = token_value
+            if isinstance(body, dict):
+                token_value = body.get("key")
+                if isinstance(token_value, str) and token_value:
+                    self.config.token_secret = token_value
         return response
 
     @contextmanager

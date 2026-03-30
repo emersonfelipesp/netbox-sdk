@@ -146,9 +146,11 @@ def generate_command_capture_docs(
 
     engine.write_artifacts(valid, raw_dir)
 
-    # ── Write Markdown capture file ───────────────────────────────────────
+    # ── Write Markdown capture file (EN default + PT mirror) ───────────────
     md_text = _render_markdown_capture(meta, valid)
     output.write_text(md_text, encoding="utf-8")
+    pt_path = output.with_name(f"{output.stem}.pt{output.suffix}")
+    pt_path.write_text(_render_markdown_capture_pt(meta, valid), encoding="utf-8")
 
     # ── Write index.json for the MkDocs hook ──────────────────────────────
     index_data = {
@@ -160,7 +162,7 @@ def generate_command_capture_docs(
         encoding="utf-8",
     )
 
-    print(f"Wrote {output}", file=log)
+    print(f"Wrote {output} and {pt_path}", file=log)
     print(f"Wrote {len(valid)} raw JSON files under {raw_dir}", file=log)
     if skipped:
         print(f"Skipped {len(skipped)} commands (config errors): {skipped}", file=log)
@@ -267,6 +269,92 @@ def _render_markdown_capture(
         lines.append("")
         lines.append("```text")
         lines.append(r.stdout_full.rstrip() or "(empty)")
+        lines.append("```")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def _render_markdown_capture_pt(
+    meta: dict,
+    results: list[CaptureResult],
+) -> str:
+    """Portuguese mirror of `_render_markdown_capture` (terminal output unchanged)."""
+    profile_note = "**perfil demo** (comandos `nbx demo ...` → demo.netbox.dev)"
+
+    lines: list[str] = [
+        "# netbox-sdk — entrada e saída de comandos capturados",
+        "",
+        "Este arquivo é **gerado automaticamente**. Para regenerar:",
+        "",
+        "```bash",
+        "cd /path/to/netbox-sdk",
+        "uv sync --group docs --group dev   # uma vez",
+        "uv run nbx docs generate-capture",
+        "# ou: uv run python docs/generate_command_docs.py",
+        "```",
+        "",
+        "Execute a captura **em segundo plano** (log + pid):",
+        "",
+        "```bash",
+        "./docs/run_capture_in_background.sh",
+        "```",
+        "",
+        "## Metadados de geração",
+        "",
+        f"- **Hora UTC:** `{meta['generated_at']}`",
+        f"- **Perfil usado:** {profile_note}",
+        f"- **URL efetiva do NetBox:** `{meta['netbox_url']}`",
+        f"- **Timeout efetivo (s):** `{meta['timeout']}`",
+        f"- **Token configurado:** `{meta['token_configured']}`",
+        "",
+        (
+            "> A geração de documentação está restrita ao perfil demo. Qualquer dado ao vivo "
+            "mostrado aqui vem de demo.netbox.dev, nunca de uma instância NetBox de produção."
+        ),
+        "",
+        (
+            "> **Comportamento do Typer `CliRunner`:** os banners de ajuda podem mostrar "
+            "`Usage: root` em vez de `Usage: nbx`. O script instalado `nbx` usa o nome correto."
+        ),
+        "",
+        "---",
+        "",
+    ]
+
+    surface_last = ""
+    section_last = ""
+    for r in results:
+        if r.surface != surface_last:
+            lines.append(f"## {r.surface.upper()}")
+            lines.append("")
+            surface_last = r.surface
+            section_last = ""
+        if r.section != section_last:
+            lines.append(f"### {r.section}")
+            lines.append("")
+            section_last = r.section
+
+        cmd_display = "nbx " + " ".join(r.argv)
+        lines.append(f"#### {r.title}")
+        lines.append("")
+        lines.append("**Entrada:**")
+        lines.append("")
+        lines.append("```bash")
+        lines.append(cmd_display)
+        lines.append("```")
+        lines.append("")
+        lines.append(
+            f"**Código de saída:** `{r.exit_code}`  ·  **Tempo de parede (s):** "
+            f"`{r.elapsed_seconds:.3f}`"
+        )
+        lines.append("")
+        lines.append("**Saída:**")
+        lines.append("")
+        lines.append("```text")
+        lines.append(r.stdout_full.rstrip() or "(vazio)")
         lines.append("```")
         lines.append("")
         lines.append("---")

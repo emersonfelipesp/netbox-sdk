@@ -53,6 +53,7 @@ from netbox_tui.django_model_state import (
     load_django_model_tui_state,
     save_django_model_tui_state,
 )
+from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.widgets import NbxButton, SupportModal
 
 logger = get_logger(__name__)
@@ -307,7 +308,11 @@ class DjangoModelTuiApp(App[None]):
                         sel = self.query_one("#version_select", Select)
                         sel.value = matched
                     except Exception:
-                        pass
+                        logger.debug(
+                            "django tui could not set version_select after auto-detect",
+                            extra={"nbx_event": "tui_dm_version_select_failed"},
+                            exc_info=True,
+                        )
                     self._load_version(matched)
                     self.notify(
                         f"Auto-selected {matched} (NetBox API {probe.version})",
@@ -324,7 +329,11 @@ class DjangoModelTuiApp(App[None]):
                     self._load_graph_from_store()
                     return
         except Exception:
-            pass  # No config / no connection
+            logger.debug(
+                "django tui version auto-detect skipped (no config or connection)",
+                extra={"nbx_event": "tui_dm_autodetect_skipped"},
+                exc_info=True,
+            )
 
         # No auto-match — load default store
         self._load_graph_from_store()
@@ -411,7 +420,12 @@ class DjangoModelTuiApp(App[None]):
             diagram_rich = render_model_diagram_rich(key, self._graph)
             diagram_widget.update(diagram_rich)
         except Exception:
-            pass
+            logger.debug(
+                "django tui diagram render failed for %s",
+                key,
+                extra={"nbx_event": "tui_dm_diagram_render_failed", "model": key},
+                exc_info=True,
+            )
 
         # Source code - Rich rendering with syntax highlighting
         try:
@@ -420,7 +434,12 @@ class DjangoModelTuiApp(App[None]):
             source_rich = render_python_source_rich(source)
             code_widget.update(source_rich)
         except Exception:
-            pass
+            logger.debug(
+                "django tui source render failed for %s",
+                key,
+                extra={"nbx_event": "tui_dm_source_render_failed", "model": key},
+                exc_info=True,
+            )
 
         # Fields table - Rich Table widget
         try:
@@ -428,7 +447,12 @@ class DjangoModelTuiApp(App[None]):
             fields_table = render_fields_table_rich(model)
             fields_widget.update(fields_table)
         except Exception:
-            pass
+            logger.debug(
+                "django tui fields table render failed for %s",
+                key,
+                extra={"nbx_event": "tui_dm_fields_render_failed", "model": key},
+                exc_info=True,
+            )
 
         # Update title
         self.title = f"NetBox \u2014 {key}"
@@ -502,7 +526,11 @@ class DjangoModelTuiApp(App[None]):
             stats_table = render_stats_table_rich(self._graph)
             stats_widget.update(stats_table)
         except Exception:
-            pass
+            logger.debug(
+                "django tui stats render failed",
+                extra={"nbx_event": "tui_dm_stats_render_failed"},
+                exc_info=True,
+            )
 
     # ── Search ────────────────────────────────────────────────────────────
 
@@ -590,13 +618,22 @@ class DjangoModelTuiApp(App[None]):
                 sel = self.query_one("#version_select", Select)
                 sel.value = tag
             except Exception:
-                pass
+                logger.debug(
+                    "django tui could not set version_select after fetch",
+                    extra={"nbx_event": "tui_dm_version_select_after_fetch_failed"},
+                    exc_info=True,
+                )
             stats = graph.get("stats", {})
             self.notify(
                 f"Built {stats.get('total_models', 0)} models. Loaded {tag}.",
                 timeout=10,
             )
         except Exception as exc:
+            logger.warning(
+                "django tui github fetch failed: %s",
+                exc,
+                extra={"nbx_event": "tui_dm_fetch_failed"},
+            )
             self.notify(f"Fetch failed: {exc}", severity="error")
 
     def action_cancel(self) -> None:
@@ -682,6 +719,7 @@ class DjangoModelTuiApp(App[None]):
                 if inspect.isawaitable(probe):
                     probe = await probe
                 if isinstance(probe, ConnectionProbe):
+                    probe = await maybe_resolve_ssl_verify_interactive(self, client, probe)
                     self._render_connection_status(probe)
                     return
             response = await client.request(
@@ -701,7 +739,11 @@ class DjangoModelTuiApp(App[None]):
             )
             return
         except Exception:
-            pass
+            logger.debug(
+                "django tui connection probe failed",
+                extra={"nbx_event": "tui_dm_probe_failed"},
+                exc_info=True,
+            )
         self._render_connection_status(
             ConnectionProbe(status=0, version="", ok=False, error="no config")
         )

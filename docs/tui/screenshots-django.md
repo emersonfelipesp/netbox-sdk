@@ -13,20 +13,20 @@ nbx dev django-model tui
 
 === "NetBox Dark"
 
-    ![Django Models Browser - NetBox Dark](../assets/screenshots/tui-django-netbox-dark.svg)
+    ![Django Models Browser - NetBox Dark](/assets/screenshots/tui-django-netbox-dark.svg)
 
 === "NetBox Light"
 
-    ![Django Models Browser - NetBox Light](../assets/screenshots/tui-django-netbox-light.svg)
+    ![Django Models Browser - NetBox Light](/assets/screenshots/tui-django-netbox-light.svg)
 
 === "Dracula"
 
-    ![Django Models Browser - Dracula](../assets/screenshots/tui-django-dracula.svg)
+    ![Django Models Browser - Dracula](/assets/screenshots/tui-django-dracula.svg)
 
 === "Tokyo Night"
 
-    ![Django Models Browser - Tokyo Night](../assets/screenshots/tui-django-tokyo-night.svg)
+    ![Django Models Browser - Tokyo Night](/assets/screenshots/tui-django-tokyo-night.svg)
 
 === "One Dark Pro"
 
-    ![Django Models Browser - One Dark Pro](../assets/screenshots/tui-django-onedark-pro.svg)
+    ![Django Models Browser - One Dark Pro](/assets/screenshots/tui-django-onedark-pro.svg)

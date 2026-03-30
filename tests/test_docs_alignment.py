@@ -1,8 +1,29 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
+import yaml
+
+
+class _NavLoader(yaml.SafeLoader):
+    """SafeLoader extended to silently ignore !!python/name: and similar tags.
+
+    mkdocs.yml uses !!python/name:material.extensions.emoji.twemoji which
+    UnsafeLoader tries to import at parse time.  The test only needs the nav
+    structure so a loader that maps those tags to plain strings is sufficient.
+    """
+
+
+_NavLoader.add_multi_constructor(
+    "tag:yaml.org,2002:python/",
+    lambda loader, tag_suffix, node: (
+        loader.construct_scalar(node)  # type: ignore[arg-type]
+        if isinstance(node, yaml.ScalarNode)
+        else None
+    ),
+)
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -65,15 +86,25 @@ def test_generated_docs_nav_separates_cli_and_tui_outputs() -> None:
     cli_index = _read("docs/cli/index.md")
     tui_index = _read("docs/tui/index.md")
     tui_logs = _read("docs/tui/logs.md")
+    tui_graphql = _read("docs/tui/graphql.md")
+    tui_screenshots = _read("docs/tui/screenshots.md")
+    cli_graphql = _read("docs/cli/graphql.md")
 
     assert "Captured Command Output:" in mkdocs
     assert "reference/cli/command-examples/index.md" in mkdocs
     assert "Launch Command Output:" in mkdocs
     assert "reference/tui/launch-examples/index.md" in mkdocs
+    assert "GraphQL TUI: tui/graphql.md" in mkdocs
+    assert "GraphQL TUI: reference/tui/launch-examples/graphql-tui.md" in mkdocs
+    assert "GraphQL TUI: tui/screenshots-graphql.md" in mkdocs
     assert "../reference/cli/command-examples/index.md" in cli_index
     assert "../reference/tui/launch-examples/index.md" in tui_index
+    assert "nbx graphql tui" in tui_index
     assert "nbx tui logs" in tui_logs
     assert "`--live`" not in tui_logs
+    assert "nbx demo graphql tui" in tui_graphql
+    assert "six Textual applications" in tui_screenshots
+    assert "Interactive GraphQL explorer" in cli_graphql
 
 
 def test_docs_workflow_still_deploys_pages_for_netbox_sdk_repo() -> None:
@@ -84,3 +115,36 @@ def test_docs_workflow_still_deploys_pages_for_netbox_sdk_repo() -> None:
     assert "uv run mkdocs gh-deploy --force --clean --verbose" in workflow
     assert "site_url: https://emersonfelipesp.github.io/netbox-sdk/" in mkdocs
     assert "repo_url: https://github.com/emersonfelipesp/netbox-sdk" in mkdocs
+
+
+def _nav_markdown_paths(node: Any) -> list[str]:
+    paths: list[str] = []
+    if isinstance(node, list):
+        for entry in node:
+            paths.extend(_nav_markdown_paths(entry))
+    elif isinstance(node, dict):
+        for _key, value in node.items():
+            if isinstance(value, str) and value.endswith(".md"):
+                paths.append(value)
+            else:
+                paths.extend(_nav_markdown_paths(value))
+    return paths
+
+
+def test_mkdocs_i18n_en_default_and_pt_locale() -> None:
+    mkdocs_text = _read("mkdocs.yml")
+    assert "language: en" in mkdocs_text
+    assert "i18n:" in mkdocs_text
+    assert "locale: en" in mkdocs_text
+    assert "default: true" in mkdocs_text
+    assert "locale: pt" in mkdocs_text
+    assert "Português (Brasil)" in mkdocs_text
+    assert "fallback_to_default: false" in mkdocs_text
+
+
+def test_nav_markdown_pages_have_portuguese_siblings() -> None:
+    mkdocs = yaml.load(_read("mkdocs.yml"), Loader=_NavLoader)
+    docs_dir = REPO_ROOT / "docs"
+    for rel in _nav_markdown_paths(mkdocs["nav"]):
+        pt = rel[:-3] + ".pt.md" if rel.endswith(".md") else rel
+        assert (docs_dir / pt).is_file(), f"missing Portuguese mirror: docs/{pt}"

@@ -73,7 +73,6 @@ def all_specs() -> list[CaptureSpec]:
         _spec("cli", "Schema Discovery", "nbx groups", ["groups"]),
         _spec("cli", "Schema Discovery", "nbx resources dcim", ["resources", "dcim"]),
         _spec("cli", "Schema Discovery", "nbx ops dcim devices", ["ops", "dcim", "devices"]),
-        _spec("cli", "Schema Discovery", "nbx resources ipam", ["resources", "ipam"]),
         # CLI: GraphQL and HTTP
         _spec("cli", "GraphQL and HTTP", "nbx graphql --help", ["graphql", "--help"]),
         _spec("cli", "GraphQL and HTTP", "nbx call --help", ["call", "--help"]),
@@ -88,21 +87,8 @@ def all_specs() -> list[CaptureSpec]:
         _spec(
             "cli",
             "Dynamic Commands",
-            "nbx dcim devices --help",
-            ["dcim", "devices", "--help"],
-            notes="Auto-generated Typer sub-app for dcim/devices.",
-        ),
-        _spec(
-            "cli",
-            "Dynamic Commands",
             "nbx dcim devices list --help",
             ["dcim", "devices", "list", "--help"],
-        ),
-        _spec(
-            "cli",
-            "Dynamic Commands",
-            "nbx ipam prefixes --help",
-            ["ipam", "prefixes", "--help"],
         ),
         _spec(
             "cli",
@@ -114,36 +100,6 @@ def all_specs() -> list[CaptureSpec]:
         _spec(
             "cli",
             "Dynamic Commands",
-            "nbx circuits circuit-terminations get --help",
-            ["circuits", "circuit-terminations", "get", "--help"],
-        ),
-        _spec(
-            "cli",
-            "Dynamic Commands",
-            "nbx demo dcim devices list --select results.0.name",
-            ["demo", "dcim", "devices", "list", "--select", "results.0.name"],
-            notes="Extract a specific field from the demo response using dot notation.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Dynamic Commands",
-            "nbx demo dcim devices list --columns id,name,status",
-            ["demo", "dcim", "devices", "list", "--columns", "id,name,status"],
-            notes="Display only selected columns in table output.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Dynamic Commands",
-            "nbx demo dcim devices list --max-columns 3",
-            ["demo", "dcim", "devices", "list", "--max-columns", "3"],
-            notes="Limit visible table columns for a demo-backed response.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Dynamic Commands",
             'nbx demo dcim devices create --dry-run --body-json {"name":"test"}',
             ["demo", "dcim", "devices", "create", "--dry-run", "--body-json", '{"name":"test"}'],
             notes="Preview a write operation without executing it.",
@@ -151,36 +107,6 @@ def all_specs() -> list[CaptureSpec]:
         # CLI: developer tools
         _spec("cli", "Developer Tools", "nbx dev --help", ["dev", "--help"]),
         _spec("cli", "Developer Tools", "nbx dev http --help", ["dev", "http", "--help"]),
-        _spec(
-            "cli",
-            "Developer Tools",
-            "nbx dev http get --help",
-            ["dev", "http", "get", "--help"],
-        ),
-        _spec(
-            "cli",
-            "Developer Tools",
-            "nbx dev http post --help",
-            ["dev", "http", "post", "--help"],
-        ),
-        _spec(
-            "cli",
-            "Developer Tools",
-            "nbx dev http put --help",
-            ["dev", "http", "put", "--help"],
-        ),
-        _spec(
-            "cli",
-            "Developer Tools",
-            "nbx dev http patch --help",
-            ["dev", "http", "patch", "--help"],
-        ),
-        _spec(
-            "cli",
-            "Developer Tools",
-            "nbx dev http delete --help",
-            ["dev", "http", "delete", "--help"],
-        ),
         _spec(
             "cli",
             "Developer Tools",
@@ -210,14 +136,6 @@ def all_specs() -> list[CaptureSpec]:
         _spec(
             "cli",
             "Developer Tools",
-            "nbx demo dev http get --path /api/status/",
-            ["demo", "dev", "http", "get", "--path", "/api/status/"],
-            notes="Explicit demo-backed HTTP request via the developer tooling surface.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Developer Tools",
             "nbx dev django-model --help",
             ["dev", "django-model", "--help"],
         ),
@@ -237,8 +155,6 @@ def all_specs() -> list[CaptureSpec]:
         _spec("cli", "Demo Profile", "nbx demo --help", ["demo", "--help"]),
         _spec("cli", "Demo Profile", "nbx demo init --help", ["demo", "init", "--help"]),
         _spec("cli", "Demo Profile", "nbx demo config --help", ["demo", "config", "--help"]),
-        _spec("cli", "Demo Profile", "nbx demo test --help", ["demo", "test", "--help"]),
-        _spec("cli", "Demo Profile", "nbx demo reset --help", ["demo", "reset", "--help"]),
         _spec("cli", "Demo Profile", "nbx demo dev --help", ["demo", "dev", "--help"]),
         _spec(
             "cli",
@@ -258,63 +174,6 @@ def all_specs() -> list[CaptureSpec]:
             "nbx demo config",
             ["demo", "config"],
             notes="Shows the saved demo profile configuration.",
-        ),
-        # CLI: live demo-backed output
-        _spec(
-            "cli",
-            "Live API",
-            "nbx demo dcim devices list",
-            ["demo", "dcim", "devices", "list"],
-            notes="Runs against demo.netbox.dev using the configured demo profile.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Live API",
-            "nbx demo ipam prefixes list",
-            ["demo", "ipam", "prefixes", "list"],
-            notes="Requires a valid demo profile token.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Live API",
-            "nbx demo dcim sites list",
-            ["demo", "dcim", "sites", "list"],
-            safe=False,
-        ),
-        # CLI: cable trace
-        _spec(
-            "cli",
-            "Cable Trace",
-            "nbx demo dcim interfaces get --id 1 --trace",
-            ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace"],
-            notes="Fetches the object and appends an ASCII cable trace diagram.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Cable Trace",
-            "nbx demo dcim interfaces get --id 1 --trace-only",
-            ["demo", "dcim", "interfaces", "get", "--id", "1", "--trace-only"],
-            notes="Renders only the cable trace, omitting the object detail table.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Cable Trace",
-            "nbx demo circuits circuit-terminations get --id 15 --trace",
-            ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace"],
-            notes="Circuit terminations also expose a ``/trace/`` endpoint.",
-            safe=False,
-        ),
-        _spec(
-            "cli",
-            "Cable Trace",
-            "nbx demo circuits circuit-terminations get --id 15 --trace-only",
-            ["demo", "circuits", "circuit-terminations", "get", "--id", "15", "--trace-only"],
-            notes="Trace-only view for a circuit termination.",
-            safe=False,
         ),
         # TUI: main browser and logs viewer
         _spec(
@@ -337,13 +196,6 @@ def all_specs() -> list[CaptureSpec]:
             "nbx demo tui --help",
             ["demo", "tui", "--help"],
             notes="Launches the main TUI against the demo profile.",
-        ),
-        _spec(
-            "tui",
-            "Main Browser",
-            "nbx demo tui --theme",
-            ["demo", "tui", "--theme"],
-            notes="Lists available themes for the demo-backed main TUI.",
         ),
         _spec(
             "tui",
@@ -381,15 +233,51 @@ def all_specs() -> list[CaptureSpec]:
             ["demo", "dev", "tui", "--theme"],
             notes="Lists available themes for the demo-backed developer TUI.",
         ),
-        # TUI: CLI builder
-        _spec("tui", "CLI Builder", "nbx cli --help", ["cli", "--help"]),
-        _spec("tui", "CLI Builder", "nbx cli tui --help", ["cli", "tui", "--help"]),
+        # TUI: GraphQL explorer
         _spec(
             "tui",
-            "CLI Builder",
-            "nbx demo cli --help",
-            ["demo", "cli", "--help"],
+            "GraphQL TUI",
+            "nbx graphql --help",
+            ["graphql", "--help"],
+            notes="Documents GraphQL query execution and the dedicated GraphQL TUI launch mode.",
         ),
+        _spec(
+            "tui",
+            "GraphQL TUI",
+            "nbx graphql tui --help",
+            ["graphql", "tui", "--help"],
+            notes="Shows GraphQL TUI launch flags without starting the interface.",
+        ),
+        _spec(
+            "tui",
+            "GraphQL TUI",
+            "nbx graphql tui --theme",
+            ["graphql", "tui", "--theme"],
+            notes="Lists available themes without launching the GraphQL TUI.",
+        ),
+        _spec(
+            "tui",
+            "GraphQL TUI",
+            "nbx demo graphql --help",
+            ["demo", "graphql", "--help"],
+            notes="Documents the demo-backed GraphQL query and TUI entry point.",
+        ),
+        _spec(
+            "tui",
+            "GraphQL TUI",
+            "nbx demo graphql tui --help",
+            ["demo", "graphql", "tui", "--help"],
+            notes="Shows the demo-backed GraphQL TUI launch flags.",
+        ),
+        _spec(
+            "tui",
+            "GraphQL TUI",
+            "nbx demo graphql tui --theme",
+            ["demo", "graphql", "tui", "--theme"],
+            notes="Lists available themes for the demo-backed GraphQL TUI.",
+        ),
+        # TUI: CLI builder
+        _spec("tui", "CLI Builder", "nbx cli tui --help", ["cli", "tui", "--help"]),
         _spec(
             "tui",
             "CLI Builder",

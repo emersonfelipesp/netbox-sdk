@@ -28,6 +28,8 @@
     │ --help                      Show this message and exit.                      │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ╭─ Commands ───────────────────────────────────────────────────────────────────╮
+    │ graphql         Execute a GraphQL query against the demo NetBox API, or      │
+    │                 launch the GraphQL TUI.                                      │
     │ init            Authenticate with demo.netbox.dev via Playwright and save    │
     │                 the demo profile.                                            │
     │ config          Show the configured demo profile settings.                   │
@@ -51,7 +53,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.428s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.922s</span>
 
 ---
 
@@ -96,7 +98,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.421s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.930s</span>
 
 ---
 
@@ -126,65 +128,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.477s</span>
-
----
-
-## `nbx demo test --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo test --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo test --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx demo test [OPTIONS]                                                 
-                                                                                    
-     Test connectivity to demo.netbox.dev using the configured demo profile.        
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.415s</span>
-
----
-
-## `nbx demo reset --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo reset --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo reset --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx demo reset [OPTIONS]                                                
-                                                                                    
-     Remove the saved demo profile configuration.                                   
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ --help          Show this message and exit.                                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.432s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.755s</span>
 
 ---
 
@@ -223,7 +167,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.016s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.848s</span>
 
 ---
 
@@ -255,7 +199,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.512s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.791s</span>
 
 ---
 
@@ -289,7 +233,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.390s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.895s</span>
 
 ---
 
@@ -321,6 +265,6 @@
     }
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.358s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.726s</span>
 
 ---

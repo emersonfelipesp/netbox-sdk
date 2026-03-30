@@ -7,8 +7,9 @@ from typing import Any
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
-from netbox_sdk.client import NetBoxApiClient, RequestError
+from netbox_sdk.client import NetBoxApiClient
 from netbox_sdk.config import Config
+from netbox_sdk.exceptions import RequestError
 from netbox_sdk.facade import _is_v2_token
 from netbox_sdk.versioning import SupportedNetBoxVersion
 
@@ -45,6 +46,7 @@ class TypedResponseValidationError(ValueError):
 
 
 def build_typed_client(url: str, token: str | None) -> NetBoxApiClient:
+    """Construct a :class:`~netbox_sdk.client.NetBoxApiClient` with token layout inferred from ``token``."""
     token_version = "v2" if _is_v2_token(token) else "v1"
     token_key = None
     token_secret = token

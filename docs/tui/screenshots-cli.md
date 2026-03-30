@@ -15,20 +15,20 @@ nbx demo cli tui
 
 === "NetBox Dark"
 
-    ![CLI Builder - NetBox Dark](../assets/screenshots/tui-cli-netbox-dark.svg)
+    ![CLI Builder - NetBox Dark](/assets/screenshots/tui-cli-netbox-dark.svg)
 
 === "NetBox Light"
 
-    ![CLI Builder - NetBox Light](../assets/screenshots/tui-cli-netbox-light.svg)
+    ![CLI Builder - NetBox Light](/assets/screenshots/tui-cli-netbox-light.svg)
 
 === "Dracula"
 
-    ![CLI Builder - Dracula](../assets/screenshots/tui-cli-dracula.svg)
+    ![CLI Builder - Dracula](/assets/screenshots/tui-cli-dracula.svg)
 
 === "Tokyo Night"
 
-    ![CLI Builder - Tokyo Night](../assets/screenshots/tui-cli-tokyo-night.svg)
+    ![CLI Builder - Tokyo Night](/assets/screenshots/tui-cli-tokyo-night.svg)
 
 === "One Dark Pro"
 
-    ![CLI Builder - One Dark Pro](../assets/screenshots/tui-cli-onedark-pro.svg)
+    ![CLI Builder - One Dark Pro](/assets/screenshots/tui-cli-onedark-pro.svg)

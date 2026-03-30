@@ -15,7 +15,7 @@ from copy import deepcopy
 import typer
 
 from netbox_cli.support import run_with_spinner
-from netbox_sdk.client import NetBoxApiClient
+from netbox_sdk.client import ConnectionProbe, NetBoxApiClient
 from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_BASE_URL,
@@ -28,8 +28,21 @@ from netbox_sdk.config import (
     save_config,
     save_profile_config,
 )
+from netbox_sdk.http_ssl import (
+    is_certificate_verify_failure,
+    is_certificate_verify_failure_text,
+)
 from netbox_sdk.logging_runtime import get_logger
 from netbox_sdk.schema import SchemaIndex, load_openapi_schema
+
+try:
+    import aiohttp
+except ModuleNotFoundError:  # pragma: no cover
+    aiohttp = None  # type: ignore[assignment, misc]
+
+_VERIFY_REQUEST_ERRORS: tuple[type[BaseException], ...] = (RuntimeError, OSError)
+if aiohttp is not None:
+    _VERIFY_REQUEST_ERRORS = (*_VERIFY_REQUEST_ERRORS, aiohttp.ClientError)
 
 _SCHEMA_DOCUMENT: dict | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
@@ -90,10 +103,61 @@ def dev_http_api_client() -> NetBoxApiClient:
     return _dev_http_client_factory_ctx.get()()
 
 
-def _verify_runtime_config(cfg: Config, *, context: str) -> None:
+def _prompt_ssl_verify_if_unset(cfg: Config, profile: str) -> None:
+    """Prompt to persist ssl_verify when unset and TLS verification failed."""
+    if cfg.ssl_verify is not None:
+        return
+    typer.echo(
+        "TLS certificate verification failed. The server may use a self-signed or untrusted certificate.",
+        err=True,
+    )
+    if typer.confirm(
+        "Disable TLS certificate verification for this profile? (insecure; saved to config)",
+        default=False,
+    ):
+        cfg.ssl_verify = False
+        save_profile_config(profile, cfg)
+        _cache_profile(profile, cfg)
+        return
+    cfg.ssl_verify = True
+    save_profile_config(profile, cfg)
+    _cache_profile(profile, cfg)
+    typer.echo(
+        "SSL verification remains enabled. Fix the server certificate or install the correct CA bundle.",
+        err=True,
+    )
+    raise typer.Exit(code=1)
+
+
+def _retry_probe_after_ssl_prompt(
+    cfg: Config, profile: str, probe: ConnectionProbe
+) -> ConnectionProbe:
+    """If probe failed with TLS verification, optionally prompt and re-probe once."""
+    if probe.ok or cfg.ssl_verify is not None:
+        return probe
+    if not is_certificate_verify_failure_text(probe.error):
+        return probe
+    _prompt_ssl_verify_if_unset(cfg, profile)
+    return run_with_spinner(_get_client_for_config(cfg).probe_connection())
+
+
+def _verify_runtime_config(cfg: Config, *, context: str, profile: str = DEFAULT_PROFILE) -> None:
     logger.info("verifying runtime config for %s", context)
     client = _get_client_for_config(cfg)
-    response = run_with_spinner(client.request("GET", "/api/status/"))
+    try:
+        response = run_with_spinner(client.request("GET", "/api/status/"))
+    except _VERIFY_REQUEST_ERRORS as exc:
+        if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
+            _prompt_ssl_verify_if_unset(cfg, profile)
+            client = _get_client_for_config(cfg)
+            response = run_with_spinner(client.request("GET", "/api/status/"))
+        else:
+            logger.error(
+                "runtime config verification request failed: %s",
+                exc,
+                extra={"nbx_event": "cli_verify_status_failed", "profile": profile},
+            )
+            raise
     if response.status >= 400:
         detail = response.text.strip() or f"HTTP {response.status}"
         raise typer.BadParameter(f"{context} verification failed: {detail}")
@@ -143,7 +207,22 @@ def _ensure_profile_config(profile: str) -> Config:
     save_config(cfg)
     typer.echo("Configuration saved.")
     logger.info("interactively completed profile config for %s", profile)
-    return _cache_profile(profile, cfg)
+    cfg = _cache_profile(profile, cfg)
+    client = _get_client_for_config(cfg)
+    try:
+        run_with_spinner(client.request("GET", "/api/status/"))
+    except _VERIFY_REQUEST_ERRORS as exc:
+        if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
+            _prompt_ssl_verify_if_unset(cfg, profile)
+            run_with_spinner(_get_client_for_config(cfg).request("GET", "/api/status/"))
+        else:
+            logger.error(
+                "post-save status check failed: %s",
+                exc,
+                extra={"nbx_event": "cli_post_save_verify_failed", "profile": profile},
+            )
+            raise
+    return cfg
 
 
 def _ensure_runtime_config() -> Config:
@@ -159,7 +238,19 @@ def _repair_demo_profile_if_needed(cfg: Config) -> Config:
         return cfg
     logger.info("checking demo profile token health")
     client = _get_client_for_config(cfg)
-    response = run_with_spinner(client.request("GET", "/api/status/"))
+    try:
+        response = run_with_spinner(client.request("GET", "/api/status/"))
+    except _VERIFY_REQUEST_ERRORS as exc:
+        if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
+            _prompt_ssl_verify_if_unset(cfg, DEMO_PROFILE)
+            response = run_with_spinner(_get_client_for_config(cfg).request("GET", "/api/status/"))
+        else:
+            logger.error(
+                "demo repair status check failed: %s",
+                exc,
+                extra={"nbx_event": "cli_demo_repair_status_failed"},
+            )
+            raise
     if response.status < 400 or "invalid v1 token" not in response.text.lower():
         return cfg
 
@@ -168,14 +259,22 @@ def _repair_demo_profile_if_needed(cfg: Config) -> Config:
         from netbox_sdk.demo_auth import refresh_demo_profile  # noqa: PLC0415
 
         refreshed = refresh_demo_profile(cfg, headless=True)
-    except Exception:
-        logger.exception("demo profile token refresh failed")
+    except (RuntimeError, OSError, ValueError) as exc:
+        logger.exception(
+            "demo profile token refresh failed: %s",
+            exc,
+            extra={"nbx_event": "cli_demo_token_refresh_failed"},
+        )
         return cfg
 
     try:
         save_profile_config(DEMO_PROFILE, refreshed)
-    except Exception:
-        logger.exception("failed to persist repaired demo profile")
+    except OSError as exc:
+        logger.exception(
+            "failed to persist repaired demo profile: %s",
+            exc,
+            extra={"nbx_event": "cli_demo_profile_save_failed"},
+        )
         return cfg
 
     typer.echo("Demo token was refreshed automatically.")

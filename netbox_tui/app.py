@@ -59,6 +59,7 @@ from netbox_tui.filter_overlay import FilterOverlayMixin
 from netbox_tui.navigation import build_navigation_menus
 from netbox_tui.panels import ObjectAttributesPanel
 from netbox_tui.plugin_discovery import discover_plugin_resource_paths
+from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
 
@@ -649,6 +650,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         try:
             response = await self.client.request("GET", trace_path)
         except Exception:
+            logger.debug(
+                "trace request failed for %s",
+                trace_path,
+                extra={"nbx_event": "tui_trace_request_failed", "request_path": trace_path},
+                exc_info=True,
+            )
             panel.set_trace(None)
             return
 
@@ -905,6 +912,9 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
     async def _probe_connection_health(self) -> None:
         self._set_connection_badge_checking()
         probe = await self._run_connection_probe()
+        probe = await maybe_resolve_ssl_verify_interactive(
+            self, self.client, probe, demo_mode=self.demo_mode
+        )
         self._last_connection_probe = probe
         self._render_connection_status(probe)
 

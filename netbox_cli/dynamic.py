@@ -7,9 +7,9 @@ Typer command trees at startup.
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from importlib import import_module
-from typing import Any
 
 import typer
 
@@ -19,8 +19,10 @@ from netbox_cli.support import (
     resolve_output_format,
     run_with_spinner,
 )
-from netbox_sdk.client import NetBoxApiClient
+from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.schema import SchemaIndex
+
+logger = logging.getLogger(__name__)
 
 
 def _runtime_get_client() -> NetBoxApiClient:
@@ -48,13 +50,23 @@ def _run_dynamic_command(
     query_pairs: list[str],
     body_json: str | None,
     body_file: str | None,
-) -> Any:
+) -> ApiResponse:
+    """Invoke :func:`netbox_sdk.services.run_dynamic_command` (or patched CLI hook)."""
     cli_module = import_module("netbox_cli")
     fn = getattr(cli_module, "run_dynamic_command", None)
     if fn is None:
         from netbox_sdk.services import run_dynamic_command  # noqa: PLC0415
 
         fn = run_dynamic_command
+    logger.debug(
+        "dynamic command dispatch",
+        extra={
+            "nbx_event": "cli_dynamic_run",
+            "group": group,
+            "resource": resource,
+            "action": action,
+        },
+    )
     return fn(
         client=client,
         index=index,
@@ -74,6 +86,7 @@ def _handle_dynamic_invocation(
     client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
     index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> None:
+    """Parse ``nbx <group> <resource> <action> ...`` argv tail and execute the resolved request."""
     if len(raw_args) < 3:
         raise typer.BadParameter(
             "Dynamic invocation requires: nbx <group> <resource> <action> [options]"
@@ -287,7 +300,8 @@ def _execute_dynamic_action(
     dry_run: bool = False,
     client: NetBoxApiClient | None = None,
     index: SchemaIndex | None = None,
-) -> Any:
+) -> ApiResponse | None:
+    """Run OpenAPI-resolved request, or print dry-run preview when ``dry_run`` is True."""
     action_lower = action.lower()
     write_actions = {"create", "update", "patch", "delete"}
 
@@ -473,7 +487,12 @@ def _register_openapi_subcommands(
     client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
     index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> None:
+    """Attach ``<group>/<resource>/<action>`` Typer commands from the OpenAPI index."""
     index = index_factory()
+    logger.info(
+        "registering openapi subcommands",
+        extra={"nbx_event": "cli_openapi_register", "group_count": len(index.groups())},
+    )
     for group in index.groups():
         group_typer = typer.Typer(
             no_args_is_help=True,

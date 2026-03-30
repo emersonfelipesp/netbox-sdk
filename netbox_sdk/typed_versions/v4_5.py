@@ -1,3 +1,9 @@
+"""
+Auto-generated typed NetBox 4.5 API bindings from OpenAPI.
+
+Do not edit by hand. Regenerate with scripts/generate_typed_sdk.py.
+"""
+
 from __future__ import annotations
 
 from typing import Any, Literal

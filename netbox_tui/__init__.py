@@ -5,6 +5,7 @@ try:
     from netbox_tui.cli_tui import NbxCliTuiApp, run_cli_tui
     from netbox_tui.dev_app import NetBoxDevTuiApp, run_dev_tui
     from netbox_tui.django_model_app import DjangoModelTuiApp, run_django_model_tui
+    from netbox_tui.graphql_app import NetBoxGraphqlTuiApp, run_graphql_tui
     from netbox_tui.logs_app import NetBoxLogsTuiApp, run_logs_tui
 except ModuleNotFoundError as exc:
     missing = exc.name or ""
@@ -18,6 +19,7 @@ __all__ = [
     "DjangoModelTuiApp",
     "NbxCliTuiApp",
     "NetBoxDevTuiApp",
+    "NetBoxGraphqlTuiApp",
     "NetBoxLogsTuiApp",
     "NetBoxTuiApp",
     "available_theme_names",
@@ -25,6 +27,7 @@ __all__ = [
     "run_cli_tui",
     "run_dev_tui",
     "run_django_model_tui",
+    "run_graphql_tui",
     "run_logs_tui",
     "run_tui",
 ]

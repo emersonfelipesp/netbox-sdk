@@ -67,6 +67,7 @@ from netbox_tui.dev_state import (
 )
 from netbox_tui.navigation import build_navigation_menus
 from netbox_tui.plugin_discovery import discover_plugin_resource_paths
+from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.theme_registry import ThemeDefinition
 from netbox_tui.widgets import NbxButton, SupportModal
 
@@ -717,6 +718,7 @@ class NetBoxDevTuiApp(App[None]):
     async def _probe_connection_health(self) -> None:
         self._set_connection_badge_checking()
         probe = await self._run_connection_probe()
+        probe = await maybe_resolve_ssl_verify_interactive(self, self.client, probe)
         self._last_connection_probe = probe
         self._render_connection_status(probe)
 
