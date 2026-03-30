@@ -28,6 +28,8 @@ The SDK package itself exposes three layers:
 
 The current typed SDK release lines are NetBox `4.5`, `4.4`, and `4.3`.
 
+--8<-- "snippets/documented-release-en.md"
+
 <div class="grid cards" markdown>
 
 -   :material-api:{ .lg .middle } **SDK**
@@ -60,6 +62,7 @@ The current typed SDK release lines are NetBox `4.5`, `4.4`, and `4.3`.
 
     ```bash
     pip install 'netbox-sdk[all]'
+    --8<-- "snippets/pip-pinned-all.txt"
     nbx init
     nbx dcim devices list
     ```

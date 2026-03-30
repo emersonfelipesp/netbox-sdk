@@ -40,4 +40,4 @@ Rules:
 2. Preserve package boundaries: SDK independent, CLI lazy-loads TUI, TUI depends on SDK.
 3. Use absolute imports only.
 4. Run the owning package suite (`uv run pytest -m suite_sdk|suite_cli|suite_tui`) for package-local changes, and `uv run pytest` for shared/main/release validation paths.
-5. When merging `main` into a version branch (e.g. `v0.0.6`), **`main` wins on conflicts** — use `git checkout --theirs` for conflicted paths after `git merge origin/main` on that branch. See [CLAUDE.md § Release Process](CLAUDE.md#release-process).
+5. When merging `main` into a version branch (e.g. `v0.0.7.post1`), **`main` wins on conflicts** — use `git checkout --theirs` for conflicted paths after `git merge origin/main` on that branch. See [CLAUDE.md § Release Process](CLAUDE.md#release-process).
