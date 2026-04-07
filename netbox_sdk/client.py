@@ -11,6 +11,7 @@ Security considerations:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
@@ -83,6 +84,8 @@ class NetBoxApiClient:
         self._on_token_refresh = on_token_refresh or self._default_token_refresh_callback()
         self._default_headers: dict[str, str] = {}
         self._openapi_cache: dict[str, JSONValue] | None = None
+        self._session: aiohttp.ClientSession | None = None
+        self._session_loop: asyncio.AbstractEventLoop | None = None
         logger.debug("initialized api client for %s", self.config.base_url or "<unset>")
         bu = self.config.base_url or ""
         if bu and urlsplit(bu).scheme.lower() == "https" and self.config.ssl_verify is False:
@@ -101,6 +104,44 @@ class NetBoxApiClient:
             return authorization_header_value(refreshed), refreshed
 
         return _refresh
+
+    async def _get_session(self) -> "aiohttp.ClientSession":
+        """Get or create a reusable aiohttp session with connection pooling."""
+        try:
+            import aiohttp
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "aiohttp is required for HTTP requests. Install project dependencies first."
+            ) from exc
+
+        current_loop = asyncio.get_running_loop()
+        current_loop_id = id(current_loop)
+
+        if self._session is None or self._session.closed or self._session_loop != current_loop_id:
+            if self._session is not None and not self._session.closed:
+                await self._session.close()
+            timeout = aiohttp.ClientTimeout(total=self.config.timeout)
+            connector = connector_for_config(self.config)
+            session_kwargs: dict[str, Any] = {"timeout": timeout}
+            if connector is not None:
+                session_kwargs["connector"] = connector
+            self._session = aiohttp.ClientSession(**session_kwargs)
+            self._session_loop = current_loop_id
+
+        return self._session
+
+    async def close(self) -> None:
+        """Close the underlying HTTP session and release resources."""
+        if self._session is not None and not self._session.closed:
+            await self._session.close()
+        self._session = None
+        self._session_loop = None
+
+    async def __aenter__(self) -> "NetBoxApiClient":
+        return self
+
+    async def __aexit__(self, *args: object) -> None:
+        await self.close()
 
     def build_url(self, path: str) -> str:
         if not self.config.base_url:
@@ -174,13 +215,40 @@ class NetBoxApiClient:
                 if cache_entry.last_modified:
                     req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
 
-        timeout = aiohttp.ClientTimeout(total=self.config.timeout)
-        connector = connector_for_config(self.config)
-        session_kwargs: dict[str, Any] = {"timeout": timeout}
-        if connector is not None:
-            session_kwargs["connector"] = connector
-        async with aiohttp.ClientSession(**session_kwargs) as session:
-            try:
+        session = await self._get_session()
+        try:
+            response = await self._request_once(
+                session,
+                method=method,
+                path=path,
+                query=query,
+                payload=payload,
+                headers=req_headers,
+                authorization=authorization,
+                expect_json=expect_json,
+            )
+        except Exception:
+            logger.exception(
+                "api request failed",
+                extra={"http_method": method.upper(), "request_path": path},
+            )
+            if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
+                return self._cached_response(cache_entry, cache_status="STALE")
+            raise
+        if self._should_retry_with_v1(response):
+            response = await self._request_once(
+                session,
+                method=method,
+                path=path,
+                query=query,
+                payload=payload,
+                headers=req_headers,
+                authorization=self._v1_fallback_header(),
+                expect_json=expect_json,
+            )
+        elif self._should_refresh_demo_v1_token(response):
+            authorization = self._refresh_demo_v1_authorization()
+            if authorization:
                 response = await self._request_once(
                     session,
                     method=method,
@@ -191,52 +259,20 @@ class NetBoxApiClient:
                     authorization=authorization,
                     expect_json=expect_json,
                 )
-            except Exception:
-                logger.exception(
-                    "api request failed",
-                    extra={"http_method": method.upper(), "request_path": path},
-                )
-                if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
-                    return self._cached_response(cache_entry, cache_status="STALE")
-                raise
-            if self._should_retry_with_v1(response):
-                response = await self._request_once(
-                    session,
-                    method=method,
-                    path=path,
-                    query=query,
-                    payload=payload,
-                    headers=req_headers,
-                    authorization=self._v1_fallback_header(),
-                    expect_json=expect_json,
-                )
-            elif self._should_refresh_demo_v1_token(response):
-                authorization = self._refresh_demo_v1_authorization()
-                if authorization:
-                    response = await self._request_once(
-                        session,
-                        method=method,
-                        path=path,
-                        query=query,
-                        payload=payload,
-                        headers=req_headers,
-                        authorization=authorization,
-                        expect_json=expect_json,
-                    )
-            logger.info(
-                "api request completed",
-                extra={
-                    "http_method": method.upper(),
-                    "request_path": path,
-                    "status": response.status,
-                },
-            )
-            return self._finalize_cached_response(
-                response=response,
-                cache_key=cache_key,
-                cache_entry=cache_entry,
-                cache_policy=cache_policy,
-            )
+        logger.info(
+            "api request completed",
+            extra={
+                "http_method": method.upper(),
+                "request_path": path,
+                "status": response.status,
+            },
+        )
+        return self._finalize_cached_response(
+            response=response,
+            cache_key=cache_key,
+            cache_entry=cache_entry,
+            cache_policy=cache_policy,
+        )
 
     async def _request_once(
         self,

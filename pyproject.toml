@@ -33,7 +33,6 @@ classifiers = [
 ]
 dependencies = [
   "aiohttp>=3.13.4",
-  "requests>=2.33.0",
   "pydantic>=2.12.5",
   "email-validator>=2.3.0",
   "rich>=14.3.3",
