@@ -66,14 +66,13 @@ class ThemeDefinition(BaseModel):
     def _remove_self_alias(cls, data: object) -> object:
         """Strip any alias that equals the theme's own name before field validation."""
         if isinstance(data, dict):
-            raw_data = cast(dict[str, object], data)
-            name = str(raw_data.get("name", ""))
-            aliases = raw_data.get("aliases", [])
+            data = cast(dict[str, object], data)
+            name = str(data.get("name", ""))
+            aliases = data.get("aliases", [])
             if isinstance(aliases, list):
-                raw_data["aliases"] = [
+                data["aliases"] = [
                     a for a in aliases if not (isinstance(a, str) and a.strip().lower() == name)
                 ]
-                data = raw_data
         return data
 
     @field_validator("name")

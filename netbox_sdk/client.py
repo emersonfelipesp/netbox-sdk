@@ -165,16 +165,21 @@ class NetBoxApiClient:
                 "aiohttp is required for HTTP requests. Install project dependencies first."
             ) from exc
 
-        current_loop = asyncio.get_running_loop()
-        current_loop_id = id(current_loop)
+        current_loop_id = id(asyncio.get_running_loop())
+
+        # Fast path: session already valid for this loop — no lock needed
+        if (
+            self._session is not None
+            and not self._session_closed()
+            and self._session_loop_id == current_loop_id
+        ):
+            return self._session
 
         async with self._get_lock():
-            if (
-                self._session is None
-                or self._session_closed()
-                or self._session_loop_id != current_loop_id
-            ):
-                if self._session is not None and not self._session_closed():
+            # Re-check under lock in case another coroutine just created the session
+            session_closed = self._session_closed()
+            if self._session is None or session_closed or self._session_loop_id != current_loop_id:
+                if self._session is not None and not session_closed:
                     await self._session.close()
                 timeout = aiohttp.ClientTimeout(total=self.config.timeout)
                 connector = connector_for_config(self.config)
@@ -283,17 +288,16 @@ class NetBoxApiClient:
                     req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
 
         session = await self._get_session()
+        req_kwargs: dict[str, Any] = dict(
+            method=method,
+            path=path,
+            query=query,
+            payload=payload,
+            headers=req_headers,
+            expect_json=expect_json,
+        )
         try:
-            response = await self._request_once(
-                session,
-                method=method,
-                path=path,
-                query=query,
-                payload=payload,
-                headers=req_headers,
-                authorization=authorization,
-                expect_json=expect_json,
-            )
+            response = await self._request_once(session, authorization=authorization, **req_kwargs)
         except Exception:
             logger.exception(
                 "api request failed",
@@ -304,27 +308,13 @@ class NetBoxApiClient:
             raise
         if self._should_retry_with_v1(response):
             response = await self._request_once(
-                session,
-                method=method,
-                path=path,
-                query=query,
-                payload=payload,
-                headers=req_headers,
-                authorization=self._v1_fallback_header(),
-                expect_json=expect_json,
+                session, authorization=self._v1_fallback_header(), **req_kwargs
             )
         elif self._should_refresh_demo_v1_token(response):
             authorization = self._refresh_demo_v1_authorization()
             if authorization:
                 response = await self._request_once(
-                    session,
-                    method=method,
-                    path=path,
-                    query=query,
-                    payload=payload,
-                    headers=req_headers,
-                    authorization=authorization,
-                    expect_json=expect_json,
+                    session, authorization=authorization, **req_kwargs
                 )
         logger.info(
             "api request completed",

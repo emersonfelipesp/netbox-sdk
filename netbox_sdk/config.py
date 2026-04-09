@@ -16,7 +16,6 @@ import os
 import re
 import stat
 from pathlib import Path
-from typing import cast
 from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, field_validator
@@ -273,7 +272,7 @@ def load_profile_config(profile: str = DEFAULT_PROFILE) -> Config:
         return Config()
 
     profiles_obj = stored.get("profiles")
-    profiles = cast(dict[str, object], profiles_obj) if isinstance(profiles_obj, dict) else {}
+    profiles: dict[str, object] = profiles_obj if isinstance(profiles_obj, dict) else {}
     selected_obj = profiles.get(profile)
     selected = selected_obj if isinstance(selected_obj, dict) else {}
     cfg = _coerce_config(selected, apply_env=profile == DEFAULT_PROFILE)
@@ -304,7 +303,7 @@ def save_profile_config(profile: str, cfg: Config) -> None:
         }
     else:
         profiles_obj = stored.get("profiles")
-        profiles = cast(dict[str, object], profiles_obj) if isinstance(profiles_obj, dict) else {}
+        profiles = profiles_obj if isinstance(profiles_obj, dict) else {}
     serialized = cfg.model_dump()
     if profile == DEMO_PROFILE:
         serialized["base_url"] = DEMO_BASE_URL
