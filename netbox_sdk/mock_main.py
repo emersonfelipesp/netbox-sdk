@@ -15,7 +15,7 @@ def run() -> None:
     """Console-script entrypoint: start the NetBox mock API with uvicorn."""
     uvicorn.run(
         "netbox_sdk.mock_main:app",
-        host=os.environ.get("HOST", "0.0.0.0"),
+        host=os.environ.get("HOST", "127.0.0.1"),
         port=int(os.environ.get("PORT", "8001")),
         reload=os.environ.get("RELOAD", "").lower() in ("1", "true"),
     )

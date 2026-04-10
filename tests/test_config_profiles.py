@@ -160,6 +160,27 @@ def test_normalize_base_url_rejects_unsafe_values(raw_url, message) -> None:
         normalize_base_url(raw_url)
 
 
+def test_save_profile_config_does_not_persist_demo_password(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+
+    save_profile_config(
+        DEMO_PROFILE,
+        Config(
+            base_url=DEMO_BASE_URL,
+            token_version="v1",
+            token_secret="demo-secret",
+            demo_username="demo-user",
+            demo_password="super-secret",
+            timeout=30.0,
+        ),
+    )
+
+    stored = json.loads(config_path().read_text(encoding="utf-8"))
+    demo_profile = stored["profiles"]["demo"]
+    assert "demo_password" not in demo_profile
+    assert demo_profile.get("demo_username") == "demo-user"
+
+
 def test_save_profile_config_uses_private_permissions(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
 

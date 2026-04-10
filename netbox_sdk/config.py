@@ -304,7 +304,11 @@ def save_profile_config(profile: str, cfg: Config) -> None:
     else:
         profiles_obj = stored.get("profiles")
         profiles = profiles_obj if isinstance(profiles_obj, dict) else {}
-    serialized = cfg.model_dump()
+    # Never persist demo_password to disk — it is only needed within the
+    # current process session for automatic token refresh.  Keeping a
+    # plaintext credential on disk is unnecessary because a fresh token can
+    # be obtained interactively the next time the demo profile is loaded.
+    serialized = cfg.model_dump(exclude={"demo_password"})
     if profile == DEMO_PROFILE:
         serialized["base_url"] = DEMO_BASE_URL
     profiles[profile] = serialized
