@@ -16,7 +16,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../package-integration/">
+        <link rel="next" href="../sdk-internals/">
       
       
         
@@ -2215,6 +2215,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2350,10 +2354,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sdk-internal-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK Internal Components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#package-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
         Package Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
       
     </span>
   </a>
@@ -2411,45 +2437,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Flow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Flow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tui" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TUI
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#packaging" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2475,6 +2462,62 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sdk-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SDK Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration-with-proxbox-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration with proxbox-api
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2693,10 +2736,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sdk-internal-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK Internal Components
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#package-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
         Package Layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow
       
     </span>
   </a>
@@ -2742,45 +2807,6 @@
     <span class="md-ellipsis">
       
         netbox_tui
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Flow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Flow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tui" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TUI
       
     </span>
   </a>
@@ -2883,125 +2909,266 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>The repository is organized as three sibling Python packages:</p>
+<p>The repository is organized as three sibling Python packages sharing one runtime:</p>
 <ul>
-<li><code>netbox_sdk</code> — standalone API/SDK layer</li>
-<li><code>netbox_cli</code> — Typer CLI layer</li>
-<li><code>netbox_tui</code> — Textual TUI layer</li>
+<li><code>netbox_sdk</code> — standalone API/SDK layer (no CLI or TUI dependencies)</li>
+<li><code>netbox_cli</code> — Typer CLI layer (requires <code>[cli]</code> extra)</li>
+<li><code>netbox_tui</code> — Textual TUI layer (requires <code>[tui]</code> extra)</li>
 </ul>
+<hr />
 <h2 id="dependency-direction">Dependency Direction<a class="headerlink" href="#dependency-direction" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>netbox_cli  -&gt; netbox_sdk
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>netbox_tui  -&gt; netbox_sdk
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>netbox_cli  -&gt; netbox_tui   only via lazy imports for TUI-launching commands
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>netbox_sdk  -/-&gt; netbox_cli, netbox_tui
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    CLI[&quot;netbox_cli\nTyper CLI&quot;]
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    TUI[&quot;netbox_tui\nTextual TUI&quot;]
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    SDK[&quot;netbox_sdk\nCore SDK&quot;]
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    CLI --&gt; SDK
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    TUI --&gt; SDK
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    CLI -. &quot;lazy import\n(TUI launch commands only)&quot; .-&gt; TUI
 </span></code></pre></div>
 <p><code>netbox_sdk</code> is the stable core. It must remain importable without Typer or Textual installed.</p>
-<h2 id="package-layout">Package Layout<a class="headerlink" href="#package-layout" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>netbox_sdk/
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  __init__.py
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  client.py
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  config.py
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  http_cache.py
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  schema.py
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  services.py
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  plugin_discovery.py
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  formatting.py
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  logging_runtime.py
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  output_safety.py
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  trace_ascii.py
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>  demo_auth.py
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>  django_models/
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>  reference/openapi/netbox-openapi.json
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>netbox_cli/
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>  __init__.py
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>  runtime.py
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>  dynamic.py
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>  support.py
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>  demo.py
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>  dev.py
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>  django_model.py
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>  markdown_output.py
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>  docgen_capture.py
-</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>  docgen_specs.py
-</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>  docgen/
-</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>
-</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>netbox_tui/
-</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>  __init__.py
-</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>  app.py
-</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>  cli_tui.py
-</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>  dev_app.py
-</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>  logs_app.py
-</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>  django_model_app.py
-</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>  chrome.py
-</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>  navigation.py
-</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>  nav_blueprint.py
-</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>  panels.py
-</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>  widgets.py
-</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>  state.py
-</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>  dev_state.py
-</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>  django_model_state.py
-</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>  filter_overlay.py
-</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>  theme_registry.py
-</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>  *.tcss
-</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>  themes/*.json
+<hr />
+<h2 id="sdk-internal-components">SDK Internal Components<a class="headerlink" href="#sdk-internal-components" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart TB
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    config[&quot;config.py\nConfig model, profile persistence\nenv vars, auth header assembly&quot;]
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    cache[&quot;http_cache.py\nFilesystem JSON cache\nTTL · ETag · stale-if-error&quot;]
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    client[&quot;client.py\nNetBoxApiClient\nasync aiohttp · auth · SSRF protection&quot;]
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    schema[&quot;schema.py\nSchemaIndex\nOpenAPI parsing · resource resolution&quot;]
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    services[&quot;services.py\nresolve_dynamic_request()\nrun_dynamic_command()&quot;]
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    facade[&quot;facade.py\nApi → App → Endpoint\n→ Record / RecordSet&quot;]
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    typed[&quot;typed_api.py\ntyped_api()\nVersion-specific typed clients&quot;]
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    models[&quot;models/\nGenerated Pydantic models\nv4_3 · v4_4 · v4_5&quot;]
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    config --&gt; client
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    cache --&gt; client
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    schema --&gt; services
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    client --&gt; services
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    client --&gt; facade
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    schema --&gt; facade
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    facade --&gt; typed
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    models --&gt; typed
 </span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config.py</code></td>
+<td>Pydantic <code>Config</code> model, multi-profile persistence, token sanitization, environment variable loading</td>
+</tr>
+<tr>
+<td><code>client.py</code></td>
+<td><code>NetBoxApiClient</code> — async aiohttp HTTP client, auth injection, HTTP cache integration, SSRF protection</td>
+</tr>
+<tr>
+<td><code>http_cache.py</code></td>
+<td><code>HttpCacheStore</code> — filesystem JSON cache with TTL, ETag/If-Modified-Since, stale-if-error</td>
+</tr>
+<tr>
+<td><code>schema.py</code></td>
+<td><code>SchemaIndex</code> — parses bundled OpenAPI JSON into groups, resources, operations, and filter params</td>
+</tr>
+<tr>
+<td><code>services.py</code></td>
+<td><code>resolve_dynamic_request()</code> / <code>run_dynamic_command()</code> — maps CLI actions to HTTP calls</td>
+</tr>
+<tr>
+<td><code>facade.py</code></td>
+<td><code>api()</code> — PyNetBox-style async facade: <code>Api → App → Endpoint → Record/RecordSet</code></td>
+</tr>
+<tr>
+<td><code>typed_api.py</code></td>
+<td><code>typed_api()</code> — version-specific typed clients with Pydantic request/response models</td>
+</tr>
+<tr>
+<td><code>models/</code></td>
+<td>Generated Pydantic models for NetBox 4.3, 4.4, and 4.5</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="package-layout">Package Layout<a class="headerlink" href="#package-layout" title="Permanent link">&para;</a></h2>
+<details class="note">
+<summary>Full package tree</summary>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>netbox_sdk/
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  __init__.py
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  client.py
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  config.py
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  http_cache.py
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  schema.py
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  services.py
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  plugin_discovery.py
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  formatting.py
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  logging_runtime.py
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  output_safety.py
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>  trace_ascii.py
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>  demo_auth.py
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>  facade.py
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>  typed_api.py
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>  typed_runtime.py
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>  versioning.py
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  exceptions.py
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>  models/
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    v4_3.py · v4_4.py · v4_5.py
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  typed_versions/
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>    v4_3.py · v4_4.py · v4_5.py
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  django_models/
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>  reference/openapi/
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>    netbox-openapi.json (default)
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>    netbox-openapi-4.3.json
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>    netbox-openapi-4.4.json
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>    netbox-openapi-4.5.json
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>netbox_cli/
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>  __init__.py
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>  runtime.py
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>  dynamic.py
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>  support.py
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>  demo.py
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>  dev.py
+</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>  django_model.py
+</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>  markdown_output.py
+</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>  docgen_capture.py
+</span><span id="__span-2-40"><a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>  docgen_specs.py
+</span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>  docgen/
+</span><span id="__span-2-42"><a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>
+</span><span id="__span-2-43"><a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>netbox_tui/
+</span><span id="__span-2-44"><a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>  __init__.py
+</span><span id="__span-2-45"><a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a>  app.py
+</span><span id="__span-2-46"><a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>  cli_tui.py
+</span><span id="__span-2-47"><a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>  dev_app.py
+</span><span id="__span-2-48"><a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>  logs_app.py
+</span><span id="__span-2-49"><a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a>  graphql_app.py
+</span><span id="__span-2-50"><a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>  django_model_app.py
+</span><span id="__span-2-51"><a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a>  chrome.py
+</span><span id="__span-2-52"><a id="__codelineno-2-52" name="__codelineno-2-52" href="#__codelineno-2-52"></a>  navigation.py
+</span><span id="__span-2-53"><a id="__codelineno-2-53" name="__codelineno-2-53" href="#__codelineno-2-53"></a>  nav_blueprint.py
+</span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a>  panels.py
+</span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a>  widgets.py
+</span><span id="__span-2-56"><a id="__codelineno-2-56" name="__codelineno-2-56" href="#__codelineno-2-56"></a>  state.py
+</span><span id="__span-2-57"><a id="__codelineno-2-57" name="__codelineno-2-57" href="#__codelineno-2-57"></a>  dev_state.py
+</span><span id="__span-2-58"><a id="__codelineno-2-58" name="__codelineno-2-58" href="#__codelineno-2-58"></a>  django_model_state.py
+</span><span id="__span-2-59"><a id="__codelineno-2-59" name="__codelineno-2-59" href="#__codelineno-2-59"></a>  graphql_state.py
+</span><span id="__span-2-60"><a id="__codelineno-2-60" name="__codelineno-2-60" href="#__codelineno-2-60"></a>  filter_overlay.py
+</span><span id="__span-2-61"><a id="__codelineno-2-61" name="__codelineno-2-61" href="#__codelineno-2-61"></a>  theme_registry.py
+</span><span id="__span-2-62"><a id="__codelineno-2-62" name="__codelineno-2-62" href="#__codelineno-2-62"></a>  *.tcss
+</span><span id="__span-2-63"><a id="__codelineno-2-63" name="__codelineno-2-63" href="#__codelineno-2-63"></a>  themes/*.json
+</span></code></pre></div>
+</details>
+<hr />
+<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">CLI</label><label for="__tabbed_1_2">TUI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>flowchart LR
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    CMD[&quot;nbx dcim devices list&quot;]
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    INIT[&quot;netbox_cli.__init__\nroot Typer app&quot;]
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    DYN[&quot;netbox_cli.dynamic\n_register_openapi_subcommands()&quot;]
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    SVC[&quot;netbox_sdk.services\nresolve_dynamic_request()&quot;]
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    CLIENT[&quot;netbox_sdk.client\nNetBoxApiClient.request()&quot;]
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    OUT[&quot;netbox_cli.support\nmarkdown_output&quot;]
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    CMD --&gt; INIT --&gt; DYN --&gt; SVC --&gt; CLIENT --&gt; OUT
+</span></code></pre></div>
+<ol>
+<li><code>nbx</code> dispatches to the root Typer app in <code>netbox_cli/__init__.py</code></li>
+<li><code>netbox_cli.dynamic</code> registers all <code>nbx &lt;group&gt; &lt;resource&gt; &lt;action&gt;</code> commands at startup from the OpenAPI schema</li>
+<li><code>netbox_sdk.services.resolve_dynamic_request()</code> maps the action to <code>(method, path, query, payload)</code></li>
+<li><code>NetBoxApiClient.request()</code> executes the HTTP call with auth, caching, and SSRF protection</li>
+<li><code>support</code> / <code>markdown_output</code> render the response as Rich tables or Markdown</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>flowchart LR
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    CMD2[&quot;nbx tui&quot;]
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    LAZY[&quot;netbox_cli\nlazy-imports netbox_tui&quot;]
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    APP[&quot;netbox_tui.app\nNetBoxTuiApp&quot;]
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    SDK2[&quot;netbox_sdk\nclient · schema · formatting&quot;]
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    TUI2[&quot;Textual\nwidgets · TCSS · theme registry&quot;]
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    CMD2 --&gt; LAZY --&gt; APP --&gt; SDK2 --&gt; TUI2
+</span></code></pre></div>
+<ol>
+<li><code>nbx tui</code> in <code>netbox_cli/__init__.py</code> lazy-imports <code>netbox_tui</code> (so <code>import netbox_cli</code> works without Textual)</li>
+<li><code>NetBoxTuiApp</code> takes the active <code>NetBoxApiClient</code> and <code>SchemaIndex</code> from the CLI runtime</li>
+<li>All data queries go through <code>netbox_sdk.client</code> and <code>netbox_sdk.schema</code></li>
+<li>Formatting (badges, labels, colors) comes from <code>netbox_sdk.formatting</code></li>
+<li>UI layout is pure Textual: TCSS stylesheets + theme registry</li>
+</ol>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="responsibilities">Responsibilities<a class="headerlink" href="#responsibilities" title="Permanent link">&para;</a></h2>
 <h3 id="netbox_sdk"><code>netbox_sdk</code><a class="headerlink" href="#netbox_sdk" title="Permanent link">&para;</a></h3>
-<p>Owns:
-- API client behavior
-- profile/config loading
-- HTTP caching
-- OpenAPI schema indexing
-- request resolution
-- plugin discovery helpers
-- shared formatting and output safety
-- demo auth helpers
-- Django model parsing/cache helpers</p>
+<p>Owns:</p>
+<ul>
+<li>API client behavior (HTTP, auth, caching, token refresh, file upload)</li>
+<li>Profile and config loading from disk and environment variables</li>
+<li>HTTP response caching (filesystem-backed, ETag/If-Modified-Since)</li>
+<li>OpenAPI schema indexing and resource resolution</li>
+<li>Dynamic request resolution from <code>(group, resource, action)</code> tuples</li>
+<li>Plugin discovery helpers</li>
+<li>Shared formatting and output safety utilities</li>
+<li>Demo auth helpers and Django model parsing/cache helpers</li>
+<li>All three public API layers: <code>NetBoxApiClient</code>, <code>api()</code>, <code>typed_api()</code></li>
+</ul>
 <h3 id="netbox_cli"><code>netbox_cli</code><a class="headerlink" href="#netbox_cli" title="Permanent link">&para;</a></h3>
-<p>Owns:
-- <code>nbx</code> entrypoint
-- top-level command registration
-- runtime config/index/client factories
-- dynamic command wiring from OpenAPI
-- CLI output rendering and markdown output
-- demo/dev/doc generation command trees</p>
+<p>Owns:</p>
+<ul>
+<li><code>nbx</code> entrypoint and root command registration</li>
+<li>Runtime config/index/client factories (<code>netbox_cli/runtime.py</code>)</li>
+<li>Dynamic command wiring from OpenAPI schema (<code>netbox_cli/dynamic.py</code>)</li>
+<li>CLI output rendering (<code>support.py</code>, <code>markdown_output.py</code>)</li>
+<li>Demo/dev/docgen command trees</li>
+</ul>
 <p>CLI commands that launch a TUI must lazy-import <code>netbox_tui</code> and surface an install hint for <code>pip install 'netbox-sdk[tui]'</code> when needed.</p>
 <h3 id="netbox_tui"><code>netbox_tui</code><a class="headerlink" href="#netbox_tui" title="Permanent link">&para;</a></h3>
-<p>Owns:
-- all Textual applications
-- shared Textual widgets/chrome/panels/state
-- TCSS assets
-- theme registry and theme JSON catalog</p>
-<p>Shared data transformation such as <code>semantic_cell</code>, <code>humanize_value</code>, and row parsing lives in <code>netbox_sdk.formatting</code>, not in the TUI package.</p>
-<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
-<h3 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>nbx dcim devices list
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  -&gt; netbox_cli.__init__.py root app
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  -&gt; netbox_cli.dynamic
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  -&gt; netbox_sdk.services.resolve_dynamic_request
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  -&gt; netbox_sdk.client.NetBoxApiClient.request
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  -&gt; netbox_cli.support / markdown_output
-</span></code></pre></div>
-<h3 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h3>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>nbx tui
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  -&gt; netbox_cli lazy-imports netbox_tui
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  -&gt; netbox_tui.app.NetBoxTuiApp
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  -&gt; netbox_sdk.client / schema / formatting
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  -&gt; Textual widgets + TCSS + theme registry
-</span></code></pre></div>
-<h2 id="packaging">Packaging<a class="headerlink" href="#packaging" title="Permanent link">&para;</a></h2>
+<p>Owns:</p>
 <ul>
-<li>Core install: <code>pip install netbox-sdk</code></li>
-<li>CLI install: <code>pip install 'netbox-sdk[cli]'</code></li>
-<li>TUI install: <code>pip install 'netbox-sdk[tui]'</code></li>
-<li>Full install: <code>pip install 'netbox-sdk[all]'</code></li>
+<li>All six Textual applications: <code>NetBoxTuiApp</code>, <code>NbxCliTuiApp</code>, <code>NetBoxDevTuiApp</code>, <code>NetBoxGraphqlTuiApp</code>, <code>NetBoxLogsTuiApp</code>, <code>DjangoModelTuiApp</code></li>
+<li>Shared Textual widgets, chrome, panels, and state management</li>
+<li>TCSS stylesheets and theme registry</li>
 </ul>
+<p>Shared data transformations (<code>semantic_cell</code>, <code>humanize_value</code>, row parsing) live in <code>netbox_sdk.formatting</code>, not in the TUI package.</p>
+<hr />
+<h2 id="packaging">Packaging<a class="headerlink" href="#packaging" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Install command</th>
+<th>What you get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pip install netbox-sdk</code></td>
+<td><code>netbox_sdk</code> only — SDK, no CLI or TUI</td>
+</tr>
+<tr>
+<td><code>pip install 'netbox-sdk[cli]'</code></td>
+<td><code>netbox_sdk</code> + <code>netbox_cli</code></td>
+</tr>
+<tr>
+<td><code>pip install 'netbox-sdk[tui]'</code></td>
+<td><code>netbox_sdk</code> + <code>netbox_tui</code></td>
+</tr>
+<tr>
+<td><code>pip install 'netbox-sdk[all]'</code></td>
+<td>Everything including demo tooling</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
 <p>For architecture-affecting changes, run:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui<span class="w"> </span>--extra<span class="w"> </span>demo
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--dev<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui<span class="w"> </span>--extra<span class="w"> </span>demo
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
 </span></code></pre></div>
 
 
