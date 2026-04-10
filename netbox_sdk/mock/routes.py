@@ -280,7 +280,7 @@ def _build_generated_endpoint(
             required = bool(param.get("required", False))
             query_params.append((py_name, name, required))
 
-    has_body = topology.request_schema is not None and method in ("POST", "PUT", "PATCH")
+    has_body = topology.request_schema is not None and method in ("POST", "PUT", "PATCH", "DELETE")
 
     # Build the inspect.Signature for FastAPI DI
     sig_params: list[inspect.Parameter] = []

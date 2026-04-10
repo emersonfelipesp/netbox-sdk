@@ -83,6 +83,12 @@ plugins:
             Typed API: API tipada
             Schema Indexing: Indexação de esquema
             Error Handling: Tratamento de erros
+            Mock API: API Mock
+            CRUD Operations: Operações CRUD
+            Bulk Operations: Operações em lote
+            Pagination and Filtering: Paginação e filtragem
+            pytest Integration: Integração com pytest
+            Standalone Server: Servidor standalone
             CLI: CLI
             Commands: Comandos
             Dynamic Commands: Comandos dinâmicos
@@ -172,6 +178,13 @@ nav:
     - Typed API: sdk/typed.md
     - Schema Indexing: sdk/schema.md
     - Error Handling: sdk/error-handling.md
+  - Mock API:
+    - mock-api/index.md
+    - CRUD Operations: mock-api/crud.md
+    - Bulk Operations: mock-api/bulk-operations.md
+    - Pagination and Filtering: mock-api/pagination-filtering.md
+    - pytest Integration: mock-api/pytest-integration.md
+    - Standalone Server: mock-api/standalone-server.md
   - CLI:
     - cli/index.md
     - Commands: cli/commands.md
