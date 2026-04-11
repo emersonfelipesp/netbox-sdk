@@ -228,31 +228,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        netbox-version: ["4.3.4", "4.4.10", "4.5.7"]
+        netbox-version: ["v4.3.4", "v4.4.10", "v4.5.7"]
     services:
       netbox:
-        image: lscr.io/linuxserver/netbox:${{ matrix.netbox-version }}
+        image: ghcr.io/netbox-community/netbox:${{ matrix.netbox-version }}
         env:
-          PUID: "1000"
-          PGID: "1000"
-          TZ: "Etc/UTC"
-          SUPERUSER_EMAIL: "admin@example.com"
-          SUPERUSER_PASSWORD: "netbox-test-password"
-          ALLOWED_HOST: "localhost"
+          SECRET_KEY: "ci-test-secret-key-not-for-production-use"
+          ALLOWED_HOSTS: "*"
           DB_HOST: "postgres"
           DB_NAME: "netbox"
           DB_USER: "netbox"
           DB_PASSWORD: "netbox"
           REDIS_HOST: "redis"
           REDIS_PORT: "6379"
+          SUPERUSER_NAME: "admin"
+          SUPERUSER_EMAIL: "admin@example.com"
+          SUPERUSER_PASSWORD: "netbox-test-password"
+          SUPERUSER_API_TOKEN: "0123456789abcdef0123456789abcdef01234567"
         ports:
           - 8080:8080
         options: >-
           --health-cmd "curl -sf http://localhost:8080/api/status/ || exit 1"
-          --health-interval 15s
-          --health-timeout 10s
-          --health-retries 40
-          --health-start-period 180s
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
       postgres:
         image: postgres:16
         env:
@@ -298,18 +298,9 @@ jobs:
             sleep 10
           done
 
-      - name: Create API token via Django shell
+      - name: Set NetBox connection env vars
         run: |
-          # Wait for the app to be fully up, then create a token via the API
-          TOKEN=$(curl -sf -X POST http://localhost:8080/api/users/tokens/ \
-            -H "Content-Type: application/json" \
-            -u "admin:netbox-test-password" \
-            -d '{"user": 1}' 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('key',''))" 2>/dev/null || echo "")
-          if [ -z "$TOKEN" ]; then
-            echo "Failed to create token — using default test token"
-            TOKEN="0123456789abcdef0123456789abcdef01234567"
-          fi
-          echo "NETBOX_TOKEN=$TOKEN" >> $GITHUB_ENV
+          echo "NETBOX_TOKEN=0123456789abcdef0123456789abcdef01234567" >> $GITHUB_ENV
           echo "NETBOX_URL=http://localhost:8080" >> $GITHUB_ENV
 
       - name: Run live NetBox integration tests
