@@ -14,6 +14,7 @@ def test_all_non_test_python_functions_have_return_annotations() -> None:
         ".venv",
         "venv",
         "tests",
+        "examples",
         "site",
         "build",
         "dist",
