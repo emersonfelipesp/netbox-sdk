@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "netbox-sdk"
-version = "0.0.7.post3"
+version = "0.0.7.post4"
 description = "SDK-first NetBox toolkit with Python SDK, CLI, and Textual TUIs"
 readme = "README.md"
 requires-python = ">=3.11"
