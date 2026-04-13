@@ -1,1 +1,1 @@
-uv tool install --force 'netbox-sdk[cli]==0.0.7.post3'
+uv tool install --force 'netbox-sdk[cli]==0.0.7.post4'
