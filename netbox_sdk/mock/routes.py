@@ -578,7 +578,11 @@ def register_netbox_mock_routes(
     if custom_mock_data:
         store = mock_store(doc_fingerprint, namespace=namespace)
         for path_key, data in custom_mock_data.items():
-            store.set_object(path_key, data)
+            if isinstance(data, list):
+                collection_key = path_key if path_key.endswith("/") else path_key + "/"
+                store.replace_collection(collection_key, data)
+            else:
+                store.set_object(path_key, data)
 
     route_count = 0
     method_count = 0
