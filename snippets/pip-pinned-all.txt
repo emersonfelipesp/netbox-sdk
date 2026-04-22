@@ -1,1 +1,1 @@
-pip install 'netbox-sdk[all]==0.0.7.post5'
+pip install 'netbox-sdk[all]==0.0.7.post6'
