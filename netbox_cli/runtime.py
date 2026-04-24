@@ -49,11 +49,40 @@ _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
 
 
+async def _detect_and_fetch_schema(cfg: Config) -> dict:
+    from netbox_sdk.schema import fetch_schema_for_client  # noqa: PLC0415
+
+    client = _get_client_for_config(cfg)
+    return await fetch_schema_for_client(client)
+
+
+def _load_schema_for_connected_instance() -> dict:
+    """Resolve the OpenAPI schema for the active profile's NetBox instance.
+
+    Uses a bundled schema when the connected version is a supported release line,
+    fetches it dynamically via /api/schema/ for unsupported versions, and falls
+    back to the default bundled schema when config is absent or any error occurs.
+    """
+    try:
+        cfg = load_profile_config(DEFAULT_PROFILE)
+        if not cfg.base_url:
+            logger.debug("no base_url configured; using default bundled schema")
+            return load_openapi_schema()
+        return run_with_spinner(_detect_and_fetch_schema(cfg))
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(
+            "schema version detection failed (%s); using default bundled schema",
+            exc,
+            extra={"nbx_event": "schema_version_detection_failed"},
+        )
+        return load_openapi_schema()
+
+
 def _get_index() -> SchemaIndex:
     global _SCHEMA_DOCUMENT
     if _SCHEMA_DOCUMENT is None:
-        logger.info("loading base openapi schema")
-        _SCHEMA_DOCUMENT = load_openapi_schema()
+        logger.info("loading schema for connected instance")
+        _SCHEMA_DOCUMENT = _load_schema_for_connected_instance()
     # Return a fresh mutable index for each caller so runtime discoveries from one
     # NetBox instance can't leak into another app session.
     return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))

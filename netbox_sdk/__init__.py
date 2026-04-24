@@ -26,6 +26,7 @@ __all__ = [
     "RequestError",
     "ConnectionProbe",
     "api",
+    "async_api",
     "Api",
     "App",
     "PluginsApp",
@@ -58,6 +59,7 @@ __all__ = [
     "parse_group_resource",
     "load_openapi_schema",
     "build_schema_index",
+    "fetch_schema_for_client",
     # services
     "ResolvedRequest",
     "resolve_dynamic_request",
@@ -69,7 +71,7 @@ __all__ = [
     "discover_plugin_resource_paths",
 ]
 
-__version__ = "0.0.7.post6"
+__version__ = "0.0.8"
 
 from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_sdk.config import (
@@ -107,6 +109,7 @@ from netbox_sdk.facade import (
     RODetailEndpoint,
     ROMultiFormatDetailEndpoint,
     api,
+    async_api,
 )
 from netbox_sdk.http_cache import CacheEntry, CachePolicy, HttpCacheStore, build_cache_key
 from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
@@ -116,6 +119,7 @@ from netbox_sdk.schema import (
     ResourcePaths,
     SchemaIndex,
     build_schema_index,
+    fetch_schema_for_client,
     load_openapi_schema,
     parse_group_resource,
 )

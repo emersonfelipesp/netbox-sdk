@@ -239,7 +239,7 @@ nav:
     - NetBox UI Guidelines: NETBOX_UI_TO_TEXTUAL_GUIDELINES.md
 
 extra:
-  package_version: "0.0.7.post6"
+  package_version: "0.0.8"
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/emersonfelipesp/netbox-sdk

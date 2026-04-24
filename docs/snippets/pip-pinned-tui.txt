@@ -1,1 +1,1 @@
-pip install 'netbox-sdk[tui]==0.0.7.post6'
+pip install 'netbox-sdk[tui]==0.0.8'

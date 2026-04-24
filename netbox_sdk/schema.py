@@ -377,3 +377,32 @@ def build_schema_index(
 ) -> SchemaIndex:
     """Load OpenAPI from ``openapi_path`` (or bundled default) and build a :class:`SchemaIndex`."""
     return SchemaIndex(load_openapi_schema(openapi_path, version=version))
+
+
+async def fetch_schema_for_client(client: Any) -> dict[str, Any]:
+    """Select the appropriate OpenAPI schema for a connected NetBox client.
+
+    Uses the bundled schema when the connected version is a supported release line;
+    fetches dynamically via ``/api/schema/`` otherwise.
+    """
+    from netbox_sdk.versioning import (  # noqa: PLC0415
+        UnsupportedNetBoxVersionError,
+        normalize_netbox_version,
+    )
+
+    version = await client.get_version()
+    try:
+        supported = normalize_netbox_version(version)
+        logger.info(
+            "loading bundled schema for NetBox %s",
+            supported,
+            extra={"nbx_event": "schema_version_bundled", "version": supported},
+        )
+        return load_openapi_schema(version=supported)
+    except UnsupportedNetBoxVersionError:
+        logger.info(
+            "NetBox %s is not a bundled release line; fetching schema dynamically",
+            version,
+            extra={"nbx_event": "schema_version_dynamic_fetch", "version": version},
+        )
+        return await client.openapi()

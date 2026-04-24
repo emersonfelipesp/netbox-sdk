@@ -27,7 +27,7 @@ def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> Non
         }
     }
     monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda: schema)
+    monkeypatch.setattr(runtime, "_load_schema_for_connected_instance", lambda: schema)
 
     first = runtime._get_index()
     assert "plugins" not in first.groups()

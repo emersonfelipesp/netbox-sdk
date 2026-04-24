@@ -87,6 +87,41 @@ def api(
     return Api(client=client, schema=schema, strict_filters=strict_filters)
 
 
+async def async_api(
+    url: str,
+    token: str | None = None,
+    *,
+    strict_filters: bool = False,
+    client: NetBoxApiClient | None = None,
+) -> Api:
+    """Like :func:`api` but auto-detects the NetBox version and selects the right schema.
+
+    Fetches the schema from the connected instance when the version is not a bundled
+    release line; otherwise uses the matching bundled schema.
+    """
+    from netbox_sdk.schema import fetch_schema_for_client  # noqa: PLC0415
+
+    if client is None:
+        token_version = "v2" if _is_v2_token(token) else "v1"
+        token_key = None
+        token_secret = token
+        if token_version == "v2" and token:
+            key, secret = token.split(".", 1)
+            token_key = key
+            token_secret = secret
+        client = NetBoxApiClient(
+            Config(
+                base_url=url,
+                token_version=token_version,
+                token_key=token_key,
+                token_secret=token_secret,
+            )
+        )
+    schema_dict = await fetch_schema_for_client(client)
+    schema = SchemaIndex(schema_dict)
+    return Api(client=client, schema=schema, strict_filters=strict_filters)
+
+
 class Api:
     def __init__(
         self,
