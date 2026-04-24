@@ -56,10 +56,14 @@ from netbox_tui.chrome import (
     update_clock_widget,
 )
 from netbox_tui.filter_overlay import FilterOverlayMixin
+from netbox_tui.login_modal import LoginModal
 from netbox_tui.navigation import build_navigation_menus
 from netbox_tui.panels import ObjectAttributesPanel
 from netbox_tui.plugin_discovery import discover_plugin_resource_paths
-from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
+from netbox_tui.ssl_verify_support import (
+    maybe_resolve_ssl_verify_interactive,
+    profile_for_netbox_client,
+)
 from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
 
@@ -283,6 +287,8 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             self._probe_connection_health,
             name="nbx_connection_health",
         )
+        if not self.client.config.token_secret:
+            self._show_login_if_needed()
 
     def on_key(self, event: events.Key) -> None:
         if isinstance(self.focused, Input):
@@ -907,6 +913,25 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         table.clear(columns=True)
         table.add_columns("sel", "result")
         table.add_row("", "")
+
+    @work(group="login_prompt", exclusive=True, thread=False)
+    async def _show_login_if_needed(self) -> None:
+        """Show LoginModal when no token is configured; save config on success or exit on cancel."""
+        result = await self.push_screen_wait(LoginModal())
+        if result:
+            from netbox_sdk.config import save_profile_config  # noqa: PLC0415
+
+            profile = profile_for_netbox_client(self.client, demo_mode=self.demo_mode)
+            save_profile_config(profile, self.client.config)
+            try:
+                from netbox_cli.runtime import _cache_profile  # noqa: PLC0415
+
+                _cache_profile(profile, self.client.config)
+            except Exception:  # noqa: BLE001
+                pass
+            self._probe_connection_health()
+        else:
+            self.exit()
 
     @work(group="connection_probe", exclusive=True, thread=False)
     async def _probe_connection_health(self) -> None:

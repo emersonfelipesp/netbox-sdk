@@ -95,6 +95,20 @@ def _get_client() -> NetBoxApiClient:
     return NetBoxApiClient(cli_mod._ensure_runtime_config())
 
 
+def _get_client_for_tui() -> NetBoxApiClient:
+    """Create a client for TUI launch without prompting for credentials.
+
+    Loads the stored profile config when available. If credentials are absent
+    the TUI will prompt interactively via LoginModal instead of the terminal.
+    """
+    try:
+        cfg = load_profile_config(DEFAULT_PROFILE) or Config()
+    except Exception:  # noqa: BLE001
+        cfg = Config()
+    _cache_profile(DEFAULT_PROFILE, cfg)
+    return _get_client_for_config(cfg)
+
+
 def _demo_token_refresh_callback(
     config: Config,
 ) -> tuple[str | None, Config]:

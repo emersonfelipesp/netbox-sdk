@@ -31,6 +31,7 @@ from netbox_cli.runtime import (
     _ensure_runtime_config,
     _get_client,
     _get_client_for_config,
+    _get_client_for_tui,
     _get_index,
     _retry_probe_after_ssl_prompt,
 )
@@ -475,7 +476,7 @@ def tui_command(
 
     try:
         run_tui(
-            client=_get_client(),
+            client=_get_client_for_tui(),
             index=_get_index(),
             theme_name=selected_theme,
             demo_mode=False,
