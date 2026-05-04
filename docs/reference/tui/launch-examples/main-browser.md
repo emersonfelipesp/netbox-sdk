@@ -27,7 +27,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.438s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.835s</span>
 
 ---
 
@@ -54,7 +54,7 @@
     - tokyo-night
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.165s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.970s</span>
 
 ---
 
@@ -85,33 +85,6 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.737s</span>
-
----
-
-## `nbx demo tui --theme`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo tui --theme
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo tui --theme
-    ```
-
-    ```text
-    Available themes:
-    - dracula
-    - netbox-dark
-    - netbox-light
-    - onedark-pro
-    - tokyo-night
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.014s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.690s</span>
 
 ---

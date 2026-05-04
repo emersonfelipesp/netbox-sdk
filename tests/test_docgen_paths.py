@@ -1,11 +1,13 @@
 """Tests for docgen_capture path resolution."""
 
+import sys
 import unittest
 from pathlib import Path
 
 import pytest
 
 from netbox_cli import docgen_capture
+from netbox_cli.docgen.engine import _local_cli_command
 
 pytestmark = pytest.mark.suite_cli
 
@@ -88,6 +90,18 @@ class ResolveCapturePathsTests(unittest.TestCase):
         o, r = docgen_capture.resolve_capture_paths(out, raw)
         self.assertEqual(o, out)
         self.assertEqual(r, raw)
+
+
+class LocalCliCommandTests(unittest.TestCase):
+    def test_uses_current_python_instead_of_path_nbx(self) -> None:
+        command = _local_cli_command(["docs", "generate-capture", "--help"])
+
+        self.assertEqual(command[0], sys.executable)
+        self.assertEqual(
+            command[1:3],
+            ["-c", "import netbox_cli, sys; raise SystemExit(netbox_cli.main(sys.argv[1:]))"],
+        )
+        self.assertEqual(command[3:], ["docs", "generate-capture", "--help"])
 
 
 if __name__ == "__main__":

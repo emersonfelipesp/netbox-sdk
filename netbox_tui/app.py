@@ -574,7 +574,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
 
     async def _show_detail_for_path(self, detail_path: str, fallback_row: dict[str, Any]) -> None:
         panel = self.query_one("#detail_panel", ObjectAttributesPanel)
-        panel.set_loading("Loading object details...")
+        panel.set_loading_state("Loading object details...")
 
         try:
             response = await self.client.request("GET", detail_path)
@@ -650,6 +650,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         try:
             response = await self.client.request("GET", trace_path)
         except Exception:
+            logger.debug(
+                "trace request failed for %s",
+                trace_path,
+                extra={"nbx_event": "tui_trace_request_failed", "request_path": trace_path},
+                exc_info=True,
+            )
             panel.set_trace(None)
             return
 

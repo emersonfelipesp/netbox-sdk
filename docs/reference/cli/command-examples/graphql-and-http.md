@@ -18,21 +18,25 @@
                                                                                     
      Usage: nbx graphql [OPTIONS] QUERY                                             
                                                                                     
-     Execute a GraphQL query against the NetBox API.                                
+     Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     
                                                                                     
     ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-    │ *    query      TEXT  GraphQL query string [required]                        │
+    │ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+    │                       TUI                                                    │
+    │                       [required]                                             │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
     │ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
     │                            multiple key=value pairs                          │
     │ --json                     Output raw JSON                                   │
     │ --yaml                     Output YAML                                       │
+    │ --theme                    For `nbx graphql tui`: list available themes or   │
+    │                            launch with `--theme <name>`.                     │
     │ --help                     Show this message and exit.                       │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.451s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.968s</span>
 
 ---
 
@@ -72,6 +76,6 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.973s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.014s</span>
 
 ---

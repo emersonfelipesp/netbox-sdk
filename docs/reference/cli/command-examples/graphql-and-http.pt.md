@@ -1,0 +1,81 @@
+# GraphQL and HTTP
+
+## `nbx graphql --help`
+
+=== ":material-console: Comando"
+
+    ```bash
+    nbx graphql --help
+    ```
+
+=== ":material-text-box-outline: Saída"
+
+    ```bash
+    nbx graphql --help
+    ```
+
+    ```text
+                                                                                    
+     Usage: nbx graphql [OPTIONS] QUERY                                             
+                                                                                    
+     Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     
+                                                                                    
+    ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+    │ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+    │                       TUI                                                    │
+    │                       [required]                                             │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
+    │                            multiple key=value pairs                          │
+    │ --json                     Output raw JSON                                   │
+    │ --yaml                     Output YAML                                       │
+    │ --theme                    For `nbx graphql tui`: list available themes or   │
+    │                            launch with `--theme <name>`.                     │
+    │ --help                     Show this message and exit.                       │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ```
+
+<span class="nbx-badge nbx-badge--ok">saída&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.968s</span>
+
+---
+
+## `nbx call --help`
+
+=== ":material-console: Comando"
+
+    ```bash
+    nbx call --help
+    ```
+
+=== ":material-text-box-outline: Saída"
+
+    ```bash
+    nbx call --help
+    ```
+
+    ```text
+                                                                                    
+     Usage: nbx call [OPTIONS] METHOD PATH                                          
+                                                                                    
+     Call an arbitrary NetBox API path.                                             
+                                                                                    
+    ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+    │ *    method      TEXT  [required]                                            │
+    │ *    path        TEXT  [required]                                            │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ╭─ Options ────────────────────────────────────────────────────────────────────╮
+    │ --query      -q      TEXT  Query parameter key=value                         │
+    │ --body-json          TEXT  Inline JSON request body                          │
+    │ --body-file          TEXT  Path to JSON request body file                    │
+    │ --json                     Output raw JSON                                   │
+    │ --yaml                     Output YAML                                       │
+    │ --markdown                 Output Markdown (mutually exclusive with          │
+    │                            --json/--yaml)                                    │
+    │ --help                     Show this message and exit.                       │
+    ╰──────────────────────────────────────────────────────────────────────────────╯
+    ```
+
+<span class="nbx-badge nbx-badge--ok">saída&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.014s</span>
+
+---

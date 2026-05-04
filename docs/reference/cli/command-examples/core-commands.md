@@ -31,7 +31,8 @@
     │ groups          List all available OpenAPI app groups.                       │
     │ resources       List resources available within a group.                     │
     │ ops             Show available HTTP operations for a resource.               │
-    │ graphql         Execute a GraphQL query against the NetBox API.              │
+    │ graphql         Execute a GraphQL query against the NetBox API, or launch    │
+    │                 the GraphQL TUI.                                             │
     │ call            Call an arbitrary NetBox API path.                           │
     │ tui             Launch the interactive NetBox terminal UI.                   │
     │ logs            Show recent application logs from the shared on-disk log     │
@@ -55,7 +56,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.780s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">5.761s</span>
 
 ---
 
@@ -80,17 +81,24 @@
      Create or update the default NetBox SDK profile.                               
                                                                                     
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --base-url            TEXT   NetBox base URL, e.g.                        │
-    │                                 https://netbox.example.com                   │
-    │                                 [required]                                   │
-    │ *  --token-key           TEXT   NetBox API token key [required]              │
-    │ *  --token-secret        TEXT   NetBox API token secret [required]           │
-    │    --timeout             FLOAT  HTTP timeout in seconds [default: 30.0]      │
-    │    --help                       Show this message and exit.                  │
+    │ *  --base-url                           TEXT   NetBox base URL, e.g.         │
+    │                                                https://netbox.example.com    │
+    │                                                [required]                    │
+    │ *  --token-key                          TEXT   NetBox API token key          │
+    │                                                [required]                    │
+    │ *  --token-secret                       TEXT   NetBox API token secret       │
+    │                                                [required]                    │
+    │    --timeout                            FLOAT  HTTP timeout in seconds       │
+    │                                                [default: 30.0]               │
+    │    --verify-ssl      --no-verify-ssl           HTTPS TLS certificate         │
+    │                                                verification (default:        │
+    │                                                verify; omit to leave unset   │
+    │                                                until first failure)          │
+    │    --help                                      Show this message and exit.   │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.430s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.178s</span>
 
 ---
 
@@ -120,7 +128,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.442s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">5.443s</span>
 
 ---
 
@@ -154,7 +162,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.509s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.265s</span>
 
 ---
 
@@ -187,7 +195,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.746s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.575s</span>
 
 ---
 
@@ -239,6 +247,6 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.472s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.764s</span>
 
 ---

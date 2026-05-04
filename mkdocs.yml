@@ -7,6 +7,7 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  language: en
   palette:
     - scheme: slate
       primary: teal
@@ -41,6 +42,98 @@ theme:
 
 plugins:
   - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: false
+      reconfigure_material: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: pt
+          name: Português (Brasil)
+          build: true
+          site_description: Kit de ferramentas NetBox com SDK Python, CLI e TUIs Textual, priorizando o SDK.
+          theme:
+            language: pt
+            palette:
+              - scheme: slate
+                primary: teal
+                accent: teal
+                toggle:
+                  icon: material/brightness-4
+                  name: Mudar para o modo claro
+              - scheme: default
+                primary: teal
+                accent: teal
+                toggle:
+                  icon: material/brightness-7
+                  name: Mudar para o modo escuro
+          nav_translations:
+            Home: Início
+            Getting Started: Primeiros passos
+            Installation: Instalação
+            Configuration: Configuração
+            Quick Start: Início rápido
+            SDK: SDK
+            Authentication: Autenticação
+            Requests and Transport: Requisições e transporte
+            Facade API: API de fachada
+            Typed API: API tipada
+            Schema Indexing: Indexação de esquema
+            Error Handling: Tratamento de erros
+            Mock API: API Mock
+            CRUD Operations: Operações CRUD
+            Bulk Operations: Operações em lote
+            Pagination and Filtering: Paginação e filtragem
+            pytest Integration: Integração com pytest
+            Standalone Server: Servidor standalone
+            CLI: CLI
+            Commands: Comandos
+            Dynamic Commands: Comandos dinâmicos
+            GraphQL: GraphQL
+            Demo Profile: Perfil demo
+            Captured Command Output: Saída de comandos capturados
+            Core Commands: Comandos principais
+            Schema Discovery: Descoberta de esquema
+            GraphQL and HTTP: GraphQL e HTTP
+            Developer Tools: Ferramentas de desenvolvimento
+            Raw Capture Artifact: Artefato bruto de captura
+            TUI: TUI
+            Main Browser: Navegador principal
+            Developer Workbench: Bancada do desenvolvedor
+            GraphQL TUI: TUI GraphQL
+            CLI Builder: Construtor de CLI
+            Logs Viewer: Visualizador de logs
+            Django Models Browser: Navegador de modelos Django
+            Launch Command Output: Saída de comandos de lançamento
+            Themes: Temas
+            Keyboard Shortcuts: Atalhos de teclado
+            Screenshot Gallery: Galeria de capturas de tela
+            Developer Guide: Guia do desenvolvedor
+            Architecture: Arquitetura
+            SDK Internals: Internos do SDK
+            Integration with proxbox-api: Integração com proxbox-api
+            Package integration: Integração de pacotes
+            Design principles: Princípios de design
+            Textual Composition Pattern: Padrão de composição Textual
+            Documentation Generation: Geração de documentação
+            Command Capture Guide: Guia de captura de comandos
+            NetBox UI Guidelines: Diretrizes de UI do NetBox
+          admonition_translations:
+            note: nota
+            abstract: resumo
+            info: informação
+            tip: dica
+            success: sucesso
+            question: pergunta
+            warning: aviso
+            failure: falha
+            danger: perigo
+            bug: bug
+            example: exemplo
+            quote: citação
 
 hooks:
   - docs/hooks.py
@@ -55,7 +148,9 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.details
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path:
+        - docs
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -83,6 +178,13 @@ nav:
     - Typed API: sdk/typed.md
     - Schema Indexing: sdk/schema.md
     - Error Handling: sdk/error-handling.md
+  - Mock API:
+    - mock-api/index.md
+    - CRUD Operations: mock-api/crud.md
+    - Bulk Operations: mock-api/bulk-operations.md
+    - Pagination and Filtering: mock-api/pagination-filtering.md
+    - pytest Integration: mock-api/pytest-integration.md
+    - Standalone Server: mock-api/standalone-server.md
   - CLI:
     - cli/index.md
     - Commands: cli/commands.md
@@ -97,13 +199,12 @@ nav:
       - Dynamic Commands: reference/cli/command-examples/dynamic-commands.md
       - Developer Tools: reference/cli/command-examples/developer-tools.md
       - Demo Profile: reference/cli/command-examples/demo-profile.md
-      - Live API: reference/cli/command-examples/live-api.md
-      - Cable Trace: reference/cli/command-examples/cable-trace.md
     - Raw Capture Artifact: generated/nbx-command-capture.md
   - TUI:
     - tui/index.md
     - Main Browser: tui/index.md
     - Developer Workbench: tui/dev-workbench.md
+    - GraphQL TUI: tui/graphql.md
     - CLI Builder: tui/cli-builder.md
     - Logs Viewer: tui/logs.md
     - Django Models Browser: tui/django-models.md
@@ -112,6 +213,7 @@ nav:
       - Main Browser: reference/tui/launch-examples/main-browser.md
       - Logs Viewer: reference/tui/launch-examples/logs-viewer.md
       - Developer Workbench: reference/tui/launch-examples/developer-workbench.md
+      - GraphQL TUI: reference/tui/launch-examples/graphql-tui.md
       - CLI Builder: reference/tui/launch-examples/cli-builder.md
       - Django Models Browser: reference/tui/launch-examples/django-models-browser.md
     - Themes: tui/themes.md
@@ -120,12 +222,15 @@ nav:
       - tui/screenshots.md
       - Main Browser: tui/screenshots-default.md
       - Developer Workbench: tui/screenshots-dev.md
+      - GraphQL TUI: tui/screenshots-graphql.md
       - Logs Viewer: tui/screenshots-logs.md
       - CLI Builder: tui/screenshots-cli.md
       - Django Models Browser: tui/screenshots-django.md
   - Developer Guide:
     - developer/index.md
     - Architecture: developer/architecture.md
+    - SDK Internals: developer/sdk-internals.md
+    - Integration with proxbox-api: developer/integration-with-proxbox-api.md
     - Package integration: developer/package-integration.md
     - Design principles: developer/design-principles.md
     - Textual Composition Pattern: developer/textual-composition.md
@@ -134,6 +239,7 @@ nav:
     - NetBox UI Guidelines: NETBOX_UI_TO_TEXTUAL_GUIDELINES.md
 
 extra:
+  package_version: "0.0.7.post6"
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/emersonfelipesp/netbox-sdk

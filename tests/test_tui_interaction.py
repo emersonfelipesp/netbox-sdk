@@ -1513,11 +1513,15 @@ async def test_nav_tree_api_error_shows_status(mock_client, real_index):
 
 @pytest.mark.asyncio
 async def test_results_loading_status_uses_theme_primary(mock_client, real_index):
-    async def _slow_request(*args, **kwargs):
-        await asyncio.sleep(0.5)  # Longer delay for CI stability
+    """Gate the mock HTTP call until we observe loading UI (avoids xdist / CI races)."""
+
+    gate = asyncio.Event()
+
+    async def _gated_request(*args, **kwargs):
+        await gate.wait()
         return _list_response(FAKE_DEVICES)
 
-    mock_client.request = AsyncMock(side_effect=_slow_request)
+    mock_client.request = AsyncMock(side_effect=_gated_request)
     app = _make_app(mock_client, real_index, theme="dracula")
     expected_primary = Color.parse(app.theme_catalog.theme_for("dracula").colors["primary"])
 
@@ -1528,15 +1532,25 @@ async def test_results_loading_status_uses_theme_primary(mock_client, real_index
         leaf = _first_leaf_with_data(tree)
         assert leaf is not None
         tree.post_message(Tree.NodeSelected(leaf))
-        for _ in range(40):  # Increased for parallel test stability
-            await pilot.pause()
-            status = app.query_one("#results_status", Static)
-            if "-loading" in status.classes:
-                break
+        try:
+            for _ in range(200):
+                await pilot.pause()
+                status = app.query_one("#results_status", Static)
+                if "-loading" in status.classes:
+                    break
+            else:
+                pytest.fail("results status never entered loading state")
 
-        status = app.query_one("#results_status", Static)
-        assert "-loading" in status.classes
-        assert status.styles.color == expected_primary
+            status = app.query_one("#results_status", Static)
+            assert "-loading" in status.classes
+            assert status.styles.color == expected_primary
+        finally:
+            gate.set()
+
+        for _ in range(80):
+            await pilot.pause()
+            if "-loading" not in app.query_one("#results_status", Static).classes:
+                break
 
 
 # ---------------------------------------------------------------------------

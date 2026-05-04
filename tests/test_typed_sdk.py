@@ -23,10 +23,12 @@ def _require_email_validator() -> None:
 
 
 def test_versioned_openapi_bundles_are_available() -> None:
+    schema_46 = load_openapi_schema(version="4.6")
     schema_45 = load_openapi_schema(version="4.5")
     schema_44 = load_openapi_schema(version="4.4")
     schema_43 = load_openapi_schema(version="4.3")
 
+    assert str(schema_46["info"]["version"]).startswith("4.6")
     assert str(schema_45["info"]["version"]).startswith("4.5")
     assert str(schema_44["info"]["version"]).startswith("4.4")
     assert "(4.3)" in str(schema_43["info"]["version"])
@@ -39,13 +41,16 @@ def test_typed_api_rejects_unsupported_versions() -> None:
 
 def test_typed_api_selects_versioned_client() -> None:
     _require_email_validator()
+    api_46 = typed_api("https://netbox.example.com", token="tok", netbox_version="4.6.0")
     api_45 = typed_api("https://netbox.example.com", token="tok", netbox_version="4.5.5")
     api_44 = typed_api("https://netbox.example.com", token="tok", netbox_version="4.4.10")
     api_43 = typed_api("https://netbox.example.com", token="tok", netbox_version="4.3.7")
 
+    assert api_46.netbox_version == "4.6"
     assert api_45.netbox_version == "4.5"
     assert api_44.netbox_version == "4.4"
     assert api_43.netbox_version == "4.3"
+    assert hasattr(api_46.dcim.devices, "create")
     assert hasattr(api_45.dcim.devices, "create")
     assert hasattr(api_45.ipam.prefixes.available_ips, "create")
 

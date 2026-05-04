@@ -6,6 +6,7 @@ Lint/local style check:
 
 ```bash
 uv sync --dev --extra cli --extra tui --extra demo --locked
+uv run ty check netbox_sdk netbox_cli netbox_tui tests
 uv run pre-commit run --all-files --show-diff-on-failure --color=always
 ```
 
@@ -30,6 +31,7 @@ uv run mkdocs build --strict
 
 - `workflows/lint.yml`
   - installs dev dependencies plus `cli`, `tui`, and `demo` extras
+  - runs `ty check` as the type-check gate
   - runs pre-commit as the formatting/lint gate
 - `workflows/test.yml`
   - detects whether a change affects `netbox_sdk`, `netbox_cli`, `netbox_tui`, or shared repo-wide validation inputs
@@ -48,4 +50,5 @@ uv run mkdocs build --strict
 - `workflows/publish-testpypi.yml`
   - validates metadata and version tags
   - builds and uploads the single `netbox-sdk` distribution to TestPyPI and optionally PyPI
+  - runs `ty check` on Python 3.13 during release validation
   - runs the full pytest matrix as release validation before publish

@@ -17,13 +17,13 @@ jobs:
       tui: ${{ steps.filter.outputs.tui }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Detect changed areas
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             run_all:
@@ -40,6 +40,7 @@ jobs:
               - 'tests/test_config_profiles.py'
               - 'tests/test_demo_auth.py'
               - 'tests/test_logging_runtime.py'
+              - 'tests/test_mock_api.py'
               - 'tests/test_output_safety.py'
               - 'tests/test_plugin_discovery.py'
               - 'tests/test_schema_index.py'
@@ -50,6 +51,7 @@ jobs:
               - 'tests/test_sdk_pynetbox_parity.py'
               - 'tests/test_services.py'
               - 'tests/test_typed_sdk.py'
+              - 'tests/test_security_sdk.py'
             cli:
               - 'netbox_cli/**'
               - 'tests/test_cli_error_handling.py'
@@ -61,6 +63,7 @@ jobs:
               - 'tests/test_graphql.py'
               - 'tests/test_instance_isolation.py'
               - 'tests/test_markdown_output.py'
+              - 'tests/test_security_cli.py'
             tui:
               - 'netbox_tui/**'
               - 'tests/test_cli_tui.py'
@@ -72,6 +75,11 @@ jobs:
               - 'tests/test_no_hardcoded_colors.py'
               - 'tests/test_theme_registry.py'
               - 'tests/test_tui_interaction.py'
+              - 'tests/test_security_tui.py'
+
+  # ------------------------------------------------------------------ #
+  # Branch / PR jobs — mock API only, no real NetBox container          #
+  # ------------------------------------------------------------------ #
 
   test-sdk:
     name: sdk suite / Python ${{ matrix.python-version }}
@@ -84,20 +92,20 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
-        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+        run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
 
-      - name: Run netbox_sdk suite
+      - name: Run netbox_sdk suite (with mock API)
         run: uv run pytest -v --tb=short -p no:randomly -m suite_sdk
 
   test-cli:
@@ -111,18 +119,18 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
-        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+        run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
 
       - name: Run netbox_cli suite
         run: uv run pytest -v --tb=short -p no:randomly -m suite_cli
@@ -138,26 +146,26 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
-        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+        run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
 
       - name: Run netbox_tui suite
         run: uv run pytest -v --tb=short -p no:randomly -m suite_tui
 
-  test-all:
-    name: full suite / Python ${{ matrix.python-version }}
+  test-all-mock:
+    name: full suite / mock API / Python ${{ matrix.python-version }}
     needs: changes
-    if: ${{ (github.event_name == 'push' && github.ref_name == 'main') || needs.changes.outputs.run_all == 'true' }}
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'main') && needs.changes.outputs.run_all == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -165,18 +173,146 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Sync development environment
-        run: uv sync --dev --extra cli --extra tui --extra demo --locked
+        run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
 
-      - name: Run full test suite
+      - name: Run full test suite (mock API)
         run: uv run pytest -v --tb=short -p no:randomly
+
+  # ------------------------------------------------------------------ #
+  # main branch — mock API suite + real NetBox container                #
+  # ------------------------------------------------------------------ #
+
+  test-all-mock-main:
+    name: full suite / mock API / Python ${{ matrix.python-version }} [main]
+    needs: changes
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+
+      - name: Run full test suite (mock API)
+        run: uv run pytest -v --tb=short -p no:randomly
+
+  test-live-netbox:
+    name: live NetBox ${{ matrix.netbox-version }} / Python 3.11
+    needs: changes
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        netbox-version: ["v4.3.4", "v4.4.9", "v4.5.7"]
+    # Only postgres and redis as service containers — netbox is started
+    # manually in a step so postgres is healthy before netbox connects.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: netbox
+          POSTGRES_USER: netbox
+          POSTGRES_PASSWORD: netbox
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U netbox"
+          --health-interval 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Sync development environment
+        run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+
+      - name: Start NetBox container
+        # postgres and redis are healthy before this step runs (GitHub Actions
+        # guarantees service container health before starting steps).
+        # Use --network host so the container reaches localhost:5432 / :6379.
+        run: |
+          docker run -d \
+            --name netbox-ci \
+            --network host \
+            -e SECRET_KEY="ci-secret-key-for-testing-only-not-for-production-use" \
+            -e ALLOWED_HOSTS="*" \
+            -e DB_HOST=127.0.0.1 \
+            -e DB_PORT=5432 \
+            -e DB_NAME=netbox \
+            -e DB_USER=netbox \
+            -e DB_PASSWORD=netbox \
+            -e REDIS_HOST=127.0.0.1 \
+            -e REDIS_PORT=6379 \
+            -e SUPERUSER_NAME=admin \
+            -e SUPERUSER_EMAIL=admin@example.com \
+            -e SUPERUSER_PASSWORD=netbox-test-password \
+            -e SUPERUSER_API_TOKEN=0123456789abcdef0123456789abcdef01234567 \
+            ghcr.io/netbox-community/netbox:${{ matrix.netbox-version }}
+
+      - name: Wait for NetBox to be ready
+        run: |
+          echo "Waiting for NetBox to be ready..."
+          for i in $(seq 1 30); do
+            status=$(curl -sf http://localhost:8080/api/status/ 2>/dev/null \
+              | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('netbox-version',''))" 2>/dev/null || echo "")
+            if [ -n "$status" ]; then
+              echo "NetBox $status is ready"
+              break
+            fi
+            echo "  attempt $i/30 — not ready yet, sleeping 10s"
+            sleep 10
+          done
+
+      - name: Set NetBox connection env vars
+        run: |
+          echo "NETBOX_TOKEN=0123456789abcdef0123456789abcdef01234567" >> $GITHUB_ENV
+          echo "NETBOX_URL=http://localhost:8080" >> $GITHUB_ENV
+
+      - name: Run live NetBox integration tests
+        env:
+          NETBOX_URL: ${{ env.NETBOX_URL }}
+          NETBOX_TOKEN: ${{ env.NETBOX_TOKEN }}
+          NETBOX_LIVE_TEST: "1"
+        run: uv run pytest -v --tb=short -p no:randomly -m suite_sdk

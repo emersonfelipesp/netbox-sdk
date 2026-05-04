@@ -766,7 +766,13 @@ class NbxCliTuiApp(App[None]):
 
         if event.state == WorkerState.SUCCESS:
             try:
-                exit_code, output = w.result
+                result = w.result
+                if not isinstance(result, tuple) or len(result) != 2:
+                    output_log.write(
+                        Text("Result error: invalid worker result", style=Style(bold=True))
+                    )
+                    return
+                exit_code, output = result
             except Exception as exc:
                 output_log.write(Text(f"Result error: {exc!r}", style=Style(bold=True)))
                 return

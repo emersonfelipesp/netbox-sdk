@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, get_args
+from typing import Literal, cast, get_args
 
-SupportedNetBoxVersion = Literal["4.5", "4.4", "4.3"]
+SupportedNetBoxVersion = Literal["4.6", "4.5", "4.4", "4.3"]
 SUPPORTED_NETBOX_VERSIONS: tuple[SupportedNetBoxVersion, ...] = get_args(SupportedNetBoxVersion)
 
 _DEFAULT_VERSION: SupportedNetBoxVersion = "4.5"
@@ -29,7 +29,7 @@ def normalize_netbox_version(version: str | None) -> SupportedNetBoxVersion:
         raise UnsupportedNetBoxVersionError(
             f"Unsupported NetBox version '{version}'. Supported release lines: {', '.join(SUPPORTED_NETBOX_VERSIONS)}."
         )
-    return release_line  # type: ignore[return-value]
+    return cast(SupportedNetBoxVersion, release_line)
 
 
 def bundled_openapi_path(version: SupportedNetBoxVersion) -> Path:

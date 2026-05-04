@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from typing import cast
 
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator, model_validator
 from textual.theme import Theme
@@ -65,10 +66,10 @@ class ThemeDefinition(BaseModel):
     def _remove_self_alias(cls, data: object) -> object:
         """Strip any alias that equals the theme's own name before field validation."""
         if isinstance(data, dict):
+            data = cast(dict[str, object], data)
             name = str(data.get("name", ""))
             aliases = data.get("aliases", [])
             if isinstance(aliases, list):
-                data = dict(data)
                 data["aliases"] = [
                     a for a in aliases if not (isinstance(a, str) and a.strip().lower() == name)
                 ]

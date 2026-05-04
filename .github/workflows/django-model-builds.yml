@@ -15,15 +15,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
 
@@ -41,16 +41,19 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Build model graphs
+        env:
+          TAGS: ${{ steps.releases.outputs.tags }}
         run: |
           mkdir -p django_models_builds
-          for TAG in ${{ steps.releases.outputs.tags }}; do
+          while IFS= read -r TAG; do
+            [ -z "$TAG" ] && continue
             CHECKOUT_DIR="/tmp/netbox-${TAG}"
             git clone --depth 1 --branch "$TAG" https://github.com/netbox-community/netbox.git "$CHECKOUT_DIR"
             ~/.local/bin/nbx dev django-model build --rebuild \
               --netbox-root "$CHECKOUT_DIR/netbox/" \
               --cache-path "django_models_builds/${TAG}-django-models-build.json"
             rm -rf "$CHECKOUT_DIR"
-          done
+          done <<< "$TAGS"
 
       - name: Commit and push if changed
         run: |

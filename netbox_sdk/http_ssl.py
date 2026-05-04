@@ -2,19 +2,29 @@
 
 from __future__ import annotations
 
+import logging
 import ssl
-from typing import Any
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
 from netbox_sdk.config import Config
 
+if TYPE_CHECKING:
+    import aiohttp
 
-def connector_for_config(cfg: Config) -> Any | None:
+logger = logging.getLogger(__name__)
+
+
+def connector_for_config(cfg: Config) -> aiohttp.TCPConnector | None:
     """Return an aiohttp TCPConnector for HTTPS, or None to use ClientSession defaults.
 
     For ``https`` URLs: when ``ssl_verify`` is ``False``, returns a connector with
     verification disabled. Otherwise returns ``None`` (library default: verify).
     For ``http`` URLs, returns ``None``.
+
+    Raises:
+        RuntimeError: If ``aiohttp`` is not installed but a non-verifying HTTPS connector
+            is required.
     """
     base = cfg.base_url or ""
     parsed = urlsplit(base)
@@ -48,8 +58,11 @@ def is_certificate_verify_failure(exc: BaseException) -> bool:
             if isinstance(cur, aiohttp.ClientSSLError):
                 if _text_suggests_cert_verify_failure(str(cur)):
                     return True
-        except Exception:
-            pass
+        except (ImportError, ModuleNotFoundError):
+            logger.debug(
+                "aiohttp not available while classifying TLS error chain",
+                extra={"nbx_event": "http_ssl_skip_aiohttp_types"},
+            )
         if _text_suggests_cert_verify_failure(str(cur)):
             return True
         cur = cur.__cause__ or cur.__context__

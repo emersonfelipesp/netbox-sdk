@@ -32,7 +32,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.593s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.926s</span>
 
 ---
 
@@ -71,204 +71,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.427s</span>
-
----
-
-## `nbx dev http get --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx dev http get --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx dev http get --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx dev http get [OPTIONS]                                              
-                                                                                    
-     GET a list or detail endpoint. Use --id for a single object.                   
-                                                                                    
-     Any unrecognised --flag is forwarded as a query filter:                        
-     nbx dev http get --path /dcim/devices/ --status active --site mysite           
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path      -p      TEXT     API path, e.g. /dcim/devices/ [required]     │
-    │    --id                INTEGER  Object ID for detail endpoint                │
-    │    --query     -q      TEXT     Query filter as key=value (repeatable)       │
-    │    --json                       Output raw JSON                              │
-    │    --yaml                       Output YAML                                  │
-    │    --markdown                   Output Markdown (mutually exclusive with     │
-    │                                 --json/--yaml)                               │
-    │    --help                       Show this message and exit.                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.475s</span>
-
----
-
-## `nbx dev http post --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx dev http post --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx dev http post --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx dev http post [OPTIONS]                                             
-                                                                                    
-     POST to create a new object.                                                   
-                                                                                    
-     Pass body fields directly as flags or with --argument:                         
-     nbx dev http post --path /dcim/devices/ --name router1 --site 3 --device-type  
-     1                                                                              
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path       -p      TEXT  API path, e.g. /dcim/devices/ [required]       │
-    │    --argument   -a      TEXT  Body field as key=value (repeatable)           │
-    │    --body-json          TEXT  Inline JSON request body                       │
-    │    --body-file          TEXT  Path to JSON body file                         │
-    │    --json                     Output raw JSON                                │
-    │    --yaml                     Output YAML                                    │
-    │    --markdown                 Output Markdown (mutually exclusive with       │
-    │                               --json/--yaml)                                 │
-    │    --help                     Show this message and exit.                    │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.460s</span>
-
----
-
-## `nbx dev http put --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx dev http put --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx dev http put --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx dev http put [OPTIONS]                                              
-                                                                                    
-     PUT to fully replace an existing object. Requires --id.                        
-                                                                                    
-     Pass body fields directly as flags:                                            
-     nbx dev http put --path /dcim/devices/ --id 42 --name router1-renamed          
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path       -p      TEXT     API path, e.g. /dcim/devices/ [required]    │
-    │ *  --id                 INTEGER  Object ID (required for PUT) [required]     │
-    │    --argument   -a      TEXT     Body field as key=value (repeatable)        │
-    │    --body-json          TEXT     Inline JSON request body                    │
-    │    --body-file          TEXT     Path to JSON body file                      │
-    │    --json                        Output raw JSON                             │
-    │    --yaml                        Output YAML                                 │
-    │    --markdown                    Output Markdown (mutually exclusive with    │
-    │                                  --json/--yaml)                              │
-    │    --help                        Show this message and exit.                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.757s</span>
-
----
-
-## `nbx dev http patch --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx dev http patch --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx dev http patch --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx dev http patch [OPTIONS]                                            
-                                                                                    
-     PATCH to partially update an existing object. Requires --id.                   
-                                                                                    
-     Pass only the fields you want to change:                                       
-     nbx dev http patch --path /dcim/devices/ --id 42 --status active               
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path       -p      TEXT     API path, e.g. /dcim/devices/ [required]    │
-    │ *  --id                 INTEGER  Object ID (required for PATCH) [required]   │
-    │    --argument   -a      TEXT     Body field as key=value (repeatable)        │
-    │    --body-json          TEXT     Inline JSON request body                    │
-    │    --body-file          TEXT     Path to JSON body file                      │
-    │    --json                        Output raw JSON                             │
-    │    --yaml                        Output YAML                                 │
-    │    --markdown                    Output Markdown (mutually exclusive with    │
-    │                                  --json/--yaml)                              │
-    │    --help                        Show this message and exit.                 │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.838s</span>
-
----
-
-## `nbx dev http delete --help`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx dev http delete --help
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx dev http delete --help
-    ```
-
-    ```text
-                                                                                    
-     Usage: nbx dev http delete [OPTIONS]                                           
-                                                                                    
-     DELETE an object by ID. Requires --id.                                         
-                                                                                    
-    ╭─ Options ────────────────────────────────────────────────────────────────────╮
-    │ *  --path      -p      TEXT     API path, e.g. /dcim/devices/ [required]     │
-    │ *  --id                INTEGER  Object ID (required for DELETE) [required]   │
-    │    --json                       Output raw JSON                              │
-    │    --yaml                       Output YAML                                  │
-    │    --markdown                   Output Markdown (mutually exclusive with     │
-    │                                 --json/--yaml)                               │
-    │    --help                       Show this message and exit.                  │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ```
-
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.402s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.831s</span>
 
 ---
 
@@ -303,7 +106,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.428s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.911s</span>
 
 ---
 
@@ -333,7 +136,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.414s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.919s</span>
 
 ---
 
@@ -929,7 +732,7 @@
     └──────────────────────────────────────────────────────────┴───────────────────┘
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.862s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.203s</span>
 
 ---
 
@@ -960,29 +763,7 @@
     └────────┴──────────────────────────────────┴─────────┘
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.530s</span>
-
----
-
-## `nbx demo dev http get --path /api/status/`
-
-=== ":material-console: Command"
-
-    ```bash
-    nbx demo dev http get --path /api/status/
-    ```
-
-=== ":material-text-box-outline: Output"
-
-    ```bash
-    nbx demo dev http get --path /api/status/
-    ```
-
-    ```text
-    (empty)
-    ```
-
-<span class="nbx-badge nbx-badge--err">exit&nbsp;124</span> <span class="nbx-badge nbx-badge--neutral">60.041s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.027s</span>
 
 ---
 
@@ -1016,7 +797,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.598s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.911s</span>
 
 ---
 
@@ -1054,7 +835,7 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.713s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.971s</span>
 
 ---
 
@@ -1094,6 +875,6 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.796s</span>
+<span class="nbx-badge nbx-badge--ok">exit&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">3.913s</span>
 
 ---

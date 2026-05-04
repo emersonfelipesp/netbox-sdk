@@ -1,0 +1,4100 @@
+{
+  "models": {
+    "circuits.Provider": {
+      "app": "circuits",
+      "name": "Provider",
+      "key": "circuits.Provider",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "account",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "portal_url",
+          "type": "URLField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "noc_contact",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "admin_contact",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/circuits/models.py",
+      "line_number": 26,
+      "docstring": "Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model stores information pertinent to the user's relationship with the Provider."
+    },
+    "circuits.CircuitType": {
+      "app": "circuits",
+      "name": "CircuitType",
+      "key": "circuits.CircuitType",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/circuits/models.py",
+      "line_number": 102,
+      "docstring": "Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named \"Long Haul,\" \"Metro,\" or \"Out-of-Band\"."
+    },
+    "circuits.Circuit": {
+      "app": "circuits",
+      "name": "Circuit",
+      "key": "circuits.Circuit",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "provider",
+          "type": "ForeignKey",
+          "target": "circuits.Provider",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "ForeignKey",
+          "target": "circuits.CircuitType",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "cid",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "install_date",
+          "type": "DateField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "commit_rate",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/circuits/models.py",
+      "line_number": 141,
+      "docstring": "A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple circuits. Each circuit is also assigned a CircuitType and a Site. Circuit port speed and c"
+    },
+    "circuits.CircuitTermination": {
+      "app": "circuits",
+      "name": "CircuitTermination",
+      "key": "circuits.CircuitTermination",
+      "bases": [
+        "CableTermination"
+      ],
+      "fields": [
+        {
+          "name": "circuit",
+          "type": "ForeignKey",
+          "target": "circuits.Circuit",
+          "nullable": false
+        },
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "connected_endpoint",
+          "type": "OneToOneField",
+          "target": "dcim.Interface",
+          "nullable": false
+        },
+        {
+          "name": "term_side",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "port_speed",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "upstream_speed",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "xconnect_id",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "pp_info",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/circuits/models.py",
+      "line_number": 255,
+      "docstring": ""
+    },
+    "dcim.ComponentTemplateModel": {
+      "app": "dcim",
+      "name": "ComponentTemplateModel",
+      "key": "dcim.ComponentTemplateModel",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "device_type",
+          "type": "ForeignKey",
+          "target": "dcim.DeviceType",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 29,
+      "docstring": ""
+    },
+    "dcim.ConsolePortTemplate": {
+      "app": "dcim",
+      "name": "ConsolePortTemplate",
+      "key": "dcim.ConsolePortTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 85,
+      "docstring": "A template for a ConsolePort to be created for a new Device."
+    },
+    "dcim.ConsoleServerPortTemplate": {
+      "app": "dcim",
+      "name": "ConsoleServerPortTemplate",
+      "key": "dcim.ConsoleServerPortTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 108,
+      "docstring": "A template for a ConsoleServerPort to be created for a new Device."
+    },
+    "dcim.PowerPortTemplate": {
+      "app": "dcim",
+      "name": "PowerPortTemplate",
+      "key": "dcim.PowerPortTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "maximum_draw",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "allocated_draw",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 131,
+      "docstring": "A template for a PowerPort to be created for a new Device."
+    },
+    "dcim.PowerOutletTemplate": {
+      "app": "dcim",
+      "name": "PowerOutletTemplate",
+      "key": "dcim.PowerOutletTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "power_port",
+          "type": "ForeignKey",
+          "target": "dcim.PowerPortTemplate",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "feed_leg",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 168,
+      "docstring": "A template for a PowerOutlet to be created for a new Device."
+    },
+    "dcim.InterfaceTemplate": {
+      "app": "dcim",
+      "name": "InterfaceTemplate",
+      "key": "dcim.InterfaceTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "mgmt_only",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 218,
+      "docstring": "A template for a physical data interface on a new Device."
+    },
+    "dcim.FrontPortTemplate": {
+      "app": "dcim",
+      "name": "FrontPortTemplate",
+      "key": "dcim.FrontPortTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "rear_port",
+          "type": "ForeignKey",
+          "target": "dcim.RearPortTemplate",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "rear_port_position",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 252,
+      "docstring": "Template for a pass-through port on the front of a new Device."
+    },
+    "dcim.RearPortTemplate": {
+      "app": "dcim",
+      "name": "RearPortTemplate",
+      "key": "dcim.RearPortTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "positions",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 311,
+      "docstring": "Template for a pass-through port on the rear of a new Device."
+    },
+    "dcim.DeviceBayTemplate": {
+      "app": "dcim",
+      "name": "DeviceBayTemplate",
+      "key": "dcim.DeviceBayTemplate",
+      "bases": [
+        "ComponentTemplateModel"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_component_templates.py",
+      "line_number": 341,
+      "docstring": "A template for a DeviceBay to be created for a new parent Device."
+    },
+    "dcim.ComponentModel": {
+      "app": "dcim",
+      "name": "ComponentModel",
+      "key": "dcim.ComponentModel",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "device",
+          "type": "ForeignKey",
+          "target": "dcim.Device",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 39,
+      "docstring": ""
+    },
+    "dcim.CableTermination": {
+      "app": "dcim",
+      "name": "CableTermination",
+      "key": "dcim.CableTermination",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "cable",
+          "type": "ForeignKey",
+          "target": "dcim.Cable",
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 93,
+      "docstring": ""
+    },
+    "dcim.ConsolePort": {
+      "app": "dcim",
+      "name": "ConsolePort",
+      "key": "dcim.ConsolePort",
+      "bases": [
+        "CableTermination",
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "connected_endpoint",
+          "type": "OneToOneField",
+          "target": "dcim.ConsoleServerPort",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 256,
+      "docstring": "A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts."
+    },
+    "dcim.ConsoleServerPort": {
+      "app": "dcim",
+      "name": "ConsoleServerPort",
+      "key": "dcim.ConsoleServerPort",
+      "bases": [
+        "CableTermination",
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 304,
+      "docstring": "A physical port within a Device (typically a designated console server) which provides access to ConsolePorts."
+    },
+    "dcim.PowerPort": {
+      "app": "dcim",
+      "name": "PowerPort",
+      "key": "dcim.PowerPort",
+      "bases": [
+        "CableTermination",
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "_connected_poweroutlet",
+          "type": "OneToOneField",
+          "target": "dcim.PowerOutlet",
+          "nullable": false
+        },
+        {
+          "name": "_connected_powerfeed",
+          "type": "OneToOneField",
+          "target": "dcim.PowerFeed",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "maximum_draw",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "allocated_draw",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 345,
+      "docstring": "A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets."
+    },
+    "dcim.PowerOutlet": {
+      "app": "dcim",
+      "name": "PowerOutlet",
+      "key": "dcim.PowerOutlet",
+      "bases": [
+        "CableTermination",
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "power_port",
+          "type": "ForeignKey",
+          "target": "dcim.PowerPort",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "feed_leg",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 502,
+      "docstring": "A physical power outlet (output) within a Device which provides power to a PowerPort."
+    },
+    "dcim.BaseInterface": {
+      "app": "dcim",
+      "name": "BaseInterface",
+      "key": "dcim.BaseInterface",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "enabled",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "mtu",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "mode",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 565,
+      "docstring": "Abstract base class for fields shared by dcim.Interface and virtualization.VMInterface."
+    },
+    "dcim.Interface": {
+      "app": "dcim",
+      "name": "Interface",
+      "key": "dcim.Interface",
+      "bases": [
+        "CableTermination",
+        "ComponentModel",
+        "BaseInterface"
+      ],
+      "fields": [
+        {
+          "name": "_connected_interface",
+          "type": "OneToOneField",
+          "target": "self",
+          "nullable": false
+        },
+        {
+          "name": "_connected_circuittermination",
+          "type": "OneToOneField",
+          "target": "circuits.CircuitTermination",
+          "nullable": false
+        },
+        {
+          "name": "lag",
+          "type": "ForeignKey",
+          "target": "self",
+          "nullable": false
+        },
+        {
+          "name": "untagged_vlan",
+          "type": "ForeignKey",
+          "target": "ipam.VLAN",
+          "nullable": false
+        },
+        {
+          "name": "tagged_vlans",
+          "type": "ManyToManyField",
+          "target": "ipam.VLAN",
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "mgmt_only",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 594,
+      "docstring": "A network interface within a Device. A physical Interface can connect to exactly one other Interface."
+    },
+    "dcim.FrontPort": {
+      "app": "dcim",
+      "name": "FrontPort",
+      "key": "dcim.FrontPort",
+      "bases": [
+        "CableTermination",
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "rear_port",
+          "type": "ForeignKey",
+          "target": "dcim.RearPort",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "rear_port_position",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 805,
+      "docstring": "A pass-through port on the front of a Device."
+    },
+    "dcim.RearPort": {
+      "app": "dcim",
+      "name": "RearPort",
+      "key": "dcim.RearPort",
+      "bases": [
+        "CableTermination",
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "positions",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 867,
+      "docstring": "A pass-through port on the rear of a Device."
+    },
+    "dcim.DeviceBay": {
+      "app": "dcim",
+      "name": "DeviceBay",
+      "key": "dcim.DeviceBay",
+      "bases": [
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "installed_device",
+          "type": "OneToOneField",
+          "target": "dcim.Device",
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 919,
+      "docstring": "An empty space within a Device which can house a child device"
+    },
+    "dcim.InventoryItem": {
+      "app": "dcim",
+      "name": "InventoryItem",
+      "key": "dcim.InventoryItem",
+      "bases": [
+        "ComponentModel"
+      ],
+      "fields": [
+        {
+          "name": "parent",
+          "type": "ForeignKey",
+          "target": "self",
+          "nullable": false
+        },
+        {
+          "name": "manufacturer",
+          "type": "ForeignKey",
+          "target": "dcim.Manufacturer",
+          "nullable": false
+        },
+        {
+          "name": "part_id",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "serial",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "asset_tag",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "discovered",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/device_components.py",
+      "line_number": 978,
+      "docstring": "An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply. InventoryItems are used only for inventory purposes."
+    },
+    "dcim.Manufacturer": {
+      "app": "dcim",
+      "name": "Manufacturer",
+      "key": "dcim.Manufacturer",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 43,
+      "docstring": "A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell."
+    },
+    "dcim.DeviceType": {
+      "app": "dcim",
+      "name": "DeviceType",
+      "key": "dcim.DeviceType",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "manufacturer",
+          "type": "ForeignKey",
+          "target": "dcim.Manufacturer",
+          "nullable": false
+        },
+        {
+          "name": "model",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "part_number",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "u_height",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "is_full_depth",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "subdevice_role",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "front_image",
+          "type": "ImageField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "rear_image",
+          "type": "ImageField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 81,
+      "docstring": "A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as well as high-level functional role(s). Each DeviceType can have an arbitrary number"
+    },
+    "dcim.DeviceRole": {
+      "app": "dcim",
+      "name": "DeviceRole",
+      "key": "dcim.DeviceRole",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "vm_role",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 345,
+      "docstring": "Devices are organized by functional role; for example, \"Core Switch\" or \"File Server\". Each DeviceRole is assigned a color to be used when displaying rack elevations. The vm_role field determines whet"
+    },
+    "dcim.Platform": {
+      "app": "dcim",
+      "name": "Platform",
+      "key": "dcim.Platform",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "manufacturer",
+          "type": "ForeignKey",
+          "target": "dcim.Manufacturer",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "napalm_driver",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "napalm_args",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 391,
+      "docstring": "Platform refers to the software or firmware running on a Device. For example, \"Cisco IOS-XR\" or \"Juniper Junos\". NetBox uses Platforms to determine how to interact with devices when pulling inventory "
+    },
+    "dcim.Device": {
+      "app": "dcim",
+      "name": "Device",
+      "key": "dcim.Device",
+      "bases": [
+        "ChangeLoggedModel",
+        "ConfigContextModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "device_type",
+          "type": "ForeignKey",
+          "target": "dcim.DeviceType",
+          "nullable": false
+        },
+        {
+          "name": "device_role",
+          "type": "ForeignKey",
+          "target": "dcim.DeviceRole",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "platform",
+          "type": "ForeignKey",
+          "target": "dcim.Platform",
+          "nullable": false
+        },
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "rack",
+          "type": "ForeignKey",
+          "target": "dcim.Rack",
+          "nullable": false
+        },
+        {
+          "name": "primary_ip4",
+          "type": "OneToOneField",
+          "target": "ipam.IPAddress",
+          "nullable": false
+        },
+        {
+          "name": "primary_ip6",
+          "type": "OneToOneField",
+          "target": "ipam.IPAddress",
+          "nullable": false
+        },
+        {
+          "name": "cluster",
+          "type": "ForeignKey",
+          "target": "virtualization.Cluster",
+          "nullable": false
+        },
+        {
+          "name": "virtual_chassis",
+          "type": "ForeignKey",
+          "target": "dcim.VirtualChassis",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "serial",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "asset_tag",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "face",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "vc_position",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "vc_priority",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 455,
+      "docstring": "A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType, DeviceRole, and (optionally) a Platform. Device names are not required, however if one is "
+    },
+    "dcim.Cable": {
+      "app": "dcim",
+      "name": "Cable",
+      "key": "dcim.Cable",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "termination_a_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "termination_b_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "length",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "length_unit",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "_abs_length",
+          "type": "DecimalField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 897,
+      "docstring": "A physical connection between two endpoints."
+    },
+    "dcim.VirtualChassis": {
+      "app": "dcim",
+      "name": "VirtualChassis",
+      "key": "dcim.VirtualChassis",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "master",
+          "type": "OneToOneField",
+          "target": "dcim.Device",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "domain",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/devices.py",
+      "line_number": 1183,
+      "docstring": "A collection of Devices which operate with a shared control plane (e.g. a switch stack)."
+    },
+    "dcim.PowerPanel": {
+      "app": "dcim",
+      "name": "PowerPanel",
+      "key": "dcim.PowerPanel",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "rack_group",
+          "type": "ForeignKey",
+          "target": "dcim.RackGroup",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/power.py",
+      "line_number": 27,
+      "docstring": "A distribution point for electrical power; e.g. a data center RPP."
+    },
+    "dcim.PowerFeed": {
+      "app": "dcim",
+      "name": "PowerFeed",
+      "key": "dcim.PowerFeed",
+      "bases": [
+        "ChangeLoggedModel",
+        "CableTermination",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "power_panel",
+          "type": "ForeignKey",
+          "target": "dcim.PowerPanel",
+          "nullable": false
+        },
+        {
+          "name": "rack",
+          "type": "ForeignKey",
+          "target": "dcim.Rack",
+          "nullable": false
+        },
+        {
+          "name": "connected_endpoint",
+          "type": "OneToOneField",
+          "target": "dcim.PowerPort",
+          "nullable": false
+        },
+        {
+          "name": "connection_status",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "supply",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "phase",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "voltage",
+          "type": "SmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "amperage",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "max_utilization",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "available_power",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/power.py",
+      "line_number": 77,
+      "docstring": "An electrical circuit delivered from a PowerPanel."
+    },
+    "dcim.RackGroup": {
+      "app": "dcim",
+      "name": "RackGroup",
+      "key": "dcim.RackGroup",
+      "bases": [
+        "MPTTModel",
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/racks.py",
+      "line_number": 42,
+      "docstring": "Racks can be grouped as subsets within a Site. The scope of a group will depend on how Sites are defined. For example, if a Site spans a corporate campus, a RackGroup might be defined to represent eac"
+    },
+    "dcim.RackRole": {
+      "app": "dcim",
+      "name": "RackRole",
+      "key": "dcim.RackRole",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/racks.py",
+      "line_number": 115,
+      "docstring": "Racks can be organized by functional role, similar to Devices."
+    },
+    "dcim.Rack": {
+      "app": "dcim",
+      "name": "Rack",
+      "key": "dcim.Rack",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "group",
+          "type": "ForeignKey",
+          "target": "dcim.RackGroup",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "ForeignKey",
+          "target": "dcim.RackRole",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "facility_id",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "serial",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "asset_tag",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "width",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "u_height",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "desc_units",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "outer_width",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "outer_depth",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "outer_unit",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/racks.py",
+      "line_number": 157,
+      "docstring": "Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face. Each Rack is assigned to a Site and (optionally) a RackGroup."
+    },
+    "dcim.RackReservation": {
+      "app": "dcim",
+      "name": "RackReservation",
+      "key": "dcim.RackReservation",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "rack",
+          "type": "ForeignKey",
+          "target": "dcim.Rack",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "base_field",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/racks.py",
+      "line_number": 570,
+      "docstring": "One or more reserved units within a Rack."
+    },
+    "dcim.Region": {
+      "app": "dcim",
+      "name": "Region",
+      "key": "dcim.Region",
+      "bases": [
+        "MPTTModel",
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/sites.py",
+      "line_number": 29,
+      "docstring": "Sites can be grouped within geographic Regions."
+    },
+    "dcim.Site": {
+      "app": "dcim",
+      "name": "Site",
+      "key": "dcim.Site",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "region",
+          "type": "ForeignKey",
+          "target": "dcim.Region",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "facility",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "physical_address",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "shipping_address",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "latitude",
+          "type": "DecimalField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "longitude",
+          "type": "DecimalField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "contact_name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "contact_phone",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "contact_email",
+          "type": "EmailField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/dcim/models/sites.py",
+      "line_number": 95,
+      "docstring": "A Site represents a geographic location within a network; typically a building or campus. The optional facility field can be used to include an external designation, such as a data center name (e.g. E"
+    },
+    "extras.ChangeLoggedModel": {
+      "app": "extras",
+      "name": "ChangeLoggedModel",
+      "key": "extras.ChangeLoggedModel",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "created",
+          "type": "DateField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "last_updated",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/change_logging.py",
+      "line_number": 16,
+      "docstring": "An abstract model which adds fields to store the creation and last-updated times for an object. Both fields can be null to facilitate adding these fields to existing instances via a database migration"
+    },
+    "extras.ObjectChange": {
+      "app": "extras",
+      "name": "ObjectChange",
+      "key": "extras.ObjectChange",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "time",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "user_name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "request_id",
+          "type": "UUIDField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "changed_object_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "related_object_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "object_repr",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "object_data",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/change_logging.py",
+      "line_number": 48,
+      "docstring": "Record a change to an object and the user account associated with that change. A change record may optionally indicate an object related to the one being changed. For example, a change to an interface"
+    },
+    "extras.CustomFieldModel": {
+      "app": "extras",
+      "name": "CustomFieldModel",
+      "key": "extras.CustomFieldModel",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/customfields.py",
+      "line_number": 19,
+      "docstring": ""
+    },
+    "extras.CustomFieldManager": {
+      "app": "extras",
+      "name": "CustomFieldManager",
+      "key": "extras.CustomFieldManager",
+      "bases": [
+        "models.Manager"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/customfields.py",
+      "line_number": 60,
+      "docstring": ""
+    },
+    "extras.CustomField": {
+      "app": "extras",
+      "name": "CustomField",
+      "key": "extras.CustomField",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "obj_type",
+          "type": "ManyToManyField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "required",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "filter_logic",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "default",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/customfields.py",
+      "line_number": 71,
+      "docstring": ""
+    },
+    "extras.CustomFieldValue": {
+      "app": "extras",
+      "name": "CustomFieldValue",
+      "key": "extras.CustomFieldValue",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "field",
+          "type": "ForeignKey",
+          "target": "extras.CustomField",
+          "nullable": false
+        },
+        {
+          "name": "obj_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "serialized_value",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/customfields.py",
+      "line_number": 233,
+      "docstring": ""
+    },
+    "extras.CustomFieldChoice": {
+      "app": "extras",
+      "name": "CustomFieldChoice",
+      "key": "extras.CustomFieldChoice",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "field",
+          "type": "ForeignKey",
+          "target": "extras.CustomField",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/customfields.py",
+      "line_number": 276,
+      "docstring": ""
+    },
+    "extras.Webhook": {
+      "app": "extras",
+      "name": "Webhook",
+      "key": "extras.Webhook",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "obj_type",
+          "type": "ManyToManyField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type_create",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type_update",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "type_delete",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "payload_url",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "enabled",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "http_method",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "http_content_type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "additional_headers",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "body_template",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "secret",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "ssl_verification",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "ca_file_path",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 29,
+      "docstring": "A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or delete in NetBox. The request will contain a representation of the object, which the re"
+    },
+    "extras.CustomLink": {
+      "app": "extras",
+      "name": "CustomLink",
+      "key": "extras.CustomLink",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "text",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "url",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "group_name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "button_class",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "new_window",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 158,
+      "docstring": "A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template code to be rendered with an object as context."
+    },
+    "extras.Graph": {
+      "app": "extras",
+      "name": "Graph",
+      "key": "extras.Graph",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "weight",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "template_language",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "source",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "link",
+          "type": "URLField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 210,
+      "docstring": ""
+    },
+    "extras.ExportTemplate": {
+      "app": "extras",
+      "name": "ExportTemplate",
+      "key": "extras.ExportTemplate",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "template_language",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "template_code",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "mime_type",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "file_extension",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 273,
+      "docstring": ""
+    },
+    "extras.ImageAttachment": {
+      "app": "extras",
+      "name": "ImageAttachment",
+      "key": "extras.ImageAttachment",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "object_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "image",
+          "type": "ImageField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "image_height",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "image_width",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "created",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 362,
+      "docstring": "An uploaded image which is associated with an object."
+    },
+    "extras.ConfigContext": {
+      "app": "extras",
+      "name": "ConfigContext",
+      "key": "extras.ConfigContext",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "regions",
+          "type": "ManyToManyField",
+          "target": "dcim.Region",
+          "nullable": false
+        },
+        {
+          "name": "sites",
+          "type": "ManyToManyField",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "roles",
+          "type": "ManyToManyField",
+          "target": "dcim.DeviceRole",
+          "nullable": false
+        },
+        {
+          "name": "platforms",
+          "type": "ManyToManyField",
+          "target": "dcim.Platform",
+          "nullable": false
+        },
+        {
+          "name": "cluster_groups",
+          "type": "ManyToManyField",
+          "target": "virtualization.ClusterGroup",
+          "nullable": false
+        },
+        {
+          "name": "clusters",
+          "type": "ManyToManyField",
+          "target": "virtualization.Cluster",
+          "nullable": false
+        },
+        {
+          "name": "tenant_groups",
+          "type": "ManyToManyField",
+          "target": "tenancy.TenantGroup",
+          "nullable": false
+        },
+        {
+          "name": "tenants",
+          "type": "ManyToManyField",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "tags",
+          "type": "ManyToManyField",
+          "target": "extras.Tag",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "data",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 438,
+      "docstring": "A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assi"
+    },
+    "extras.ConfigContextModel": {
+      "app": "extras",
+      "name": "ConfigContextModel",
+      "key": "extras.ConfigContextModel",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "local_context_data",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 525,
+      "docstring": "A model which includes local configuration context data. This local data will override any inherited data from ConfigContexts."
+    },
+    "extras.Script": {
+      "app": "extras",
+      "name": "Script",
+      "key": "extras.Script",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 578,
+      "docstring": "Dummy model used to generate permissions for custom scripts. Does not exist in the database."
+    },
+    "extras.Report": {
+      "app": "extras",
+      "name": "Report",
+      "key": "extras.Report",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 591,
+      "docstring": "Dummy model used to generate permissions for reports. Does not exist in the database."
+    },
+    "extras.JobResult": {
+      "app": "extras",
+      "name": "JobResult",
+      "key": "extras.JobResult",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "created",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "completed",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "data",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "job_id",
+          "type": "UUIDField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/models.py",
+      "line_number": 603,
+      "docstring": "This model stores the results from running a user-defined report."
+    },
+    "extras.Tag": {
+      "app": "extras",
+      "name": "Tag",
+      "key": "extras.Tag",
+      "bases": [
+        "TagBase",
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/tags.py",
+      "line_number": 15,
+      "docstring": ""
+    },
+    "extras.TaggedItem": {
+      "app": "extras",
+      "name": "TaggedItem",
+      "key": "extras.TaggedItem",
+      "bases": [
+        "GenericTaggedItemBase"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/extras/models/tags.py",
+      "line_number": 47,
+      "docstring": ""
+    },
+    "ipam.VRF": {
+      "app": "ipam",
+      "name": "VRF",
+      "key": "ipam.VRF",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "rd",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "enforce_unique",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 40,
+      "docstring": "A virtual routing and forwarding (VRF) table represents a discrete layer three forwarding domain (e.g. a routing table). Prefixes and IPAddresses can optionally be assigned to VRFs. (Prefixes and IPAd"
+    },
+    "ipam.RIR": {
+      "app": "ipam",
+      "name": "RIR",
+      "key": "ipam.RIR",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "is_private",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 114,
+      "docstring": "A Regional Internet Registry (RIR) is responsible for the allocation of a large portion of the global IP address space. This can be an organization like ARIN or RIPE, or a governing standard such as R"
+    },
+    "ipam.Aggregate": {
+      "app": "ipam",
+      "name": "Aggregate",
+      "key": "ipam.Aggregate",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "rir",
+          "type": "ForeignKey",
+          "target": "ipam.RIR",
+          "nullable": false
+        },
+        {
+          "name": "date_added",
+          "type": "DateField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 161,
+      "docstring": "An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize the hierarchy and track the overall utilization of available address space. Each Aggr"
+    },
+    "ipam.Role": {
+      "app": "ipam",
+      "name": "Role",
+      "key": "ipam.Role",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "weight",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 264,
+      "docstring": "A Role represents the functional role of a Prefix or VLAN; for example, \"Customer,\" \"Infrastructure,\" or \"Management.\""
+    },
+    "ipam.Prefix": {
+      "app": "ipam",
+      "name": "Prefix",
+      "key": "ipam.Prefix",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "vrf",
+          "type": "ForeignKey",
+          "target": "ipam.VRF",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "vlan",
+          "type": "ForeignKey",
+          "target": "ipam.VLAN",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "ForeignKey",
+          "target": "ipam.Role",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "is_pool",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 304,
+      "docstring": "A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and VRFs. A Prefix must be assigned a status and may optionally be assigned a used-defi"
+    },
+    "ipam.IPAddress": {
+      "app": "ipam",
+      "name": "IPAddress",
+      "key": "ipam.IPAddress",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "vrf",
+          "type": "ForeignKey",
+          "target": "ipam.VRF",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "nat_inside",
+          "type": "OneToOneField",
+          "target": "self",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "assigned_object_id",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "dns_name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 573,
+      "docstring": "An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is configured in the real world. (Typically, only loopback interfaces are configured with /32"
+    },
+    "ipam.VLANGroup": {
+      "app": "ipam",
+      "name": "VLANGroup",
+      "key": "ipam.VLANGroup",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 814,
+      "docstring": "A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique."
+    },
+    "ipam.VLAN": {
+      "app": "ipam",
+      "name": "VLAN",
+      "key": "ipam.VLAN",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "group",
+          "type": "ForeignKey",
+          "target": "ipam.VLANGroup",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "ForeignKey",
+          "target": "ipam.Role",
+          "nullable": false
+        },
+        {
+          "name": "vid",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 873,
+      "docstring": "A VLAN is a distinct layer two forwarding domain identified by a 12-bit integer (1-4094). Each VLAN must be assigned to a Site, however VLAN IDs need not be unique within a Site. A VLAN may optionally"
+    },
+    "ipam.Service": {
+      "app": "ipam",
+      "name": "Service",
+      "key": "ipam.Service",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "device",
+          "type": "ForeignKey",
+          "target": "dcim.Device",
+          "nullable": false
+        },
+        {
+          "name": "virtual_machine",
+          "type": "ForeignKey",
+          "target": "virtualization.VirtualMachine",
+          "nullable": false
+        },
+        {
+          "name": "ipaddresses",
+          "type": "ManyToManyField",
+          "target": "ipam.IPAddress",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "protocol",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "port",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/ipam/models.py",
+      "line_number": 1004,
+      "docstring": "A Service represents a layer-four service (e.g. HTTP or SSH) running on a Device or VirtualMachine. A Service may optionally be tied to one or more specific IPAddresses belonging to its parent."
+    },
+    "tenancy.TenantGroup": {
+      "app": "tenancy",
+      "name": "TenantGroup",
+      "key": "tenancy.TenantGroup",
+      "bases": [
+        "MPTTModel",
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/tenancy/models.py",
+      "line_number": 20,
+      "docstring": "An arbitrary collection of Tenants."
+    },
+    "tenancy.Tenant": {
+      "app": "tenancy",
+      "name": "Tenant",
+      "key": "tenancy.Tenant",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "group",
+          "type": "ForeignKey",
+          "target": "tenancy.TenantGroup",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/tenancy/models.py",
+      "line_number": 79,
+      "docstring": "A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal department."
+    },
+    "users.AdminGroup": {
+      "app": "users",
+      "name": "AdminGroup",
+      "key": "users.AdminGroup",
+      "bases": [
+        "Group"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/users/models.py",
+      "line_number": 31,
+      "docstring": "Proxy contrib.auth.models.Group for the admin UI"
+    },
+    "users.AdminUser": {
+      "app": "users",
+      "name": "AdminUser",
+      "key": "users.AdminUser",
+      "bases": [
+        "User"
+      ],
+      "fields": [],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/users/models.py",
+      "line_number": 40,
+      "docstring": "Proxy contrib.auth.models.User for the admin UI"
+    },
+    "users.UserConfig": {
+      "app": "users",
+      "name": "UserConfig",
+      "key": "users.UserConfig",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "user",
+          "type": "OneToOneField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "data",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/users/models.py",
+      "line_number": 53,
+      "docstring": "This model stores arbitrary user-specific preferences in a JSON data structure."
+    },
+    "users.Token": {
+      "app": "users",
+      "name": "Token",
+      "key": "users.Token",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "created",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "expires",
+          "type": "DateTimeField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "write_enabled",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/users/models.py",
+      "line_number": 178,
+      "docstring": "An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens. It also supports setting an expiration time and toggling write ability."
+    },
+    "users.ObjectPermission": {
+      "app": "users",
+      "name": "ObjectPermission",
+      "key": "users.ObjectPermission",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "enabled",
+          "type": "BooleanField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "object_types",
+          "type": "ManyToManyField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "groups",
+          "type": "ManyToManyField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "users",
+          "type": "ManyToManyField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "base_field",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "constraints",
+          "type": "JSONField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/users/models.py",
+      "line_number": 236,
+      "docstring": "A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects identified by ORM query parameters."
+    },
+    "virtualization.ClusterType": {
+      "app": "virtualization",
+      "name": "ClusterType",
+      "key": "virtualization.ClusterType",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/virtualization/models.py",
+      "line_number": 34,
+      "docstring": "A type of Cluster."
+    },
+    "virtualization.ClusterGroup": {
+      "app": "virtualization",
+      "name": "ClusterGroup",
+      "key": "virtualization.ClusterGroup",
+      "bases": [
+        "ChangeLoggedModel"
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "SlugField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/virtualization/models.py",
+      "line_number": 75,
+      "docstring": "An organizational group of Clusters."
+    },
+    "virtualization.Cluster": {
+      "app": "virtualization",
+      "name": "Cluster",
+      "key": "virtualization.Cluster",
+      "bases": [
+        "ChangeLoggedModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "site",
+          "type": "ForeignKey",
+          "target": "dcim.Site",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/virtualization/models.py",
+      "line_number": 117,
+      "docstring": "A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices."
+    },
+    "virtualization.VirtualMachine": {
+      "app": "virtualization",
+      "name": "VirtualMachine",
+      "key": "virtualization.VirtualMachine",
+      "bases": [
+        "ChangeLoggedModel",
+        "ConfigContextModel",
+        "CustomFieldModel"
+      ],
+      "fields": [
+        {
+          "name": "cluster",
+          "type": "ForeignKey",
+          "target": "virtualization.Cluster",
+          "nullable": false
+        },
+        {
+          "name": "tenant",
+          "type": "ForeignKey",
+          "target": "tenancy.Tenant",
+          "nullable": false
+        },
+        {
+          "name": "platform",
+          "type": "ForeignKey",
+          "target": "dcim.Platform",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "ForeignKey",
+          "target": "dcim.DeviceRole",
+          "nullable": false
+        },
+        {
+          "name": "primary_ip4",
+          "type": "OneToOneField",
+          "target": "ipam.IPAddress",
+          "nullable": false
+        },
+        {
+          "name": "primary_ip6",
+          "type": "OneToOneField",
+          "target": "ipam.IPAddress",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "vcpus",
+          "type": "PositiveSmallIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "memory",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "disk",
+          "type": "PositiveIntegerField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "comments",
+          "type": "TextField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/virtualization/models.py",
+      "line_number": 205,
+      "docstring": "A virtual machine which runs inside a Cluster."
+    },
+    "virtualization.VMInterface": {
+      "app": "virtualization",
+      "name": "VMInterface",
+      "key": "virtualization.VMInterface",
+      "bases": [
+        "BaseInterface"
+      ],
+      "fields": [
+        {
+          "name": "virtual_machine",
+          "type": "ForeignKey",
+          "target": "virtualization.VirtualMachine",
+          "nullable": false
+        },
+        {
+          "name": "untagged_vlan",
+          "type": "ForeignKey",
+          "target": "ipam.VLAN",
+          "nullable": false
+        },
+        {
+          "name": "tagged_vlans",
+          "type": "ManyToManyField",
+          "target": "ipam.VLAN",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "CharField",
+          "target": null,
+          "nullable": false
+        }
+      ],
+      "file_path": "/tmp/netbox-v2.9.9/netbox/virtualization/models.py",
+      "line_number": 386,
+      "docstring": ""
+    }
+  },
+  "edges": [
+    {
+      "from": "circuits.Circuit",
+      "to": "circuits.Provider",
+      "field": "provider",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "circuits.Circuit",
+      "to": "circuits.CircuitType",
+      "field": "type",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "circuits.Circuit",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "circuits.CircuitTermination",
+      "to": "circuits.Circuit",
+      "field": "circuit",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "circuits.CircuitTermination",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "circuits.CircuitTermination",
+      "to": "dcim.Interface",
+      "field": "connected_endpoint",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.ComponentTemplateModel",
+      "to": "dcim.DeviceType",
+      "field": "device_type",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerOutletTemplate",
+      "to": "dcim.PowerPortTemplate",
+      "field": "power_port",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.FrontPortTemplate",
+      "to": "dcim.RearPortTemplate",
+      "field": "rear_port",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.ComponentModel",
+      "to": "dcim.Device",
+      "field": "device",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.CableTermination",
+      "to": "dcim.Cable",
+      "field": "cable",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.ConsolePort",
+      "to": "dcim.ConsoleServerPort",
+      "field": "connected_endpoint",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerPort",
+      "to": "dcim.PowerOutlet",
+      "field": "_connected_poweroutlet",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerPort",
+      "to": "dcim.PowerFeed",
+      "field": "_connected_powerfeed",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerOutlet",
+      "to": "dcim.PowerPort",
+      "field": "power_port",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Interface",
+      "to": "dcim.Interface",
+      "field": "_connected_interface",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Interface",
+      "to": "circuits.CircuitTermination",
+      "field": "_connected_circuittermination",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Interface",
+      "to": "dcim.Interface",
+      "field": "lag",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Interface",
+      "to": "ipam.VLAN",
+      "field": "untagged_vlan",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Interface",
+      "to": "ipam.VLAN",
+      "field": "tagged_vlans",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.FrontPort",
+      "to": "dcim.RearPort",
+      "field": "rear_port",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.DeviceBay",
+      "to": "dcim.Device",
+      "field": "installed_device",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.InventoryItem",
+      "to": "dcim.InventoryItem",
+      "field": "parent",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.InventoryItem",
+      "to": "dcim.Manufacturer",
+      "field": "manufacturer",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.DeviceType",
+      "to": "dcim.Manufacturer",
+      "field": "manufacturer",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Platform",
+      "to": "dcim.Manufacturer",
+      "field": "manufacturer",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "dcim.DeviceType",
+      "field": "device_type",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "dcim.DeviceRole",
+      "field": "device_role",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "dcim.Platform",
+      "field": "platform",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "dcim.Rack",
+      "field": "rack",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "ipam.IPAddress",
+      "field": "primary_ip4",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "ipam.IPAddress",
+      "field": "primary_ip6",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "virtualization.Cluster",
+      "field": "cluster",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Device",
+      "to": "dcim.VirtualChassis",
+      "field": "virtual_chassis",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.VirtualChassis",
+      "to": "dcim.Device",
+      "field": "master",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerPanel",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerPanel",
+      "to": "dcim.RackGroup",
+      "field": "rack_group",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerFeed",
+      "to": "dcim.PowerPanel",
+      "field": "power_panel",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerFeed",
+      "to": "dcim.Rack",
+      "field": "rack",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.PowerFeed",
+      "to": "dcim.PowerPort",
+      "field": "connected_endpoint",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "dcim.RackGroup",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Rack",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Rack",
+      "to": "dcim.RackGroup",
+      "field": "group",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Rack",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Rack",
+      "to": "dcim.RackRole",
+      "field": "role",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.RackReservation",
+      "to": "dcim.Rack",
+      "field": "rack",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.RackReservation",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Site",
+      "to": "dcim.Region",
+      "field": "region",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "dcim.Site",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "extras.CustomFieldValue",
+      "to": "extras.CustomField",
+      "field": "field",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "extras.CustomFieldChoice",
+      "to": "extras.CustomField",
+      "field": "field",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "dcim.Region",
+      "field": "regions",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "dcim.Site",
+      "field": "sites",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "dcim.DeviceRole",
+      "field": "roles",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "dcim.Platform",
+      "field": "platforms",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "virtualization.ClusterGroup",
+      "field": "cluster_groups",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "virtualization.Cluster",
+      "field": "clusters",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "tenancy.TenantGroup",
+      "field": "tenant_groups",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "tenancy.Tenant",
+      "field": "tenants",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "extras.ConfigContext",
+      "to": "extras.Tag",
+      "field": "tags",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "ipam.VRF",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Aggregate",
+      "to": "ipam.RIR",
+      "field": "rir",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Prefix",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Prefix",
+      "to": "ipam.VRF",
+      "field": "vrf",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Prefix",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Prefix",
+      "to": "ipam.VLAN",
+      "field": "vlan",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Prefix",
+      "to": "ipam.Role",
+      "field": "role",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.IPAddress",
+      "to": "ipam.VRF",
+      "field": "vrf",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.IPAddress",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.IPAddress",
+      "to": "ipam.IPAddress",
+      "field": "nat_inside",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "ipam.VLANGroup",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.VLAN",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.VLAN",
+      "to": "ipam.VLANGroup",
+      "field": "group",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.VLAN",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.VLAN",
+      "to": "ipam.Role",
+      "field": "role",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Service",
+      "to": "dcim.Device",
+      "field": "device",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Service",
+      "to": "virtualization.VirtualMachine",
+      "field": "virtual_machine",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "ipam.Service",
+      "to": "ipam.IPAddress",
+      "field": "ipaddresses",
+      "type": "ManyToManyField",
+      "related_name": null
+    },
+    {
+      "from": "tenancy.Tenant",
+      "to": "tenancy.TenantGroup",
+      "field": "group",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.Cluster",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.Cluster",
+      "to": "dcim.Site",
+      "field": "site",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VirtualMachine",
+      "to": "virtualization.Cluster",
+      "field": "cluster",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VirtualMachine",
+      "to": "tenancy.Tenant",
+      "field": "tenant",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VirtualMachine",
+      "to": "dcim.Platform",
+      "field": "platform",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VirtualMachine",
+      "to": "dcim.DeviceRole",
+      "field": "role",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VirtualMachine",
+      "to": "ipam.IPAddress",
+      "field": "primary_ip4",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VirtualMachine",
+      "to": "ipam.IPAddress",
+      "field": "primary_ip6",
+      "type": "OneToOneField",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VMInterface",
+      "to": "virtualization.VirtualMachine",
+      "field": "virtual_machine",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VMInterface",
+      "to": "ipam.VLAN",
+      "field": "untagged_vlan",
+      "type": "ForeignKey",
+      "related_name": null
+    },
+    {
+      "from": "virtualization.VMInterface",
+      "to": "ipam.VLAN",
+      "field": "tagged_vlans",
+      "type": "ManyToManyField",
+      "related_name": null
+    }
+  ],
+  "stats": {
+    "total_models": 80,
+    "total_edges": 92,
+    "cross_app_edges": 39,
+    "intra_app_edges": 53,
+    "apps": [
+      "circuits",
+      "dcim",
+      "extras",
+      "ipam",
+      "tenancy",
+      "users",
+      "virtualization"
+    ]
+  },
+  "meta": {
+    "source_path": "/tmp/netbox-v2.9.9/netbox",
+    "total_models": 80,
+    "total_edges": 92,
+    "apps": [
+      "circuits",
+      "dcim",
+      "extras",
+      "ipam",
+      "tenancy",
+      "users",
+      "virtualization"
+    ]
+  }
+}

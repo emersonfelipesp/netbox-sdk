@@ -13,6 +13,12 @@ repos:
         language: system
         types_or: [python, pyi]
         stages: [pre-commit]
+      - id: ty-check
+        name: ty-check
+        entry: uv run ty check netbox_sdk netbox_cli netbox_tui tests --output-format concise
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
       - id: ruff-check-push
         name: ruff-check-push
         entry: uv run ruff check

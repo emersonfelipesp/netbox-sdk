@@ -38,6 +38,13 @@ from netbox_cli.docgen.models import (
 )
 
 _SUBPROCESS_TIMEOUT_SECONDS = float(os.environ.get("NBX_DOC_CAPTURE_SUBPROCESS_TIMEOUT", "15"))
+_LOCAL_CLI_BOOTSTRAP = "import netbox_cli, sys; raise SystemExit(netbox_cli.main(sys.argv[1:]))"
+
+
+def _local_cli_command(args: list[str]) -> list[str]:
+    """Run the current checkout's CLI instead of whichever ``nbx`` is on PATH."""
+    return [sys.executable, "-c", _LOCAL_CLI_BOOTSTRAP, *args]
+
 
 # ── Top-level worker function (required for ProcessPoolExecutor) ─────────
 
@@ -112,7 +119,7 @@ def _worker_capture(
         started = time.perf_counter()
         try:
             result = subprocess.run(
-                ["nbx", *args],
+                _local_cli_command(args),
                 capture_output=True,
                 text=True,
                 timeout=_SUBPROCESS_TIMEOUT_SECONDS,
@@ -318,7 +325,7 @@ class CaptureEngine:
         started = time.perf_counter()
         try:
             result = subprocess.run(
-                ["nbx", *argv],
+                _local_cli_command(argv),
                 capture_output=True,
                 text=True,
                 timeout=_SUBPROCESS_TIMEOUT_SECONDS,

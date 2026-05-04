@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from collections.abc import Callable
 from enum import StrEnum
 from importlib import import_module
-from typing import Any
+from typing import Any, NoReturn
 
 import click
 import typer
@@ -26,6 +27,8 @@ from netbox_sdk.formatting import (
 from netbox_sdk.output_safety import safe_text, sanitize_terminal_text
 from netbox_sdk.schema import SchemaIndex
 from netbox_sdk.trace_ascii import render_any_trace_ascii
+
+logger = logging.getLogger(__name__)
 
 console = Console()
 TUI_EXTRA_INSTALL_MESSAGE = (
@@ -110,6 +113,8 @@ def resolve_output_format(
 
 
 def emit_cli_error(message: str, *, exit_code: int = 1) -> int:
+    """Print a sanitized error line to the console and return ``exit_code``."""
+    logger.warning("cli error: %s", message, extra={"nbx_event": "cli_error"})
     console.print(
         f"[bold]Error:[/bold] {sanitize_terminal_text(message).strip()}",
         highlight=False,
@@ -144,7 +149,7 @@ def load_tui_callables(module_path: str, *names: str) -> tuple[Any, ...]:
     return tuple(getattr(module, name) for name in names)
 
 
-def rethrow_theme_catalog_error(exc: Exception) -> None:
+def rethrow_theme_catalog_error(exc: Exception) -> NoReturn:
     if exc.__class__.__name__ == "ThemeCatalogError":
         raise typer.BadParameter(f"Theme configuration error: {exc}") from exc
     raise exc

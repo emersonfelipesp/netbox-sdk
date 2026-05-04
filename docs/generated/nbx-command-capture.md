@@ -17,11 +17,11 @@ Run the capture **in the background** (log + pid):
 
 ## Generation metadata
 
-- **UTC time:** `2026-03-28T01:23:25.720866+00:00`
+- **UTC time:** `2026-03-28T02:54:01.319776+00:00`
 - **Profile used:** **demo profile** (`nbx demo ...` commands -> demo.netbox.dev)
 - **Effective NetBox URL:** `https://demo.netbox.dev`
-- **Effective timeout (s):** `2`
-- **Token configured:** `False`
+- **Effective timeout (s):** `30`
+- **Token configured:** `True`
 
 > Docgen is restricted to the demo profile only. Any live data shown here comes from demo.netbox.dev, never from a production NetBox instance.
 
@@ -41,7 +41,7 @@ Run the capture **in the background** (log + pid):
 nbx --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.780`
+**Exit code:** `0`  ·  **Wall time (s):** `5.761`
 
 **Output:**
 
@@ -62,7 +62,8 @@ nbx --help
 │ groups          List all available OpenAPI app groups.                       │
 │ resources       List resources available within a group.                     │
 │ ops             Show available HTTP operations for a resource.               │
-│ graphql         Execute a GraphQL query against the NetBox API.              │
+│ graphql         Execute a GraphQL query against the NetBox API, or launch    │
+│                 the GraphQL TUI.                                             │
 │ call            Call an arbitrary NetBox API path.                           │
 │ tui             Launch the interactive NetBox terminal UI.                   │
 │ logs            Show recent application logs from the shared on-disk log     │
@@ -96,7 +97,7 @@ nbx --help
 nbx init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.430`
+**Exit code:** `0`  ·  **Wall time (s):** `4.178`
 
 **Output:**
 
@@ -107,13 +108,20 @@ nbx init --help
  Create or update the default NetBox SDK profile.                               
                                                                                 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --base-url            TEXT   NetBox base URL, e.g.                        │
-│                                 https://netbox.example.com                   │
-│                                 [required]                                   │
-│ *  --token-key           TEXT   NetBox API token key [required]              │
-│ *  --token-secret        TEXT   NetBox API token secret [required]           │
-│    --timeout             FLOAT  HTTP timeout in seconds [default: 30.0]      │
-│    --help                       Show this message and exit.                  │
+│ *  --base-url                           TEXT   NetBox base URL, e.g.         │
+│                                                https://netbox.example.com    │
+│                                                [required]                    │
+│ *  --token-key                          TEXT   NetBox API token key          │
+│                                                [required]                    │
+│ *  --token-secret                       TEXT   NetBox API token secret       │
+│                                                [required]                    │
+│    --timeout                            FLOAT  HTTP timeout in seconds       │
+│                                                [default: 30.0]               │
+│    --verify-ssl      --no-verify-ssl           HTTPS TLS certificate         │
+│                                                verification (default:        │
+│                                                verify; omit to leave unset   │
+│                                                until first failure)          │
+│    --help                                      Show this message and exit.   │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
@@ -127,7 +135,7 @@ nbx init --help
 nbx config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.442`
+**Exit code:** `0`  ·  **Wall time (s):** `5.443`
 
 **Output:**
 
@@ -153,7 +161,7 @@ nbx config --help
 nbx logs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.509`
+**Exit code:** `0`  ·  **Wall time (s):** `4.265`
 
 **Output:**
 
@@ -183,7 +191,7 @@ nbx logs --help
 nbx docs --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.746`
+**Exit code:** `0`  ·  **Wall time (s):** `4.575`
 
 **Output:**
 
@@ -212,7 +220,7 @@ nbx docs --help
 nbx docs generate-capture --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.472`
+**Exit code:** `0`  ·  **Wall time (s):** `3.764`
 
 **Output:**
 
@@ -262,7 +270,7 @@ nbx docs generate-capture --help
 nbx groups --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.824`
+**Exit code:** `0`  ·  **Wall time (s):** `4.529`
 
 **Output:**
 
@@ -287,7 +295,7 @@ nbx groups --help
 nbx resources --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.502`
+**Exit code:** `0`  ·  **Wall time (s):** `4.328`
 
 **Output:**
 
@@ -315,7 +323,7 @@ nbx resources --help
 nbx ops --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.565`
+**Exit code:** `0`  ·  **Wall time (s):** `3.989`
 
 **Output:**
 
@@ -344,7 +352,7 @@ nbx ops --help
 nbx groups
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.592`
+**Exit code:** `0`  ·  **Wall time (s):** `3.968`
 
 **Output:**
 
@@ -372,7 +380,7 @@ wireless
 nbx resources dcim
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.512`
+**Exit code:** `0`  ·  **Wall time (s):** `4.320`
 
 **Output:**
 
@@ -434,7 +442,7 @@ virtual-device-contexts
 nbx ops dcim devices
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.549`
+**Exit code:** `0`  ·  **Wall time (s):** `4.193`
 
 **Output:**
 
@@ -458,41 +466,6 @@ nbx ops dcim devices
 
 ---
 
-#### nbx resources ipam
-
-**Input:**
-
-```bash
-nbx resources ipam
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.543`
-
-**Output:**
-
-```text
-aggregates
-asn-ranges
-asns
-fhrp-group-assignments
-fhrp-groups
-ip-addresses
-ip-ranges
-prefixes
-rirs
-roles
-route-targets
-service-templates
-services
-vlan-groups
-vlan-translation-policies
-vlan-translation-rules
-vlans
-vrfs
-```
-
----
-
 ### GraphQL and HTTP
 
 #### nbx graphql --help
@@ -503,7 +476,7 @@ vrfs
 nbx graphql --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.451`
+**Exit code:** `0`  ·  **Wall time (s):** `3.968`
 
 **Output:**
 
@@ -511,16 +484,20 @@ nbx graphql --help
                                                                                 
  Usage: nbx graphql [OPTIONS] QUERY                                             
                                                                                 
- Execute a GraphQL query against the NetBox API.                                
+ Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     
                                                                                 
 ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-│ *    query      TEXT  GraphQL query string [required]                        │
+│ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+│                       TUI                                                    │
+│                       [required]                                             │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
 │ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
 │                            multiple key=value pairs                          │
 │ --json                     Output raw JSON                                   │
 │ --yaml                     Output YAML                                       │
+│ --theme                    For `nbx graphql tui`: list available themes or   │
+│                            launch with `--theme <name>`.                     │
 │ --help                     Show this message and exit.                       │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
@@ -535,7 +512,7 @@ nbx graphql --help
 nbx call --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.973`
+**Exit code:** `0`  ·  **Wall time (s):** `4.014`
 
 **Output:**
 
@@ -573,7 +550,7 @@ nbx call --help
 nbx dcim --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.903`
+**Exit code:** `0`  ·  **Wall time (s):** `4.337`
 
 **Output:**
 
@@ -637,39 +614,6 @@ nbx dcim --help
 
 ---
 
-#### nbx dcim devices --help
-
-**Input:**
-
-```bash
-nbx dcim devices --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.875`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx dcim devices [OPTIONS] COMMAND [ARGS]...                            
-                                                                                
- Resource: dcim/devices                                                         
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ list    list dcim/devices                                                    │
-│ get     get dcim/devices                                                     │
-│ create  create dcim/devices                                                  │
-│ update  update dcim/devices                                                  │
-│ patch   patch dcim/devices                                                   │
-│ delete  delete dcim/devices                                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
 #### nbx dcim devices list --help
 
 **Input:**
@@ -678,7 +622,7 @@ nbx dcim devices --help
 nbx dcim devices list --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.832`
+**Exit code:** `0`  ·  **Wall time (s):** `4.322`
 
 **Output:**
 
@@ -714,39 +658,6 @@ nbx dcim devices list --help
 
 ---
 
-#### nbx ipam prefixes --help
-
-**Input:**
-
-```bash
-nbx ipam prefixes --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.507`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx ipam prefixes [OPTIONS] COMMAND [ARGS]...                           
-                                                                                
- Resource: ipam/prefixes                                                        
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ list    list ipam/prefixes                                                   │
-│ get     get ipam/prefixes                                                    │
-│ create  create ipam/prefixes                                                 │
-│ update  update ipam/prefixes                                                 │
-│ patch   patch ipam/prefixes                                                  │
-│ delete  delete ipam/prefixes                                                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
 #### nbx dcim interfaces get --help
 
 **Input:**
@@ -755,7 +666,7 @@ nbx ipam prefixes --help
 nbx dcim interfaces get --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.699`
+**Exit code:** `0`  ·  **Wall time (s):** `4.081`
 
 **Output:**
 
@@ -791,160 +702,6 @@ nbx dcim interfaces get --help
 
 ---
 
-#### nbx circuits circuit-terminations get --help
-
-**Input:**
-
-```bash
-nbx circuits circuit-terminations get --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.624`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx circuits circuit-terminations get [OPTIONS]                         
-                                                                                
- get circuits/circuit-terminations                                              
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --id                   INTEGER  Object ID for detail operations              │
-│ --query        -q      TEXT     Query parameter key=value                    │
-│ --body-json            TEXT     Inline JSON request body                     │
-│ --body-file            TEXT     Path to JSON request body file               │
-│ --json                          Output raw JSON                              │
-│ --yaml                          Output YAML                                  │
-│ --markdown                      Output Markdown (mutually exclusive with     │
-│                                 --json/--yaml)                               │
-│ --trace                         Fetch and render the cable trace as ASCII    │
-│                                 when supported.                              │
-│ --trace-only                    Render only the cable trace ASCII output     │
-│                                 when supported.                              │
-│ --select               TEXT     JSON dot-path to extract specific field from │
-│                                 response                                     │
-│ --columns              TEXT     Comma-separated list of columns to display   │
-│ --max-columns          INTEGER  Maximum number of columns to display         │
-│                                 [default: 6]                                 │
-│ --dry-run                       Preview write operation without executing    │
-│                                 (create/update/patch/delete only)            │
-│ --help                          Show this message and exit.                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
-#### nbx demo dcim devices list --select results.0.name
-
-**Input:**
-
-```bash
-nbx demo dcim devices list --select results.0.name --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.040`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-#### nbx demo dcim devices list --columns id,name,status
-
-**Input:**
-
-```bash
-nbx demo dcim devices list --columns id,name,status --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.050`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-#### nbx demo dcim devices list --max-columns 3
-
-**Input:**
-
-```bash
-nbx demo dcim devices list --max-columns 3 --markdown
-```
-
-**Exit code:** `1`  ·  **Wall time (s):** `34.968`
-
-**Output:**
-
-```text
-Error: Unexpected failure: TimeoutError. Please retry or check your configuration.
-
---- stderr ---
-api request failed
-Traceback (most recent call last):
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 779, in _request
-    resp = await handler(req)
-           ^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 734, in _connect_and_send_request
-    conn = await self._connector.connect(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        req, traces=traces, timeout=real_timeout
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 672, in connect
-    proto = await self._create_connection(req, traces, timeout)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1239, in _create_connection
-    _, proto = await self._create_direct_connection(req, traces, timeout)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1562, in _create_direct_connection
-    hosts = await self._resolve_host(host, port, traces=traces)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1178, in _resolve_host
-    return await asyncio.shield(resolved_host_task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-asyncio.exceptions.CancelledError
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/root/nms/netbox-sdk/netbox_sdk/client.py", line 160, in request
-    response = await self._request_once(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<8 lines>...
-    )
-    ^
-  File "/root/nms/netbox-sdk/netbox_sdk/client.py", line 238, in _request_once
-    async with session.request(
-               ~~~~~~~~~~~~~~~^
-        method=method.upper(),
-        ^^^^^^^^^^^^^^^^^^^^^^
-    ...<4 lines>...
-        headers=req_headers,
-        ^^^^^^^^^^^^^^^^^^^^
-    ) as response:
-    ^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 1510, in __aenter__
-    self._resp: _RetType = await self._coro
-                           ^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 624, in _request
-    with timer:
-         ^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/helpers.py", line 713, in __exit__
-    raise asyncio.TimeoutError from exc_val
-TimeoutError
-```
-
----
-
 #### nbx demo dcim devices create --dry-run --body-json {"name":"test"}
 
 **Input:**
@@ -953,7 +710,7 @@ TimeoutError
 nbx demo dcim devices create --dry-run --body-json {"name":"test"} --markdown
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.963`
+**Exit code:** `0`  ·  **Wall time (s):** `3.986`
 
 **Output:**
 
@@ -982,7 +739,7 @@ nbx demo dcim devices create --dry-run --body-json {"name":"test"} --markdown
 nbx dev --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.593`
+**Exit code:** `0`  ·  **Wall time (s):** `3.926`
 
 **Output:**
 
@@ -1014,7 +771,7 @@ nbx dev --help
 nbx dev http --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.427`
+**Exit code:** `0`  ·  **Wall time (s):** `3.831`
 
 **Output:**
 
@@ -1041,183 +798,6 @@ nbx dev http --help
 
 ---
 
-#### nbx dev http get --help
-
-**Input:**
-
-```bash
-nbx dev http get --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.475`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx dev http get [OPTIONS]                                              
-                                                                                
- GET a list or detail endpoint. Use --id for a single object.                   
-                                                                                
- Any unrecognised --flag is forwarded as a query filter:                        
- nbx dev http get --path /dcim/devices/ --status active --site mysite           
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --path      -p      TEXT     API path, e.g. /dcim/devices/ [required]     │
-│    --id                INTEGER  Object ID for detail endpoint                │
-│    --query     -q      TEXT     Query filter as key=value (repeatable)       │
-│    --json                       Output raw JSON                              │
-│    --yaml                       Output YAML                                  │
-│    --markdown                   Output Markdown (mutually exclusive with     │
-│                                 --json/--yaml)                               │
-│    --help                       Show this message and exit.                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
-#### nbx dev http post --help
-
-**Input:**
-
-```bash
-nbx dev http post --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.460`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx dev http post [OPTIONS]                                             
-                                                                                
- POST to create a new object.                                                   
-                                                                                
- Pass body fields directly as flags or with --argument:                         
- nbx dev http post --path /dcim/devices/ --name router1 --site 3 --device-type  
- 1                                                                              
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --path       -p      TEXT  API path, e.g. /dcim/devices/ [required]       │
-│    --argument   -a      TEXT  Body field as key=value (repeatable)           │
-│    --body-json          TEXT  Inline JSON request body                       │
-│    --body-file          TEXT  Path to JSON body file                         │
-│    --json                     Output raw JSON                                │
-│    --yaml                     Output YAML                                    │
-│    --markdown                 Output Markdown (mutually exclusive with       │
-│                               --json/--yaml)                                 │
-│    --help                     Show this message and exit.                    │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
-#### nbx dev http put --help
-
-**Input:**
-
-```bash
-nbx dev http put --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.757`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx dev http put [OPTIONS]                                              
-                                                                                
- PUT to fully replace an existing object. Requires --id.                        
-                                                                                
- Pass body fields directly as flags:                                            
- nbx dev http put --path /dcim/devices/ --id 42 --name router1-renamed          
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --path       -p      TEXT     API path, e.g. /dcim/devices/ [required]    │
-│ *  --id                 INTEGER  Object ID (required for PUT) [required]     │
-│    --argument   -a      TEXT     Body field as key=value (repeatable)        │
-│    --body-json          TEXT     Inline JSON request body                    │
-│    --body-file          TEXT     Path to JSON body file                      │
-│    --json                        Output raw JSON                             │
-│    --yaml                        Output YAML                                 │
-│    --markdown                    Output Markdown (mutually exclusive with    │
-│                                  --json/--yaml)                              │
-│    --help                        Show this message and exit.                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
-#### nbx dev http patch --help
-
-**Input:**
-
-```bash
-nbx dev http patch --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.838`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx dev http patch [OPTIONS]                                            
-                                                                                
- PATCH to partially update an existing object. Requires --id.                   
-                                                                                
- Pass only the fields you want to change:                                       
- nbx dev http patch --path /dcim/devices/ --id 42 --status active               
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --path       -p      TEXT     API path, e.g. /dcim/devices/ [required]    │
-│ *  --id                 INTEGER  Object ID (required for PATCH) [required]   │
-│    --argument   -a      TEXT     Body field as key=value (repeatable)        │
-│    --body-json          TEXT     Inline JSON request body                    │
-│    --body-file          TEXT     Path to JSON body file                      │
-│    --json                        Output raw JSON                             │
-│    --yaml                        Output YAML                                 │
-│    --markdown                    Output Markdown (mutually exclusive with    │
-│                                  --json/--yaml)                              │
-│    --help                        Show this message and exit.                 │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
-#### nbx dev http delete --help
-
-**Input:**
-
-```bash
-nbx dev http delete --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.402`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx dev http delete [OPTIONS]                                           
-                                                                                
- DELETE an object by ID. Requires --id.                                         
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ *  --path      -p      TEXT     API path, e.g. /dcim/devices/ [required]     │
-│ *  --id                INTEGER  Object ID (required for DELETE) [required]   │
-│    --json                       Output raw JSON                              │
-│    --yaml                       Output YAML                                  │
-│    --markdown                   Output Markdown (mutually exclusive with     │
-│                                 --json/--yaml)                               │
-│    --help                       Show this message and exit.                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
 #### nbx dev http paths --help
 
 **Input:**
@@ -1226,7 +806,7 @@ nbx dev http delete --help
 nbx dev http paths --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.428`
+**Exit code:** `0`  ·  **Wall time (s):** `3.911`
 
 **Output:**
 
@@ -1257,7 +837,7 @@ nbx dev http paths --help
 nbx dev http ops --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.414`
+**Exit code:** `0`  ·  **Wall time (s):** `3.919`
 
 **Output:**
 
@@ -1283,7 +863,7 @@ nbx dev http ops --help
 nbx dev http paths
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.862`
+**Exit code:** `0`  ·  **Wall time (s):** `4.203`
 
 **Output:**
 
@@ -1875,7 +1455,7 @@ nbx dev http paths
 nbx dev http ops --path /api/dcim/devices/
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.530`
+**Exit code:** `0`  ·  **Wall time (s):** `4.027`
 
 **Output:**
 
@@ -1894,24 +1474,6 @@ nbx dev http ops --path /api/dcim/devices/
 
 ---
 
-#### nbx demo dev http get --path /api/status/
-
-**Input:**
-
-```bash
-nbx demo dev http get --path /api/status/ --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.041`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
 #### nbx dev django-model --help
 
 **Input:**
@@ -1920,7 +1482,7 @@ nbx demo dev http get --path /api/status/ --markdown
 nbx dev django-model --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.598`
+**Exit code:** `0`  ·  **Wall time (s):** `3.911`
 
 **Output:**
 
@@ -1950,7 +1512,7 @@ nbx dev django-model --help
 nbx dev django-model build --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.713`
+**Exit code:** `0`  ·  **Wall time (s):** `3.971`
 
 **Output:**
 
@@ -1984,7 +1546,7 @@ nbx dev django-model build --help
 nbx dev django-model fetch --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.796`
+**Exit code:** `0`  ·  **Wall time (s):** `3.913`
 
 **Output:**
 
@@ -2022,7 +1584,7 @@ nbx dev django-model fetch --help
 nbx demo --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.428`
+**Exit code:** `0`  ·  **Wall time (s):** `3.922`
 
 **Output:**
 
@@ -2040,6 +1602,8 @@ nbx demo --help
 │ --help                      Show this message and exit.                      │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ graphql         Execute a GraphQL query against the demo NetBox API, or      │
+│                 launch the GraphQL TUI.                                      │
 │ init            Authenticate with demo.netbox.dev via Playwright and save    │
 │                 the demo profile.                                            │
 │ config          Show the configured demo profile settings.                   │
@@ -2073,7 +1637,7 @@ nbx demo --help
 nbx demo init --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.421`
+**Exit code:** `0`  ·  **Wall time (s):** `3.930`
 
 **Output:**
 
@@ -2114,7 +1678,7 @@ nbx demo init --help
 nbx demo config --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.477`
+**Exit code:** `0`  ·  **Wall time (s):** `3.755`
 
 **Output:**
 
@@ -2132,56 +1696,6 @@ nbx demo config --help
 
 ---
 
-#### nbx demo test --help
-
-**Input:**
-
-```bash
-nbx demo test --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.415`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx demo test [OPTIONS]                                                 
-                                                                                
- Test connectivity to demo.netbox.dev using the configured demo profile.        
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
-#### nbx demo reset --help
-
-**Input:**
-
-```bash
-nbx demo reset --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.432`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx demo reset [OPTIONS]                                                
-                                                                                
- Remove the saved demo profile configuration.                                   
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
 #### nbx demo dev --help
 
 **Input:**
@@ -2190,7 +1704,7 @@ nbx demo reset --help
 nbx demo dev --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `4.016`
+**Exit code:** `0`  ·  **Wall time (s):** `3.848`
 
 **Output:**
 
@@ -2225,7 +1739,7 @@ nbx demo dev --help
 nbx demo cli --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.512`
+**Exit code:** `0`  ·  **Wall time (s):** `3.791`
 
 **Output:**
 
@@ -2253,7 +1767,7 @@ nbx demo cli --help
 nbx demo dev django-model --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.390`
+**Exit code:** `0`  ·  **Wall time (s):** `3.895`
 
 **Output:**
 
@@ -2283,7 +1797,7 @@ nbx demo dev django-model --help
 nbx demo config
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.358`
+**Exit code:** `0`  ·  **Wall time (s):** `3.726`
 
 **Output:**
 
@@ -2303,210 +1817,6 @@ nbx demo config
 
 ---
 
-### Live API
-
-#### nbx demo dcim devices list
-
-**Input:**
-
-```bash
-nbx demo dcim devices list --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.045`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-#### nbx demo ipam prefixes list
-
-**Input:**
-
-```bash
-nbx demo ipam prefixes list --markdown
-```
-
-**Exit code:** `1`  ·  **Wall time (s):** `4.774`
-
-**Output:**
-
-```text
-Error: Unexpected failure: Cannot connect to host demo.netbox.dev:443 ssl:default [Temporary failure in name resolution]. Please retry or check your configuration.
-
---- stderr ---
-api request failed
-Traceback (most recent call last):
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1562, in _create_direct_connection
-    hosts = await self._resolve_host(host, port, traces=traces)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1178, in _resolve_host
-    return await asyncio.shield(resolved_host_task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1209, in _resolve_host_with_throttle
-    addrs = await self._resolver.resolve(host, port, family=self._family)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/resolver.py", line 40, in resolve
-    infos = await self._loop.getaddrinfo(
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<5 lines>...
-    )
-    ^
-  File "/root/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 936, in getaddrinfo
-    return await self.run_in_executor(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        None, getaddr_func, host, port, family, type, proto, flags)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py", line 86, in run
-    result = ctx.run(self.task)
-  File "/root/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py", line 73, in run
-    return fn(*args, **kwargs)
-  File "/root/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib/python3.14/socket.py", line 983, in getaddrinfo
-    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
-               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-socket.gaierror: [Errno -3] Temporary failure in name resolution
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/root/nms/netbox-sdk/netbox_sdk/client.py", line 160, in request
-    response = await self._request_once(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^
-    ...<8 lines>...
-    )
-    ^
-  File "/root/nms/netbox-sdk/netbox_sdk/client.py", line 238, in _request_once
-    async with session.request(
-               ~~~~~~~~~~~~~~~^
-        method=method.upper(),
-        ^^^^^^^^^^^^^^^^^^^^^^
-    ...<4 lines>...
-        headers=req_headers,
-        ^^^^^^^^^^^^^^^^^^^^
-    ) as response:
-    ^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 1510, in __aenter__
-    self._resp: _RetType = await self._coro
-                           ^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 779, in _request
-    resp = await handler(req)
-           ^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/client.py", line 734, in _connect_and_send_request
-    conn = await self._connector.connect(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        req, traces=traces, timeout=real_timeout
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 672, in connect
-    proto = await self._create_connection(req, traces, timeout)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1239, in _create_connection
-    _, proto = await self._create_direct_connection(req, traces, timeout)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/nms/netbox-sdk/.venv/lib/python3.14/site-packages/aiohttp/connector.py", line 1568, in _create_direct_connection
-    raise ClientConnectorDNSError(req.connection_key, exc) from exc
-aiohttp.client_exceptions.ClientConnectorDNSError: Cannot connect to host demo.netbox.dev:443 ssl:default [Temporary failure in name resolution]
-```
-
----
-
-#### nbx demo dcim sites list
-
-**Input:**
-
-```bash
-nbx demo dcim sites list --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.079`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-### Cable Trace
-
-#### nbx demo dcim interfaces get --id 1 --trace
-
-**Input:**
-
-```bash
-nbx demo dcim interfaces get --id 1 --trace --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.080`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-#### nbx demo dcim interfaces get --id 1 --trace-only
-
-**Input:**
-
-```bash
-nbx demo dcim interfaces get --id 1 --trace-only --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.045`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-#### nbx demo circuits circuit-terminations get --id 15 --trace
-
-**Input:**
-
-```bash
-nbx demo circuits circuit-terminations get --id 15 --trace --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.047`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
-#### nbx demo circuits circuit-terminations get --id 15 --trace-only
-
-**Input:**
-
-```bash
-nbx demo circuits circuit-terminations get --id 15 --trace-only --markdown
-```
-
-**Exit code:** `124`  ·  **Wall time (s):** `60.075`
-
-**Output:**
-
-```text
-(empty)
-```
-
----
-
 ## TUI
 
 ### Main Browser
@@ -2519,7 +1829,7 @@ nbx demo circuits circuit-terminations get --id 15 --trace-only --markdown
 nbx tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.438`
+**Exit code:** `0`  ·  **Wall time (s):** `3.835`
 
 **Output:**
 
@@ -2546,7 +1856,7 @@ nbx tui --help
 nbx tui --theme
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `4.165`
+**Exit code:** `0`  ·  **Wall time (s):** `3.970`
 
 **Output:**
 
@@ -2569,7 +1879,7 @@ Available themes:
 nbx demo tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.737`
+**Exit code:** `0`  ·  **Wall time (s):** `3.690`
 
 **Output:**
 
@@ -2588,29 +1898,6 @@ nbx demo tui --help
 
 ---
 
-#### nbx demo tui --theme
-
-**Input:**
-
-```bash
-nbx demo tui --theme
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `4.014`
-
-**Output:**
-
-```text
-Available themes:
-- dracula
-- netbox-dark
-- netbox-light
-- onedark-pro
-- tokyo-night
-```
-
----
-
 ### Logs Viewer
 
 #### nbx tui logs --theme
@@ -2621,7 +1908,7 @@ Available themes:
 nbx tui logs --theme
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.563`
+**Exit code:** `0`  ·  **Wall time (s):** `3.914`
 
 **Output:**
 
@@ -2646,7 +1933,7 @@ Available themes:
 nbx dev tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.856`
+**Exit code:** `0`  ·  **Wall time (s):** `3.643`
 
 **Output:**
 
@@ -2673,7 +1960,7 @@ nbx dev tui --help
 nbx dev tui --theme
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.769`
+**Exit code:** `0`  ·  **Wall time (s):** `3.865`
 
 **Output:**
 
@@ -2696,7 +1983,7 @@ Available themes:
 nbx demo dev tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.419`
+**Exit code:** `0`  ·  **Wall time (s):** `3.808`
 
 **Output:**
 
@@ -2723,7 +2010,201 @@ nbx demo dev tui --help
 nbx demo dev tui --theme
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `4.108`
+**Exit code:** `0`  ·  **Wall time (s):** `4.158`
+
+**Output:**
+
+```text
+Available themes:
+- dracula
+- netbox-dark
+- netbox-light
+- onedark-pro
+- tokyo-night
+```
+
+---
+
+### GraphQL TUI
+
+#### nbx graphql --help
+
+**Input:**
+
+```bash
+nbx graphql --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `3.736`
+
+**Output:**
+
+```text
+                                                                                
+ Usage: nbx graphql [OPTIONS] QUERY                                             
+                                                                                
+ Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+│                       TUI                                                    │
+│                       [required]                                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
+│                            multiple key=value pairs                          │
+│ --json                     Output raw JSON                                   │
+│ --yaml                     Output YAML                                       │
+│ --theme                    For `nbx graphql tui`: list available themes or   │
+│                            launch with `--theme <name>`.                     │
+│ --help                     Show this message and exit.                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+#### nbx graphql tui --help
+
+**Input:**
+
+```bash
+nbx graphql tui --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `3.667`
+
+**Output:**
+
+```text
+                                                                                
+ Usage: nbx graphql [OPTIONS] QUERY                                             
+                                                                                
+ Execute a GraphQL query against the NetBox API, or launch the GraphQL TUI.     
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+│                       TUI                                                    │
+│                       [required]                                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
+│                            multiple key=value pairs                          │
+│ --json                     Output raw JSON                                   │
+│ --yaml                     Output YAML                                       │
+│ --theme                    For `nbx graphql tui`: list available themes or   │
+│                            launch with `--theme <name>`.                     │
+│ --help                     Show this message and exit.                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+#### nbx graphql tui --theme
+
+**Input:**
+
+```bash
+nbx graphql tui --theme
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `3.919`
+
+**Output:**
+
+```text
+Available themes:
+- dracula
+- netbox-dark
+- netbox-light
+- onedark-pro
+- tokyo-night
+```
+
+---
+
+#### nbx demo graphql --help
+
+**Input:**
+
+```bash
+nbx demo graphql --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `3.578`
+
+**Output:**
+
+```text
+                                                                                
+ Usage: nbx demo graphql [OPTIONS] QUERY                                        
+                                                                                
+ Execute a GraphQL query against the demo NetBox API, or launch the GraphQL     
+ TUI.                                                                           
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+│                       TUI                                                    │
+│                       [required]                                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
+│                            multiple key=value pairs                          │
+│ --json                     Output raw JSON                                   │
+│ --yaml                     Output YAML                                       │
+│ --theme                    For `nbx demo graphql tui`: list available themes │
+│                            or launch with `--theme <name>`.                  │
+│ --help                     Show this message and exit.                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+#### nbx demo graphql tui --help
+
+**Input:**
+
+```bash
+nbx demo graphql tui --help
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `3.763`
+
+**Output:**
+
+```text
+                                                                                
+ Usage: nbx demo graphql [OPTIONS] QUERY                                        
+                                                                                
+ Execute a GraphQL query against the demo NetBox API, or launch the GraphQL     
+ TUI.                                                                           
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    query      TEXT  GraphQL query string, or 'tui' to launch the GraphQL   │
+│                       TUI                                                    │
+│                       [required]                                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --variables  -v      TEXT  GraphQL variables: one JSON object, or repeat for │
+│                            multiple key=value pairs                          │
+│ --json                     Output raw JSON                                   │
+│ --yaml                     Output YAML                                       │
+│ --theme                    For `nbx demo graphql tui`: list available themes │
+│                            or launch with `--theme <name>`.                  │
+│ --help                     Show this message and exit.                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+#### nbx demo graphql tui --theme
+
+**Input:**
+
+```bash
+nbx demo graphql tui --theme
+```
+
+**Exit code:** `0`  ·  **Wall time (s):** `4.188`
 
 **Output:**
 
@@ -2740,34 +2221,6 @@ Available themes:
 
 ### CLI Builder
 
-#### nbx cli --help
-
-**Input:**
-
-```bash
-nbx cli --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.407`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx cli [OPTIONS] COMMAND [ARGS]...                                     
-                                                                                
- CLI utilities: interactive command builder and helpers.                        
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ tui  Launch the interactive CLI command builder TUI.                         │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
 #### nbx cli tui --help
 
 **Input:**
@@ -2776,7 +2229,7 @@ nbx cli --help
 nbx cli tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.402`
+**Exit code:** `0`  ·  **Wall time (s):** `4.043`
 
 **Output:**
 
@@ -2797,34 +2250,6 @@ nbx cli tui --help
 
 ---
 
-#### nbx demo cli --help
-
-**Input:**
-
-```bash
-nbx demo cli --help
-```
-
-**Exit code:** `0`  ·  **Wall time (s):** `3.666`
-
-**Output:**
-
-```text
-                                                                                
- Usage: nbx demo cli [OPTIONS] COMMAND [ARGS]...                                
-                                                                                
- CLI builder tools against the demo.netbox.dev profile.                         
-                                                                                
-╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                                  │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ tui  Launch the interactive CLI command builder against the demo profile.    │
-╰──────────────────────────────────────────────────────────────────────────────╯
-```
-
----
-
 #### nbx demo cli tui --help
 
 **Input:**
@@ -2833,7 +2258,7 @@ nbx demo cli --help
 nbx demo cli tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.400`
+**Exit code:** `0`  ·  **Wall time (s):** `4.471`
 
 **Output:**
 
@@ -2860,7 +2285,7 @@ nbx demo cli tui --help
 nbx demo cli tui --theme
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.582`
+**Exit code:** `0`  ·  **Wall time (s):** `4.196`
 
 **Output:**
 
@@ -2885,7 +2310,7 @@ Available themes:
 nbx dev django-model tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.563`
+**Exit code:** `0`  ·  **Wall time (s):** `4.369`
 
 **Output:**
 
@@ -2917,7 +2342,7 @@ nbx dev django-model tui --help
 nbx demo dev django-model tui --help
 ```
 
-**Exit code:** `0`  ·  **Wall time (s):** `3.840`
+**Exit code:** `0`  ·  **Wall time (s):** `3.970`
 
 **Output:**
 

@@ -1,0 +1,21 @@
+{
+  "surface": "tui",
+  "section": "Developer Workbench",
+  "title": "nbx demo dev tui --theme",
+  "argv": [
+    "demo",
+    "dev",
+    "tui",
+    "--theme"
+  ],
+  "argv_base": [
+    "demo",
+    "dev",
+    "tui",
+    "--theme"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 4.158,
+  "truncated": false,
+  "stdout_full": "Available themes:\n- dracula\n- netbox-dark\n- netbox-light\n- onedark-pro\n- tokyo-night\n"
+}

@@ -36,3 +36,9 @@
 
 - Extra required for this package: `.[tui]`
 - Package data includes `*.tcss` and `themes/*.json`
+
+## Logging
+
+- Use `netbox_sdk.logging_runtime.get_logger(__name__)` so file logging is configured consistently with the CLI.
+- Long-running `@work` tasks and optional network paths should log **DEBUG** on recoverable failures (with `exc_info=True` when useful) instead of swallowing exceptions silently.
+- Never log secrets (tokens, passwords); user-facing `notify()` strings should avoid echoing raw credentials.

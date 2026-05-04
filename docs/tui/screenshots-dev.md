@@ -14,20 +14,20 @@ nbx dev tui --theme dracula
 
 === "NetBox Dark"
 
-    ![Dev TUI - NetBox Dark](../assets/screenshots/tui-dev-netbox-dark.svg)
+    ![Dev TUI - NetBox Dark](/assets/screenshots/tui-dev-netbox-dark.svg)
 
 === "NetBox Light"
 
-    ![Dev TUI - NetBox Light](../assets/screenshots/tui-dev-netbox-light.svg)
+    ![Dev TUI - NetBox Light](/assets/screenshots/tui-dev-netbox-light.svg)
 
 === "Dracula"
 
-    ![Dev TUI - Dracula](../assets/screenshots/tui-dev-dracula.svg)
+    ![Dev TUI - Dracula](/assets/screenshots/tui-dev-dracula.svg)
 
 === "Tokyo Night"
 
-    ![Dev TUI - Tokyo Night](../assets/screenshots/tui-dev-tokyo-night.svg)
+    ![Dev TUI - Tokyo Night](/assets/screenshots/tui-dev-tokyo-night.svg)
 
 === "One Dark Pro"
 
-    ![Dev TUI - One Dark Pro](../assets/screenshots/tui-dev-onedark-pro.svg)
+    ![Dev TUI - One Dark Pro](/assets/screenshots/tui-dev-onedark-pro.svg)

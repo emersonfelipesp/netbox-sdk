@@ -54,7 +54,7 @@ class ObjectAttributesPanel(Vertical):
         self._spinner_index += 1
         self._set_status(f"{frame} {label}")
 
-    def set_loading(self, label: str = "Loading object details...") -> None:
+    def set_loading_state(self, label: str = "Loading object details...") -> None:
         self._stop_spinner()
         self._spinner_index = 0
         self._row_values = []

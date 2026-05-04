@@ -1,14 +1,33 @@
-"""Configuration loading, profile persistence, and private config file handling."""
+"""Configuration loading, profile persistence, and private config file handling.
+
+Security considerations:
+- Token values have CR/LF/null bytes stripped to prevent HTTP header injection
+- Config files are written with restrictive permissions (0o600)
+- URLs are validated to reject non-HTTP schemes and embedded credentials
+- Cache keys use SHA-256 fingerprints of tokens, never raw tokens
+"""
 
 from __future__ import annotations
 
+import hmac
 import json
+import logging
 import os
+import re
 import stat
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, field_validator
+
+logger = logging.getLogger(__name__)
+
+# Matches a URI scheme at the start of a string: one or more letters, digits,
+# +, or - immediately followed by a colon.  Used to detect bare non-HTTP
+# schemes (javascript:, data:, file:, …) before the auto-https prefix step.
+# We only treat single-word tokens (no dots) as real URI schemes, because a
+# string like "netbox.example.com:8080" should be auto-prefixed, not rejected.
+_BARE_SCHEME_RE = re.compile(r"^([a-zA-Z][a-zA-Z0-9+\-]*):", re.ASCII)
 
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_CONFIG_DIRNAME = "netbox-sdk"
@@ -58,13 +77,18 @@ class Config(BaseModel):
         if v is None:
             return None
         s = str(v).strip()
+        # Strip CR, LF, and null bytes so token values cannot inject extra
+        # lines into HTTP Authorization headers.
+        s = s.translate(str.maketrans("", "", "\r\n\x00"))
         return s if s else None
 
     @field_validator("timeout", mode="before")
     @classmethod
     def _coerce_timeout(cls, v: object) -> float:
         try:
-            return float(v or DEFAULT_TIMEOUT)
+            if v is None or v == "":
+                return DEFAULT_TIMEOUT
+            return float(v)
         except (TypeError, ValueError):
             return DEFAULT_TIMEOUT
 
@@ -89,10 +113,25 @@ class Config(BaseModel):
 
 
 def normalize_base_url(value: str) -> str:
+    """Normalize user input into an ``http``/``https`` URL without credentials or query parts.
+
+    Raises:
+        ValueError: If the URL is empty, uses a disallowed scheme, embeds credentials, or
+            contains control characters.
+    """
     url = value.strip()
     if not url:
         raise ValueError("base_url cannot be empty")
+    if any(c in url for c in ("\r", "\n", "\x00")):
+        raise ValueError("base_url must not contain control characters")
+    # Detect bare non-HTTP schemes (javascript:, data:, file:, etc.) before
+    # the auto-https prefix step.  We only flag single-word scheme tokens
+    # (no dots) so that bare hostnames like "netbox.example.com:8080" are
+    # still auto-prefixed rather than rejected.
     if "://" not in url:
+        m = _BARE_SCHEME_RE.match(url)
+        if m and m.group(1).lower() not in {"http", "https"}:
+            raise ValueError("base_url must use http or https")
         url = f"https://{url}"
     parsed = urlsplit(url)
     scheme = parsed.scheme.lower()
@@ -128,6 +167,7 @@ def _write_private_json(path: Path, payload: dict[str, object]) -> None:
 
 
 def config_dir() -> Path:
+    """Return (and create) the XDG-style config directory for netbox-sdk."""
     root = os.environ.get("XDG_CONFIG_HOME")
     if root:
         cfg_dir = Path(root) / DEFAULT_CONFIG_DIRNAME
@@ -171,10 +211,37 @@ def _load_raw_document() -> dict[str, object]:
         legacy = legacy_config_path()
         if legacy.exists():
             path = legacy
+            logger.debug(
+                "using legacy config path",
+                extra={"nbx_event": "config_legacy_path", "path": str(path)},
+            )
         else:
             return {}
-    loaded = json.loads(path.read_text(encoding="utf-8"))
-    return loaded if isinstance(loaded, dict) else {}
+    try:
+        raw_text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        logger.warning(
+            "config file unreadable: %s",
+            exc,
+            extra={"nbx_event": "config_read_error", "path": str(path)},
+        )
+        return {}
+    try:
+        loaded = json.loads(raw_text)
+    except json.JSONDecodeError as exc:
+        logger.warning(
+            "config file is not valid JSON: %s",
+            exc,
+            extra={"nbx_event": "config_json_error", "path": str(path)},
+        )
+        return {}
+    if not isinstance(loaded, dict):
+        logger.warning(
+            "config file root must be a JSON object",
+            extra={"nbx_event": "config_shape_error", "path": str(path)},
+        )
+        return {}
+    return loaded
 
 
 def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
@@ -193,6 +260,7 @@ def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
 
 
 def load_profile_config(profile: str = DEFAULT_PROFILE) -> Config:
+    """Load ``Config`` for a named profile, merging environment variables for the default profile."""
     stored = _load_raw_document()
 
     # Backward-compatible flat config: treat root fields as the default profile.
@@ -204,7 +272,7 @@ def load_profile_config(profile: str = DEFAULT_PROFILE) -> Config:
         return Config()
 
     profiles_obj = stored.get("profiles")
-    profiles = profiles_obj if isinstance(profiles_obj, dict) else {}
+    profiles: dict[str, object] = profiles_obj if isinstance(profiles_obj, dict) else {}
     selected_obj = profiles.get(profile)
     selected = selected_obj if isinstance(selected_obj, dict) else {}
     cfg = _coerce_config(selected, apply_env=profile == DEFAULT_PROFILE)
@@ -218,6 +286,7 @@ def load_config() -> Config:
 
 
 def save_profile_config(profile: str, cfg: Config) -> None:
+    """Persist ``cfg`` under ``profile`` in the shared config document (private permissions)."""
     path = config_path()
     stored = _load_raw_document()
     profiles: dict[str, object]
@@ -234,12 +303,20 @@ def save_profile_config(profile: str, cfg: Config) -> None:
         }
     else:
         profiles_obj = stored.get("profiles")
-        profiles = dict(profiles_obj) if isinstance(profiles_obj, dict) else {}
-    serialized = cfg.model_dump()
+        profiles = profiles_obj if isinstance(profiles_obj, dict) else {}
+    # Never persist demo_password to disk — it is only needed within the
+    # current process session for automatic token refresh.  Keeping a
+    # plaintext credential on disk is unnecessary because a fresh token can
+    # be obtained interactively the next time the demo profile is loaded.
+    serialized = cfg.model_dump(exclude={"demo_password"})
     if profile == DEMO_PROFILE:
         serialized["base_url"] = DEMO_BASE_URL
     profiles[profile] = serialized
     _write_private_json(path, {"profiles": profiles})
+    logger.info(
+        "saved profile config",
+        extra={"nbx_event": "config_save", "profile": profile, "path": str(path)},
+    )
 
 
 def save_config(cfg: Config) -> None:
@@ -290,3 +367,23 @@ def is_runtime_config_complete(cfg: Config) -> bool:
     if cfg.token_version == "v1":
         return True
     return bool(cfg.token_key)
+
+
+def timing_safe_token_compare(a: str | None, b: str | None) -> bool:
+    """Compare two tokens in timing-safe manner to prevent timing attacks.
+
+    Uses hmac.compare_digest() for constant-time comparison to avoid
+    leaking information about token contents via timing side channels.
+
+    Args:
+        a: First token or None
+        b: Second token or None
+
+    Returns:
+        True if both are None or tokens are equal, False otherwise
+    """
+    if a is None and b is None:
+        return True
+    if a is None or b is None:
+        return False
+    return hmac.compare_digest(a, b)

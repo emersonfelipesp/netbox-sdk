@@ -2,6 +2,12 @@
 #   filename:  netbox-openapi-4.3.json
 #   timestamp: 2026-03-27T21:55:45+00:00
 
+"""
+Pydantic models generated from NetBox 4.3 OpenAPI.
+
+Do not edit by hand. Regenerate with scripts/generate_typed_sdk.py.
+"""
+
 from __future__ import annotations
 
 from datetime import date

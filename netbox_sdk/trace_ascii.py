@@ -7,7 +7,7 @@ from typing import Any
 
 def _box(lines: list[str], width: int = 38) -> list[str]:
     inner_width = width - 2
-    rendered = ["┌" + "─" * inner_width + "┐"]
+    rendered: list[str] = ["┌" + "─" * inner_width + "┐"]
     for line in lines:
         centered = line.center(inner_width)[:inner_width].ljust(inner_width)
         rendered.append("│" + centered + "│")
@@ -42,8 +42,8 @@ def _endpoint_lines(endpoint: dict[str, Any], *, device_first: bool) -> list[str
     )
     port_label = str(endpoint.get("display") or endpoint.get("name") or "Endpoint")
     if device_first:
-        return [line for line in [device_label, port_label] if line]
-    return [line for line in [port_label, device_label] if line]
+        return [str(line) for line in [device_label, port_label] if line]
+    return [str(line) for line in [port_label, device_label] if line]
 
 
 def _trace_segments(
