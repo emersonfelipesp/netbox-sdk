@@ -99,7 +99,7 @@ pip install -e '.[all]'
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
-- Bundled typed support currently targets NetBox release lines `4.5`, `4.4`, and `4.3`.
+- Bundled typed support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`. The CI live-NetBox suite exercises `v4.6.0-beta2`, `v4.5.9`, and `v4.5.8`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 

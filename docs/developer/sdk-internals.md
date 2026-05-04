@@ -187,11 +187,12 @@ for group_resource, paths_obj in paths.items():
 
 ### Versioned Bundled Schemas
 
-Four OpenAPI schemas ship with the package under `netbox_sdk/reference/openapi/`:
+Five OpenAPI schemas ship with the package under `netbox_sdk/reference/openapi/`:
 
 | File | NetBox Version |
 |---|---|
 | `netbox-openapi.json` | Default (latest) |
+| `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |
 | `netbox-openapi-4.3.json` | NetBox 4.3 |
@@ -290,8 +291,8 @@ The `netbox_version` argument maps to a dynamically imported module:
 
 ```python title="netbox_sdk/typed_api.py (simplified)"
 def typed_api(url, token, *, netbox_version):
-    normalized = normalize_netbox_version(netbox_version)  # "4.5" / "4.4" / "4.3"
-    suffix = version_module_suffix(normalized)             # "v4_5" / "v4_4" / "v4_3"
+    normalized = normalize_netbox_version(netbox_version)  # "4.6" / "4.5" / "4.4" / "4.3"
+    suffix = version_module_suffix(normalized)             # "v4_6" / "v4_5" / "v4_4" / "v4_3"
     module = import_module(f"netbox_sdk.typed_versions.{suffix}")
     return module.build_typed_api(url=url, token=token)
 ```
@@ -299,6 +300,8 @@ def typed_api(url, token, *, netbox_version):
 Overloaded return types provide IDE completion per version:
 
 ```python title="netbox_sdk/typed_api.py"
+@overload
+def typed_api(url: str, token: str | None = None, *, netbox_version: Literal["4.6"]) -> TypedApiV4_6: ...
 @overload
 def typed_api(url: str, token: str | None = None, *, netbox_version: Literal["4.5"]) -> TypedApiV4_5: ...
 @overload

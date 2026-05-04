@@ -26,7 +26,9 @@ O próprio pacote SDK expõe três camadas:
 - `api()` / `Api` para a camada de fachada assíncrona
 - `typed_api()` para o cliente tipado versionado com modelos Pydantic versionados
 
-As linhas de release tipadas atuais do SDK são NetBox `4.5`, `4.4` e `4.3`.
+As linhas de release tipadas atuais do SDK são NetBox `4.6`, `4.5`, `4.4` e `4.3`.
+A integração contínua exercita a suíte live-NetBox contra `v4.6.0-beta2`,
+`v4.5.9` e `v4.5.8`.
 
 --8<-- "snippets/documented-release-pt.md"
 

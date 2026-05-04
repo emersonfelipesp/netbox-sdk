@@ -68,7 +68,9 @@ def test_sdk_docs_cover_typed_api_and_supported_versions() -> None:
     mkdocs = _read("mkdocs.yml")
 
     assert "typed_api()" in sdk_index
-    assert "4.5" in typed_page and "4.4" in typed_page and "4.3" in typed_page
+    assert (
+        "4.6" in typed_page and "4.5" in typed_page and "4.4" in typed_page and "4.3" in typed_page
+    )
     assert "TypedRequestValidationError" in making_requests
     assert "Typed API: sdk/typed.md" in mkdocs
 
@@ -79,9 +81,15 @@ def test_claude_guidance_mentions_versioned_typed_sdk() -> None:
     reference_claude = _read("netbox_sdk/reference/CLAUDE.md")
 
     assert "typed_api()" in root_claude
-    assert "4.5" in root_claude and "4.4" in root_claude and "4.3" in root_claude
+    assert (
+        "4.6" in root_claude
+        and "4.5" in root_claude
+        and "4.4" in root_claude
+        and "4.3" in root_claude
+    )
     assert "typed_api()" in sdk_claude
     assert "netbox-openapi-4.5.json" in reference_claude
+    assert "netbox-openapi-4.6.json" in reference_claude
 
 
 def test_repo_docs_branding_uses_netbox_sdk_urls() -> None:

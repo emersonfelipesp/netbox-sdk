@@ -24,12 +24,16 @@ nb = typed_api(
 
 Supported release lines:
 
+- `4.6`
 - `4.5`
 - `4.4`
 - `4.3`
 
 Patch versions normalize to their release line, so `4.4.10` selects the `4.4`
-typed client.
+typed client. Pre-releases such as `4.6.0-beta2` normalize to `4.6`.
+
+Continuous integration exercises the live-NetBox suite against
+`v4.6.0-beta2`, `v4.5.9`, and `v4.5.8`.
 
 ## Example
 
@@ -67,9 +71,11 @@ need to run code generation locally.
 
 Relevant modules:
 
+- `netbox_sdk.models.v4_6`
 - `netbox_sdk.models.v4_5`
 - `netbox_sdk.models.v4_4`
 - `netbox_sdk.models.v4_3`
+- `netbox_sdk.typed_versions.v4_6`
 - `netbox_sdk.typed_versions.v4_5`
 - `netbox_sdk.typed_versions.v4_4`
 - `netbox_sdk.typed_versions.v4_3`

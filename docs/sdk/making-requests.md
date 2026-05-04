@@ -121,8 +121,10 @@ typed_api("https://netbox.example.com", token="tok", netbox_version="4.5")
 typed_api("https://netbox.example.com", token="tok", netbox_version="4.5.5")
 ```
 
-The typed client supports NetBox `4.5`, `4.4`, and `4.3`. Generated models for
-those release lines are committed in the repository and shipped with the package.
+The typed client supports NetBox `4.6`, `4.5`, `4.4`, and `4.3`. Generated
+models for those release lines are committed in the repository and shipped
+with the package. The CI live-NetBox suite exercises `v4.6.0-beta2`,
+`v4.5.9`, and `v4.5.8`.
 
 ---
 

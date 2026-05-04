@@ -71,7 +71,7 @@ def mock_client(mock_app):
 Use parametrize para executar os mesmos testes em múltiplas versões do NetBox:
 
 ```python
-@pytest.fixture(params=["4.3", "4.4", "4.5"])
+@pytest.fixture(params=["4.3", "4.4", "4.5", "4.6"])
 def versioned_client(request):
     app = create_mock_app(version=request.param)
     with TestClient(app) as c:

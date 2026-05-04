@@ -165,7 +165,7 @@ asyncio.run(main())
 ```
 
 The typed client validates request and response payloads with committed Pydantic
-models for NetBox `4.5`, `4.4`, and `4.3`.
+models for NetBox `4.6`, `4.5`, `4.4`, and `4.3`.
 
 ---
 

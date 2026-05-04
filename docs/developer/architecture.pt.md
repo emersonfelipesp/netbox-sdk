@@ -36,7 +36,7 @@ flowchart TB
     services["services.py\nresolve_dynamic_request()\nrun_dynamic_command()"]
     facade["facade.py\nApi → App → Endpoint\n→ Record / RecordSet"]
     typed["typed_api.py\ntyped_api()\nClientes tipados por versão"]
-    models["models/\nModelos Pydantic gerados\nv4_3 · v4_4 · v4_5"]
+    models["models/\nModelos Pydantic gerados\nv4_3 · v4_4 · v4_5 · v4_6"]
 
     config --> client
     cache --> client
@@ -57,7 +57,7 @@ flowchart TB
 | `services.py` | `resolve_dynamic_request()` / `run_dynamic_command()` — mapeia ações CLI para chamadas HTTP |
 | `facade.py` | `api()` — fachada async estilo PyNetBox: `Api → App → Endpoint → Record/RecordSet` |
 | `typed_api.py` | `typed_api()` — clientes tipados por versão com modelos Pydantic de request/response |
-| `models/` | Modelos Pydantic gerados para NetBox 4.3, 4.4 e 4.5 |
+| `models/` | Modelos Pydantic gerados para NetBox 4.3, 4.4, 4.5 e 4.6 |
 
 ---
 
@@ -85,15 +85,16 @@ flowchart TB
       versioning.py
       exceptions.py
       models/
-        v4_3.py · v4_4.py · v4_5.py
+        v4_3.py · v4_4.py · v4_5.py · v4_6.py
       typed_versions/
-        v4_3.py · v4_4.py · v4_5.py
+        v4_3.py · v4_4.py · v4_5.py · v4_6.py
       django_models/
       reference/openapi/
         netbox-openapi.json (padrão)
         netbox-openapi-4.3.json
         netbox-openapi-4.4.json
         netbox-openapi-4.5.json
+        netbox-openapi-4.6.json
 
     netbox_cli/
       __init__.py

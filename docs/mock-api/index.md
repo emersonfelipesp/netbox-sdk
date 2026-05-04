@@ -82,4 +82,4 @@ Or pass the version directly:
 app = create_mock_app(version="4.3")
 ```
 
-Supported values: `4.3`, `4.4`, `4.5`.
+Supported values: `4.3`, `4.4`, `4.5`, `4.6`.
