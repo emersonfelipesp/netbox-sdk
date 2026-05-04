@@ -1,0 +1,52 @@
+name: publish-metadata
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - pyproject.toml
+      - netbox_sdk/typed_versions/**
+      - scripts/build_metadata.py
+      - .github/workflows/publish-metadata.yml
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-metadata
+  cancel-in-progress: false
+
+jobs:
+  publish-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Generate metadata.json
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: python scripts/build_metadata.py
+
+      - name: Commit and push if changed
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if git diff --quiet -- metadata.json; then
+            echo "metadata.json unchanged; nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add metadata.json
+          git commit -m "chore: refresh metadata.json [skip ci]"
+          git push
