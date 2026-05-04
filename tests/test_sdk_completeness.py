@@ -42,6 +42,7 @@ from netbox_sdk.plugin_discovery import (
     _is_collection_payload,
     _normalize_api_path,
     _plugin_detail_path,
+    discover_object_type_resources,
     discover_plugin_resource_paths,
 )
 from netbox_sdk.schema import FilterParam
@@ -733,6 +734,26 @@ def test_schema_add_discovered_resource() -> None:
     assert "GET" in methods
 
 
+def test_schema_add_discovered_resource_with_methods() -> None:
+    idx = build_schema_index(OPENAPI_PATH)
+
+    changed = idx.add_discovered_resource(
+        group="plugins",
+        resource="myplugin/widgets",
+        list_path="/api/plugins/myplugin/widgets/",
+        detail_path="/api/plugins/myplugin/widgets/{id}/",
+        list_methods=("GET", "POST"),
+        detail_methods=("GET", "PATCH", "DELETE"),
+    )
+    assert changed is True
+
+    ops = idx.operations_for("plugins", "myplugin/widgets")
+    by_pair = {(op.path, op.method) for op in ops}
+    assert ("/api/plugins/myplugin/widgets/", "POST") in by_pair
+    assert ("/api/plugins/myplugin/widgets/{id}/", "PATCH") in by_pair
+    assert ("/api/plugins/myplugin/widgets/{id}/", "DELETE") in by_pair
+
+
 def test_schema_add_discovered_resource_idempotent() -> None:
     idx = build_schema_index(OPENAPI_PATH)
     idx.add_discovered_resource(
@@ -1036,8 +1057,11 @@ def test_plugin_detail_path() -> None:
     assert _plugin_detail_path("/api/plugins/gpon/olts/") == "/api/plugins/gpon/olts/{id}/"
 
 
-def test_plugin_detail_path_too_deep_returns_none() -> None:
-    assert _plugin_detail_path("/api/plugins/gpon/olts/nested/") is None
+def test_plugin_detail_path_nested_resource() -> None:
+    assert (
+        _plugin_detail_path("/api/plugins/gpon/olts/nested/")
+        == "/api/plugins/gpon/olts/nested/{id}/"
+    )
 
 
 @pytest.mark.asyncio
@@ -1057,6 +1081,56 @@ async def test_discover_plugin_resource_paths_direct_sdk_import() -> None:
 
     result = await discover_plugin_resource_paths(_FakeClient())  # type: ignore[arg-type]
     assert ("/api/plugins/bgp/sessions/", "/api/plugins/bgp/sessions/{id}/") in result
+
+
+@pytest.mark.asyncio
+async def test_discover_object_type_resources_uses_rest_api_endpoint() -> None:
+    class _FakeClient:
+        async def request(
+            self,
+            method: str,
+            path: str,
+            *,
+            query: dict[str, str] | None = None,
+        ) -> ApiResponse:
+            if method == "GET" and path == "/api/core/object-types/":
+                return ApiResponse(
+                    status=200,
+                    text=json.dumps(
+                        {
+                            "count": 2,
+                            "next": None,
+                            "results": [
+                                {
+                                    "public": True,
+                                    "is_plugin_model": True,
+                                    "rest_api_endpoint": (
+                                        "https://netbox.example.com/api/plugins/custom/widgets/"
+                                    ),
+                                },
+                                {
+                                    "public": False,
+                                    "rest_api_endpoint": "/api/plugins/private/things/",
+                                },
+                            ],
+                        }
+                    ),
+                    headers={},
+                )
+            if method == "OPTIONS" and path == "/api/plugins/custom/widgets/":
+                return ApiResponse(
+                    status=200,
+                    text='{"actions": {"POST": {}}}',
+                    headers={"Allow": "GET, POST, OPTIONS"},
+                )
+            return ApiResponse(status=404, text="", headers={})
+
+    result = await discover_object_type_resources(_FakeClient())  # type: ignore[arg-type]
+
+    assert len(result) == 1
+    assert result[0].list_path == "/api/plugins/custom/widgets/"
+    assert result[0].detail_path == "/api/plugins/custom/widgets/{id}/"
+    assert result[0].list_methods == ("GET", "POST")
 
 
 @pytest.mark.asyncio

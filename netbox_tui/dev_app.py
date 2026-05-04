@@ -34,7 +34,7 @@ from textual.widgets.option_list import Option
 from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_sdk.formatting import humanize_group, humanize_resource
 from netbox_sdk.logging_runtime import get_logger
-from netbox_sdk.schema import Operation, SchemaIndex, parse_group_resource
+from netbox_sdk.schema import Operation, SchemaIndex
 from netbox_tui.app import TOPBAR_CLI_LABEL
 from netbox_tui.chrome import (
     SWITCH_TO_CLI_TUI,
@@ -66,7 +66,7 @@ from netbox_tui.dev_state import (
     save_dev_tui_state,
 )
 from netbox_tui.navigation import build_navigation_menus
-from netbox_tui.plugin_discovery import discover_plugin_resource_paths
+from netbox_tui.plugin_discovery import enrich_schema_index_with_runtime_resources
 from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.theme_registry import ThemeDefinition
 from netbox_tui.widgets import NbxButton, SupportModal
@@ -506,20 +506,7 @@ class NetBoxDevTuiApp(App[None]):
 
     @work(group="plugin_discovery", exclusive=True, thread=False)
     async def _discover_plugin_resources(self) -> None:
-        changed = False
-        for list_path, detail_path in await discover_plugin_resource_paths(self.client):
-            group, resource = parse_group_resource(list_path)
-            if group != "plugins" or resource is None:
-                continue
-            changed = (
-                self.index.add_discovered_resource(
-                    group=group,
-                    resource=resource,
-                    list_path=list_path,
-                    detail_path=detail_path,
-                )
-                or changed
-            )
+        changed = await enrich_schema_index_with_runtime_resources(self.index, self.client)
         if not changed:
             return
         self._build_navigation_tree()

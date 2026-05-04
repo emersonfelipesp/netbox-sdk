@@ -13,6 +13,7 @@ from netbox_sdk import (
     ParameterValidationError,
     RequestError,
     api,
+    async_api,
     build_schema_index,
 )
 from tests.conftest import OPENAPI_PATH
@@ -58,7 +59,7 @@ class _FakeClient:
         return {"netbox-version": "4.2"}
 
     async def openapi(self):
-        return {"openapi": "3.0.0"}
+        return {"openapi": "3.0.0", "paths": {}}
 
     async def get_version(self):
         return "4.2"
@@ -80,6 +81,57 @@ class _FakeClient:
             yield self
         finally:
             self._default_headers = previous
+
+
+@pytest.mark.asyncio
+async def test_async_api_enriches_runtime_plugin_resources() -> None:
+    class _RuntimeFakeClient(_FakeClient):
+        async def request(
+            self,
+            method: str,
+            path: str,
+            *,
+            query: dict[str, str] | None = None,
+            payload=None,
+            headers: dict[str, str] | None = None,
+            expect_json: bool = True,
+        ) -> ApiResponse:
+            if method == "GET" and path == "/api/plugins/":
+                return ApiResponse(status=200, text="{}", headers={})
+            if method == "GET" and path == "/api/core/object-types/":
+                return ApiResponse(
+                    status=200,
+                    text=(
+                        '{"count": 1, "next": null, "results": ['
+                        '{"public": true, "rest_api_endpoint": "/api/plugins/custom/widgets/"}'
+                        "]}"
+                    ),
+                    headers={},
+                )
+            if method == "OPTIONS" and path == "/api/plugins/custom/widgets/":
+                return ApiResponse(
+                    status=200,
+                    text='{"actions": {"POST": {}}}',
+                    headers={"Allow": "GET, POST, OPTIONS"},
+                )
+            return await super().request(
+                method,
+                path,
+                query=query,
+                payload=payload,
+                headers=headers,
+                expect_json=expect_json,
+            )
+
+    nb = await async_api(
+        "https://netbox.example.com",
+        token="tok",
+        client=_RuntimeFakeClient({}),
+    )
+
+    paths = nb.schema.resource_paths("plugins", "custom/widgets")
+    assert paths is not None
+    assert paths.list_path == "/api/plugins/custom/widgets/"
 
 
 @pytest.mark.asyncio

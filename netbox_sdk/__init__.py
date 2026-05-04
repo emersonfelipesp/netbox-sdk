@@ -68,7 +68,12 @@ __all__ = [
     "load_json_payload",
     "ACTION_METHOD_MAP",
     # plugin_discovery
+    "DiscoveredResource",
+    "discover_object_type_resources",
     "discover_plugin_resource_paths",
+    "discover_plugin_resources",
+    "discover_runtime_resources",
+    "enrich_schema_index_with_runtime_resources",
 ]
 
 __version__ = "0.0.8"
@@ -112,7 +117,14 @@ from netbox_sdk.facade import (
     async_api,
 )
 from netbox_sdk.http_cache import CacheEntry, CachePolicy, HttpCacheStore, build_cache_key
-from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
+from netbox_sdk.plugin_discovery import (
+    DiscoveredResource,
+    discover_object_type_resources,
+    discover_plugin_resource_paths,
+    discover_plugin_resources,
+    discover_runtime_resources,
+    enrich_schema_index_with_runtime_resources,
+)
 from netbox_sdk.schema import (
     FilterParam,
     Operation,

@@ -33,6 +33,9 @@ nbx groups
 nbx resources dcim
 # → cable-terminations, cables, console-ports, device-bays, device-roles, devices, …
 
+# Include plugin/custom-object resources from the configured NetBox instance
+nbx resources plugins --live
+
 # Help at any level
 nbx dcim --help
 nbx dcim devices --help
@@ -231,4 +234,4 @@ See [Demo Profile](demo-profile.md) for setup.
 
 At startup, `_register_openapi_subcommands()` in `cli.py` reads `reference/openapi/netbox-openapi.json`, builds a `SchemaIndex`, then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root `app` and once for `demo_app` with `_get_demo_client` as the client factory.
 
-For plugin resources, the bundled schema gives `nbx` the static command tree it knows about, and the TUI layer can additionally augment that view at runtime by discovering live `/api/plugins/` REST endpoints from the connected NetBox instance.
+For plugin/custom-object resources, the bundled schema gives `nbx` the static command tree it knows about. Use `--live` with `groups`, `resources`, or `ops` to enrich that index from the configured NetBox instance via `/api/plugins/` and `/api/core/object-types/`. Free-form dynamic invocations also try live enrichment when the requested resource is missing from the bundled schema.

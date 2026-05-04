@@ -20,6 +20,18 @@ def test_parse_group_resource_for_plugin_endpoint():
     assert resource == "gpon/olts"
 
 
+def test_parse_group_resource_for_nested_plugin_endpoint():
+    group, resource = parse_group_resource("/api/plugins/proxbox/resources/clusters/")
+    assert group == "plugins"
+    assert resource == "proxbox/resources/clusters"
+
+
+def test_parse_group_resource_for_nested_plugin_detail_endpoint():
+    group, resource = parse_group_resource("/api/plugins/proxbox/resources/clusters/{id}/")
+    assert group == "plugins"
+    assert resource == "proxbox/resources/clusters"
+
+
 def test_schema_index_has_core_groups():
     index = build_schema_index(OPENAPI_PATH)
     groups = index.groups()

@@ -93,6 +93,7 @@ async def async_api(
     *,
     strict_filters: bool = False,
     client: NetBoxApiClient | None = None,
+    discover_resources: bool = True,
 ) -> Api:
     """Like :func:`api` but auto-detects the NetBox version and selects the right schema.
 
@@ -119,6 +120,12 @@ async def async_api(
         )
     schema_dict = await fetch_schema_for_client(client)
     schema = SchemaIndex(schema_dict)
+    if discover_resources:
+        from netbox_sdk.plugin_discovery import (  # noqa: PLC0415
+            enrich_schema_index_with_runtime_resources,
+        )
+
+        await enrich_schema_index_with_runtime_resources(schema, client)
     return Api(client=client, schema=schema, strict_filters=strict_filters)
 
 

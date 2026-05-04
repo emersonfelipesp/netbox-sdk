@@ -15,10 +15,11 @@ composition, GraphQL exploration, and Django model inspection:
 - `nbx logs` for the plain CLI log tail
 - `nbx dev django-model tui` for contributor-facing model inspection
 
-The main TUI also discovers plugin resources dynamically. If a NetBox plugin
-exposes a REST API under `/api/plugins/`, `nbx tui` and `nbx dev tui` can add
-those resources to the sidebar automatically and load their data like any
-built-in NetBox resource.
+The main TUI also discovers plugin and custom-object resources dynamically. If
+a NetBox plugin exposes a REST API under `/api/plugins/`, or a public ObjectType
+advertises a REST endpoint, `nbx tui` and `nbx dev tui` can add those resources
+to the sidebar automatically and load their data like any built-in NetBox
+resource.
 
 ---
 
@@ -98,11 +99,12 @@ The left panel shows all NetBox app groups as expandable sections. Click a resou
 
 ### Plugin resources
 
-Plugin REST resources are appended under a `Plugins` menu automatically when the connected NetBox instance exposes them under `/api/plugins/`.
+Plugin/custom-object REST resources are appended under a `Plugins` menu automatically when the connected NetBox instance exposes them under `/api/plugins/` or reports them through `/api/core/object-types/`.
 
 - no hardcoded plugin list is required
 - plugin resources appear in both `nbx tui` and `nbx dev tui`
 - if the plugin exposes list/detail REST endpoints, the TUI can browse and render the returned data just like built-in resources
+- private models or plugin data without REST endpoints are skipped
 
 ---
 

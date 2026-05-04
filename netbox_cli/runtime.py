@@ -88,6 +88,17 @@ def _get_index() -> SchemaIndex:
     return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))
 
 
+def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
+    """Return a fresh schema index enriched with live plugin/custom-object resources."""
+    from netbox_sdk.plugin_discovery import (  # noqa: PLC0415
+        enrich_schema_index_with_runtime_resources,
+    )
+
+    index = _get_index()
+    run_with_spinner(enrich_schema_index_with_runtime_resources(index, client or _get_client()))
+    return index
+
+
 def _get_client() -> NetBoxApiClient:
     logger.debug("creating default profile api client")
     import netbox_cli as cli_mod  # noqa: PLC0415 — late import so tests can patch cli_mod._ensure_runtime_config

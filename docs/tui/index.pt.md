@@ -15,10 +15,11 @@ exploração GraphQL e inspeção de modelos Django:
 - `nbx logs` para o tail de log simples na CLI
 - `nbx dev django-model tui` para inspeção de modelos voltada a contribuidores
 
-A TUI principal também descobre recursos de plugins dinamicamente. Se um plugin NetBox
-expõe uma API REST sob `/api/plugins/`, `nbx tui` e `nbx dev tui` podem adicionar
-esses recursos à barra lateral automaticamente e carregar seus dados como qualquer
-recurso NetBox integrado.
+A TUI principal também descobre recursos de plugins e objetos customizados
+dinamicamente. Se um plugin NetBox expõe uma API REST sob `/api/plugins/`, ou
+um ObjectType público anuncia um endpoint REST, `nbx tui` e `nbx dev tui` podem
+adicionar esses recursos à barra lateral automaticamente e carregar seus dados
+como qualquer recurso NetBox integrado.
 
 ---
 
@@ -98,11 +99,12 @@ O painel esquerdo mostra todos os grupos de app NetBox como seções expansívei
 
 ### Recursos de plugin
 
-Recursos REST de plugin são anexados sob um menu `Plugins` automaticamente quando a instância NetBox conectada os expõe sob `/api/plugins/`.
+Recursos REST de plugins / objetos customizados são anexados sob um menu `Plugins` automaticamente quando a instância NetBox conectada os expõe sob `/api/plugins/` ou os informa por `/api/core/object-types/`.
 
 - não é necessária lista hardcoded de plugins
 - recursos de plugin aparecem em `nbx tui` e `nbx dev tui`
 - se o plugin expõe endpoints REST de lista/detalhe, a TUI pode navegar e renderizar os dados retornados como recursos integrados
+- modelos privados ou dados de plugins sem endpoints REST são ignorados
 
 ---
 

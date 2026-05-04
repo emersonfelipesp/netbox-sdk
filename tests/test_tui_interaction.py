@@ -746,17 +746,35 @@ async def test_context_breadcrumb_link_matches_plain_text_style(mock_client, rea
         assert str(link.styles.text_style) == str(current.styles.text_style) == "none"
 
 
+async def _add_gpon_plugin_resources(index, client) -> bool:  # noqa: ANN001
+    del client
+    changed = False
+    for list_path, detail_path, resource in [
+        ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/", "gpon/boards"),
+        (
+            "/api/plugins/gpon/line-profiles/",
+            "/api/plugins/gpon/line-profiles/{id}/",
+            "gpon/line-profiles",
+        ),
+    ]:
+        changed = (
+            index.add_discovered_resource(
+                group="plugins",
+                resource=resource,
+                list_path=list_path,
+                detail_path=detail_path,
+            )
+            or changed
+        )
+    return changed
+
+
 @pytest.mark.asyncio
 async def test_plugin_breadcrumb_root_opens_descendant_dropdown(mock_client, real_index) -> None:
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
     with patch(
-        "netbox_tui.app.discover_plugin_resource_paths",
-        AsyncMock(
-            return_value=[
-                ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/"),
-                ("/api/plugins/gpon/line-profiles/", "/api/plugins/gpon/line-profiles/{id}/"),
-            ]
-        ),
+        "netbox_tui.app.enrich_schema_index_with_runtime_resources",
+        AsyncMock(side_effect=_add_gpon_plugin_resources),
     ):
         app = _make_app(mock_client, real_index, theme="netbox-dark")
 
@@ -794,13 +812,8 @@ async def test_plugin_group_breadcrumb_dropdown_navigates_to_selected_resource(
 ) -> None:
     mock_client.request = AsyncMock(return_value=_list_response(FAKE_DEVICES))
     with patch(
-        "netbox_tui.app.discover_plugin_resource_paths",
-        AsyncMock(
-            return_value=[
-                ("/api/plugins/gpon/boards/", "/api/plugins/gpon/boards/{id}/"),
-                ("/api/plugins/gpon/line-profiles/", "/api/plugins/gpon/line-profiles/{id}/"),
-            ]
-        ),
+        "netbox_tui.app.enrich_schema_index_with_runtime_resources",
+        AsyncMock(side_effect=_add_gpon_plugin_resources),
     ):
         app = _make_app(mock_client, real_index, theme="netbox-dark")
 
