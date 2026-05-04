@@ -36,7 +36,7 @@ def test_main_handles_unexpected_command_exception(capsys, monkeypatch) -> None:
     def _boom():
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(cli, "_get_client", _boom)
+    monkeypatch.setattr(cli, "_get_client_for_tui", _boom)
 
     exit_code = cli.main(["tui"])
     captured = capsys.readouterr()

@@ -49,14 +49,66 @@ _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
 
 
+async def _detect_and_fetch_schema(cfg: Config) -> dict:
+    from netbox_sdk.schema import fetch_schema_for_client  # noqa: PLC0415
+
+    client = _get_client_for_config(cfg)
+    return await fetch_schema_for_client(client)
+
+
+def _load_schema_for_connected_instance(
+    profile: str = DEFAULT_PROFILE,
+    cfg: Config | None = None,
+) -> dict:
+    """Resolve the OpenAPI schema for a profile's NetBox instance.
+
+    Uses a bundled schema when the connected version is a supported release line,
+    fetches it dynamically via /api/schema/ for unsupported versions, and falls
+    back to the default bundled schema when config is absent or any error occurs.
+    """
+    try:
+        cfg = cfg or load_profile_config(profile)
+        if not cfg.base_url:
+            logger.debug("no base_url configured; using default bundled schema")
+            return load_openapi_schema()
+        return run_with_spinner(_detect_and_fetch_schema(cfg))
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(
+            "schema version detection failed (%s); using default bundled schema",
+            exc,
+            extra={"nbx_event": "schema_version_detection_failed"},
+        )
+        return load_openapi_schema()
+
+
 def _get_index() -> SchemaIndex:
     global _SCHEMA_DOCUMENT
     if _SCHEMA_DOCUMENT is None:
-        logger.info("loading base openapi schema")
+        logger.info("loading bundled openapi schema")
         _SCHEMA_DOCUMENT = load_openapi_schema()
     # Return a fresh mutable index for each caller so runtime discoveries from one
     # NetBox instance can't leak into another app session.
     return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))
+
+
+def _get_connected_index(
+    profile: str = DEFAULT_PROFILE,
+    cfg: Config | None = None,
+) -> SchemaIndex:
+    """Return a schema index selected from the connected NetBox instance."""
+    return SchemaIndex(deepcopy(_load_schema_for_connected_instance(profile, cfg)))
+
+
+def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
+    """Return a fresh schema index enriched with live plugin/custom-object resources."""
+    from netbox_sdk.plugin_discovery import (  # noqa: PLC0415
+        enrich_schema_index_with_runtime_resources,
+    )
+
+    active_client = client or _get_client()
+    index = _get_connected_index(DEFAULT_PROFILE, active_client.config)
+    run_with_spinner(enrich_schema_index_with_runtime_resources(index, active_client))
+    return index
 
 
 def _get_client() -> NetBoxApiClient:
@@ -64,6 +116,20 @@ def _get_client() -> NetBoxApiClient:
     import netbox_cli as cli_mod  # noqa: PLC0415 — late import so tests can patch cli_mod._ensure_runtime_config
 
     return NetBoxApiClient(cli_mod._ensure_runtime_config())
+
+
+def _get_client_for_tui() -> NetBoxApiClient:
+    """Create a client for TUI launch without prompting for credentials.
+
+    Loads the stored profile config when available. If credentials are absent
+    the TUI will prompt interactively via LoginModal instead of the terminal.
+    """
+    try:
+        cfg = load_profile_config(DEFAULT_PROFILE) or Config()
+    except Exception:  # noqa: BLE001
+        cfg = Config()
+    _cache_profile(DEFAULT_PROFILE, cfg)
+    return _get_client_for_config(cfg)
 
 
 def _demo_token_refresh_callback(

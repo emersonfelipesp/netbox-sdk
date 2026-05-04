@@ -606,7 +606,15 @@ class NetBoxApiClient:
             if isinstance(body, dict):
                 token_value = body.get("key")
                 if isinstance(token_value, str) and token_value:
-                    self.config.token_secret = token_value
+                    if token_value.startswith("nbt_") and "." in token_value:
+                        token_key, token_secret = token_value.split(".", 1)
+                        self.config.token_version = "v2"
+                        self.config.token_key = token_key
+                        self.config.token_secret = token_secret
+                    else:
+                        self.config.token_version = "v1"
+                        self.config.token_key = None
+                        self.config.token_secret = token_value
         return response
 
     @contextmanager

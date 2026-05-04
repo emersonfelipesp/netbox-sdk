@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "netbox-sdk"
-version = "0.0.7.post6"
+version = "0.0.8"
 description = "SDK-first NetBox toolkit with Python SDK, CLI, and Textual TUIs"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -33,7 +33,7 @@ classifiers = [
 ]
 dependencies = [
   "aiohttp>=3.13.4",
-  "pydantic>=2.12.5",
+  "pydantic==2.13.3",
   "email-validator>=2.3.0",
   "rich>=14.3.3",
   "pyyaml>=6.0.3",

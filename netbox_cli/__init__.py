@@ -31,6 +31,8 @@ from netbox_cli.runtime import (
     _ensure_runtime_config,
     _get_client,
     _get_client_for_config,
+    _get_client_for_tui,
+    _get_enriched_index,
     _get_index,
     _retry_probe_after_ssl_prompt,
 )
@@ -246,9 +248,15 @@ def test_command(
 
 
 @app.command("groups")
-def groups_command() -> None:
+def groups_command(
+    live: bool = typer.Option(
+        False,
+        "--live",
+        help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
+    ),
+) -> None:
     """List all available OpenAPI app groups."""
-    index = _get_index()
+    index = _get_enriched_index() if live else _get_index()
     for group in index.groups():
         typer.echo(group)
 
@@ -256,9 +264,14 @@ def groups_command() -> None:
 @app.command("resources")
 def resources_command(
     group: str = typer.Argument(..., help="OpenAPI app group, e.g. dcim"),
+    live: bool = typer.Option(
+        False,
+        "--live",
+        help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
+    ),
 ) -> None:
     """List resources available within a group."""
-    index = _get_index()
+    index = _get_enriched_index() if live else _get_index()
     resources = index.resources(group)
     if not resources:
         raise typer.BadParameter(f"Group not found or has no resources: {group}")
@@ -270,9 +283,14 @@ def resources_command(
 def operations_command(
     group: str = typer.Argument(...),
     resource: str = typer.Argument(...),
+    live: bool = typer.Option(
+        False,
+        "--live",
+        help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
+    ),
 ) -> None:
     """Show available HTTP operations for a resource."""
-    index = _get_index()
+    index = _get_enriched_index() if live else _get_index()
     rows = index.operations_for(group, resource)
     if not rows:
         raise typer.BadParameter(f"No operations found for {group}/{resource}")
@@ -475,7 +493,7 @@ def tui_command(
 
     try:
         run_tui(
-            client=_get_client(),
+            client=_get_client_for_tui(),
             index=_get_index(),
             theme_name=selected_theme,
             demo_mode=False,

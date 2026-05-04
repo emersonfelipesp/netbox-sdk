@@ -33,6 +33,9 @@ nbx groups
 nbx resources dcim
 # → cable-terminations, cables, console-ports, device-bays, device-roles, devices, …
 
+# Incluir recursos de plugins / objetos customizados da instância NetBox configurada
+nbx resources plugins --live
+
 # Ajuda em qualquer nível
 nbx dcim --help
 nbx dcim devices --help
@@ -231,4 +234,4 @@ Veja [Perfil demo](demo-profile.md) para a configuração.
 
 Na inicialização, `_register_openapi_subcommands()` em `cli.py` lê `reference/openapi/netbox-openapi.json`, constrói um `SchemaIndex`, depois cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o `app` raiz e outra para `demo_app` com `_get_demo_client` como fábrica do cliente.
 
-Para recursos de plugin, o esquema integrado dá ao `nbx` a árvore estática de comandos que ele conhece, e a camada TUI pode adicionalmente enriquecer essa visão em tempo de execução descobrindo endpoints REST `/api/plugins/` ao vivo na instância NetBox conectada.
+Para recursos de plugins / objetos customizados, o esquema integrado dá ao `nbx` a árvore estática de comandos que ele conhece. Use `--live` com `groups`, `resources` ou `ops` para enriquecer esse índice a partir da instância NetBox configurada via `/api/plugins/` e `/api/core/object-types/`. Invocações dinâmicas livres também tentam enriquecimento ao vivo quando o recurso solicitado não existe no esquema integrado.

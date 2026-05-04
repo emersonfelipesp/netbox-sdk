@@ -122,6 +122,14 @@ def _handle_dynamic_invocation(
     write_actions = {"create", "update", "patch", "delete"}
     # Dry-run previews only need the OpenAPI index; avoid building an API client (and loading config).
     skip_client = bool(dry_run and action_lower in write_actions)
+    index = index_factory()
+    client = None if skip_client else client_factory()
+    if client is not None and index.resource_paths(group, resource) is None:
+        from netbox_sdk.plugin_discovery import (  # noqa: PLC0415
+            enrich_schema_index_with_runtime_resources,
+        )
+
+        run_with_spinner(enrich_schema_index_with_runtime_resources(index, client))
     response = _execute_dynamic_action(
         group=group,
         resource=resource,
@@ -134,8 +142,8 @@ def _handle_dynamic_invocation(
         columns=columns,
         max_columns=max_columns,
         dry_run=dry_run,
-        client=None if skip_client else client_factory(),
-        index=index_factory(),
+        client=client,
+        index=index,
     )
     if not trace_only:
         if response is None:

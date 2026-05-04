@@ -251,13 +251,15 @@ class SchemaIndex:
         resource: str,
         list_path: str,
         detail_path: str | None = None,
+        list_methods: tuple[str, ...] = ("GET",),
+        detail_methods: tuple[str, ...] = ("GET",),
     ) -> bool:
         key = (group, resource)
         existing = self._resource_paths.get(key)
         current_list = existing.list_path if existing is not None else None
         current_detail = existing.detail_path if existing is not None else None
-        if current_list == list_path and current_detail == detail_path:
-            return False
+        normalized_list_methods = tuple(sorted({method.upper() for method in list_methods}))
+        normalized_detail_methods = tuple(sorted({method.upper() for method in detail_methods}))
 
         self._resource_paths[key] = ResourcePaths(list_path=list_path, detail_path=detail_path)
 
@@ -267,33 +269,42 @@ class SchemaIndex:
             if op.group == group and op.resource == resource
         }
         synthetic: list[Operation] = []
-        if ("GET", list_path) not in existing_ops:
+        for method in normalized_list_methods:
+            if (method, list_path) in existing_ops:
+                continue
             synthetic.append(
                 Operation(
                     group=group,
                     resource=resource,
-                    method="GET",
+                    method=method,
                     path=list_path,
-                    operation_id=f"{group}_{resource.replace('/', '_')}_list_discovered",
-                    summary="Discovered plugin list endpoint",
+                    operation_id=(
+                        f"{group}_{resource.replace('/', '_')}_{method.lower()}_list_discovered"
+                    ),
+                    summary="Discovered resource list endpoint",
                 )
             )
-        if detail_path and ("GET", detail_path) not in existing_ops:
-            synthetic.append(
-                Operation(
-                    group=group,
-                    resource=resource,
-                    method="GET",
-                    path=detail_path,
-                    operation_id=f"{group}_{resource.replace('/', '_')}_detail_discovered",
-                    summary="Discovered plugin detail endpoint",
+        if detail_path:
+            for method in normalized_detail_methods:
+                if (method, detail_path) in existing_ops:
+                    continue
+                synthetic.append(
+                    Operation(
+                        group=group,
+                        resource=resource,
+                        method=method,
+                        path=detail_path,
+                        operation_id=(
+                            f"{group}_{resource.replace('/', '_')}_"
+                            f"{method.lower()}_detail_discovered"
+                        ),
+                        summary="Discovered resource detail endpoint",
+                    )
                 )
-            )
-        if synthetic:
-            self.operations.extend(synthetic)
-            self.operations.sort(
-                key=lambda item: (item.group, item.resource, item.path, item.method)
-            )
+        if not synthetic and current_list == list_path and current_detail == detail_path:
+            return False
+        self.operations.extend(synthetic)
+        self.operations.sort(key=lambda item: (item.group, item.resource, item.path, item.method))
         return True
 
     def remove_group_resources(self, group: str) -> bool:
@@ -315,7 +326,12 @@ def parse_group_resource(path: str) -> tuple[str | None, str | None]:
     if group == "plugins":
         if len(parts) < 4:
             return None, None
-        resource = f"{parts[2]}/{parts[3]}"
+        resource_parts = parts[2:]
+        if resource_parts[-1] == "{id}":
+            resource_parts = resource_parts[:-1]
+        if len(resource_parts) < 2 or "{id}" in resource_parts:
+            return None, None
+        resource = "/".join(resource_parts)
         return group, resource
     resource = parts[2]
     return group, resource
@@ -377,3 +393,32 @@ def build_schema_index(
 ) -> SchemaIndex:
     """Load OpenAPI from ``openapi_path`` (or bundled default) and build a :class:`SchemaIndex`."""
     return SchemaIndex(load_openapi_schema(openapi_path, version=version))
+
+
+async def fetch_schema_for_client(client: Any) -> dict[str, Any]:
+    """Select the appropriate OpenAPI schema for a connected NetBox client.
+
+    Uses the bundled schema when the connected version is a supported release line;
+    fetches dynamically via ``/api/schema/`` otherwise.
+    """
+    from netbox_sdk.versioning import (  # noqa: PLC0415
+        UnsupportedNetBoxVersionError,
+        normalize_netbox_version,
+    )
+
+    version = await client.get_version()
+    try:
+        supported = normalize_netbox_version(version)
+        logger.info(
+            "loading bundled schema for NetBox %s",
+            supported,
+            extra={"nbx_event": "schema_version_bundled", "version": supported},
+        )
+        return load_openapi_schema(version=supported)
+    except UnsupportedNetBoxVersionError:
+        logger.info(
+            "NetBox %s is not a bundled release line; fetching schema dynamically",
+            version,
+            extra={"nbx_event": "schema_version_dynamic_fetch", "version": version},
+        )
+        return await client.openapi()

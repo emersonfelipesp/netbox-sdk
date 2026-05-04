@@ -21,7 +21,7 @@ O SDK expõe três camadas:
 | `netbox_sdk.http_cache` | Cache em disco com TTL / stale-if-error |
 | `netbox_sdk.schema` | Carregamento e indexação do esquema OpenAPI |
 | `netbox_sdk.services` | Resolução dinâmica de requisições |
-| `netbox_sdk.plugin_discovery` | Descoberta de API de plugins em tempo de execução |
+| `netbox_sdk.plugin_discovery` | Descoberta de API de plugins / objetos customizados em tempo de execução |
 
 ## Instalação
 
@@ -50,6 +50,24 @@ asyncio.run(main())
 ```
 
 Se quiser controle HTTP bruto em vez da fachada, use `NetBoxApiClient` diretamente.
+
+## Plugins e objetos customizados
+
+Use `async_api()` quando quiser que a fachada selecione o esquema da instância
+NetBox conectada e o enriqueça com recursos em tempo de execução. Ela descobre
+coleções REST de plugins sob `/api/plugins/` e recursos públicos de ObjectType
+anunciados por `/api/core/object-types/`.
+
+```python
+from netbox_sdk import async_api
+
+nb = await async_api("https://netbox.example.com", token="your-token")
+widgets = await nb.plugins.custom.widgets.all().to_list()
+```
+
+O SDK suporta objetos de plugins / customizados que expõem endpoints REST
+padrão de lista e detalhe. Modelos privados ou dados de plugins sem endpoint
+REST são ignorados.
 
 ## SDK tipado
 

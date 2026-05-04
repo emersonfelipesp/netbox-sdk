@@ -21,6 +21,7 @@ from netbox_cli.runtime import (
     _dev_http_client_factory_ctx,
     _ensure_demo_runtime_config,
     _get_client_for_config,
+    _get_connected_index,
     _get_demo_client,
     _get_index,
     _verify_runtime_config,
@@ -87,6 +88,7 @@ _ORIGINAL_VERIFY_RUNTIME_CONFIG = _verify_runtime_config
 _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG = _ensure_demo_runtime_config
 _ORIGINAL_GET_CLIENT_FOR_CONFIG = _get_client_for_config
 _ORIGINAL_GET_DEMO_CLIENT = _get_demo_client
+_ORIGINAL_GET_CONNECTED_INDEX = _get_connected_index
 _ORIGINAL_GET_INDEX = _get_index
 
 
@@ -380,9 +382,15 @@ def demo_callback(
                     ),
                 ),
                 index_factory=lambda: _call_cli_override(
-                    "_get_index",
-                    _get_index,
-                    _ORIGINAL_GET_INDEX,
+                    "_get_connected_index",
+                    _get_connected_index,
+                    _ORIGINAL_GET_CONNECTED_INDEX,
+                    DEMO_PROFILE,
+                    _call_cli_override(
+                        "_ensure_demo_runtime_config",
+                        _ensure_demo_runtime_config,
+                        _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
+                    ),
                 ),
             )
             return

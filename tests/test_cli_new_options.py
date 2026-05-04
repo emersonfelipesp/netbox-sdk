@@ -9,12 +9,27 @@ from click.exceptions import BadParameter
 from typer.testing import CliRunner
 
 from netbox_cli import cli
-from netbox_cli.dynamic import _parse_dynamic_options
+from netbox_cli.dynamic import _handle_dynamic_invocation, _parse_dynamic_options
 from netbox_cli.support import select_json_path
+from netbox_sdk.client import ApiResponse
+from netbox_sdk.schema import SchemaIndex
 
 pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
+
+
+def _live_plugin_index() -> SchemaIndex:
+    index = SchemaIndex({"openapi": "3.0.0", "paths": {}})
+    index.add_discovered_resource(
+        group="plugins",
+        resource="custom/widgets",
+        list_path="/api/plugins/custom/widgets/",
+        detail_path="/api/plugins/custom/widgets/{id}/",
+        list_methods=("GET", "POST"),
+        detail_methods=("GET", "PATCH", "DELETE"),
+    )
+    return index
 
 
 def _mock_config() -> cli.Config:
@@ -41,12 +56,90 @@ class _FakeListClient:
         return _Response()
 
 
+class _FakeRuntimeDiscoveryClient:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+
+    async def request(self, method: str, path: str, **kwargs: object) -> ApiResponse:
+        del kwargs
+        self.calls.append((method, path))
+        if method == "GET" and path == "/api/plugins/":
+            return ApiResponse(status=200, text="{}", headers={})
+        if method == "GET" and path == "/api/core/object-types/":
+            return ApiResponse(
+                status=200,
+                text=(
+                    '{"count": 1, "next": null, "results": ['
+                    '{"public": true, "rest_api_endpoint": "/api/plugins/custom/widgets/"}'
+                    "]}"
+                ),
+                headers={},
+            )
+        if method == "OPTIONS" and path == "/api/plugins/custom/widgets/":
+            return ApiResponse(
+                status=200,
+                text='{"actions": {"POST": {}}}',
+                headers={"Allow": "GET, POST, OPTIONS"},
+            )
+        if method == "GET" and path == "/api/plugins/custom/widgets/":
+            return ApiResponse(status=200, text='{"count": 0, "results": []}', headers={})
+        return ApiResponse(status=404, text='{"detail": "not found"}', headers={})
+
+
 def _patch_list_client(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
     monkeypatch.setattr(
         "netbox_cli.runtime._get_client",
         lambda: _FakeListClient(),
     )
+
+
+class TestLiveResourceDiscovery:
+    """Tests for live schema enrichment on CLI discovery and free-form commands."""
+
+    def test_groups_command_live_uses_enriched_index(self, monkeypatch):
+        monkeypatch.setattr(cli, "_get_enriched_index", _live_plugin_index)
+        monkeypatch.setattr(
+            cli,
+            "_get_index",
+            lambda: pytest.fail("groups --live must not use the static index"),
+        )
+
+        result = runner.invoke(cli.app, ["groups", "--live"])
+
+        assert result.exit_code == 0
+        assert "plugins" in result.output
+
+    def test_resources_command_live_lists_discovered_plugin_resource(self, monkeypatch):
+        monkeypatch.setattr(cli, "_get_enriched_index", _live_plugin_index)
+
+        result = runner.invoke(cli.app, ["resources", "plugins", "--live"])
+
+        assert result.exit_code == 0
+        assert "custom/widgets" in result.output
+
+    def test_ops_command_live_lists_discovered_methods(self, monkeypatch):
+        monkeypatch.setattr(cli, "_get_enriched_index", _live_plugin_index)
+
+        result = runner.invoke(cli.app, ["ops", "plugins", "custom/widgets", "--live"])
+
+        assert result.exit_code == 0
+        assert "POST" in result.output
+        assert "/api/plugins/custom/widgets/" in result.output
+
+    def test_free_form_dynamic_invocation_enriches_missing_resource(self, capsys):
+        client = _FakeRuntimeDiscoveryClient()
+
+        _handle_dynamic_invocation(
+            ["plugins", "custom/widgets", "list", "--json"],
+            client_factory=lambda: client,  # type: ignore[arg-type, return-value]
+            index_factory=lambda: SchemaIndex({"openapi": "3.0.0", "paths": {}}),
+        )
+
+        captured = capsys.readouterr()
+        assert '"count": 0' in captured.out
+        assert ("GET", "/api/core/object-types/") in client.calls
+        assert ("GET", "/api/plugins/custom/widgets/") in client.calls
 
 
 class TestSelectJsonPath:

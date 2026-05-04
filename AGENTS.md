@@ -13,20 +13,20 @@
 
 ## CLAUDE.md Index
 
-| File | Covers |
-|---|---|
-| [CLAUDE.md](CLAUDE.md) | Project-wide architecture, workflow, package boundaries |
-| [netbox_sdk/CLAUDE.md](netbox_sdk/CLAUDE.md) | Standalone SDK package |
-| [netbox_cli/CLAUDE.md](netbox_cli/CLAUDE.md) | Typer CLI package |
-| [netbox_tui/CLAUDE.md](netbox_tui/CLAUDE.md) | Textual TUI package |
-| [netbox_tui/themes/CLAUDE.md](netbox_tui/themes/CLAUDE.md) | Theme catalog and JSON schema |
-| [netbox_sdk/reference/CLAUDE.md](netbox_sdk/reference/CLAUDE.md) | Bundled SDK schema assets |
-| [tests/CLAUDE.md](tests/CLAUDE.md) | Test suite structure and conventions |
-| [docs/CLAUDE.md](docs/CLAUDE.md) | Docs structure and generation |
-| [.github/CLAUDE.md](.github/CLAUDE.md) | CI workflows |
-| [reference/CLAUDE.md](reference/CLAUDE.md) | Design/Textual references |
-| [reference/PYNETBOX.md](reference/PYNETBOX.md) | Maintainer reference for `pynetbox` architecture and prior-art behavior |
+Read the nearest scoped guide for the code you are changing.
 
+- [.github/CLAUDE.md](.github/CLAUDE.md)
+- [CLAUDE.md](CLAUDE.md)
+- [docs/CLAUDE.md](docs/CLAUDE.md)
+- [netbox_cli/CLAUDE.md](netbox_cli/CLAUDE.md)
+- [netbox_cli/reference/CLAUDE.md](netbox_cli/reference/CLAUDE.md)
+- [netbox_sdk/CLAUDE.md](netbox_sdk/CLAUDE.md)
+- [netbox_sdk/reference/CLAUDE.md](netbox_sdk/reference/CLAUDE.md)
+- [netbox_tui/CLAUDE.md](netbox_tui/CLAUDE.md)
+- [netbox_tui/themes/CLAUDE.md](netbox_tui/themes/CLAUDE.md)
+- [reference/CLAUDE.md](reference/CLAUDE.md)
+- [reference/textual/CLAUDE.md](reference/textual/CLAUDE.md)
+- [tests/CLAUDE.md](tests/CLAUDE.md)
 ## Package Snapshot
 
 ```
