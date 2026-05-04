@@ -46,6 +46,8 @@ class _LoginHost(App[bool | None]):
 def _make_client(*, base_url: str | None = "https://netbox.example.com") -> MagicMock:
     client = MagicMock()
     client.config.base_url = base_url
+    client.config.token_version = "v2"
+    client.config.token_key = None
     client.config.token_secret = None
     return client
 
@@ -74,7 +76,14 @@ async def _wait_for_modal(pilot, attempts: int = 5) -> None:
 
 async def test_successful_login_dismisses_true() -> None:
     client = _make_client()
-    client.create_token = AsyncMock(return_value=_ok_response())
+
+    async def _create_token(username: str, password: str) -> ApiResponse:
+        del username, password
+        client.config.token_version = "v1"
+        client.config.token_secret = "abc123xyz"
+        return _ok_response()
+
+    client.create_token = AsyncMock(side_effect=_create_token)
 
     app = _LoginHost(client)
     async with app.run_test(size=(100, 30)) as pilot:
@@ -89,6 +98,8 @@ async def test_successful_login_dismisses_true() -> None:
 
     assert app.login_result is True
     client.create_token.assert_called_once_with("admin", "password123")
+    assert client.config.token_version == "v1"
+    assert client.config.token_secret == "abc123xyz"
 
 
 # ---------------------------------------------------------------------------
@@ -212,5 +223,54 @@ async def test_connection_error_shows_error_message() -> None:
         assert isinstance(app.screen, LoginModal)
         error_text = str(modal.query_one("#login_error", Static).content)
         assert "connection" in error_text.lower() or "error" in error_text.lower()
+
+    assert app.login_result is None
+
+
+async def test_url_input_is_normalized_before_login() -> None:
+    client = _make_client(base_url=None)
+
+    async def _create_token(username: str, password: str) -> ApiResponse:
+        del username, password
+        client.config.token_version = "v1"
+        client.config.token_secret = "abc123xyz"
+        return _ok_response()
+
+    client.create_token = AsyncMock(side_effect=_create_token)
+
+    app = _LoginHost(client)
+    async with app.run_test(size=(100, 30)) as pilot:
+        await _wait_for_modal(pilot)
+
+        modal = app.screen
+        modal.query_one("#login_url", Input).value = "netbox.example.com/api/"
+        modal.query_one("#login_username", Input).value = "admin"
+        modal.query_one("#login_password", Input).value = "password123"
+        await pilot.click("#login_submit")
+        await pilot.pause()
+        await pilot.pause()
+
+    assert app.login_result is True
+    assert client.config.base_url == "https://netbox.example.com/api"
+
+
+async def test_success_without_token_stays_open() -> None:
+    client = _make_client()
+    client.create_token = AsyncMock(return_value=_ok_response())
+
+    app = _LoginHost(client)
+    async with app.run_test(size=(100, 30)) as pilot:
+        await _wait_for_modal(pilot)
+
+        modal = app.screen
+        modal.query_one("#login_username", Input).value = "admin"
+        modal.query_one("#login_password", Input).value = "password123"
+        await pilot.click("#login_submit")
+        await pilot.pause()
+        await pilot.pause()
+
+        assert isinstance(app.screen, LoginModal)
+        error_text = str(modal.query_one("#login_error", Static).content)
+        assert "no API token" in error_text
 
     assert app.login_result is None

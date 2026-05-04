@@ -30,6 +30,7 @@ from textual.widgets import (
 )
 
 from netbox_sdk.client import ConnectionProbe, NetBoxApiClient
+from netbox_sdk.config import is_runtime_config_complete
 from netbox_sdk.formatting import (
     humanize_field,
     humanize_group,
@@ -40,7 +41,7 @@ from netbox_sdk.formatting import (
     semantic_cell,
 )
 from netbox_sdk.logging_runtime import get_logger
-from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema import SchemaIndex, fetch_schema_for_client
 from netbox_tui.chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
@@ -278,16 +279,10 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._sync_search_input()
         self._update_active_filters()
         self.query_one("#nav_tree", Tree).focus()
-        self._restore_last_view_if_any()
-        self._probe_connection_health()
-        self._discover_plugin_resources()
         self._clock_timer = self.set_interval(1.0, self._update_clock, name="nbx_clock")
-        self._connection_timer = self.set_interval(
-            30.0,
-            self._probe_connection_health,
-            name="nbx_connection_health",
-        )
-        if not self.client.config.token_secret:
+        if self._client_ready():
+            self._start_authenticated_workflows(restore_view=True)
+        else:
             self._show_login_if_needed()
 
     def on_key(self, event: events.Key) -> None:
@@ -704,6 +699,23 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._set_controls(f"Resource: {humanize_group(group)} / {humanize_resource(resource)}")
         self._load_rows(group, resource)
 
+    def _client_ready(self) -> bool:
+        return is_runtime_config_complete(self.client.config)
+
+    def _start_authenticated_workflows(self, *, restore_view: bool) -> None:
+        if restore_view:
+            self._restore_last_view_if_any()
+        elif self.current_group and self.current_resource:
+            self._load_rows(self.current_group, self.current_resource)
+        self._probe_connection_health()
+        self._discover_plugin_resources()
+        if self._connection_timer is None:
+            self._connection_timer = self.set_interval(
+                30.0,
+                self._probe_connection_health,
+                name="nbx_connection_health",
+            )
+
     def _sync_search_input(self) -> None:
         self.query_one("#global_search", Input).value = self.state.last_view.query_text
 
@@ -917,11 +929,16 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
     @work(group="login_prompt", exclusive=True, thread=False)
     async def _show_login_if_needed(self) -> None:
         """Show LoginModal when no token is configured; save config on success or exit on cancel."""
+        if self._client_ready():
+            self._start_authenticated_workflows(restore_view=True)
+            return
         result = await self.push_screen_wait(LoginModal())
         if result:
             from netbox_sdk.config import save_profile_config  # noqa: PLC0415
 
             profile = profile_for_netbox_client(self.client, demo_mode=self.demo_mode)
+            await self.client.reset_session()
+            await self._reload_schema_for_authenticated_client()
             save_profile_config(profile, self.client.config)
             try:
                 from netbox_cli.runtime import _cache_profile  # noqa: PLC0415
@@ -929,9 +946,24 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
                 _cache_profile(profile, self.client.config)
             except Exception:  # noqa: BLE001
                 pass
-            self._probe_connection_health()
+            self._start_authenticated_workflows(restore_view=True)
         else:
             self.exit()
+
+    async def _reload_schema_for_authenticated_client(self) -> None:
+        try:
+            schema = await fetch_schema_for_client(self.client)
+        except Exception:
+            logger.debug(
+                "tui schema reload after login failed",
+                extra={"nbx_event": "tui_schema_reload_failed"},
+                exc_info=True,
+            )
+            return
+        self.index = SchemaIndex(schema)
+        self.index.remove_group_resources("plugins")
+        self._build_navigation_tree()
+        self._update_context_line()
 
     @work(group="connection_probe", exclusive=True, thread=False)
     async def _probe_connection_health(self) -> None:

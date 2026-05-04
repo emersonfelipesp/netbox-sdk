@@ -56,15 +56,18 @@ async def _detect_and_fetch_schema(cfg: Config) -> dict:
     return await fetch_schema_for_client(client)
 
 
-def _load_schema_for_connected_instance() -> dict:
-    """Resolve the OpenAPI schema for the active profile's NetBox instance.
+def _load_schema_for_connected_instance(
+    profile: str = DEFAULT_PROFILE,
+    cfg: Config | None = None,
+) -> dict:
+    """Resolve the OpenAPI schema for a profile's NetBox instance.
 
     Uses a bundled schema when the connected version is a supported release line,
     fetches it dynamically via /api/schema/ for unsupported versions, and falls
     back to the default bundled schema when config is absent or any error occurs.
     """
     try:
-        cfg = load_profile_config(DEFAULT_PROFILE)
+        cfg = cfg or load_profile_config(profile)
         if not cfg.base_url:
             logger.debug("no base_url configured; using default bundled schema")
             return load_openapi_schema()
@@ -81,11 +84,19 @@ def _load_schema_for_connected_instance() -> dict:
 def _get_index() -> SchemaIndex:
     global _SCHEMA_DOCUMENT
     if _SCHEMA_DOCUMENT is None:
-        logger.info("loading schema for connected instance")
-        _SCHEMA_DOCUMENT = _load_schema_for_connected_instance()
+        logger.info("loading bundled openapi schema")
+        _SCHEMA_DOCUMENT = load_openapi_schema()
     # Return a fresh mutable index for each caller so runtime discoveries from one
     # NetBox instance can't leak into another app session.
     return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))
+
+
+def _get_connected_index(
+    profile: str = DEFAULT_PROFILE,
+    cfg: Config | None = None,
+) -> SchemaIndex:
+    """Return a schema index selected from the connected NetBox instance."""
+    return SchemaIndex(deepcopy(_load_schema_for_connected_instance(profile, cfg)))
 
 
 def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
@@ -94,8 +105,9 @@ def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
         enrich_schema_index_with_runtime_resources,
     )
 
-    index = _get_index()
-    run_with_spinner(enrich_schema_index_with_runtime_resources(index, client or _get_client()))
+    active_client = client or _get_client()
+    index = _get_connected_index(DEFAULT_PROFILE, active_client.config)
+    run_with_spinner(enrich_schema_index_with_runtime_resources(index, active_client))
     return index
 
 

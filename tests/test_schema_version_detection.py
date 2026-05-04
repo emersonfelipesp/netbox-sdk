@@ -127,3 +127,21 @@ def test_load_schema_falls_back_on_connection_error(monkeypatch) -> None:
 
     result = runtime._load_schema_for_connected_instance()
     assert result["_source"] == "fallback"
+
+
+def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> None:
+    from netbox_cli import runtime
+
+    bundled_doc = {"paths": {}, "_source": "bundled"}
+
+    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: bundled_doc)
+    monkeypatch.setattr(
+        runtime,
+        "_load_schema_for_connected_instance",
+        lambda *args, **kwargs: pytest.fail("_get_index must not probe the live instance"),
+    )
+
+    result = runtime._get_index()
+
+    assert result.schema["_source"] == "bundled"

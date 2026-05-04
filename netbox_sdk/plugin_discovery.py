@@ -182,6 +182,21 @@ async def _discover_list_methods(client: NetBoxApiClient, list_path: str) -> tup
     return tuple(sorted(methods))
 
 
+async def _discover_detail_methods(
+    client: NetBoxApiClient,
+    detail_path: str | None,
+) -> tuple[str, ...]:
+    if detail_path is None:
+        return ()
+    discovered = await _request_json(client, "OPTIONS", detail_path)
+    methods = {"GET"}
+    if discovered is not None:
+        payload, headers = discovered
+        methods.update(_methods_from_options(payload, headers))
+    methods.discard("POST")
+    return tuple(sorted(methods))
+
+
 def _merge_discovered_resources(resources: list[DiscoveredResource]) -> list[DiscoveredResource]:
     merged: dict[tuple[str, str | None], tuple[set[str], set[str]]] = {}
     for resource in resources:
@@ -221,11 +236,13 @@ async def discover_plugin_resources(client: NetBoxApiClient) -> list[DiscoveredR
         payload, _headers = response_data
 
         if path != PLUGIN_ROOT and _is_collection_payload(payload):
+            detail_path = _plugin_detail_path(path)
             discovered.append(
                 DiscoveredResource(
                     list_path=path,
-                    detail_path=_plugin_detail_path(path),
+                    detail_path=detail_path,
                     list_methods=await _discover_list_methods(client, path),
+                    detail_methods=await _discover_detail_methods(client, detail_path),
                 )
             )
             continue
@@ -240,7 +257,11 @@ async def discover_plugin_resources(client: NetBoxApiClient) -> list[DiscoveredR
     return _merge_discovered_resources(discovered)
 
 
-async def discover_object_type_resources(client: NetBoxApiClient) -> list[DiscoveredResource]:
+async def discover_object_type_resources(
+    client: NetBoxApiClient,
+    *,
+    index: SchemaIndex | None = None,
+) -> list[DiscoveredResource]:
     """Discover REST resources advertised by NetBox ``core/object-types``."""
     queue: list[tuple[str, dict[str, str] | None]] = [(OBJECT_TYPES_PATH, None)]
     discovered: list[DiscoveredResource] = []
@@ -262,17 +283,27 @@ async def discover_object_type_resources(client: NetBoxApiClient) -> list[Discov
                 continue
             if item.get("public") is False:
                 continue
+            if item.get("is_plugin_model") is False:
+                continue
             list_path = _normalize_api_path(str(item.get("rest_api_endpoint") or ""))
             if list_path is None:
                 continue
             group, resource = parse_group_resource(list_path)
             if group is None or resource is None:
                 continue
+            if (
+                item.get("is_plugin_model") is None
+                and index is not None
+                and index.resource_paths(group, resource)
+            ):
+                continue
+            detail_path = _detail_path(list_path)
             discovered.append(
                 DiscoveredResource(
                     list_path=list_path,
-                    detail_path=_detail_path(list_path),
+                    detail_path=detail_path,
                     list_methods=await _discover_list_methods(client, list_path),
+                    detail_methods=await _discover_detail_methods(client, detail_path),
                 )
             )
 
@@ -286,10 +317,14 @@ async def discover_object_type_resources(client: NetBoxApiClient) -> list[Discov
     return _merge_discovered_resources(discovered)
 
 
-async def discover_runtime_resources(client: NetBoxApiClient) -> list[DiscoveredResource]:
+async def discover_runtime_resources(
+    client: NetBoxApiClient,
+    *,
+    index: SchemaIndex | None = None,
+) -> list[DiscoveredResource]:
     """Discover plugin and ObjectType-backed resources from a live NetBox instance."""
     plugin_resources = await discover_plugin_resources(client)
-    object_type_resources = await discover_object_type_resources(client)
+    object_type_resources = await discover_object_type_resources(client, index=index)
     return _merge_discovered_resources([*plugin_resources, *object_type_resources])
 
 
@@ -299,7 +334,7 @@ async def enrich_schema_index_with_runtime_resources(
 ) -> bool:
     """Add runtime-discovered resources to ``index`` and return whether it changed."""
     changed = False
-    for resource_info in await discover_runtime_resources(client):
+    for resource_info in await discover_runtime_resources(client, index=index):
         group, resource = parse_group_resource(resource_info.list_path)
         if group is None or resource is None:
             continue

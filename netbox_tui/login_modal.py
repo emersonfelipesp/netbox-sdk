@@ -9,6 +9,7 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Static
 
+from netbox_sdk.config import is_runtime_config_complete, normalize_base_url
 from netbox_tui.widgets import NbxButton
 
 
@@ -16,7 +17,7 @@ class LoginModal(ModalScreen[bool]):
     """Username + password sign-in form that provisions a NetBox API token.
 
     Dismissed with ``True`` on success, ``False`` on cancel.
-    On success ``self.app.client.config.token_secret`` holds the provisioned token.
+    On success ``self.app.client.config`` holds a complete provisioned token.
     """
 
     BINDINGS = [Binding("escape", "cancel_login", "Cancel", show=False)]
@@ -94,7 +95,12 @@ class LoginModal(ModalScreen[bool]):
                 self._show_error("NetBox URL is required.")
                 url_input.focus()
                 return
-            self.app.client.config.base_url = url
+            try:
+                self.app.client.config.base_url = normalize_base_url(url)
+            except ValueError as exc:
+                self._show_error(str(exc))
+                url_input.focus()
+                return
         except Exception:  # noqa: BLE001
             pass  # URL field absent — base_url already configured
 
@@ -117,8 +123,21 @@ class LoginModal(ModalScreen[bool]):
             self._show_error(f"Connection error: {exc}")
             return
 
-        if 200 <= response.status < 300:
+        if 200 <= response.status < 300 and is_runtime_config_complete(self.app.client.config):
             self.dismiss(True)
-        else:
+        elif 200 <= response.status < 300:
+            self._show_error("Token provisioning succeeded but no API token was returned.")
+            self.query_one("#login_password", Input).focus()
+        elif response.status in {401, 403}:
             self._show_error("Invalid username or password.")
+            self.query_one("#login_password", Input).focus()
+        elif response.status == 404:
+            self._show_error("Token provisioning endpoint is not available.")
+            self.query_one("#login_password", Input).focus()
+        elif response.status >= 500:
+            self._show_error(f"NetBox server error while creating token (HTTP {response.status}).")
+            self.query_one("#login_password", Input).focus()
+        else:
+            detail = response.text.strip()[:160] if response.text else "Unknown error"
+            self._show_error(f"Login failed (HTTP {response.status}): {detail}")
             self.query_one("#login_password", Input).focus()
