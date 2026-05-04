@@ -39,7 +39,8 @@ def test_ensure_demo_runtime_config_repairs_invalid_v1_token(monkeypatch) -> Non
 
     monkeypatch.setattr("netbox_cli.runtime.load_profile_config", lambda profile: cfg)
     monkeypatch.setattr(
-        "netbox_cli.runtime.run_with_spinner", lambda awaitable: asyncio.run(awaitable)
+        "netbox_cli.runtime.run_with_spinner",
+        lambda awaitable, *, close=None: asyncio.run(awaitable),
     )
     monkeypatch.setattr("netbox_cli.runtime._get_client_for_config", lambda current: _FakeClient())
     monkeypatch.setattr(

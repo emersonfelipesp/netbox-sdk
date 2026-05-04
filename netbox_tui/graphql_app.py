@@ -51,6 +51,7 @@ from netbox_tui.graphql_state import (
     load_graphql_tui_state,
     save_graphql_tui_state,
 )
+from netbox_tui.lifecycle import close_client_for_tui
 from netbox_tui.theme_registry import ThemeDefinition
 from netbox_tui.widgets import NbxButton, SupportModal
 
@@ -529,8 +530,10 @@ class NetBoxGraphqlTuiApp(App[None]):
         )
         self.query_one("#graphql_field_search", Input).focus()
 
-    def on_unmount(self) -> None:
+    async def on_unmount(self) -> None:
         logger.info("graphql tui unmounting")
+        for group in ("graphql_schema", "graphql_query", "graphql_connection_probe"):
+            self.workers.cancel_group(self, group)
         if self._clock_timer is not None:
             self._clock_timer.stop()
         if self._connection_timer is not None:
@@ -545,6 +548,7 @@ class NetBoxGraphqlTuiApp(App[None]):
         self.state.selected_root_field = self.selected_field_name
         self.state.theme_name = self.theme_name
         save_graphql_tui_state(self.state, self._state_scope)
+        await close_client_for_tui(self.client, event="tui_graphql_client_close_failed")
 
     def action_send_query(self) -> None:
         self.send_query_via_worker()

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import tempfile
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -64,8 +65,12 @@ class LogEntry:
 
 
 def log_dir() -> Path:
-    target = config_path().parent / DEFAULT_LOG_DIRNAME
-    target.mkdir(parents=True, exist_ok=True)
+    try:
+        target = config_path().parent / DEFAULT_LOG_DIRNAME
+        target.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        target = Path(tempfile.gettempdir()) / "netbox-sdk" / DEFAULT_LOG_DIRNAME
+        target.mkdir(parents=True, exist_ok=True)
     return target
 
 

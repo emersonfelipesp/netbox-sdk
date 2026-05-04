@@ -91,6 +91,7 @@ def django_model_tui(
 
     Automatically builds the model cache if it doesn't exist.
     """
+    from netbox_cli.runtime import _get_client, _get_index  # noqa: PLC0415
     from netbox_tui.django_model_app import run_django_model_tui  # noqa: PLC0415
 
     store = DjangoModelStore(cache_path=cache_path)
@@ -107,7 +108,12 @@ def django_model_tui(
         store.build(netbox_root)
         typer.echo("Cache built.")
 
-    run_django_model_tui(store=store, theme_name=theme)
+    run_django_model_tui(
+        store=store,
+        theme_name=theme,
+        client_factory=_get_client,
+        index_factory=_get_index,
+    )
 
 
 @django_model_app.command("fetch")
@@ -149,7 +155,8 @@ def django_model_fetch(
             raise typer.Exit(code=1) from None
 
         _ensure_runtime_config()
-        probe = run_with_spinner(_get_client().probe_connection())
+        client = _get_client()
+        probe = run_with_spinner(client.probe_connection(), close=client)
         if not probe.ok:
             detail = probe.error or f"HTTP {probe.status}"
             typer.echo(f"Connection failed: {detail}", err=True)

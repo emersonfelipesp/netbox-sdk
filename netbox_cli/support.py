@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from enum import StrEnum
 from importlib import import_module
 from typing import Any, NoReturn
@@ -191,9 +192,32 @@ def resolve_requested_theme(
     return resolved
 
 
-def run_with_spinner(coro: Any) -> Any:
+def _close_targets(close: Any | Iterable[Any] | None) -> tuple[Any, ...]:
+    if close is None:
+        return ()
+    if isinstance(close, Iterable) and not isinstance(close, (str, bytes, bytearray)):
+        return tuple(close)
+    return (close,)
+
+
+async def _run_and_close(coro: Any, close: Any | Iterable[Any] | None) -> Any:
+    try:
+        return await coro
+    finally:
+        for target in _close_targets(close):
+            close_fn = getattr(target, "close", None)
+            if not callable(close_fn):
+                continue
+            result = close_fn()
+            if inspect.isawaitable(result):
+                await result
+
+
+def run_with_spinner(coro: Any, *, close: Any | Iterable[Any] | None = None) -> Any:
     with console.status("[bold]Fetching...[/bold]", spinner="dots"):
-        return asyncio.run(coro)
+        if close is None:
+            return asyncio.run(coro)
+        return asyncio.run(_run_and_close(coro, close))
 
 
 def render_table(parsed: Any, columns: list[str] | None = None, max_columns: int = 6) -> None:
@@ -339,6 +363,7 @@ def print_trace_output(
     object_id: int | None,
     client: NetBoxApiClient,
     index: SchemaIndex,
+    close_client: bool = False,
 ) -> None:
     if action != "get":
         raise typer.BadParameter("--trace is only supported for get actions")
@@ -353,7 +378,8 @@ def print_trace_output(
         return
 
     response = run_with_spinner(
-        client.request("GET", trace_endpoint.replace("{id}", str(object_id)))
+        client.request("GET", trace_endpoint.replace("{id}", str(object_id))),
+        close=client if close_client else None,
     )
     if response.status >= 400:
         detail = response.text.strip().lower()

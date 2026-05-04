@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from rich.style import Style
 from rich.text import Text
 from textual import events, on, work
-from textual.app import App, ComposeResult
+from textual.app import App, ComposeResult, ScreenStackError
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.css.query import NoMatches
@@ -305,9 +305,11 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         event.stop()
         handler()
 
-    def on_unmount(self) -> None:
+    async def on_unmount(self) -> None:
         logger.info("main tui unmounting")
         self._stop_results_loading()
+        for group in ("connection_probe", "plugin_discovery"):
+            self.workers.cancel_group(self, group)
         if self._clock_timer is not None:
             self._clock_timer.stop()
             self._clock_timer = None
@@ -328,6 +330,18 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         )
         self.state.theme_name = self.theme_name
         save_tui_state(self.state, self._state_scope)
+        close_fn = getattr(self.client, "close", None)
+        if callable(close_fn):
+            try:
+                result = close_fn()
+                if inspect.isawaitable(result):
+                    await result
+            except Exception:
+                logger.debug(
+                    "main tui client close failed during unmount",
+                    extra={"nbx_event": "tui_client_close_failed"},
+                    exc_info=True,
+                )
 
     def action_focus_search(self) -> None:
         self.query_one("#global_search", Input).focus()
@@ -898,7 +912,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         try:
             self.query_one("#results_loading_overlay", Vertical).add_class("hidden")
             self.query_one("#results_status", Static).remove_class("-loading")
-        except NoMatches:
+        except (NoMatches, ScreenStackError):
             pass
 
     def _clear_results_table(self) -> None:
@@ -1165,7 +1179,11 @@ def run_tui(
                 if result == SWITCH_TO_DJANGO_TUI:
                     from netbox_tui.django_model_app import run_django_model_tui
 
-                    run_django_model_tui(theme_name=app.theme_name)
+                    run_django_model_tui(
+                        theme_name=app.theme_name,
+                        client_factory=lambda: client,
+                        index_factory=lambda: index,
+                    )
                     return
                 return
 
@@ -1180,7 +1198,11 @@ def run_tui(
             if result == SWITCH_TO_DJANGO_TUI:
                 from netbox_tui.django_model_app import run_django_model_tui
 
-                run_django_model_tui(theme_name=app.theme_name)
+                run_django_model_tui(
+                    theme_name=app.theme_name,
+                    client_factory=lambda: client,
+                    index_factory=lambda: index,
+                )
                 return
             return
     except KeyboardInterrupt:

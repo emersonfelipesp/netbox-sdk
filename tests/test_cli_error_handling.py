@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from netbox_cli import cli
+from netbox_cli.support import run_with_spinner
 from netbox_sdk.config import Config
 
 pytestmark = pytest.mark.suite_cli
@@ -45,3 +46,36 @@ def test_main_handles_unexpected_command_exception(capsys, monkeypatch) -> None:
     assert "Unexpected failure: boom." in captured.out
     assert "Traceback" not in captured.out
     assert "Traceback" not in captured.err
+
+
+def test_run_with_spinner_closes_resource_on_success() -> None:
+    class Resource:
+        closed = False
+
+        async def close(self) -> None:
+            self.closed = True
+
+    async def work() -> str:
+        return "ok"
+
+    resource = Resource()
+
+    assert run_with_spinner(work(), close=resource) == "ok"
+    assert resource.closed is True
+
+
+def test_run_with_spinner_closes_resource_on_failure() -> None:
+    class Resource:
+        closed = False
+
+        async def close(self) -> None:
+            self.closed = True
+
+    async def work() -> None:
+        raise RuntimeError("boom")
+
+    resource = Resource()
+
+    with pytest.raises(RuntimeError, match="boom"):
+        run_with_spinner(work(), close=resource)
+    assert resource.closed is True

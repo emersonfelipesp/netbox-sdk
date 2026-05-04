@@ -9,6 +9,7 @@ output into the scrollable log panel.
 
 from __future__ import annotations
 
+import asyncio
 import inspect
 import re
 import shlex
@@ -55,6 +56,7 @@ from netbox_tui.chrome import (
     update_clock_widget,
 )
 from netbox_tui.cli_completions import CliCommandNode, nbx_root_command_nodes
+from netbox_tui.lifecycle import close_client_for_tui
 from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
 from netbox_tui.state import TuiState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
@@ -270,12 +272,14 @@ class NbxCliTuiApp(App[None]):
         executor: Callable[[list[str]], tuple[int, str]],
         theme_name: str | None = None,
         demo_mode: bool = False,
+        executor_thread: bool = False,
     ) -> None:
         super().__init__()
         self.client = client
         self._demo_mode = demo_mode
         self._index = index
         self._executor = executor
+        self._executor_thread = executor_thread
         self._state_scope = self.client.config.base_url
         self.state: TuiState = load_tui_state(self._state_scope)
         self.theme_catalog, self.theme_name, self.theme_options = initialize_theme_state(
@@ -409,9 +413,15 @@ class NbxCliTuiApp(App[None]):
         self._refresh_nav()
         self._write_welcome()
 
-    def on_unmount(self) -> None:
+    async def on_unmount(self) -> None:
         logger.info("cli tui unmounting")
+        if self._active_worker is not None:
+            try:
+                await asyncio.wait_for(self._active_worker.wait(), timeout=2.0)
+            except TimeoutError:
+                self._active_worker.cancel()
         self.workers.cancel_group(self, _CLI_TUI_WORKER_GROUP)
+        self.workers.cancel_group(self, "cli_connection_probe")
         if self._clock_timer is not None:
             self._clock_timer.stop()
             self._clock_timer = None
@@ -420,6 +430,7 @@ class NbxCliTuiApp(App[None]):
             self._connection_timer = None
         self.state.theme_name = self.theme_name
         save_tui_state(self.state, self._state_scope)
+        await close_client_for_tui(self.client, event="tui_cli_client_close_failed")
 
     def _refresh_nav(self) -> None:
         nav_list = self.query_one("#nav_list", ListView)
@@ -836,14 +847,21 @@ class NbxCliTuiApp(App[None]):
         except NoMatches:
             pass
 
-        def _run() -> tuple[int, str]:
-            return self._executor(argv)
+        if self._executor_thread:
+
+            def run_command() -> tuple[int, str]:
+                return self._executor(argv)
+
+        else:
+
+            async def run_command() -> tuple[int, str]:
+                return self._executor(argv)
 
         self._active_worker = self.run_worker(
-            _run,
+            run_command,
             name=_WORKER_EXECUTE,
             group=_CLI_TUI_WORKER_GROUP,
-            thread=True,
+            thread=self._executor_thread,
             exit_on_error=False,
         )
 
@@ -1118,6 +1136,7 @@ def run_cli_tui(
                     executor=_nbx_cli_execute,
                     theme_name=next_theme,
                     demo_mode=demo_mode,
+                    executor_thread=True,
                 )
                 result = app.run()
                 if result == SWITCH_TO_MAIN_TUI:
@@ -1131,7 +1150,11 @@ def run_cli_tui(
                 if result == SWITCH_TO_DJANGO_TUI:
                     from netbox_tui.django_model_app import run_django_model_tui
 
-                    run_django_model_tui(theme_name=app.theme_name)
+                    run_django_model_tui(
+                        theme_name=app.theme_name,
+                        client_factory=lambda: client,
+                        index_factory=lambda: index,
+                    )
                     return
                 return
 
@@ -1156,7 +1179,11 @@ def run_cli_tui(
                 if result == SWITCH_TO_DJANGO_TUI:
                     from netbox_tui.django_model_app import run_django_model_tui
 
-                    run_django_model_tui(theme_name=app.theme_name)
+                    run_django_model_tui(
+                        theme_name=app.theme_name,
+                        client_factory=lambda: client,
+                        index_factory=lambda: index,
+                    )
                     return
                 return
 
@@ -1175,7 +1202,11 @@ def run_cli_tui(
             if result == SWITCH_TO_DJANGO_TUI:
                 from netbox_tui.django_model_app import run_django_model_tui
 
-                run_django_model_tui(theme_name=app.theme_name)
+                run_django_model_tui(
+                    theme_name=app.theme_name,
+                    client_factory=lambda: client,
+                    index_factory=lambda: index,
+                )
                 return
             return
     except KeyboardInterrupt:

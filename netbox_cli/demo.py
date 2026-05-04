@@ -481,13 +481,15 @@ def demo_test_command() -> None:
         _ensure_demo_runtime_config,
         _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
     )
+    client = _call_cli_override(
+        "_get_client_for_config",
+        _get_client_for_config,
+        _ORIGINAL_GET_CLIENT_FOR_CONFIG,
+        cfg,
+    )
     probe = run_with_spinner(
-        _call_cli_override(
-            "_get_client_for_config",
-            _get_client_for_config,
-            _ORIGINAL_GET_CLIENT_FOR_CONFIG,
-            cfg,
-        ).probe_connection()
+        client.probe_connection(),
+        close=client,
     )
     if probe.ok:
         version_text = probe.version or "unknown"

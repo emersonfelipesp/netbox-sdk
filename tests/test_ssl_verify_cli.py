@@ -94,10 +94,10 @@ def test_retry_probe_after_ssl_prompt_repokes_on_disable(
     )
     ok = ConnectionProbe(status=200, version="4.0", ok=True, error=None)
 
-    def _fake_run(coro: object) -> ConnectionProbe:
-        close = getattr(coro, "close", None)
-        if callable(close):
-            close()
+    def _fake_run(coro: object, *, close: object | None = None) -> ConnectionProbe:
+        close_coro = getattr(coro, "close", None)
+        if callable(close_coro):
+            close_coro()
         return ok
 
     monkeypatch.setattr(rt, "run_with_spinner", _fake_run)

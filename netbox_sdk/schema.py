@@ -97,6 +97,14 @@ class SchemaIndex:
         self._resource_paths: dict[tuple[str, str], ResourcePaths] = {}
         self._build()
 
+    def clone(self) -> SchemaIndex:
+        """Return a mutable copy of the derived index without reparsing OpenAPI."""
+        clone = object.__new__(SchemaIndex)
+        clone.schema = self.schema
+        clone.operations = list(self.operations)
+        clone._resource_paths = dict(self._resource_paths)
+        return clone
+
     def _build(self) -> None:
         """Populate operations and resource path maps from ``self.schema``."""
         resource_paths: dict[tuple[str, str], dict[str, str | None]] = {}

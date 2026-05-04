@@ -27,6 +27,7 @@ def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> Non
         }
     }
     monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
     monkeypatch.setattr(runtime, "load_openapi_schema", lambda: schema)
 
     first = runtime._get_index()
@@ -43,6 +44,7 @@ def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> Non
 
     second = runtime._get_index()
     assert "plugins" not in second.groups()
+    assert second.schema is first.schema
 
 
 def test_tui_state_is_scoped_per_instance(monkeypatch, tmp_path) -> None:
