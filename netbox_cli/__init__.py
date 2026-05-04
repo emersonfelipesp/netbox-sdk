@@ -221,7 +221,8 @@ def test_command(
     )
 
     cfg = _ensure_runtime_config()
-    probe = run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    client = _get_client_for_config(cfg)
+    probe = run_with_spinner(client.probe_connection(), close=client)
     probe = _retry_probe_after_ssl_prompt(cfg, DEFAULT_PROFILE, probe)
     if not probe.ok:
         detail = probe.error or f"HTTP {probe.status}"
@@ -338,7 +339,7 @@ def _run_graphql_cli_query(
     output_yaml: bool,
 ) -> None:
     vars_dict = _graphql_variables_from_pairs(variables)
-    response = run_with_spinner(client.graphql(query, vars_dict))
+    response = run_with_spinner(client.graphql(query, vars_dict), close=client)
     print_response(
         response.status,
         response.text,
@@ -432,8 +433,10 @@ def call_command(
     query_pairs = query or []
     query_dict = parse_key_value_pairs(query_pairs)
     payload = load_json_payload(body_json, body_file)
+    client = _get_client()
     response = run_with_spinner(
-        _get_client().request(method, path, query=query_dict, payload=payload)
+        client.request(method, path, query=query_dict, payload=payload),
+        close=client,
     )
     print_response(
         response.status,

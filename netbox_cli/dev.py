@@ -387,8 +387,10 @@ def _run_http(method: str, inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpD
                 payload.update(inp.extra)
 
     try:
+        client = dev_http_api_client()
         response = run_with_spinner(
-            dev_http_api_client().request(method, normalized, query=query_dict, payload=payload)
+            client.request(method, normalized, query=query_dict, payload=payload),
+            close=client,
         )
     except RuntimeError as exc:
         raise typer.BadParameter(str(exc)) from exc

@@ -160,13 +160,15 @@ def _handle_dynamic_invocation(
                 max_columns=max_columns,
             )
     if trace or trace_only:
+        trace_client = client_factory()
         print_trace_output(
             group=group,
             resource=resource,
             action=action,
             object_id=object_id,
-            client=client_factory(),
-            index=index_factory(),
+            client=trace_client,
+            index=index,
+            close_client=True,
         )
 
 
@@ -334,9 +336,10 @@ def _execute_dynamic_action(
             body=body,
         )
 
+    active_client = client or _runtime_get_client()
     return run_with_spinner(
         _run_dynamic_command(
-            client=client or _runtime_get_client(),
+            client=active_client,
             index=index or _runtime_get_index(),
             group=group,
             resource=resource,
@@ -345,7 +348,8 @@ def _execute_dynamic_action(
             query_pairs=query_pairs,
             body_json=body_json,
             body_file=body_file,
-        )
+        ),
+        close=active_client,
     )
 
 
@@ -478,13 +482,15 @@ def _build_action_command(
                     max_columns=max_columns,
                 )
         if trace or trace_only:
+            trace_client = client_factory()
             print_trace_output(
                 group=group,
                 resource=resource,
                 action=action,
                 object_id=object_id,
-                client=client or _runtime_get_client(),
+                client=trace_client,
                 index=index,
+                close_client=True,
             )
 
     return _command

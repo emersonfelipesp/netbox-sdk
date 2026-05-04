@@ -12,8 +12,11 @@ Covers:
 
 from __future__ import annotations
 
+import asyncio
+from typing import Any
+
+import httpx
 import pytest
-from fastapi.testclient import TestClient
 
 from netbox_sdk.mock import create_mock_app
 
@@ -30,11 +33,49 @@ def app():
     return create_mock_app()
 
 
+class _AsgiTestClient:
+    """Small sync wrapper around ASGITransport.
+
+    Starlette's threaded TestClient can deadlock against the generated mock
+    route table on Python 3.13; ASGITransport exercises the same app without
+    the blocking portal thread.
+    """
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    def request(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
+        async def send() -> httpx.Response:
+            transport = httpx.ASGITransport(app=self.app)
+            async with httpx.AsyncClient(
+                transport=transport,
+                base_url="http://testserver",
+            ) as client:
+                return await client.request(method, path, **kwargs)
+
+        return asyncio.run(send())
+
+    def get(self, path: str, **kwargs: Any) -> httpx.Response:
+        return self.request("GET", path, **kwargs)
+
+    def post(self, path: str, **kwargs: Any) -> httpx.Response:
+        return self.request("POST", path, **kwargs)
+
+    def put(self, path: str, **kwargs: Any) -> httpx.Response:
+        return self.request("PUT", path, **kwargs)
+
+    def patch(self, path: str, **kwargs: Any) -> httpx.Response:
+        return self.request("PATCH", path, **kwargs)
+
+    def delete(self, path: str, **kwargs: Any) -> httpx.Response:
+        return self.request("DELETE", path, **kwargs)
+
+
 @pytest.fixture()
 def client(app):
-    with TestClient(app) as c:
-        c.post("/mock/reset")
-        yield c
+    c = _AsgiTestClient(app)
+    c.post("/mock/reset")
+    return c
 
 
 # ---------------------------------------------------------------------------

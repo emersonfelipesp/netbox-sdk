@@ -8,9 +8,9 @@ imports ``_RUNTIME_CONFIGS`` by name stays in sync automatically.
 
 from __future__ import annotations
 
+import inspect
 from collections.abc import Callable
 from contextvars import ContextVar
-from copy import deepcopy
 
 import typer
 
@@ -45,6 +45,7 @@ if aiohttp is not None:
     _VERIFY_REQUEST_ERRORS = (*_VERIFY_REQUEST_ERRORS, aiohttp.ClientError)
 
 _SCHEMA_DOCUMENT: dict | None = None
+_SCHEMA_INDEX: SchemaIndex | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
 
@@ -53,7 +54,14 @@ async def _detect_and_fetch_schema(cfg: Config) -> dict:
     from netbox_sdk.schema import fetch_schema_for_client  # noqa: PLC0415
 
     client = _get_client_for_config(cfg)
-    return await fetch_schema_for_client(client)
+    try:
+        return await fetch_schema_for_client(client)
+    finally:
+        close_fn = getattr(client, "close", None)
+        if callable(close_fn):
+            result = close_fn()
+            if inspect.isawaitable(result):
+                await result
 
 
 def _load_schema_for_connected_instance(
@@ -82,13 +90,16 @@ def _load_schema_for_connected_instance(
 
 
 def _get_index() -> SchemaIndex:
-    global _SCHEMA_DOCUMENT
+    global _SCHEMA_DOCUMENT, _SCHEMA_INDEX
     if _SCHEMA_DOCUMENT is None:
         logger.info("loading bundled openapi schema")
         _SCHEMA_DOCUMENT = load_openapi_schema()
+        _SCHEMA_INDEX = SchemaIndex(_SCHEMA_DOCUMENT)
+    if _SCHEMA_INDEX is None:
+        _SCHEMA_INDEX = SchemaIndex(_SCHEMA_DOCUMENT)
     # Return a fresh mutable index for each caller so runtime discoveries from one
     # NetBox instance can't leak into another app session.
-    return SchemaIndex(deepcopy(_SCHEMA_DOCUMENT))
+    return _SCHEMA_INDEX.clone()
 
 
 def _get_connected_index(
@@ -96,7 +107,7 @@ def _get_connected_index(
     cfg: Config | None = None,
 ) -> SchemaIndex:
     """Return a schema index selected from the connected NetBox instance."""
-    return SchemaIndex(deepcopy(_load_schema_for_connected_instance(profile, cfg)))
+    return SchemaIndex(_load_schema_for_connected_instance(profile, cfg))
 
 
 def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
@@ -204,19 +215,20 @@ def _retry_probe_after_ssl_prompt(
     if not is_certificate_verify_failure_text(probe.error):
         return probe
     _prompt_ssl_verify_if_unset(cfg, profile)
-    return run_with_spinner(_get_client_for_config(cfg).probe_connection())
+    client = _get_client_for_config(cfg)
+    return run_with_spinner(client.probe_connection(), close=client)
 
 
 def _verify_runtime_config(cfg: Config, *, context: str, profile: str = DEFAULT_PROFILE) -> None:
     logger.info("verifying runtime config for %s", context)
     client = _get_client_for_config(cfg)
     try:
-        response = run_with_spinner(client.request("GET", "/api/status/"))
+        response = run_with_spinner(client.request("GET", "/api/status/"), close=client)
     except _VERIFY_REQUEST_ERRORS as exc:
         if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
             _prompt_ssl_verify_if_unset(cfg, profile)
             client = _get_client_for_config(cfg)
-            response = run_with_spinner(client.request("GET", "/api/status/"))
+            response = run_with_spinner(client.request("GET", "/api/status/"), close=client)
         else:
             logger.error(
                 "runtime config verification request failed: %s",
@@ -276,11 +288,12 @@ def _ensure_profile_config(profile: str) -> Config:
     cfg = _cache_profile(profile, cfg)
     client = _get_client_for_config(cfg)
     try:
-        run_with_spinner(client.request("GET", "/api/status/"))
+        run_with_spinner(client.request("GET", "/api/status/"), close=client)
     except _VERIFY_REQUEST_ERRORS as exc:
         if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
             _prompt_ssl_verify_if_unset(cfg, profile)
-            run_with_spinner(_get_client_for_config(cfg).request("GET", "/api/status/"))
+            client = _get_client_for_config(cfg)
+            run_with_spinner(client.request("GET", "/api/status/"), close=client)
         else:
             logger.error(
                 "post-save status check failed: %s",
@@ -305,11 +318,12 @@ def _repair_demo_profile_if_needed(cfg: Config) -> Config:
     logger.info("checking demo profile token health")
     client = _get_client_for_config(cfg)
     try:
-        response = run_with_spinner(client.request("GET", "/api/status/"))
+        response = run_with_spinner(client.request("GET", "/api/status/"), close=client)
     except _VERIFY_REQUEST_ERRORS as exc:
         if cfg.ssl_verify is None and is_certificate_verify_failure(exc):
             _prompt_ssl_verify_if_unset(cfg, DEMO_PROFILE)
-            response = run_with_spinner(_get_client_for_config(cfg).request("GET", "/api/status/"))
+            client = _get_client_for_config(cfg)
+            response = run_with_spinner(client.request("GET", "/api/status/"), close=client)
         else:
             logger.error(
                 "demo repair status check failed: %s",

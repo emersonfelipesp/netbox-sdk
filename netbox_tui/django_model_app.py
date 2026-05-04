@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +26,7 @@ from textual.widgets import (
     Tree,
 )
 
-from netbox_sdk.client import ConnectionProbe
+from netbox_sdk.client import ConnectionProbe, NetBoxApiClient
 from netbox_sdk.django_models.rich_rendering import (
     clear_all_expansions,
     render_fields_table_rich,
@@ -36,6 +37,7 @@ from netbox_sdk.django_models.rich_rendering import (
 )
 from netbox_sdk.django_models.store import DjangoModelStore
 from netbox_sdk.logging_runtime import get_logger
+from netbox_sdk.schema import SchemaIndex
 from netbox_tui.chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
@@ -121,9 +123,13 @@ class DjangoModelTuiApp(App[None]):
         store: DjangoModelStore,
         *,
         theme_name: str | None = None,
+        client_factory: Callable[[], NetBoxApiClient] | None = None,
+        index_factory: Callable[[], SchemaIndex] | None = None,
     ) -> None:
         super().__init__()
         self.store = store
+        self._client_factory = client_factory
+        self._index_factory = index_factory
         self._graph: dict[str, Any] | None = None
         self._all_keys: list[str] = []
         self._current_model_key: str | None = None
@@ -243,6 +249,8 @@ class DjangoModelTuiApp(App[None]):
 
     def on_unmount(self) -> None:
         logger.info("django model tui unmounting")
+        for group in ("dm_autodetect", "dm_fetch", "dm_connection_probe"):
+            self.workers.cancel_group(self, group)
         if self._clock_timer is not None:
             self._clock_timer.stop()
             self._clock_timer = None
@@ -251,6 +259,21 @@ class DjangoModelTuiApp(App[None]):
             self._connection_timer = None
         self.state.theme_name = self.theme_name
         save_django_model_tui_state(self.state)
+
+    async def _close_runtime_client(self, client: NetBoxApiClient) -> None:
+        close_fn = getattr(client, "close", None)
+        if not callable(close_fn):
+            return
+        try:
+            result = close_fn()
+            if inspect.isawaitable(result):
+                await result
+        except Exception:
+            logger.debug(
+                "django tui client close failed",
+                extra={"nbx_event": "tui_dm_client_close_failed"},
+                exc_info=True,
+            )
 
     # ── Graph loading ─────────────────────────────────────────────────────
 
@@ -293,10 +316,13 @@ class DjangoModelTuiApp(App[None]):
             self._load_graph_from_store()
             return
 
-        try:
-            from netbox_cli import _get_client  # noqa: PLC0415
+        if self._client_factory is None:
+            self._load_graph_from_store()
+            return
 
-            client = _get_client()
+        client: NetBoxApiClient | None = None
+        try:
+            client = self._client_factory()
             probe = await client.probe_connection()
             if probe.ok and probe.version:
                 self._detected_api_version = probe.version
@@ -334,6 +360,9 @@ class DjangoModelTuiApp(App[None]):
                 extra={"nbx_event": "tui_dm_autodetect_skipped"},
                 exc_info=True,
             )
+        finally:
+            if client is not None:
+                await self._close_runtime_client(client)
 
         # No auto-match — load default store
         self._load_graph_from_store()
@@ -709,10 +738,14 @@ class DjangoModelTuiApp(App[None]):
     @work(group="dm_connection_probe", exclusive=True, thread=False)
     async def _probe_connection_health(self) -> None:
         self._set_connection_badge_checking()
+        if self._client_factory is None:
+            self._render_connection_status(
+                ConnectionProbe(status=0, version="", ok=False, error="no config")
+            )
+            return
+        client: NetBoxApiClient | None = None
         try:
-            from netbox_cli import _get_client  # noqa: PLC0415
-
-            client = _get_client()
+            client = self._client_factory()
             probe_fn = getattr(client, "probe_connection", None)
             if callable(probe_fn):
                 probe = probe_fn()
@@ -744,6 +777,9 @@ class DjangoModelTuiApp(App[None]):
                 extra={"nbx_event": "tui_dm_probe_failed"},
                 exc_info=True,
             )
+        finally:
+            if client is not None:
+                await self._close_runtime_client(client)
         self._render_connection_status(
             ConnectionProbe(status=0, version="", ok=False, error="no config")
         )
@@ -753,37 +789,50 @@ def run_django_model_tui(
     store: DjangoModelStore | None = None,
     *,
     theme_name: str | None = None,
+    client_factory: Callable[[], NetBoxApiClient] | None = None,
+    index_factory: Callable[[], SchemaIndex] | None = None,
 ) -> None:
     """Launch the Django Model Inspector TUI with mode-switching support."""
     if store is None:
         store = DjangoModelStore()
     try:
-        app = DjangoModelTuiApp(store=store, theme_name=theme_name)
+        app = DjangoModelTuiApp(
+            store=store,
+            theme_name=theme_name,
+            client_factory=client_factory,
+            index_factory=index_factory,
+        )
         result = app.run()
-        from netbox_cli import _get_client, _get_index  # noqa: PLC0415
+        switch_targets = {SWITCH_TO_MAIN_TUI, SWITCH_TO_CLI_TUI, SWITCH_TO_DEV_TUI}
+        if result not in switch_targets:
+            return
+        if client_factory is None or index_factory is None:
+            raise RuntimeError("TUI mode switching requires NetBox client and schema providers.")
+        get_client = client_factory
+        get_index = index_factory
 
         if result == SWITCH_TO_MAIN_TUI:
             from netbox_tui.app import run_tui
 
             run_tui(
-                client=_get_client(),
-                index=_get_index(),
+                client=get_client(),
+                index=get_index(),
                 theme_name=app.theme_name,
             )
         elif result == SWITCH_TO_CLI_TUI:
             from netbox_tui.cli_tui import run_cli_tui
 
             run_cli_tui(
-                client=_get_client(),
-                index=_get_index(),
+                client=get_client(),
+                index=get_index(),
                 theme_name=app.theme_name,
             )
         elif result == SWITCH_TO_DEV_TUI:
             from netbox_tui.dev_app import run_dev_tui
 
             run_dev_tui(
-                client=_get_client(),
-                index=_get_index(),
+                client=get_client(),
+                index=get_index(),
                 theme_name=app.theme_name,
             )
     except KeyboardInterrupt:

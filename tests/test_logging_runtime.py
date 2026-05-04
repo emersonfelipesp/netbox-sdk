@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import pytest
 
@@ -54,3 +55,14 @@ def test_render_log_entries_includes_source_metadata() -> None:
     assert "2026-03-22T10:00:00Z" in rendered
     assert "netbox_cli.api" in rendered
     assert "[api.request:42]" in rendered
+
+
+def test_log_dir_falls_back_when_config_path_is_unavailable(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(
+        logging_runtime,
+        "config_path",
+        lambda: (_ for _ in ()).throw(OSError("read-only")),
+    )
+    monkeypatch.setattr(logging_runtime.tempfile, "gettempdir", lambda: str(tmp_path))
+
+    assert logging_runtime.log_dir() == Path(tmp_path) / "netbox-sdk" / "logs"

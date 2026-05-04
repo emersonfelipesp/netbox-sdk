@@ -65,6 +65,7 @@ from netbox_tui.dev_state import (
     load_dev_tui_state,
     save_dev_tui_state,
 )
+from netbox_tui.lifecycle import close_client_for_tui
 from netbox_tui.navigation import build_navigation_menus
 from netbox_tui.plugin_discovery import enrich_schema_index_with_runtime_resources
 from netbox_tui.ssl_verify_support import maybe_resolve_ssl_verify_interactive
@@ -325,8 +326,10 @@ class NetBoxDevTuiApp(App[None]):
         )
         self.query_one("#dev_nav_tree", Tree).focus()
 
-    def on_unmount(self) -> None:
+    async def on_unmount(self) -> None:
         logger.info("dev tui unmounting")
+        for group in ("plugin_discovery", "dev_request", "dev_connection_probe"):
+            self.workers.cancel_group(self, group)
         if self._clock_timer is not None:
             self._clock_timer.stop()
             self._clock_timer = None
@@ -354,6 +357,7 @@ class NetBoxDevTuiApp(App[None]):
         )
         self.state.theme_name = self.theme_name
         save_dev_tui_state(self.state, self._state_scope)
+        await close_client_for_tui(self.client, event="tui_dev_client_close_failed")
 
     def action_send_request(self) -> None:
         self.send_request_via_worker()
@@ -858,7 +862,11 @@ def run_dev_tui(
                 if result == SWITCH_TO_DJANGO_TUI:
                     from netbox_tui.django_model_app import run_django_model_tui
 
-                    run_django_model_tui(theme_name=app.theme_name)
+                    run_django_model_tui(
+                        theme_name=app.theme_name,
+                        client_factory=lambda: client,
+                        index_factory=lambda: index,
+                    )
                     return
                 return
 
@@ -878,7 +886,11 @@ def run_dev_tui(
             if result == SWITCH_TO_DJANGO_TUI:
                 from netbox_tui.django_model_app import run_django_model_tui
 
-                run_django_model_tui(theme_name=app.theme_name)
+                run_django_model_tui(
+                    theme_name=app.theme_name,
+                    client_factory=lambda: client,
+                    index_factory=lambda: index,
+                )
                 return
             return
     except KeyboardInterrupt:
