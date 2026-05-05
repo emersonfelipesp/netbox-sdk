@@ -604,6 +604,35 @@ def docs_generate_capture(
     raise typer.Exit(code=code)
 
 
+@docs_app.command("generate-tui-simulation")
+def docs_generate_tui_simulation(
+    output: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Manifest destination. Default: <repo>/docs/generated/tui-simulation/main-browser.json",
+    ),
+    assets_dir: Path | None = typer.Option(
+        None,
+        "--assets-dir",
+        help="SVG destination directory. Default: manifest parent directory.",
+    ),
+) -> None:
+    """Capture fixture-backed main TUI SVG states for website simulations."""
+    from netbox_cli.tui_simulation import (  # noqa: PLC0415
+        generate_tui_simulation,
+        resolve_tui_simulation_paths,
+    )
+
+    try:
+        out, assets = resolve_tui_simulation_paths(output, assets_dir)
+    except FileNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    code = generate_tui_simulation(output=out, assets_dir=assets)
+    raise typer.Exit(code=code)
+
+
 app.add_typer(cli_app, name="cli")
 app.add_typer(docs_app, name="docs")
 app.add_typer(demo_app, name="demo")
