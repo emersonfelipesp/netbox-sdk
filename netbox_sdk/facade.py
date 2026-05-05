@@ -343,17 +343,23 @@ class Endpoint:
         *,
         start: int | None = None,
         mode: PaginationMode | None = None,
+        **filters: Any,
     ) -> RecordSet:
-        if limit == 0 and offset is not None:
-            raise ValueError("offset requires a positive limit value")
-        if start is not None and offset is not None:
-            raise ValueError("'start' and 'offset' are mutually exclusive")
-        return RecordSet(self, query={}, limit=limit, offset=offset, start=start, mode=mode)
+        return self.filter(
+            limit=limit,
+            offset=offset,
+            start=start,
+            mode=mode,
+            **filters,
+        )
 
     def filter(self, *args: str, **kwargs: Any) -> RecordSet:
-        limit = int(kwargs.pop("limit")) if "limit" in kwargs else 0
-        offset = int(kwargs.pop("offset")) if "offset" in kwargs else None
-        start = int(kwargs.pop("start")) if "start" in kwargs else None
+        raw_limit = kwargs.pop("limit", 0)
+        limit = int(raw_limit) if raw_limit is not None else 0
+        raw_offset = kwargs.pop("offset", None)
+        offset = int(raw_offset) if raw_offset is not None else None
+        raw_start = kwargs.pop("start", None)
+        start = int(raw_start) if raw_start is not None else None
         mode_arg = kwargs.pop("mode", None)
         mode: PaginationMode | None = (
             _normalize_pagination_mode(mode_arg) if isinstance(mode_arg, str) else None
