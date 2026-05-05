@@ -56,6 +56,17 @@ async for device in devices:
     print(device.name)
 ```
 
+`Endpoint.all()` aceita os mesmos argumentos nomeados de filtro que `filter()`,
+portanto as duas chamadas abaixo são equivalentes:
+
+```python
+async for device in nb.dcim.devices.all(role="leaf-switch"):
+    ...
+
+async for device in nb.dcim.devices.filter(role="leaf-switch"):
+    ...
+```
+
 Contar linhas correspondentes:
 
 ```python
@@ -232,6 +243,70 @@ devices = nb.dcim.devices.filter(site="lon", strict_filters=True)
 ```
 
 Filtros desconhecidos levantam `ParameterValidationError`.
+
+---
+
+## Paginação
+
+A fachada pagina iterações de lista de forma transparente. O NetBox 4.6 introduziu
+paginação baseada em cursor com `start=<pk>&limit=<n>`, significativamente mais rápida
+que a paginação por offset em grandes conjuntos de resultados. O SDK detecta a versão
+do NetBox em execução e escolhe a estratégia adequada:
+
+- NetBox `>= 4.6`: modo cursor (padrão).
+- NetBox `< 4.6`: modo offset (legado).
+
+### Matriz de parâmetros
+
+Todo método paginado aceita o conjunto completo de argumentos de paginação do
+NetBox, além de argumentos arbitrários de filtro:
+
+| Método | `limit` | `offset` | `start` | `mode` | filtros `**kwargs` |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `Endpoint.all(...)` | sim | sim | sim | sim | sim |
+| `Endpoint.filter(...)` | sim | sim | sim | sim | sim |
+| `Endpoint.get(...)` | — | — | — | — | sim |
+| `Endpoint.count(...)` | — | — | — | — | sim |
+
+`mode` aceita `"cursor"`, `"offset"` ou `"auto"`. `start` e `offset` são mutuamente
+exclusivos; passar ambos levanta `ValueError`. `ordering` é rejeitado em modo
+cursor (o NetBox aplica essa restrição no servidor).
+
+### Modo cursor (padrão)
+
+```python
+nb = api("https://netbox.example.com", token="meu-token")
+
+# Cursor por padrão no NetBox >= 4.6 (filtros e paginação combinam livremente):
+async for device in nb.dcim.devices.all(role="leaf-switch", limit=100):
+    print(device.id)
+
+# Iniciar em um cursor explícito:
+async for device in nb.dcim.devices.all(limit=100, start=0):
+    print(device.id)
+```
+
+### Usando o método offset (legado)
+
+O paginador offset legado continua totalmente suportado. Force-o para o cliente
+inteiro ou para uma consulta específica:
+
+```python
+# Cliente inteiro:
+nb = api("https://netbox.example.com", token="meu-token", pagination_mode="offset")
+
+# Por consulta:
+async for device in nb.dcim.devices.all(mode="offset", limit=100):
+    print(device.id)
+
+devices = nb.dcim.devices.filter(role="leaf-switch", mode="offset")
+```
+
+A variável de ambiente `NETBOX_SDK_PAGINATION_MODE` (`cursor` / `offset` / `auto`)
+sobrescreve o padrão do construtor — útil ao isolar problemas contra uma versão
+específica do NetBox. No modo cursor, o servidor retorna `count: null` por desempenho,
+então `Endpoint.count()` emite um probe explícito em modo offset para obter o total —
+`count()` funciona independente do modo configurado.
 
 ---
 

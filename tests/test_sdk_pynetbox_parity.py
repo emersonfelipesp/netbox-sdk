@@ -150,6 +150,7 @@ async def test_api_filter_strict_validation_raises_for_unknown_parameter() -> No
 
 @pytest.mark.asyncio
 async def test_recordset_follows_paginated_next_links() -> None:
+    """Offset-mode RecordSet still follows the response 'next' URL verbatim."""
     client = _FakeClient({})
     client.responses[("GET", "/api/dcim/devices/")] = [
         ApiResponse(
@@ -163,6 +164,7 @@ async def test_recordset_follows_paginated_next_links() -> None:
             headers={},
         ),
     ]
+    # _FakeClient.get_version() returns "4.2", which resolves to offset mode.
     nb = api(
         "https://netbox.example.com",
         token="tok",
@@ -176,6 +178,49 @@ async def test_recordset_follows_paginated_next_links() -> None:
 
     assert names == ["leaf1", "leaf2"]
     assert client.calls[1]["query"] == {"limit": "1", "offset": "1"}
+
+
+@pytest.mark.asyncio
+async def test_recordset_uses_cursor_pagination_against_netbox_46() -> None:
+    """Auto mode resolves to cursor on NetBox 4.6+ and drives next pages by start=last_pk+1."""
+
+    class _CursorFakeClient(_FakeClient):
+        async def get_version(self) -> str:  # type: ignore[override]
+            return "4.6.0"
+
+    client = _CursorFakeClient({})
+    client.responses[("GET", "/api/dcim/devices/")] = [
+        ApiResponse(
+            status=200,
+            text='{"count": null, "next": null, "results": ['
+            '{"id": 1, "name": "leaf1", "url": "https://netbox.example.com/api/dcim/devices/1/"},'
+            '{"id": 2, "name": "leaf2", "url": "https://netbox.example.com/api/dcim/devices/2/"}'
+            "]}",
+            headers={},
+        ),
+        ApiResponse(
+            status=200,
+            text='{"count": null, "next": null, "results": ['
+            '{"id": 5, "name": "leaf3", "url": "https://netbox.example.com/api/dcim/devices/5/"}'
+            "]}",
+            headers={},
+        ),
+    ]
+    nb = api(
+        "https://netbox.example.com",
+        token="tok",
+        client=client,
+        schema=build_schema_index(OPENAPI_PATH),
+    )
+
+    names = []
+    async for device in nb.dcim.devices.all(limit=2):
+        names.append(device.name)
+
+    assert names == ["leaf1", "leaf2", "leaf3"]
+    assert client.calls[0]["query"] == {"start": "0", "limit": "2"}
+    # Second page starts after the last seen pk (2 + 1 = 3).
+    assert client.calls[1]["query"] == {"start": "3", "limit": "2"}
 
 
 @pytest.mark.asyncio

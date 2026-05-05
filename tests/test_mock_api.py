@@ -321,6 +321,67 @@ def test_pagination_last_page(client):
     assert data["previous"] is not None
 
 
+@pytest.fixture(scope="module")
+def app_v46():
+    """A NetBox 4.6 mock app — required for cursor-based pagination tests."""
+    from netbox_sdk.mock import create_mock_app
+
+    return create_mock_app(version="4.6")
+
+
+@pytest.fixture()
+def client_v46(app_v46):
+    """Per-test client backed by the 4.6 mock app, with state reset."""
+    test_client = _AsgiTestClient(app_v46)
+    test_client.post("/mock/reset")
+    return test_client
+
+
+def test_pagination_cursor_start_param(client_v46):
+    """NetBox 4.6+ cursor-based pagination via ?start=<pk>&limit=N."""
+    created = client_v46.post(
+        "/api/dcim/sites/",
+        json=[{"name": f"C{i}", "slug": f"c{i}"} for i in range(5)],
+    ).json()
+    pks = sorted(item["id"] for item in created)
+
+    resp = client_v46.get(f"/api/dcim/sites/?start={pks[0]}&limit=2")
+    data = resp.json()
+
+    assert data["count"] is None
+    assert data["previous"] is None
+    assert [item["id"] for item in data["results"]] == pks[:2]
+    assert data["next"] is not None
+    assert f"start={pks[1] + 1}" in data["next"]
+
+
+def test_pagination_cursor_last_page_has_no_next(client_v46):
+    created = client_v46.post(
+        "/api/dcim/sites/",
+        json=[{"name": f"D{i}", "slug": f"d{i}"} for i in range(3)],
+    ).json()
+    pks = sorted(item["id"] for item in created)
+
+    resp = client_v46.get(f"/api/dcim/sites/?start={pks[-1]}&limit=10")
+    data = resp.json()
+
+    assert data["count"] is None
+    assert data["next"] is None
+    assert [item["id"] for item in data["results"]] == [pks[-1]]
+
+
+def test_pagination_cursor_rejects_offset(client_v46):
+    client_v46.post("/api/dcim/sites/", json={"name": "X", "slug": "x"})
+    resp = client_v46.get("/api/dcim/sites/?start=1&offset=0&limit=5")
+    assert resp.status_code == 400
+
+
+def test_pagination_cursor_rejects_ordering(client_v46):
+    client_v46.post("/api/dcim/sites/", json={"name": "X", "slug": "x"})
+    resp = client_v46.get("/api/dcim/sites/?start=1&ordering=name&limit=5")
+    assert resp.status_code == 400
+
+
 # ---------------------------------------------------------------------------
 # Query filtering
 # ---------------------------------------------------------------------------

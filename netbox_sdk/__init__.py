@@ -76,7 +76,7 @@ __all__ = [
     "enrich_schema_index_with_runtime_resources",
 ]
 
-__version__ = "0.0.8"
+__version__ = "0.0.9.dev0"
 
 from netbox_sdk.client import ApiResponse, ConnectionProbe, NetBoxApiClient
 from netbox_sdk.config import (

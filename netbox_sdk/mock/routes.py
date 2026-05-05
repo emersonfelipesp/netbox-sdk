@@ -193,7 +193,7 @@ def _paginate_results(
     base_url: str,
     path: str,
 ) -> dict[str, Any]:
-    """Wrap items in the NetBox paginated response envelope."""
+    """Wrap items in the NetBox offset-paginated response envelope."""
     total = len(items)
     page = items[offset : offset + limit]
 
@@ -211,6 +211,36 @@ def _paginate_results(
         "count": total,
         "next": next_url,
         "previous": previous_url,
+        "results": page,
+    }
+
+
+def _paginate_results_cursor(
+    items: list[Any],
+    *,
+    start: int,
+    limit: int,
+    base_url: str,
+    path: str,
+) -> dict[str, Any]:
+    """Wrap items in the NetBox cursor-paginated response envelope (NetBox 4.6+)."""
+    eligible = [
+        item
+        for item in items
+        if isinstance(item, dict) and isinstance(item.get("id"), int) and item["id"] >= start
+    ]
+    eligible.sort(key=lambda item: item["id"])
+    page = eligible[:limit] if limit else eligible
+
+    next_url = None
+    if limit and len(eligible) > limit:
+        last_id = page[-1]["id"]
+        next_url = f"{base_url.rstrip('/')}{path}?start={last_id + 1}&limit={limit}"
+
+    return {
+        "count": None,
+        "next": next_url,
+        "previous": None,
         "results": page,
     }
 
@@ -331,7 +361,30 @@ def _build_generated_endpoint(
                 query_values[orig_name] = v
 
         limit = int(query_values.pop("limit", 50))
-        offset = int(query_values.pop("offset", 0))
+        offset_raw = query_values.pop("offset", None)
+        start_raw = query_values.pop("start", None)
+        ordering_raw = query_values.pop("ordering", None)
+        if start_raw is not None and offset_raw is not None:
+            raise HTTPException(
+                status_code=400,
+                detail="'start' and 'offset' are mutually exclusive.",
+            )
+        if start_raw is not None and ordering_raw is not None:
+            raise HTTPException(
+                status_code=400,
+                detail="Ordering cannot be specified in conjunction with cursor-based pagination.",
+            )
+        offset = int(offset_raw) if offset_raw is not None else 0
+        try:
+            start = int(start_raw) if start_raw is not None else None
+        except (TypeError, ValueError):
+            raise HTTPException(
+                status_code=400, detail="Invalid 'start' parameter: must be a non-negative integer."
+            ) from None
+        if start is not None and start < 0:
+            raise HTTPException(
+                status_code=400, detail="Invalid 'start' parameter: must be a non-negative integer."
+            )
 
         # Extract request body
         body = kwargs.pop("request_body", None)
@@ -348,6 +401,14 @@ def _build_generated_endpoint(
                 collection = _seed_list(topology.item_schema, resolver, collection_key=list_key)
                 store.replace_collection(list_key, collection)
             filtered = _filter_items(collection, query_values)
+            if start is not None:
+                return _paginate_results_cursor(
+                    filtered,
+                    start=start,
+                    limit=limit,
+                    base_url="http://mock.example.com",
+                    path=list_path,
+                )
             return _paginate_results(
                 filtered,
                 limit=limit,
