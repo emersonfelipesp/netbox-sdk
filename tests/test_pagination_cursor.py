@@ -250,3 +250,112 @@ async def test_cursor_mode_rejects_ordering_filter() -> None:
         # First await triggers _initialize_first_page which validates.
         async for _ in rs:
             break
+
+
+@pytest.mark.asyncio
+async def test_all_accepts_filter_kwargs_alongside_cursor_pagination() -> None:
+    client = _RecordingClient(
+        {("GET", "/api/dcim/devices/"): [_devices_response([_device(1)])]},
+        version="4.6.0",
+    )
+    nb = _build_api(client)
+
+    [d async for d in nb.dcim.devices.all(role="leaf-switch", limit=2)]
+
+    assert client.calls[0]["query"] == {
+        "role": "leaf-switch",
+        "start": "0",
+        "limit": "2",
+    }
+
+
+@pytest.mark.asyncio
+async def test_all_accepts_filter_kwargs_with_explicit_start() -> None:
+    client = _RecordingClient(
+        {("GET", "/api/dcim/devices/"): [_devices_response([_device(11)])]},
+        version="4.6.0",
+    )
+    nb = _build_api(client)
+
+    [d async for d in nb.dcim.devices.all(status="active", start=10, limit=5)]
+
+    assert client.calls[0]["query"] == {
+        "status": "active",
+        "start": "10",
+        "limit": "5",
+    }
+
+
+@pytest.mark.asyncio
+async def test_all_accepts_filter_kwargs_with_offset_mode() -> None:
+    client = _RecordingClient(
+        {
+            ("GET", "/api/dcim/devices/"): [
+                ApiResponse(
+                    status=200,
+                    text='{"count": 1, "next": null, "previous": null, '
+                    '"results": [{"id": 1, "name": "leaf", '
+                    '"url": "https://netbox.example.com/api/dcim/devices/1/"}]}',
+                    headers={},
+                )
+            ]
+        },
+        version="4.6.0",
+    )
+    nb = _build_api(client)
+
+    [d async for d in nb.dcim.devices.all(role="leaf", limit=3, offset=0, mode="offset")]
+
+    assert client.calls[0]["query"] == {"role": "leaf", "limit": "3", "offset": "0"}
+
+
+@pytest.mark.asyncio
+async def test_legacy_offset_method_remains_supported_end_to_end() -> None:
+    """Explicit smoke test that mode='offset' still walks the server-provided next URL."""
+    page1 = ApiResponse(
+        status=200,
+        text=(
+            '{"count": 3, '
+            '"next": "https://netbox.example.com/api/dcim/devices/?limit=2&offset=2", '
+            '"previous": null, '
+            '"results": ['
+            '{"id": 1, "name": "a", "url": "https://netbox.example.com/api/dcim/devices/1/"},'
+            '{"id": 2, "name": "b", "url": "https://netbox.example.com/api/dcim/devices/2/"}'
+            "]}"
+        ),
+        headers={},
+    )
+    page2 = ApiResponse(
+        status=200,
+        text=(
+            '{"count": 3, "next": null, "previous": null, '
+            '"results": [{"id": 3, "name": "c", '
+            '"url": "https://netbox.example.com/api/dcim/devices/3/"}]}'
+        ),
+        headers={},
+    )
+    client = _RecordingClient(
+        {("GET", "/api/dcim/devices/"): [page1, page2]},
+        version="4.6.0",
+    )
+    nb = _build_api(client)
+
+    pks = [d.id async for d in nb.dcim.devices.all(limit=2, mode="offset")]
+
+    assert pks == [1, 2, 3]
+    assert client.calls[0]["query"] == {"limit": "2"}
+    # Second call follows the server-provided next URL.
+    assert client.calls[1]["query"] == {"limit": "2", "offset": "2"}
+
+
+@pytest.mark.asyncio
+async def test_filter_accepts_full_pagination_matrix() -> None:
+    client = _RecordingClient(
+        {("GET", "/api/dcim/devices/"): [_devices_response([_device(5)])]},
+        version="4.6.0",
+    )
+    nb = _build_api(client)
+
+    [d async for d in nb.dcim.devices.filter(role="leaf", limit=10, start=5)]
+
+    assert client.calls[0]["query"] == {"role": "leaf", "start": "5", "limit": "10"}
