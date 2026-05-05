@@ -1,0 +1,953 @@
+{
+  "schema_version": 1,
+  "command": "nbx tui",
+  "generated_at": "2026-05-05T20:52:49.005767+00:00",
+  "source_commit": "974fce85d352564d9391e24b861179bc19bc1fb6",
+  "terminal_size": {
+    "columns": 200,
+    "rows": 60
+  },
+  "themes": [
+    "netbox-dark",
+    "netbox-light",
+    "dracula",
+    "tokyo-night",
+    "onedark-pro"
+  ],
+  "state_ids": [
+    "home",
+    "devices",
+    "details",
+    "filter",
+    "support"
+  ],
+  "states": [
+    {
+      "id": "home",
+      "captures": {
+        "netbox-dark": {
+          "svg": "main-browser-home-netbox-dark.svg",
+          "hotspots": [
+            {
+              "id": "open-devices",
+              "label": "Open devices",
+              "action": "state",
+              "widget_id": "nav_tree",
+              "region": {
+                "x": 1,
+                "y": 16,
+                "width": 35,
+                "height": 40
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "netbox-light": {
+          "svg": "main-browser-home-netbox-light.svg",
+          "hotspots": [
+            {
+              "id": "open-devices",
+              "label": "Open devices",
+              "action": "state",
+              "widget_id": "nav_tree",
+              "region": {
+                "x": 1,
+                "y": 16,
+                "width": 35,
+                "height": 40
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "dracula": {
+          "svg": "main-browser-home-dracula.svg",
+          "hotspots": [
+            {
+              "id": "open-devices",
+              "label": "Open devices",
+              "action": "state",
+              "widget_id": "nav_tree",
+              "region": {
+                "x": 1,
+                "y": 16,
+                "width": 35,
+                "height": 40
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "tokyo-night": {
+          "svg": "main-browser-home-tokyo-night.svg",
+          "hotspots": [
+            {
+              "id": "open-devices",
+              "label": "Open devices",
+              "action": "state",
+              "widget_id": "nav_tree",
+              "region": {
+                "x": 1,
+                "y": 16,
+                "width": 35,
+                "height": 40
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "onedark-pro": {
+          "svg": "main-browser-home-onedark-pro.svg",
+          "hotspots": [
+            {
+              "id": "open-devices",
+              "label": "Open devices",
+              "action": "state",
+              "widget_id": "nav_tree",
+              "region": {
+                "x": 1,
+                "y": 16,
+                "width": 35,
+                "height": 40
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "devices",
+      "captures": {
+        "netbox-dark": {
+          "svg": "main-browser-devices-netbox-dark.svg",
+          "hotspots": [
+            {
+              "id": "show-details",
+              "label": "Show details",
+              "action": "state",
+              "widget_id": "results_table",
+              "region": {
+                "x": 40,
+                "y": 19,
+                "width": 158,
+                "height": 37
+              },
+              "target_state": "details"
+            },
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "netbox-light": {
+          "svg": "main-browser-devices-netbox-light.svg",
+          "hotspots": [
+            {
+              "id": "show-details",
+              "label": "Show details",
+              "action": "state",
+              "widget_id": "results_table",
+              "region": {
+                "x": 40,
+                "y": 19,
+                "width": 158,
+                "height": 37
+              },
+              "target_state": "details"
+            },
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "dracula": {
+          "svg": "main-browser-devices-dracula.svg",
+          "hotspots": [
+            {
+              "id": "show-details",
+              "label": "Show details",
+              "action": "state",
+              "widget_id": "results_table",
+              "region": {
+                "x": 40,
+                "y": 19,
+                "width": 158,
+                "height": 37
+              },
+              "target_state": "details"
+            },
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "tokyo-night": {
+          "svg": "main-browser-devices-tokyo-night.svg",
+          "hotspots": [
+            {
+              "id": "show-details",
+              "label": "Show details",
+              "action": "state",
+              "widget_id": "results_table",
+              "region": {
+                "x": 40,
+                "y": 19,
+                "width": 158,
+                "height": 37
+              },
+              "target_state": "details"
+            },
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "onedark-pro": {
+          "svg": "main-browser-devices-onedark-pro.svg",
+          "hotspots": [
+            {
+              "id": "show-details",
+              "label": "Show details",
+              "action": "state",
+              "widget_id": "results_table",
+              "region": {
+                "x": 40,
+                "y": 19,
+                "width": 158,
+                "height": 37
+              },
+              "target_state": "details"
+            },
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "details",
+      "captures": {
+        "netbox-dark": {
+          "svg": "main-browser-details-netbox-dark.svg",
+          "hotspots": [
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "netbox-light": {
+          "svg": "main-browser-details-netbox-light.svg",
+          "hotspots": [
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "dracula": {
+          "svg": "main-browser-details-dracula.svg",
+          "hotspots": [
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "tokyo-night": {
+          "svg": "main-browser-details-tokyo-night.svg",
+          "hotspots": [
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "onedark-pro": {
+          "svg": "main-browser-details-onedark-pro.svg",
+          "hotspots": [
+            {
+              "id": "choose-filter",
+              "label": "Choose filter",
+              "action": "state",
+              "widget_id": "filter_select",
+              "region": {
+                "x": 175,
+                "y": 6,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "filter"
+            },
+            {
+              "id": "open-support",
+              "label": "Open support dialog",
+              "action": "state",
+              "widget_id": "support_button",
+              "region": {
+                "x": 162,
+                "y": 1,
+                "width": 24,
+                "height": 3
+              },
+              "target_state": "support"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "filter",
+      "captures": {
+        "netbox-dark": {
+          "svg": "main-browser-filter-netbox-dark.svg",
+          "hotspots": [
+            {
+              "id": "close-filter",
+              "label": "Close filter picker",
+              "action": "state",
+              "widget_id": "filter_picker_cancel",
+              "region": {
+                "x": 79,
+                "y": 49,
+                "width": 12,
+                "height": 3
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "netbox-light": {
+          "svg": "main-browser-filter-netbox-light.svg",
+          "hotspots": [
+            {
+              "id": "close-filter",
+              "label": "Close filter picker",
+              "action": "state",
+              "widget_id": "filter_picker_cancel",
+              "region": {
+                "x": 79,
+                "y": 49,
+                "width": 12,
+                "height": 3
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "dracula": {
+          "svg": "main-browser-filter-dracula.svg",
+          "hotspots": [
+            {
+              "id": "close-filter",
+              "label": "Close filter picker",
+              "action": "state",
+              "widget_id": "filter_picker_cancel",
+              "region": {
+                "x": 79,
+                "y": 49,
+                "width": 12,
+                "height": 3
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "tokyo-night": {
+          "svg": "main-browser-filter-tokyo-night.svg",
+          "hotspots": [
+            {
+              "id": "close-filter",
+              "label": "Close filter picker",
+              "action": "state",
+              "widget_id": "filter_picker_cancel",
+              "region": {
+                "x": 79,
+                "y": 49,
+                "width": 12,
+                "height": 3
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        },
+        "onedark-pro": {
+          "svg": "main-browser-filter-onedark-pro.svg",
+          "hotspots": [
+            {
+              "id": "close-filter",
+              "label": "Close filter picker",
+              "action": "state",
+              "widget_id": "filter_picker_cancel",
+              "region": {
+                "x": 79,
+                "y": 49,
+                "width": 12,
+                "height": 3
+              },
+              "target_state": "devices"
+            },
+            {
+              "id": "close-tui",
+              "label": "Close TUI",
+              "action": "close",
+              "widget_id": "close_tui_button",
+              "region": {
+                "x": 187,
+                "y": 1,
+                "width": 11,
+                "height": 3
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "support",
+      "captures": {
+        "netbox-dark": {
+          "svg": "main-browser-support-netbox-dark.svg",
+          "hotspots": [
+            {
+              "id": "close-support",
+              "label": "Close support dialog",
+              "action": "state",
+              "widget_id": "support_modal_close",
+              "region": {
+                "x": 91,
+                "y": 33,
+                "width": 11,
+                "height": 3
+              },
+              "target_state": "devices"
+            }
+          ]
+        },
+        "netbox-light": {
+          "svg": "main-browser-support-netbox-light.svg",
+          "hotspots": [
+            {
+              "id": "close-support",
+              "label": "Close support dialog",
+              "action": "state",
+              "widget_id": "support_modal_close",
+              "region": {
+                "x": 91,
+                "y": 33,
+                "width": 11,
+                "height": 3
+              },
+              "target_state": "devices"
+            }
+          ]
+        },
+        "dracula": {
+          "svg": "main-browser-support-dracula.svg",
+          "hotspots": [
+            {
+              "id": "close-support",
+              "label": "Close support dialog",
+              "action": "state",
+              "widget_id": "support_modal_close",
+              "region": {
+                "x": 91,
+                "y": 33,
+                "width": 11,
+                "height": 3
+              },
+              "target_state": "devices"
+            }
+          ]
+        },
+        "tokyo-night": {
+          "svg": "main-browser-support-tokyo-night.svg",
+          "hotspots": [
+            {
+              "id": "close-support",
+              "label": "Close support dialog",
+              "action": "state",
+              "widget_id": "support_modal_close",
+              "region": {
+                "x": 91,
+                "y": 33,
+                "width": 11,
+                "height": 3
+              },
+              "target_state": "devices"
+            }
+          ]
+        },
+        "onedark-pro": {
+          "svg": "main-browser-support-onedark-pro.svg",
+          "hotspots": [
+            {
+              "id": "close-support",
+              "label": "Close support dialog",
+              "action": "state",
+              "widget_id": "support_modal_close",
+              "region": {
+                "x": 91,
+                "y": 33,
+                "width": 11,
+                "height": 3
+              },
+              "target_state": "devices"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "source_artifacts": [
+    {
+      "path": "docs/generated/raw/035-tui-main-browser-nbx-tui-help.json",
+      "exists": true,
+      "sha256": "50d933a4fcec487bba61e6cf60887d320dafc686ca199ec47bac6bf9899b58e4"
+    },
+    {
+      "path": "docs/generated/raw/036-tui-main-browser-nbx-tui-theme.json",
+      "exists": true,
+      "sha256": "658aa8a834097391be6ba95b405cd0ba977adb38c10e17e62bc158663021eea2"
+    },
+    {
+      "path": "docs/generated/raw/037-tui-main-browser-nbx-demo-tui-help.json",
+      "exists": true,
+      "sha256": "60585eb84dad2b751ade2202a9d91932f2debfc3bc3ba8e5f1c3d685b1d64a7a"
+    }
+  ]
+}
