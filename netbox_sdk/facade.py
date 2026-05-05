@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 import logging
 import os
+from collections import deque
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Literal, cast
+from typing import Any, ClassVar, Literal, Self, cast
 from urllib.parse import parse_qsl, urlsplit
 
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
@@ -425,7 +426,7 @@ class Endpoint:
             key: "null" if value is None else str(value) for key, value in kwargs.items()
         }
         if strict_filters:
-            self._validate_filters(query)
+            _validate_filters(self.api.schema, self.group, self.resource, self._list_path, query)
         return RecordSet(self, query=query, limit=limit, offset=offset, start=start, mode=mode)
 
     async def get(self, *args: Any, **kwargs: Any) -> Record | None:
@@ -496,10 +497,12 @@ class Endpoint:
         return wrapped if isinstance(wrapped, list) else [wrapped]
 
     async def delete(self, objects: Any) -> bool:
-        """Bulk-delete records via ``DELETE`` to the list endpoint.
+        """Bulk-delete records by id(s) or Record instance(s) via ``DELETE``.
 
-        Accepts a list of ids, a list of records/dicts, a single record, or a
-        :class:`RecordSet` (which is materialised before the call).
+        ``objects`` may be a single id, a single ``Record``, or a list of
+        either. :class:`RecordSet` instances are **not** accepted directly —
+        call ``await recordset.delete()`` instead, which materialises the set
+        first.
 
         Returns:
             ``True`` on success. The server returns ``204 No Content`` and the
@@ -540,16 +543,6 @@ class Endpoint:
         """
         records = self.filter(*args, **kwargs)
         return await records.total()
-
-    def _validate_filters(self, query: dict[str, str]) -> None:
-        allowed = {param.name for param in self.api.schema.filter_params(self.group, self.resource)}
-        invalid = sorted(key for key in query if key not in allowed)
-        if invalid:
-            errors = [
-                f"'{key}' is not allowed as parameter on path '{self._list_path}'."
-                for key in invalid
-            ]
-            raise ParameterValidationError(errors)
 
     def detail_endpoint(self, spec: DetailEndpointSpec) -> DetailEndpoint:
         if spec.multi_format:
@@ -674,7 +667,7 @@ class RecordSet:
         )
         self._next_path: str | None = endpoint._list_path
         self._next_query: dict[str, str] = dict(query)
-        self._buffer: list[Record] = []
+        self._buffer: deque[Record] = deque()
         self._started: bool = False
         self._last_pk: int | None = None
 
@@ -683,7 +676,7 @@ class RecordSet:
 
     async def __anext__(self) -> Record:
         if self._buffer:
-            return self._buffer.pop(0)
+            return self._buffer.popleft()
         if self._started and self._next_path is None:
             raise StopAsyncIteration
         if not self._started:
@@ -692,7 +685,7 @@ class RecordSet:
         await self._fetch_next_page()
         if not self._buffer:
             raise StopAsyncIteration
-        return self._buffer.pop(0)
+        return self._buffer.popleft()
 
     async def _initialize_first_page(self) -> None:
         """Resolve auto mode and seed the first request's query parameters.
@@ -733,10 +726,10 @@ class RecordSet:
         raw_count = payload.get("count")
         if isinstance(raw_count, int):
             self.count = raw_count
-        self._buffer = [
+        self._buffer = deque(
             self.endpoint._make_record(item, has_details=False) if isinstance(item, dict) else item
             for item in results
-        ]
+        )
         if self._mode == "cursor":
             self._advance_cursor(results)
         else:
@@ -844,11 +837,26 @@ class RecordSet:
         return await self.endpoint.update(updates)
 
     async def delete(self) -> bool:
-        """Bulk-delete every record in this set."""
-        return await self.endpoint.delete(self)
+        """Materialise this RecordSet and bulk-delete every record it yields.
+
+        Iteration drains the paginator (one or more GETs) before the DELETE
+        request is issued; an empty set is a no-op DELETE — no DELETE request
+        is sent and ``True`` is returned.
+        """
+        records = await self.to_list()
+        if not records:
+            return True
+        return await self.endpoint.delete(records)
 
 
 class Record:
+    # Attribute names that bypass __setattr__'s data-coercion path. Any other
+    # name lands in self._data and will be sent to the server on save().
+    # Keep this in sync with the attributes assigned in __init__ below.
+    _RECORD_ATTRS: ClassVar[frozenset[str]] = frozenset(
+        {"api", "endpoint", "_data", "_has_details", "_initial"}
+    )
+
     def __init__(
         self, api: Api, endpoint: Endpoint | None, values: dict[str, Any], *, has_details: bool
     ) -> None:
@@ -874,7 +882,7 @@ class Record:
         raise AttributeError(f'object has no attribute "{name}"')
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name in {"api", "endpoint", "_data", "_has_details", "_initial"}:
+        if name in type(self)._RECORD_ATTRS:
             object.__setattr__(self, name, value)
         else:
             self._data[name] = _coerce_nested(self.api, self.endpoint, value)
@@ -893,7 +901,7 @@ class Record:
         for key, value in data.items():
             setattr(self, key, value)
 
-    async def full_details(self) -> Record:
+    async def full_details(self) -> Self:
         if self._has_details:
             return self
         url = self._data.get("url")
@@ -972,7 +980,10 @@ class TraceableRecord(Record):
         path = endpoint.api.schema.trace_path(endpoint.group, endpoint.resource)
         if path is None:
             raise AttributeError("trace")
-        response = await self.api.client.request("GET", path.replace("{id}", str(self._data["id"])))
+        record_id = self._data.get("id")
+        if record_id is None:
+            raise ValueError("Record is missing an id")
+        response = await self.api.client.request("GET", path.replace("{id}", str(record_id)))
         _raise_for_status(response, detail_endpoint=True)
         return _decode_json(response)
 
@@ -985,7 +996,10 @@ class PathableRecord(Record):
         path = endpoint.api.schema.paths_path(endpoint.group, endpoint.resource)
         if path is None:
             raise AttributeError("paths")
-        response = await self.api.client.request("GET", path.replace("{id}", str(self._data["id"])))
+        record_id = self._data.get("id")
+        if record_id is None:
+            raise ValueError("Record is missing an id")
+        response = await self.api.client.request("GET", path.replace("{id}", str(record_id)))
         _raise_for_status(response, detail_endpoint=True)
         return _decode_json(response)
 
@@ -1080,6 +1094,25 @@ def _normalize_delete_objects(objects: Any) -> list[Any]:
         else:
             normalized.append(item)
     return normalized
+
+
+def _validate_filters(
+    schema: SchemaIndex,
+    group: str,
+    resource: str,
+    list_path: str,
+    query: dict[str, str],
+) -> None:
+    """Reject query keys that are not declared as filter params on the OpenAPI list operation.
+
+    Pure function: no side effects, no dependence on any Endpoint instance state.
+    Raises ``ParameterValidationError`` with the offending parameter names.
+    """
+    allowed = {param.name for param in schema.filter_params(group, resource)}
+    invalid = sorted(key for key in query if key not in allowed)
+    if invalid:
+        errors = [f"'{key}' is not allowed as parameter on path '{list_path}'." for key in invalid]
+        raise ParameterValidationError(errors)
 
 
 def _coerce_nested(api: Api, endpoint: Endpoint | None, value: Any) -> Any:

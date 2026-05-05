@@ -159,7 +159,11 @@ class HttpCacheStore:
         ) as handle:
             handle.write(payload)
             temp_path = Path(handle.name)
-        temp_path.replace(path)
+        try:
+            temp_path.replace(path)
+        except OSError:
+            temp_path.unlink(missing_ok=True)
+            raise
         self._set_private_permissions(path, stat.S_IRUSR | stat.S_IWUSR)
 
     def _set_private_permissions(self, path: Path, mode: int) -> None:

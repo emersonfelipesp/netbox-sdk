@@ -436,3 +436,67 @@ async def test_non_detail_errors_raise_request_error() -> None:
 
     with pytest.raises(RequestError):
         await nb.dcim.devices.get(1)
+
+
+@pytest.mark.asyncio
+async def test_recordset_delete_materialises_and_dispatches_ids() -> None:
+    """RecordSet.delete() must drain the iterator and DELETE the resolved ids.
+
+    Previously RecordSet.delete() passed self into Endpoint.delete(), which
+    rejects RecordSet instances and always raised ValueError, so the method
+    was completely broken.
+    """
+    client = _FakeClient(
+        {
+            ("GET", "/api/dcim/devices/"): [
+                ApiResponse(
+                    status=200,
+                    text=(
+                        '{"count": 2, "next": null, "results": ['
+                        '{"id": 11, "name": "a", "url": "https://netbox.example.com/api/dcim/devices/11/"},'
+                        '{"id": 12, "name": "b", "url": "https://netbox.example.com/api/dcim/devices/12/"}'
+                        "]}"
+                    ),
+                    headers={},
+                )
+            ],
+            ("DELETE", "/api/dcim/devices/"): ApiResponse(status=204, text="", headers={}),
+        }
+    )
+    nb = api(
+        "https://netbox.example.com",
+        token="tok",
+        client=client,
+        schema=build_schema_index(OPENAPI_PATH),
+    )
+
+    rs = nb.dcim.devices.filter(role="leaf")
+    result = await rs.delete()
+
+    assert result is True
+    delete_call = next(c for c in client.calls if c["method"] == "DELETE")
+    assert delete_call["payload"] == [11, 12]
+
+
+@pytest.mark.asyncio
+async def test_recordset_delete_on_empty_set_is_noop() -> None:
+    client = _FakeClient(
+        {
+            ("GET", "/api/dcim/devices/"): ApiResponse(
+                status=200,
+                text='{"count": 0, "next": null, "results": []}',
+                headers={},
+            )
+        }
+    )
+    nb = api(
+        "https://netbox.example.com",
+        token="tok",
+        client=client,
+        schema=build_schema_index(OPENAPI_PATH),
+    )
+
+    result = await nb.dcim.devices.filter(role="ghost").delete()
+
+    assert result is True
+    assert not any(c["method"] == "DELETE" for c in client.calls)

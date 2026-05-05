@@ -12,6 +12,7 @@ Security considerations:
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import json
 import logging
 import time
@@ -49,6 +50,16 @@ logger = logging.getLogger(__name__)
 JSONScalar: TypeAlias = str | int | float | bool | None
 JSONValue: TypeAlias = JSONScalar | list["JSONValue"] | dict[str, "JSONValue"]
 FileLike: TypeAlias = IO[bytes] | IO[str]
+
+# Per-task scoped request headers. Using a ContextVar (rather than a mutable
+# instance attribute) makes header_scope() / activate_branch() safe under
+# asyncio.gather: each Task copies the current context at creation, so a
+# .set() in one task is invisible to siblings, and .reset() restores the
+# token without races on shared state. The default is None (treated as empty)
+# so no shared mutable dict is ever exposed to readers.
+_scoped_headers: contextvars.ContextVar[dict[str, str] | None] = contextvars.ContextVar(
+    "netbox_sdk_scoped_headers", default=None
+)
 
 
 class ApiResponse(BaseModel):
@@ -111,7 +122,6 @@ class NetBoxApiClient:
         self.config = config
         self._cache = HttpCacheStore(cache_dir())
         self._on_token_refresh = on_token_refresh or self._default_token_refresh_callback()
-        self._default_headers: dict[str, str] = {}
         self._openapi_cache: dict[str, JSONValue] | None = None
         self._session: aiohttp.ClientSession | None = None
         self._session_loop_id: int | None = None
@@ -198,6 +208,7 @@ class NetBoxApiClient:
                 await self._session.close()
             self._session = None
             self._session_loop_id = None
+            self._openapi_cache = None
 
     async def reset_session(self) -> None:
         """Force close and recreate the session on next request."""
@@ -268,7 +279,7 @@ class NetBoxApiClient:
         )
         cache_key: str | None = None
         cache_entry = None
-        req_headers = dict(self._default_headers)
+        req_headers = dict(_scoped_headers.get() or {})
         req_headers.update(headers or {})
         if cache_policy is not None and self.config.base_url:
             cache_key = build_cache_key(
@@ -453,10 +464,13 @@ class NetBoxApiClient:
             return True
         refreshed_profile = load_profile_config(DEMO_PROFILE)
         if refreshed_profile.demo_username and refreshed_profile.demo_password:
-            self.config.demo_username = refreshed_profile.demo_username
-            self.config.demo_password = refreshed_profile.demo_password
+            updates: dict[str, Any] = {
+                "demo_username": refreshed_profile.demo_username,
+                "demo_password": refreshed_profile.demo_password,
+            }
             if refreshed_profile.timeout:
-                self.config.timeout = refreshed_profile.timeout
+                updates["timeout"] = refreshed_profile.timeout
+            self.config = self.config.model_copy(update=updates)
             return True
         return False
 
@@ -619,12 +633,19 @@ class NetBoxApiClient:
 
     @contextmanager
     def header_scope(self, **headers: str) -> Iterator[NetBoxApiClient]:
-        previous = dict(self._default_headers)
-        self._default_headers.update({k: v for k, v in headers.items() if v})
+        """Apply additional request headers to all requests inside the with-block.
+
+        Header scoping is per-task: the ContextVar copy taken when an asyncio
+        Task is created means concurrent tasks (e.g. asyncio.gather) each see
+        their own header set without races on shared state.
+        """
+        merged = dict(_scoped_headers.get() or {})
+        merged.update({k: v for k, v in headers.items() if v})
+        token = _scoped_headers.set(merged)
         try:
             yield self
         finally:
-            self._default_headers = previous
+            _scoped_headers.reset(token)
 
     async def graphql(self, query: str, variables: dict[str, Any] | None = None) -> ApiResponse:
         """Execute a GraphQL query against the NetBox API."""

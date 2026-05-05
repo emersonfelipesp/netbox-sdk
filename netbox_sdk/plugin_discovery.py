@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import deque
 from dataclasses import dataclass
 from urllib.parse import parse_qsl, urlsplit
 
@@ -220,12 +221,12 @@ def _merge_discovered_resources(resources: list[DiscoveredResource]) -> list[Dis
 
 async def discover_plugin_resources(client: NetBoxApiClient) -> list[DiscoveredResource]:
     """Discover plugin collection/detail paths by walking the live plugin API root."""
-    queue: list[str] = [PLUGIN_ROOT]
+    queue: deque[str] = deque([PLUGIN_ROOT])
     visited: set[str] = set()
     discovered: list[DiscoveredResource] = []
 
     while queue:
-        path = queue.pop(0)
+        path = queue.popleft()
         if path in visited:
             continue
         visited.add(path)
@@ -263,11 +264,11 @@ async def discover_object_type_resources(
     index: SchemaIndex | None = None,
 ) -> list[DiscoveredResource]:
     """Discover REST resources advertised by NetBox ``core/object-types``."""
-    queue: list[tuple[str, dict[str, str] | None]] = [(OBJECT_TYPES_PATH, None)]
+    queue: deque[tuple[str, dict[str, str] | None]] = deque([(OBJECT_TYPES_PATH, None)])
     discovered: list[DiscoveredResource] = []
 
     while queue:
-        path, query = queue.pop(0)
+        path, query = queue.popleft()
         response_data = await _request_json(client, "GET", path, query=query)
         if response_data is None:
             return _merge_discovered_resources(discovered)
