@@ -1,5 +1,14 @@
 # netbox-sdk — Project Guide
 
+## Workspace Context
+
+This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/CLAUDE.md` inside the `personal-context` workspace.
+Workspace guidance: `/root/personal-context/CLAUDE.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
+
+---
+
 ## Codebase Index
 
 | Path | CLAUDE.md | What's there |

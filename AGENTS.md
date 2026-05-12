@@ -1,5 +1,14 @@
 # AGENTS.md — netbox-sdk Agent Index
 
+## Workspace Context
+
+This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/AGENTS.md` inside the `personal-context` workspace.
+Workspace guidance: `/root/personal-context/CLAUDE.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
+
+---
+
 ## Quick Start
 
 | What you need | Go here |
