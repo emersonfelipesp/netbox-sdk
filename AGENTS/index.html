@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/CLAUDE/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/AGENTS/">
       
       
       
@@ -27,7 +27,7 @@
     
     
       
-        <title>docs — MkDocs Documentation Site - NetBox SDK</title>
+        <title>docs — MkDocs Documentation Site — AGENTS.md Mirror - NetBox SDK</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#docs-mkdocs-documentation-site" class="md-skip">
+        <a href="#docs-mkdocs-documentation-site-agentsmd-mirror" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              docs — MkDocs Documentation Site
+              docs — MkDocs Documentation Site — AGENTS.md Mirror
             
           </span>
         </div>
@@ -2801,54 +2801,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#workspace-context" class="md-nav__link">
+  <a href="#source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workspace Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#directory-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Directory Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hookspy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        hooks.py
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#generated" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        generated/
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#navigation-from-mkdocsyml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Navigation (from mkdocs.yml)
+        Source
       
     </span>
   </a>
@@ -2883,6 +2839,11 @@
   
 
 
+<h1 id="docs-mkdocs-documentation-site-agentsmd-mirror">docs — MkDocs Documentation Site — AGENTS.md Mirror<a class="headerlink" href="#docs-mkdocs-documentation-site-agentsmd-mirror" title="Permanent link">&para;</a></h1>
+<p>This file mirrors the sibling <code>CLAUDE.md</code> guidance for agents that read <code>AGENTS.md</code>. Treat <code>CLAUDE.md</code> as the source material; the content below preserves the current guide.</p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link">&para;</a></h2>
+<p>@CLAUDE.md</p>
+<hr />
 <h1 id="docs-mkdocs-documentation-site">docs — MkDocs Documentation Site<a class="headerlink" href="#docs-mkdocs-documentation-site" title="Permanent link">&para;</a></h1>
 <h2 id="workspace-context">Workspace Context<a class="headerlink" href="#workspace-context" title="Permanent link">&para;</a></h2>
 <p>This file lives at <code>/root/personal-context/nmulticloud-context/netbox-cli/docs/CLAUDE.md</code> inside the <code>personal-context</code> workspace.
@@ -2890,7 +2851,7 @@ Workspace guidance: <code>/root/personal-context/CLAUDE.md</code>.
 Per-repo deep-dive: <code>/root/personal-context/claude-reference/netbox-cli.md</code>.
 Submodule layout and cross-repo links: <code>/root/personal-context/claude-reference/dependency-map.md</code>.</p>
 <hr />
-<p>Built with MkDocs Material theme and <strong>mkdocs-static-i18n</strong>: English (<code>en</code>) is the default site at <code>/</code>; Brazilian Portuguese (<code>pt</code>) mirrors every <code>nav</code> page under <code>/pt/</code> as sibling <code>*.pt.md</code> files. Source lives here; deployed to GitHub Pages by <code>.github/workflows/docs.yml</code>.</p>
+<p>Built with MkDocs Material theme. Source lives here; deployed to GitHub Pages by <code>.github/workflows/docs.yml</code>.</p>
 <p><strong>Local preview:</strong>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui<span class="w"> </span>--extra<span class="w"> </span>demo
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>serve
@@ -2899,7 +2860,6 @@ Submodule layout and cross-repo links: <code>/root/personal-context/claude-refer
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui<span class="w"> </span>--extra<span class="w"> </span>demo
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>pre-commit<span class="w"> </span>--hook-type<span class="w"> </span>pre-push
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>uv<span class="w"> </span>run<span class="w"> </span>ty<span class="w"> </span>check<span class="w"> </span>netbox_sdk<span class="w"> </span>netbox_cli<span class="w"> </span>netbox_tui<span class="w"> </span>tests
 </span></code></pre></div></p>
 <p>When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside <code>netbox_tui/themes/*.json</code>.
 Also keep the composition contract explicit: contributor guidance should treat Textual widgets as React-style composable building blocks, with composition preferred over inheritance for view structure.</p>
@@ -2942,26 +2902,19 @@ Also keep the composition contract explicit: contributor guidance should treat T
 </span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>│   ├── textual-composition.md      # React-style Textual composition guideline
 </span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>│   └── docgen.md                   # Documentation generation process
 </span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>├── reference/
-</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>│   ├── cli/
-</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>│   │   └── command-examples/       # ← AUTO-GENERATED by docs/hooks.py, do not edit by hand
-</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>│   │       ├── index.md            # Overview page with links to CLI capture sections
-</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>│   │       ├── core-commands.md
-</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>│   │       ├── schema-discovery.md
-</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>│   │       ├── graphql-and-http.md
-</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>│   │       ├── dynamic-commands.md
-</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>│   │       ├── developer-tools.md
-</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>│   │       └── demo-profile.md
-</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>│   └── tui/
-</span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>│       └── launch-examples/        # ← AUTO-GENERATED by docs/hooks.py, do not edit by hand
-</span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>│           ├── index.md
-</span><span id="__span-3-47"><a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>│           ├── main-browser.md
-</span><span id="__span-3-48"><a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a>│           ├── logs-viewer.md
-</span><span id="__span-3-49"><a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a>│           ├── developer-workbench.md
-</span><span id="__span-3-50"><a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a>│           ├── cli-builder.md
-</span><span id="__span-3-51"><a id="__codelineno-3-51" name="__codelineno-3-51" href="#__codelineno-3-51"></a>│           └── django-models-browser.md
-</span><span id="__span-3-52"><a id="__codelineno-3-52" name="__codelineno-3-52" href="#__codelineno-3-52"></a>└── generated/                      # ← AUTO-GENERATED, do not edit by hand
-</span><span id="__span-3-53"><a id="__codelineno-3-53" name="__codelineno-3-53" href="#__codelineno-3-53"></a>    └── raw/                        # JSON output from each captured command
-</span><span id="__span-3-54"><a id="__codelineno-3-54" name="__codelineno-3-54" href="#__codelineno-3-54"></a>        └── *.json
+</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>│   └── command-examples/           # ← AUTO-GENERATED by docs/hooks.py, do not edit by hand
+</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>│       ├── index.md                # Overview page with links to all sections
+</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>│       ├── top-level.md            # Top-level command help banners
+</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>│       ├── schema-discovery.md     # Schema discovery commands
+</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>│       ├── dynamic-commands.md     # Auto-generated OpenAPI commands
+</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>│       ├── logs-viewer.md          # nbx logs command
+</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>│       ├── developer-tools.md      # nbx dev commands
+</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>│       ├── demo-profile.md         # nbx demo commands
+</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>│       ├── live-api-demo-netbox-dev.md  # Live API calls (demo profile)
+</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>│       └── cable-trace-demo-netbox-dev.md  # Cable trace examples
+</span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>└── generated/                      # ← AUTO-GENERATED, do not edit by hand
+</span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>    └── raw/                        # JSON output from each captured command
+</span><span id="__span-3-47"><a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>        └── *.json
 </span></code></pre></div>
 <hr />
 <h2 id="hookspy">hooks.py<a class="headerlink" href="#hookspy" title="Permanent link">&para;</a></h2>
@@ -2969,16 +2922,16 @@ Also keep the composition contract explicit: contributor guidance should treat T
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">hooks</span><span class="p">:</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docs/hooks.py</span>
 </span></code></pre></div></p>
-<p>Called during the MkDocs build phase (<code>on_pre_build</code> and <code>on_post_page</code>). <code>on_pre_build</code> reads <code>docs/generated/raw/*.json</code> and generates separate reference trees under <code>docs/reference/cli/command-examples/</code> and <code>docs/reference/tui/launch-examples/</code>, <strong>including parallel <code>*.pt.md</code> pages</strong> (translated tab labels and prose; same command output). <code>on_post_page</code> rewrites <code>&lt;img src="../assets/..."&gt;</code> to a path relative to each output HTML file so images resolve on GitHub Pages: the default locale writes under <code>site/</code>, while <code>pt</code> writes under <code>site/pt/</code> but static files stay in <code>site/assets/</code>. TUI screenshot gallery pages intentionally use root-absolute <code>/assets/screenshots/...</code> in Markdown so <code>mkdocs build --strict</code> does not fail on translated <code>*.pt.md</code> (doc-relative <code>../assets/</code> is mis-validated for suffix translations). See <code>hooks.py</code> for the exact behavior.</p>
+<p>Called during the MkDocs build phase (<code>on_pre_build</code>). Reads <code>docs/generated/raw/*.json</code> and generates separate reference trees under <code>docs/reference/cli/command-examples/</code> and <code>docs/reference/tui/launch-examples/</code>. See the file directly for current behavior — it evolves alongside the docgen pipeline.</p>
 <hr />
 <h2 id="generated">generated/<a class="headerlink" href="#generated" title="Permanent link">&para;</a></h2>
 <p><strong>Never edit files in <code>docs/generated/</code> by hand.</strong> They are overwritten by:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
 </span></code></pre></div>
 <p>This command runs <code>netbox_cli/docgen_capture.py</code>, which:
-1. Loads the trimmed CLI/TUI capture spec inventory from <code>netbox_cli/docgen_specs.py</code>
-2. Invokes the current checkout's CLI in isolated subprocesses
-3. Writes captured output as <code>nbx-command-capture.md</code> and <code>nbx-command-capture.pt.md</code>
+1. Stubs the in-memory config so <code>nbx</code> commands don't prompt for setup
+2. Invokes each command via Typer's <code>CliRunner</code>
+3. Writes captured output as <code>nbx-command-capture.md</code>
 4. Writes raw JSON per-command to <code>raw/*.json</code></p>
 <p>In CI (<code>docs.yml</code>), docgen runs against <code>demo.netbox.dev</code> using <code>DEMO_USERNAME</code> / <code>DEMO_PASSWORD</code> secrets. If secrets are absent, the step is skipped and existing generated files are used.</p>
 <hr />
@@ -2988,13 +2941,11 @@ Also keep the composition contract explicit: contributor guidance should treat T
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>CLI Reference   → Commands, Dynamic Commands, Demo Profile
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>SDK             → Authentication, Facade API, Typed API, Making Requests, Schema Indexing, Error Handling
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>TUI             → Themes, Keyboard Shortcuts
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>CLI Captures    → index, Core Commands, Schema Discovery, GraphQL and HTTP,
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>                  Dynamic Commands, Developer Tools, Demo Profile
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>TUI Captures    → index, Main Browser, Logs Viewer, Developer Workbench,
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>                  CLI Builder, Django Models Browser
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>Developer Guide → Architecture, Textual Composition Pattern, Documentation Generation
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>Command Examples → index, Top-level, Schema Discovery, Dynamic Commands,
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>                   Logs Viewer, Developer Tools, Demo Profile, Live API, Cable Trace
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>Developer Guide → Architecture, Textual Composition Pattern, Documentation Generation
 </span></code></pre></div>
-<p>To add a new page: create the English <code>.md</code> file, add a matching <code>*.pt.md</code> Portuguese mirror, add an entry to the <code>nav:</code> section in <code>mkdocs.yml</code>, and add the English nav label to <code>nav_translations</code> under the <code>pt</code> language block in the <code>i18n</code> plugin config. <code>tests/test_docs_alignment.py</code> asserts every <code>nav</code> Markdown path has a <code>*.pt.md</code> sibling.</p>
+<p>To add a new page: create the <code>.md</code> file and add an entry to the <code>nav:</code> section in <code>mkdocs.yml</code>.</p>
 <p>Keep repo metadata aligned with the docs:
 - <code>mkdocs.yml</code> branding and repo links should point to <code>netbox-sdk</code>
 - <code>pyproject.toml</code> <code>project.urls.Documentation</code> should match the site URL
