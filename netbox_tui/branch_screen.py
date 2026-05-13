@@ -161,7 +161,7 @@ class BranchSwitcherScreen(ModalScreen[tuple[str | None, str | None] | None]):
 
     def on_option_list_option_selected(
         self,
-        event: "OptionList.OptionSelected",
+        event: OptionList.OptionSelected,
     ) -> None:
         option_id = event.option.id
         if option_id == "__main__" or option_id is None:

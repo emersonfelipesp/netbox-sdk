@@ -42,6 +42,11 @@ from netbox_sdk.formatting import (
 )
 from netbox_sdk.logging_runtime import get_logger
 from netbox_sdk.schema import SchemaIndex, fetch_schema_for_client
+from netbox_tui.branch_screen import (
+    BranchPill,
+    BranchSwitcherScreen,
+    apply_branch_to_client,
+)
 from netbox_tui.chrome import (
     SWITCH_TO_CLI_TUI,
     SWITCH_TO_DEV_TUI,
@@ -64,12 +69,6 @@ from netbox_tui.plugin_discovery import enrich_schema_index_with_runtime_resourc
 from netbox_tui.ssl_verify_support import (
     maybe_resolve_ssl_verify_interactive,
     profile_for_netbox_client,
-)
-from netbox_tui.branch_screen import (
-    BRANCH_HEADER,
-    BranchPill,
-    BranchSwitcherScreen,
-    apply_branch_to_client,
 )
 from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
