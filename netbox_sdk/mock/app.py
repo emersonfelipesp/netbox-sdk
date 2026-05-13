@@ -10,6 +10,12 @@ from fastapi import FastAPI
 from netbox_sdk import __version__ as _sdk_version
 from netbox_sdk.mock.loader import load_mock_data
 from netbox_sdk.mock.routes import netbox_mock_route_state, register_netbox_mock_routes
+from netbox_sdk.mock.routes_branching import (
+    _reset as _reset_branching_state,
+)
+from netbox_sdk.mock.routes_branching import (
+    register_branching_mock_routes,
+)
 from netbox_sdk.mock.state import ThreadSafeMockStore, mock_store, reset_mock_state
 from netbox_sdk.schema import load_openapi_schema
 from netbox_sdk.versioning import SupportedNetBoxVersion, normalize_netbox_version
@@ -83,6 +89,7 @@ def create_mock_app(
     async def mock_reset() -> dict[str, str]:
         """Reset all in-memory mock state to empty."""
         reset_mock_state()
+        _reset_branching_state()
         return {"status": "reset", "message": "All mock state has been cleared."}
 
     @app.get("/mock/state", tags=["mock control"])
@@ -102,6 +109,9 @@ def create_mock_app(
     # -------------------------------------------------------------------
     # Register all NetBox API routes
     # -------------------------------------------------------------------
+    # Register branching routes before the schema-driven routes so they
+    # take precedence on overlapping paths (e.g. /api/core/jobs/{id}/).
+    register_branching_mock_routes(app)
     custom_data = load_mock_data()
     register_netbox_mock_routes(
         app,

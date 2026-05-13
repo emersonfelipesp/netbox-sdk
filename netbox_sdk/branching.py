@@ -402,14 +402,28 @@ class BranchingClient:
 
     @staticmethod
     def _job_id(payload: dict[str, Any]) -> int | None:
+        # Nested {"job": {...}} shape (older / wrapper responses).
         job = payload.get("job")
         if isinstance(job, dict):
             value = job.get("id") or job.get("pk")
             if isinstance(value, int):
                 return value
-        for key in ("job_id", "id"):
-            value = payload.get(key)
-            if isinstance(value, int) and key == "job_id":
+        # Explicit job_id field.
+        value = payload.get("job_id")
+        if isinstance(value, int):
+            return value
+        # Top-level Job representation (sync/merge/revert default shape):
+        # disambiguate by checking the URL or object_type so we don't
+        # accidentally return a branch PK.
+        url = payload.get("url")
+        if isinstance(url, str) and "/jobs/" in url:
+            value = payload.get("id") or payload.get("pk")
+            if isinstance(value, int):
+                return value
+        object_type = payload.get("object_type")
+        if isinstance(object_type, str) and "branch" in object_type:
+            value = payload.get("id") or payload.get("pk")
+            if isinstance(value, int):
                 return value
         return None
 

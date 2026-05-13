@@ -503,6 +503,14 @@ class NetBoxApiClient:
             return None
         if path == "/api/status/":
             return None
+        # netbox-branching state mutates via background jobs; caching would
+        # mask sync/merge/revert progress. Skip plugin sub-paths and the
+        # core jobs polling endpoint. The feature-detection root is included
+        # in the exclusion for predictability across short-lived test runs.
+        if path.startswith("/api/plugins/branching/"):
+            return None
+        if path.startswith("/api/core/jobs/"):
+            return None
         if self._is_list_request(path):
             return CachePolicy(fresh_ttl_seconds=60.0, stale_if_error_seconds=300.0)
         if query:
