@@ -119,6 +119,7 @@ plugins:
             Design principles: Princípios de design
             Textual Composition Pattern: Padrão de composição Textual
             Documentation Generation: Geração de documentação
+            IDE Support: Suporte de IDE
             Command Capture Guide: Guia de captura de comandos
             NetBox UI Guidelines: Diretrizes de UI do NetBox
           admonition_translations:
@@ -235,6 +236,7 @@ nav:
     - Design principles: developer/design-principles.md
     - Textual Composition Pattern: developer/textual-composition.md
     - Documentation Generation: developer/docgen.md
+    - IDE Support: developer/ide-support.md
     - Command Capture Guide: command-capture-guide.md
     - NetBox UI Guidelines: NETBOX_UI_TO_TEXTUAL_GUIDELINES.md
 

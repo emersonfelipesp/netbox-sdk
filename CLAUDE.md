@@ -121,6 +121,8 @@ pip install -e '.[all]'
 ## Verification Before Done
 
 - Run `uv run pre-commit run --all-files`.
+- Run `uv run pyright netbox_sdk netbox_cli netbox_tui` alongside `ty check`.
+  Both gates must pass. All three packages ship `py.typed` PEP 561 markers.
 - Run the package-specific marker suite for the package(s) you changed.
 - Run `uv run pytest` when shared files or release/main validation paths are involved.
 - For packaging changes, verify extras and import boundaries.

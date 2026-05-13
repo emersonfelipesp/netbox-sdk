@@ -112,6 +112,22 @@ uv run ty check netbox_sdk netbox_cli netbox_tui tests
 uv run pytest
 ```
 
+## IDE Support
+
+Open the repository in VS Code. When prompted, install the recommended
+extensions (`ms-python.vscode-pylance`, `ms-python.python`,
+`charliermarsh.ruff`). Pylance picks up types from all three packages
+automatically — each ships a `py.typed` PEP 561 marker.
+
+Type checking uses two gates: `ty` (Astral, fast, pre-commit + CI) and
+`pyright` (Pylance-compatible, pre-commit). Both run at `typeCheckingMode =
+"basic"`. To run them manually:
+
+```bash
+uv run ty check netbox_sdk netbox_cli netbox_tui tests
+uv run pyright netbox_sdk netbox_cli netbox_tui
+```
+
 ## Release Process
 
 Use a single GitHub release title pattern for every release:

@@ -19,6 +19,12 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-commit]
+      - id: pyright-check
+        name: pyright-check
+        entry: uv run pyright netbox_sdk netbox_cli netbox_tui
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
       - id: ruff-check-push
         name: ruff-check-push
         entry: uv run ruff check
