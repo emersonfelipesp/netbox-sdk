@@ -98,7 +98,11 @@ def api(app, monkeypatch):
         if headers:
             merged.update(headers)
         # FastAPI body parsing: send JSON only when actual content exists.
-        send_body = payload if (payload not in (None, {}) or method.upper() in {"POST", "PATCH", "PUT"}) else None
+        send_body = (
+            payload
+            if (payload not in (None, {}) or method.upper() in {"POST", "PATCH", "PUT"})
+            else None
+        )
         response = await asgi.request_json(
             method,
             path,
@@ -197,9 +201,7 @@ async def test_delete_branch_removes_it(api):
 
 async def test_sync_with_wait_updates_branch(api):
     b = await api.branching.create("test-sync")
-    result = await api.branching.sync(
-        b["id"], wait=True, poll_interval=0.01, timeout=2.0
-    )
+    result = await api.branching.sync(b["id"], wait=True, poll_interval=0.01, timeout=2.0)
     assert result["status"]["value"] == "completed"
     refreshed = await api.branching.get(b["id"])
     assert refreshed["last_sync"] is not None

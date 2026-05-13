@@ -69,9 +69,7 @@ def test_branch_pill_set_available_toggles_hidden_class() -> None:
 
 
 def test_tui_state_round_trips_active_branch_fields(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(
-        "netbox_sdk.config.config_path", lambda: tmp_path / "config.json"
-    )
+    monkeypatch.setattr("netbox_sdk.config.config_path", lambda: tmp_path / "config.json")
     from netbox_tui import state as state_mod
 
     saved = TuiState(active_branch_schema_id="td5smq0f", active_branch_name="my-branch")

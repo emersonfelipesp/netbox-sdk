@@ -49,14 +49,18 @@ class JsonPayloadError(ValueError):
 class BranchingPluginUnavailableError(RuntimeError):
     """Raised when a branching operation is requested but the plugin is not installed on the server."""
 
-    def __init__(self, message: str = "The netbox-branching plugin is not installed on this server.") -> None:
+    def __init__(
+        self, message: str = "The netbox-branching plugin is not installed on this server."
+    ) -> None:
         super().__init__(message)
 
 
 class BranchConflictError(RuntimeError):
     """Raised when a branching sync or merge action reports conflicts (HTTP 409)."""
 
-    def __init__(self, conflicts: list[Any] | dict[str, Any] | str, response: Any | None = None) -> None:
+    def __init__(
+        self, conflicts: list[Any] | dict[str, Any] | str, response: Any | None = None
+    ) -> None:
         self.conflicts = conflicts
         self.response = response
         if isinstance(conflicts, (list, tuple)):

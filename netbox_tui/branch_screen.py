@@ -75,9 +75,7 @@ class BranchPill(Static):
             self.add_class("-hidden")
 
 
-def apply_branch_to_client(
-    client: NetBoxApiClient, schema_id: str | None
-) -> None:
+def apply_branch_to_client(client: NetBoxApiClient, schema_id: str | None) -> None:
     """Set or clear the persistent ``X-NetBox-Branch`` header on the client."""
     if schema_id:
         client.persistent_headers[BRANCH_HEADER] = schema_id
@@ -127,9 +125,7 @@ class BranchSwitcherScreen(ModalScreen[tuple[str | None, str | None] | None]):
     def compose(self) -> ComposeResult:
         from textual.widgets import OptionList
 
-        options: list[Option] = [
-            Option("main (no active branch)", id="__main__")
-        ]
+        options: list[Option] = [Option("main (no active branch)", id="__main__")]
         for branch in self._branches:
             schema_id = str(branch.get("schema_id") or "")
             if not schema_id:

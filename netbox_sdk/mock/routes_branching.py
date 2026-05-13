@@ -159,10 +159,12 @@ def register_branching_mock_routes(app: FastAPI) -> None:
     async def branchable_models() -> dict[str, Any]:
         if _branching_disabled():
             raise HTTPException(status_code=404)
-        return _paginate([
-            {"app_label": "dcim", "model": "device"},
-            {"app_label": "ipam", "model": "prefix"},
-        ])
+        return _paginate(
+            [
+                {"app_label": "dcim", "model": "device"},
+                {"app_label": "ipam", "model": "prefix"},
+            ]
+        )
 
     @app.get("/api/plugins/branching/branches/", include_in_schema=False)
     async def list_branches(request: Request) -> dict[str, Any]:

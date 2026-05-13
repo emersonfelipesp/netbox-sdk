@@ -1075,9 +1075,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
                 self.state.active_branch_name,
             )
 
-    async def _ensure_branch_pill(
-        self, schema_id: str | None, name: str | None
-    ) -> None:
+    async def _ensure_branch_pill(self, schema_id: str | None, name: str | None) -> None:
         try:
             pill = self.query_one("#branch_pill", BranchPill)
         except NoMatches:
@@ -1112,9 +1110,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         schema_id, name = result
         await self._activate_branch(schema_id, name)
 
-    async def _activate_branch(
-        self, schema_id: str | None, name: str | None
-    ) -> None:
+    async def _activate_branch(self, schema_id: str | None, name: str | None) -> None:
         apply_branch_to_client(self.client, schema_id)
         self.state.active_branch_schema_id = schema_id
         self.state.active_branch_name = name

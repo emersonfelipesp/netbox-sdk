@@ -56,8 +56,8 @@ async def test_live_branching_create_list_delete_roundtrip() -> None:
 
     try:
         listed = await branching.list()
-        assert any(
-            str(b.get("schema_id") or "") == schema_id for b in listed
-        ), f"branch {schema_id} not present in list response"
+        assert any(str(b.get("schema_id") or "") == schema_id for b in listed), (
+            f"branch {schema_id} not present in list response"
+        )
     finally:
         await branching.delete(schema_id)

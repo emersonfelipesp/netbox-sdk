@@ -33,7 +33,7 @@ import re
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from netbox_sdk.exceptions import (
     BranchConflictError,
@@ -48,6 +48,12 @@ if TYPE_CHECKING:
     from netbox_sdk.facade import Api
 
 logger = logging.getLogger(__name__)
+
+# ``BranchingClient.list`` shadows the builtin ``list`` in class-scope
+# annotations. Bind the builtin to a private alias so return types like
+# ``_BuiltinList[dict[str, Any]]`` resolve correctly under static type
+# checkers (ty).
+_BuiltinList = list
 
 _SCHEMA_ID_RE = re.compile(r"^[a-z0-9]{8}$")
 _TERMINAL_JOB_STATUSES = frozenset({"completed", "errored", "failed", "terminated"})
@@ -116,7 +122,7 @@ class BranchingClient:
         # Other failures (auth, network) — surface them.
         raise RequestError(response)
 
-    async def branchable_models(self) -> list[dict[str, Any]]:
+    async def branchable_models(self) -> _BuiltinList[dict[str, Any]]:
         """List the NetBox models that participate in branching."""
         response = await self._client.request("GET", f"{self.BASE}/branchable-models/")
         _raise_for_status(response)
@@ -124,15 +130,15 @@ class BranchingClient:
         if isinstance(payload, dict) and "results" in payload:
             results = payload["results"]
             if isinstance(results, list):
-                return list(results)
+                return cast("list[dict[str, Any]]", list(results))
         if isinstance(payload, list):
-            return list(payload)
+            return cast("list[dict[str, Any]]", list(payload))
         raise ContentError(response)
 
     # ------------------------------------------------------------------
     # CRUD
     # ------------------------------------------------------------------
-    async def list(self, **filters: Any) -> list[dict[str, Any]]:
+    async def list(self, **filters: Any) -> _BuiltinList[dict[str, Any]]:
         """Return the list of branches matching ``filters`` (server-side query)."""
         return await self._list(f"{self.BASE}/branches/", filters)
 
@@ -258,11 +264,11 @@ class BranchingClient:
     # ------------------------------------------------------------------
     # Read-only collections
     # ------------------------------------------------------------------
-    async def events(self, **filters: Any) -> list[dict[str, Any]]:
+    async def events(self, **filters: Any) -> _BuiltinList[dict[str, Any]]:
         """List branch events matching ``filters``."""
         return await self._list(f"{self.BASE}/branch-events/", filters)
 
-    async def changes(self, **filters: Any) -> list[dict[str, Any]]:
+    async def changes(self, **filters: Any) -> _BuiltinList[dict[str, Any]]:
         """List recorded change-diffs matching ``filters``."""
         return await self._list(f"{self.BASE}/changes/", filters)
 
@@ -319,7 +325,7 @@ class BranchingClient:
     # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
-    async def _list(self, path: str, filters: dict[str, Any]) -> list[dict[str, Any]]:
+    async def _list(self, path: str, filters: dict[str, Any]) -> _BuiltinList[dict[str, Any]]:
         query = {k: v for k, v in filters.items() if v is not None} or None
         response = await self._client.request("GET", path, query=query)
         if response.status == 404:
@@ -329,9 +335,9 @@ class BranchingClient:
         if isinstance(payload, dict) and "results" in payload:
             results = payload["results"]
             if isinstance(results, list):
-                return list(results)
+                return cast("list[dict[str, Any]]", list(results))
         if isinstance(payload, list):
-            return list(payload)
+            return cast("list[dict[str, Any]]", list(payload))
         raise ContentError(response)
 
     async def _action(
@@ -358,9 +364,7 @@ class BranchingClient:
             job_id = self._job_id(payload)
             if job_id is None:
                 return payload
-            return await self.wait_for_job(
-                job_id, poll_interval=poll_interval, timeout=timeout
-            )
+            return await self.wait_for_job(job_id, poll_interval=poll_interval, timeout=timeout)
         return payload
 
     async def _resolve_pk(self, id_or_schema: int | str) -> int:
@@ -439,11 +443,7 @@ class BranchingClient:
                 payload = response.text
             conflicts: Any
             if isinstance(payload, dict):
-                conflicts = (
-                    payload.get("conflicts")
-                    or payload.get("detail")
-                    or payload
-                )
+                conflicts = payload.get("conflicts") or payload.get("detail") or payload
             else:
                 conflicts = payload
             raise BranchConflictError(conflicts, response=response)

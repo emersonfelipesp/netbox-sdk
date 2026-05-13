@@ -155,7 +155,9 @@ def cmd_update(
     """Patch branch fields."""
 
     fields: dict[str, Any] = {
-        k: v for k, v in {"name": name, "description": description, "comments": comments}.items() if v is not None
+        k: v
+        for k, v in {"name": name, "description": description, "comments": comments}.items()
+        if v is not None
     }
     if not fields:
         typer.echo("Provide at least one --name/--description/--comments to update.", err=True)
@@ -190,13 +192,17 @@ def _action_factory(verb: str) -> Callable[..., None]:
     @branching_app.command(verb)
     def _cmd(  # noqa: ANN202
         id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
-        commit: bool = typer.Option(True, "--commit/--no-commit", help="Apply changes (default true)."),
+        commit: bool = typer.Option(
+            True, "--commit/--no-commit", help="Apply changes (default true)."
+        ),
         acknowledge_conflicts: bool = typer.Option(
             False,
             "--acknowledge-conflicts",
             help="Skip conflicting objects rather than raising.",
         ),
-        wait: bool = typer.Option(True, "--wait/--no-wait", help="Wait for the background job to finish."),
+        wait: bool = typer.Option(
+            True, "--wait/--no-wait", help="Wait for the background job to finish."
+        ),
         timeout: float = typer.Option(600.0, "--timeout", help="Maximum seconds to wait."),
     ) -> None:
         f"""Queue a {verb} on the branch."""
