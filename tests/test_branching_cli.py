@@ -15,6 +15,7 @@ factory or the BranchingClient methods directly.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 import pytest
@@ -29,6 +30,29 @@ pytestmark = pytest.mark.suite_cli
 
 
 runner = CliRunner()
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(text: str) -> str:
+    """Strip ANSI escapes so assertions are styling-agnostic."""
+    return _ANSI_RE.sub("", text)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_scoped_headers():
+    """Reset the shared ``_scoped_headers`` ContextVar around every test.
+
+    The root CLI callback writes ``X-NetBox-Branch`` into this var when
+    ``--branch`` is passed, and CliRunner.invoke runs synchronously in
+    the current task — so the value persists across tests within a
+    pytest-xdist worker if we don't reset it explicitly.
+    """
+    token = _scoped_headers.set({})
+    try:
+        yield
+    finally:
+        _scoped_headers.reset(token)
 
 
 class _NoopClient:
@@ -100,14 +124,11 @@ def test_branch_alias_also_registered():
 def test_root_help_shows_branch_global_option():
     result = runner.invoke(nbx_app, ["--help"])
     assert result.exit_code == 0
-    assert "--branch" in result.stdout
+    assert "--branch" in _plain(result.stdout)
 
 
 def test_global_branch_option_sets_header(monkeypatch):
     """Passing --branch should seed _scoped_headers via the root callback."""
-    # Clear any leftover header
-    _scoped_headers.set({})
-
     captured: dict[str, dict[str, str] | None] = {}
 
     # Monkeypatch the runtime client factory so we can capture the headers

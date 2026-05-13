@@ -30,6 +30,22 @@ from netbox_sdk.mock.routes_branching import _reset as _reset_branching
 pytestmark = pytest.mark.suite_sdk
 
 
+@pytest.fixture(autouse=True)
+def _isolate_scoped_headers():
+    """Reset the shared ``_scoped_headers`` ContextVar around every test.
+
+    Other test modules (e.g. test_branching_cli) drive the CLI's
+    ``--branch`` flag which writes ``X-NetBox-Branch`` into this var; if
+    pytest-xdist co-locates those tests on the same worker, the residual
+    value survives into our ``activate()`` assertions.
+    """
+    token = _scoped_headers.set({})
+    try:
+        yield
+    finally:
+        _scoped_headers.reset(token)
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
