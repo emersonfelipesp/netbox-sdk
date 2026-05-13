@@ -65,6 +65,12 @@ from netbox_tui.ssl_verify_support import (
     maybe_resolve_ssl_verify_interactive,
     profile_for_netbox_client,
 )
+from netbox_tui.branch_screen import (
+    BRANCH_HEADER,
+    BranchPill,
+    BranchSwitcherScreen,
+    apply_branch_to_client,
+)
 from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state
 from netbox_tui.widgets import ContextBreadcrumb, NbxButton, SupportModal
 
@@ -97,6 +103,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         Binding("space", "toggle_select", "Toggle Row", priority=True),
         Binding("a", "toggle_select_all", "Select All", priority=True),
         Binding("d", "show_details", "Details", priority=True),
+        Binding("ctrl+b", "switch_branch", "Branch", priority=True),
     ]
 
     def __init__(
@@ -143,6 +150,9 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._results_spinner_index = 0
         self._results_spinner_timer: Timer | None = None
         self._results_loading_active = False
+        self.branching_available: bool = False
+        if self.state.active_branch_schema_id:
+            apply_branch_to_client(self.client, self.state.active_branch_schema_id)
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="topbar"):
@@ -363,6 +373,15 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
     def action_refresh(self) -> None:
         if self.current_group and self.current_resource:
             self._load_rows(self.current_group, self.current_resource)
+
+    def action_switch_branch(self) -> None:
+        if not self.branching_available:
+            self.notify(
+                "netbox-branching plugin is not installed on this NetBox.",
+                severity="warning",
+            )
+            return
+        self._open_branch_switcher()
 
     def action_show_details(self) -> None:
         tabs = self.query_one("#main_tabs", TabbedContent)
@@ -723,6 +742,7 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             self._load_rows(self.current_group, self.current_resource)
         self._probe_connection_health()
         self._discover_plugin_resources()
+        self._detect_branching()
         if self._connection_timer is None:
             self._connection_timer = self.set_interval(
                 30.0,
@@ -1024,6 +1044,96 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         self._build_navigation_tree()
         if self.current_group is None and self.current_resource is None:
             self._restore_last_view_if_any()
+
+    @work(group="branching_detect", exclusive=True, thread=False)
+    async def _detect_branching(self) -> None:
+        from netbox_sdk.branching import BranchingClient
+        from netbox_sdk.facade import Api
+
+        try:
+            available = await BranchingClient(Api(client=self.client)).is_available()
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("branching feature detection failed", exc_info=exc)
+            available = False
+
+        self.branching_available = available
+        if not available:
+            if self.state.active_branch_schema_id:
+                # The plugin is gone — clear stale persisted state.
+                self.state.active_branch_schema_id = None
+                self.state.active_branch_name = None
+                apply_branch_to_client(self.client, None)
+                save_tui_state(self.state, self._state_scope)
+            return
+
+        # The pill is only mounted once a branch is actually active. The
+        # default "main" state stays invisible so we don't reserve topbar
+        # space on the typical install where the plugin exists but the user
+        # is browsing main.
+        if self.state.active_branch_schema_id:
+            await self._ensure_branch_pill(
+                self.state.active_branch_schema_id,
+                self.state.active_branch_name,
+            )
+
+    async def _ensure_branch_pill(
+        self, schema_id: str | None, name: str | None
+    ) -> None:
+        try:
+            pill = self.query_one("#branch_pill", BranchPill)
+        except NoMatches:
+            pill = BranchPill(id="branch_pill")
+            try:
+                topbar_right = self.query_one("#topbar_right")
+            except NoMatches:
+                return
+            await self.mount(pill, before=topbar_right.query_one("#context_breadcrumb"))
+        pill.set_branch(schema_id, name)
+
+    @work(group="branching_switch", exclusive=True, thread=False)
+    async def _open_branch_switcher(self) -> None:
+        from netbox_sdk.branching import BranchingClient
+        from netbox_sdk.facade import Api
+
+        try:
+            branches = await BranchingClient(Api(client=self.client)).list()
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("branching list failed", exc_info=exc)
+            self.notify(f"Could not list branches: {exc}", severity="error")
+            return
+
+        result = await self.push_screen_wait(
+            BranchSwitcherScreen(
+                branches=branches,
+                active_schema_id=self.state.active_branch_schema_id,
+            )
+        )
+        if result is None:
+            return
+        schema_id, name = result
+        await self._activate_branch(schema_id, name)
+
+    async def _activate_branch(
+        self, schema_id: str | None, name: str | None
+    ) -> None:
+        apply_branch_to_client(self.client, schema_id)
+        self.state.active_branch_schema_id = schema_id
+        self.state.active_branch_name = name
+        save_tui_state(self.state, self._state_scope)
+        if schema_id:
+            await self._ensure_branch_pill(schema_id, name)
+            label = schema_id + (f" · {name}" if name else "")
+            self.notify(f"Switched to branch {label}")
+        else:
+            try:
+                pill = self.query_one("#branch_pill", BranchPill)
+            except NoMatches:
+                pass
+            else:
+                await pill.remove()
+            self.notify("Switched to main")
+        if self.current_group and self.current_resource:
+            self._load_rows(self.current_group, self.current_resource)
 
     def _prune_selection(self) -> None:
         valid_ids = {self._row_identity(row, idx) for idx, row in enumerate(self.current_rows)}
