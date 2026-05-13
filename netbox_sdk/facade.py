@@ -188,6 +188,16 @@ class Api:
         for name in APP_NAMES:
             setattr(self, name, App(self, name))
         self.plugins = PluginsApp(self)
+        self._branching: Any | None = None
+
+    @property
+    def branching(self) -> Any:
+        """Lazy accessor for :class:`netbox_sdk.branching.BranchingClient`."""
+        if self._branching is None:
+            from netbox_sdk.branching import BranchingClient  # noqa: PLC0415
+
+            self._branching = BranchingClient(self)
+        return self._branching
 
     async def _resolve_pagination_mode(self) -> ResolvedPaginationMode:
         """Resolve ``"auto"`` to a concrete pagination mode for the running server.
