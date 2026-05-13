@@ -71,6 +71,15 @@ O repositório inclui bundles OpenAPI versionados e modelos Pydantic gerados par
 NetBox `4.6`, `4.5`, `4.4` e `4.3`. Não é necessário executar geração de código
 localmente. A CI testa o SDK contra `v4.6.0`, `v4.5.9` e `v4.5.8`.
 
+## Type hints na IDE
+
+Os três pacotes instalados (`netbox_sdk`, `netbox_cli`, `netbox_tui`) trazem
+marcadores `py.typed` (PEP 561). Pylance, Pyright e outros editores compatíveis
+com PEP 561 resolvem tipos automaticamente a partir da wheel instalada — sem
+configuração extra. Veja o guia do desenvolvedor
+[Suporte de IDE](../developer/ide-support.md) para o workspace de contribuidor
+e os gates duplos no pre-commit.
+
 ## Qual instalação escolher?
 
 - `pip install netbox-sdk` se você só precisa do SDK Python

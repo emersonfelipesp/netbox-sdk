@@ -9,3 +9,4 @@ Technical documentation for contributors and anyone building on top of `netbox-s
 - [Design principles](design-principles.md) — SOLID-aligned conventions for this repo
 - [Textual Composition Pattern](textual-composition.md) — React-style composition guideline for Textual widgets
 - [Documentation Generation](docgen.md) — the command capture system and CI workflow
+- [IDE Support](ide-support.md) — VS Code workspace, Pylance via PEP 561 markers, and the dual `ty` + `pyright` checker gates
