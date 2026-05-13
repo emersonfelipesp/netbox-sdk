@@ -665,6 +665,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#type-hints-na-ide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type hints na IDE
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#qual-instalacao-escolher" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2592,6 +2603,8 @@
       
         
       
+        
+      
     
     
     
@@ -2851,6 +2864,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../developer/ide-support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Suporte de IDE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../command-capture-guide/" class="md-nav__link">
         
   
@@ -2971,6 +3012,17 @@
     <span class="md-ellipsis">
       
         Suporte ao SDK tipado
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-hints-na-ide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type hints na IDE
       
     </span>
   </a>
@@ -3127,6 +3179,13 @@ SDK tipado versionado, incluindo <code>pydantic</code> e <code>email-validator</
 <p>O repositório inclui bundles OpenAPI versionados e modelos Pydantic gerados para
 NetBox <code>4.6</code>, <code>4.5</code>, <code>4.4</code> e <code>4.3</code>. Não é necessário executar geração de código
 localmente. A CI testa o SDK contra <code>v4.6.0</code>, <code>v4.5.9</code> e <code>v4.5.8</code>.</p>
+<h2 id="type-hints-na-ide">Type hints na IDE<a class="headerlink" href="#type-hints-na-ide" title="Permanent link">&para;</a></h2>
+<p>Os três pacotes instalados (<code>netbox_sdk</code>, <code>netbox_cli</code>, <code>netbox_tui</code>) trazem
+marcadores <code>py.typed</code> (PEP 561). Pylance, Pyright e outros editores compatíveis
+com PEP 561 resolvem tipos automaticamente a partir da wheel instalada — sem
+configuração extra. Veja o guia do desenvolvedor
+<a href="../../developer/ide-support/">Suporte de IDE</a> para o workspace de contribuidor
+e os gates duplos no pre-commit.</p>
 <h2 id="qual-instalacao-escolher">Qual instalação escolher?<a class="headerlink" href="#qual-instalacao-escolher" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>pip install netbox-sdk</code> se você só precisa do SDK Python</li>

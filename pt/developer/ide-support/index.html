@@ -10,35 +10,35 @@
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/pt/tui/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/pt/developer/ide-support/">
       
       
-        <link rel="prev" href="./">
+        <link rel="prev" href="../docgen/">
       
       
-        <link rel="next" href="dev-workbench/">
+        <link rel="next" href="../../command-capture-guide/">
       
       
         
-          <link rel="alternate" href="../../tui/" hreflang="en">
+          <link rel="alternate" href="../../../developer/ide-support/" hreflang="en">
         
           <link rel="alternate" href="./" hreflang="pt">
         
       
       
-      <link rel="icon" href="../../assets/logo.svg">
+      <link rel="icon" href="../../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Guia da TUI - NetBox SDK</title>
+        <title>Suporte de IDE - NetBox SDK</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -57,9 +57,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../../../assets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#guia-da-tui" class="md-skip">
+        <a href="#suporte-de-ide" class="md-skip">
           Ir para o conteúdo
         </a>
       
@@ -100,9 +100,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
-    <a href="../" title="NetBox SDK" class="md-header__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
+    <a href="../../" title="NetBox SDK" class="md-header__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Guia da TUI
+              Suporte de IDE
             
           </span>
         </div>
@@ -166,7 +166,7 @@
       <ul class="md-select__list">
         
           <li class="md-select__item">
-            <a href="../../tui/" hreflang="en" class="md-select__link">
+            <a href="../../../developer/ide-support/" hreflang="en" class="md-select__link">
               English
             </a>
           </li>
@@ -252,7 +252,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../" class="md-tabs__link">
+      <a href="../../" class="md-tabs__link">
         
   
   
@@ -273,7 +273,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../getting-started/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -295,7 +295,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../sdk/" class="md-tabs__link">
+        <a href="../../sdk/" class="md-tabs__link">
           
   
   
@@ -317,7 +317,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../mock-api/" class="md-tabs__link">
+        <a href="../../mock-api/" class="md-tabs__link">
           
   
   
@@ -339,7 +339,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../cli/" class="md-tabs__link">
+        <a href="../../cli/" class="md-tabs__link">
           
   
   
@@ -357,13 +357,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../tui/" class="md-tabs__link">
           
   
   
@@ -381,11 +379,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../developer/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -427,9 +427,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../" title="NetBox SDK" class="md-nav__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
+    <a href="../../" title="NetBox SDK" class="md-nav__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../../../assets/logo.svg" alt="logo">
 
     </a>
     NetBox SDK
@@ -456,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         
   
   
@@ -514,7 +514,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../getting-started/" class="md-nav__link ">
+            <a href="../../getting-started/" class="md-nav__link ">
               
   
   
@@ -558,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/installation/" class="md-nav__link">
+      <a href="../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -586,7 +586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/configuration/" class="md-nav__link">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
         
   
   
@@ -614,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/quickstart/" class="md-nav__link">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
         
   
   
@@ -686,7 +686,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../sdk/" class="md-nav__link ">
+            <a href="../../sdk/" class="md-nav__link ">
               
   
   
@@ -730,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sdk/authentication/" class="md-nav__link">
+      <a href="../../sdk/authentication/" class="md-nav__link">
         
   
   
@@ -758,7 +758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sdk/making-requests/" class="md-nav__link">
+      <a href="../../sdk/making-requests/" class="md-nav__link">
         
   
   
@@ -786,7 +786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sdk/facade/" class="md-nav__link">
+      <a href="../../sdk/facade/" class="md-nav__link">
         
   
   
@@ -814,7 +814,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sdk/typed/" class="md-nav__link">
+      <a href="../../sdk/typed/" class="md-nav__link">
         
   
   
@@ -842,7 +842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sdk/schema/" class="md-nav__link">
+      <a href="../../sdk/schema/" class="md-nav__link">
         
   
   
@@ -870,7 +870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sdk/error-handling/" class="md-nav__link">
+      <a href="../../sdk/error-handling/" class="md-nav__link">
         
   
   
@@ -940,7 +940,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../mock-api/" class="md-nav__link ">
+            <a href="../../mock-api/" class="md-nav__link ">
               
   
   
@@ -984,7 +984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mock-api/crud/" class="md-nav__link">
+      <a href="../../mock-api/crud/" class="md-nav__link">
         
   
   
@@ -1012,7 +1012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mock-api/bulk-operations/" class="md-nav__link">
+      <a href="../../mock-api/bulk-operations/" class="md-nav__link">
         
   
   
@@ -1040,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mock-api/pagination-filtering/" class="md-nav__link">
+      <a href="../../mock-api/pagination-filtering/" class="md-nav__link">
         
   
   
@@ -1068,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mock-api/pytest-integration/" class="md-nav__link">
+      <a href="../../mock-api/pytest-integration/" class="md-nav__link">
         
   
   
@@ -1096,7 +1096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mock-api/standalone-server/" class="md-nav__link">
+      <a href="../../mock-api/standalone-server/" class="md-nav__link">
         
   
   
@@ -1168,7 +1168,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../cli/" class="md-nav__link ">
+            <a href="../../cli/" class="md-nav__link ">
               
   
   
@@ -1212,7 +1212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/commands/" class="md-nav__link">
+      <a href="../../cli/commands/" class="md-nav__link">
         
   
   
@@ -1240,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/dynamic-commands/" class="md-nav__link">
+      <a href="../../cli/dynamic-commands/" class="md-nav__link">
         
   
   
@@ -1268,7 +1268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/graphql/" class="md-nav__link">
+      <a href="../../cli/graphql/" class="md-nav__link">
         
   
   
@@ -1296,7 +1296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/demo-profile/" class="md-nav__link">
+      <a href="../../cli/demo-profile/" class="md-nav__link">
         
   
   
@@ -1361,7 +1361,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../reference/cli/command-examples/" class="md-nav__link ">
+            <a href="../../reference/cli/command-examples/" class="md-nav__link ">
               
   
   
@@ -1405,7 +1405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/command-examples/core-commands/" class="md-nav__link">
+      <a href="../../reference/cli/command-examples/core-commands/" class="md-nav__link">
         
   
   
@@ -1433,7 +1433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/command-examples/schema-discovery/" class="md-nav__link">
+      <a href="../../reference/cli/command-examples/schema-discovery/" class="md-nav__link">
         
   
   
@@ -1461,7 +1461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/command-examples/graphql-and-http/" class="md-nav__link">
+      <a href="../../reference/cli/command-examples/graphql-and-http/" class="md-nav__link">
         
   
   
@@ -1489,7 +1489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/command-examples/dynamic-commands/" class="md-nav__link">
+      <a href="../../reference/cli/command-examples/dynamic-commands/" class="md-nav__link">
         
   
   
@@ -1517,7 +1517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/command-examples/developer-tools/" class="md-nav__link">
+      <a href="../../reference/cli/command-examples/developer-tools/" class="md-nav__link">
         
   
   
@@ -1545,7 +1545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/cli/command-examples/demo-profile/" class="md-nav__link">
+      <a href="../../reference/cli/command-examples/demo-profile/" class="md-nav__link">
         
   
   
@@ -1581,7 +1581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../generated/nbx-command-capture/" class="md-nav__link">
+      <a href="../../generated/nbx-command-capture/" class="md-nav__link">
         
   
   
@@ -1597,6 +1597,831 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tui/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TUI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/dev-workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bancada do desenvolvedor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/cli-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Construtor de CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizador de logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/django-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador de modelos Django
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/tui/launch-examples/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saída de comandos de lançamento
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Saída de comandos de lançamento
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/main-browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador principal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/logs-viewer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizador de logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/developer-workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bancada do desenvolvedor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/graphql-tui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/cli-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Construtor de CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/django-models-browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador de modelos Django
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/themes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Temas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/keybindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atalhos de teclado
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_11" id="__nav_6_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Galeria de capturas de tela
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Galeria de capturas de tela
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capturas de tela da TUI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots-default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador principal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots-dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bancada do desenvolvedor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots-graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizador de logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots-cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Construtor de CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/screenshots-django/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador de modelos Django
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1660,842 +2485,11 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    TUI
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link md-nav__link--active" for="__nav_6" id="__nav_6_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    TUI
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="dev-workbench/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bancada do desenvolvedor
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="graphql/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    TUI GraphQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="cli-builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Construtor de CLI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="logs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Visualizador de logs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="django-models/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Navegador de modelos Django
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_8" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../reference/tui/launch-examples/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Saída de comandos de lançamento
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Saída de comandos de lançamento
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/tui/launch-examples/main-browser/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Navegador principal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/tui/launch-examples/logs-viewer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Visualizador de logs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/tui/launch-examples/developer-workbench/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bancada do desenvolvedor
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/tui/launch-examples/graphql-tui/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    TUI GraphQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/tui/launch-examples/cli-builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Construtor de CLI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reference/tui/launch-examples/django-models-browser/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Navegador de modelos Django
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="themes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Temas
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="keybindings/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Atalhos de teclado
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_11" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_11" id="__nav_6_11_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Galeria de capturas de tela
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_11_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_11">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Galeria de capturas de tela
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Capturas de tela da TUI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots-default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Navegador principal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots-dev/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bancada do desenvolvedor
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots-graphql/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    TUI GraphQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots-logs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Visualizador de logs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots-cli/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Construtor de CLI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="screenshots-django/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Navegador de modelos Django
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../developer/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -2513,13 +2507,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2539,7 +2533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -2567,7 +2561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/sdk-internals/" class="md-nav__link">
+      <a href="../sdk-internals/" class="md-nav__link">
         
   
   
@@ -2595,7 +2589,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/integration-with-proxbox-api/" class="md-nav__link">
+      <a href="../integration-with-proxbox-api/" class="md-nav__link">
         
   
   
@@ -2623,7 +2617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/package-integration/" class="md-nav__link">
+      <a href="../package-integration/" class="md-nav__link">
         
   
   
@@ -2651,7 +2645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/design-principles/" class="md-nav__link">
+      <a href="../design-principles/" class="md-nav__link">
         
   
   
@@ -2679,7 +2673,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/textual-composition/" class="md-nav__link">
+      <a href="../textual-composition/" class="md-nav__link">
         
   
   
@@ -2707,7 +2701,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../developer/docgen/" class="md-nav__link">
+      <a href="../docgen/" class="md-nav__link">
         
   
   
@@ -2732,10 +2726,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../developer/ide-support/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Suporte de IDE
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2751,6 +2772,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#vs-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VS Code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gates-de-checagem-de-tipo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gates de checagem de tipo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gates de checagem de tipo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caminhos-excluidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caminhos excluídos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#severidade-de-regras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severidade de regras
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumidores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumidores
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2763,7 +2865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../command-capture-guide/" class="md-nav__link">
+      <a href="../../command-capture-guide/" class="md-nav__link">
         
   
   
@@ -2791,7 +2893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../NETBOX_UI_TO_TEXTUAL_GUIDELINES/" class="md-nav__link">
+      <a href="../../NETBOX_UI_TO_TEXTUAL_GUIDELINES/" class="md-nav__link">
         
   
   
@@ -2846,10 +2948,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#lancar-a-tui" class="md-nav__link">
+  <a href="#vs-code" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lançar a TUI
+        VS Code
       
     </span>
   </a>
@@ -2857,33 +2959,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout" class="md-nav__link">
+  <a href="#gates-de-checagem-de-tipo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout
+        Gates de checagem de tipo
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#abas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Abas
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Abas">
+    <nav class="md-nav" aria-label="Gates de checagem de tipo">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#resultados" class="md-nav__link">
+  <a href="#caminhos-excluidos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resultados
+        Caminhos excluídos
       
     </span>
   </a>
@@ -2891,21 +2982,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#detalhes" class="md-nav__link">
+  <a href="#severidade-de-regras" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Detalhes
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#filtros" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Filtros
+        Severidade de regras
       
     </span>
   </a>
@@ -2918,60 +2998,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#arvore-de-navegacao" class="md-nav__link">
+  <a href="#consumidores" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Árvore de navegação
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Árvore de navegação">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#recursos-de-plugin" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Recursos de plugin
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pesquisa" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pesquisa
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#persistencia-de-estado" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Persistência de estado
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ver-tambem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Ver também
+        Consumidores
       
     </span>
   </a>
@@ -3003,7 +3033,7 @@
   
   
     <li class="md-path__item">
-      <a href="../" class="md-path__link">
+      <a href="../../" class="md-path__link">
         
   <span class="md-ellipsis">
     Início
@@ -3021,10 +3051,10 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    TUI
+    Guia do desenvolvedor
   </span>
 
         </a>
@@ -3046,119 +3076,79 @@
   
 
 
-<h1 id="guia-da-tui">Guia da TUI<a class="headerlink" href="#guia-da-tui" title="Permanent link">&para;</a></h1>
-<p>O NetBox SDK inclui várias aplicações Textual. O ponto de entrada principal é
-<code>nbx tui</code>, um navegador em tela cheia para recursos NetBox que compartilha a mesma
-config, cliente de API e índice de esquema que a CLI e o SDK Python.</p>
-<p>Outros pontos de entrada da TUI especializam-se em desenvolvimento, logs, composição guiada de comandos,
-exploração GraphQL e inspeção de modelos Django:</p>
+<h1 id="suporte-de-ide">Suporte de IDE<a class="headerlink" href="#suporte-de-ide" title="Permanent link">&para;</a></h1>
+<p>Todos os três pacotes — <code>netbox_sdk</code>, <code>netbox_cli</code> e <code>netbox_tui</code> — incluem um
+marcador <code>py.typed</code> (<a href="https://peps.python.org/pep-0561/">PEP 561</a>) e estão
+listados em <code>package-data</code> da wheel. Editores que leem PEP 561 (VS Code via
+Pylance, PyCharm, Pyright na linha de comando) resolvem tipos a partir de uma
+instalação de <code>netbox-sdk</code> sem configuração adicional.</p>
+<h2 id="vs-code">VS Code<a class="headerlink" href="#vs-code" title="Permanent link">&para;</a></h2>
+<p>O repositório versiona um workspace mínimo em <code>.vscode/</code> para que um clone novo
+já tenha uma IDE funcional no primeiro abrir. Quando o VS Code sugerir
+instalar as extensões recomendadas, aceite:</p>
 <ul>
-<li><code>nbx tui</code> para o navegador principal</li>
-<li><code>nbx dev tui</code> para a bancada do desenvolvedor</li>
-<li><code>nbx graphql tui</code> para navegação interativa do esquema GraphQL e execução de consultas</li>
-<li><code>nbx cli tui</code> para montagem guiada de comandos</li>
-<li><code>nbx tui logs</code> para o visualizador de logs em tela cheia</li>
-<li><code>nbx logs</code> para o tail de log simples na CLI</li>
-<li><code>nbx dev django-model tui</code> para inspeção de modelos voltada a contribuidores</li>
+<li><code>ms-python.python</code></li>
+<li><code>ms-python.vscode-pylance</code></li>
+<li><code>charliermarsh.ruff</code></li>
 </ul>
-<p>A TUI principal também descobre recursos de plugins e objetos customizados
-dinamicamente. Se um plugin NetBox expõe uma API REST sob <code>/api/plugins/</code>, ou
-um ObjectType público anuncia um endpoint REST, <code>nbx tui</code> e <code>nbx dev tui</code> podem
-adicionar esses recursos à barra lateral automaticamente e carregar seus dados
-como qualquer recurso NetBox integrado.</p>
-<hr />
-<h2 id="lancar-a-tui">Lançar a TUI<a class="headerlink" href="#lancar-a-tui" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nbx<span class="w"> </span>tui<span class="w">                    </span><span class="c1"># perfil default</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula<span class="w">    </span><span class="c1"># tema específico</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w">            </span><span class="c1"># listar temas disponíveis</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui<span class="w">               </span><span class="c1"># perfil demo (demo.netbox.dev)</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w">                </span><span class="c1"># bancada de requisições do desenvolvedor</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dev<span class="w"> </span>tui<span class="w">           </span><span class="c1"># bancada no demo.netbox.dev</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w">            </span><span class="c1"># explorador e executor GraphQL</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>nbx<span class="w"> </span>demo<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w">       </span><span class="c1"># explorador GraphQL no demo.netbox.dev</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>nbx<span class="w"> </span>cli<span class="w"> </span>tui<span class="w">                </span><span class="c1"># construtor de comandos guiado</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>nbx<span class="w"> </span>tui<span class="w"> </span>logs<span class="w">               </span><span class="c1"># visualizador de logs em tela cheia</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>nbx<span class="w"> </span>logs<span class="w">                   </span><span class="c1"># tail de log simples na CLI</span>
+<p>O <code>.vscode/settings.json</code> aponta o interpretador para
+<code>${workspaceFolder}/.venv/bin/python</code>, ativa indexação e auto-import do
+Pylance, e usa o Ruff como formatador no save.
+<code>python.analysis.typeCheckingMode</code> é <code>basic</code> para casar com o bloco
+<code>[tool.pyright]</code> do <code>pyproject.toml</code>, então os diagnósticos ao vivo do editor
+batem com o gate do pre-commit.</p>
+<h2 id="gates-de-checagem-de-tipo">Gates de checagem de tipo<a class="headerlink" href="#gates-de-checagem-de-tipo" title="Permanent link">&para;</a></h2>
+<p>Dois type checkers rodam sobre a mesma árvore de código, no mesmo nível
+<code>basic</code>:</p>
+<ul>
+<li><strong><code>ty</code></strong> (Astral) — usado pelo hook <code>ty-check</code> no pre-commit e na CI;
+  feedback rápido sobre SDK e pacotes CLI/TUI.</li>
+<li><strong><code>pyright</code></strong> (compatível com Pylance) — usado pelo hook <code>pyright-check</code>
+  no pre-commit, então o que o Pylance mostra no VS Code é o que falha nos
+  hooks de commit.</li>
+</ul>
+<p>Para rodar manualmente:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ty<span class="w"> </span>check<span class="w"> </span>netbox_sdk<span class="w"> </span>netbox_cli<span class="w"> </span>netbox_tui<span class="w"> </span>tests
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pyright<span class="w"> </span>netbox_sdk<span class="w"> </span>netbox_cli<span class="w"> </span>netbox_tui
 </span></code></pre></div>
-<hr />
-<h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌─────────────────────────────────────────────────────────────┐
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│  Tema ▾   [barra de pesquisa]                     NetBox SDK │
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├────────────────┬────────────────────────────────────────────┤
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│  Navegação     │  Resultados │ Detalhes │ Filtros          │
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│                │                                            │
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│  ▼ circuits    │  [Tabela de resultados]                    │
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│  ▼ core        │                                            │
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│  ▼ dcim        │                                            │
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│    ▸ devices   │  [Painel de detalhe quando linha selecionada]│
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│    ▸ sites     │                                            │
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│    ▸ …         │                                            │
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│  ▼ ipam        │                                            │
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│    ▸ prefixes  │                                            │
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│    ▸ …         │                                            │
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│                │                                            │
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>├────────────────┴────────────────────────────────────────────┤
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│  Barra de status / dicas de ajuda                           │
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>└─────────────────────────────────────────────────────────────┘
-</span></code></pre></div>
-<hr />
-<h2 id="abas">Abas<a class="headerlink" href="#abas" title="Permanent link">&para;</a></h2>
-<h3 id="resultados">Resultados<a class="headerlink" href="#resultados" title="Permanent link">&para;</a></h3>
-<p>A visão principal de dados. Selecionar um recurso na árvore de navegação carrega seus objetos na tabela de resultados. As linhas são renderizadas com colunas priorizadas (<code>id</code>, <code>name</code>, <code>status</code>, <code>site</code>, <code>role</code>, …).</p>
+<p>Ambos os gates precisam passar antes do commit. O hook <code>pyright-check</code> fica
+junto do <code>ty-check</code> em <code>.pre-commit-config.yaml</code>; <code>uv run pre-commit run --all-files</code>
+exercita os dois.</p>
+<h3 id="caminhos-excluidos">Caminhos excluídos<a class="headerlink" href="#caminhos-excluidos" title="Permanent link">&para;</a></h3>
+<p>Código gerado e em bundle é excluído de ambos os checkers para manter as
+verificações rápidas e evitar ruído de bindings gerados:</p>
 <ul>
-<li><code>Space</code> alterna seleção em uma linha.</li>
-<li><code>A</code> alterna todas as linhas visíveis.</li>
-<li><code>D</code> ou clique em uma linha abre a visão de detalhe.</li>
+<li><code>netbox_sdk/models/**</code></li>
+<li><code>netbox_sdk/typed_versions/**</code></li>
+<li><code>tests/**</code> (para <code>pyright</code>; o <code>ty</code> checa testes mas silencia <code>all</code> no
+  bloco de overrides)</li>
 </ul>
-<h3 id="detalhes">Detalhes<a class="headerlink" href="#detalhes" title="Permanent link">&para;</a></h3>
-<p>Mostra os atributos completos do objeto em um painel chave-valor. Para <code>dcim/interfaces</code> com cabo conectado, um diagrama ASCII de trace de cabo é renderizado abaixo dos atributos.</p>
-<h3 id="filtros">Filtros<a class="headerlink" href="#filtros" title="Permanent link">&para;</a></h3>
-<p>Formulário para aplicar filtros de query da API ao recurso atual. Pressione <code>F</code> para abrir o modal de filtros.</p>
-<hr />
-<h2 id="arvore-de-navegacao">Árvore de navegação<a class="headerlink" href="#arvore-de-navegacao" title="Permanent link">&para;</a></h2>
-<p>O painel esquerdo mostra todos os grupos de app NetBox como seções expansíveis. Clique em um recurso para carregar sua lista, ou use navegação por teclado:</p>
+<h3 id="severidade-de-regras">Severidade de regras<a class="headerlink" href="#severidade-de-regras" title="Permanent link">&para;</a></h3>
+<p><code>[tool.pyright]</code> rebaixa um conjunto pequeno de regras para <code>warning</code> para
+que elas apareçam no editor sem quebrar o gate do pre-commit. Essas regras
+espelham o que o <code>ty</code> já silencia, mais os análogos do pyright que apareceram
+no código existente:</p>
 <ul>
-<li><code>G</code> — foca a árvore de navegação</li>
-<li>Setas — move entre nós</li>
-<li><code>Enter</code> — seleciona / expande um nó</li>
+<li><code>reportAttributeAccessIssue</code></li>
+<li><code>reportArgumentType</code></li>
+<li><code>reportAssignmentType</code></li>
+<li><code>reportRedeclaration</code></li>
+<li><code>reportInvalidTypeArguments</code></li>
 </ul>
-<h3 id="recursos-de-plugin">Recursos de plugin<a class="headerlink" href="#recursos-de-plugin" title="Permanent link">&para;</a></h3>
-<p>Recursos REST de plugins / objetos customizados são anexados sob um menu <code>Plugins</code> automaticamente quando a instância NetBox conectada os expõe sob <code>/api/plugins/</code> ou os informa por <code>/api/core/object-types/</code>.</p>
+<p>Corrigir a dívida de tipos correspondente é uma tarefa separada de fazer a
+IDE funcionar; tratar esses warnings não deve acontecer como efeito colateral
+de outras mudanças.</p>
+<h2 id="consumidores">Consumidores<a class="headerlink" href="#consumidores" title="Permanent link">&para;</a></h2>
+<p>Se você instalar <code>netbox-sdk</code> do PyPI em outro projeto, o Pylance pega os
+type hints empacotados automaticamente — não há nada para habilitar no
+repositório que consome. A wheel inclui:</p>
 <ul>
-<li>não é necessária lista hardcoded de plugins</li>
-<li>recursos de plugin aparecem em <code>nbx tui</code> e <code>nbx dev tui</code></li>
-<li>se o plugin expõe endpoints REST de lista/detalhe, a TUI pode navegar e renderizar os dados retornados como recursos integrados</li>
-<li>modelos privados ou dados de plugins sem endpoints REST são ignorados</li>
+<li><code>netbox_sdk/py.typed</code></li>
+<li><code>netbox_cli/py.typed</code></li>
+<li><code>netbox_tui/py.typed</code></li>
 </ul>
-<hr />
-<h2 id="pesquisa">Pesquisa<a class="headerlink" href="#pesquisa" title="Permanent link">&para;</a></h2>
-<p>Pressione <code>/</code> para focar a barra de pesquisa superior. Digitar filtra a tabela de resultados carregada em tempo real.</p>
-<hr />
-<h2 id="persistencia-de-estado">Persistência de estado<a class="headerlink" href="#persistencia-de-estado" title="Permanent link">&para;</a></h2>
-<p>A TUI salva e restaura:</p>
-<ul>
-<li>Último recurso selecionado</li>
-<li>Filtros aplicados</li>
-<li>Tema ativo</li>
-</ul>
-<p>O estado fica sob a raiz de config do NetBox SDK, tipicamente
-<code>~/.config/netbox-sdk/tui_state.json</code>. Arquivos de estado antigos do <code>netbox-cli</code> ainda são
-lidos automaticamente quando presentes.</p>
-<hr />
-<h2 id="ver-tambem">Ver também<a class="headerlink" href="#ver-tambem" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="dev-workbench/">Bancada do desenvolvedor</a></li>
-<li><a href="graphql/">TUI GraphQL</a></li>
-<li><a href="cli-builder/">Construtor de CLI</a></li>
-<li><a href="logs/">Visualizador de logs</a></li>
-<li><a href="django-models/">Navegador de modelos Django</a></li>
-<li><a href="../reference/tui/launch-examples/">Saída de comandos de lançamento</a></li>
-<li><a href="themes/">Temas</a></li>
-<li><a href="keybindings/">Atalhos de teclado</a></li>
-</ul>
+<p>Passar o mouse em <code>NetBoxApiClient</code>, <code>api()</code> ou <code>typed_api()</code> em um código
+consumidor resolve para os tipos reais.</p>
 
 
 
@@ -3232,10 +3222,10 @@ lidos automaticamente quando presentes.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.path", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "Mais 1 nesta p\u00e1gina", "search.result.more.other": "Mais # nesta p\u00e1gina", "search.result.none": "Nenhum resultado encontrado", "search.result.one": "1 resultado encontrado", "search.result.other": "# resultados encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.path", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "Mais 1 nesta p\u00e1gina", "search.result.more.other": "Mais # nesta p\u00e1gina", "search.result.none": "Nenhum resultado encontrado", "search.result.one": "1 resultado encontrado", "search.result.other": "# resultados encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

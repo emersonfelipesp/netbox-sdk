@@ -665,6 +665,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ide-type-hints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IDE type hints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#which-install-should-i-pick" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2592,6 +2603,8 @@
       
         
       
+        
+      
     
     
     
@@ -2851,6 +2864,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../developer/ide-support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../command-capture-guide/" class="md-nav__link">
         
   
@@ -2971,6 +3012,17 @@
     <span class="md-ellipsis">
       
         Typed SDK support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ide-type-hints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IDE type hints
       
     </span>
   </a>
@@ -3127,6 +3179,12 @@ the versioned typed SDK, including <code>pydantic</code> and <code>email-validat
 <p>The repository ships committed OpenAPI bundles and generated Pydantic models for
 NetBox <code>4.6</code>, <code>4.5</code>, <code>4.4</code>, and <code>4.3</code>. Users do not need to run code generation
 locally. CI live-tests the SDK against <code>v4.6.0</code>, <code>v4.5.9</code>, and <code>v4.5.8</code>.</p>
+<h2 id="ide-type-hints">IDE type hints<a class="headerlink" href="#ide-type-hints" title="Permanent link">&para;</a></h2>
+<p>All three installed packages (<code>netbox_sdk</code>, <code>netbox_cli</code>, <code>netbox_tui</code>) ship
+PEP 561 <code>py.typed</code> markers. Pylance, Pyright, and other PEP 561-aware editors
+resolve types automatically from the installed wheel — no extra setup. See the
+<a href="../../developer/ide-support/">IDE Support</a> developer guide for the contributor
+workspace and dual-checker pre-commit gates.</p>
 <h2 id="which-install-should-i-pick">Which install should I pick?<a class="headerlink" href="#which-install-should-i-pick" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>pip install netbox-sdk</code> if you only need the Python SDK</li>
