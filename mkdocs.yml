@@ -83,6 +83,7 @@ plugins:
             Typed API: API tipada
             Schema Indexing: Indexação de esquema
             Error Handling: Tratamento de erros
+            Branching: Branching
             Mock API: API Mock
             CRUD Operations: Operações CRUD
             Bulk Operations: Operações em lote
@@ -179,6 +180,7 @@ nav:
     - Typed API: sdk/typed.md
     - Schema Indexing: sdk/schema.md
     - Error Handling: sdk/error-handling.md
+    - Branching: sdk/branching.md
   - Mock API:
     - mock-api/index.md
     - CRUD Operations: mock-api/crud.md
@@ -192,6 +194,7 @@ nav:
     - Dynamic Commands: cli/dynamic-commands.md
     - GraphQL: cli/graphql.md
     - Demo Profile: cli/demo-profile.md
+    - Branching: cli/branching.md
     - Captured Command Output:
       - reference/cli/command-examples/index.md
       - Core Commands: reference/cli/command-examples/core-commands.md
@@ -219,6 +222,7 @@ nav:
       - Django Models Browser: reference/tui/launch-examples/django-models-browser.md
     - Themes: tui/themes.md
     - Keyboard Shortcuts: tui/keybindings.md
+    - Branching: tui/branching.md
     - Screenshot Gallery:
       - tui/screenshots.md
       - Main Browser: tui/screenshots-default.md
@@ -241,7 +245,7 @@ nav:
     - NetBox UI Guidelines: NETBOX_UI_TO_TEXTUAL_GUIDELINES.md
 
 extra:
-  package_version: "0.0.8.post1"
+  package_version: "0.0.9"
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/emersonfelipesp/netbox-sdk

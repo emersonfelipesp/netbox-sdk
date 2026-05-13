@@ -461,6 +461,13 @@ jobs:
           echo "NETBOX_TOKEN_SECRET=0123456789abcdef0123456789abcdef01234567" >> $GITHUB_ENV
           echo "NETBOX_URL=http://localhost:8080" >> $GITHUB_ENV
 
+      # tests/test_branching_live.py auto-skips when ``netbox-branching`` is
+      # not installed, so the live suite stays green on the stock image. The
+      # matrix can opt into branching coverage by adding an install step
+      # before this point in a follow-up that wires the plugin's
+      # configuration.py requirements (DynamicSchemaDict, database router,
+      # event pipeline) into the running container.
+
       - name: Run live NetBox integration tests
         env:
           NETBOX_URL: ${{ env.NETBOX_URL }}

@@ -12,7 +12,12 @@ from pydantic import BaseModel, Field
 
 from netbox_sdk.client import NetBoxApiClient
 from netbox_sdk.models.v4_5 import *  # noqa: F403, F405
-from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase, build_typed_client
+from netbox_sdk.typed_runtime import (
+    RawBranchingApp,
+    TypedApiBase,
+    TypedAppBase,
+    build_typed_client,
+)
 
 
 class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
@@ -32295,6 +32300,17 @@ class WirelessApp(TypedAppBase):
         return WirelessWirelessLinksEndpoint(self._api)
 
 
+class PluginsApp(TypedAppBase):
+    """Typed-client access to NetBox plugin endpoints."""
+
+    def __init__(self, api: TypedApiBase) -> None:
+        super().__init__(api)
+
+    @property
+    def branching(self) -> RawBranchingApp:
+        return RawBranchingApp(self._api)
+
+
 class TypedApiV4_5(TypedApiBase):
     def __init__(self, client: NetBoxApiClient) -> None:
         super().__init__(client=client, netbox_version="4.5")
@@ -32303,6 +32319,7 @@ class TypedApiV4_5(TypedApiBase):
         self.dcim = DcimApp(self)
         self.extras = ExtrasApp(self)
         self.ipam = IpamApp(self)
+        self.plugins = PluginsApp(self)
         self.tenancy = TenancyApp(self)
         self.users = UsersApp(self)
         self.virtualization = VirtualizationApp(self)

@@ -30822,11 +30822,53 @@ class IpamApp(TypedAppBase):
         return IpamVrfsEndpoint(self._api)
 
 
+class PluginsBranchingApp(TypedAppBase):
+    """Typed accessor for the ``netbox-branching`` plugin's REST surface."""
+
+    def __init__(self, api: TypedApiBase) -> None:
+        super().__init__(api)
+
+    @property
+    def branches(self) -> PluginsBranchingBranches:
+        return PluginsBranchingBranches(self._api)
+
+    def branch(self, id: int) -> PluginsBranchingBranchesId:
+        return PluginsBranchingBranchesId(self._api)
+
+    def branch_sync(self, id: int) -> PluginsBranchingBranchesIdSync:
+        return PluginsBranchingBranchesIdSync(self._api)
+
+    def branch_merge(self, id: int) -> PluginsBranchingBranchesIdMerge:
+        return PluginsBranchingBranchesIdMerge(self._api)
+
+    def branch_revert(self, id: int) -> PluginsBranchingBranchesIdRevert:
+        return PluginsBranchingBranchesIdRevert(self._api)
+
+    def branch_archive(self, id: int) -> PluginsBranchingBranchesIdArchive:
+        return PluginsBranchingBranchesIdArchive(self._api)
+
+    @property
+    def branch_events(self) -> PluginsBranchingBranchEvents:
+        return PluginsBranchingBranchEvents(self._api)
+
+    def branch_event(self, id: int) -> PluginsBranchingBranchEventsId:
+        return PluginsBranchingBranchEventsId(self._api)
+
+    @property
+    def changes(self) -> PluginsBranchingChanges:
+        return PluginsBranchingChanges(self._api)
+
+    def change(self, id: int) -> PluginsBranchingChangesId:
+        return PluginsBranchingChangesId(self._api)
+
+
 class PluginsApp(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    pass
+    @property
+    def branching(self) -> PluginsBranchingApp:
+        return PluginsBranchingApp(self._api)
 
 
 class TenancyApp(TypedAppBase):

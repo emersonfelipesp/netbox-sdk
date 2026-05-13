@@ -38,6 +38,8 @@ class ViewState(BaseModel):
 class TuiState(BaseModel):
     last_view: ViewState = Field(default_factory=ViewState)
     theme_name: str | None = None
+    active_branch_schema_id: str | None = None
+    active_branch_name: str | None = None
 
     @field_validator("last_view", mode="before")
     @classmethod
@@ -53,6 +55,11 @@ class TuiState(BaseModel):
     @classmethod
     def _coerce_theme_name(cls, v: object) -> str | None:
         return v if isinstance(v, str) else None
+
+    @field_validator("active_branch_schema_id", "active_branch_name", mode="before")
+    @classmethod
+    def _coerce_optional_branch_str(cls, v: object) -> str | None:
+        return v if isinstance(v, str) and v else None
 
 
 _STATE_FILE = "tui_state.json"

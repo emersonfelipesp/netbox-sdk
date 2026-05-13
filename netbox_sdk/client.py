@@ -127,6 +127,11 @@ class NetBoxApiClient:
         self._session_loop_id: int | None = None
         self._session_lock: asyncio.Lock | None = None
         self._context_depth: int = 0
+        # Long-lived header overrides applied to every request, regardless of
+        # the calling task's :data:`_scoped_headers` snapshot. Used by the
+        # TUI to keep ``X-NetBox-Branch`` set across background workers when
+        # the user activates a branch.
+        self.persistent_headers: dict[str, str] = {}
         logger.debug("initialized api client for %s", self.config.base_url or "<unset>")
         bu = self.config.base_url or ""
         if bu and urlsplit(bu).scheme.lower() == "https" and self.config.ssl_verify is False:
@@ -279,7 +284,9 @@ class NetBoxApiClient:
         )
         cache_key: str | None = None
         cache_entry = None
-        req_headers = dict(_scoped_headers.get() or {})
+        req_headers = dict(self.persistent_headers)
+        scoped = _scoped_headers.get() or {}
+        req_headers.update(scoped)
         req_headers.update(headers or {})
         if cache_policy is not None and self.config.base_url:
             cache_key = build_cache_key(
@@ -502,6 +509,14 @@ class NetBoxApiClient:
         if not path.startswith("/api/"):
             return None
         if path == "/api/status/":
+            return None
+        # netbox-branching state mutates via background jobs; caching would
+        # mask sync/merge/revert progress. Skip plugin sub-paths and the
+        # core jobs polling endpoint. The feature-detection root is included
+        # in the exclusion for predictability across short-lived test runs.
+        if path.startswith("/api/plugins/branching/"):
+            return None
+        if path.startswith("/api/core/jobs/"):
             return None
         if self._is_list_request(path):
             return CachePolicy(fresh_ttl_seconds=60.0, stale_if_error_seconds=300.0)

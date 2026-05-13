@@ -20,6 +20,7 @@ except ModuleNotFoundError as exc:
 from rich.table import Table
 
 from netbox_cli import demo as demo
+from netbox_cli.branching import branching_app
 from netbox_cli.demo import demo_app
 from netbox_cli.dev import dev_app
 from netbox_cli.dynamic import _handle_dynamic_invocation, _register_openapi_subcommands
@@ -120,10 +121,25 @@ def main(argv: list[str] | None = None) -> int:
 
 
 @app.callback(invoke_without_command=True)
-def root_callback(ctx: typer.Context) -> None:
+def root_callback(
+    ctx: typer.Context,
+    branch: str = typer.Option(
+        None,
+        "--branch",
+        envvar="NETBOX_BRANCH",
+        help="Activate a netbox-branching schema_id (or branch name) for this invocation.",
+    ),
+) -> None:
     setup_logging()
     if ctx.resilient_parsing:
         return
+    if branch:
+        import os as _os  # noqa: PLC0415
+
+        from netbox_sdk.client import _scoped_headers  # noqa: PLC0415
+
+        _scoped_headers.set({"X-NetBox-Branch": branch.strip()})
+        _os.environ["NETBOX_BRANCH"] = branch.strip()
     if any(flag in sys.argv[1:] for flag in ("--help", "-h")):
         return
     if ctx.invoked_subcommand is None and ctx.args:
@@ -144,6 +160,8 @@ def root_callback(ctx: typer.Context) -> None:
         "dev",
         "logs",
         "graphql",
+        "branching",
+        "branch",
     }:
         _ensure_runtime_config()
 
@@ -637,6 +655,8 @@ app.add_typer(cli_app, name="cli")
 app.add_typer(docs_app, name="docs")
 app.add_typer(demo_app, name="demo")
 app.add_typer(dev_app, name="dev")
+app.add_typer(branching_app, name="branching")
+app.add_typer(branching_app, name="branch", help="Alias for 'branching'.")
 
 _register_openapi_subcommands(app)
 _register_openapi_subcommands(
