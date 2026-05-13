@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11, <3.14"
 
 [[package]]
 name = "aiohappyeyeballs"
@@ -829,7 +829,7 @@ wheels = [
 
 [[package]]
 name = "netbox-sdk"
-version = "0.0.8.post1"
+version = "0.0.9"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
@@ -934,7 +934,7 @@ requires-dist = [
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'dev'", specifier = ">=0.30.0" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'mock'", specifier = ">=0.30.0" },
 ]
-provides-extras = ["sdk", "tui", "cli", "demo", "mock", "all", "dev", "docs"]
+provides-extras = ["sdk", "tui", "cli", "demo", "mock", "branching", "all", "dev", "docs"]
 
 [package.metadata.requires-dev]
 dev = [
