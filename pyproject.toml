@@ -63,6 +63,7 @@ dev = [
   "pytest-xdist>=3.8.0",
   "ruff>=0.15.8",
   "ty>=0.0.1a16",
+  "pyright>=1.1.380",
   "textual>=8.2.0",
   "typer>=0.24.1",
   "playwright>=1.58.0",
@@ -84,6 +85,7 @@ dev = [
   "pytest-xdist>=3.8.0",
   "ruff>=0.15.8",
   "ty>=0.0.1a16",
+  "pyright>=1.1.380",
   "textual>=8.2.0",
   "typer>=0.24.1",
   "playwright>=1.58.0",
@@ -116,7 +118,8 @@ include = ["netbox_sdk*", "netbox_tui*", "netbox_cli*"]
 
 [tool.setuptools.package-data]
 netbox_sdk = ["reference/openapi/*.json", "py.typed"]
-netbox_tui = ["*.tcss", "themes/*.json"]
+netbox_cli = ["py.typed"]
+netbox_tui = ["*.tcss", "themes/*.json", "py.typed"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -175,3 +178,20 @@ include = ["tests/**"]
 
 [tool.ty.overrides.rules]
 all = "ignore"
+
+[tool.pyright]
+include = ["netbox_sdk", "netbox_cli", "netbox_tui"]
+exclude = [
+  "netbox_sdk/models/**",
+  "netbox_sdk/typed_versions/**",
+  "tests/**",
+]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"
+reportAttributeAccessIssue = "warning"
+reportArgumentType = "warning"
+reportAssignmentType = "warning"
+reportRedeclaration = "warning"
+reportInvalidTypeArguments = "warning"
