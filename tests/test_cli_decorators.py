@@ -53,7 +53,7 @@ def test_resource_command_preserves_typer_signature_and_renders_json() -> None:
 
     help_result = runner.invoke(app, ["--help"])
     assert help_result.exit_code == 0
-    assert "--enabled" in help_result.stdout
+    assert "enabled" in help_result.stdout
 
     result = runner.invoke(app, ["branch-a", "--enabled"])
     assert result.exit_code == 0

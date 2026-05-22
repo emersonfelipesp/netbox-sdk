@@ -132,4 +132,3 @@ def resource_command(
         return _wrapper
 
     return _decorator
-
