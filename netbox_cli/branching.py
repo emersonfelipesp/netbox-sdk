@@ -7,6 +7,7 @@ Operates against the configured default NetBox profile via the SDK's
 
 from __future__ import annotations
 
+import inspect
 import json
 from collections.abc import Callable
 from typing import Any
@@ -41,7 +42,7 @@ async def _close(raw: Any) -> None:
     close = getattr(raw, "close", None)
     if callable(close):
         result = close()
-        if hasattr(result, "__await__"):
+        if inspect.isawaitable(result):
             await result
 
 
