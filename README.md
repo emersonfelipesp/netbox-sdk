@@ -138,6 +138,10 @@ External services are optional at runtime. The Python SDK can target any NetBox
 instance reachable over HTTPS/HTTP, and the local mock API can be used for
 offline tests.
 
+## netbox-sdk vs pynetbox
+
+<img src="comparison-pynetbox-vs-netbox-sdk.svg" alt="pynetbox vs netbox-sdk comparison table" width="760" />
+
 ## Contributor Workflow
 
 ```bash

@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="764" role="img" aria-label="pynetbox vs netbox-sdk comparison table">
+  <rect width="760" height="764" fill="#0d1117"/>
+  <rect x="0.5" y="0.5" width="759" height="763" fill="none" stroke="#373e47" stroke-width="1"/>
+  <rect x="0" y="0" width="760" height="44" fill="#1c2128"/>
+  <line x1="0" y1="44" x2="760" y2="44" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="27" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="normal">aspect</text>
+  <text x="212" y="27" fill="#539bf5" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="normal">pynetbox</text>
+  <text x="492" y="27" fill="#daaa3f" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="normal">netbox-sdk</text>
+  <line x1="200" y1="0" x2="200" y2="764" stroke="#373e47" stroke-width="1"/>
+  <line x1="480" y1="0" x2="480" y2="764" stroke="#373e47" stroke-width="1"/>
+  <rect x="0" y="44" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="80" x2="760" y2="80" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="67" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">type</text>
+  <text x="212" y="67" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">Python library</text>
+  <text x="492" y="67" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">Python library + CLI + TUI</text>
+  <rect x="0" y="80" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="116" x2="760" y2="116" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="103" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">first release</text>
+  <text x="212" y="103" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">2017</text>
+  <text x="492" y="103" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">2024</text>
+  <rect x="0" y="116" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="152" x2="760" y2="152" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="139" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">maturity</text>
+  <text x="212" y="139" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">production, widely adopted</text>
+  <text x="492" y="139" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">alpha, low adoption</text>
+  <rect x="0" y="152" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="188" x2="760" y2="188" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="175" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">license</text>
+  <text x="212" y="175" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">Apache 2.0</text>
+  <text x="492" y="175" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">Apache 2.0</text>
+  <rect x="0" y="188" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="224" x2="760" y2="224" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="211" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">python</text>
+  <text x="212" y="211" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">3.10+</text>
+  <text x="492" y="211" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">3.11+</text>
+  <rect x="0" y="224" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="260" x2="760" y2="260" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="247" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">response format</text>
+  <text x="212" y="247" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">Record objects (ORM-like)</text>
+  <text x="492" y="247" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">raw JSON or Pydantic models</text>
+  <rect x="0" y="260" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="296" x2="760" y2="296" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="283" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">.save() / .delete() on records</text>
+  <text x="212" y="283" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes</text>
+  <text x="492" y="283" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">no (call API methods directly)</text>
+  <rect x="0" y="296" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="332" x2="760" y2="332" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="319" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">mock / offline dev</text>
+  <text x="212" y="319" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">no</text>
+  <text x="492" y="319" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes ([mock] extra)</text>
+  <rect x="0" y="332" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="368" x2="760" y2="368" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="355" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">async support</text>
+  <text x="212" y="355" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">no (sync, requests)</text>
+  <text x="492" y="355" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (aiohttp)</text>
+  <rect x="0" y="368" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="404" x2="760" y2="404" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="391" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">parallel pagination</text>
+  <text x="212" y="391" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (threading=True)</text>
+  <text x="492" y="391" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (async concurrent)</text>
+  <rect x="0" y="404" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="440" x2="760" y2="440" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="427" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">NetBox branching</text>
+  <text x="212" y="427" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (activate_branch())</text>
+  <text x="492" y="427" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes ([branching] extra)</text>
+  <rect x="0" y="440" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="476" x2="760" y2="476" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="463" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">filter validation</text>
+  <text x="212" y="463" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (strict_filters=True)</text>
+  <text x="492" y="463" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (bundled OpenAPI specs)</text>
+  <rect x="0" y="476" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="512" x2="760" y2="512" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="499" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">bundled OpenAPI specs</text>
+  <text x="212" y="499" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">no</text>
+  <text x="492" y="499" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (4.3–4.6)</text>
+  <rect x="0" y="512" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="548" x2="760" y2="548" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="535" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">CLI</text>
+  <text x="212" y="535" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">no</text>
+  <text x="492" y="535" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes — nbx ([cli] extra)</text>
+  <rect x="0" y="548" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="584" x2="760" y2="584" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="571" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">TUI</text>
+  <text x="212" y="571" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">no</text>
+  <text x="492" y="571" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">yes (Textual, [tui] extra)</text>
+  <rect x="0" y="584" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="620" x2="760" y2="620" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="607" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">deps footprint (base)</text>
+  <text x="212" y="607" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">minimal (requests, packaging)</text>
+  <text x="492" y="607" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">medium (aiohttp, pydantic, rich)</text>
+  <rect x="0" y="620" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="656" x2="760" y2="656" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="643" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">deps footprint (full)</text>
+  <text x="212" y="643" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">minimal</text>
+  <text x="492" y="643" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">heavy (+FastAPI, Textual, Typer)</text>
+  <rect x="0" y="656" width="760" height="36" fill="#161b22"/>
+  <line x1="0" y1="692" x2="760" y2="692" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="679" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">NetBox compat range</text>
+  <text x="212" y="679" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">3.3–4.5</text>
+  <text x="492" y="679" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">4.3–4.6 (typed)</text>
+  <rect x="0" y="692" width="760" height="36" fill="#0d1117"/>
+  <line x1="0" y1="728" x2="760" y2="728" stroke="#373e47" stroke-width="1"/>
+  <text x="12" y="715" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">ecosystem adoption</text>
+  <text x="212" y="715" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">very high</text>
+  <text x="492" y="715" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">very low (new)</text>
+  <rect x="0" y="728" width="760" height="36" fill="#161b22"/>
+  <text x="12" y="751" fill="#768390" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">community support</text>
+  <text x="212" y="751" fill="#57ab5a" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">netbox-community</text>
+  <text x="492" y="751" fill="#adbac7" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="12">emersonfelipesp</text>
+</svg>
