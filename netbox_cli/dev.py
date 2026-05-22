@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import typer
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
@@ -62,41 +62,43 @@ def _normalize_api_path(path: str, object_id: int | None = None) -> str:
 # ── Pydantic models for dev http input/output ────────────────────────────────
 
 
-class _DevHttpGetInput(BaseModel):
+def _validate_path_not_empty(value: str) -> str:
+    if not value.strip():
+        raise ValueError("cannot be empty")
+    return value
+
+
+def _validate_positive_object_id(value: int | None) -> int | None:
+    if value is not None and value <= 0:
+        raise ValueError("must be a positive integer")
+    return value
+
+
+def _validate_key_value_pairs(values: list[str], *, example: str) -> list[str]:
+    for item in values:
+        if "=" not in item:
+            raise ValueError(f"expected key=value format, got {item!r}  (example: {example})")
+    return values
+
+
+class _DevHttpBaseInput(BaseModel):
     path: str
-    object_id: int | None = None
-    query: list[str] = []
     output_json: bool = False
     output_yaml: bool = False
     output_markdown: bool = False
-    extra: dict[str, Any] = {}
 
     @field_validator("path")
     @classmethod
     def path_not_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("cannot be empty")
-        return v
+        return _validate_path_not_empty(v)
 
-    @field_validator("object_id")
+    @field_validator("object_id", check_fields=False)
     @classmethod
     def id_positive(cls, v: int | None) -> int | None:
-        if v is not None and v <= 0:
-            raise ValueError("must be a positive integer")
-        return v
-
-    @field_validator("query")
-    @classmethod
-    def query_key_value(cls, v: list[str]) -> list[str]:
-        for item in v:
-            if "=" not in item:
-                raise ValueError(
-                    f"expected key=value format, got {item!r}  (example: --query site=nyc)"
-                )
-        return v
+        return _validate_positive_object_id(v)
 
     @model_validator(mode="after")
-    def output_exclusive(self) -> _DevHttpGetInput:
+    def output_exclusive(self) -> Self:
         resolve_output_format(
             as_json=self.output_json,
             as_yaml=self.output_yaml,
@@ -106,40 +108,28 @@ class _DevHttpGetInput(BaseModel):
         return self
 
 
-class _DevHttpBodyInput(BaseModel):
-    path: str
+class _DevHttpGetInput(_DevHttpBaseInput):
+    object_id: int | None = None
+    query: list[str] = []
+    extra: dict[str, Any] = {}
+
+    @field_validator("query")
+    @classmethod
+    def query_key_value(cls, v: list[str]) -> list[str]:
+        return _validate_key_value_pairs(v, example="--query site=nyc")
+
+
+class _DevHttpBodyInput(_DevHttpBaseInput):
     object_id: int | None = None
     arguments: list[str] = []
     body_json: str | None = None
     body_file: str | None = None
-    output_json: bool = False
-    output_yaml: bool = False
-    output_markdown: bool = False
     extra: dict[str, Any] = {}
-
-    @field_validator("path")
-    @classmethod
-    def path_not_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("cannot be empty")
-        return v
-
-    @field_validator("object_id")
-    @classmethod
-    def id_positive(cls, v: int | None) -> int | None:
-        if v is not None and v <= 0:
-            raise ValueError("must be a positive integer")
-        return v
 
     @field_validator("arguments")
     @classmethod
     def arguments_key_value(cls, v: list[str]) -> list[str]:
-        for item in v:
-            if "=" not in item:
-                raise ValueError(
-                    f"expected key=value format, got {item!r}  (example: --argument name=router1)"
-                )
-        return v
+        return _validate_key_value_pairs(v, example="--argument name=router1")
 
     @field_validator("body_file")
     @classmethod
@@ -163,45 +153,11 @@ class _DevHttpBodyInput(BaseModel):
                 json.loads(self.body_json)
             except json.JSONDecodeError as exc:
                 raise ValueError(f"--body-json is not valid JSON: {exc}") from exc
-        resolve_output_format(
-            as_json=self.output_json,
-            as_yaml=self.output_yaml,
-            as_markdown=self.output_markdown,
-            error_factory=ValueError,
-        )
         return self
 
 
-class _DevHttpDeleteInput(BaseModel):
-    path: str
+class _DevHttpDeleteInput(_DevHttpBaseInput):
     object_id: int
-    output_json: bool = False
-    output_yaml: bool = False
-    output_markdown: bool = False
-
-    @field_validator("path")
-    @classmethod
-    def path_not_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("cannot be empty")
-        return v
-
-    @field_validator("object_id")
-    @classmethod
-    def id_positive(cls, v: int) -> int:
-        if v <= 0:
-            raise ValueError("must be a positive integer")
-        return v
-
-    @model_validator(mode="after")
-    def output_exclusive(self) -> _DevHttpDeleteInput:
-        resolve_output_format(
-            as_json=self.output_json,
-            as_yaml=self.output_yaml,
-            as_markdown=self.output_markdown,
-            error_factory=ValueError,
-        )
-        return self
 
 
 class DevHttpResult(BaseModel):

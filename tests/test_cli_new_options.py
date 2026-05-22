@@ -8,6 +8,7 @@ import pytest
 from click.exceptions import BadParameter
 from typer.testing import CliRunner
 
+import netbox_cli.dev as cli_dev
 from netbox_cli import cli
 from netbox_cli.dynamic import _handle_dynamic_invocation, _parse_dynamic_options
 from netbox_cli.support import select_json_path
@@ -92,6 +93,54 @@ def _patch_list_client(monkeypatch: pytest.MonkeyPatch) -> None:
         "netbox_cli.runtime._get_client",
         lambda: _FakeListClient(),
     )
+
+
+class TestDevHttpInputValidation:
+    """Focused checks for the shared dev-http input validation helpers."""
+
+    def test_rejects_empty_path(self):
+        with pytest.raises(BadParameter) as raised:
+            cli_dev._validate_dev_input(cli_dev._DevHttpGetInput, path=" ")
+
+        assert "--path: cannot be empty" in str(raised.value)
+
+    @pytest.mark.parametrize(
+        ("model_cls", "kwargs"),
+        (
+            (cli_dev._DevHttpGetInput, {"path": "/api/status/", "object_id": 0}),
+            (cli_dev._DevHttpBodyInput, {"path": "/api/status/", "object_id": -1}),
+            (cli_dev._DevHttpDeleteInput, {"path": "/api/status/", "object_id": 0}),
+        ),
+    )
+    def test_rejects_non_positive_object_ids(self, model_cls, kwargs):
+        with pytest.raises(BadParameter) as raised:
+            cli_dev._validate_dev_input(model_cls, **kwargs)
+
+        assert "--id: must be a positive integer" in str(raised.value)
+
+    def test_rejects_invalid_query_pair(self):
+        with pytest.raises(BadParameter) as raised:
+            cli_dev._validate_dev_input(
+                cli_dev._DevHttpGetInput,
+                path="/api/status/",
+                query=["status"],
+            )
+
+        message = str(raised.value)
+        assert "--query: expected key=value format" in message
+        assert "--query site=nyc" in message
+
+    def test_rejects_invalid_argument_pair(self):
+        with pytest.raises(BadParameter) as raised:
+            cli_dev._validate_dev_input(
+                cli_dev._DevHttpBodyInput,
+                path="/api/status/",
+                arguments=["name"],
+            )
+
+        message = str(raised.value)
+        assert "--argument: expected key=value format" in message
+        assert "--argument name=router1" in message
 
 
 class TestLiveResourceDiscovery:
