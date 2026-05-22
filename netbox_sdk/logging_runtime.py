@@ -29,6 +29,7 @@ LOG_FORMAT_VERSION = 1
 _LOGGER_LEGACY = "netbox_cli"
 _LOGGER_SDK = "netbox_sdk"
 _LOGGING_INITIALIZED = False
+_ACTIVE_LOG_FILE: Path | None = None
 
 
 class JsonLogFormatter(logging.Formatter):
@@ -69,8 +70,13 @@ def log_dir() -> Path:
         target = config_path().parent / DEFAULT_LOG_DIRNAME
         target.mkdir(parents=True, exist_ok=True)
     except OSError:
-        target = Path(tempfile.gettempdir()) / "netbox-sdk" / DEFAULT_LOG_DIRNAME
-        target.mkdir(parents=True, exist_ok=True)
+        target = _fallback_log_dir()
+    return target
+
+
+def _fallback_log_dir() -> Path:
+    target = Path(tempfile.gettempdir()) / "netbox-sdk" / DEFAULT_LOG_DIRNAME
+    target.mkdir(parents=True, exist_ok=True)
     return target
 
 
@@ -83,6 +89,8 @@ def legacy_log_file_path() -> Path:
 
 
 def active_log_file_path() -> Path:
+    if _ACTIVE_LOG_FILE is not None:
+        return _ACTIVE_LOG_FILE
     current = log_file_path()
     if current.exists():
         return current
@@ -92,31 +100,55 @@ def active_log_file_path() -> Path:
     return current
 
 
+def _new_file_handler(target: Path, level_no: int) -> RotatingFileHandler:
+    handler = RotatingFileHandler(
+        target,
+        maxBytes=1_048_576,
+        backupCount=5,
+        encoding="utf-8",
+    )
+    handler.setLevel(level_no)
+    handler.setFormatter(JsonLogFormatter())
+    return handler
+
+
+def _build_shared_handler(target: Path, level_no: int) -> tuple[logging.Handler, Path | None]:
+    try:
+        return _new_file_handler(target, level_no), target
+    except OSError:
+        fallback = _fallback_log_dir() / DEFAULT_LOG_FILENAME
+        try:
+            return _new_file_handler(fallback, level_no), fallback
+        except OSError:
+            handler = logging.NullHandler()
+            handler.setLevel(level_no)
+            return handler, None
+
+
+def _handler_matches_target(handler: logging.Handler, target: Path | None) -> bool:
+    if target is None:
+        return isinstance(handler, logging.NullHandler)
+    return isinstance(handler, RotatingFileHandler) and Path(handler.baseFilename) == target
+
+
 def setup_logging(level: str = DEFAULT_LOG_LEVEL) -> Path:
     """Configure rotating JSON file logging for ``netbox_cli.*`` and ``netbox_sdk.*`` loggers."""
-    global _LOGGING_INITIALIZED
-    target = log_file_path()
+    global _ACTIVE_LOG_FILE, _LOGGING_INITIALIZED
+    target = _ACTIVE_LOG_FILE or log_file_path()
     level_no = getattr(logging, level.upper(), logging.INFO)
-    shared_handler: RotatingFileHandler | None = None
+    shared_handler: logging.Handler | None = None
 
     for namespace in (_LOGGER_LEGACY, _LOGGER_SDK):
         lg = logging.getLogger(namespace)
         lg.setLevel(level_no)
         lg.propagate = False
         if any(
-            isinstance(handler, RotatingFileHandler) and Path(handler.baseFilename) == target
-            for handler in lg.handlers
+            _handler_matches_target(handler, _ACTIVE_LOG_FILE or target) for handler in lg.handlers
         ):
             continue
         if shared_handler is None:
-            shared_handler = RotatingFileHandler(
-                target,
-                maxBytes=1_048_576,
-                backupCount=5,
-                encoding="utf-8",
-            )
-            shared_handler.setLevel(level_no)
-            shared_handler.setFormatter(JsonLogFormatter())
+            shared_handler, _ACTIVE_LOG_FILE = _build_shared_handler(target, level_no)
+            target = _ACTIVE_LOG_FILE or target
         lg.addHandler(shared_handler)
 
     if not _LOGGING_INITIALIZED:

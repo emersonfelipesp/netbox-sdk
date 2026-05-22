@@ -73,10 +73,12 @@ from netbox_sdk.config import (
 )
 from netbox_sdk.logging_runtime import (
     DEFAULT_LOG_TAIL_LIMIT,
-    log_file_path,
     read_log_entries,
     render_log_entries,
     setup_logging,
+)
+from netbox_sdk.logging_runtime import (
+    active_log_file_path as log_file_path,
 )
 from netbox_sdk.services import (
     load_json_payload,
