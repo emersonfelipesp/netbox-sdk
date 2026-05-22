@@ -86,7 +86,7 @@ pip install 'netbox-sdk[all]'
 Pinned (same version as the docs site / `package-version.txt`):
 
 ```bash
-pip install 'netbox-sdk[all]==0.0.7.post1'
+pip install 'netbox-sdk[all]==0.0.9'
 ```
 
 With `uv` as a user tool:
@@ -177,8 +177,8 @@ Use a single GitHub release title pattern for every release:
 Example:
 
 ```bash
-gh release create v0.0.7.post1 \
-  --title "netbox-sdk v0.0.7.post1"
+gh release create v0.0.9 \
+  --title "netbox-sdk v0.0.9"
 ```
 
 When cutting a release, bump **`pyproject.toml`** and **`netbox_sdk.__version__`**, then keep docs in sync: **`docs/snippets/package-version.txt`**, **`mkdocs.yml`** → **`extra.package_version`**, and the version strings in **`docs/snippets/documented-release-*.md`** and **`docs/snippets/pip-pinned-*.txt`** / **`uv-pinned-cli.txt`**. **`uv lock`** must reflect the new version. **`tests/test_docs_alignment.py`** asserts snippet and MkDocs metadata match **`pyproject.toml`**.
