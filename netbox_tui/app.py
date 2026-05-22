@@ -318,7 +318,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
     async def on_unmount(self) -> None:
         logger.info("main tui unmounting")
         self._stop_results_loading()
-        for group in ("connection_probe", "plugin_discovery"):
+        for group in (
+            "connection_probe",
+            "plugin_discovery",
+            "branching_detect",
+            "branching_switch",
+        ):
             self.workers.cancel_group(self, group)
         if self._clock_timer is not None:
             self._clock_timer.stop()
@@ -1082,9 +1087,10 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
             pill = BranchPill(id="branch_pill")
             try:
                 topbar_right = self.query_one("#topbar_right")
+                breadcrumb = topbar_right.query_one("#context_breadcrumb")
             except NoMatches:
                 return
-            await self.mount(pill, before=topbar_right.query_one("#context_breadcrumb"))
+            await self.mount(pill, before=breadcrumb)
         pill.set_branch(schema_id, name)
 
     @work(group="branching_switch", exclusive=True, thread=False)

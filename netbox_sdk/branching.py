@@ -176,7 +176,7 @@ class BranchingClient:
         response = await self._client.request(
             "PATCH", f"{self.BASE}/branches/{pk}/", payload=fields
         )
-        self._raise_branching(response)
+        self._raise_branching(response, resource_op=True)
         payload = _decode_json(response)
         if not isinstance(payload, dict):
             raise ContentError(response)
@@ -186,7 +186,7 @@ class BranchingClient:
         """Delete a branch."""
         pk = await self._resolve_pk(id_or_schema)
         response = await self._client.request("DELETE", f"{self.BASE}/branches/{pk}/")
-        self._raise_branching(response)
+        self._raise_branching(response, resource_op=True)
 
     # ------------------------------------------------------------------
     # Action verbs
@@ -255,7 +255,7 @@ class BranchingClient:
         response = await self._client.request(
             "POST", f"{self.BASE}/branches/{pk}/archive/", payload={}
         )
-        self._raise_branching(response)
+        self._raise_branching(response, resource_op=True)
         payload = _decode_json(response)
         if not isinstance(payload, dict):
             raise ContentError(response)
@@ -356,7 +356,7 @@ class BranchingClient:
             f"{self.BASE}/branches/{pk}/{verb}/",
             payload=body if body is not None else {},
         )
-        self._raise_branching(response)
+        self._raise_branching(response, resource_op=True)
         payload = _decode_json(response)
         if not isinstance(payload, dict):
             raise ContentError(response)
@@ -371,19 +371,21 @@ class BranchingClient:
         if isinstance(id_or_schema, int):
             return id_or_schema
         text = str(id_or_schema).strip()
+        # Check schema_id before isdigit so that an 8-char all-digit string
+        # is treated as a schema_id (looked up by field) rather than as a PK.
+        if _is_schema_id(text):
+            results = await self._list(f"{self.BASE}/branches/", {"schema_id": text})
+            for entry in results:
+                if entry.get("schema_id") == text:
+                    pk = entry.get("id") if entry.get("id") is not None else entry.get("pk")
+                    if isinstance(pk, int):
+                        return pk
+            raise ValueError(f"No branch found with schema_id={text!r}")
         if text.isdigit():
             return int(text)
-        if not _is_schema_id(text):
-            raise ValueError(
-                f"Branch identifier must be int PK or 8-char schema_id, got {id_or_schema!r}"
-            )
-        results = await self._list(f"{self.BASE}/branches/", {"schema_id": text})
-        for entry in results:
-            if entry.get("schema_id") == text:
-                pk = entry.get("id") or entry.get("pk")
-                if isinstance(pk, int):
-                    return pk
-        raise ValueError(f"No branch found with schema_id={text!r}")
+        raise ValueError(
+            f"Branch identifier must be int PK or 8-char schema_id, got {id_or_schema!r}"
+        )
 
     @staticmethod
     def _extract_schema_id(branch: Any) -> str | None:
@@ -409,7 +411,7 @@ class BranchingClient:
         # Nested {"job": {...}} shape (older / wrapper responses).
         job = payload.get("job")
         if isinstance(job, dict):
-            value = job.get("id") or job.get("pk")
+            value = job.get("id") if job.get("id") is not None else job.get("pk")
             if isinstance(value, int):
                 return value
         # Explicit job_id field.
@@ -417,24 +419,28 @@ class BranchingClient:
         if isinstance(value, int):
             return value
         # Top-level Job representation (sync/merge/revert default shape):
-        # disambiguate by checking the URL or object_type so we don't
-        # accidentally return a branch PK.
+        # check URL first (most reliable), then fall back to a status-dict
+        # heuristic to avoid mistaking a branch payload for a job.
         url = payload.get("url")
         if isinstance(url, str) and "/jobs/" in url:
-            value = payload.get("id") or payload.get("pk")
+            value = payload.get("id") if payload.get("id") is not None else payload.get("pk")
             if isinstance(value, int):
                 return value
-        object_type = payload.get("object_type")
-        if isinstance(object_type, str) and "branch" in object_type:
-            value = payload.get("id") or payload.get("pk")
+        # Jobs carry a nested status dict; branches carry a plain string status.
+        if isinstance(payload.get("status"), dict):
+            value = payload.get("id") if payload.get("id") is not None else payload.get("pk")
             if isinstance(value, int):
                 return value
         return None
 
-    def _raise_branching(self, response: ApiResponse) -> None:
+    def _raise_branching(self, response: ApiResponse, *, resource_op: bool = False) -> None:
         if 200 <= response.status < 300:
             return
         if response.status == 404:
+            # resource_op=True means we already resolved a PK, so 404 means
+            # the specific resource was not found — not a missing plugin.
+            if resource_op:
+                raise RequestError(response)
             raise BranchingPluginUnavailableError()
         if response.status == 409:
             try:
@@ -443,7 +449,12 @@ class BranchingClient:
                 payload = response.text
             conflicts: Any
             if isinstance(payload, dict):
-                conflicts = payload.get("conflicts") or payload.get("detail") or payload
+                raw_conflicts = payload.get("conflicts")
+                conflicts = (
+                    raw_conflicts
+                    if raw_conflicts is not None
+                    else (payload.get("detail") or payload)
+                )
             else:
                 conflicts = payload
             raise BranchConflictError(conflicts, response=response)

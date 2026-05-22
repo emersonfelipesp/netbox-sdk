@@ -346,7 +346,7 @@ async def test_activate_branch_scopes_header_for_nested_requests() -> None:
     class _Branch:
         schema_id = "feature-branch"
 
-    with nb.activate_branch(_Branch()):
+    async with nb.activate_branch(_Branch()):
         await nb.dcim.devices.get(1)
 
     assert client.calls[0]["headers"]["X-NetBox-Branch"] == "feature-branch"
