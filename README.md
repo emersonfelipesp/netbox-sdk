@@ -14,7 +14,7 @@ Published package names remain:
 - `netbox-sdk`
 - `netbox-console`
 
-## Integration Package Certification Readiness
+## Integration Package Details
 
 `netbox-sdk` is an integration package, not a NetBox plugin. It is not installed
 into NetBox with `PLUGINS`, does not add Django models or views, and does not
@@ -31,10 +31,6 @@ release maintainability.
 | NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.1`, `v4.5.10`, and `v4.5.8` |
 | Tests | Mock API suite, live NetBox suite, security tests, type checks, package metadata checks, and strict docs builds in GitHub Actions |
 | Support | GitHub issues for bugs/features/docs requests; docs at <https://emersonfelipesp.github.io/netbox-sdk/> |
-
-See [CERTIFICATION.md](CERTIFICATION.md) for the SDK-specific application
-packet and the mapping from plugin certification criteria to integration-package
-evidence.
 
 ## Quick Start with the Demo Instance
 
