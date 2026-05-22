@@ -242,12 +242,16 @@ class RawBranchingApp(TypedAppBase):
         response = await self._api.client.request("POST", path, payload=payload or {})
         if response.status >= 400:
             raise RequestError(response)
+        if response.status == 204 or not response.text.strip():
+            return None
         return response.json()
 
     async def _patch(self, path: str, payload: dict[str, Any]) -> Any:
         response = await self._api.client.request("PATCH", path, payload=payload)
         if response.status >= 400:
             raise RequestError(response)
+        if response.status == 204 or not response.text.strip():
+            return None
         return response.json()
 
     async def _delete(self, path: str) -> None:

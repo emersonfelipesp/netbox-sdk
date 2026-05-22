@@ -6,8 +6,8 @@ import json
 import logging
 import os
 from collections import deque
-from collections.abc import Iterator
-from contextlib import contextmanager
+from collections.abc import AsyncIterator, Iterator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Any, ClassVar, Literal, Self, cast
 from urllib.parse import parse_qsl, urlsplit
@@ -243,8 +243,8 @@ class Api:
         payload = _decode_json(response)
         return Record(self, None, payload, has_details=True)
 
-    @contextmanager
-    def activate_branch(self, branch: Any) -> Iterator[Api]:
+    @asynccontextmanager
+    async def activate_branch(self, branch: Any) -> AsyncIterator[Api]:
         schema_id = getattr(branch, "schema_id", None) or getattr(branch, "id", None) or str(branch)
         with self.client.header_scope(**{"X-NetBox-Branch": str(schema_id)}):
             yield self

@@ -20,6 +20,7 @@ from netbox_sdk import (
     BranchConflictError,
     BranchingClient,
     BranchingPluginUnavailableError,
+    RequestError,
 )
 from netbox_sdk.client import NetBoxApiClient, _scoped_headers
 from netbox_sdk.config import Config
@@ -266,7 +267,15 @@ async def test_activate_sets_branch_header(api):
 async def test_branching_unavailable_raises(api, monkeypatch):
     monkeypatch.setenv("NETBOX_MOCK_BRANCHING_AVAILABLE", "0")
     with pytest.raises(BranchingPluginUnavailableError):
-        # Any action verb hits a 404 → typed error.
+        # list() is not a resource op — 404 means the plugin is absent.
+        await api.branching.list()
+
+
+async def test_branching_resource_op_404_raises_request_error(api, monkeypatch):
+    monkeypatch.setenv("NETBOX_MOCK_BRANCHING_AVAILABLE", "0")
+    with pytest.raises(RequestError):
+        # archive() carries resource_op=True — 404 means the branch was not found,
+        # not that the plugin is absent, so RequestError is the correct exception.
         await api.branching.archive(999)
 
 

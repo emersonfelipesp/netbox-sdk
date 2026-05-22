@@ -23,7 +23,7 @@ quebrar instalações enxutas.
 from netbox_sdk import api
 from netbox_sdk.branching import BranchingClient
 
-nb = api(base_url="https://netbox.example.com", token="…")
+nb = api("https://netbox.example.com", token="…")
 branching = BranchingClient(nb)
 
 if not await branching.is_available():
@@ -96,7 +96,7 @@ A mesma superfície está disponível pelo cliente tipado por versão:
 ```python
 from netbox_sdk import typed_api
 
-nb = typed_api("4.6", base_url="…", token="…")
+nb = typed_api("https://netbox.example.com", token="…", netbox_version="4.6")
 branches = await nb.plugins.branching.branches.list()
 ```
 

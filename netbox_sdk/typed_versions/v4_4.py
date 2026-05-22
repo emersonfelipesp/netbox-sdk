@@ -30832,33 +30832,33 @@ class PluginsBranchingApp(TypedAppBase):
     def branches(self) -> PluginsBranchingBranches:
         return PluginsBranchingBranches(self._api)
 
-    def branch(self, id: int) -> PluginsBranchingBranchesId:
+    def branch(self) -> PluginsBranchingBranchesId:
         return PluginsBranchingBranchesId(self._api)
 
-    def branch_sync(self, id: int) -> PluginsBranchingBranchesIdSync:
+    def branch_sync(self) -> PluginsBranchingBranchesIdSync:
         return PluginsBranchingBranchesIdSync(self._api)
 
-    def branch_merge(self, id: int) -> PluginsBranchingBranchesIdMerge:
+    def branch_merge(self) -> PluginsBranchingBranchesIdMerge:
         return PluginsBranchingBranchesIdMerge(self._api)
 
-    def branch_revert(self, id: int) -> PluginsBranchingBranchesIdRevert:
+    def branch_revert(self) -> PluginsBranchingBranchesIdRevert:
         return PluginsBranchingBranchesIdRevert(self._api)
 
-    def branch_archive(self, id: int) -> PluginsBranchingBranchesIdArchive:
+    def branch_archive(self) -> PluginsBranchingBranchesIdArchive:
         return PluginsBranchingBranchesIdArchive(self._api)
 
     @property
     def branch_events(self) -> PluginsBranchingBranchEvents:
         return PluginsBranchingBranchEvents(self._api)
 
-    def branch_event(self, id: int) -> PluginsBranchingBranchEventsId:
+    def branch_event(self) -> PluginsBranchingBranchEventsId:
         return PluginsBranchingBranchEventsId(self._api)
 
     @property
     def changes(self) -> PluginsBranchingChanges:
         return PluginsBranchingChanges(self._api)
 
-    def change(self, id: int) -> PluginsBranchingChangesId:
+    def change(self) -> PluginsBranchingChangesId:
         return PluginsBranchingChangesId(self._api)
 
 

@@ -7,6 +7,7 @@ Operates against the configured default NetBox profile via the SDK's
 
 from __future__ import annotations
 
+import inspect
 import json
 from collections.abc import Callable
 from typing import Any
@@ -41,7 +42,7 @@ async def _close(raw: Any) -> None:
     close = getattr(raw, "close", None)
     if callable(close):
         result = close()
-        if hasattr(result, "__await__"):
+        if inspect.isawaitable(result):
             await result
 
 
@@ -127,15 +128,15 @@ def cmd_show(id_or_schema: str = typer.Argument(..., help="Branch PK or schema_i
 @branching_app.command("create")
 def cmd_create(
     name: str = typer.Option(..., "--name", help="Branch name."),
-    description: str = typer.Option("", "--description", help="Optional description."),
-    comments: str = typer.Option("", "--comments", help="Optional comments."),
+    description: str | None = typer.Option(None, "--description", help="Optional description."),
+    comments: str | None = typer.Option(None, "--comments", help="Optional comments."),
 ) -> None:
     """Create a branch."""
 
     fields: dict[str, Any] = {}
-    if description:
+    if description is not None:
         fields["description"] = description
-    if comments:
+    if comments is not None:
         fields["comments"] = comments
 
     async def _run_async(client: BranchingClient) -> dict[str, Any]:
@@ -205,8 +206,6 @@ def _action_factory(verb: str) -> Callable[..., None]:
         ),
         timeout: float = typer.Option(600.0, "--timeout", help="Maximum seconds to wait."),
     ) -> None:
-        f"""Queue a {verb} on the branch."""
-
         async def _run_async(client: BranchingClient) -> dict[str, Any]:
             method = getattr(client, verb)
             return await method(
@@ -220,6 +219,7 @@ def _action_factory(verb: str) -> Callable[..., None]:
         payload = _run(_run_async)
         typer.echo(json.dumps(payload, indent=2, default=str))
 
+    _cmd.__doc__ = f"Queue a {verb} on the branch."
     _cmd.__name__ = f"cmd_{verb}"
     return _cmd
 
