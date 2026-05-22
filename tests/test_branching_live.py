@@ -19,7 +19,7 @@ import pytest
 from netbox_sdk import api
 from netbox_sdk.branching import BranchingClient
 
-pytestmark = pytest.mark.suite_sdk
+pytestmark = [pytest.mark.suite_sdk, pytest.mark.live]
 
 
 def _skip_if_no_live_netbox() -> tuple[str, str]:
@@ -32,7 +32,7 @@ def _skip_if_no_live_netbox() -> tuple[str, str]:
 
 async def _client_or_skip() -> BranchingClient:
     url, token = _skip_if_no_live_netbox()
-    nb = api(base_url=url, token=token, ssl_verify=False)
+    nb = api(url, token=token)
     branching = BranchingClient(nb)
     if not await branching.is_available():
         pytest.skip("netbox-branching plugin is not installed on the live NetBox")
@@ -50,14 +50,15 @@ async def test_live_branching_create_list_delete_roundtrip() -> None:
     branching = await _client_or_skip()
 
     name = f"sdk-ci-{uuid.uuid4().hex[:6]}"
-    created = await branching.create(name=name)
-    schema_id = str(created.get("schema_id") or "")
-    assert schema_id, "newly-created branch is missing schema_id"
-
+    schema_id: str | None = None
     try:
+        created = await branching.create(name=name)
+        schema_id = str(created.get("schema_id") or "") or None
+        assert schema_id, "newly-created branch is missing schema_id"
         listed = await branching.list()
         assert any(str(b.get("schema_id") or "") == schema_id for b in listed), (
             f"branch {schema_id} not present in list response"
         )
     finally:
-        await branching.delete(schema_id)
+        if schema_id:
+            await branching.delete(schema_id)
