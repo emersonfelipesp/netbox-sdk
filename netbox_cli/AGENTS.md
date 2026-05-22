@@ -12,9 +12,9 @@ This file mirrors the sibling `CLAUDE.md` guidance for agents that read `AGENTS.
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/netbox_cli/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/netbox_cli/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
@@ -32,6 +32,8 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | File | Purpose |
 |---|---|
 | `__init__.py` | Root Typer app, `main()`, top-level command registration, script entrypoint target |
+| `branching.py` | `nbx branching ...`, `nbx branch ...`, and branch-aware command helpers |
+| `decorators.py` | Reusable Typer decorator factories for repeated option/argument metadata |
 | `runtime.py` | Runtime config cache, schema loading, client factories, demo refresh wiring |
 | `dynamic.py` | OpenAPI-driven dynamic command registration and execution |
 | `support.py` | Shared CLI rendering, output selection, TUI lazy-import helpers |
@@ -40,12 +42,14 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `django_model.py` | Django model CLI commands |
 | `markdown_output.py` | Markdown rendering helpers |
 | `docgen_capture.py` / `docgen_specs.py` / `docgen/` | Documentation capture pipeline |
+| `tui_simulation.py` | TUI launch simulation helpers used by docs/tests |
 
 ## Import Rules
 
 - Import SDK types/functions from `netbox_sdk.*`.
 - Import TUI entrypoints only inside function bodies unless the module is explicitly TUI-only.
 - Use `netbox_sdk.schema` as the source of truth for schema/index behavior; do not reintroduce separate CLI-local schema loaders.
+- Keep repeated Typer option metadata in `netbox_cli.decorators` when a decorator factory improves readability without hiding command-specific behavior.
 - Treat `typed_api()` as an SDK-facing surface, not a CLI dependency unless a command explicitly needs versioned typed validation.
 - Keep root app references on `netbox_cli`, for example:
   - `from netbox_cli import app, main`

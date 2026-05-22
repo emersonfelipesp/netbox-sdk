@@ -12,9 +12,9 @@ This file mirrors the sibling `CLAUDE.md` guidance for agents that read `AGENTS.
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/netbox_cli/reference/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/netbox_cli/reference/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
