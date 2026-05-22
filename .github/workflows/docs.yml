@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches: ["**"]
   workflow_dispatch:
 
 permissions:
@@ -34,6 +36,7 @@ jobs:
         run: uv sync --locked --group docs --group dev --extra cli --extra tui --extra demo
 
       - name: Regenerate command capture docs
+        if: github.event_name != 'pull_request'
         env:
           DEMO_USERNAME: ${{ secrets.DEMO_USERNAME }}
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
@@ -46,10 +49,15 @@ jobs:
           uv run nbx demo init --username "$DEMO_USERNAME" --password "$DEMO_PASSWORD" --headless
           uv run nbx docs generate-capture
 
+      - name: Build docs strictly
+        run: uv run mkdocs build --strict
+
       - name: Configure git identity for gh-deploy
+        if: github.event_name != 'pull_request'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Build and deploy docs to GitHub Pages
+        if: github.event_name != 'pull_request'
         run: uv run mkdocs gh-deploy --force --clean --verbose

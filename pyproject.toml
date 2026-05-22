@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,8 @@ name = "netbox-sdk"
 version = "0.0.9"
 description = "SDK-first NetBox toolkit with Python SDK, CLI, and Textual TUIs"
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.11,<3.14"
 authors = [
   { name = "Emerson Felipe", email = "emerson@netdevopsbr.com" }
@@ -20,7 +22,6 @@ classifiers = [
   "Environment :: Console",
   "Intended Audience :: Developers",
   "Intended Audience :: System Administrators",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
