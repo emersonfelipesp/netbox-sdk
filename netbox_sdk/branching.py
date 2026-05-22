@@ -27,7 +27,6 @@ terminates. Conflicts surface as :class:`BranchConflictError`.
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import re
 import time
@@ -35,6 +34,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, cast
 
+from netbox_sdk.decorators import JsonResponse, api_json_response, branching_response_error
 from netbox_sdk.exceptions import (
     BranchConflictError,
     BranchingPluginUnavailableError,
@@ -59,19 +59,6 @@ _SCHEMA_ID_RE = re.compile(r"^[a-z0-9]{8}$")
 _TERMINAL_JOB_STATUSES = frozenset({"completed", "errored", "failed", "terminated"})
 _DEFAULT_POLL_INTERVAL = 2.0
 _DEFAULT_TIMEOUT = 300.0
-
-
-def _decode_json(response: ApiResponse) -> Any:
-    try:
-        return response.json()
-    except json.JSONDecodeError as exc:
-        raise ContentError(response) from exc
-
-
-def _raise_for_status(response: ApiResponse) -> None:
-    if 200 <= response.status < 300:
-        return
-    raise RequestError(response)
 
 
 def _is_schema_id(value: str) -> bool:
@@ -109,6 +96,18 @@ class BranchingClient:
         self._api = api
         self._client = api.client
 
+    @api_json_response(error_mapper=branching_response_error, include_response=True)
+    async def _json_response(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: dict[str, Any] | None = None,
+        payload: dict[str, Any] | None = None,
+        resource_op: bool = False,
+    ) -> ApiResponse:
+        return await self._client.request(method, path, query=query, payload=payload)
+
     # ------------------------------------------------------------------
     # Feature detection
     # ------------------------------------------------------------------
@@ -124,16 +123,9 @@ class BranchingClient:
 
     async def branchable_models(self) -> _BuiltinList[dict[str, Any]]:
         """List the NetBox models that participate in branching."""
-        response = await self._client.request("GET", f"{self.BASE}/branchable-models/")
-        _raise_for_status(response)
-        payload = _decode_json(response)
-        if isinstance(payload, dict) and "results" in payload:
-            results = payload["results"]
-            if isinstance(results, list):
-                return cast("list[dict[str, Any]]", list(results))
-        if isinstance(payload, list):
-            return cast("list[dict[str, Any]]", list(payload))
-        raise ContentError(response)
+        return self._list_payload(
+            await self._json_response("GET", f"{self.BASE}/branchable-models/", resource_op=True)
+        )
 
     # ------------------------------------------------------------------
     # CRUD
@@ -145,12 +137,9 @@ class BranchingClient:
     async def get(self, id_or_schema: int | str) -> dict[str, Any]:
         """Fetch a single branch by primary key or ``schema_id``."""
         pk = await self._resolve_pk(id_or_schema)
-        response = await self._client.request("GET", f"{self.BASE}/branches/{pk}/")
-        _raise_for_status(response)
-        payload = _decode_json(response)
-        if not isinstance(payload, dict):
-            raise ContentError(response)
-        return payload
+        return self._dict_payload(
+            await self._json_response("GET", f"{self.BASE}/branches/{pk}/", resource_op=True)
+        )
 
     async def get_by_name(self, name: str) -> dict[str, Any] | None:
         """Find a branch by ``name``; returns ``None`` when nothing matches."""
@@ -163,30 +152,23 @@ class BranchingClient:
     async def create(self, name: str, **fields: Any) -> dict[str, Any]:
         """Create a branch with the given name and optional extra fields."""
         body: dict[str, Any] = {"name": name, **fields}
-        response = await self._client.request("POST", f"{self.BASE}/branches/", payload=body)
-        self._raise_branching(response)
-        payload = _decode_json(response)
-        if not isinstance(payload, dict):
-            raise ContentError(response)
-        return payload
+        return self._dict_payload(
+            await self._json_response("POST", f"{self.BASE}/branches/", payload=body)
+        )
 
     async def update(self, id_or_schema: int | str, **fields: Any) -> dict[str, Any]:
         """Patch a branch's metadata."""
         pk = await self._resolve_pk(id_or_schema)
-        response = await self._client.request(
-            "PATCH", f"{self.BASE}/branches/{pk}/", payload=fields
+        return self._dict_payload(
+            await self._json_response(
+                "PATCH", f"{self.BASE}/branches/{pk}/", payload=fields, resource_op=True
+            )
         )
-        self._raise_branching(response, resource_op=True)
-        payload = _decode_json(response)
-        if not isinstance(payload, dict):
-            raise ContentError(response)
-        return payload
 
     async def delete(self, id_or_schema: int | str) -> None:
         """Delete a branch."""
         pk = await self._resolve_pk(id_or_schema)
-        response = await self._client.request("DELETE", f"{self.BASE}/branches/{pk}/")
-        self._raise_branching(response, resource_op=True)
+        await self._json_response("DELETE", f"{self.BASE}/branches/{pk}/", resource_op=True)
 
     # ------------------------------------------------------------------
     # Action verbs
@@ -252,14 +234,11 @@ class BranchingClient:
     async def archive(self, id_or_schema: int | str) -> dict[str, Any]:
         """Archive the branch (synchronous server-side; returns the updated branch)."""
         pk = await self._resolve_pk(id_or_schema)
-        response = await self._client.request(
-            "POST", f"{self.BASE}/branches/{pk}/archive/", payload={}
+        return self._dict_payload(
+            await self._json_response(
+                "POST", f"{self.BASE}/branches/{pk}/archive/", payload={}, resource_op=True
+            )
         )
-        self._raise_branching(response, resource_op=True)
-        payload = _decode_json(response)
-        if not isinstance(payload, dict):
-            raise ContentError(response)
-        return payload
 
     # ------------------------------------------------------------------
     # Read-only collections
@@ -287,11 +266,9 @@ class BranchingClient:
         last: dict[str, Any] = {}
         last_status: str | None = None
         while True:
-            response = await self._client.request("GET", f"/api/core/jobs/{job_id}/")
-            _raise_for_status(response)
-            payload = _decode_json(response)
-            if not isinstance(payload, dict):
-                raise ContentError(response)
+            payload = self._dict_payload(
+                await self._json_response("GET", f"/api/core/jobs/{job_id}/", resource_op=True)
+            )
             last = payload
             status_value = payload.get("status")
             if isinstance(status_value, dict):
@@ -327,18 +304,7 @@ class BranchingClient:
     # ------------------------------------------------------------------
     async def _list(self, path: str, filters: dict[str, Any]) -> _BuiltinList[dict[str, Any]]:
         query = {k: v for k, v in filters.items() if v is not None} or None
-        response = await self._client.request("GET", path, query=query)
-        if response.status == 404:
-            raise BranchingPluginUnavailableError()
-        _raise_for_status(response)
-        payload = _decode_json(response)
-        if isinstance(payload, dict) and "results" in payload:
-            results = payload["results"]
-            if isinstance(results, list):
-                return cast("list[dict[str, Any]]", list(results))
-        if isinstance(payload, list):
-            return cast("list[dict[str, Any]]", list(payload))
-        raise ContentError(response)
+        return self._list_payload(await self._json_response("GET", path, query=query))
 
     async def _action(
         self,
@@ -351,15 +317,14 @@ class BranchingClient:
         timeout: float | None,
     ) -> dict[str, Any]:
         pk = await self._resolve_pk(id_or_schema)
-        response = await self._client.request(
-            "POST",
-            f"{self.BASE}/branches/{pk}/{verb}/",
-            payload=body if body is not None else {},
+        payload = self._dict_payload(
+            await self._json_response(
+                "POST",
+                f"{self.BASE}/branches/{pk}/{verb}/",
+                payload=body if body is not None else {},
+                resource_op=True,
+            )
         )
-        self._raise_branching(response, resource_op=True)
-        payload = _decode_json(response)
-        if not isinstance(payload, dict):
-            raise ContentError(response)
         if wait:
             job_id = self._job_id(payload)
             if job_id is None:
@@ -386,6 +351,24 @@ class BranchingClient:
         raise ValueError(
             f"Branch identifier must be int PK or 8-char schema_id, got {id_or_schema!r}"
         )
+
+    @staticmethod
+    def _dict_payload(decoded: JsonResponse) -> dict[str, Any]:
+        payload = decoded.payload
+        if not isinstance(payload, dict):
+            raise ContentError(decoded.response)
+        return payload
+
+    @staticmethod
+    def _list_payload(decoded: JsonResponse) -> _BuiltinList[dict[str, Any]]:
+        payload = decoded.payload
+        if isinstance(payload, dict) and "results" in payload:
+            results = payload["results"]
+            if isinstance(results, list):
+                return cast("list[dict[str, Any]]", list(results))
+        if isinstance(payload, list):
+            return cast("list[dict[str, Any]]", list(payload))
+        raise ContentError(decoded.response)
 
     @staticmethod
     def _extract_schema_id(branch: Any) -> str | None:
@@ -432,33 +415,6 @@ class BranchingClient:
             if isinstance(value, int):
                 return value
         return None
-
-    def _raise_branching(self, response: ApiResponse, *, resource_op: bool = False) -> None:
-        if 200 <= response.status < 300:
-            return
-        if response.status == 404:
-            # resource_op=True means we already resolved a PK, so 404 means
-            # the specific resource was not found — not a missing plugin.
-            if resource_op:
-                raise RequestError(response)
-            raise BranchingPluginUnavailableError()
-        if response.status == 409:
-            try:
-                payload = response.json()
-            except json.JSONDecodeError:
-                payload = response.text
-            conflicts: Any
-            if isinstance(payload, dict):
-                raw_conflicts = payload.get("conflicts")
-                conflicts = (
-                    raw_conflicts
-                    if raw_conflicts is not None
-                    else (payload.get("detail") or payload)
-                )
-            else:
-                conflicts = payload
-            raise BranchConflictError(conflicts, response=response)
-        raise RequestError(response)
 
 
 __all__ = [
