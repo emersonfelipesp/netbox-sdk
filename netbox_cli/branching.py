@@ -7,21 +7,20 @@ Operates against the configured default NetBox profile via the SDK's
 
 from __future__ import annotations
 
-import inspect
-import json
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 import typer
 
-from netbox_cli.runtime import _get_client
-from netbox_cli.support import render_table, run_with_spinner
-from netbox_sdk.branching import BranchingClient
-from netbox_sdk.exceptions import (
-    BranchConflictError,
-    BranchingPluginUnavailableError,
-    BranchJobTimeoutError,
+from netbox_cli.decorators import (
+    json_result,
+    message_result,
+    raise_branching_cli_error,
+    resource_command,
+    table_result,
 )
+from netbox_cli.runtime import _get_client
+from netbox_sdk.branching import BranchingClient
 from netbox_sdk.facade import Api
 
 branching_app = typer.Typer(
@@ -31,44 +30,14 @@ branching_app = typer.Typer(
 )
 
 
-def _client() -> tuple[Api, Any]:
-    """Build an :class:`Api` for ad-hoc CLI use; caller closes the underlying client."""
+BranchingOperation = Callable[[BranchingClient], Awaitable[Any]]
+
+
+def _branching_resource() -> tuple[BranchingClient, Any]:
+    """Build a branching client for ad-hoc CLI use; caller closes the raw client."""
     raw = _get_client()
     api = Api(client=raw)
-    return api, raw
-
-
-async def _close(raw: Any) -> None:
-    close = getattr(raw, "close", None)
-    if callable(close):
-        result = close()
-        if inspect.isawaitable(result):
-            await result
-
-
-async def _with_branching(coro_factory: Any) -> Any:
-    api, raw = _client()
-    try:
-        return await coro_factory(api.branching)
-    finally:
-        await _close(raw)
-
-
-def _run(coro_factory: Any) -> Any:
-    """Resolve a coroutine factory using the configured NetBox profile."""
-    try:
-        return run_with_spinner(_with_branching(coro_factory))
-    except BranchingPluginUnavailableError as exc:
-        typer.echo(f"netbox-branching is not installed on this server: {exc}", err=True)
-        raise typer.Exit(code=2) from exc
-    except BranchConflictError as exc:
-        typer.echo(f"Conflict reported by NetBox: {exc}", err=True)
-        if exc.conflicts:
-            typer.echo(json.dumps(exc.conflicts, indent=2, default=str), err=True)
-        raise typer.Exit(code=3) from exc
-    except BranchJobTimeoutError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=4) from exc
+    return api.branching, raw
 
 
 def _resolve_id(value: str) -> int | str:
@@ -76,7 +45,12 @@ def _resolve_id(value: str) -> int | str:
 
 
 @branching_app.command("status")
-def cmd_status() -> None:
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=json_result(),
+    error_handler=raise_branching_cli_error,
+)
+def cmd_status() -> BranchingOperation:
     """Check whether the netbox-branching plugin is installed."""
 
     async def _run_async(client: BranchingClient) -> dict[str, Any]:
@@ -90,15 +64,19 @@ def cmd_status() -> None:
                 result["branch_count_error"] = str(exc)
         return result
 
-    payload = _run(_run_async)
-    typer.echo(json.dumps(payload, indent=2))
+    return _run_async
 
 
 @branching_app.command("list")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=table_result(columns=["id", "schema_id", "name", "status"]),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_list(
     status: str = typer.Option(None, "--status", help="Filter by branch status (e.g. ready)."),
     name: str = typer.Option(None, "--name", help="Filter by branch name."),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[list[dict[str, Any]]]]:
     """List branches."""
 
     filters: dict[str, Any] = {}
@@ -107,30 +85,34 @@ def cmd_list(
     if name:
         filters["name"] = name
 
-    async def _run_async(client: BranchingClient) -> list[dict[str, Any]]:
-        return await client.list(**filters)
-
-    rows = _run(_run_async)
-    render_table(rows, columns=["id", "schema_id", "name", "status"])
+    return lambda client: client.list(**filters)
 
 
 @branching_app.command("show")
-def cmd_show(id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id.")) -> None:
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=json_result(),
+    error_handler=raise_branching_cli_error,
+)
+def cmd_show(
+    id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
+) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Show a single branch."""
 
-    async def _run_async(client: BranchingClient) -> dict[str, Any]:
-        return await client.get(_resolve_id(id_or_schema))
-
-    payload = _run(_run_async)
-    typer.echo(json.dumps(payload, indent=2, default=str))
+    return lambda client: client.get(_resolve_id(id_or_schema))
 
 
 @branching_app.command("create")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=json_result(),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_create(
     name: str = typer.Option(..., "--name", help="Branch name."),
     description: str | None = typer.Option(None, "--description", help="Optional description."),
     comments: str | None = typer.Option(None, "--comments", help="Optional comments."),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Create a branch."""
 
     fields: dict[str, Any] = {}
@@ -139,20 +121,21 @@ def cmd_create(
     if comments is not None:
         fields["comments"] = comments
 
-    async def _run_async(client: BranchingClient) -> dict[str, Any]:
-        return await client.create(name, **fields)
-
-    payload = _run(_run_async)
-    typer.echo(json.dumps(payload, indent=2, default=str))
+    return lambda client: client.create(name, **fields)
 
 
 @branching_app.command("update")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=json_result(),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_update(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     name: str = typer.Option(None, "--name"),
     description: str = typer.Option(None, "--description"),
     comments: str = typer.Option(None, "--comments"),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Patch branch fields."""
 
     fields: dict[str, Any] = {
@@ -164,33 +147,35 @@ def cmd_update(
         typer.echo("Provide at least one --name/--description/--comments to update.", err=True)
         raise typer.Exit(code=1)
 
-    async def _run_async(client: BranchingClient) -> dict[str, Any]:
-        return await client.update(_resolve_id(id_or_schema), **fields)
-
-    payload = _run(_run_async)
-    typer.echo(json.dumps(payload, indent=2, default=str))
+    return lambda client: client.update(_resolve_id(id_or_schema), **fields)
 
 
 @branching_app.command("delete")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=message_result("Branch deleted."),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_delete(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation."),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[None]]:
     """Delete a branch."""
 
     if not yes:
         if not typer.confirm(f"Delete branch {id_or_schema}?", default=False):
             raise typer.Exit(code=1)
 
-    async def _run_async(client: BranchingClient) -> None:
-        await client.delete(_resolve_id(id_or_schema))
-
-    _run(_run_async)
-    typer.echo("Branch deleted.")
+    return lambda client: client.delete(_resolve_id(id_or_schema))
 
 
 def _action_factory(verb: str) -> Callable[..., None]:
     @branching_app.command(verb)
+    @resource_command(
+        resource_factory=_branching_resource,
+        renderer=json_result(),
+        error_handler=raise_branching_cli_error,
+    )
     def _cmd(  # noqa: ANN202
         id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
         commit: bool = typer.Option(
@@ -205,7 +190,7 @@ def _action_factory(verb: str) -> Callable[..., None]:
             True, "--wait/--no-wait", help="Wait for the background job to finish."
         ),
         timeout: float = typer.Option(600.0, "--timeout", help="Maximum seconds to wait."),
-    ) -> None:
+    ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
         async def _run_async(client: BranchingClient) -> dict[str, Any]:
             method = getattr(client, verb)
             return await method(
@@ -216,8 +201,7 @@ def _action_factory(verb: str) -> Callable[..., None]:
                 timeout=timeout,
             )
 
-        payload = _run(_run_async)
-        typer.echo(json.dumps(payload, indent=2, default=str))
+        return _run_async
 
     _cmd.__doc__ = f"Queue a {verb} on the branch."
     _cmd.__name__ = f"cmd_{verb}"
@@ -229,43 +213,50 @@ _action_factory("merge")
 
 
 @branching_app.command("revert")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=json_result(),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_revert(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     wait: bool = typer.Option(True, "--wait/--no-wait"),
     timeout: float = typer.Option(600.0, "--timeout"),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Revert a previously-merged branch."""
 
-    async def _run_async(client: BranchingClient) -> dict[str, Any]:
-        return await client.revert(_resolve_id(id_or_schema), wait=wait, timeout=timeout)
-
-    payload = _run(_run_async)
-    typer.echo(json.dumps(payload, indent=2, default=str))
+    return lambda client: client.revert(_resolve_id(id_or_schema), wait=wait, timeout=timeout)
 
 
 @branching_app.command("archive")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=json_result(),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_archive(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     yes: bool = typer.Option(False, "--yes", "-y"),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Archive a branch (synchronous server-side)."""
 
     if not yes:
         if not typer.confirm(f"Archive branch {id_or_schema}?", default=False):
             raise typer.Exit(code=1)
 
-    async def _run_async(client: BranchingClient) -> dict[str, Any]:
-        return await client.archive(_resolve_id(id_or_schema))
-
-    payload = _run(_run_async)
-    typer.echo(json.dumps(payload, indent=2, default=str))
+    return lambda client: client.archive(_resolve_id(id_or_schema))
 
 
 @branching_app.command("events")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=table_result(columns=["id", "branch", "type", "user", "time"]),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_events(
     branch: str = typer.Option(None, "--branch", help="Filter by branch PK or schema_id."),
     type_: str = typer.Option(None, "--type", help="Event type filter (e.g. synced, merged)."),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[list[dict[str, Any]]]]:
     """List branch events."""
 
     filters: dict[str, Any] = {}
@@ -274,19 +265,20 @@ def cmd_events(
     if type_:
         filters["type"] = type_
 
-    async def _run_async(client: BranchingClient) -> list[dict[str, Any]]:
-        return await client.events(**filters)
-
-    rows = _run(_run_async)
-    render_table(rows, columns=["id", "branch", "type", "user", "time"])
+    return lambda client: client.events(**filters)
 
 
 @branching_app.command("changes")
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=table_result(),
+    error_handler=raise_branching_cli_error,
+)
 def cmd_changes(
     branch: str = typer.Option(None, "--branch"),
     action: str = typer.Option(None, "--action", help="create / update / delete"),
     has_conflicts: bool = typer.Option(False, "--has-conflicts"),
-) -> None:
+) -> Callable[[BranchingClient], Awaitable[list[dict[str, Any]]]]:
     """List recorded change-diffs."""
 
     filters: dict[str, Any] = {}
@@ -297,22 +289,19 @@ def cmd_changes(
     if has_conflicts:
         filters["has_conflicts"] = "true"
 
-    async def _run_async(client: BranchingClient) -> list[dict[str, Any]]:
-        return await client.changes(**filters)
-
-    rows = _run(_run_async)
-    render_table(rows)
+    return lambda client: client.changes(**filters)
 
 
 @branching_app.command("models")
-def cmd_models() -> None:
+@resource_command(
+    resource_factory=_branching_resource,
+    renderer=table_result(),
+    error_handler=raise_branching_cli_error,
+)
+def cmd_models() -> Callable[[BranchingClient], Awaitable[list[dict[str, Any]]]]:
     """List branchable models."""
 
-    async def _run_async(client: BranchingClient) -> list[dict[str, Any]]:
-        return await client.branchable_models()
-
-    rows = _run(_run_async)
-    render_table(rows)
+    return lambda client: client.branchable_models()
 
 
 __all__ = ["branching_app"]

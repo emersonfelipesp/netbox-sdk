@@ -7,9 +7,9 @@ from typing import Any
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
-from netbox_sdk.client import NetBoxApiClient
+from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
-from netbox_sdk.exceptions import RequestError
+from netbox_sdk.decorators import api_json_response, api_raw_response
 from netbox_sdk.facade import _is_v2_token
 from netbox_sdk.versioning import SupportedNetBoxVersion
 
@@ -147,6 +147,23 @@ class TypedOperationMixin:
     def __init__(self, api: TypedApiBase) -> None:
         self._api = api
 
+    @api_json_response(none_on_404_kwarg="return_none_on_404")
+    async def _typed_json_response(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: QueryParams | None,
+        payload: Any,
+        return_none_on_404: bool,
+    ) -> ApiResponse:
+        return await self._api.client.request(
+            method,
+            path,
+            query=query,
+            payload=payload,
+        )
+
     async def _typed_json_request(
         self,
         method: str,
@@ -173,25 +190,32 @@ class TypedOperationMixin:
             path=path,
             version=self._api.netbox_version,
         )
-        response = await self._api.client.request(
+        payload = await self._typed_json_response(
             method,
             path,
             query=request_query,
             payload=request_payload,
+            return_none_on_404=return_none_on_404,
         )
-        if response.status == 404 and return_none_on_404:
-            return None
-        if response.status >= 400:
-            raise RequestError(response)
-        if response.status == 204 or not response.text.strip():
+        if payload is None:
             return None
         return validate_response(
             response_model,
-            response.json(),
+            payload,
             method=method,
             path=path,
             version=self._api.netbox_version,
         )
+
+    @api_raw_response()
+    async def _typed_raw_response(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: QueryParams | None,
+    ) -> ApiResponse:
+        return await self._api.client.request(method, path, query=query, expect_json=False)
 
     async def _typed_raw_request(
         self,
@@ -208,12 +232,7 @@ class TypedOperationMixin:
             path=path,
             version=self._api.netbox_version,
         )
-        response = await self._api.client.request(
-            method, path, query=request_query, expect_json=False
-        )
-        if response.status >= 400:
-            raise RequestError(response)
-        return response.text
+        return await self._typed_raw_response(method, path, query=request_query)
 
 
 class TypedAppBase(TypedOperationMixin):
@@ -231,33 +250,33 @@ class RawBranchingApp(TypedAppBase):
 
     BASE = "/api/plugins/branching"
 
+    @api_json_response()
+    async def _json_response(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | None = None,
+    ) -> ApiResponse:
+        return await self._api.client.request(method, path, query=query, payload=payload)
+
+    @api_json_response(none_on_statuses={404})
+    async def _delete_response(self, path: str) -> ApiResponse:
+        return await self._api.client.request("DELETE", path)
+
     async def _get(self, path: str, **params: Any) -> Any:
         query = {k: v for k, v in params.items() if v is not None} or None
-        response = await self._api.client.request("GET", path, query=query)
-        if response.status >= 400:
-            raise RequestError(response)
-        return response.json()
+        return await self._json_response("GET", path, query=query)
 
     async def _post(self, path: str, payload: dict[str, Any] | None = None) -> Any:
-        response = await self._api.client.request("POST", path, payload=payload or {})
-        if response.status >= 400:
-            raise RequestError(response)
-        if response.status == 204 or not response.text.strip():
-            return None
-        return response.json()
+        return await self._json_response("POST", path, payload=payload or {})
 
     async def _patch(self, path: str, payload: dict[str, Any]) -> Any:
-        response = await self._api.client.request("PATCH", path, payload=payload)
-        if response.status >= 400:
-            raise RequestError(response)
-        if response.status == 204 or not response.text.strip():
-            return None
-        return response.json()
+        return await self._json_response("PATCH", path, payload=payload)
 
     async def _delete(self, path: str) -> None:
-        response = await self._api.client.request("DELETE", path)
-        if response.status >= 400 and response.status != 404:
-            raise RequestError(response)
+        await self._delete_response(path)
 
     async def list_branches(self, **filters: Any) -> Any:
         return await self._get(f"{self.BASE}/branches/", **filters)
