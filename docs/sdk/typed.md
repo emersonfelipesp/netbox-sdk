@@ -33,7 +33,7 @@ Patch versions normalize to their release line, so `4.4.10` selects the `4.4`
 typed client.
 
 Continuous integration exercises the live-NetBox suite against
-`v4.6.0`, `v4.5.9`, and `v4.5.8`.
+`v4.6.1`, `v4.5.10`, and `v4.5.8`.
 
 ## Example
 

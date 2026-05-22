@@ -1,5 +1,7 @@
 # netbox-sdk
 
+**SDK-first NetBox integration package for Python automation, terminal workflows, and Textual UIs.**
+
 `netbox-sdk` is an SDK-first NetBox toolkit with terminal interfaces built on
 one shared runtime:
 
@@ -11,6 +13,28 @@ Published package names remain:
 
 - `netbox-sdk`
 - `netbox-console`
+
+## Integration Package Certification Readiness
+
+`netbox-sdk` is an integration package, not a NetBox plugin. It is not installed
+into NetBox with `PLUGINS`, does not add Django models or views, and does not
+need a plugin config name. Its certification evidence therefore focuses on the
+same quality criteria that apply to ecosystem packages: open-source licensing,
+package metadata, API compatibility, tests, documentation, support channels, and
+release maintainability.
+
+| Area | Evidence |
+| --- | --- |
+| License | Apache-2.0 in `LICENSE.txt` and `pyproject.toml` package metadata |
+| Package | `netbox-sdk` on PyPI, with `netbox_sdk`, `netbox_cli`, and `netbox_tui` import packages |
+| Python | Python `3.11`, `3.12`, and `3.13` |
+| NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.1`, `v4.5.10`, and `v4.5.8` |
+| Tests | Mock API suite, live NetBox suite, security tests, type checks, package metadata checks, and strict docs builds in GitHub Actions |
+| Support | GitHub issues for bugs/features/docs requests; docs at <https://emersonfelipesp.github.io/netbox-sdk/> |
+
+See [CERTIFICATION.md](CERTIFICATION.md) for the SDK-specific application
+packet and the mapping from plugin certification criteria to integration-package
+evidence.
 
 ## Quick Start with the Demo Instance
 
@@ -101,6 +125,22 @@ nbx logs
 - `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, shared formatting, and demo helpers.
 - `netbox_cli` owns the `nbx` command tree and lazy-loads `netbox_tui` where needed.
 - `netbox_tui` owns all Textual apps, themes, widgets, and TCSS.
+
+## Runtime Dependencies
+
+Base SDK installs depend on `aiohttp`, `pydantic`, `email-validator`, `rich`, and
+`pyyaml`. Optional extras add the terminal surfaces and local test tools:
+
+- `cli`: Typer-powered `nbx` command tree
+- `tui`: Textual terminal applications
+- `mock`: FastAPI/uvicorn mock NetBox API for integration tests
+- `demo`: Playwright-powered demo setup automation
+- `branching`: semantic marker for NetBox Branching workflows; no extra runtime
+  dependency is required today
+
+External services are optional at runtime. The Python SDK can target any NetBox
+instance reachable over HTTPS/HTTP, and the local mock API can be used for
+offline tests.
 
 ## Contributor Workflow
 

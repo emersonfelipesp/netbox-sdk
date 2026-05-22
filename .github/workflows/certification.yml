@@ -1,0 +1,50 @@
+name: Certification Evidence
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  certification-evidence:
+    name: evidence, package metadata, and wheel smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Validate certification evidence
+        run: uv run --with pytest pytest -q tests/test_certification_readiness.py
+
+      - name: Build package distributions
+        run: uv run --no-project --with build python -m build
+
+      - name: Check package metadata
+        run: uv run --no-project --with twine python -m twine check dist/*
+
+      - name: Smoke install wheel
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/netbox-sdk-smoke
+          /tmp/netbox-sdk-smoke/bin/python -m pip install --upgrade pip
+          wheel="$(ls dist/*.whl | head -n 1)"
+          /tmp/netbox-sdk-smoke/bin/python -m pip install "$wheel"
+          /tmp/netbox-sdk-smoke/bin/python - <<'PY'
+          import importlib.resources
+
+          import netbox_sdk
+
+          assert netbox_sdk.__version__
+          assert importlib.resources.files("netbox_sdk").joinpath("py.typed").is_file()
+          print("netbox-sdk wheel import ok:", netbox_sdk.__version__)
+          PY
