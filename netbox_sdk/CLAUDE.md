@@ -2,9 +2,9 @@
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/netbox_sdk/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/netbox_sdk/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
@@ -22,9 +22,12 @@ Standalone NetBox REST API client library.
 ```
 netbox_sdk/
 ├── __init__.py
+├── branching.py
 ├── client.py
 ├── config.py
+├── decorators.py
 ├── http_cache.py
+├── http_ssl.py
 ├── schema.py
 ├── services.py
 ├── plugin_discovery.py
@@ -38,6 +41,7 @@ netbox_sdk/
 ├── typed_api.py
 ├── typed_runtime.py
 ├── versioning.py
+├── mock/
 ├── models/
 ├── typed_versions/
 ├── django_models/
@@ -48,15 +52,19 @@ netbox_sdk/
 ## Public Surface
 
 - `netbox_sdk.config` — config model, profile persistence, auth headers
+- `netbox_sdk.branching` — NetBox Branching API client, branch-scoped header helpers, job polling helpers
 - `netbox_sdk.client` — async API client and connection probe
+- `netbox_sdk.decorators` — reusable decorator factories for SDK command/resource wrapper metadata
 - `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`)
 - `netbox_sdk.facade` — async convenience facade exposed via `api()`
 - `netbox_sdk.typed_api` — versioned typed client factory exposed via `typed_api()`
 - `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
 - `netbox_sdk.http_cache` — filesystem cache primitives
+- `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
 - `netbox_sdk.schema` — OpenAPI loading and indexing
 - `netbox_sdk.services` — dynamic request resolution
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
+- `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
 - Shared cross-package helpers: `formatting`, `logging_runtime`, `output_safety`, `trace_ascii`, `demo_auth`, `django_models`
 
 ## Validation Expectations

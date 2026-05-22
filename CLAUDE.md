@@ -2,9 +2,9 @@
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
@@ -28,9 +28,12 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 
 ```
 netbox_sdk/   standalone runtime-independent API layer
+    ├── branching.py
     ├── config.py
     ├── client.py
+    ├── decorators.py
     ├── http_cache.py
+    ├── http_ssl.py
     ├── schema.py
     ├── services.py
     ├── plugin_discovery.py
@@ -43,20 +46,24 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── typed_api.py
     ├── typed_runtime.py
     ├── versioning.py
+    ├── mock/
     ├── models/
     ├── typed_versions/
     ├── django_models/
     └── reference/openapi/
 
 netbox_tui/   optional Textual layer
-    ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py
-    ├── chrome.py / widgets.py / navigation.py / panels.py / state.py
+    ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py
+    ├── branch_screen.py / filter_overlay.py / login_modal.py / ssl_verify_support.py
+    ├── chrome.py / widgets.py / navigation.py / nav_blueprint.py / panels.py / state.py
     ├── theme_registry.py
     ├── *.tcss
     └── themes/*.json
 
 netbox_cli/   optional Typer layer
     ├── __init__.py   root app + entrypoint
+    ├── branching.py  NetBox Branching commands
+    ├── decorators.py reusable Typer decorator factories
     ├── runtime.py    config/index/client factories
     ├── dynamic.py    OpenAPI command registration/execution
     ├── support.py    shared CLI rendering/error helpers
@@ -108,7 +115,7 @@ pip install -e '.[all]'
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
-- Bundled typed support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`. The CI live-NetBox suite exercises `v4.6.0`, `v4.5.9`, and `v4.5.8`.
+- Bundled typed support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`. The CI live-NetBox suite exercises `v4.6.1`, `v4.5.10`, and `v4.5.8`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 

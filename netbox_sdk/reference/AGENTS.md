@@ -12,9 +12,9 @@ This file mirrors the sibling `CLAUDE.md` guidance for agents that read `AGENTS.
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/netbox_sdk/reference/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/netbox_sdk/reference/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
@@ -26,6 +26,7 @@ This directory contains reference material packaged with or directly relevant to
 | Path | Purpose |
 |---|---|
 | `openapi/netbox-openapi.json` | Default bundled OpenAPI schema path used by compatibility helpers |
+| `openapi/netbox-openapi-4.6.json` | Bundled NetBox 4.6 release-line schema |
 | `openapi/netbox-openapi-4.5.json` | Bundled NetBox 4.5 release-line schema |
 | `openapi/netbox-openapi-4.4.json` | Bundled NetBox 4.4 release-line schema |
 | `openapi/netbox-openapi-4.3.json` | Bundled NetBox 4.3 release-line schema |
@@ -33,5 +34,5 @@ This directory contains reference material packaged with or directly relevant to
 ## Notes
 
 - Runtime code should prefer the versioned bundled schemas for typed and schema-loading workflows.
-- `netbox_sdk.versioning` defines the supported release lines: `4.5`, `4.4`, and `4.3`.
+- `netbox_sdk.versioning` defines the supported release lines: `4.6`, `4.5`, `4.4`, and `4.3`.
 - Broader design and prior-art references live in the repo-level [`reference/`](../../reference/) directory, including [`reference/PYNETBOX.md`](../../reference/PYNETBOX.md).

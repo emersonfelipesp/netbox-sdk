@@ -12,9 +12,9 @@ This file mirrors the sibling `CLAUDE.md` guidance for agents that read `AGENTS.
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/reference/textual/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/reference/textual/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
@@ -50,51 +50,50 @@ These references cover the major patterns you'll encounter when building the `ne
 
 ---
 
-## Cross-Project Patterns for NMS-CLI
+## Cross-Project Patterns for netbox-sdk
 
 ### 1. Multi-tab Layout (Dolphie, Toolong)
-Both Dolphie and Toolong open multiple targets (hosts/files) as tabs. For NMS-CLI:
-- One tab per monitored device
-- Color-coded tabs per device type or group
+Both Dolphie and Toolong open multiple targets (hosts/files) as tabs. For netbox-sdk:
+- One tab per NetBox view, resource group, or long-running workflow
+- Color-coded tabs by object state, branch, or theme token where it improves scanning
 
 ### 2. YAML-Based Config Storage (Posting)
-Posting stores every HTTP request as a plain YAML file. NMS-CLI should store:
-- Device inventories as YAML
-- Named connection profiles as YAML
-- Templates and playbooks as YAML
-All committed alongside infrastructure code in VCS.
+Posting stores every HTTP request as a plain YAML file. netbox-sdk should store:
+- Named NetBox connection profiles as YAML
+- Demo, docs-capture, and mock API fixtures as readable files
+- Generated capture outputs separately from hand-authored docs
 
 ### 3. Environments & Variable Substitution (Posting)
-Named environments (dev/staging/prod) with variable substitution in URLs/commands maps directly to NMS-CLI's multi-site/multi-environment use case.
+Named environments (dev/staging/prod) with variable substitution in URLs/commands maps directly to netbox-sdk profiles and demo/mock/live NetBox targets.
 
 ### 4. Record & Replay (Dolphie)
-Dolphie records sessions to SQLite + ZSTD for forensic replay. NMS-CLI should support:
+Dolphie records sessions to SQLite + ZSTD for forensic replay. netbox-sdk should support:
 - Session recording for audit trails
 - Replay for incident post-mortems
 - ZSTD compression to keep files small
 
 ### 5. Daemon / Headless Mode (Dolphie)
-Dolphie runs as a background `systemctl` service for recording. NMS-CLI's collector should:
-- Run headlessly without the TUI
+Dolphie runs as a background `systemctl` service for recording. netbox-sdk workflows should:
+- Run headlessly from the CLI without the TUI
 - Write structured logs
-- Integrate with systemd
+- Keep TUI launchers optional wrappers around SDK/CLI behavior
 
 ### 6. Constant-Time File Access (Toolong)
-Toolong's line-offset index enables instant opening of huge files. NMS-CLI log/capture viewers should never load entire files into memory.
+Toolong's line-offset index enables instant opening of huge files. netbox-sdk log and capture viewers should never load entire files into memory.
 
 ### 7. Real PTY Shell Integration (Toad)
-Toad embeds a real PTY — `cd` and env vars persist, interactive programs work. If NMS-CLI needs an embedded shell pane, use a PTY (not `subprocess.run`).
+Toad embeds a real PTY — `cd` and env vars persist, interactive programs work. If netbox-sdk ever needs an embedded shell pane, use a PTY (not `subprocess.run`).
 
 ### 8. CLI-First, TUI-Optional (Memray)
-Memray's core CLI works without Textual; the TUI is one subcommand. NMS-CLI should:
+Memray's core CLI works without Textual; the TUI is one subcommand. netbox-sdk should:
 - Keep all features available from the CLI
 - Make the TUI an optional interactive layer on top
 
 ### 9. Pipe Support (Toolong)
-`tree / | tl` works because Toolong accepts stdin as a file. NMS-CLI commands should be pipeable: `nms show route | tl`, `nms capture | tl`.
+`tree / | tl` works because Toolong accepts stdin as a file. netbox-sdk commands should remain pipeable and scriptable: `nbx ... --output json | jq`, `nbx ... --output markdown`.
 
 ### 10. Jump Mode & Command Palette (Posting)
-Posting's jump mode (letter overlays) and command palette (`Ctrl+P`) minimize mouse dependency. Essential for NMS engineers working over SSH or on headless servers.
+Posting's jump mode (letter overlays) and command palette (`Ctrl+P`) minimize mouse dependency. Useful for NetBox operators working over SSH or on headless servers.
 
 ---
 

@@ -12,9 +12,9 @@ This file mirrors the sibling `CLAUDE.md` guidance for agents that read `AGENTS.
 
 ## Workspace Context
 
-This file lives at `/root/personal-context/nmulticloud-context/netbox-cli/reference/CLAUDE.md` inside the `personal-context` workspace.
+This file lives at `/root/personal-context/nmulticloud-context/netbox-sdk/reference/CLAUDE.md` inside the `personal-context` workspace.
 Workspace guidance: `/root/personal-context/CLAUDE.md`.
-Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-cli.md`.
+Per-repo deep-dive: `/root/personal-context/claude-reference/netbox-sdk.md`.
 Submodule layout and cross-repo links: `/root/personal-context/claude-reference/dependency-map.md`.
 
 ---
@@ -70,5 +70,5 @@ Annotated source / documentation extracts from real-world Textual apps, used to 
 ### `openapi/` — NetBox OpenAPI Schema (repo-level copy)
 
 These are reference copies only. The runtime and typed SDK source of truth is in
-`netbox_sdk/reference/openapi/`, including versioned bundles for `4.5`, `4.4`,
-and `4.3`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.
+`netbox_sdk/reference/openapi/`, including versioned bundles for `4.6`, `4.5`,
+`4.4`, and `4.3`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.
