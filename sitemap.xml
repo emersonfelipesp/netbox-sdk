@@ -27,6 +27,13 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/NETBOX_UI_TO_TEXTUAL_GUIDELINES/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/certification/</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/certification/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/certification/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/command-capture-guide/</loc>
         <lastmod>2026-05-22</lastmod>
         <changefreq>daily</changefreq>
@@ -499,6 +506,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/NETBOX_UI_TO_TEXTUAL_GUIDELINES/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/NETBOX_UI_TO_TEXTUAL_GUIDELINES/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/certification/</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/certification/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/certification/"/>
     </url>
     <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/command-capture-guide/</loc>
