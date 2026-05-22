@@ -8,11 +8,12 @@ Operates against the configured default NetBox profile via the SDK's
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import Any, ParamSpec, TypeVar
 
 import typer
 
 from netbox_cli.decorators import (
+    CliResultRenderer,
     json_result,
     message_result,
     raise_branching_cli_error,
@@ -31,6 +32,8 @@ branching_app = typer.Typer(
 
 
 BranchingOperation = Callable[[BranchingClient], Awaitable[Any]]
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def _branching_resource() -> tuple[BranchingClient, Any]:
@@ -40,16 +43,25 @@ def _branching_resource() -> tuple[BranchingClient, Any]:
     return api.branching, raw
 
 
+def _branching_command(
+    renderer: CliResultRenderer,
+) -> Callable[
+    [Callable[P, Callable[[BranchingClient], Awaitable[R]]]],
+    Callable[P, None],
+]:
+    return resource_command(
+        resource_factory=_branching_resource,
+        renderer=renderer,
+        error_handler=raise_branching_cli_error,
+    )
+
+
 def _resolve_id(value: str) -> int | str:
     return int(value) if value.isdigit() else value
 
 
 @branching_app.command("status")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=json_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(json_result())
 def cmd_status() -> BranchingOperation:
     """Check whether the netbox-branching plugin is installed."""
 
@@ -68,11 +80,7 @@ def cmd_status() -> BranchingOperation:
 
 
 @branching_app.command("list")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=table_result(columns=["id", "schema_id", "name", "status"]),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(table_result(columns=["id", "schema_id", "name", "status"]))
 def cmd_list(
     status: str = typer.Option(None, "--status", help="Filter by branch status (e.g. ready)."),
     name: str = typer.Option(None, "--name", help="Filter by branch name."),
@@ -89,11 +97,7 @@ def cmd_list(
 
 
 @branching_app.command("show")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=json_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(json_result())
 def cmd_show(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
 ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
@@ -103,11 +107,7 @@ def cmd_show(
 
 
 @branching_app.command("create")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=json_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(json_result())
 def cmd_create(
     name: str = typer.Option(..., "--name", help="Branch name."),
     description: str | None = typer.Option(None, "--description", help="Optional description."),
@@ -125,11 +125,7 @@ def cmd_create(
 
 
 @branching_app.command("update")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=json_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(json_result())
 def cmd_update(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     name: str = typer.Option(None, "--name"),
@@ -151,11 +147,7 @@ def cmd_update(
 
 
 @branching_app.command("delete")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=message_result("Branch deleted."),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(message_result("Branch deleted."))
 def cmd_delete(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation."),
@@ -171,11 +163,7 @@ def cmd_delete(
 
 def _action_factory(verb: str) -> Callable[..., None]:
     @branching_app.command(verb)
-    @resource_command(
-        resource_factory=_branching_resource,
-        renderer=json_result(),
-        error_handler=raise_branching_cli_error,
-    )
+    @_branching_command(json_result())
     def _cmd(  # noqa: ANN202
         id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
         commit: bool = typer.Option(
@@ -213,11 +201,7 @@ _action_factory("merge")
 
 
 @branching_app.command("revert")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=json_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(json_result())
 def cmd_revert(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     wait: bool = typer.Option(True, "--wait/--no-wait"),
@@ -229,11 +213,7 @@ def cmd_revert(
 
 
 @branching_app.command("archive")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=json_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(json_result())
 def cmd_archive(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     yes: bool = typer.Option(False, "--yes", "-y"),
@@ -248,11 +228,7 @@ def cmd_archive(
 
 
 @branching_app.command("events")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=table_result(columns=["id", "branch", "type", "user", "time"]),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(table_result(columns=["id", "branch", "type", "user", "time"]))
 def cmd_events(
     branch: str = typer.Option(None, "--branch", help="Filter by branch PK or schema_id."),
     type_: str = typer.Option(None, "--type", help="Event type filter (e.g. synced, merged)."),
@@ -269,11 +245,7 @@ def cmd_events(
 
 
 @branching_app.command("changes")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=table_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(table_result())
 def cmd_changes(
     branch: str = typer.Option(None, "--branch"),
     action: str = typer.Option(None, "--action", help="create / update / delete"),
@@ -293,11 +265,7 @@ def cmd_changes(
 
 
 @branching_app.command("models")
-@resource_command(
-    resource_factory=_branching_resource,
-    renderer=table_result(),
-    error_handler=raise_branching_cli_error,
-)
+@_branching_command(table_result())
 def cmd_models() -> Callable[[BranchingClient], Awaitable[list[dict[str, Any]]]]:
     """List branchable models."""
 
