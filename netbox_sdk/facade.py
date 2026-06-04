@@ -9,10 +9,10 @@ from collections import deque
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, ClassVar, Literal, Self, cast
+from typing import Any, ClassVar, Literal, Self, TypeAlias, cast
 from urllib.parse import parse_qsl, urlsplit
 
-from netbox_sdk.client import ApiResponse, NetBoxApiClient
+from netbox_sdk.client import ApiResponse, JSONScalar, JSONValue, NetBoxApiClient
 from netbox_sdk.config import Config
 from netbox_sdk.exceptions import (
     AllocationError,
@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 PaginationMode = Literal["cursor", "offset", "auto"]
 ResolvedPaginationMode = Literal["cursor", "offset"]
+RecordData: TypeAlias = dict[str, Any]
 DEFAULT_CURSOR_PAGE_SIZE = 50
 _PAGINATION_MODE_ENV_VAR = "NETBOX_SDK_PAGINATION_MODE"
 _VALID_PAGINATION_MODES = ("cursor", "offset", "auto")
@@ -225,10 +226,10 @@ class Api:
             self._resolved_pagination_mode = "offset"
         return self._resolved_pagination_mode
 
-    async def status(self) -> dict[str, Any]:
+    async def status(self) -> dict[str, JSONValue]:
         return await self.client.status()
 
-    async def openapi(self) -> dict[str, Any]:
+    async def openapi(self) -> dict[str, JSONValue]:
         return await self.client.openapi()
 
     async def get_version(self) -> str:
@@ -241,7 +242,7 @@ class Api:
         response = await self.client.create_token(username, password)
         _raise_for_status(response)
         payload = _decode_json(response)
-        return Record(self, None, payload, has_details=True)
+        return Record(self, None, cast(RecordData, payload), has_details=True)
 
     @asynccontextmanager
     async def activate_branch(self, branch: Any) -> AsyncIterator[Api]:
@@ -276,7 +277,7 @@ class App:
     async def config(self) -> dict[str, Any]:
         response = await self.api.client.request("GET", f"/api/{self.name}/config/")
         _raise_for_status(response)
-        return _decode_json(response)
+        return cast(dict[str, Any], _decode_json(response))
 
 
 class PluginsApp:
@@ -293,7 +294,7 @@ class PluginsApp:
         payload = _decode_json(response)
         if not isinstance(payload, list):
             raise ContentError(response)
-        return payload
+        return cast(list[dict[str, Any]], payload)
 
 
 @dataclass(frozen=True)
@@ -469,7 +470,7 @@ class Endpoint:
             return None
         _raise_for_status(response)
         payload = _decode_json(response)
-        return self._make_record(payload, has_details=True)
+        return self._make_record(cast(RecordData, payload), has_details=True)
 
     async def create(self, *args: Any, **kwargs: Any) -> Record | list[Record]:
         """Create one or many records via ``POST`` to the list endpoint.
@@ -485,7 +486,7 @@ class Endpoint:
         response = await self.api.client.request("POST", self._list_path, payload=payload)
         _raise_for_status(response)
         decoded = _decode_json(response)
-        return self._wrap_result(decoded, has_details=True)
+        return cast(Record | list[Record], self._wrap_result(decoded, has_details=True))
 
     async def update(self, objects: list[Any]) -> list[Record]:
         """Bulk-update records via ``PATCH`` to the list endpoint.
@@ -504,7 +505,7 @@ class Endpoint:
         _raise_for_status(response)
         decoded = _decode_json(response)
         wrapped = self._wrap_result(decoded, has_details=True)
-        return wrapped if isinstance(wrapped, list) else [wrapped]
+        return cast(list[Record], wrapped if isinstance(wrapped, list) else [wrapped])
 
     async def delete(self, objects: Any) -> bool:
         """Bulk-delete records by id(s) or Record instance(s) via ``DELETE``.
@@ -561,11 +562,13 @@ class Endpoint:
             return RODetailEndpoint(self.api, self, spec.name)
         return DetailEndpoint(self.api, self, spec.name)
 
-    def _make_record(self, payload: dict[str, Any], *, has_details: bool) -> Record:
+    def _make_record(self, payload: RecordData, *, has_details: bool) -> Record:
         record_type = RECORD_TYPES.get((self.group, self.resource), Record)
         return record_type(self.api, self, payload, has_details=has_details)
 
-    def _wrap_result(self, payload: Any, *, has_details: bool) -> Any:
+    def _wrap_result(
+        self, payload: JSONValue, *, has_details: bool
+    ) -> Record | list[Record | JSONValue] | JSONScalar:
         if isinstance(payload, list):
             return [
                 self._make_record(item, has_details=has_details) if isinstance(item, dict) else item
@@ -736,9 +739,14 @@ class RecordSet:
         raw_count = payload.get("count")
         if isinstance(raw_count, int):
             self.count = raw_count
-        self._buffer = deque(
-            self.endpoint._make_record(item, has_details=False) if isinstance(item, dict) else item
-            for item in results
+        self._buffer = cast(
+            deque[Record],
+            deque(
+                self.endpoint._make_record(item, has_details=False)
+                if isinstance(item, dict)
+                else item
+                for item in results
+            ),
         )
         if self._mode == "cursor":
             self._advance_cursor(results)
@@ -835,7 +843,7 @@ class RecordSet:
         Returns:
             The list of updated records, or ``None`` when no record changed.
         """
-        updates: list[dict[str, Any]] = []
+        updates: list[RecordData] = []
         async for record in self:
             record.assign(kwargs)
             changed = record.updates()
@@ -868,7 +876,7 @@ class Record:
     )
 
     def __init__(
-        self, api: Api, endpoint: Endpoint | None, values: dict[str, Any], *, has_details: bool
+        self, api: Api, endpoint: Endpoint | None, values: RecordData, *, has_details: bool
     ) -> None:
         object.__setattr__(self, "api", api)
         object.__setattr__(
@@ -907,7 +915,7 @@ class Record:
                 return str(value)
         return repr(self._data.get("id", self._data))
 
-    def assign(self, data: dict[str, Any]) -> None:
+    def assign(self, data: RecordData) -> None:
         for key, value in data.items():
             setattr(self, key, value)
 
@@ -930,10 +938,10 @@ class Record:
         object.__setattr__(self, "_initial", self.serialize())
         return self
 
-    def serialize(self) -> dict[str, Any]:
+    def serialize(self) -> RecordData:
         return {key: _serialize_value(value) for key, value in self._data.items() if key != "url"}
 
-    def updates(self) -> dict[str, Any]:
+    def updates(self) -> RecordData:
         current = self.serialize()
         initial = object.__getattribute__(self, "_initial")
         return {key: value for key, value in current.items() if initial.get(key) != value}
@@ -960,7 +968,7 @@ class Record:
             object.__setattr__(self, "_initial", self.serialize())
         return True
 
-    async def update(self, data: dict[str, Any]) -> bool | None:
+    async def update(self, data: RecordData) -> bool | None:
         self.assign(data)
         return await self.save()
 
@@ -977,7 +985,7 @@ class Record:
         _raise_for_status(response)
         return True
 
-    def _merge(self, values: dict[str, Any]) -> None:
+    def _merge(self, values: RecordData) -> None:
         for key, value in values.items():
             self._data[key] = _coerce_nested(self.api, self.endpoint, value)
 
@@ -1125,21 +1133,23 @@ def _validate_filters(
         raise ParameterValidationError(errors)
 
 
-def _coerce_nested(api: Api, endpoint: Endpoint | None, value: Any) -> Any:
-    if isinstance(value, dict) and _looks_like_record(value):
-        nested_endpoint = api.endpoint_for_path(value.get("url", "")) or endpoint
+def _coerce_nested(api: Api, endpoint: Endpoint | None, value: object) -> object:
+    if isinstance(value, dict) and _looks_like_record(record_data := cast(RecordData, value)):
+        nested_endpoint = api.endpoint_for_path(record_data.get("url", "")) or endpoint
         record_type = Record
         if nested_endpoint is not None:
             record_type = RECORD_TYPES.get(
                 (nested_endpoint.group, nested_endpoint.resource), Record
             )
-        return record_type(api, nested_endpoint, value, has_details=bool(value.get("url")))
+        return record_type(
+            api, nested_endpoint, record_data, has_details=bool(record_data.get("url"))
+        )
     if isinstance(value, list):
         return [_coerce_nested(api, endpoint, item) for item in value]
     return value
 
 
-def _looks_like_record(value: dict[str, Any]) -> bool:
+def _looks_like_record(value: RecordData) -> bool:
     keys = set(value)
     if "url" in keys:
         return True
@@ -1150,7 +1160,7 @@ def _looks_like_record(value: dict[str, Any]) -> bool:
     return False
 
 
-def _serialize_value(value: Any) -> Any:
+def _serialize_value(value: object) -> object:
     if isinstance(value, Record):
         record_id = value._data.get("id")
         if record_id is not None:
@@ -1163,7 +1173,7 @@ def _serialize_value(value: Any) -> Any:
     return value
 
 
-def _decode_json(response: ApiResponse) -> Any:
+def _decode_json(response: ApiResponse) -> JSONValue:
     try:
         return response.json()
     except json.JSONDecodeError as exc:

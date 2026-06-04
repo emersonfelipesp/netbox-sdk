@@ -7,13 +7,16 @@ Cache keys use SHA-256 fingerprints rather than raw tokens.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from netbox_sdk.client import ApiResponse
 
 
 class RequestError(RuntimeError):
     """Raised when a NetBox HTTP response indicates failure (typically status >= 400)."""
 
-    def __init__(self, response: Any) -> None:
+    def __init__(self, response: ApiResponse) -> None:
         self.response = response
         super().__init__(f"Request failed with status {response.status}")
 
@@ -21,7 +24,7 @@ class RequestError(RuntimeError):
 class ContentError(RuntimeError):
     """Raised when the server response body is not valid JSON where JSON was expected."""
 
-    def __init__(self, response: Any) -> None:
+    def __init__(self, response: ApiResponse) -> None:
         self.response = response
         super().__init__("The server returned invalid (non-json) data.")
 
@@ -29,7 +32,7 @@ class ContentError(RuntimeError):
 class AllocationError(RuntimeError):
     """Raised when an available-IPs/prefixes style allocation endpoint cannot fulfill the request."""
 
-    def __init__(self, response: Any) -> None:
+    def __init__(self, response: ApiResponse) -> None:
         self.response = response
         super().__init__("The requested allocation could not be fulfilled.")
 
@@ -59,7 +62,7 @@ class BranchConflictError(RuntimeError):
     """Raised when a branching sync or merge action reports conflicts (HTTP 409)."""
 
     def __init__(
-        self, conflicts: list[Any] | dict[str, Any] | str, response: Any | None = None
+        self, conflicts: list[Any] | dict[str, Any] | str, response: ApiResponse | None = None
     ) -> None:
         self.conflicts = conflicts
         self.response = response
