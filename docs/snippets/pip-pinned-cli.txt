@@ -1,1 +1,1 @@
-pip install 'netbox-sdk[cli]==0.0.9'
+pip install 'netbox-sdk[cli]==0.0.9.post1'

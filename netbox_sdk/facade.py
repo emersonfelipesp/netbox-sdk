@@ -433,8 +433,13 @@ class Endpoint:
             raise ValueError("offset requires a positive limit value")
         if start is not None and offset is not None:
             raise ValueError("'start' and 'offset' are mutually exclusive")
-        query: dict[str, str] = {
-            key: "null" if value is None else str(value) for key, value in kwargs.items()
+        query: dict[str, str | list[str]] = {
+            key: "null"
+            if value is None
+            else [str(v) for v in value]
+            if isinstance(value, (list, tuple))
+            else str(value)
+            for key, value in kwargs.items()
         }
         if strict_filters:
             _validate_filters(self.api.schema, self.group, self.resource, self._list_path, query)
@@ -595,7 +600,10 @@ class DetailEndpoint:
         response = await self.api.client.request(
             "GET",
             self._path(record),
-            query={key: str(value) for key, value in query.items()},
+            query={
+                key: [str(v) for v in value] if isinstance(value, (list, tuple)) else str(value)
+                for key, value in query.items()
+            },
             expect_json=not self._returns_raw(query),
         )
         _raise_for_status(response, detail_endpoint=True)
@@ -648,7 +656,7 @@ class RecordSet:
         self,
         endpoint: Endpoint,
         *,
-        query: dict[str, str],
+        query: dict[str, str | list[str]],
         limit: int = 0,
         offset: int | None = None,
         start: int | None = None,
@@ -657,7 +665,7 @@ class RecordSet:
         if start is not None and offset is not None:
             raise ValueError("'start' and 'offset' are mutually exclusive")
         self.endpoint: Endpoint = endpoint
-        self.query: dict[str, str] = dict(query)
+        self.query: dict[str, str | list[str]] = dict(query)
         self.limit: int = limit
         self.offset: int | None = offset
         self.start: int | None = start
@@ -679,7 +687,7 @@ class RecordSet:
             else None
         )
         self._next_path: str | None = endpoint._list_path
-        self._next_query: dict[str, str] = dict(query)
+        self._next_query: dict[str, str | list[str]] = dict(query)
         self._buffer: deque[Record] = deque()
         self._started: bool = False
         self._last_pk: int | None = None
@@ -814,7 +822,7 @@ class RecordSet:
             return self.count
         # Always probe with offset=0 — cursor responses set count: null for performance,
         # so we explicitly use the offset-paginated representation here.
-        probe_query: dict[str, str] = {
+        probe_query: dict[str, str | list[str]] = {
             key: value for key, value in self.query.items() if key not in ("start", "ordering")
         }
         probe_query["limit"] = "1"
@@ -1119,7 +1127,7 @@ def _validate_filters(
     group: str,
     resource: str,
     list_path: str,
-    query: dict[str, str],
+    query: dict[str, str | list[str]],
 ) -> None:
     """Reject query keys that are not declared as filter params on the OpenAPI list operation.
 

@@ -407,6 +407,46 @@ def test_filter_no_matches(client):
     assert resp.json()["count"] == 0
 
 
+def test_filter_list_value_expands_to_repeated_params():
+    """filter() with a list value must store list[str] in RecordSet.query.
+
+    Before the fix: filter(tag=["a", "b"]) produced query={"tag": "['a', 'b']"}.
+    After the fix:  filter(tag=["a", "b"]) must produce query={"tag": ["a", "b"]}.
+
+    aiohttp serialises a list value as repeated params (?tag=a&tag=b) whereas a
+    stringified list produces a single malformed param (?tag=%5B%27a%27%2C+...%5D).
+    This test verifies the SDK facade layer correctly preserves list values.
+    """
+    from netbox_sdk.facade import api
+
+    # Build an Api instance; no HTTP is issued because we only inspect RecordSet.query
+    # which is built synchronously inside filter() before any network call.
+    nb = api("http://localhost:8080", token="testtoken")
+    record_set = nb.dcim.sites.filter(tag=["a", "b"])
+
+    # The query dict must contain a list[str], not a stringified list.
+    assert record_set.query["tag"] == ["a", "b"], (
+        f"Expected query['tag'] == ['a', 'b'], got: {record_set.query['tag']!r}"
+    )
+
+    # Scalar and None values must still be coerced to str / "null".
+    record_set2 = nb.dcim.sites.filter(name="router-01", status=None)
+    assert record_set2.query["name"] == "router-01"
+    assert record_set2.query["status"] == "null"
+
+    # Tuples must also be treated as multi-value (same as lists).
+    record_set3 = nb.dcim.sites.filter(tag=("x", "y"))
+    assert record_set3.query["tag"] == ["x", "y"], (
+        f"Expected tuple to become ['x', 'y'], got: {record_set3.query['tag']!r}"
+    )
+
+    # Verify the old broken behaviour no longer occurs: a stringified list must
+    # NOT appear as a single value.
+    assert record_set.query["tag"] != str(["a", "b"]), (
+        "filter() must not str()-coerce the whole list"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Other resource types (smoke tests)
 # ---------------------------------------------------------------------------
