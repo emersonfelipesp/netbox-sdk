@@ -26,7 +26,9 @@ jobs:
         run: uv sync --dev --extra cli --extra tui --extra demo --locked
 
       - name: Install netbox-sdk tool from PyPI
-        run: uv tool install --force netbox-sdk[cli]
+        # --refresh bypasses the restored uv cache so the just-published release
+        # is installed instead of a stale index entry from an earlier run.
+        run: uv tool install --force --refresh netbox-sdk[cli]
 
       - name: Verify installed nbx command
         run: ~/.local/bin/nbx --help
