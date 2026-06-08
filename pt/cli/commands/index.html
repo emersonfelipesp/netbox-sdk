@@ -1329,6 +1329,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nbx-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nbx-groups" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1465,6 +1476,17 @@
     <span class="md-ellipsis">
       
         nbx docs generate-capture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nbx-docs-generate-tui-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx docs generate-tui-simulation
       
     </span>
   </a>
@@ -3197,6 +3219,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nbx-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nbx-groups" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3339,6 +3372,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#nbx-docs-generate-tui-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nbx docs generate-tui-simulation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3440,32 +3484,55 @@ nova config NetBox SDK ainda não foi gravada.</p>
 </tbody>
 </table>
 <hr />
+<h2 id="nbx-test"><code>nbx test</code><a class="headerlink" href="#nbx-test" title="Permanent link">&para;</a></h2>
+<p>Testa a conectividade com a instância NetBox configurada (perfil default). Também
+verifica se existe um build do grafo de modelos Django para a versão NetBox detectada,
+usado pelo <code>nbx dev django-model</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>nbx<span class="w"> </span><span class="nb">test</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>nbx<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--fetch<span class="w">    </span><span class="c1"># clonar e construir do GitHub se nenhum build correspondente for encontrado</span>
+</span></code></pre></div>
+<p><strong>Opções</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--fetch</code> / <code>-f</code></td>
+<td>Se não existir um build de modelo Django para a versão detectada, clonar do GitHub e construí-lo automaticamente</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="nbx-groups"><code>nbx groups</code><a class="headerlink" href="#nbx-groups" title="Permanent link">&para;</a></h2>
 <p>Lista todos os grupos de app OpenAPI disponíveis no esquema integrado.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>nbx<span class="w"> </span>groups
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>nbx<span class="w"> </span>groups
 </span></code></pre></div>
 <p>A saída é um nome de grupo por linha: <code>circuits</code>, <code>core</code>, <code>dcim</code>, <code>extras</code>, <code>ipam</code>, <code>plugins</code>, <code>tenancy</code>, <code>users</code>, <code>virtualization</code>, <code>vpn</code>, <code>wireless</code>.</p>
 <hr />
 <h2 id="nbx-resources-group"><code>nbx resources GROUP</code><a class="headerlink" href="#nbx-resources-group" title="Permanent link">&para;</a></h2>
 <p>Lista todos os recursos dentro de um grupo de app.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>nbx<span class="w"> </span>resources<span class="w"> </span>dcim
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>nbx<span class="w"> </span>resources<span class="w"> </span>ipam
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>resources<span class="w"> </span>dcim
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>nbx<span class="w"> </span>resources<span class="w"> </span>ipam
 </span></code></pre></div>
 <hr />
 <h2 id="nbx-ops-group-resource"><code>nbx ops GROUP RESOURCE</code><a class="headerlink" href="#nbx-ops-group-resource" title="Permanent link">&para;</a></h2>
 <p>Mostra todas as operações HTTP (método, caminho, ID da operação) para um recurso específico.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>ops<span class="w"> </span>dcim<span class="w"> </span>devices
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>nbx<span class="w"> </span>ops<span class="w"> </span>ipam<span class="w"> </span>prefixes
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>nbx<span class="w"> </span>ops<span class="w"> </span>dcim<span class="w"> </span>devices
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>nbx<span class="w"> </span>ops<span class="w"> </span>ipam<span class="w"> </span>prefixes
 </span></code></pre></div>
 <p>A saída é uma tabela Rich com colunas: <strong>Method</strong>, <strong>Path</strong>, <strong>Operation ID</strong>.</p>
 <hr />
 <h2 id="nbx-call-method-path"><code>nbx call METHOD PATH</code><a class="headerlink" href="#nbx-call-method-path" title="Permanent link">&para;</a></h2>
 <p>Faz uma requisição HTTP explícita a qualquer caminho da API NetBox.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/status/
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--json
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--markdown
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>nbx<span class="w"> </span>call<span class="w"> </span>PUT<span class="w"> </span>/api/dcim/devices/1/<span class="w"> </span>--body-file<span class="w"> </span>./device.json
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/status/
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--json
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--markdown
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>nbx<span class="w"> </span>call<span class="w"> </span>PUT<span class="w"> </span>/api/dcim/devices/1/<span class="w"> </span>--body-file<span class="w"> </span>./device.json
 </span></code></pre></div>
 <p><strong>Opções</strong></p>
 <table>
@@ -3506,20 +3573,20 @@ nova config NetBox SDK ainda não foi gravada.</p>
 <hr />
 <h2 id="nbx-graphql-query"><code>nbx graphql QUERY</code><a class="headerlink" href="#nbx-graphql-query" title="Permanent link">&para;</a></h2>
 <p>Executa uma consulta GraphQL contra a API NetBox.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Consulta simples</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;{ sites { name } }&quot;</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Consulta com variáveis</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;query(</span><span class="nv">$id</span><span class="s2">: Int!) { device(id: </span><span class="nv">$id</span><span class="s2">) { name } }&quot;</span><span class="w"> </span>--variables<span class="w"> </span><span class="s1">&#39;{&quot;id&quot;: 1}&#39;</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Consulta com variáveis key=value</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;query(</span><span class="nv">$name</span><span class="s2">: String!) { devices(name: </span><span class="nv">$name</span><span class="s2">) { id } }&quot;</span><span class="w"> </span>--variables<span class="w"> </span><span class="nv">name</span><span class="o">=</span>sw01
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Várias variáveis (repita -v / --variables)</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;query(</span><span class="nv">$a</span><span class="s2">: Int!, </span><span class="nv">$b</span><span class="s2">: Int!) { __typename }&quot;</span><span class="w"> </span>-v<span class="w"> </span><span class="nv">a</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-v<span class="w"> </span><span class="nv">b</span><span class="o">=</span><span class="m">2</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># Saída JSON</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;{ sites { name } }&quot;</span><span class="w"> </span>--json
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Consulta simples</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;{ sites { name } }&quot;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Consulta com variáveis</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;query(</span><span class="nv">$id</span><span class="s2">: Int!) { device(id: </span><span class="nv">$id</span><span class="s2">) { name } }&quot;</span><span class="w"> </span>--variables<span class="w"> </span><span class="s1">&#39;{&quot;id&quot;: 1}&#39;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Consulta com variáveis key=value</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;query(</span><span class="nv">$name</span><span class="s2">: String!) { devices(name: </span><span class="nv">$name</span><span class="s2">) { id } }&quot;</span><span class="w"> </span>--variables<span class="w"> </span><span class="nv">name</span><span class="o">=</span>sw01
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># Várias variáveis (repita -v / --variables)</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;query(</span><span class="nv">$a</span><span class="s2">: Int!, </span><span class="nv">$b</span><span class="s2">: Int!) { __typename }&quot;</span><span class="w"> </span>-v<span class="w"> </span><span class="nv">a</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-v<span class="w"> </span><span class="nv">b</span><span class="o">=</span><span class="m">2</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="c1"># Saída JSON</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>nbx<span class="w"> </span>graphql<span class="w"> </span><span class="s2">&quot;{ sites { name } }&quot;</span><span class="w"> </span>--json
 </span></code></pre></div>
 <p><strong>Opções</strong></p>
 <table>
@@ -3548,12 +3615,12 @@ nova config NetBox SDK ainda não foi gravada.</p>
 <hr />
 <h2 id="nbx-graphql-tui"><code>nbx graphql tui</code><a class="headerlink" href="#nbx-graphql-tui" title="Permanent link">&para;</a></h2>
 <p>Lança o explorador GraphQL interativo dedicado e executor de consultas.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w"> </span>--theme
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>nbx<span class="w"> </span>demo<span class="w"> </span>graphql<span class="w"> </span>tui
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>nbx<span class="w"> </span>demo<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>nbx<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w"> </span>--theme
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>nbx<span class="w"> </span>demo<span class="w"> </span>graphql<span class="w"> </span>tui
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>nbx<span class="w"> </span>demo<span class="w"> </span>graphql<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
 </span></code></pre></div>
 <p>Esta TUI carrega introspecção de esquema GraphQL da instância NetBox atual,
 permite navegar campos raiz e seus argumentos, inserir esqueletos de consulta/filtro/paginação
@@ -3577,9 +3644,9 @@ no editor e executar consultas GraphQL arbitrárias com variáveis JSON opcionai
 <hr />
 <h2 id="nbx-tui"><code>nbx tui</code><a class="headerlink" href="#nbx-tui" title="Permanent link">&para;</a></h2>
 <p>Lança o navegador Textual interativo principal.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>nbx<span class="w"> </span>tui
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w">          </span><span class="c1"># listar temas disponíveis</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>nbx<span class="w"> </span>tui
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w">          </span><span class="c1"># listar temas disponíveis</span>
 </span></code></pre></div>
 <p><strong>Opções</strong></p>
 <table>
@@ -3600,9 +3667,9 @@ no editor e executar consultas GraphQL arbitrárias com variáveis JSON opcionai
 <hr />
 <h2 id="nbx-logs"><code>nbx logs</code><a class="headerlink" href="#nbx-logs" title="Permanent link">&para;</a></h2>
 <p>Imprime logs estruturados recentes da aplicação a partir do arquivo de log compartilhado.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>nbx<span class="w"> </span>logs
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>nbx<span class="w"> </span>logs<span class="w"> </span>--limit<span class="w"> </span><span class="m">500</span><span class="w">     </span><span class="c1"># carregar até 500 entradas (padrão: 200)</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>nbx<span class="w"> </span>logs<span class="w"> </span>--source
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>nbx<span class="w"> </span>logs
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>nbx<span class="w"> </span>logs<span class="w"> </span>--limit<span class="w"> </span><span class="m">500</span><span class="w">     </span><span class="c1"># carregar até 500 entradas (padrão: 200)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>nbx<span class="w"> </span>logs<span class="w"> </span>--source
 </span></code></pre></div>
 <p><strong>Opções</strong></p>
 <table>
@@ -3632,9 +3699,9 @@ leituras de compatibilidade de arquivos de log antigos do <code>netbox-cli</code
 <hr />
 <h2 id="nbx-dev-tui"><code>nbx dev tui</code><a class="headerlink" href="#nbx-dev-tui" title="Permanent link">&para;</a></h2>
 <p>Lança a TUI de bancada de requisições do desenvolvedor contra seu perfil default.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w">          </span><span class="c1"># listar temas disponíveis</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w">          </span><span class="c1"># listar temas disponíveis</span>
 </span></code></pre></div>
 <p>Esta visão é voltada à exploração da API e construção de requisições em vez do fluxo padrão de navegação/resultados.
 Quando você lança a mesma visão via <code>nbx demo dev tui</code>, a CLI atualiza automaticamente tokens v1 demo expirados se credenciais demo foram salvas durante <code>nbx demo init</code>.</p>
@@ -3656,16 +3723,16 @@ Quando você lança a mesma visão via <code>nbx demo dev tui</code>, a CLI atua
 <hr />
 <h2 id="nbx-dev-http"><code>nbx dev http</code><a class="headerlink" href="#nbx-dev-http" title="Permanent link">&para;</a></h2>
 <p>Auxiliares HTTP orientados ao desenvolvedor para explorar caminhos e operações arbitrários da API.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>paths
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>ops<span class="w"> </span>--path<span class="w"> </span>/api/dcim/devices/
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>get<span class="w"> </span>--path<span class="w"> </span>/api/status/
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>paths
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>ops<span class="w"> </span>--path<span class="w"> </span>/api/dcim/devices/
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>http<span class="w"> </span>get<span class="w"> </span>--path<span class="w"> </span>/api/status/
 </span></code></pre></div>
 <p>Use <code>nbx dev http --help</code> e os helps dos subcomandos para a matriz completa de opções.</p>
 <hr />
 <h2 id="nbx-cli-tui"><code>nbx cli tui</code><a class="headerlink" href="#nbx-cli-tui" title="Permanent link">&para;</a></h2>
 <p>Lança a TUI de construtor de comandos guiado.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>nbx<span class="w"> </span>cli<span class="w"> </span>tui
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>cli<span class="w"> </span>tui
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>nbx<span class="w"> </span>cli<span class="w"> </span>tui
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>cli<span class="w"> </span>tui
 </span></code></pre></div>
 <p>Útil quando você quer explorar a árvore de comandos visualmente e executar um
 comando <code>nbx</code> montado sem sair do terminal.</p>
@@ -3673,15 +3740,15 @@ comando <code>nbx</code> montado sem sair do terminal.</p>
 <h2 id="nbx-dev-django-model"><code>nbx dev django-model</code><a class="headerlink" href="#nbx-dev-django-model" title="Permanent link">&para;</a></h2>
 <p>Auxiliares para contribuidores: analisar, cachear, buscar e navegar
 os modelos Django internos do NetBox.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>django-model<span class="w"> </span>build
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>django-model<span class="w"> </span>fetch<span class="w"> </span>--auto
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>django-model<span class="w"> </span>tui
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>nbx<span class="w"> </span>dev<span class="w"> </span>django-model<span class="w"> </span>build
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>nbx<span class="w"> </span>dev<span class="w"> </span>django-model<span class="w"> </span>fetch<span class="w"> </span>--auto
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>nbx<span class="w"> </span>dev<span class="w"> </span>django-model<span class="w"> </span>tui
 </span></code></pre></div>
 <hr />
 <h2 id="nbx-docs-generate-capture"><code>nbx docs generate-capture</code><a class="headerlink" href="#nbx-docs-generate-capture" title="Permanent link">&para;</a></h2>
 <p>Gera os artefatos de captura de comandos seguros para documentação usados pelas páginas de referência MkDocs.
 A geração de documentação só usa o perfil demo e nunca deve rodar contra produção.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
 </span></code></pre></div>
 <p><strong>Opções</strong></p>
 <table>
@@ -3716,6 +3783,41 @@ A geração de documentação só usa o perfil demo e nunca deve rodar contra pr
 </tbody>
 </table>
 <p>Veja <a href="../../developer/docgen/">Geração de documentação</a> para o guia completo.</p>
+<hr />
+<h2 id="nbx-docs-generate-tui-simulation"><code>nbx docs generate-tui-simulation</code><a class="headerlink" href="#nbx-docs-generate-tui-simulation" title="Permanent link">&para;</a></h2>
+<p>Gera capturas SVG com dados de fixture do navegador principal da TUI NetBox em
+múltiplos temas e estados. A saída é usada pelo site e páginas de documentação
+que incorporam visualizações da TUI em estilo interativo.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>nbx<span class="w"> </span>docs<span class="w"> </span>generate-tui-simulation
+</span></code></pre></div>
+<p><strong>Opções</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Padrão</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code> / <code>--output</code></td>
+<td><code>docs/generated/tui-simulation/main-browser.json</code></td>
+<td>Destino do JSON de manifesto</td>
+</tr>
+<tr>
+<td><code>--assets-dir</code></td>
+<td>Diretório pai de <code>--output</code></td>
+<td>Diretório de destino dos SVGs</td>
+</tr>
+</tbody>
+</table>
+<p>O comando grava um arquivo JSON de manifesto e um arquivo SVG por combinação
+<code>(tema × estado)</code> em <code>docs/generated/tui-simulation/</code>. Os temas e estados
+renderizados são definidos em <code>netbox_cli/tui_simulation.py</code>. Diferente do
+<code>generate-capture</code>, este comando usa dados de fixture e não requer uma instância
+NetBox ativa nem credenciais demo.</p>
+<p>Veja <a href="../../developer/docgen/">Geração de documentação</a> para o pipeline completo.</p>
 
 
 

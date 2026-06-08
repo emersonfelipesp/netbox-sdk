@@ -2918,6 +2918,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#geracao-de-simulacao-da-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geração de simulação da TUI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Geração de simulação da TUI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inicio-rapido_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Início rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcoes-da-cli_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opções da CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arquivos-de-saida_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquivos de saída
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diferencas-em-relacao-ao-generate-capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diferenças em relação ao generate-capture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3138,6 +3199,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#geracao-de-simulacao-da-tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geração de simulação da TUI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Geração de simulação da TUI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inicio-rapido_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Início rápido
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcoes-da-cli_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opções da CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arquivos-de-saida_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquivos de saída
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diferencas-em-relacao-ao-generate-capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diferenças em relação ao generate-capture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3322,6 +3444,92 @@ de documentação:</p>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>uv<span class="w"> </span>run<span class="w"> </span>nbx<span class="w"> </span>docs<span class="w"> </span>generate-capture
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>uv<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
 </span></code></pre></div>
+<hr />
+<h2 id="geracao-de-simulacao-da-tui">Geração de simulação da TUI<a class="headerlink" href="#geracao-de-simulacao-da-tui" title="Permanent link">&para;</a></h2>
+<p><code>nbx docs generate-tui-simulation</code> renderiza capturas SVG com dados de fixture
+do navegador principal da TUI NetBox em todos os temas integrados e um conjunto
+fixo de estados da aplicação. A saída é usada para visualizações no site e
+páginas de documentação que exibem imagens da TUI em estilo interativo sem
+requerer um backend ativo.</p>
+<h3 id="inicio-rapido_1">Início rápido<a class="headerlink" href="#inicio-rapido_1" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>cli<span class="w"> </span>--extra<span class="w"> </span>tui
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>nbx<span class="w"> </span>docs<span class="w"> </span>generate-tui-simulation
+</span></code></pre></div>
+<h3 id="opcoes-da-cli_1">Opções da CLI<a class="headerlink" href="#opcoes-da-cli_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Padrão</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o</code> / <code>--output</code></td>
+<td><code>docs/generated/tui-simulation/main-browser.json</code></td>
+<td>Destino do JSON de manifesto</td>
+</tr>
+<tr>
+<td><code>--assets-dir</code></td>
+<td>Diretório pai de <code>--output</code></td>
+<td>Diretório de saída dos SVGs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="arquivos-de-saida_1">Arquivos de saída<a class="headerlink" href="#arquivos-de-saida_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/generated/tui-simulation/main-browser.json</code></td>
+<td>Manifesto com metadados de tema/estado e caminhos de SVG</td>
+</tr>
+<tr>
+<td><code>docs/generated/tui-simulation/main-browser-&lt;estado&gt;-&lt;tema&gt;.svg</code></td>
+<td>Um SVG por combinação (estado × tema)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="diferencas-em-relacao-ao-generate-capture">Diferenças em relação ao <code>generate-capture</code><a class="headerlink" href="#diferencas-em-relacao-ao-generate-capture" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th><code>generate-capture</code></th>
+<th><code>generate-tui-simulation</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requer NetBox ativo</td>
+<td>Sim (perfil demo)</td>
+<td>Não — usa dados de fixture</td>
+</tr>
+<tr>
+<td>Formato de saída</td>
+<td>Markdown + artefatos JSON</td>
+<td>Manifesto JSON + SVGs</td>
+</tr>
+<tr>
+<td>O que captura</td>
+<td>Saída de comandos CLI</td>
+<td>Estados visuais da TUI</td>
+</tr>
+<tr>
+<td>Controle de estado</td>
+<td><code>argv</code> do comando</td>
+<td>Fixtures de estado predefinidos em <code>tui_simulation.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>Os fixtures de simulação e as listas de tema/estado são definidos em
+<code>netbox_cli/tui_simulation.py</code>.</p>
 
 
 
