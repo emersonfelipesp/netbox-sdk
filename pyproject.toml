@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "netbox-sdk"
-version = "0.0.9.post1"
+version = "0.0.9.post2"
 description = "SDK-first NetBox toolkit with Python SDK, CLI, and Textual TUIs"
 readme = "README.md"
 license = "Apache-2.0"
@@ -43,7 +43,11 @@ dependencies = [
 [project.optional-dependencies]
 sdk = []
 tui = ["textual>=8.2.0"]
-cli = ["typer>=0.24.1"]
+# ``netbox_cli`` imports the standalone ``click`` package directly (exception
+# formatting, ClickException/UsageError/Abort handling). Typer vendored Click in
+# 0.26.0 and dropped its runtime dependency on the standalone package, so
+# ``click`` must be declared explicitly or ``nbx`` breaks with ModuleNotFoundError.
+cli = ["typer>=0.24.1", "click>=8.1.0"]
 demo = ["playwright>=1.58.0"]
 mock = [
   "fastapi>=0.115.0",
@@ -56,6 +60,7 @@ branching = []
 all = [
   "textual>=8.2.0",
   "typer>=0.24.1",
+  "click>=8.1.0",
   "playwright>=1.58.0",
   "fastapi>=0.115.0",
   "uvicorn[standard]>=0.30.0",
@@ -71,6 +76,7 @@ dev = [
   "pyright>=1.1.380",
   "textual>=8.2.0",
   "typer>=0.24.1",
+  "click>=8.1.0",
   "playwright>=1.58.0",
   "fastapi>=0.115.0",
   "uvicorn[standard]>=0.30.0",
@@ -93,6 +99,7 @@ dev = [
   "pyright>=1.1.380",
   "textual>=8.2.0",
   "typer>=0.24.1",
+  "click>=8.1.0",
   "playwright>=1.58.0",
   "fastapi>=0.115.0",
   "uvicorn[standard]>=0.30.0",

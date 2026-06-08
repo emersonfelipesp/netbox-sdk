@@ -32,7 +32,7 @@ compatibilidade de API, testes, documentação, suporte e manutenibilidade.
 
 | Release `netbox-sdk` | Python | Linhas de API NetBox tipadas | Alvos live NetBox na CI |
 | --- | --- | --- | --- |
-| `0.0.9.post1` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.1`, `v4.5.10`, `v4.5.8` |
+| `0.0.9.post2` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.1`, `v4.5.10`, `v4.5.8` |
 
 Versões patch normalizam para sua linha de release no SDK tipado. Por exemplo,
 `4.6.1` usa o cliente tipado `4.6` versionado no repositório.

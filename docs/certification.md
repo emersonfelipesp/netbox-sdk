@@ -32,7 +32,7 @@ tests, documentation, supportability, and maintainability.
 
 | `netbox-sdk` release | Python | Typed NetBox API lines | Live CI NetBox targets |
 | --- | --- | --- | --- |
-| `0.0.9.post1` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.1`, `v4.5.10`, `v4.5.8` |
+| `0.0.9.post2` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.1`, `v4.5.10`, `v4.5.8` |
 
 Patch releases normalize to their release line for the typed SDK. For example,
 `4.6.1` uses the committed `4.6` typed client.
