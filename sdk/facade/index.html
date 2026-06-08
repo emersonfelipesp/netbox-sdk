@@ -3506,10 +3506,13 @@ two calls below are equivalent:</p>
 </span></code></pre></div>
 <hr />
 <h2 id="branch-activation">Branch activation<a class="headerlink" href="#branch-activation" title="Permanent link">&para;</a></h2>
-<p>Branch-scoped requests can be made with <code>activate_branch()</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">branch</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;Branch&quot;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;schema_id&quot;</span><span class="p">:</span> <span class="s2">&quot;feature-x&quot;</span><span class="p">})()</span>
+<p>Branch-scoped requests can be made with <code>activate_branch()</code>, an <strong>async</strong>
+context manager. Pass a <code>schema_id</code> string, or an object/dict that exposes a
+<code>schema_id</code> (for example a branch from <code>nb.branching.get()</code>/<code>list()</code>); integer
+PKs are not accepted because the plugin resolves the header as a <code>schema_id</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">branch</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;Branch&quot;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;schema_id&quot;</span><span class="p">:</span> <span class="s2">&quot;td5smq0f&quot;</span><span class="p">})()</span>
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">with</span> <span class="n">nb</span><span class="o">.</span><span class="n">activate_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">nb</span><span class="o">.</span><span class="n">activate_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
 </span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 </span></code></pre></div>
 <p>This sets <code>X-NetBox-Branch</code> on requests made within the context.</p>
