@@ -77,3 +77,46 @@ uv run nbx demo init
 uv run nbx docs generate-capture
 uv run mkdocs build --strict
 ```
+
+---
+
+## Geração de simulação da TUI
+
+`nbx docs generate-tui-simulation` renderiza capturas SVG com dados de fixture
+do navegador principal da TUI NetBox em todos os temas integrados e um conjunto
+fixo de estados da aplicação. A saída é usada para visualizações no site e
+páginas de documentação que exibem imagens da TUI em estilo interativo sem
+requerer um backend ativo.
+
+### Início rápido
+
+```bash
+uv sync --group docs --group dev --extra cli --extra tui
+uv run nbx docs generate-tui-simulation
+```
+
+### Opções da CLI
+
+| Flag | Padrão | Descrição |
+|------|---------|-------------|
+| `-o` / `--output` | `docs/generated/tui-simulation/main-browser.json` | Destino do JSON de manifesto |
+| `--assets-dir` | Diretório pai de `--output` | Diretório de saída dos SVGs |
+
+### Arquivos de saída
+
+| Arquivo | Descrição |
+|------|-------------|
+| `docs/generated/tui-simulation/main-browser.json` | Manifesto com metadados de tema/estado e caminhos de SVG |
+| `docs/generated/tui-simulation/main-browser-<estado>-<tema>.svg` | Um SVG por combinação (estado × tema) |
+
+### Diferenças em relação ao `generate-capture`
+
+| Recurso | `generate-capture` | `generate-tui-simulation` |
+|---|---|---|
+| Requer NetBox ativo | Sim (perfil demo) | Não — usa dados de fixture |
+| Formato de saída | Markdown + artefatos JSON | Manifesto JSON + SVGs |
+| O que captura | Saída de comandos CLI | Estados visuais da TUI |
+| Controle de estado | `argv` do comando | Fixtures de estado predefinidos em `tui_simulation.py` |
+
+Os fixtures de simulação e as listas de tema/estado são definidos em
+`netbox_cli/tui_simulation.py`.

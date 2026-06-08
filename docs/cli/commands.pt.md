@@ -37,6 +37,25 @@ nbx config --show-token   # revela chave e segredo do token
 
 ---
 
+## `nbx test`
+
+Testa a conectividade com a instância NetBox configurada (perfil default). Também
+verifica se existe um build do grafo de modelos Django para a versão NetBox detectada,
+usado pelo `nbx dev django-model`.
+
+```bash
+nbx test
+nbx test --fetch    # clonar e construir do GitHub se nenhum build correspondente for encontrado
+```
+
+**Opções**
+
+| Flag | Descrição |
+|------|-------------|
+| `--fetch` / `-f` | Se não existir um build de modelo Django para a versão detectada, clonar do GitHub e construí-lo automaticamente |
+
+---
+
 ## `nbx groups`
 
 Lista todos os grupos de app OpenAPI disponíveis no esquema integrado.
@@ -285,3 +304,30 @@ nbx docs generate-capture
 | `-j` / `--concurrency` | `4` | Número de workers de captura paralelos |
 
 Veja [Geração de documentação](../developer/docgen.md) para o guia completo.
+
+---
+
+## `nbx docs generate-tui-simulation`
+
+Gera capturas SVG com dados de fixture do navegador principal da TUI NetBox em
+múltiplos temas e estados. A saída é usada pelo site e páginas de documentação
+que incorporam visualizações da TUI em estilo interativo.
+
+```bash
+nbx docs generate-tui-simulation
+```
+
+**Opções**
+
+| Flag | Padrão | Descrição |
+|------|---------|-------------|
+| `-o` / `--output` | `docs/generated/tui-simulation/main-browser.json` | Destino do JSON de manifesto |
+| `--assets-dir` | Diretório pai de `--output` | Diretório de destino dos SVGs |
+
+O comando grava um arquivo JSON de manifesto e um arquivo SVG por combinação
+`(tema × estado)` em `docs/generated/tui-simulation/`. Os temas e estados
+renderizados são definidos em `netbox_cli/tui_simulation.py`. Diferente do
+`generate-capture`, este comando usa dados de fixture e não requer uma instância
+NetBox ativa nem credenciais demo.
+
+Veja [Geração de documentação](../developer/docgen.md) para o pipeline completo.

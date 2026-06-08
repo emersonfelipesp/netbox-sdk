@@ -32,6 +32,10 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `django_model_app.py` | Django model inspector TUI |
 | `chrome.py` | Shared theme/clock/logo/topbar helpers |
 | `navigation.py`, `nav_blueprint.py` | Navigation model and blueprint |
+| `cli_completions.py` | `CliCommandNode` model and `nbx_root_command_nodes()` — builds the full command-tree for the CLI-builder TUI |
+| `dev_rendering.py` | Stateless Rich `Text` rendering helpers for the dev workbench TUI (HTTP method styles, status codes, operation lines) |
+| `lifecycle.py` | Shared async `close_client_for_tui()` helper used by all Textual app `on_unmount` handlers |
+| `logo_render.py` | Theme-aware Rich renderable for the NetBox wordmark (`build_netbox_logo()`) used in the top bar |
 | `plugin_discovery.py` | TUI-facing plugin discovery helpers |
 | `ssl_verify_support.py` | TLS verification prompt/support helpers |
 | `widgets.py`, `panels.py` | Shared widgets and composed panels |

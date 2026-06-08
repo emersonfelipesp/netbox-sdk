@@ -74,3 +74,45 @@ uv run nbx demo init
 uv run nbx docs generate-capture
 uv run mkdocs build --strict
 ```
+
+---
+
+## TUI Simulation Generation
+
+`nbx docs generate-tui-simulation` renders fixture-backed SVG screenshots of
+the main NetBox TUI browser across all built-in themes and a fixed set of
+application states. The output is used for website previews and documentation
+pages that show interactive-style TUI images without requiring a live backend.
+
+### Quick start
+
+```bash
+uv sync --group docs --group dev --extra cli --extra tui
+uv run nbx docs generate-tui-simulation
+```
+
+### CLI options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o` / `--output` | `docs/generated/tui-simulation/main-browser.json` | Manifest JSON destination |
+| `--assets-dir` | Parent directory of `--output` | SVG output directory |
+
+### Output files
+
+| File | Description |
+|------|-------------|
+| `docs/generated/tui-simulation/main-browser.json` | Manifest with theme/state metadata and SVG paths |
+| `docs/generated/tui-simulation/main-browser-<state>-<theme>.svg` | One SVG per (state × theme) combination |
+
+### Differences from `generate-capture`
+
+| Feature | `generate-capture` | `generate-tui-simulation` |
+|---|---|---|
+| Requires live NetBox | Yes (demo profile) | No — uses fixture data |
+| Output format | Markdown + JSON artifacts | JSON manifest + SVGs |
+| Captures | CLI command output | TUI visual states |
+| State control | Command `argv` | Predefined state fixtures in `tui_simulation.py` |
+
+The simulation fixtures and theme/state lists are defined in
+`netbox_cli/tui_simulation.py`.

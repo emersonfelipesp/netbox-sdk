@@ -17,6 +17,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `netbox_tui/` | [→](netbox_tui/CLAUDE.md) | Textual TUI package: apps, chrome, widgets, navigation, state, TCSS, theme registry |
 | `netbox_tui/themes/` | [→](netbox_tui/themes/CLAUDE.md) | JSON theme files auto-discovered by the TUI |
 | `netbox_cli/` | [→](netbox_cli/CLAUDE.md) | Typer CLI package: root app, runtime, dynamic commands, demo/dev/docgen wiring |
+| `netbox_cli/reference/` | [→](netbox_cli/reference/CLAUDE.md) | Bundled CLI-local OpenAPI reference copy (schema driving dynamic commands) |
 | `netbox_sdk/reference/` | [→](netbox_sdk/reference/CLAUDE.md) | Bundled SDK OpenAPI assets for supported NetBox release lines |
 | `tests/` | [→](tests/CLAUDE.md) | pytest suite |
 | `docs/` | [→](docs/CLAUDE.md) | MkDocs sources |
@@ -32,8 +33,10 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── config.py
     ├── client.py
     ├── decorators.py
+    ├── exceptions.py
     ├── http_cache.py
     ├── http_ssl.py
+    ├── mock_main.py
     ├── schema.py
     ├── services.py
     ├── plugin_discovery.py
@@ -56,6 +59,7 @@ netbox_tui/   optional Textual layer
     ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py
     ├── branch_screen.py / filter_overlay.py / login_modal.py / ssl_verify_support.py
     ├── chrome.py / widgets.py / navigation.py / nav_blueprint.py / panels.py / state.py
+    ├── cli_completions.py / dev_rendering.py / lifecycle.py / logo_render.py
     ├── theme_registry.py
     ├── *.tcss
     └── themes/*.json

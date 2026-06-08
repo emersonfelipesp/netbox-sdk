@@ -37,6 +37,25 @@ nbx config --show-token   # reveal token key and secret
 
 ---
 
+## `nbx test`
+
+Test connectivity to your configured NetBox instance (default profile). Also
+checks whether a Django model graph build exists for the detected NetBox
+version, which is used by `nbx dev django-model`.
+
+```bash
+nbx test
+nbx test --fetch    # clone and build from GitHub if no matching build found
+```
+
+**Options**
+
+| Flag | Description |
+|------|-------------|
+| `--fetch` / `-f` | If no matching Django model build exists for the detected version, clone it from GitHub and build it automatically |
+
+---
+
 ## `nbx groups`
 
 List all OpenAPI app groups available in the bundled schema.
@@ -286,3 +305,30 @@ nbx docs generate-capture
 | `-j` / `--concurrency` | `4` | Parallel capture worker count |
 
 See [Documentation Generation](../developer/docgen.md) for the full guide.
+
+---
+
+## `nbx docs generate-tui-simulation`
+
+Generate fixture-backed SVG screenshots of the main NetBox TUI browser in
+multiple themes and states. The output is used by the website and docs pages
+that embed interactive-style TUI previews.
+
+```bash
+nbx docs generate-tui-simulation
+```
+
+**Options**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o` / `--output` | `docs/generated/tui-simulation/main-browser.json` | Manifest JSON destination |
+| `--assets-dir` | Parent directory of `--output` | SVG destination directory |
+
+The command writes one manifest JSON file and one SVG file per
+`(theme × state)` combination to `docs/generated/tui-simulation/`. The themes
+and states rendered are defined in `netbox_cli/tui_simulation.py`. Unlike
+`generate-capture`, this command uses fixture data and does not require a live
+NetBox instance or demo credentials.
+
+See [Documentation Generation](../developer/docgen.md) for the full pipeline.

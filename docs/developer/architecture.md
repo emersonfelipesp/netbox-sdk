@@ -105,6 +105,9 @@ flowchart TB
       dev.py
       django_model.py
       markdown_output.py
+      branching.py
+      decorators.py
+      tui_simulation.py
       docgen_capture.py
       docgen_specs.py
       docgen/
@@ -127,6 +130,13 @@ flowchart TB
       django_model_state.py
       graphql_state.py
       filter_overlay.py
+      branch_screen.py
+      login_modal.py
+      ssl_verify_support.py
+      cli_completions.py
+      dev_rendering.py
+      lifecycle.py
+      logo_render.py
       theme_registry.py
       *.tcss
       themes/*.json

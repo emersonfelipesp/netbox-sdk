@@ -110,11 +110,14 @@ docs/
 │           ├── main-browser.md
 │           ├── logs-viewer.md
 │           ├── developer-workbench.md
+│           ├── graphql-tui.md
 │           ├── cli-builder.md
 │           └── django-models-browser.md
 └── generated/                      # ← AUTO-GENERATED, do not edit by hand
-    └── raw/                        # JSON output from each captured command
-        └── *.json
+    ├── raw/                        # JSON output from each captured command
+    │   └── *.json
+    └── tui-simulation/             # SVGs + manifest from nbx docs generate-tui-simulation
+        └── main-browser-<state>-<theme>.svg
 ```
 
 ---
@@ -162,7 +165,7 @@ Mock API        → CRUD, bulk operations, pagination/filtering, pytest integrat
 CLI Captures    → index, Core Commands, Schema Discovery, GraphQL and HTTP,
                   Dynamic Commands, Developer Tools, Demo Profile
 TUI Captures    → index, Main Browser, Logs Viewer, Developer Workbench,
-                  CLI Builder, Django Models Browser
+                  GraphQL TUI, CLI Builder, Django Models Browser
 Developer Guide → Architecture, Design Principles, Textual Composition Pattern, Documentation Generation,
                   IDE Support, Integration, Package Integration, SDK Internals
 ```

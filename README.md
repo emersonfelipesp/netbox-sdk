@@ -9,10 +9,7 @@ one shared runtime:
 - `netbox_tui` — Textual terminal applications
 - `netbox_sdk` — standalone REST API SDK shared by both
 
-Published package names remain:
-
-- `netbox-sdk`
-- `netbox-console`
+Published package name: `netbox-sdk`. `netbox-console` was a legacy alias published in earlier releases and is no longer shipped from this project.
 
 ## Integration Package Details
 

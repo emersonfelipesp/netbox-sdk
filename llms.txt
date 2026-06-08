@@ -3,7 +3,7 @@
 API-first NetBox client for the terminal, featuring both a CLI and a full interactive TUI. Driven by OpenAPI schema discovery.
 
 ## AI Search & Discovery Tools
-- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from the bundled NetBox OpenAPI schema (`netbox_sdk/reference/openapi/netbox-openapi.json`), alongside built-in static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `tui`, `logs`, `docs`, `demo`, `dev`).
+- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from the bundled NetBox OpenAPI schema (`netbox_sdk/reference/openapi/netbox-openapi.json`), alongside built-in static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `cli`, `tui`, `logs`, `docs`, `demo`, `dev`, `branching`/`branch`).
 - **Schema Indexing**: `netbox_sdk/schema.py` indexes the OpenAPI bundle once to map groups, resources, and actions to API paths.
 - **Dynamic Command Resolution**: `netbox_cli/dynamic.py` handles runtime command discovery and Typer subcommand generation.
 - **Plugin Discovery**: Automatically discovers and surfaces NetBox plugin endpoints under `/api/plugins/`.
@@ -16,7 +16,7 @@ API-first NetBox client for the terminal, featuring both a CLI and a full intera
 ## Documentation Index
 
 ### Getting Started
-- `docs/getting-started/installation.md`: Installation via pip, uv, brew, etc.
+- `docs/getting-started/installation.md`: Installation via pip and uv.
 - `docs/getting-started/configuration.md`: Profile configuration (default/demo), environment variables, and token versions.
 - `docs/getting-started/quickstart.md`: First-run walkthrough and basic commands.
 
@@ -56,5 +56,5 @@ API-first NetBox client for the terminal, featuring both a CLI and a full intera
 
 ## Packaging Status
 - **Repository name**: `netbox-sdk`
-- **Current published package names**: `netbox-sdk`, `netbox-console`
-- **Current project version**: `0.0.4`
+- **Current published package name**: `netbox-sdk` (PyPI `name = "netbox-sdk"` in `pyproject.toml`). `netbox-console` was a legacy alias published separately in earlier releases; it is not shipped from this project file.
+- **Current project version**: `0.0.9.post2`
