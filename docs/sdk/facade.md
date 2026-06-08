@@ -211,12 +211,15 @@ user_config = await nb.users.config()
 
 ## Branch activation
 
-Branch-scoped requests can be made with `activate_branch()`:
+Branch-scoped requests can be made with `activate_branch()`, an **async**
+context manager. Pass a `schema_id` string, or an object/dict that exposes a
+`schema_id` (for example a branch from `nb.branching.get()`/`list()`); integer
+PKs are not accepted because the plugin resolves the header as a `schema_id`:
 
 ```python
-branch = type("Branch", (), {"schema_id": "feature-x"})()
+branch = type("Branch", (), {"schema_id": "td5smq0f"})()
 
-with nb.activate_branch(branch):
+async with nb.activate_branch(branch):
     device = await nb.dcim.devices.get(42)
 ```
 

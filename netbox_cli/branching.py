@@ -22,7 +22,6 @@ from netbox_cli.decorators import (
 )
 from netbox_cli.runtime import _get_client
 from netbox_sdk.branching import BranchingClient
-from netbox_sdk.facade import Api
 
 branching_app = typer.Typer(
     add_completion=False,
@@ -37,10 +36,13 @@ R = TypeVar("R")
 
 
 def _branching_resource() -> tuple[BranchingClient, Any]:
-    """Build a branching client for ad-hoc CLI use; caller closes the raw client."""
+    """Build a branching client for ad-hoc CLI use; caller closes the raw client.
+
+    Uses :meth:`BranchingClient.from_client` so each branching command avoids
+    building a full ``Api`` (and its schema index) it never uses.
+    """
     raw = _get_client()
-    api = Api(client=raw)
-    return api.branching, raw
+    return BranchingClient.from_client(raw), raw
 
 
 def _branching_command(

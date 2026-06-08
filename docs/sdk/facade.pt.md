@@ -211,12 +211,16 @@ user_config = await nb.users.config()
 
 ## Ativação de branch
 
-Requisições com escopo de branch podem ser feitas com `activate_branch()`:
+Requisições com escopo de branch podem ser feitas com `activate_branch()`, um
+gerenciador de contexto **assíncrono**. Passe uma string `schema_id` ou um
+objeto/dict que exponha um `schema_id` (por exemplo, um branch de
+`nb.branching.get()`/`list()`); PKs inteiras não são aceitas porque o plugin
+resolve o cabeçalho como um `schema_id`:
 
 ```python
-branch = type("Branch", (), {"schema_id": "feature-x"})()
+branch = type("Branch", (), {"schema_id": "td5smq0f"})()
 
-with nb.activate_branch(branch):
+async with nb.activate_branch(branch):
     device = await nb.dcim.devices.get(42)
 ```
 

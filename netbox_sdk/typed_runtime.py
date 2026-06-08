@@ -278,16 +278,16 @@ class RawBranchingApp(TypedAppBase):
     async def _delete(self, path: str) -> None:
         await self._delete_response(path)
 
-    async def list_branches(self, **filters: Any) -> Any:
+    async def list_branches(self, **filters: Any) -> dict[str, Any]:
         return await self._get(f"{self.BASE}/branches/", **filters)
 
-    async def get_branch(self, id: int) -> Any:
+    async def get_branch(self, id: int) -> dict[str, Any]:
         return await self._get(f"{self.BASE}/branches/{id}/")
 
-    async def create_branch(self, **fields: Any) -> Any:
+    async def create_branch(self, **fields: Any) -> dict[str, Any]:
         return await self._post(f"{self.BASE}/branches/", payload=fields)
 
-    async def update_branch(self, id: int, **fields: Any) -> Any:
+    async def update_branch(self, id: int, **fields: Any) -> dict[str, Any]:
         return await self._patch(f"{self.BASE}/branches/{id}/", payload=fields)
 
     async def delete_branch(self, id: int) -> None:
@@ -295,7 +295,7 @@ class RawBranchingApp(TypedAppBase):
 
     async def sync(
         self, id: int, *, commit: bool = True, acknowledge_conflicts: bool = False
-    ) -> Any:
+    ) -> dict[str, Any]:
         return await self._post(
             f"{self.BASE}/branches/{id}/sync/",
             payload={"commit": commit, "acknowledge_conflicts": acknowledge_conflicts},
@@ -303,23 +303,23 @@ class RawBranchingApp(TypedAppBase):
 
     async def merge(
         self, id: int, *, commit: bool = True, acknowledge_conflicts: bool = False
-    ) -> Any:
+    ) -> dict[str, Any]:
         return await self._post(
             f"{self.BASE}/branches/{id}/merge/",
             payload={"commit": commit, "acknowledge_conflicts": acknowledge_conflicts},
         )
 
-    async def revert(self, id: int) -> Any:
+    async def revert(self, id: int) -> dict[str, Any]:
         return await self._post(f"{self.BASE}/branches/{id}/revert/")
 
-    async def archive(self, id: int) -> Any:
+    async def archive(self, id: int) -> dict[str, Any]:
         return await self._post(f"{self.BASE}/branches/{id}/archive/")
 
-    async def branch_events(self, **filters: Any) -> Any:
+    async def branch_events(self, **filters: Any) -> dict[str, Any]:
         return await self._get(f"{self.BASE}/branch-events/", **filters)
 
-    async def changes(self, **filters: Any) -> Any:
+    async def changes(self, **filters: Any) -> dict[str, Any]:
         return await self._get(f"{self.BASE}/changes/", **filters)
 
-    async def branchable_models(self) -> Any:
+    async def branchable_models(self) -> dict[str, Any]:
         return await self._get(f"{self.BASE}/branchable-models/")

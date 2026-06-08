@@ -284,6 +284,11 @@ class NetBoxApiClient:
         )
         cache_key: str | None = None
         cache_entry = None
+        # Header precedence (lowest → highest): persistent_headers (client-wide,
+        # e.g. the TUI's active branch) < _scoped_headers (per-task header_scope,
+        # e.g. SDK ``activate``/``activate_branch``) < per-call ``headers``. A
+        # task-scoped branch therefore overrides a client-wide one for the
+        # duration of its with-block, then falls back to the persistent value.
         req_headers = dict(self.persistent_headers)
         scoped = _scoped_headers.get() or {}
         req_headers.update(scoped)
