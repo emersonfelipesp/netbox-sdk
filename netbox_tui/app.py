@@ -1052,11 +1052,13 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
     @work(group="branching_detect", exclusive=True, thread=False)
     async def _detect_branching(self) -> None:
         from netbox_sdk.branching import BranchingClient
-        from netbox_sdk.facade import Api
 
         try:
-            available = await BranchingClient(Api(client=self.client)).is_available()
+            available = await BranchingClient.from_client(self.client).is_available()
         except Exception as exc:  # noqa: BLE001
+            # Branching is an optional feature probed on every mount; never let a
+            # detection failure tear down the TUI. The error is logged with a
+            # traceback (so bugs remain visible) and we degrade to "unavailable".
             logger.debug("branching feature detection failed", exc_info=exc)
             available = False
 
@@ -1096,11 +1098,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
     @work(group="branching_switch", exclusive=True, thread=False)
     async def _open_branch_switcher(self) -> None:
         from netbox_sdk.branching import BranchingClient
-        from netbox_sdk.facade import Api
 
         try:
-            branches = await BranchingClient(Api(client=self.client)).list()
+            branches = await BranchingClient.from_client(self.client).list()
         except Exception as exc:  # noqa: BLE001
+            # User-initiated (Ctrl+B); surface the failure as a toast and keep
+            # the TUI running rather than crashing the worker.
             logger.debug("branching list failed", exc_info=exc)
             self.notify(f"Could not list branches: {exc}", severity="error")
             return

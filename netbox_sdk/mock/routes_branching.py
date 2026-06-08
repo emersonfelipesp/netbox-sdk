@@ -14,6 +14,7 @@ surface returns 404 so feature-detection negative paths can be tested.
 
 from __future__ import annotations
 
+import json
 import os
 import secrets
 import string
@@ -214,7 +215,7 @@ def register_branching_mock_routes(app: FastAPI) -> None:
             )
             payload = _branch_payload(branch)
         return Response(
-            content=__import__("json").dumps(payload),
+            content=json.dumps(payload),
             status_code=201,
             media_type="application/json",
         )

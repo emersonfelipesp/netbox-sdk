@@ -22,8 +22,10 @@ from netbox_sdk import (
     BranchingPluginUnavailableError,
     RequestError,
 )
+from netbox_sdk.branching import extract_schema_id
 from netbox_sdk.client import NetBoxApiClient, _scoped_headers
 from netbox_sdk.config import Config
+from netbox_sdk.decorators import JsonResponse
 from netbox_sdk.facade import Api
 from netbox_sdk.mock import create_mock_app
 from netbox_sdk.mock.routes_branching import _reset as _reset_branching
@@ -294,3 +296,126 @@ def test_branching_client_constructible_without_facade():
 
     bc = BranchingClient(_FakeApi())
     assert bc is not None
+
+
+# ---------------------------------------------------------------------------
+# schema_id extraction (X-NetBox-Branch header value resolution)
+# ---------------------------------------------------------------------------
+
+
+class _BranchObj:
+    def __init__(self, **kwargs: Any) -> None:
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "td5smq0f",  # valid 8-char schema_id
+        "12345678",  # 8 all-digits is still a valid schema_id shape
+        " td5smq0f ",  # whitespace is stripped
+        "feature-branch",  # non-numeric string passes through
+        {"schema_id": "td5smq0f"},  # dict from list()/get()
+        {"schema_id": "td5smq0f", "id": 7},
+    ],
+)
+def test_extract_schema_id_accepts_valid_inputs(value):
+    assert extract_schema_id(value) is not None
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        7,  # int PK — cannot be a schema_id
+        True,  # bool is an int subclass; must not slip through
+        "42",  # short numeric string is a PK, not a schema_id
+        "",
+        "   ",
+        {"id": 7},  # dict carrying only a PK
+        {"pk": 7},
+        _BranchObj(id=7),  # object exposing only a PK
+    ],
+)
+def test_extract_schema_id_rejects_pk_and_ambiguous(value):
+    assert extract_schema_id(value) is None
+
+
+def test_extract_schema_id_reads_schema_id_from_object():
+    assert extract_schema_id(_BranchObj(schema_id="td5smq0f", id=7)) == "td5smq0f"
+
+
+# ---------------------------------------------------------------------------
+# activate() / activate_branch() reject PKs instead of sending a bad header
+# ---------------------------------------------------------------------------
+
+
+def test_activate_rejects_int_pk(api):
+    """An int PK cannot resolve to a schema_id synchronously — raise clearly."""
+    with pytest.raises(ValueError, match="schema_id"):
+        with api.branching.activate(42):
+            pass
+
+
+def test_activate_rejects_object_without_schema_id(api):
+    with pytest.raises(ValueError, match="schema_id"):
+        with api.branching.activate(_BranchObj(id=7)):
+            pass
+
+
+def test_activate_accepts_dict_with_schema_id(api):
+    with api.branching.activate({"schema_id": "td5smq0f"}):
+        scoped = _scoped_headers.get() or {}
+        assert scoped.get("X-NetBox-Branch") == "td5smq0f"
+
+
+async def test_facade_activate_branch_rejects_int_pk(api):
+    with pytest.raises(ValueError, match="schema_id"):
+        async with api.activate_branch(42):
+            pass
+
+
+async def test_facade_activate_branch_rejects_dict_without_schema_id(api):
+    with pytest.raises(ValueError, match="schema_id"):
+        async with api.activate_branch({"id": 7, "name": "feature"}):
+            pass
+
+
+async def test_facade_activate_branch_accepts_dict_with_schema_id(api):
+    async with api.activate_branch({"schema_id": "td5smq0f"}):
+        scoped = _scoped_headers.get() or {}
+        assert scoped.get("X-NetBox-Branch") == "td5smq0f"
+
+
+# ---------------------------------------------------------------------------
+# from_client() — schema-index-free construction on hot paths
+# ---------------------------------------------------------------------------
+
+
+async def test_from_client_supports_reads(api):
+    """from_client() builds a working client without a full Api/schema index."""
+    bc = BranchingClient.from_client(api.client)
+    assert await bc.is_available() is True
+    created = await api.branching.create("from-client-branch")
+    branches = await bc.list()
+    assert any(b["schema_id"] == created["schema_id"] for b in branches)
+
+
+def test_from_client_activate_raises_runtime_error(api):
+    """activate() needs an Api to yield; from_client() instances reject it."""
+    bc = BranchingClient.from_client(api.client)
+    with pytest.raises(RuntimeError, match="from_client"):
+        with bc.activate("td5smq0f"):
+            pass
+
+
+# ---------------------------------------------------------------------------
+# _list_payload tolerates an empty-body 200
+# ---------------------------------------------------------------------------
+
+
+def test_list_payload_returns_empty_list_for_none_payload():
+    """An empty-body 2xx must yield [] rather than raising ContentError."""
+    decoded = JsonResponse(response=None, payload=None)
+    assert BranchingClient._list_payload(decoded) == []

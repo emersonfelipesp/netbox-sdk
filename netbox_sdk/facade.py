@@ -9,7 +9,7 @@ from collections import deque
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, ClassVar, Literal, Self, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self, TypeAlias, cast
 from urllib.parse import parse_qsl, urlsplit
 
 from netbox_sdk.client import ApiResponse, JSONScalar, JSONValue, NetBoxApiClient
@@ -21,6 +21,9 @@ from netbox_sdk.exceptions import (
     RequestError,
 )
 from netbox_sdk.schema import ResourcePaths, SchemaIndex, build_schema_index, parse_group_resource
+
+if TYPE_CHECKING:
+    from netbox_sdk.branching import BranchingClient
 
 logger = logging.getLogger(__name__)
 
@@ -189,10 +192,10 @@ class Api:
         for name in APP_NAMES:
             setattr(self, name, App(self, name))
         self.plugins = PluginsApp(self)
-        self._branching: Any | None = None
+        self._branching: BranchingClient | None = None
 
     @property
-    def branching(self) -> Any:
+    def branching(self) -> BranchingClient:
         """Lazy accessor for :class:`netbox_sdk.branching.BranchingClient`."""
         if self._branching is None:
             from netbox_sdk.branching import BranchingClient  # noqa: PLC0415
@@ -246,8 +249,22 @@ class Api:
 
     @asynccontextmanager
     async def activate_branch(self, branch: Any) -> AsyncIterator[Api]:
-        schema_id = getattr(branch, "schema_id", None) or getattr(branch, "id", None) or str(branch)
-        with self.client.header_scope(**{"X-NetBox-Branch": str(schema_id)}):
+        """Scope ``X-NetBox-Branch`` for every request made inside the block.
+
+        Accepts a ``schema_id`` string or an object/dict exposing a ``schema_id``
+        (for example a branch returned by ``branching.get()``/``branching.list()``).
+        Integer PKs are not accepted, because the branching plugin resolves the
+        header as a ``schema_id`` (``Branch.objects.get(schema_id=...)``).
+        """
+        from netbox_sdk.branching import extract_schema_id  # noqa: PLC0415
+
+        schema_id = extract_schema_id(branch)
+        if not schema_id:
+            raise ValueError(
+                "activate_branch() requires a schema_id string or an object/dict "
+                "with a schema_id; integer PKs are not accepted"
+            )
+        with self.client.header_scope(**{"X-NetBox-Branch": schema_id}):
             yield self
 
     def endpoint_for(self, group: str, resource: str) -> Endpoint:

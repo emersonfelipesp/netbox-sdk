@@ -44,7 +44,7 @@ from netbox_sdk.exceptions import (
 )
 
 if TYPE_CHECKING:
-    from netbox_sdk.client import ApiResponse
+    from netbox_sdk.client import ApiResponse, NetBoxApiClient
     from netbox_sdk.facade import Api
 
 logger = logging.getLogger(__name__)
@@ -63,6 +63,43 @@ _DEFAULT_TIMEOUT = 300.0
 
 def _is_schema_id(value: str) -> bool:
     return bool(_SCHEMA_ID_RE.match(value))
+
+
+def extract_schema_id(branch: Any) -> str | None:
+    """Resolve a branch-like input to a ``schema_id`` for ``X-NetBox-Branch``.
+
+    The branching plugin resolves the header via
+    ``Branch.objects.get(schema_id=...)``, so only a real ``schema_id`` is a
+    valid header value. This helper therefore accepts a ``schema_id`` string
+    or any object/dict that exposes a ``schema_id`` (for example a branch
+    returned by :meth:`BranchingClient.get`/:meth:`BranchingClient.list`).
+
+    Integer primary keys — and objects/dicts that expose only ``id``/``pk`` —
+    return ``None`` because a PK cannot be turned into a ``schema_id`` without
+    an async server lookup. Callers raise a clear error in that case rather
+    than emitting a PK as the branch header (which the server would reject).
+    """
+    if branch is None:
+        return None
+    # ``bool`` is an ``int`` subclass; treat it as not-a-schema-id.
+    if isinstance(branch, bool):
+        return None
+    if isinstance(branch, int):
+        return None
+    if isinstance(branch, str):
+        text = branch.strip()
+        if not text:
+            return None
+        # A purely numeric string that is not a valid 8-char schema_id is a PK.
+        if text.isdigit() and not _is_schema_id(text):
+            return None
+        return text
+    schema_id = getattr(branch, "schema_id", None)
+    if schema_id is None and isinstance(branch, dict):
+        schema_id = branch.get("schema_id")
+    if schema_id is None:
+        return None
+    return str(schema_id).strip() or None
 
 
 def _branch_label(branch: Any) -> str | int | None:
@@ -93,8 +130,23 @@ class BranchingClient:
     BASE = "/api/plugins/branching"
 
     def __init__(self, api: Api) -> None:
-        self._api = api
+        self._api: Api | None = api
         self._client = api.client
+
+    @classmethod
+    def from_client(cls, client: NetBoxApiClient) -> BranchingClient:
+        """Construct a branching client bound directly to a raw HTTP client.
+
+        This skips building a full :class:`~netbox_sdk.facade.Api` (and its
+        schema index), so it is the preferred constructor on hot paths that
+        only need branching reads/writes — feature detection, listing, and
+        CRUD. The returned instance does not support :meth:`activate`, which
+        requires an ``Api`` handle to yield into the with-block.
+        """
+        instance = cls.__new__(cls)
+        instance._api = None
+        instance._client = client
+        return instance
 
     @api_json_response(error_mapper=branching_response_error, include_response=True)
     async def _json_response(
@@ -285,16 +337,25 @@ class BranchingClient:
     def activate(self, branch_or_schema_id: Any) -> Iterator[Api]:
         """Activate a branch for every request in the with-block.
 
-        Accepts an integer PK, an 8-char ``schema_id`` string, a branch name
-        (must be already loaded; lookup is not performed here), or any object
-        exposing a ``schema_id`` attribute. Delegates to
+        Accepts an 8-char ``schema_id`` string, or any object/dict exposing a
+        ``schema_id`` (for example a branch returned by :meth:`get`/:meth:`list`).
+        Integer PKs are **not** accepted: ``activate`` is a synchronous context
+        manager and cannot resolve a PK to the ``schema_id`` the plugin requires
+        for the ``X-NetBox-Branch`` header — resolve it first via ``get(pk)`` and
+        pass the returned branch. Delegates to
         :meth:`netbox_sdk.client.NetBoxApiClient.header_scope`, so the
         ``X-NetBox-Branch`` header is scoped to the current asyncio task.
         """
-        schema_id = self._extract_schema_id(branch_or_schema_id)
+        if self._api is None:
+            raise RuntimeError(
+                "activate() is unavailable on a client built via from_client(); "
+                "construct via Api.branching to use branch activation"
+            )
+        schema_id = extract_schema_id(branch_or_schema_id)
         if not schema_id:
             raise ValueError(
-                "activate() requires a schema_id, an int PK, or an object with .schema_id"
+                "activate() requires a schema_id string or an object/dict with a "
+                "schema_id; integer PKs are not accepted (resolve via get(pk) first)"
             )
         with self._client.header_scope(**{"X-NetBox-Branch": schema_id}):
             yield self._api
@@ -362,6 +423,10 @@ class BranchingClient:
     @staticmethod
     def _list_payload(decoded: JsonResponse) -> _BuiltinList[dict[str, Any]]:
         payload = decoded.payload
+        if payload is None:
+            # Empty-body 2xx (e.g. 204, or a proxy that strips the body) means
+            # there are no rows — return an empty list rather than raising.
+            return []
         if isinstance(payload, dict) and "results" in payload:
             results = payload["results"]
             if isinstance(results, list):
@@ -372,22 +437,7 @@ class BranchingClient:
 
     @staticmethod
     def _extract_schema_id(branch: Any) -> str | None:
-        if branch is None:
-            return None
-        if isinstance(branch, str):
-            return branch.strip() or None
-        if isinstance(branch, int):
-            return str(branch)
-        for attr in ("schema_id", "id", "pk"):
-            value = getattr(branch, attr, None)
-            if value is not None:
-                return str(value)
-        if isinstance(branch, dict):
-            for key in ("schema_id", "id", "pk"):
-                value = branch.get(key)
-                if value is not None:
-                    return str(value)
-        return None
+        return extract_schema_id(branch)
 
     @staticmethod
     def _job_id(payload: dict[str, Any]) -> int | None:
@@ -409,8 +459,11 @@ class BranchingClient:
             value = payload.get("id") if payload.get("id") is not None else payload.get("pk")
             if isinstance(value, int):
                 return value
-        # Jobs carry a nested status dict; branches carry a plain string status.
-        if isinstance(payload.get("status"), dict):
+        # Last resort: a nested status dict suggests a Job. Both jobs and
+        # branches serialize ``status`` as a {"value", "label"} choice dict, so
+        # discriminate on ``schema_id`` — present on branches, absent on jobs —
+        # to avoid mistaking a branch payload for a job.
+        if isinstance(payload.get("status"), dict) and "schema_id" not in payload:
             value = payload.get("id") if payload.get("id") is not None else payload.get("pk")
             if isinstance(value, int):
                 return value
@@ -422,4 +475,5 @@ __all__ = [
     "BranchConflictError",
     "BranchingPluginUnavailableError",
     "BranchJobTimeoutError",
+    "extract_schema_id",
 ]
