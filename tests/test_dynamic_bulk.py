@@ -136,7 +136,6 @@ def test_handle_dynamic_invocation_filters_no_params(capsys):
     # Use a resource that has no queryable filter params — fallback to "no params" message.
     # We'll monkeypatch the index to return an empty list for filter_params.
     idx = _index()
-    original = idx.filter_params
 
     def _no_params(group: str, resource: str):
         return []
