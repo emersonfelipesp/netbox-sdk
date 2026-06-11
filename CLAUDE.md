@@ -111,6 +111,29 @@ pip install -e '.[tui]'
 pip install -e '.[all]'
 ```
 
+## CLI Dynamic Command Surface
+
+The CLI exposes all NetBox API resources through `nbx <group> <resource> <action>`. The supported action set per resource is:
+
+| Action | HTTP | Path | Notes |
+|---|---|---|---|
+| `list` | GET | list path | Supports `--all` for auto-pagination |
+| `get` | GET | detail path | Requires `--id` |
+| `create` | POST | list path | |
+| `update` | PUT | detail path | Requires `--id` |
+| `patch` | PATCH | detail path | Requires `--id` |
+| `delete` | DELETE | detail path | Requires `--id` |
+| `bulk-update` | PUT | list path | Array body; no `--id` |
+| `bulk-patch` | PATCH | list path | Array body; no `--id` |
+| `bulk-delete` | DELETE | list path | Array body; no `--id` |
+| `filters` | — | local only | Prints available filter parameters from schema |
+
+**Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. `--max-records N` (default 10 000) is the hard ceiling on accumulated records.
+
+**Bulk routing**: `bulk-update`, `bulk-patch`, and `bulk-delete` always target the list path, never the detail path. The `--id` option is silently ignored for bulk actions.
+
+**Filter discovery**: `filters` is a synthetic local action that calls `SchemaIndex.filter_params()` and prints the available query parameters without making an HTTP request.
+
 ## Core Rules
 
 - SDK code in `netbox_sdk/` must not import `netbox_cli` or `netbox_tui`.

@@ -110,18 +110,43 @@ def _handle_dynamic_invocation(
         columns,
         max_columns,
         dry_run,
+        fetch_all,
+        max_records,
     ) = _parse_dynamic_options(option_args)
     resolve_output_format(as_json=as_json, as_yaml=as_yaml, as_markdown=as_markdown)
+
+    if action.lower() == "filters":
+        index = index_factory()
+        params = index.filter_params(group, resource)
+        if not params:
+            typer.echo(f"No filter parameters found for {group}/{resource}")
+            return
+        name_w = max((len(p.name) for p in params), default=10)
+        typer.echo(f"\nFilter parameters for {group}/{resource}:\n")
+        for p in params:
+            choices_str = ""
+            if p.choices:
+                shown = list(p.choices[:5])
+                ellipsis = "..." if len(p.choices) > 5 else ""
+                choices_str = f"  choices: [{', '.join(shown)}{ellipsis}]"
+            line = f"  {p.name:<{name_w}}  ({p.type}){choices_str}"
+            if p.description:
+                line += f"  — {p.description}"
+            typer.echo(line)
+        return
+
     if trace and trace_only:
         raise typer.BadParameter("Use either --trace or --trace-only, not both.")
-    if dry_run and action.lower() not in {"create", "update", "patch", "delete"}:
+    if dry_run and action.lower() not in _ALL_WRITE_ACTIONS:
         raise typer.BadParameter(
-            "--dry-run is only supported for write operations (create, update, patch, delete)"
+            "--dry-run is only supported for write operations "
+            "(create, update, patch, delete, bulk-update, bulk-patch, bulk-delete)"
         )
+    if fetch_all and action.lower() != "list":
+        raise typer.BadParameter("--all is only supported for the list action")
     action_lower = action.lower()
-    write_actions = {"create", "update", "patch", "delete"}
     # Dry-run previews only need the OpenAPI index; avoid building an API client (and loading config).
-    skip_client = bool(dry_run and action_lower in write_actions)
+    skip_client = bool(dry_run and action_lower in _ALL_WRITE_ACTIONS)
     index = index_factory()
     client = None if skip_client else client_factory()
     if client is not None and index.resource_paths(group, resource) is None:
@@ -130,6 +155,34 @@ def _handle_dynamic_invocation(
         )
 
         run_with_spinner(enrich_schema_index_with_runtime_resources(index, client))
+
+    if fetch_all and action_lower == "list" and client is not None:
+        from netbox_sdk.services import list_all_pages  # noqa: PLC0415
+
+        response = run_with_spinner(
+            list_all_pages(
+                client,
+                index,
+                group,
+                resource,
+                query_pairs=query_pairs,
+                max_records=max_records,
+            ),
+            close=client,
+        )
+        if not trace_only and response is not None:
+            print_response(
+                response.status,
+                response.text,
+                as_json=as_json,
+                as_yaml=as_yaml,
+                as_markdown=as_markdown,
+                select_path=select_path,
+                columns=columns,
+                max_columns=max_columns,
+            )
+        return
+
     response = _execute_dynamic_action(
         group=group,
         resource=resource,
@@ -188,6 +241,8 @@ def _parse_dynamic_options(
     list[str] | None,
     int,
     bool,
+    bool,
+    int,
 ]:
     object_id: int | None = None
     query_pairs: list[str] = []
@@ -202,6 +257,8 @@ def _parse_dynamic_options(
     columns: list[str] | None = None
     max_columns: int = 6
     dry_run: bool = False
+    fetch_all: bool = False
+    max_records: int = 10000
 
     i = 0
     while i < len(args):
@@ -277,6 +334,21 @@ def _parse_dynamic_options(
             dry_run = True
             i += 1
             continue
+        if token == "--all":
+            fetch_all = True
+            i += 1
+            continue
+        if token == "--max-records":
+            if i + 1 >= len(args):
+                raise typer.BadParameter("--max-records requires a number")
+            try:
+                max_records = int(args[i + 1])
+                if max_records < 1:
+                    raise typer.BadParameter("--max-records must be at least 1")
+            except ValueError:
+                raise typer.BadParameter("--max-records must be a number")
+            i += 2
+            continue
         raise typer.BadParameter(f"Unknown option: {token}")
 
     return (
@@ -293,6 +365,8 @@ def _parse_dynamic_options(
         columns,
         max_columns,
         dry_run,
+        fetch_all,
+        max_records,
     )
 
 
@@ -314,9 +388,8 @@ def _execute_dynamic_action(
 ) -> ApiResponse | None:
     """Run OpenAPI-resolved request, or print dry-run preview when ``dry_run`` is True."""
     action_lower = action.lower()
-    write_actions = {"create", "update", "patch", "delete"}
 
-    if dry_run and action_lower in write_actions:
+    if dry_run and action_lower in _ALL_WRITE_ACTIONS:
         from netbox_cli.support import print_dry_run
         from netbox_sdk.services import load_json_payload, resolve_dynamic_request
 
@@ -374,7 +447,23 @@ def _supported_actions(group: str, resource: str, *, index: SchemaIndex | None =
         actions.append("patch")
     if paths.detail_path and (paths.detail_path, "DELETE") in by_pair:
         actions.append("delete")
+    # Bulk operations use list-path PUT/PATCH/DELETE (no --id required).
+    if paths.list_path and (paths.list_path, "PUT") in by_pair:
+        actions.append("bulk-update")
+    if paths.list_path and (paths.list_path, "PATCH") in by_pair:
+        actions.append("bulk-patch")
+    if paths.list_path and (paths.list_path, "DELETE") in by_pair:
+        actions.append("bulk-delete")
+    # Filter discovery: show available query parameters for the list endpoint.
+    if active_index.filter_params(group, resource):
+        actions.append("filters")
     return actions
+
+
+_BULK_ACTIONS: frozenset[str] = frozenset({"bulk-update", "bulk-patch", "bulk-delete"})
+_ALL_WRITE_ACTIONS: frozenset[str] = frozenset(
+    {"create", "update", "patch", "delete", "bulk-update", "bulk-patch", "bulk-delete"}
+)
 
 
 def _build_action_command(
@@ -385,8 +474,32 @@ def _build_action_command(
     client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
     index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> Callable[..., None]:
+    # --- filters: pure local action, no HTTP call ---
+    if action == "filters":
+
+        def _filters_command() -> None:
+            index = index_factory()
+            params = index.filter_params(group, resource)
+            if not params:
+                typer.echo(f"No filter parameters found for {group}/{resource}")
+                return
+            name_w = max((len(p.name) for p in params), default=10)
+            typer.echo(f"\nFilter parameters for {group}/{resource}:\n")
+            for p in params:
+                choices_str = ""
+                if p.choices:
+                    shown = list(p.choices[:5])
+                    ellipsis = "..." if len(p.choices) > 5 else ""
+                    choices_str = f"  choices: [{', '.join(shown)}{ellipsis}]"
+                line = f"  {p.name:<{name_w}}  ({p.type}){choices_str}"
+                if p.description:
+                    line += f"  — {p.description}"
+                typer.echo(line)
+
+        return _filters_command
+
     requires_id = action in {"get", "update", "patch", "delete"}
-    allows_body = action in {"create", "update", "patch"}
+    allows_body = action in {"create", "update", "patch"} | _BULK_ACTIONS
 
     def _command(
         object_id: int | None = typer.Option(None, "--id", help="Object ID for detail operations"),
@@ -426,7 +539,17 @@ def _build_action_command(
         dry_run: bool = typer.Option(
             False,
             "--dry-run",
-            help="Preview write operation without executing (create/update/patch/delete only)",
+            help="Preview write operation without executing",
+        ),
+        fetch_all: bool = typer.Option(
+            False,
+            "--all",
+            help="Fetch all pages automatically (list only)",
+        ),
+        max_records: int = typer.Option(
+            10000,
+            "--max-records",
+            help="Maximum records returned when using --all",
         ),
     ) -> None:
         if requires_id and object_id is None:
@@ -442,16 +565,42 @@ def _build_action_command(
             raise typer.BadParameter("Use either --trace or --trace-only, not both.")
         if (trace or trace_only) and action != "get":
             raise typer.BadParameter("--trace and --trace-only are only supported for get actions")
+        if dry_run and action.lower() not in _ALL_WRITE_ACTIONS:
+            raise typer.BadParameter("--dry-run is only supported for write operations")
+        if fetch_all and action != "list":
+            raise typer.BadParameter("--all is only supported for the list action")
 
-        write_actions = {"create", "update", "patch", "delete"}
-        if dry_run and action.lower() not in write_actions:
-            raise typer.BadParameter(
-                "--dry-run is only supported for write operations (create, update, patch, delete)"
-            )
-
-        client = None if dry_run else client_factory()
+        active_client = None if dry_run else client_factory()
         index = index_factory()
         columns_list = [c.strip() for c in columns.split(",")] if columns else None
+
+        if fetch_all and action == "list" and active_client is not None:
+            from netbox_sdk.services import list_all_pages  # noqa: PLC0415
+
+            response = run_with_spinner(
+                list_all_pages(
+                    active_client,
+                    index,
+                    group,
+                    resource,
+                    query_pairs=query or [],
+                    max_records=max_records,
+                ),
+                close=active_client,
+            )
+            if response is not None:
+                print_response(
+                    response.status,
+                    response.text,
+                    as_json=output_json,
+                    as_yaml=output_yaml,
+                    as_markdown=output_markdown,
+                    select_path=select_path,
+                    columns=columns_list,
+                    max_columns=max_columns,
+                )
+            return
+
         response = _execute_dynamic_action(
             group=group,
             resource=resource,
@@ -464,7 +613,7 @@ def _build_action_command(
             columns=columns_list,
             max_columns=max_columns,
             dry_run=dry_run,
-            client=client,
+            client=active_client,
             index=index,
         )
         if not trace_only:
