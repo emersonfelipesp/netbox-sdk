@@ -89,9 +89,17 @@ def live_schema():
 # ---------------------------------------------------------------------------
 
 
-async def _run(client: NetBoxApiClient, schema, group: str, resource: str, action: str,
-               *, object_id: int | None = None, body: dict | list | None = None,
-               query: list[str] | None = None) -> dict | list:
+async def _run(
+    client: NetBoxApiClient,
+    schema,
+    group: str,
+    resource: str,
+    action: str,
+    *,
+    object_id: int | None = None,
+    body: dict | list | None = None,
+    query: list[str] | None = None,
+) -> dict | list:
     response = await run_dynamic_command(
         client=client,
         index=schema,
@@ -162,7 +170,11 @@ async def test_live_crud_lifecycle(live_client: NetBoxApiClient, live_schema) ->
 
     # CREATE
     created = await _run(
-        live_client, live_schema, "extras", "tags", "create",
+        live_client,
+        live_schema,
+        "extras",
+        "tags",
+        "create",
         body={"name": tag_name, "slug": tag_slug, "color": "aa1409"},
     )
     assert isinstance(created, dict)
@@ -177,7 +189,11 @@ async def test_live_crud_lifecycle(live_client: NetBoxApiClient, live_schema) ->
 
         # PATCH (single-object PATCH to detail path)
         patched = await _run(
-            live_client, live_schema, "extras", "tags", "patch",
+            live_client,
+            live_schema,
+            "extras",
+            "tags",
+            "patch",
             object_id=tag_id,
             body={"color": "0c7a00"},
         )
@@ -185,7 +201,11 @@ async def test_live_crud_lifecycle(live_client: NetBoxApiClient, live_schema) ->
 
         # UPDATE (single-object PUT to detail path)
         updated = await _run(
-            live_client, live_schema, "extras", "tags", "update",
+            live_client,
+            live_schema,
+            "extras",
+            "tags",
+            "update",
             object_id=tag_id,
             body={"name": tag_name, "slug": tag_slug, "color": "ff0000"},
         )
@@ -211,7 +231,11 @@ async def test_live_bulk_operations(live_client: NetBoxApiClient, live_schema) -
     created_ids: list[int] = []
     for name, slug in zip(names, slugs):
         result = await _run(
-            live_client, live_schema, "extras", "tags", "create",
+            live_client,
+            live_schema,
+            "extras",
+            "tags",
+            "create",
             body={"name": name, "slug": slug, "color": "aa1409"},
         )
         created_ids.append(result["id"])
@@ -222,7 +246,11 @@ async def test_live_bulk_operations(live_client: NetBoxApiClient, live_schema) -
         # BULK-PATCH — PATCH to list path with array body
         patch_payload = [{"id": oid, "color": "0c7a00"} for oid in created_ids]
         bulk_patched = await _run(
-            live_client, live_schema, "extras", "tags", "bulk-patch",
+            live_client,
+            live_schema,
+            "extras",
+            "tags",
+            "bulk-patch",
             body=patch_payload,
         )
         assert isinstance(bulk_patched, list)
@@ -235,7 +263,11 @@ async def test_live_bulk_operations(live_client: NetBoxApiClient, live_schema) -
             for i, oid in enumerate(created_ids)
         ]
         bulk_updated = await _run(
-            live_client, live_schema, "extras", "tags", "bulk-update",
+            live_client,
+            live_schema,
+            "extras",
+            "tags",
+            "bulk-update",
             body=update_payload,
         )
         assert isinstance(bulk_updated, list)
@@ -245,7 +277,11 @@ async def test_live_bulk_operations(live_client: NetBoxApiClient, live_schema) -
         # BULK-DELETE — DELETE to list path with array body
         delete_payload = [{"id": oid} for oid in created_ids]
         await _run(
-            live_client, live_schema, "extras", "tags", "bulk-delete",
+            live_client,
+            live_schema,
+            "extras",
+            "tags",
+            "bulk-delete",
             body=delete_payload,
         )
 

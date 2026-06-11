@@ -105,9 +105,7 @@ def _provision_token_via_api(*, username: str, password: str) -> DemoToken:
         if exc.code in (401, 403):
             raise _TokenProvisionError(f"HTTP {exc.code}: credentials not accepted") from exc
         raw = exc.read().decode(errors="replace")
-        raise RuntimeError(
-            f"Token provisioning returned HTTP {exc.code}: {raw[:200]}"
-        ) from exc
+        raise RuntimeError(f"Token provisioning returned HTTP {exc.code}: {raw[:200]}") from exc
     except urllib.error.URLError as exc:
         raise RuntimeError(f"Token provisioning network error: {exc.reason}") from exc
 
@@ -115,9 +113,7 @@ def _provision_token_via_api(*, username: str, password: str) -> DemoToken:
     token_key = body.get("key", "")
     token_secret = body.get("token", "")
     if not token_key or not token_secret:
-        raise RuntimeError(
-            f"Unexpected token provisioning response shape — got keys: {list(body)}"
-        )
+        raise RuntimeError(f"Unexpected token provisioning response shape — got keys: {list(body)}")
     return DemoToken(version="v2", key=token_key, secret=token_secret)
 
 
@@ -125,9 +121,7 @@ class _TokenProvisionError(Exception):
     """Raised when the provision endpoint rejects the credentials (account absent)."""
 
 
-def _register_demo_user_via_playwright(
-    *, username: str, password: str, headless: bool
-) -> None:
+def _register_demo_user_via_playwright(*, username: str, password: str, headless: bool) -> None:
     """Use Playwright to register a new demo account via the plugin UI."""
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
