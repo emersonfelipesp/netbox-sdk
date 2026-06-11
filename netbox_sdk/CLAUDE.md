@@ -62,7 +62,7 @@ netbox_sdk/
 - `netbox_sdk.http_cache` — filesystem cache primitives
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
 - `netbox_sdk.schema` — OpenAPI loading and indexing
-- `netbox_sdk.services` — dynamic request resolution
+- `netbox_sdk.services` — dynamic request resolution; `ACTION_METHOD_MAP` includes bulk ops (`bulk-update`, `bulk-patch`, `bulk-delete`); `list_all_pages` follows NetBox pagination `next` links and returns a synthesised single-page response
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
 - `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
 - Shared cross-package helpers: `formatting`, `logging_runtime`, `output_safety`, `trace_ascii`, `demo_auth`, `django_models`

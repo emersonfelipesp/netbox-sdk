@@ -86,7 +86,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_security_cli.py` | CLI security behavior and secret-safe output |
 | `test_security_sdk.py` | SDK security behavior, token handling, and unsafe input guards |
 | `test_security_tui.py` | TUI security behavior and secret-safe rendering |
-| `test_services.py` | Request resolution from (group, resource, action, id) tuples, key-value arg parsing |
+| `test_dynamic_bulk.py` | CLI bulk operations (`bulk-update`, `bulk-patch`, `bulk-delete`), `--all` auto-pagination, `--max-records`, and `filters` action — covers `_supported_actions`, `_parse_dynamic_options`, and `_handle_dynamic_invocation` |
+| `test_services.py` | Request resolution from (group, resource, action, id) tuples, key-value arg parsing, bulk op routing to list path, and `list_all_pages` multi-page aggregation |
 | `test_ssl_verify_cli.py` | TLS verification prompts and `nbx test` probe retry (`_prompt_ssl_verify_if_unset`, `_retry_probe_after_ssl_prompt`) |
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |

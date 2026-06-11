@@ -6,6 +6,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 from pydantic import BaseModel
 
@@ -22,7 +23,15 @@ ACTION_METHOD_MAP = {
     "update": "PUT",
     "patch": "PATCH",
     "delete": "DELETE",
+    "bulk-update": "PUT",
+    "bulk-patch": "PATCH",
+    "bulk-delete": "DELETE",
 }
+
+# Bulk actions route to the list path (no --id required).
+_BULK_LIST_ACTIONS: frozenset[str] = frozenset({"bulk-update", "bulk-patch", "bulk-delete"})
+# Detail actions always require --id and route to the detail path.
+_DETAIL_ACTIONS: frozenset[str] = frozenset({"get", "update", "patch", "delete"})
 
 
 class ResolvedRequest(BaseModel):
@@ -146,10 +155,12 @@ def resolve_dynamic_request(
     if resource_paths is None:
         raise ValueError(f"Resource not found: {group}/{resource}")
 
-    detail_actions = {"get", "update", "patch", "delete"}
-    needs_detail = action_lower in detail_actions
-
-    if needs_detail:
+    if action_lower in _BULK_LIST_ACTIONS:
+        # Bulk operations always target the list path; --id is not used.
+        if not resource_paths.list_path:
+            raise ValueError(f"Resource does not expose list path: {group}/{resource}")
+        path = resource_paths.list_path
+    elif action_lower in _DETAIL_ACTIONS:
         if object_id is None:
             raise ValueError(f"Action '{action_lower}' requires --id")
         if not resource_paths.detail_path:
@@ -206,3 +217,83 @@ async def run_dynamic_command(
         query=resolved.query,
         payload=resolved.payload,
     )
+
+
+async def list_all_pages(
+    client: NetBoxApiClient,
+    index: SchemaIndex,
+    group: str,
+    resource: str,
+    *,
+    query_pairs: list[str],
+    max_records: int = 10000,
+) -> ApiResponse:
+    """Fetch all paginated pages for a list endpoint, following ``next`` links.
+
+    The response envelope ``results`` arrays are concatenated into a single
+    synthesised response with ``count`` equal to the total number of records
+    retrieved (capped at ``max_records``).  Callers that don't need pagination
+    should use :func:`run_dynamic_command` with action ``"list"`` instead.
+
+    Args:
+        client: Authenticated NetBox API client.
+        index: Schema index for path resolution.
+        group: API group (e.g. ``"dcim"``).
+        resource: Resource name (e.g. ``"devices"``).
+        query_pairs: Key=value filter strings (same format as CLI ``-q``).
+        max_records: Upper bound on accumulated records. Defaults to 10 000.
+
+    Returns:
+        Synthesised :class:`~netbox_sdk.client.ApiResponse` whose body is a
+        JSON object ``{"count": N, "next": null, "previous": null, "results": [...]}``.
+        If the first response is not a paginated envelope the raw response is
+        returned unchanged.
+    """
+    query = parse_key_value_pairs(query_pairs)
+    resolved = resolve_dynamic_request(
+        index, group, resource, "list", object_id=None, query=query, payload=None
+    )
+    response = await client.request(
+        resolved.method, resolved.path, query=resolved.query, payload=None
+    )
+
+    try:
+        data = json.loads(response.text)
+    except Exception:
+        return response
+
+    if not isinstance(data, dict) or "results" not in data:
+        return response
+
+    all_results: list[Any] = list(data.get("results", []))
+    next_url: str | None = data.get("next")
+
+    while next_url and len(all_results) < max_records:
+        parsed = urlparse(next_url)
+        next_path = parsed.path
+        next_query = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+        logger.debug(
+            "following pagination next link",
+            extra={
+                "nbx_event": "list_all_pages_next",
+                "next_path": next_path,
+                "accumulated": len(all_results),
+            },
+        )
+        response = await client.request("GET", next_path, query=next_query, payload=None)
+        try:
+            data = json.loads(response.text)
+        except Exception:
+            break
+        if not isinstance(data, dict) or "results" not in data:
+            break
+        all_results.extend(data.get("results", []))
+        next_url = data.get("next")
+
+    combined: dict[str, Any] = {
+        "count": len(all_results),
+        "next": None,
+        "previous": None,
+        "results": all_results[:max_records],
+    }
+    return ApiResponse(status=200, text=json.dumps(combined), headers=response.headers)
