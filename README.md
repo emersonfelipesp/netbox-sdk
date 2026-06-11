@@ -104,9 +104,30 @@ uv run nbx --help
 ## Common Commands
 
 ```bash
+# Basic CRUD
 nbx init
 nbx dcim devices list
 nbx dcim devices get --id 1
+nbx dcim devices create --body-json '{"name":"sw01","site":1}'
+nbx dcim devices patch --id 1 --body-json '{"status":"active"}'
+nbx dcim devices delete --id 1
+
+# Auto-pagination — fetch every page in one call
+nbx dcim devices list --all
+nbx dcim devices list --all --max-records 500
+
+# Filtering
+nbx dcim devices list -q status=active -q site=nyc01
+
+# Discover available filter parameters (no HTTP call)
+nbx dcim devices filters
+
+# Bulk operations (array body to list path)
+nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]'
+nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
+nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
+
+# TUI and developer tools
 nbx tui
 nbx dev tui
 nbx cli tui

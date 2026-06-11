@@ -25,7 +25,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `branching.py` | `nbx branching ...`, `nbx branch ...`, and branch-aware command helpers |
 | `decorators.py` | Reusable Typer decorator factories for repeated option/argument metadata |
 | `runtime.py` | Runtime config cache, schema loading, client factories, demo refresh wiring |
-| `dynamic.py` | OpenAPI-driven dynamic command registration and execution |
+| `dynamic.py` | OpenAPI-driven dynamic command registration and execution. Supports all CRUD actions plus: **bulk ops** (`bulk-update` PUT, `bulk-patch` PATCH, `bulk-delete` DELETE — all to the list path with an array body, no `--id`); **auto-pagination** (`--all` flag on `list` calls `list_all_pages()`, `--max-records` caps accumulation, default 10 000); **filter discovery** (`filters` action — local-only, calls `SchemaIndex.filter_params()`, no HTTP) |
 | `support.py` | Shared CLI rendering, output selection, TUI lazy-import helpers |
 | `demo.py` | `nbx demo ...` command tree |
 | `dev.py` | `nbx dev ...` command tree |

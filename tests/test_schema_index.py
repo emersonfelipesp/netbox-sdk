@@ -64,3 +64,67 @@ def test_schema_index_trace_path_for_interfaces():
         index.paths_path("circuits", "circuit-terminations")
         == "/api/circuits/circuit-terminations/{id}/paths/"
     )
+
+
+# ---------------------------------------------------------------------------
+# filter_params
+# ---------------------------------------------------------------------------
+
+
+def test_filter_params_returns_nonempty_list_for_devices():
+    from netbox_sdk.schema import FilterParam
+
+    index = build_schema_index(OPENAPI_PATH)
+    params = index.filter_params("dcim", "devices")
+    assert len(params) > 0
+    assert all(isinstance(p, FilterParam) for p in params)
+
+
+def test_filter_params_have_required_attributes():
+    index = build_schema_index(OPENAPI_PATH)
+    params = index.filter_params("dcim", "devices")
+    for p in params:
+        assert isinstance(p.name, str) and p.name
+        assert isinstance(p.label, str)
+        assert p.type in {"string", "integer", "boolean", "enum", "array"}
+
+
+def test_filter_params_q_sorted_first_when_present():
+    index = build_schema_index(OPENAPI_PATH)
+    params = index.filter_params("extras", "tags")
+    names = [p.name for p in params]
+    if "q" in names:
+        assert names[0] == "q"
+
+
+def test_filter_params_excludes_pagination_params():
+    index = build_schema_index(OPENAPI_PATH)
+    params = index.filter_params("dcim", "devices")
+    names = {p.name for p in params}
+    assert "limit" not in names
+    assert "offset" not in names
+    assert "format" not in names
+
+
+def test_filter_params_excludes_lookup_suffixes():
+    index = build_schema_index(OPENAPI_PATH)
+    params = index.filter_params("dcim", "devices")
+    for p in params:
+        assert not any(
+            p.name.endswith(s)
+            for s in ("__ic", "__ie", "__iew", "__isw", "__n", "__nic", "__nie", "__niew", "__nisw")
+        ), f"lookup suffix found in param name: {p.name!r}"
+
+
+def test_filter_params_returns_empty_for_unknown_resource():
+    index = build_schema_index(OPENAPI_PATH)
+    assert index.filter_params("dcim", "no-such-resource") == []
+    assert index.filter_params("no-such-group", "devices") == []
+
+
+def test_filter_params_enum_type_has_choices():
+    index = build_schema_index(OPENAPI_PATH)
+    params = index.filter_params("dcim", "devices")
+    enum_params = [p for p in params if p.type == "enum"]
+    for p in enum_params:
+        assert len(p.choices) > 0, f"enum param {p.name!r} has no choices"

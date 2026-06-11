@@ -48,12 +48,16 @@ nbx dcim devices list --help
 
 | Ação | Método HTTP | Caminho | Notas |
 |--------|------------|------|-------|
-| `list` | `GET` | `/api/<group>/<resource>/` | Retorna lista paginada |
+| `list` | `GET` | `/api/<group>/<resource>/` | Retorna lista paginada; suporta `--all` |
 | `get` | `GET` | `/api/<group>/<resource>/{id}/` | Requer `--id` |
 | `create` | `POST` | `/api/<group>/<resource>/` | Requer `--body-json` ou `--body-file` |
 | `update` | `PUT` | `/api/<group>/<resource>/{id}/` | Requer `--id` e corpo |
 | `patch` | `PATCH` | `/api/<group>/<resource>/{id}/` | Requer `--id` e corpo |
 | `delete` | `DELETE` | `/api/<group>/<resource>/{id}/` | Requer `--id` |
+| `bulk-update` | `PUT` | `/api/<group>/<resource>/` | Corpo em array; sem `--id`; caminho de lista |
+| `bulk-patch` | `PATCH` | `/api/<group>/<resource>/` | Corpo em array; sem `--id`; caminho de lista |
+| `bulk-delete` | `DELETE` | `/api/<group>/<resource>/` | Corpo em array; sem `--id`; caminho de lista |
+| `filters` | — | somente local | Exibe parâmetros de filtro disponíveis do esquema |
 
 Nem todo recurso suporta todas as ações — a disponibilidade depende do esquema OpenAPI.
 
@@ -67,6 +71,8 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 | `-q` / `--query KEY=VALUE` | Filtro de query string (repetível) |
 | `--body-json TEXT` | Corpo JSON inline da requisição |
 | `--body-file PATH` | Caminho para arquivo JSON do corpo |
+| `--all` | Paginação automática: segue links `next` e retorna todos os registros (só `list`) |
+| `--max-records INTEGER` | Limite superior para `--all` (padrão: 10 000) |
 | `--json` | Saída JSON bruta |
 | `--yaml` | Saída YAML |
 | `--markdown` | Saída Markdown com tabelas primeiro |
@@ -92,6 +98,70 @@ nbx dcim interfaces list -q device_id=1
 ```
 
 Várias flags `-q` são combinadas com AND.
+
+---
+
+## Descoberta de filtros (`filters`)
+
+A ação `filters` exibe os parâmetros de query disponíveis para um recurso diretamente do esquema integrado — sem nenhuma requisição HTTP:
+
+```bash
+nbx dcim devices filters
+nbx extras tags filters
+nbx ipam prefixes filters
+```
+
+Exemplo de saída para `extras tags`:
+
+```
+Filter parameters for extras/tags:
+
+  q          (string)  — Search
+  color      (string)
+  id         (integer)
+  name       (string)
+  slug       (string)
+```
+
+Use isso para descobrir quais chaves `-q` são válidas antes de executar um `list` filtrado.
+
+---
+
+## Paginação automática (`--all`)
+
+Por padrão, `list` retorna uma página (até o tamanho de página do servidor NetBox, geralmente 50 registros). Use `--all` para seguir todos os links `next` e receber uma resposta sintetizada contendo todos os registros correspondentes:
+
+```bash
+# Buscar todos os dispositivos independente do tamanho de página
+nbx dcim devices list --all
+
+# Limitar a 200 registros entre todas as páginas
+nbx dcim devices list --all --max-records 200
+
+# Combinar com filtros
+nbx dcim devices list --all -q status=active --json
+```
+
+`--max-records` padrão é 10 000. Quando a contagem acumulada atingir o limite, a paginação para e o resultado parcial é retornado.
+
+---
+
+## Operações em lote
+
+Operações em lote apontam para o caminho de lista com corpo em array — `--id` não é necessário nem aceito.
+
+```bash
+# Bulk-patch: atualização parcial de vários objetos
+nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]'
+
+# Bulk-update: substituição completa de vários objetos (todos os campos obrigatórios devem estar presentes)
+nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
+
+# Bulk-delete: excluir vários objetos por id
+nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
+```
+
+Essas ações só são registradas para recursos onde o esquema OpenAPI expõe PUT/PATCH/DELETE no caminho de lista.
 
 ---
 
