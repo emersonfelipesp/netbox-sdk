@@ -1390,6 +1390,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#descoberta-de-filtros-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Descoberta de filtros (filters)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paginacao-automatica-all" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paginação automática (--all)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operacoes-em-lote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operações em lote
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#formatos-de-saida" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3197,6 +3230,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#descoberta-de-filtros-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Descoberta de filtros (filters)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paginacao-automatica-all" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paginação automática (--all)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operacoes-em-lote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operações em lote
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#formatos-de-saida" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3387,7 +3453,7 @@
 <td><code>list</code></td>
 <td><code>GET</code></td>
 <td><code>/api/&lt;group&gt;/&lt;resource&gt;/</code></td>
-<td>Retorna lista paginada</td>
+<td>Retorna lista paginada; suporta <code>--all</code></td>
 </tr>
 <tr>
 <td><code>get</code></td>
@@ -3419,6 +3485,30 @@
 <td><code>/api/&lt;group&gt;/&lt;resource&gt;/{id}/</code></td>
 <td>Requer <code>--id</code></td>
 </tr>
+<tr>
+<td><code>bulk-update</code></td>
+<td><code>PUT</code></td>
+<td><code>/api/&lt;group&gt;/&lt;resource&gt;/</code></td>
+<td>Corpo em array; sem <code>--id</code>; caminho de lista</td>
+</tr>
+<tr>
+<td><code>bulk-patch</code></td>
+<td><code>PATCH</code></td>
+<td><code>/api/&lt;group&gt;/&lt;resource&gt;/</code></td>
+<td>Corpo em array; sem <code>--id</code>; caminho de lista</td>
+</tr>
+<tr>
+<td><code>bulk-delete</code></td>
+<td><code>DELETE</code></td>
+<td><code>/api/&lt;group&gt;/&lt;resource&gt;/</code></td>
+<td>Corpo em array; sem <code>--id</code>; caminho de lista</td>
+</tr>
+<tr>
+<td><code>filters</code></td>
+<td>—</td>
+<td>somente local</td>
+<td>Exibe parâmetros de filtro disponíveis do esquema</td>
+</tr>
 </tbody>
 </table>
 <p>Nem todo recurso suporta todas as ações — a disponibilidade depende do esquema OpenAPI.</p>
@@ -3447,6 +3537,14 @@
 <tr>
 <td><code>--body-file PATH</code></td>
 <td>Caminho para arquivo JSON do corpo</td>
+</tr>
+<tr>
+<td><code>--all</code></td>
+<td>Paginação automática: segue links <code>next</code> e retorna todos os registros (só <code>list</code>)</td>
+</tr>
+<tr>
+<td><code>--max-records INTEGER</code></td>
+<td>Limite superior para <code>--all</code> (padrão: 10 000)</td>
 </tr>
 <tr>
 <td><code>--json</code></td>
@@ -3493,26 +3591,69 @@
 </span></code></pre></div>
 <p>Várias flags <code>-q</code> são combinadas com AND.</p>
 <hr />
+<h2 id="descoberta-de-filtros-filters">Descoberta de filtros (<code>filters</code>)<a class="headerlink" href="#descoberta-de-filtros-filters" title="Permanent link">&para;</a></h2>
+<p>A ação <code>filters</code> exibe os parâmetros de query disponíveis para um recurso diretamente do esquema integrado — sem nenhuma requisição HTTP:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>filters
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>nbx<span class="w"> </span>extras<span class="w"> </span>tags<span class="w"> </span>filters
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>nbx<span class="w"> </span>ipam<span class="w"> </span>prefixes<span class="w"> </span>filters
+</span></code></pre></div>
+<p>Exemplo de saída para <code>extras tags</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Filter parameters for extras/tags:
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  q          (string)  — Search
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  color      (string)
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  id         (integer)
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  name       (string)
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  slug       (string)
+</span></code></pre></div>
+<p>Use isso para descobrir quais chaves <code>-q</code> são válidas antes de executar um <code>list</code> filtrado.</p>
+<hr />
+<h2 id="paginacao-automatica-all">Paginação automática (<code>--all</code>)<a class="headerlink" href="#paginacao-automatica-all" title="Permanent link">&para;</a></h2>
+<p>Por padrão, <code>list</code> retorna uma página (até o tamanho de página do servidor NetBox, geralmente 50 registros). Use <code>--all</code> para seguir todos os links <code>next</code> e receber uma resposta sintetizada contendo todos os registros correspondentes:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Buscar todos os dispositivos independente do tamanho de página</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--all
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Limitar a 200 registros entre todas as páginas</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--all<span class="w"> </span>--max-records<span class="w"> </span><span class="m">200</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Combinar com filtros</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--all<span class="w"> </span>-q<span class="w"> </span><span class="nv">status</span><span class="o">=</span>active<span class="w"> </span>--json
+</span></code></pre></div>
+<p><code>--max-records</code> padrão é 10 000. Quando a contagem acumulada atingir o limite, a paginação para e o resultado parcial é retornado.</p>
+<hr />
+<h2 id="operacoes-em-lote">Operações em lote<a class="headerlink" href="#operacoes-em-lote" title="Permanent link">&para;</a></h2>
+<p>Operações em lote apontam para o caminho de lista com corpo em array — <code>--id</code> não é necessário nem aceito.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Bulk-patch: atualização parcial de vários objetos</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>nbx<span class="w"> </span>extras<span class="w"> </span>tags<span class="w"> </span>bulk-patch<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;[{&quot;id&quot;:1,&quot;color&quot;:&quot;aa1409&quot;},{&quot;id&quot;:2,&quot;color&quot;:&quot;0c7a00&quot;}]&#39;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Bulk-update: substituição completa de vários objetos (todos os campos obrigatórios devem estar presentes)</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>nbx<span class="w"> </span>extras<span class="w"> </span>tags<span class="w"> </span>bulk-update<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;[{&quot;id&quot;:1,&quot;name&quot;:&quot;tag-a&quot;,&quot;slug&quot;:&quot;tag-a&quot;,&quot;color&quot;:&quot;ff0000&quot;}]&#39;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Bulk-delete: excluir vários objetos por id</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>nbx<span class="w"> </span>extras<span class="w"> </span>tags<span class="w"> </span>bulk-delete<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;[{&quot;id&quot;:1},{&quot;id&quot;:2}]&#39;</span>
+</span></code></pre></div>
+<p>Essas ações só são registradas para recursos onde o esquema OpenAPI expõe PUT/PATCH/DELETE no caminho de lista.</p>
+<hr />
 <h2 id="formatos-de-saida">Formatos de saída<a class="headerlink" href="#formatos-de-saida" title="Permanent link">&para;</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Tabela Rich (padrão)</label><label for="__tabbed_1_2">JSON</label><label for="__tabbed_1_3">YAML</label><label for="__tabbed_1_4">Markdown</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
 </span></code></pre></div>
 <p>Renderiza uma tabela Rich com colunas priorizadas: <code>id</code>, <code>name</code>, <code>status</code>, <code>site</code>, <code>role</code>, <code>type</code>, etc.</p>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--json
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--json
 </span></code></pre></div>
 <p>Imprime a resposta paginada bruta da API como JSON indentado. Útil para encadear com <code>jq</code>.</p>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--yaml
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--yaml
 </span></code></pre></div>
 <p>Renderiza a resposta como YAML.</p>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--markdown
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--markdown
 </span></code></pre></div>
 <p>Renderiza JSON da API como saída Markdown com tabelas primeiro.</p>
 </div>
@@ -3521,8 +3662,8 @@
 <hr />
 <h2 id="selecao-de-campos-select">Seleção de campos (<code>--select</code>)<a class="headerlink" href="#selecao-de-campos-select" title="Permanent link">&para;</a></h2>
 <p>Extraia campos específicos da resposta JSON com notação de ponto:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Obter o nome do primeiro dispositivo</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--select<span class="w"> </span>results.0.name
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Obter o nome do primeiro dispositivo</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--select<span class="w"> </span>results.0.name
 </span></code></pre></div>
 <p>Apenas índices numéricos de lista são suportados em caminhos (sem curingas como <code>[*]</code>).</p>
 <p>Padrões de caminho suportados:
@@ -3531,57 +3672,57 @@
 <hr />
 <h2 id="controle-de-colunas-columns-max-columns">Controle de colunas (<code>--columns</code>, <code>--max-columns</code>)<a class="headerlink" href="#controle-de-colunas-columns-max-columns" title="Permanent link">&para;</a></h2>
 <p>Limite quais colunas aparecem na saída tabular:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Exibir apenas colunas específicas</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--columns<span class="w"> </span>id,name,status
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Limitar o total de colunas a 3</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--max-columns<span class="w"> </span><span class="m">3</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Combinar ambos</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--columns<span class="w"> </span>id,name,status<span class="w"> </span>--max-columns<span class="w"> </span><span class="m">2</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Exibir apenas colunas específicas</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--columns<span class="w"> </span>id,name,status
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Limitar o total de colunas a 3</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--max-columns<span class="w"> </span><span class="m">3</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># Combinar ambos</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list<span class="w"> </span>--columns<span class="w"> </span>id,name,status<span class="w"> </span>--max-columns<span class="w"> </span><span class="m">2</span>
 </span></code></pre></div>
 <p>A flag <code>--columns</code> aceita uma lista separada por vírgulas de nomes de campo. A flag <code>--max-columns</code> limita o número total de colunas exibidas, padrão 6.</p>
 <hr />
 <h2 id="dry-run-dry-run">Dry run (<code>--dry-run</code>)<a class="headerlink" href="#dry-run-dry-run" title="Permanent link">&para;</a></h2>
 <p>Pré-visualize o que uma operação de escrita enviaria sem executá-la:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Pré-visualizar create</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>create<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;test-device&quot;,&quot;site&quot;:1}&#39;</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Pré-visualizar update</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>update<span class="w"> </span>--dry-run<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;updated-name&quot;}&#39;</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Pré-visualizar delete</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>delete<span class="w"> </span>--dry-run<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Pré-visualizar create</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>create<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;test-device&quot;,&quot;site&quot;:1}&#39;</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Pré-visualizar update</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>update<span class="w"> </span>--dry-run<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span><span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;updated-name&quot;}&#39;</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Pré-visualizar delete</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>delete<span class="w"> </span>--dry-run<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span>
 </span></code></pre></div>
 <p>A saída mostra método HTTP, caminho e corpo da requisição em uma tabela formatada. A flag <code>--dry-run</code> só é válida para operações de escrita (<code>create</code>, <code>update</code>, <code>patch</code>, <code>delete</code>).</p>
 <hr />
 <h2 id="trace-de-cabo">Trace de cabo<a class="headerlink" href="#trace-de-cabo" title="Permanent link">&para;</a></h2>
 <p>Para <code>dcim/interfaces</code>, a ação <code>get</code> suporta <code>--trace</code> para buscar e exibir o caminho do cabo como diagrama ASCII:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
 </span></code></pre></div>
 <p>Saída:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Cable Trace:
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>┌────────────────────────────────────┐
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>│         dmi01-akron-rtr01          │
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>│       GigabitEthernet0/1/1         │
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>└────────────────────────────────────┘
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>                │
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>                │  Cable #36
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>                │  Connected
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>                │
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>┌────────────────────────────────────┐
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>│       GigabitEthernet1/0/2         │
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>│         dmi01-akron-sw01           │
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>└────────────────────────────────────┘
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>Trace Completed - 1 segment(s)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Cable Trace:
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>┌────────────────────────────────────┐
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>│         dmi01-akron-rtr01          │
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>│       GigabitEthernet0/1/1         │
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>└────────────────────────────────────┘
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>                │
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>                │  Cable #36
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>                │  Connected
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>                │
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>┌────────────────────────────────────┐
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>│       GigabitEthernet1/0/2         │
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>│         dmi01-akron-sw01           │
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>└────────────────────────────────────┘
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>Trace Completed - 1 segment(s)
 </span></code></pre></div>
 <hr />
 <h2 id="variante-do-perfil-demo">Variante do perfil demo<a class="headerlink" href="#variante-do-perfil-demo" title="Permanent link">&para;</a></h2>
 <p>A mesma árvore de comandos dinâmicos está registrada sob <code>nbx demo</code> e aponta para <code>demo.netbox.dev</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>ipam<span class="w"> </span>prefixes<span class="w"> </span>list
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>list
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>ipam<span class="w"> </span>prefixes<span class="w"> </span>list
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>nbx<span class="w"> </span>demo<span class="w"> </span>dcim<span class="w"> </span>interfaces<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">4</span><span class="w"> </span>--trace
 </span></code></pre></div>
 <p>Veja <a href="../demo-profile/">Perfil demo</a> para a configuração.</p>
 <hr />
