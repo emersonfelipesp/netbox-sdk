@@ -186,7 +186,11 @@ def test_handle_dynamic_invocation_bulk_dry_run(capsys):
         index_factory=_index,
     )
     captured = capsys.readouterr()
-    assert "PUT" in captured.out or "bulk" in captured.out.lower() or "/api/dcim/devices/" in captured.out
+    assert (
+        "PUT" in captured.out
+        or "bulk" in captured.out.lower()
+        or "/api/dcim/devices/" in captured.out
+    )
 
 
 def test_handle_dynamic_invocation_bulk_dry_run_patch(capsys):

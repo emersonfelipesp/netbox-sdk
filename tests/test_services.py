@@ -76,6 +76,7 @@ def test_resolve_get_detail_path():
 
 # --- bulk operations ---
 
+
 def test_action_method_map_includes_bulk_ops():
     assert ACTION_METHOD_MAP["bulk-update"] == "PUT"
     assert ACTION_METHOD_MAP["bulk-patch"] == "PATCH"
@@ -171,6 +172,7 @@ def test_resolve_detail_still_requires_id_after_bulk_support():
 
 # --- list_all_pages ---
 
+
 class _MockClient:
     """Minimal client stub that returns pre-configured ApiResponse objects per call index."""
 
@@ -210,7 +212,10 @@ async def test_list_all_pages_multi_page():
     }
     page2 = {"count": 3, "next": None, "previous": None, "results": [{"id": 3}]}
     client = _MockClient(
-        [ApiResponse(status=200, text=json.dumps(page1)), ApiResponse(status=200, text=json.dumps(page2))]
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
     )
     result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
     data = json.loads(result.text)
@@ -227,9 +232,14 @@ async def test_list_all_pages_respects_max_records():
     }
     page2 = {"count": 4, "next": None, "previous": None, "results": [{"id": 3}, {"id": 4}]}
     client = _MockClient(
-        [ApiResponse(status=200, text=json.dumps(page1)), ApiResponse(status=200, text=json.dumps(page2))]
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
     )
-    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[], max_records=3)
+    result = await list_all_pages(
+        client, _index(), "dcim", "devices", query_pairs=[], max_records=3
+    )
     data = json.loads(result.text)
     assert len(data["results"]) == 3
 

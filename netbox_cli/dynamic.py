@@ -566,9 +566,7 @@ def _build_action_command(
         if (trace or trace_only) and action != "get":
             raise typer.BadParameter("--trace and --trace-only are only supported for get actions")
         if dry_run and action.lower() not in _ALL_WRITE_ACTIONS:
-            raise typer.BadParameter(
-                "--dry-run is only supported for write operations"
-            )
+            raise typer.BadParameter("--dry-run is only supported for write operations")
         if fetch_all and action != "list":
             raise typer.BadParameter("--all is only supported for the list action")
 
