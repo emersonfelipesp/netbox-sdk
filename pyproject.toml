@@ -148,6 +148,7 @@ markers = [
   "suite_cli: tests owned by the optional netbox_cli package",
   "suite_tui: tests owned by the optional netbox_tui package",
   "live: tests that require a live NetBox instance (skipped when NETBOX_URL is absent)",
+  "demo_live: tests that run live against demo.netbox.dev (skipped when NETBOX_DEMO_LIVE=1 is not set)",
 ]
 
 [tool.ruff]
