@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+import urllib.error
+import urllib.request
+
 from pydantic import BaseModel
 
 from netbox_sdk.config import DEMO_BASE_URL, Config, normalize_base_url
@@ -9,6 +13,7 @@ from netbox_sdk.config import DEMO_BASE_URL, Config, normalize_base_url
 DEMO_CREATE_USER_URL = f"{DEMO_BASE_URL}/plugins/demo/login/"
 LOGIN_URL = f"{DEMO_BASE_URL}/login/"
 TOKENS_URL = f"{DEMO_BASE_URL}/user/api-tokens/"
+TOKENS_PROVISION_URL = f"{DEMO_BASE_URL}/api/users/tokens/provision/"
 
 
 class DemoToken(BaseModel):
@@ -62,6 +67,62 @@ def provision_demo_token(
     headless: bool = False,
     token_name: str = "nbx-demo",
 ) -> DemoToken:
+    # Try the REST API path first — it works without Playwright if the account exists.
+    # If the account does not exist yet (401/403), use Playwright to register it.
+    try:
+        return _provision_token_via_api(username=username, password=password)
+    except _TokenProvisionError:
+        pass  # account likely doesn't exist — fall through to Playwright registration
+
+    _register_demo_user_via_playwright(username=username, password=password, headless=headless)
+
+    try:
+        return _provision_token_via_api(username=username, password=password)
+    except _TokenProvisionError as exc:
+        raise RuntimeError(
+            f"Token provisioning failed for '{username}' after account registration: {exc}"
+        ) from exc
+
+
+def _provision_token_via_api(*, username: str, password: str) -> DemoToken:
+    """POST to /api/users/tokens/provision/ and return a v2 DemoToken.
+
+    Raises _TokenProvisionError when the HTTP response indicates the credentials
+    are not valid (401/403) so the caller can fall back to account registration.
+    Raises RuntimeError for unexpected errors.
+    """
+    payload = json.dumps({"username": username, "password": password}).encode()
+    req = urllib.request.Request(
+        TOKENS_PROVISION_URL,
+        data=payload,
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
+            body = json.loads(resp.read().decode())
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401, 403):
+            raise _TokenProvisionError(f"HTTP {exc.code}: credentials not accepted") from exc
+        raw = exc.read().decode(errors="replace")
+        raise RuntimeError(f"Token provisioning returned HTTP {exc.code}: {raw[:200]}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"Token provisioning network error: {exc.reason}") from exc
+
+    # Validate the expected fields
+    token_key = body.get("key", "")
+    token_secret = body.get("token", "")
+    if not token_key or not token_secret:
+        raise RuntimeError(f"Unexpected token provisioning response shape — got keys: {list(body)}")
+    return DemoToken(version="v2", key=token_key, secret=token_secret)
+
+
+class _TokenProvisionError(Exception):
+    """Raised when the provision endpoint rejects the credentials (account absent)."""
+
+
+def _register_demo_user_via_playwright(*, username: str, password: str, headless: bool) -> None:
+    """Use Playwright to register a new demo account via the plugin UI."""
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         from playwright.sync_api import sync_playwright
@@ -79,14 +140,12 @@ def provision_demo_token(
             try:
                 user_created = _create_demo_user(page, username=username, password=password)
                 if not user_created:
-                    print(f"Demo user '{username}' already exists. Proceeding to login.")
-                _login(page, username=username, password=password)
-                token_value = _create_token(page, token_name=token_name)
+                    print(f"Demo user '{username}' already exists.")
             finally:
                 browser.close()
     except PlaywrightTimeoutError as exc:
         raise RuntimeError(
-            "Timed out while automating demo.netbox.dev. "
+            "Timed out while registering demo account on demo.netbox.dev. "
             "Verify credentials and ensure Playwright browsers are installed with "
             "`playwright install chromium`."
         ) from exc
@@ -110,8 +169,7 @@ def provision_demo_token(
                 "  playwright install --with-deps chromium\n"
                 "If that is unavailable on your system, install the missing shared libraries and retry."
             ) from exc
-        raise RuntimeError(f"Failed to automate demo.netbox.dev login: {detail}") from exc
-    return _parse_v1_token(token_value)
+        raise RuntimeError(f"Failed to register demo account on demo.netbox.dev: {detail}") from exc
 
 
 def _create_demo_user(page: object, *, username: str, password: str) -> bool:
@@ -138,51 +196,6 @@ def _login(page: object, *, username: str, password: str) -> None:
     page.wait_for_url(f"{DEMO_BASE_URL}/**")
     if "/login/" in page.url:
         raise RuntimeError("Demo login failed. Check the provided username and password.")
-
-
-def _create_token(page: object, *, token_name: str) -> str:
-    page.goto(TOKENS_URL, wait_until="domcontentloaded")
-
-    add_link = page.get_by_role("link", name="Add a Token")
-    add_button = page.get_by_role("button", name="Add a Token")
-    if add_link.count():
-        add_link.first.click()
-    else:
-        add_button.first.click()
-
-    version_field = page.locator("#id_version")
-    if version_field.count():
-        version_field.select_option("1")
-
-    token_input = page.locator("#id_token")
-    token_input.wait_for()
-    token_value = token_input.input_value().strip()
-    if not token_value:
-        raise RuntimeError("Demo token form did not provide a v1 token value.")
-
-    description_field = page.locator("#id_description")
-    if description_field.count():
-        description_field.fill(token_name)
-
-    create_button = page.get_by_role("button", name="Create")
-    create_button.first.click()
-
-    try:
-        page.wait_for_url(f"{TOKENS_URL}**", timeout=10000)
-    except Exception as exc:  # noqa: BLE001
-        error_text = _extract_page_error(page)
-        if error_text:
-            raise RuntimeError(f"NetBox demo rejected token creation: {error_text}") from exc
-        raise RuntimeError("Timed out waiting for NetBox demo to finish token creation.") from exc
-
-    return token_value
-
-
-def _extract_token_from_text(text: str) -> str:
-    for part in text.split():
-        if part.startswith("nbt_") and "." in part:
-            return part.strip()
-    return ""
 
 
 def _extract_page_error(page: object) -> str:

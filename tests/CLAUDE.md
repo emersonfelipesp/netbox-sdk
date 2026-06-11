@@ -86,6 +86,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_security_cli.py` | CLI security behavior and secret-safe output |
 | `test_security_sdk.py` | SDK security behavior, token handling, and unsafe input guards |
 | `test_security_tui.py` | TUI security behavior and secret-safe rendering |
+| `test_demo_live.py` | **Live** integration tests against demo.netbox.dev — connection, list, filter discovery, single-object CRUD, bulk operations, auto-pagination, and CLI-level commands. Guarded by `pytest.mark.demo_live`; requires `NETBOX_DEMO_LIVE=1`, `DEMO_USERNAME`, and `DEMO_PASSWORD`. Token provisioned via `POST /api/users/tokens/provision/` (REST) with Playwright fallback for first-time account registration. |
 | `test_dynamic_bulk.py` | CLI bulk operations (`bulk-update`, `bulk-patch`, `bulk-delete`), `--all` auto-pagination, `--max-records`, and `filters` action — covers `_supported_actions`, `_parse_dynamic_options`, and `_handle_dynamic_invocation` |
 | `test_services.py` | Request resolution from (group, resource, action, id) tuples, key-value arg parsing, bulk op routing to list path, and `list_all_pages` multi-page aggregation |
 | `test_ssl_verify_cli.py` | TLS verification prompts and `nbx test` probe retry (`_prompt_ssl_verify_if_unset`, `_retry_probe_after_ssl_prompt`) |
@@ -117,6 +118,15 @@ Most tests that touch `NetBoxApiClient` inject a mock via `monkeypatch` or a fix
 
 ### Live tests (skip if secrets absent)
 `test_demo_cli.py` and `test_demo_auth.py` check for `DEMO_USERNAME` / `DEMO_PASSWORD` environment variables and skip gracefully when absent. CI sets these from repository secrets.
+
+`test_demo_live.py` uses `pytest.mark.demo_live` and requires **both** `NETBOX_DEMO_LIVE=1` **and** `DEMO_USERNAME` / `DEMO_PASSWORD`. To run:
+
+```bash
+NETBOX_DEMO_LIVE=1 DEMO_USERNAME=myuser DEMO_PASSWORD=mypass \
+  uv run pytest tests/test_demo_live.py -v --override-ini="addopts="
+```
+
+Token provisioning uses `POST /api/users/tokens/provision/` (returns a v2 Bearer token) with a Playwright fallback for first-time account registration. The live tests exercise: connection probe, paginated list, filter discovery, single-object CRUD, bulk-patch/update/delete, auto-pagination, and CLI list/filter commands.
 
 ### Typed SDK dependency expectation
 The committed generated typed models use Pydantic network/email field types. If
