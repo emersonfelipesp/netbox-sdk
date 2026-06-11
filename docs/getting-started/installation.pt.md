@@ -69,7 +69,7 @@ uv run nbx --help
 
 O repositório inclui bundles OpenAPI versionados e modelos Pydantic gerados para
 NetBox `4.6`, `4.5`, `4.4` e `4.3`. Não é necessário executar geração de código
-localmente. A CI testa o SDK contra `v4.6.1`, `v4.5.10` e `v4.5.8`.
+localmente. A CI testa o SDK contra `v4.6.2`, `v4.5.10` e `v4.5.8`.
 
 ## Type hints na IDE
 

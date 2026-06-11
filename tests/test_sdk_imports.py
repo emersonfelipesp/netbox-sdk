@@ -10,6 +10,7 @@ pytestmark = pytest.mark.suite_sdk
 def test_sdk_top_level_imports() -> None:
     from netbox_sdk import (  # noqa: F401
         ACTION_METHOD_MAP,
+        DEFAULT_NETBOX_VERSION,
         DEFAULT_PROFILE,
         DEMO_BASE_URL,
         DEMO_PROFILE,
@@ -59,6 +60,7 @@ def test_sdk_top_level_imports() -> None:
         load_profile_config,
         normalize_base_url,
         parse_group_resource,
+        parse_header_pairs,
         parse_key_value_pairs,
         resolve_dynamic_request,
         resolved_token,

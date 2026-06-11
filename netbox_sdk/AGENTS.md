@@ -71,8 +71,8 @@ netbox_sdk/
 - `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
 - `netbox_sdk.http_cache` — filesystem cache primitives
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
-- `netbox_sdk.schema` — OpenAPI loading and indexing
-- `netbox_sdk.services` — dynamic request resolution
+- `netbox_sdk.schema` — OpenAPI loading and indexing; `load_openapi_schema()` / `build_schema_index()` default to the bundled NetBox 4.6 schema and accept supported release lines such as `version="4.5"`; `SchemaIndex.filter_params(group, resource)` excludes pagination params including `limit`, `offset`, `start`, `format`
+- `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value`; `list_all_pages` preserves repeated `next` query params
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
 - `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
 - Shared cross-package helpers: `formatting`, `logging_runtime`, `output_safety`, `trace_ascii`, `demo_auth`, `django_models`
@@ -80,7 +80,7 @@ netbox_sdk/
 ## Validation Expectations
 
 - `python -c 'import netbox_sdk'` must work without CLI or TUI extras.
-- `typed_api()` currently supports NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`.
+- `typed_api()` and bundled OpenAPI helpers currently support NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; the CLI defaults to 4.6 and can be pinned to 4.5/4.6 via `--netbox-version` or `NETBOX_SDK_NETBOX_VERSION`.
 - SDK tests should import from `netbox_sdk`, not `sdk`.
 - Consult [`reference/PYNETBOX.md`](../reference/PYNETBOX.md) when comparing SDK ergonomics to historical NetBox Python client behavior or prior-art feature patterns.
 

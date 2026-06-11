@@ -67,7 +67,7 @@ flowchart TB
 
 ## Estado de runtime em processo (`netbox_cli.runtime`)
 
-`netbox_cli.runtime` mantém `_RUNTIME_CONFIGS`, `_cache_profile`, `_get_client`, `_get_index` e auxiliares relacionados. A atualização de token demo atualiza o perfil em cache via `_cache_profile` para o processo CLI permanecer consistente sem o cliente SDK importar Typer.
+`netbox_cli.runtime` mantém `_RUNTIME_CONFIGS`, `_cache_profile`, `_get_client`, `_get_registration_index`, `_get_runtime_index` e auxiliares relacionados. `_get_registration_index()` constrói a árvore de comandos sem rede a partir do esquema integrado selecionado, enquanto `_get_runtime_index()` respeita overrides explícitos de versão ou detecta a linha de release da instância configurada para execução. A atualização de token demo atualiza o perfil em cache via `_cache_profile` para o processo CLI permanecer consistente sem o cliente SDK importar Typer.
 
 ## Registro de comandos CLI
 

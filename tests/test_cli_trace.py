@@ -85,8 +85,8 @@ def test_demo_interfaces_get_trace_renders_ascii(monkeypatch) -> None:
     monkeypatch.setattr(cli, "run_dynamic_command", _fake_run_dynamic_command)
     monkeypatch.setattr(
         cli,
-        "_get_index",
-        lambda: SimpleNamespace(
+        "_get_runtime_index",
+        lambda *args, **kwargs: SimpleNamespace(
             trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/",
             paths_path=lambda group, resource: None,
         ),
@@ -126,8 +126,8 @@ def test_demo_interfaces_get_trace_reports_missing_connection(monkeypatch) -> No
     monkeypatch.setattr(cli, "run_dynamic_command", _fake_run_dynamic_command)
     monkeypatch.setattr(
         cli,
-        "_get_index",
-        lambda: SimpleNamespace(
+        "_get_runtime_index",
+        lambda *args, **kwargs: SimpleNamespace(
             trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/",
             paths_path=lambda group, resource: None,
         ),
@@ -198,8 +198,8 @@ def test_demo_interfaces_get_trace_only_suppresses_detail_table(monkeypatch) -> 
     monkeypatch.setattr(cli, "run_dynamic_command", _fake_run_dynamic_command)
     monkeypatch.setattr(
         cli,
-        "_get_index",
-        lambda: SimpleNamespace(
+        "_get_runtime_index",
+        lambda *args, **kwargs: SimpleNamespace(
             trace_path=lambda group, resource: "/api/dcim/interfaces/{id}/trace/",
             paths_path=lambda group, resource: None,
         ),
@@ -335,8 +335,8 @@ def test_demo_circuit_termination_get_trace_renders_ascii(monkeypatch) -> None:
     monkeypatch.setattr(cli, "run_dynamic_command", _fake_run_dynamic_command)
     monkeypatch.setattr(
         cli,
-        "_get_index",
-        lambda: SimpleNamespace(
+        "_get_runtime_index",
+        lambda *args, **kwargs: SimpleNamespace(
             trace_path=lambda group, resource: None,
             paths_path=lambda group, resource: "/api/circuits/circuit-terminations/{id}/paths/",
         ),

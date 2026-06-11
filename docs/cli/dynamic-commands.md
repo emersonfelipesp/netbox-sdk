@@ -67,8 +67,10 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 
 | Flag | Description |
 |------|-------------|
+| `--netbox-version` / `--api-version` | Global option to force a supported bundled schema release line (`4.3` through `4.6`) |
 | `--id INTEGER` | Object ID for detail operations (`get`, `update`, `patch`, `delete`) |
 | `-q` / `--query KEY=VALUE` | Query string filter (repeatable) |
+| `-H` / `--header HEADER=VALUE` | HTTP header for the request; `Header: Value` is also accepted (repeatable) |
 | `--body-json TEXT` | Inline JSON request body |
 | `--body-file PATH` | Path to JSON file for request body |
 | `--all` | Auto-paginate: follow `next` links and return all records (`list` only) |
@@ -86,6 +88,27 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 
 ---
 
+## NetBox version selection
+
+`nbx` supports NetBox 4.5 and 4.6 command surfaces in parallel:
+
+- By default, the static command tree uses the bundled NetBox 4.6 schema so 4.6 resources such as `dcim/cable-bundles` are available.
+- During command execution, discovery helpers, and TUI launch, `nbx` checks the configured instance version and uses the matching bundled schema for supported release lines.
+- Use `--netbox-version` / `--api-version` or `NETBOX_SDK_NETBOX_VERSION` to pin the bundled schema explicitly.
+
+```bash
+# Default 4.6 command discovery
+nbx dcim cable-bundles list --help
+
+# Pin command discovery and execution to NetBox 4.5
+nbx --netbox-version 4.5 dcim devices list
+NETBOX_SDK_NETBOX_VERSION=4.5 nbx resources dcim
+```
+
+Patch versions normalize to their release line: `4.5.10` uses `4.5`, and `4.6.2` uses `4.6`.
+
+---
+
 ## Filtering
 
 The `-q` / `--query` flag maps to NetBox API query parameters:
@@ -95,9 +118,22 @@ nbx dcim devices list -q site=nyc01
 nbx dcim devices list -q status=active -q role=spine
 nbx ipam prefixes list -q family=6 -q status=active
 nbx dcim interfaces list -q device_id=1
+nbx extras tags list -q tag=prod -q tag=edge
 ```
 
-Multiple `-q` flags are ANDed together.
+Multiple `-q` flags are ANDed together. Repeating the same key preserves repeated query parameters, which NetBox uses for filters such as multiple tags.
+
+---
+
+## HTTP headers
+
+Use `-H` / `--header` on dynamic commands, `nbx call`, and `nbx dev http` when the API interaction needs conditional headers such as `If-Match` or custom headers:
+
+```bash
+nbx dcim devices patch --id 42 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx call PATCH /api/dcim/devices/42/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx dev http get --path /api/dcim/devices/ -H 'Accept: application/json'
+```
 
 ---
 
@@ -302,6 +338,8 @@ See [Demo Profile](demo-profile.md) for setup.
 
 ## How it works
 
-At startup, `_register_openapi_subcommands()` in `cli.py` reads `reference/openapi/netbox-openapi.json`, builds a `SchemaIndex`, then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root `app` and once for `demo_app` with `_get_demo_client` as the client factory.
+At startup, `_register_openapi_subcommands()` in `dynamic.py` builds a network-free `SchemaIndex` from the bundled schema selected by `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`, defaulting to NetBox 4.6. It then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root `app` and once for `demo_app` with the demo client factory.
+
+Actual command execution uses `_get_runtime_index()` from `runtime.py`. Explicit version overrides win; otherwise the CLI probes the configured instance and selects the matching bundled schema for supported NetBox release lines.
 
 For plugin/custom-object resources, the bundled schema gives `nbx` the static command tree it knows about. Use `--live` with `groups`, `resources`, or `ops` to enrich that index from the configured NetBox instance via `/api/plugins/` and `/api/core/object-types/`. Free-form dynamic invocations also try live enrichment when the requested resource is missing from the bundled schema.

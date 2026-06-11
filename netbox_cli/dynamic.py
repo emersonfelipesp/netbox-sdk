@@ -35,9 +35,15 @@ def _runtime_get_client() -> NetBoxApiClient:
 
 
 def _runtime_get_index() -> SchemaIndex:
-    from netbox_cli.runtime import _get_index  # noqa: PLC0415
+    from netbox_cli.runtime import _get_runtime_index  # noqa: PLC0415
 
-    return _get_index()
+    return _get_runtime_index()
+
+
+def _runtime_get_registration_index() -> SchemaIndex:
+    from netbox_cli.runtime import _get_registration_index  # noqa: PLC0415
+
+    return _get_registration_index()
 
 
 def _run_dynamic_command(
@@ -49,6 +55,7 @@ def _run_dynamic_command(
     action: str,
     object_id: int | None,
     query_pairs: list[str],
+    header_pairs: list[str] | None,
     body_json: str | None,
     body_file: str | None,
 ) -> Any:
@@ -76,6 +83,7 @@ def _run_dynamic_command(
         action=action,
         object_id=object_id,
         query_pairs=query_pairs,
+        header_pairs=header_pairs,
         body_json=body_json,
         body_file=body_file,
     )
@@ -94,7 +102,7 @@ def _handle_dynamic_invocation(
         )
 
     group, resource, action = raw_args[0], raw_args[1], raw_args[2]
-    option_args = raw_args[3:]
+    option_args, header_pairs = _extract_header_options(raw_args[3:])
 
     (
         object_id,
@@ -166,6 +174,7 @@ def _handle_dynamic_invocation(
                 group,
                 resource,
                 query_pairs=query_pairs,
+                header_pairs=header_pairs,
                 max_records=max_records,
             ),
             close=client,
@@ -191,6 +200,7 @@ def _handle_dynamic_invocation(
         query_pairs=query_pairs,
         body_json=body_json,
         body_file=body_file,
+        header_pairs=header_pairs,
         select_path=select_path,
         columns=columns,
         max_columns=max_columns,
@@ -370,6 +380,28 @@ def _parse_dynamic_options(
     )
 
 
+def _extract_header_options(args: list[str]) -> tuple[list[str], list[str]]:
+    """Extract ``-H/--header`` options while preserving the legacy parser shape."""
+    cleaned: list[str] = []
+    headers: list[str] = []
+    i = 0
+    while i < len(args):
+        token = args[i]
+        if token in {"-H", "--header"}:
+            if i + 1 >= len(args):
+                raise typer.BadParameter(f"{token} requires header=value")
+            headers.append(args[i + 1])
+            i += 2
+            continue
+        if token.startswith("--header="):
+            headers.append(token.split("=", 1)[1])
+            i += 1
+            continue
+        cleaned.append(token)
+        i += 1
+    return cleaned, headers
+
+
 def _execute_dynamic_action(
     *,
     group: str,
@@ -379,6 +411,7 @@ def _execute_dynamic_action(
     query_pairs: list[str],
     body_json: str | None,
     body_file: str | None,
+    header_pairs: list[str] | None = None,
     select_path: str | None = None,
     columns: list[str] | None = None,
     max_columns: int = 6,
@@ -419,6 +452,7 @@ def _execute_dynamic_action(
             action=action,
             object_id=object_id,
             query_pairs=query_pairs,
+            header_pairs=header_pairs,
             body_json=body_json,
             body_file=body_file,
         ),
@@ -510,6 +544,12 @@ def _build_action_command(
         body_file: str | None = typer.Option(
             None, "--body-file", help="Path to JSON request body file"
         ),
+        header: list[str] | None = typer.Option(
+            None,
+            "-H",
+            "--header",
+            help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+        ),
         output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
         output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
         output_markdown: bool = typer.Option(
@@ -584,6 +624,7 @@ def _build_action_command(
                     group,
                     resource,
                     query_pairs=query or [],
+                    header_pairs=header or [],
                     max_records=max_records,
                 ),
                 close=active_client,
@@ -609,6 +650,7 @@ def _build_action_command(
             query_pairs=query or [],
             body_json=body_json,
             body_file=body_file,
+            header_pairs=header or [],
             select_path=select_path,
             columns=columns_list,
             max_columns=max_columns,
@@ -649,7 +691,8 @@ def _register_openapi_subcommands(
     target_app: typer.Typer,
     *,
     client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
-    index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
+    index_factory: Callable[[], SchemaIndex] = _runtime_get_registration_index,
+    command_index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
 ) -> None:
     """Attach ``<group>/<resource>/<action>`` Typer commands from the OpenAPI index."""
     index = index_factory()
@@ -677,6 +720,6 @@ def _register_openapi_subcommands(
                     resource=resource,
                     action=action,
                     client_factory=client_factory,
-                    index_factory=index_factory,
+                    index_factory=command_index_factory,
                 )
                 resource_typer.command(name=action, help=f"{action} {group}/{resource}")(cmd)

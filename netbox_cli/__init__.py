@@ -35,6 +35,8 @@ from netbox_cli.runtime import (
     _get_client_for_tui,
     _get_enriched_index,
     _get_index,
+    _get_runtime_index,
+    _requested_netbox_version,
     _retry_probe_after_ssl_prompt,
 )
 from netbox_cli.runtime import (
@@ -60,6 +62,7 @@ from netbox_cli.support import (
 )
 from netbox_sdk.config import (
     DEFAULT_PROFILE,
+    DEMO_PROFILE,
     Config,
     normalize_base_url,
     resolved_token,
@@ -82,11 +85,13 @@ from netbox_sdk.logging_runtime import (
 )
 from netbox_sdk.services import (
     load_json_payload,
+    parse_header_pairs,
     parse_key_value_pairs,
 )
 from netbox_sdk.services import (
     run_dynamic_command as run_dynamic_command,
 )
+from netbox_sdk.versioning import UnsupportedNetBoxVersionError
 
 _initialize_demo_profile = demo._initialize_demo_profile
 cli = sys.modules[__name__]
@@ -131,6 +136,13 @@ def root_callback(
         envvar="NETBOX_BRANCH",
         help="Activate a netbox-branching schema_id (or branch name) for this invocation.",
     ),
+    netbox_version: str | None = typer.Option(
+        None,
+        "--netbox-version",
+        "--api-version",
+        envvar="NETBOX_SDK_NETBOX_VERSION",
+        help="Force bundled NetBox schema version for CLI discovery/execution (4.3 through 4.6).",
+    ),
 ) -> None:
     setup_logging()
     if ctx.resilient_parsing:
@@ -142,6 +154,14 @@ def root_callback(
 
         _scoped_headers.set({"X-NetBox-Branch": branch.strip()})
         _os.environ["NETBOX_BRANCH"] = branch.strip()
+    if netbox_version:
+        import os as _os  # noqa: PLC0415
+
+        _os.environ["NETBOX_SDK_NETBOX_VERSION"] = netbox_version.strip()
+        try:
+            _requested_netbox_version(strict=True)
+        except UnsupportedNetBoxVersionError as exc:
+            raise typer.BadParameter(str(exc)) from exc
     if any(flag in sys.argv[1:] for flag in ("--help", "-h")):
         return
     if ctx.invoked_subcommand is None and ctx.args:
@@ -277,7 +297,7 @@ def groups_command(
     ),
 ) -> None:
     """List all available OpenAPI app groups."""
-    index = _get_enriched_index() if live else _get_index()
+    index = _get_enriched_index() if live else _get_runtime_index()
     for group in index.groups():
         typer.echo(group)
 
@@ -292,7 +312,7 @@ def resources_command(
     ),
 ) -> None:
     """List resources available within a group."""
-    index = _get_enriched_index() if live else _get_index()
+    index = _get_enriched_index() if live else _get_runtime_index()
     resources = index.resources(group)
     if not resources:
         raise typer.BadParameter(f"Group not found or has no resources: {group}")
@@ -311,7 +331,7 @@ def operations_command(
     ),
 ) -> None:
     """Show available HTTP operations for a resource."""
-    index = _get_enriched_index() if live else _get_index()
+    index = _get_enriched_index() if live else _get_runtime_index()
     rows = index.operations_for(group, resource)
     if not rows:
         raise typer.BadParameter(f"No operations found for {group}/{resource}")
@@ -432,6 +452,12 @@ def call_command(
     method: str = typer.Argument(...),
     path: str = typer.Argument(...),
     query: list[str] = typer.Option(None, "-q", "--query", help="Query parameter key=value"),
+    header: list[str] | None = typer.Option(
+        None,
+        "-H",
+        "--header",
+        help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+    ),
     body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
     body_file: str | None = typer.Option(
         None, "--body-file", help="Path to JSON request body file"
@@ -451,11 +477,18 @@ def call_command(
         as_markdown=output_markdown,
     )
     query_pairs = query or []
-    query_dict = parse_key_value_pairs(query_pairs)
+    try:
+        query_dict = parse_key_value_pairs(query_pairs)
+        headers = parse_header_pairs(header or [])
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
     payload = load_json_payload(body_json, body_file)
     client = _get_client()
+    request_kwargs: dict[str, Any] = {"query": query_dict, "payload": payload}
+    if headers:
+        request_kwargs["headers"] = headers
     response = run_with_spinner(
-        client.request(method, path, query=query_dict, payload=payload),
+        client.request(method, path, **request_kwargs),
         close=client,
     )
     print_response(
@@ -517,7 +550,7 @@ def tui_command(
     try:
         run_tui(
             client=_get_client_for_tui(),
-            index=_get_index(),
+            index=_get_runtime_index(),
             theme_name=selected_theme,
             demo_mode=False,
         )
@@ -565,7 +598,7 @@ def cli_tui_command() -> None:
     """
     (run_cli_tui,) = load_tui_callables("netbox_tui.cli_tui", "run_cli_tui")
 
-    run_cli_tui(client=_get_client(), index=_get_index())
+    run_cli_tui(client=_get_client(), index=_get_runtime_index())
 
 
 docs_app = typer.Typer(
@@ -665,6 +698,10 @@ _register_openapi_subcommands(
     demo_app,
     client_factory=lambda: _get_client_for_config(_ensure_demo_runtime_config()),
     index_factory=lambda: _get_index(),
+    command_index_factory=lambda: _get_runtime_index(
+        DEMO_PROFILE,
+        _ensure_demo_runtime_config(),
+    ),
 )
 
 

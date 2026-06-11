@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import Any, Self
 
 import typer
-from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 from rich.table import Table
 
-from netbox_cli.runtime import _get_client, _get_index, dev_http_api_client
+from netbox_cli.runtime import _get_client, _get_runtime_index, dev_http_api_client
 from netbox_cli.support import (
     console,
     emit_cli_error,
@@ -25,8 +25,9 @@ from netbox_cli.support import (
     rethrow_theme_catalog_error,
     run_with_spinner,
 )
+from netbox_sdk.http_cache import QueryParams
 from netbox_sdk.schema import HTTP_METHODS
-from netbox_sdk.services import load_json_payload, parse_key_value_pairs
+from netbox_sdk.services import load_json_payload, parse_header_pairs, parse_key_value_pairs
 
 dev_app = typer.Typer(
     add_completion=False,
@@ -83,6 +84,7 @@ def _validate_key_value_pairs(values: list[str], *, example: str) -> list[str]:
 
 class _DevHttpBaseInput(BaseModel):
     path: str
+    headers: list[str] = Field(default_factory=list)
     output_json: bool = False
     output_yaml: bool = False
     output_markdown: bool = False
@@ -96,6 +98,15 @@ class _DevHttpBaseInput(BaseModel):
     @classmethod
     def id_positive(cls, v: int | None) -> int | None:
         return _validate_positive_object_id(v)
+
+    @field_validator("headers")
+    @classmethod
+    def headers_key_value(cls, v: list[str]) -> list[str]:
+        try:
+            parse_header_pairs(v)
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
+        return v
 
     @model_validator(mode="after")
     def output_exclusive(self) -> Self:
@@ -204,6 +215,7 @@ _FIELD_TO_CLI: dict[str, str] = {
     "path": "--path",
     "object_id": "--id",
     "query": "--query",
+    "headers": "--header",
     "arguments": "--argument",
     "body_json": "--body-json",
     "body_file": "--body-file",
@@ -256,6 +268,8 @@ _DEV_HTTP_RESERVED = frozenset(
         "id",
         "q",
         "query",
+        "header",
+        "H",
         "argument",
         "a",
         "body-json",
@@ -321,17 +335,22 @@ def _run_http(method: str, inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpD
     except ValueError as exc:
         raise typer.BadParameter(f"Invalid path: {exc}") from exc
 
-    query_dict: dict[str, str] = {}
+    query_dict: QueryParams = {}
     payload: dict[str, Any] | list[Any] | None = None
 
     if isinstance(inp, _DevHttpGetInput):
         try:
             query_dict = parse_key_value_pairs(inp.query)
+            headers = parse_header_pairs(inp.headers)
         except ValueError as exc:
             raise typer.BadParameter(str(exc)) from exc
         for k, v in inp.extra.items():
             query_dict.setdefault(k, str(v) if not isinstance(v, str) else v)
     elif isinstance(inp, _DevHttpBodyInput):
+        try:
+            headers = parse_header_pairs(inp.headers)
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc)) from exc
         try:
             payload = _resolve_body(inp)
         except (OSError, json.JSONDecodeError, ValueError) as exc:
@@ -341,11 +360,19 @@ def _run_http(method: str, inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpD
                 payload = {}
             if isinstance(payload, dict):
                 payload.update(inp.extra)
+    else:
+        try:
+            headers = parse_header_pairs(inp.headers)
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc)) from exc
 
     try:
         client = dev_http_api_client()
+        request_kwargs: dict[str, Any] = {"query": query_dict, "payload": payload}
+        if headers:
+            request_kwargs["headers"] = headers
         response = run_with_spinner(
-            client.request(method, normalized, query=query_dict, payload=payload),
+            client.request(method, normalized, **request_kwargs),
             close=client,
         )
     except RuntimeError as exc:
@@ -376,6 +403,12 @@ def dev_http_get(
     query: list[str] | None = typer.Option(
         None, "-q", "--query", help="Query filter as key=value (repeatable)"
     ),
+    header: list[str] | None = typer.Option(
+        None,
+        "-H",
+        "--header",
+        help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+    ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
     output_markdown: bool = typer.Option(
@@ -394,6 +427,7 @@ def dev_http_get(
         path=path,
         object_id=object_id,
         query=query or [],
+        headers=header or [],
         output_json=output_json,
         output_yaml=output_yaml,
         output_markdown=output_markdown,
@@ -411,6 +445,12 @@ def dev_http_post(
     ),
     body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
     body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON body file"),
+    header: list[str] | None = typer.Option(
+        None,
+        "-H",
+        "--header",
+        help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+    ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
     output_markdown: bool = typer.Option(
@@ -429,6 +469,7 @@ def dev_http_post(
         path=path,
         object_id=None,
         arguments=argument or [],
+        headers=header or [],
         body_json=body_json,
         body_file=body_file,
         output_json=output_json,
@@ -449,6 +490,12 @@ def dev_http_put(
     ),
     body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
     body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON body file"),
+    header: list[str] | None = typer.Option(
+        None,
+        "-H",
+        "--header",
+        help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+    ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
     output_markdown: bool = typer.Option(
@@ -467,6 +514,7 @@ def dev_http_put(
         path=path,
         object_id=object_id,
         arguments=argument or [],
+        headers=header or [],
         body_json=body_json,
         body_file=body_file,
         output_json=output_json,
@@ -487,6 +535,12 @@ def dev_http_patch(
     ),
     body_json: str | None = typer.Option(None, "--body-json", help="Inline JSON request body"),
     body_file: str | None = typer.Option(None, "--body-file", help="Path to JSON body file"),
+    header: list[str] | None = typer.Option(
+        None,
+        "-H",
+        "--header",
+        help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+    ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
     output_markdown: bool = typer.Option(
@@ -505,6 +559,7 @@ def dev_http_patch(
         path=path,
         object_id=object_id,
         arguments=argument or [],
+        headers=header or [],
         body_json=body_json,
         body_file=body_file,
         output_json=output_json,
@@ -515,10 +570,16 @@ def dev_http_patch(
     _run_http("PATCH", inp)
 
 
-@dev_http_app.command("delete")
+@dev_http_app.command("delete", context_settings=_DEV_HTTP_CTX)
 def dev_http_delete(
     path: str = typer.Option(..., "--path", "-p", help="API path, e.g. /dcim/devices/"),
     object_id: int = typer.Option(..., "--id", help="Object ID (required for DELETE)"),
+    header: list[str] | None = typer.Option(
+        None,
+        "-H",
+        "--header",
+        help="HTTP header as Header=Value or 'Header: Value' (repeatable)",
+    ),
     output_json: bool = typer.Option(False, "--json", help="Output raw JSON"),
     output_yaml: bool = typer.Option(False, "--yaml", help="Output YAML"),
     output_markdown: bool = typer.Option(
@@ -532,6 +593,7 @@ def dev_http_delete(
         _DevHttpDeleteInput,
         path=path,
         object_id=object_id,
+        headers=header or [],
         output_json=output_json,
         output_yaml=output_yaml,
         output_markdown=output_markdown,
@@ -548,7 +610,7 @@ def dev_http_paths(
     group: str | None = typer.Option(None, "--group", "-g", help="Filter by API group, e.g. dcim"),
 ) -> None:
     """List all OpenAPI paths from the bundled NetBox schema."""
-    index = _get_index()
+    index = _get_runtime_index()
     schema_paths = index.schema.get("paths", {})
 
     rows: list[tuple[str, str]] = []
@@ -581,7 +643,7 @@ def dev_http_ops(
     path: str = typer.Option(..., "--path", "-p", help="API path to inspect"),
 ) -> None:
     """Show available HTTP operations for a specific OpenAPI path."""
-    index = _get_index()
+    index = _get_runtime_index()
     p = path.strip()
     if p.startswith("api/"):
         p = "/" + p
@@ -644,7 +706,7 @@ def dev_tui_command(
     try:
         run_dev_tui(
             client=_get_client(),
-            index=_get_index(),
+            index=_get_runtime_index(),
             theme_name=selected_theme,
         )
     except Exception as exc:

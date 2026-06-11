@@ -268,8 +268,7 @@ async def _capture_state(
     from netbox_tui.app import NetBoxTuiApp  # noqa: PLC0415
     from netbox_tui.state import TuiState, ViewState  # noqa: PLC0415
 
-    openapi_path = _repo_root() / "netbox_sdk" / "reference" / "openapi" / "netbox-openapi.json"
-    index = build_schema_index(openapi_path)
+    index = build_schema_index()
     last_view = (
         ViewState(group="dcim", resource="devices")
         if state_id in {"devices", "details", "filter", "support"}

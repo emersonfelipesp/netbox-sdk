@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import pytest
+import typer
+from typer.testing import CliRunner
 
+from netbox_cli import runtime
+from netbox_cli.dynamic import _register_openapi_subcommands
+from netbox_sdk.config import Config
 from netbox_sdk.schema import fetch_schema_for_client
 
 pytestmark = pytest.mark.suite_cli
+runner = CliRunner()
 
 
 # ---------------------------------------------------------------------------
@@ -23,6 +29,15 @@ def minimal_schema() -> dict:
             }
         }
     }
+
+
+def _reset_runtime_schema(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
+    for name in runtime._NETBOX_VERSION_ENV_VARS:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx"])
 
 
 class _FakeClient:
@@ -130,11 +145,11 @@ def test_load_schema_falls_back_on_connection_error(monkeypatch) -> None:
 
 
 def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> None:
-    from netbox_cli import runtime
-
     bundled_doc = {"paths": {}, "_source": "bundled"}
 
     monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
     monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: bundled_doc)
     monkeypatch.setattr(
         runtime,
@@ -145,3 +160,113 @@ def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> N
     result = runtime._get_index()
 
     assert result.schema["_source"] == "bundled"
+
+
+def test_registration_index_defaults_to_netbox_46(monkeypatch, minimal_schema) -> None:
+    _reset_runtime_schema(monkeypatch)
+    versions: list[str | None] = []
+
+    def _mock_load(openapi_path=None, *, version=None):
+        versions.append(version)
+        return minimal_schema
+
+    monkeypatch.setattr(runtime, "load_openapi_schema", _mock_load)
+
+    result = runtime._get_registration_index()
+
+    assert result.resources("dcim") == ["devices"]
+    assert versions == ["4.6"]
+
+
+def test_registration_index_honors_cli_netbox_version_override(monkeypatch, minimal_schema) -> None:
+    _reset_runtime_schema(monkeypatch)
+    versions: list[str | None] = []
+
+    def _mock_load(openapi_path=None, *, version=None):
+        versions.append(version)
+        return minimal_schema
+
+    monkeypatch.setattr(runtime, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--netbox-version", "4.5"])
+
+    runtime._get_registration_index()
+
+    assert versions == ["4.5"]
+
+
+def test_runtime_index_detects_configured_instance(monkeypatch) -> None:
+    _reset_runtime_schema(monkeypatch)
+    cfg = Config(base_url="https://netbox.example.com")
+    calls: list[tuple[str, Config]] = []
+    connected = runtime.SchemaIndex(
+        {
+            "paths": {
+                "/api/ipam/prefixes/": {
+                    "get": {"operationId": "ipam_prefixes_list", "summary": "List prefixes"}
+                }
+            }
+        }
+    )
+
+    def _connected(profile: str, cfg_arg: Config):
+        calls.append((profile, cfg_arg))
+        return connected
+
+    monkeypatch.setattr(runtime, "load_profile_config", lambda profile: cfg)
+    monkeypatch.setattr(runtime, "_get_connected_index", _connected)
+    monkeypatch.setattr(
+        runtime,
+        "load_openapi_schema",
+        lambda **kw: pytest.fail("configured instances should use connected schema detection"),
+    )
+
+    result = runtime._get_runtime_index()
+
+    assert result.resources("ipam") == ["prefixes"]
+    assert calls == [(runtime.DEFAULT_PROFILE, cfg)]
+
+
+def test_runtime_index_override_skips_connected_detection(monkeypatch, minimal_schema) -> None:
+    _reset_runtime_schema(monkeypatch)
+    versions: list[str | None] = []
+
+    def _mock_load(openapi_path=None, *, version=None):
+        versions.append(version)
+        return minimal_schema
+
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--api-version=4.5"])
+    monkeypatch.setattr(runtime, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(
+        runtime,
+        "_get_connected_index",
+        lambda *a, **kw: pytest.fail("explicit version must skip live detection"),
+    )
+
+    runtime._get_runtime_index(profile=runtime.DEFAULT_PROFILE, cfg=Config(base_url="https://n"))
+
+    assert versions == ["4.5"]
+
+
+def test_registered_command_tree_defaults_to_netbox_46(monkeypatch) -> None:
+    _reset_runtime_schema(monkeypatch)
+    target = typer.Typer(no_args_is_help=True)
+
+    _register_openapi_subcommands(target)
+
+    result = runner.invoke(target, ["dcim", "cable-bundles", "list", "--help"])
+
+    assert result.exit_code == 0
+    assert "list dcim/cable-bundles" in result.output
+
+
+def test_registered_command_tree_can_be_pinned_to_netbox_45(monkeypatch) -> None:
+    _reset_runtime_schema(monkeypatch)
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--netbox-version", "4.5"])
+    target = typer.Typer(no_args_is_help=True)
+
+    _register_openapi_subcommands(target)
+
+    result = runner.invoke(target, ["dcim", "cable-bundles", "list", "--help"])
+
+    assert result.exit_code != 0
+    assert "No such command" in result.output

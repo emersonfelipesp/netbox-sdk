@@ -136,7 +136,7 @@ def test_demo_dynamic_command_uses_demo_profile(monkeypatch) -> None:
         return _Response()
 
     monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _demo_config)
-    monkeypatch.setattr(cli, "_get_index", lambda: object())
+    monkeypatch.setattr(cli, "_get_runtime_index", lambda *args, **kwargs: object())
     monkeypatch.setattr(cli, "run_dynamic_command", _fake_run_dynamic_command)
 
     result = runner.invoke(cli.app, ["demo", "dcim", "devices", "list"])
@@ -499,7 +499,7 @@ def test_demo_cli_tui_command_uses_demo_profile(monkeypatch) -> None:
     called: dict[str, object] = {}
 
     monkeypatch.setattr(cli, "_get_demo_client", lambda: object())
-    monkeypatch.setattr(cli, "_get_index", lambda: object())
+    monkeypatch.setattr(cli, "_get_runtime_index", lambda *args, **kwargs: object())
 
     def _fake_run_cli_tui(*, client, index, theme_name=None, demo_mode=False):
         called["client"] = client

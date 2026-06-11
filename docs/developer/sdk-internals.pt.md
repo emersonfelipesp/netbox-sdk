@@ -163,11 +163,11 @@ flowchart LR
 
 ### Esquemas embutidos por versão
 
-Cinco esquemas OpenAPI são fornecidos com o pacote em `netbox_sdk/reference/openapi/`:
+Esquemas OpenAPI versionados são fornecidos com o pacote em `netbox_sdk/reference/openapi/`. `load_openapi_schema()` usa o esquema NetBox 4.6 por padrão, a menos que uma linha de release suportada seja fornecida explicitamente.
 
 | Arquivo | Versão do NetBox |
 |---|---|
-| `netbox-openapi.json` | Padrão (mais recente) |
+| `netbox-openapi.json` | Alias legado de compatibilidade |
 | `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |

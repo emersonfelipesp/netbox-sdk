@@ -34,8 +34,8 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `__init__.py` | Root Typer app, `main()`, top-level command registration, script entrypoint target |
 | `branching.py` | `nbx branching ...`, `nbx branch ...`, and branch-aware command helpers |
 | `decorators.py` | Reusable Typer decorator factories for repeated option/argument metadata |
-| `runtime.py` | Runtime config cache, schema loading, client factories, demo refresh wiring |
-| `dynamic.py` | OpenAPI-driven dynamic command registration and execution |
+| `runtime.py` | Runtime config cache, version-aware schema loading (`_get_registration_index()` for network-free command registration, `_get_runtime_index()` for execution with `--netbox-version` override or connected-instance detection), client factories, demo refresh wiring |
+| `dynamic.py` | OpenAPI-driven dynamic command registration and execution. Supports NetBox 4.5/4.6 parallel command surfaces, `-H` / `--header`, repeated `-q` filters, bulk operations, auto-pagination, and filter discovery |
 | `support.py` | Shared CLI rendering, output selection, TUI lazy-import helpers |
 | `demo.py` | `nbx demo ...` command tree |
 | `dev.py` | `nbx dev ...` command tree |
@@ -53,7 +53,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 - Treat `typed_api()` as an SDK-facing surface, not a CLI dependency unless a command explicitly needs versioned typed validation.
 - Keep root app references on `netbox_cli`, for example:
   - `from netbox_cli import app, main`
-  - `from netbox_cli.runtime import _get_client, _get_index`
+  - `from netbox_cli.runtime import _get_client, _get_registration_index, _get_runtime_index`
   - `from netbox_cli.dynamic import _register_openapi_subcommands`
 
 ## Packaging

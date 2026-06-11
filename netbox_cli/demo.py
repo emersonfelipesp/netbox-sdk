@@ -21,9 +21,8 @@ from netbox_cli.runtime import (
     _dev_http_client_factory_ctx,
     _ensure_demo_runtime_config,
     _get_client_for_config,
-    _get_connected_index,
     _get_demo_client,
-    _get_index,
+    _get_runtime_index,
     _verify_runtime_config,
 )
 from netbox_cli.support import (
@@ -88,8 +87,7 @@ _ORIGINAL_VERIFY_RUNTIME_CONFIG = _verify_runtime_config
 _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG = _ensure_demo_runtime_config
 _ORIGINAL_GET_CLIENT_FOR_CONFIG = _get_client_for_config
 _ORIGINAL_GET_DEMO_CLIENT = _get_demo_client
-_ORIGINAL_GET_CONNECTED_INDEX = _get_connected_index
-_ORIGINAL_GET_INDEX = _get_index
+_ORIGINAL_GET_RUNTIME_INDEX = _get_runtime_index
 
 
 def _resolve_cli_override(
@@ -382,9 +380,9 @@ def demo_callback(
                     ),
                 ),
                 index_factory=lambda: _call_cli_override(
-                    "_get_connected_index",
-                    _get_connected_index,
-                    _ORIGINAL_GET_CONNECTED_INDEX,
+                    "_get_runtime_index",
+                    _get_runtime_index,
+                    _ORIGINAL_GET_RUNTIME_INDEX,
                     DEMO_PROFILE,
                     _call_cli_override(
                         "_ensure_demo_runtime_config",
@@ -553,7 +551,17 @@ def demo_tui_command(
                 _get_demo_client,
                 _ORIGINAL_GET_DEMO_CLIENT,
             ),
-            index=_call_cli_override("_get_index", _get_index, _ORIGINAL_GET_INDEX),
+            index=_call_cli_override(
+                "_get_runtime_index",
+                _get_runtime_index,
+                _ORIGINAL_GET_RUNTIME_INDEX,
+                DEMO_PROFILE,
+                _call_cli_override(
+                    "_ensure_demo_runtime_config",
+                    _ensure_demo_runtime_config,
+                    _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
+                ),
+            ),
             theme_name=selected_theme,
             demo_mode=True,
         )
@@ -597,7 +605,17 @@ def demo_dev_tui_command(
                 _get_demo_client,
                 _ORIGINAL_GET_DEMO_CLIENT,
             ),
-            index=_call_cli_override("_get_index", _get_index, _ORIGINAL_GET_INDEX),
+            index=_call_cli_override(
+                "_get_runtime_index",
+                _get_runtime_index,
+                _ORIGINAL_GET_RUNTIME_INDEX,
+                DEMO_PROFILE,
+                _call_cli_override(
+                    "_ensure_demo_runtime_config",
+                    _ensure_demo_runtime_config,
+                    _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
+                ),
+            ),
             theme_name=selected_theme,
         )
     except Exception as exc:
@@ -640,7 +658,17 @@ def demo_cli_tui_command(
                 _get_demo_client,
                 _ORIGINAL_GET_DEMO_CLIENT,
             ),
-            index=_call_cli_override("_get_index", _get_index, _ORIGINAL_GET_INDEX),
+            index=_call_cli_override(
+                "_get_runtime_index",
+                _get_runtime_index,
+                _ORIGINAL_GET_RUNTIME_INDEX,
+                DEMO_PROFILE,
+                _call_cli_override(
+                    "_ensure_demo_runtime_config",
+                    _ensure_demo_runtime_config,
+                    _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
+                ),
+            ),
             theme_name=selected_theme,
             demo_mode=True,
         )

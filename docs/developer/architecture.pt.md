@@ -90,11 +90,11 @@ flowchart TB
         v4_3.py · v4_4.py · v4_5.py · v4_6.py
       django_models/
       reference/openapi/
-        netbox-openapi.json (padrão)
+        netbox-openapi.json (alias legado)
         netbox-openapi-4.3.json
         netbox-openapi-4.4.json
         netbox-openapi-4.5.json
-        netbox-openapi-4.6.json
+        netbox-openapi-4.6.json (padrão)
 
     netbox_cli/
       __init__.py

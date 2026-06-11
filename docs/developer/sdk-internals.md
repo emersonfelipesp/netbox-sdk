@@ -187,11 +187,11 @@ for group_resource, paths_obj in paths.items():
 
 ### Versioned Bundled Schemas
 
-Five OpenAPI schemas ship with the package under `netbox_sdk/reference/openapi/`:
+Versioned OpenAPI schemas ship with the package under `netbox_sdk/reference/openapi/`. `load_openapi_schema()` defaults to the NetBox 4.6 schema unless a supported release line is supplied explicitly.
 
 | File | NetBox Version |
 |---|---|
-| `netbox-openapi.json` | Default (latest) |
+| `netbox-openapi.json` | Legacy compatibility alias |
 | `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |

@@ -22,7 +22,7 @@ compatibilidade de API, testes, documentação, suporte e manutenibilidade.
 | Metadados do pacote | `pyproject.toml` declara URLs do projeto, faixa de Python, licença SPDX, arquivos de licença, entry points, extras opcionais e dados de pacote |
 | Suporte Python | Python 3.11, 3.12 e 3.13 |
 | Compatibilidade NetBox | Linhas de SDK tipado para NetBox `4.6`, `4.5`, `4.4` e `4.3` |
-| Validação live NetBox | A CI executa testes live do SDK contra NetBox `v4.6.1`, `v4.5.10` e `v4.5.8` |
+| Validação live NetBox | A CI executa testes live do SDK contra NetBox `v4.6.2`, `v4.5.10` e `v4.5.8` |
 | Validação offline | API mock do NetBox, testes do cliente tipado, testes de schema, suítes SDK/CLI/TUI e testes de segurança |
 | Validação de pacote | Build, `twine check` e smoke test de instalação/importação do wheel na CI |
 | Documentação | README e site MkDocs cobrindo instalação, autenticação, requisições, SDK tipado, schema, erros, branching, API mock, CLI e TUI |
@@ -32,10 +32,10 @@ compatibilidade de API, testes, documentação, suporte e manutenibilidade.
 
 | Release `netbox-sdk` | Python | Linhas de API NetBox tipadas | Alvos live NetBox na CI |
 | --- | --- | --- | --- |
-| `0.0.9.post2` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.1`, `v4.5.10`, `v4.5.8` |
+| `0.0.9.post2` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.2`, `v4.5.10`, `v4.5.8` |
 
 Versões patch normalizam para sua linha de release no SDK tipado. Por exemplo,
-`4.6.1` usa o cliente tipado `4.6` versionado no repositório.
+`4.6.2` usa o cliente tipado `4.6` versionado no repositório.
 
 ## Dependências
 

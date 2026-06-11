@@ -67,8 +67,10 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 
 | Flag | Descrição |
 |------|-------------|
+| `--netbox-version` / `--api-version` | Opção global para forçar uma linha de esquema integrada suportada (`4.3` até `4.6`) |
 | `--id INTEGER` | ID do objeto para operações de detalhe (`get`, `update`, `patch`, `delete`) |
 | `-q` / `--query KEY=VALUE` | Filtro de query string (repetível) |
+| `-H` / `--header HEADER=VALUE` | Cabeçalho HTTP da requisição; `Header: Value` também é aceito (repetível) |
 | `--body-json TEXT` | Corpo JSON inline da requisição |
 | `--body-file PATH` | Caminho para arquivo JSON do corpo |
 | `--all` | Paginação automática: segue links `next` e retorna todos os registros (só `list`) |
@@ -86,6 +88,27 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 
 ---
 
+## Seleção de versão do NetBox
+
+`nbx` suporta as superfícies de comando do NetBox 4.5 e 4.6 em paralelo:
+
+- Por padrão, a árvore estática de comandos usa o esquema integrado do NetBox 4.6, então recursos 4.6 como `dcim/cable-bundles` ficam disponíveis.
+- Durante a execução de comandos, auxiliares de descoberta e abertura de TUI, `nbx` verifica a versão da instância configurada e usa o esquema integrado correspondente quando a linha é suportada.
+- Use `--netbox-version` / `--api-version` ou `NETBOX_SDK_NETBOX_VERSION` para fixar explicitamente o esquema integrado.
+
+```bash
+# Descoberta de comandos padrão em 4.6
+nbx dcim cable-bundles list --help
+
+# Fixar descoberta e execução em NetBox 4.5
+nbx --netbox-version 4.5 dcim devices list
+NETBOX_SDK_NETBOX_VERSION=4.5 nbx resources dcim
+```
+
+Versões patch são normalizadas para a linha de release: `4.5.10` usa `4.5`, e `4.6.2` usa `4.6`.
+
+---
+
 ## Filtragem
 
 A flag `-q` / `--query` mapeia para parâmetros de query da API NetBox:
@@ -95,9 +118,22 @@ nbx dcim devices list -q site=nyc01
 nbx dcim devices list -q status=active -q role=spine
 nbx ipam prefixes list -q family=6 -q status=active
 nbx dcim interfaces list -q device_id=1
+nbx extras tags list -q tag=prod -q tag=edge
 ```
 
-Várias flags `-q` são combinadas com AND.
+Várias flags `-q` são combinadas com AND. Repetir a mesma chave preserva parâmetros de query repetidos, usados pelo NetBox em filtros como múltiplas tags.
+
+---
+
+## Cabeçalhos HTTP
+
+Use `-H` / `--header` em comandos dinâmicos, `nbx call` e `nbx dev http` quando a interação com a API precisar de cabeçalhos condicionais como `If-Match` ou cabeçalhos customizados:
+
+```bash
+nbx dcim devices patch --id 42 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx call PATCH /api/dcim/devices/42/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx dev http get --path /api/dcim/devices/ -H 'Accept: application/json'
+```
 
 ---
 
@@ -302,6 +338,8 @@ Veja [Perfil demo](demo-profile.md) para a configuração.
 
 ## Como funciona
 
-Na inicialização, `_register_openapi_subcommands()` em `cli.py` lê `reference/openapi/netbox-openapi.json`, constrói um `SchemaIndex`, depois cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o `app` raiz e outra para `demo_app` com `_get_demo_client` como fábrica do cliente.
+Na inicialização, `_register_openapi_subcommands()` em `dynamic.py` constrói um `SchemaIndex` sem rede a partir do esquema integrado selecionado por `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`, com padrão NetBox 4.6. Em seguida, cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o `app` raiz e outra para `demo_app` com a fábrica de cliente demo.
+
+A execução real do comando usa `_get_runtime_index()` de `runtime.py`. Overrides explícitos de versão têm prioridade; caso contrário, a CLI consulta a instância configurada e seleciona o esquema integrado correspondente para linhas de release NetBox suportadas.
 
 Para recursos de plugins / objetos customizados, o esquema integrado dá ao `nbx` a árvore estática de comandos que ele conhece. Use `--live` com `groups`, `resources` ou `ops` para enriquecer esse índice a partir da instância NetBox configurada via `/api/plugins/` e `/api/core/object-types/`. Invocações dinâmicas livres também tentam enriquecimento ao vivo quando o recurso solicitado não existe no esquema integrado.

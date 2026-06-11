@@ -15,20 +15,19 @@ Static data files bundled with the package at install time (declared in `pyproje
 
 | Path | Description |
 |---|---|
-| `openapi/netbox-openapi.json` | NetBox OpenAPI 3.0 schema (JSON) |
+| `openapi/netbox-openapi.json` | Legacy CLI-local OpenAPI schema copy |
 
 ## How It's Used
 
-This package-local JSON file is a compatibility/reference copy used by CLI-facing
-workflows. The active schema/index logic lives in `netbox_sdk.schema`, and the
-typed SDK uses committed versioned schemas from `netbox_sdk/reference/openapi/`.
+This package-local JSON file is a compatibility/reference copy only. Active
+schema/index logic lives in `netbox_sdk.schema`, and dynamic CLI command
+registration/execution uses committed versioned schemas from
+`netbox_sdk/reference/openapi/`.
 
-This schema drives:
-- `nbx groups` — lists all API groups
-- `nbx resources <group>` — lists resources per group
-- `nbx ops <group> <resource>` — shows available HTTP operations
-- Dynamic command routing — maps action names to correct HTTP methods and paths
-- Filter parameter discovery — populates `--filter` options in the TUI
+Current CLI schema behavior:
+- `_get_registration_index()` builds the network-free command tree from the selected SDK bundled schema (default NetBox 4.6).
+- `_get_runtime_index()` honors `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detects the configured instance release line for execution.
+- Dynamic command routing and filter discovery should not be wired back to this directory.
 
 ## Updating the Schema
 

@@ -1,6 +1,6 @@
 # Schema Indexing
 
-The SDK ships a bundled copy of the NetBox OpenAPI schema at `netbox_sdk/reference/openapi/netbox-openapi.json`. `SchemaIndex` parses it once and exposes fast query helpers for groups, resources, paths, and filter parameters.
+The SDK ships bundled NetBox OpenAPI schemas under `netbox_sdk/reference/openapi/` for the supported release lines. `build_schema_index()` defaults to NetBox 4.6, while `version="4.5"` selects the 4.5 schema. `SchemaIndex` parses a schema once and exposes fast query helpers for groups, resources, paths, and filter parameters.
 
 ---
 
@@ -9,8 +9,11 @@ The SDK ships a bundled copy of the NetBox OpenAPI schema at `netbox_sdk/referen
 ```python
 from netbox_sdk import build_schema_index
 
-# Uses the bundled schema (default)
+# Uses the bundled NetBox 4.6 schema (default)
 idx = build_schema_index()
+
+# Use a specific supported release line
+idx_45 = build_schema_index(version="4.5")
 
 # Or supply a custom path (JSON or YAML)
 from pathlib import Path
