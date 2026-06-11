@@ -286,6 +286,9 @@ def test_register_openapi_subcommands_uses_injected_index_factory(monkeypatch) -
             assert (group, resource) == ("lab", "widgets")
             return _FakePaths()
 
+        def filter_params(self, group: str, resource: str) -> list:
+            return []
+
     class _GlobalIndex:
         def groups(self) -> list[str]:
             return []
