@@ -9,14 +9,18 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from netbox_sdk.versioning import SupportedNetBoxVersion, bundled_openapi_path
+from netbox_sdk.versioning import (
+    DEFAULT_NETBOX_VERSION,
+    SupportedNetBoxVersion,
+    bundled_openapi_path,
+)
 
 logger = logging.getLogger(__name__)
 
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options"}
 
 # Query params that control pagination/format, not filters.
-_FILTER_EXCLUDE_NAMES: frozenset[str] = frozenset({"limit", "offset", "format"})
+_FILTER_EXCLUDE_NAMES: frozenset[str] = frozenset({"limit", "offset", "start", "format"})
 
 # Lookup suffixes added by NetBox/django-filter — only the bare field name is shown.
 _LOOKUP_SUFFIXES: tuple[str, ...] = (
@@ -175,7 +179,7 @@ class SchemaIndex:
         """Return filterable query parameters for GET /api/{group}/{resource}/ from the schema.
 
         Excludes lookup-suffix variants (``__ic``, ``__n``, etc.) and pagination
-        params (``limit``, ``offset``, ``format``).  The result is sorted with
+        params (``limit``, ``offset``, ``start``, ``format``).  The result is sorted with
         ``q`` first, then alphabetically by name.
         """
         resource_paths = self.resource_paths(group, resource)
@@ -371,11 +375,7 @@ def load_openapi_schema(
         ValueError: If the document is not a JSON object at the top level.
     """
     if openapi_path is None:
-        openapi_path = (
-            bundled_openapi_path(version or "4.5")
-            if version
-            else (Path(__file__).resolve().parent / "reference" / "openapi" / "netbox-openapi.json")
-        )
+        openapi_path = bundled_openapi_path(version or DEFAULT_NETBOX_VERSION)
     logger.debug(
         "loading openapi schema",
         extra={"nbx_event": "schema_load", "path": str(openapi_path)},

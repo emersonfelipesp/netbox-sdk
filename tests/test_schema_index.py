@@ -103,7 +103,15 @@ def test_filter_params_excludes_pagination_params():
     names = {p.name for p in params}
     assert "limit" not in names
     assert "offset" not in names
+    assert "start" not in names
     assert "format" not in names
+
+
+def test_filter_params_excludes_netbox_46_cursor_start_param():
+    index = build_schema_index(version="4.6")
+    params = index.filter_params("dcim", "devices")
+    names = {p.name for p in params}
+    assert "start" not in names
 
 
 def test_filter_params_excludes_lookup_suffixes():

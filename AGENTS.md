@@ -117,6 +117,12 @@ pip install -e '.[tui]'
 pip install -e '.[all]'
 ```
 
+## CLI Dynamic Command Surface
+
+The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.6 schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line.
+
+`list` supports `--all` / `--max-records`; write actions include `create`, `update`, `patch`, `delete`, plus `bulk-update`, `bulk-patch`, and `bulk-delete` on list paths; `filters` is a local schema action. `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.
+
 ## Core Rules
 
 - SDK code in `netbox_sdk/` must not import `netbox_cli` or `netbox_tui`.
@@ -125,7 +131,7 @@ pip install -e '.[all]'
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
-- Bundled typed support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`. The CI live-NetBox suite exercises `v4.6.1`, `v4.5.10`, and `v4.5.8`.
+- Bundled typed and OpenAPI support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; CLI defaults to 4.6 and can be pinned to 4.5/4.6 via `--netbox-version` or `NETBOX_SDK_NETBOX_VERSION`. The CI live-NetBox suite exercises `v4.6.2`, `v4.5.10`, and `v4.5.8`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 

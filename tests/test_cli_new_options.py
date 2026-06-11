@@ -87,12 +87,73 @@ class _FakeRuntimeDiscoveryClient:
         return ApiResponse(status=404, text='{"detail": "not found"}', headers={})
 
 
+class _CaptureClient:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, object]] = []
+
+    async def request(self, method: str, path: str, **kwargs: object) -> ApiResponse:
+        self.calls.append({"method": method, "path": path, **kwargs})
+        return ApiResponse(status=200, text='{"count": 0, "results": []}', headers={})
+
+
 def _patch_list_client(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
     monkeypatch.setattr(
         "netbox_cli.runtime._get_client",
         lambda: _FakeListClient(),
     )
+
+
+def test_call_command_forwards_headers_and_repeated_query(monkeypatch):
+    client = _CaptureClient()
+    monkeypatch.setattr(cli, "_get_client", lambda: client)
+
+    result = runner.invoke(
+        cli.app,
+        [
+            "call",
+            "GET",
+            "/api/dcim/devices/",
+            "-q",
+            "tag=prod",
+            "-q",
+            "tag=edge",
+            "-H",
+            'If-Match: "etag"',
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert client.calls[0]["query"] == {"tag": ["prod", "edge"]}
+    assert client.calls[0]["headers"] == {"If-Match": '"etag"'}
+
+
+def test_dev_http_get_forwards_headers_and_repeated_query(monkeypatch):
+    client = _CaptureClient()
+    monkeypatch.setattr(cli_dev, "dev_http_api_client", lambda: client)
+
+    result = runner.invoke(
+        cli.app,
+        [
+            "dev",
+            "http",
+            "get",
+            "--path",
+            "/api/dcim/devices/",
+            "-q",
+            "tag=prod",
+            "-q",
+            "tag=edge",
+            "-H",
+            "If-Match=etag",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert client.calls[0]["query"] == {"tag": ["prod", "edge"]}
+    assert client.calls[0]["headers"] == {"If-Match": "etag"}
 
 
 class TestDevHttpInputValidation:

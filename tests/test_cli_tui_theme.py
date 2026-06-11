@@ -38,7 +38,7 @@ def test_tui_theme_list(monkeypatch) -> None:
 def test_tui_theme_dracula(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
     monkeypatch.setattr(cli, "_get_client", lambda: object())
-    monkeypatch.setattr(cli, "_get_index", lambda: object())
+    monkeypatch.setattr(cli, "_get_runtime_index", lambda: object())
 
     called: dict[str, object] = {}
 
@@ -123,7 +123,7 @@ def test_logs_command_renders_recent_entries(monkeypatch) -> None:
 def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
     monkeypatch.setattr(cli, "_get_client", lambda: object())
-    monkeypatch.setattr(cli, "_get_index", lambda: object())
+    monkeypatch.setattr(cli, "_get_runtime_index", lambda: object())
 
     called: dict[str, object] = {}
 
@@ -145,7 +145,7 @@ def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
 def test_tui_theme_alias_netbox(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
     monkeypatch.setattr(cli, "_get_client", lambda: object())
-    monkeypatch.setattr(cli, "_get_index", lambda: object())
+    monkeypatch.setattr(cli, "_get_runtime_index", lambda: object())
 
     called: dict[str, object] = {}
 
@@ -188,7 +188,7 @@ def test_tui_logs_dispatch(monkeypatch) -> None:
 def test_demo_tui_sets_demo_mode(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _mock_config)
     monkeypatch.setattr(cli, "_get_demo_client", lambda: object())
-    monkeypatch.setattr(cli, "_get_index", lambda: object())
+    monkeypatch.setattr(cli, "_get_runtime_index", lambda *args, **kwargs: object())
 
     called: dict[str, object] = {}
 
@@ -229,7 +229,7 @@ def test_dev_tui_theme_dispatch(monkeypatch) -> None:
     import netbox_tui.dev_app as dev_tui_module
 
     monkeypatch.setattr(dev_cli_module, "_get_client", lambda: object())
-    monkeypatch.setattr(dev_cli_module, "_get_index", lambda: object())
+    monkeypatch.setattr(dev_cli_module, "_get_runtime_index", lambda: object())
     monkeypatch.setattr(dev_tui_module, "run_dev_tui", _fake_run_dev_tui)
 
     result = runner.invoke(cli.app, ["dev", "tui", "--theme", "dracula"])
@@ -250,7 +250,7 @@ def test_demo_dev_tui_theme_dispatch(monkeypatch) -> None:
     import netbox_tui.dev_app as dev_tui_module
 
     monkeypatch.setattr(demo_cli_module, "_get_demo_client", lambda: object())
-    monkeypatch.setattr(demo_cli_module, "_get_index", lambda: object())
+    monkeypatch.setattr(demo_cli_module, "_get_runtime_index", lambda *args, **kwargs: object())
     monkeypatch.setattr(dev_tui_module, "run_dev_tui", _fake_run_dev_tui)
 
     result = runner.invoke(cli.app, ["demo", "dev", "tui", "--theme", "dracula"])

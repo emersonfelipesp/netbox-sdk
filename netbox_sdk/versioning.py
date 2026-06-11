@@ -8,7 +8,7 @@ from typing import Literal, cast, get_args
 SupportedNetBoxVersion = Literal["4.6", "4.5", "4.4", "4.3"]
 SUPPORTED_NETBOX_VERSIONS: tuple[SupportedNetBoxVersion, ...] = get_args(SupportedNetBoxVersion)
 
-_DEFAULT_VERSION: SupportedNetBoxVersion = "4.5"
+DEFAULT_NETBOX_VERSION: SupportedNetBoxVersion = "4.6"
 
 
 class UnsupportedNetBoxVersionError(ValueError):
@@ -17,7 +17,7 @@ class UnsupportedNetBoxVersionError(ValueError):
 
 def normalize_netbox_version(version: str | None) -> SupportedNetBoxVersion:
     if version is None:
-        return _DEFAULT_VERSION
+        return DEFAULT_NETBOX_VERSION
     raw = version.strip().removeprefix("v")
     parts = raw.split(".")
     if len(parts) < 2:

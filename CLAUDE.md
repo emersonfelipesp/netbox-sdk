@@ -113,7 +113,7 @@ pip install -e '.[all]'
 
 ## CLI Dynamic Command Surface
 
-The CLI exposes all NetBox API resources through `nbx <group> <resource> <action>`. The supported action set per resource is:
+The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.6 schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line.
 
 | Action | HTTP | Path | Notes |
 |---|---|---|---|
@@ -130,6 +130,8 @@ The CLI exposes all NetBox API resources through `nbx <group> <resource> <action
 
 **Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. `--max-records N` (default 10 000) is the hard ceiling on accumulated records.
 
+**Query/header forwarding**: `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.
+
 **Bulk routing**: `bulk-update`, `bulk-patch`, and `bulk-delete` always target the list path, never the detail path. The `--id` option is silently ignored for bulk actions.
 
 **Filter discovery**: `filters` is a synthetic local action that calls `SchemaIndex.filter_params()` and prints the available query parameters without making an HTTP request.
@@ -142,7 +144,7 @@ The CLI exposes all NetBox API resources through `nbx <group> <resource> <action
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
-- Bundled typed support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`. The CI live-NetBox suite exercises `v4.6.1`, `v4.5.10`, and `v4.5.8`.
+- Bundled typed and OpenAPI support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; CLI defaults to 4.6 and can be pinned to 4.5/4.6 via `--netbox-version` or `NETBOX_SDK_NETBOX_VERSION`. The CI live-NetBox suite exercises `v4.6.2`, `v4.5.10`, and `v4.5.8`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 

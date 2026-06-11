@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.exceptions import JsonPayloadError
+from netbox_sdk.http_cache import QueryParams
 from netbox_sdk.schema import SchemaIndex
 
 logger = logging.getLogger(__name__)
@@ -39,23 +40,24 @@ class ResolvedRequest(BaseModel):
 
     method: str
     path: str
-    query: dict[str, str]
+    query: QueryParams
     payload: dict[str, Any] | list[Any] | None
 
 
-def parse_key_value_pairs(values: list[str]) -> dict[str, str]:
-    """Parse CLI ``key=value`` tokens into a query parameter dict.
+def parse_key_value_pairs(values: list[str]) -> QueryParams:
+    """Parse CLI ``key=value`` tokens into query parameters.
 
     Args:
         values: Raw strings from the CLI (e.g. ``["status=active"]``).
 
     Returns:
-        Mapping of query keys to values.
+        Mapping of query keys to values. Repeated keys are preserved as lists
+        so NetBox filters such as ``tag=foo&tag=bar`` remain expressible.
 
     Raises:
         ValueError: If any token is missing ``=`` or has an empty key.
     """
-    parsed: dict[str, str] = {}
+    parsed: QueryParams = {}
     for raw in values:
         if "=" not in raw:
             raise ValueError(f"Expected key=value format, got: {raw}")
@@ -63,6 +65,30 @@ def parse_key_value_pairs(values: list[str]) -> dict[str, str]:
         key = key.strip()
         if not key:
             raise ValueError(f"Expected key=value format, got: {raw}")
+        existing = parsed.get(key)
+        if existing is None:
+            parsed[key] = value
+        elif isinstance(existing, list):
+            existing.append(value)
+        else:
+            parsed[key] = [existing, value]
+    return parsed
+
+
+def parse_header_pairs(values: list[str]) -> dict[str, str]:
+    """Parse ``Header=Value`` or ``Header: Value`` CLI tokens into HTTP headers."""
+    parsed: dict[str, str] = {}
+    for raw in values:
+        if "=" in raw:
+            key, value = raw.split("=", 1)
+        elif ":" in raw:
+            key, value = raw.split(":", 1)
+        else:
+            raise ValueError(f"Expected header=value or 'Header: value' format, got: {raw}")
+        key = key.strip()
+        value = value.strip()
+        if not key or "\r" in key or "\n" in key or "\r" in value or "\n" in value:
+            raise ValueError(f"Expected header=value or 'Header: value' format, got: {raw}")
         parsed[key] = value
     return parsed
 
@@ -140,7 +166,7 @@ def resolve_dynamic_request(
     action: str,
     *,
     object_id: int | None,
-    query: dict[str, str],
+    query: QueryParams,
     payload: dict[str, Any] | list[Any] | None,
 ) -> ResolvedRequest:
     """Map OpenAPI index + user action to method, path, query, and body.
@@ -196,11 +222,13 @@ async def run_dynamic_command(
     *,
     object_id: int | None,
     query_pairs: list[str],
+    header_pairs: list[str] | None = None,
     body_json: str | None,
     body_file: str | None,
 ) -> ApiResponse:
     """Execute a schema-resolved request using the shared async HTTP client."""
     query = parse_key_value_pairs(query_pairs)
+    headers = parse_header_pairs(header_pairs or [])
     payload = load_json_payload(body_json, body_file)
     resolved = resolve_dynamic_request(
         index,
@@ -211,12 +239,13 @@ async def run_dynamic_command(
         query=query,
         payload=payload,
     )
-    return await client.request(
-        resolved.method,
-        resolved.path,
-        query=resolved.query,
-        payload=resolved.payload,
-    )
+    request_kwargs: dict[str, Any] = {
+        "query": resolved.query,
+        "payload": resolved.payload,
+    }
+    if headers:
+        request_kwargs["headers"] = headers
+    return await client.request(resolved.method, resolved.path, **request_kwargs)
 
 
 async def list_all_pages(
@@ -226,6 +255,7 @@ async def list_all_pages(
     resource: str,
     *,
     query_pairs: list[str],
+    header_pairs: list[str] | None = None,
     max_records: int = 10000,
 ) -> ApiResponse:
     """Fetch all paginated pages for a list endpoint, following ``next`` links.
@@ -250,12 +280,17 @@ async def list_all_pages(
         returned unchanged.
     """
     query = parse_key_value_pairs(query_pairs)
+    headers = parse_header_pairs(header_pairs or [])
     resolved = resolve_dynamic_request(
         index, group, resource, "list", object_id=None, query=query, payload=None
     )
-    response = await client.request(
-        resolved.method, resolved.path, query=resolved.query, payload=None
-    )
+    request_kwargs: dict[str, Any] = {
+        "query": resolved.query,
+        "payload": None,
+    }
+    if headers:
+        request_kwargs["headers"] = headers
+    response = await client.request(resolved.method, resolved.path, **request_kwargs)
 
     try:
         data = json.loads(response.text)
@@ -271,7 +306,7 @@ async def list_all_pages(
     while next_url and len(all_results) < max_records:
         parsed = urlparse(next_url)
         next_path = parsed.path
-        next_query = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+        next_query = {k: v if len(v) > 1 else v[0] for k, v in parse_qs(parsed.query).items()}
         logger.debug(
             "following pagination next link",
             extra={
@@ -280,7 +315,13 @@ async def list_all_pages(
                 "accumulated": len(all_results),
             },
         )
-        response = await client.request("GET", next_path, query=next_query, payload=None)
+        request_kwargs = {
+            "query": next_query,
+            "payload": None,
+        }
+        if headers:
+            request_kwargs["headers"] = headers
+        response = await client.request("GET", next_path, **request_kwargs)
         try:
             data = json.loads(response.text)
         except Exception:

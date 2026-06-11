@@ -91,7 +91,7 @@ def django_model_tui(
 
     Automatically builds the model cache if it doesn't exist.
     """
-    from netbox_cli.runtime import _get_client, _get_index  # noqa: PLC0415
+    from netbox_cli.runtime import _get_client, _get_runtime_index  # noqa: PLC0415
     from netbox_tui.django_model_app import run_django_model_tui  # noqa: PLC0415
 
     store = DjangoModelStore(cache_path=cache_path)
@@ -112,7 +112,7 @@ def django_model_tui(
         store=store,
         theme_name=theme,
         client_factory=_get_client,
-        index_factory=_get_index,
+        index_factory=_get_runtime_index,
     )
 
 

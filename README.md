@@ -25,7 +25,7 @@ release maintainability.
 | License | Apache-2.0 in `LICENSE.txt` and `pyproject.toml` package metadata |
 | Package | `netbox-sdk` on PyPI, with `netbox_sdk`, `netbox_cli`, and `netbox_tui` import packages |
 | Python | Python `3.11`, `3.12`, and `3.13` |
-| NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.1`, `v4.5.10`, and `v4.5.8` |
+| NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.2`, `v4.5.10`, and `v4.5.8` |
 | Tests | Mock API suite, live NetBox suite, security tests, type checks, package metadata checks, and strict docs builds in GitHub Actions |
 | Support | GitHub issues for bugs/features/docs requests; docs at <https://emersonfelipesp.github.io/netbox-sdk/> |
 
@@ -112,15 +112,26 @@ nbx dcim devices create --body-json '{"name":"sw01","site":1}'
 nbx dcim devices patch --id 1 --body-json '{"status":"active"}'
 nbx dcim devices delete --id 1
 
+# NetBox version selection
+# Default command discovery uses the bundled 4.6 schema; execution detects configured instances.
+nbx dcim cable-bundles list --help
+nbx --netbox-version 4.5 dcim devices list
+NETBOX_SDK_NETBOX_VERSION=4.5 nbx resources dcim
+
 # Auto-pagination — fetch every page in one call
 nbx dcim devices list --all
 nbx dcim devices list --all --max-records 500
 
 # Filtering
 nbx dcim devices list -q status=active -q site=nyc01
+nbx dcim devices list -q tag=prod -q tag=edge
 
 # Discover available filter parameters (no HTTP call)
 nbx dcim devices filters
+
+# HTTP headers for ETag / conditional update workflows
+nbx dcim devices patch --id 1 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx call PATCH /api/dcim/devices/1/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
 
 # Bulk operations (array body to list path)
 nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]'

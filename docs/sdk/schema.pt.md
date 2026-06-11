@@ -1,6 +1,6 @@
 # Indexação de esquema
 
-O SDK inclui uma cópia integrada do esquema OpenAPI do NetBox em `netbox_sdk/reference/openapi/netbox-openapi.json`. `SchemaIndex` analisa uma vez e expõe auxiliares rápidos de consulta para grupos, recursos, caminhos e parâmetros de filtro.
+O SDK inclui esquemas OpenAPI integrados do NetBox em `netbox_sdk/reference/openapi/` para as linhas de release suportadas. `build_schema_index()` usa NetBox 4.6 por padrão, enquanto `version="4.5"` seleciona o esquema 4.5. `SchemaIndex` analisa um esquema uma vez e expõe auxiliares rápidos de consulta para grupos, recursos, caminhos e parâmetros de filtro.
 
 ---
 
@@ -9,8 +9,11 @@ O SDK inclui uma cópia integrada do esquema OpenAPI do NetBox em `netbox_sdk/re
 ```python
 from netbox_sdk import build_schema_index
 
-# Usa o esquema integrado (padrão)
+# Usa o esquema integrado do NetBox 4.6 (padrão)
 idx = build_schema_index()
+
+# Usa uma linha de release suportada específica
+idx_45 = build_schema_index(version="4.5")
 
 # Ou forneça um caminho personalizado (JSON ou YAML)
 from pathlib import Path

@@ -47,6 +47,7 @@ __all__ = [
     "typed_api",
     "SupportedNetBoxVersion",
     "SUPPORTED_NETBOX_VERSIONS",
+    "DEFAULT_NETBOX_VERSION",
     "UnsupportedNetBoxVersionError",
     "TypedRequestValidationError",
     "TypedResponseValidationError",
@@ -68,6 +69,7 @@ __all__ = [
     "ResolvedRequest",
     "resolve_dynamic_request",
     "run_dynamic_command",
+    "parse_header_pairs",
     "parse_key_value_pairs",
     "load_json_payload",
     "ACTION_METHOD_MAP",
@@ -148,6 +150,7 @@ from netbox_sdk.schema import (
 from netbox_sdk.typed_api import typed_api
 from netbox_sdk.typed_runtime import TypedRequestValidationError, TypedResponseValidationError
 from netbox_sdk.versioning import (
+    DEFAULT_NETBOX_VERSION,
     SUPPORTED_NETBOX_VERSIONS,
     SupportedNetBoxVersion,
     UnsupportedNetBoxVersionError,
@@ -157,6 +160,7 @@ from netbox_sdk.services import (  # isort: skip
     ACTION_METHOD_MAP,
     ResolvedRequest,
     load_json_payload,
+    parse_header_pairs,
     parse_key_value_pairs,
     resolve_dynamic_request,
     run_dynamic_command,

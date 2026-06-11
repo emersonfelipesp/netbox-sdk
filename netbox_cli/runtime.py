@@ -9,6 +9,8 @@ imports ``_RUNTIME_CONFIGS`` by name stays in sync automatically.
 from __future__ import annotations
 
 import inspect
+import os
+import sys
 from collections.abc import Callable
 from contextvars import ContextVar
 
@@ -34,6 +36,12 @@ from netbox_sdk.http_ssl import (
 )
 from netbox_sdk.logging_runtime import get_logger
 from netbox_sdk.schema import SchemaIndex, load_openapi_schema
+from netbox_sdk.versioning import (
+    DEFAULT_NETBOX_VERSION,
+    SupportedNetBoxVersion,
+    UnsupportedNetBoxVersionError,
+    normalize_netbox_version,
+)
 
 try:
     import aiohttp
@@ -46,8 +54,57 @@ if aiohttp is not None:
 
 _SCHEMA_DOCUMENT: dict | None = None
 _SCHEMA_INDEX: SchemaIndex | None = None
+_SCHEMA_VERSION: SupportedNetBoxVersion | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
+
+_NETBOX_VERSION_FLAGS = ("--netbox-version", "--api-version")
+_NETBOX_VERSION_ENV_VARS = (
+    "NETBOX_SDK_NETBOX_VERSION",
+    "NETBOX_API_VERSION",
+    "NETBOX_VERSION",
+)
+
+
+def _raw_requested_netbox_version(argv: list[str] | None = None) -> str | None:
+    """Return a CLI/env requested NetBox release line, if one is present.
+
+    CLI flags are read directly from argv because Typer command registration
+    happens before callback option values are available.
+    """
+    args = list(sys.argv[1:] if argv is None else argv)
+    for index, token in enumerate(args):
+        for flag in _NETBOX_VERSION_FLAGS:
+            if token == flag and index + 1 < len(args):
+                return args[index + 1]
+            if token.startswith(f"{flag}="):
+                return token.split("=", 1)[1]
+    for name in _NETBOX_VERSION_ENV_VARS:
+        value = os.environ.get(name)
+        if value:
+            return value
+    return None
+
+
+def _requested_netbox_version(
+    argv: list[str] | None = None,
+    *,
+    strict: bool = False,
+) -> SupportedNetBoxVersion | None:
+    raw = _raw_requested_netbox_version(argv)
+    if not raw:
+        return None
+    try:
+        return normalize_netbox_version(raw)
+    except UnsupportedNetBoxVersionError:
+        if strict:
+            raise
+        logger.warning(
+            "ignoring unsupported requested NetBox version %r",
+            raw,
+            extra={"nbx_event": "schema_version_override_invalid", "version": raw},
+        )
+        return None
 
 
 async def _detect_and_fetch_schema(cfg: Config) -> dict:
@@ -90,16 +147,58 @@ def _load_schema_for_connected_instance(
 
 
 def _get_index() -> SchemaIndex:
+    return _get_static_index()
+
+
+def _get_static_index(version: SupportedNetBoxVersion | None = None) -> SchemaIndex:
     global _SCHEMA_DOCUMENT, _SCHEMA_INDEX
-    if _SCHEMA_DOCUMENT is None:
-        logger.info("loading bundled openapi schema")
-        _SCHEMA_DOCUMENT = load_openapi_schema()
+    global _SCHEMA_VERSION
+    selected_version = version or _requested_netbox_version() or DEFAULT_NETBOX_VERSION
+    if _SCHEMA_DOCUMENT is None or _SCHEMA_VERSION != selected_version:
+        logger.info("loading bundled openapi schema for NetBox %s", selected_version)
+        _SCHEMA_DOCUMENT = load_openapi_schema(version=selected_version)
         _SCHEMA_INDEX = SchemaIndex(_SCHEMA_DOCUMENT)
+        _SCHEMA_VERSION = selected_version
     if _SCHEMA_INDEX is None:
         _SCHEMA_INDEX = SchemaIndex(_SCHEMA_DOCUMENT)
     # Return a fresh mutable index for each caller so runtime discoveries from one
     # NetBox instance can't leak into another app session.
     return _SCHEMA_INDEX.clone()
+
+
+def _get_registration_index() -> SchemaIndex:
+    """Return the static schema used to build the Typer command tree.
+
+    This avoids probing the configured NetBox instance at import time while
+    still honoring an explicit CLI/env schema version override.
+    """
+    return _get_static_index(_requested_netbox_version() or DEFAULT_NETBOX_VERSION)
+
+
+def _get_runtime_index(
+    profile: str = DEFAULT_PROFILE,
+    cfg: Config | None = None,
+) -> SchemaIndex:
+    """Return the schema index for command execution.
+
+    Explicit version overrides win. Otherwise, when a configured instance is
+    available, detect its API version and choose the matching bundled schema;
+    fall back to the latest supported bundled schema when detection fails.
+    """
+    requested = _requested_netbox_version()
+    if requested is not None:
+        return _get_static_index(requested)
+    try:
+        cfg = cfg or load_profile_config(profile)
+        if cfg.base_url:
+            return _get_connected_index(profile, cfg)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(
+            "runtime schema detection failed (%s); using static bundled schema",
+            exc,
+            extra={"nbx_event": "schema_runtime_detection_failed"},
+        )
+    return _get_static_index(DEFAULT_NETBOX_VERSION)
 
 
 def _get_connected_index(

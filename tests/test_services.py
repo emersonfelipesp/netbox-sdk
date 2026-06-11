@@ -9,8 +9,10 @@ from netbox_sdk.schema import build_schema_index
 from netbox_sdk.services import (
     ACTION_METHOD_MAP,
     list_all_pages,
+    parse_header_pairs,
     parse_key_value_pairs,
     resolve_dynamic_request,
+    run_dynamic_command,
 )
 from tests.conftest import OPENAPI_PATH
 
@@ -28,9 +30,29 @@ def test_parse_key_value_pairs_ok():
     }
 
 
+def test_parse_key_value_pairs_preserves_repeated_keys():
+    assert parse_key_value_pairs(["tag=prod", "tag=edge", "status=active"]) == {
+        "tag": ["prod", "edge"],
+        "status": "active",
+    }
+
+
 def test_parse_key_value_pairs_invalid():
     with pytest.raises(ValueError):
         parse_key_value_pairs(["invalid"])
+
+
+def test_parse_header_pairs_accepts_colon_and_equals_forms():
+    assert parse_header_pairs(['If-Match: "abc"', "Referer=https://netbox.example.com/a:b"]) == {
+        "If-Match": '"abc"',
+        "Referer": "https://netbox.example.com/a:b",
+    }
+
+
+@pytest.mark.parametrize("raw", ["If-Match", "=value", "X-Test=bad\nvalue"])
+def test_parse_header_pairs_rejects_invalid_headers(raw):
+    with pytest.raises(ValueError):
+        parse_header_pairs([raw])
 
 
 def test_resolve_list_path():
@@ -179,6 +201,7 @@ class _MockClient:
     def __init__(self, responses: list[ApiResponse]) -> None:
         self._responses = responses
         self._call = 0
+        self.calls: list[dict] = []
 
     async def request(
         self,
@@ -187,7 +210,17 @@ class _MockClient:
         *,
         query: dict | None = None,
         payload=None,
+        headers: dict[str, str] | None = None,
     ) -> ApiResponse:
+        self.calls.append(
+            {
+                "method": method,
+                "path": path,
+                "query": query,
+                "payload": payload,
+                "headers": headers,
+            }
+        )
         resp = self._responses[self._call]
         self._call += 1
         return resp
@@ -223,6 +256,36 @@ async def test_list_all_pages_multi_page():
     assert [r["id"] for r in data["results"]] == [1, 2, 3]
 
 
+async def test_list_all_pages_preserves_repeated_next_query_and_headers():
+    page1 = {
+        "count": 3,
+        "next": "http://netbox.example.com/api/dcim/devices/?tag=prod&tag=edge&limit=2&offset=2",
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    page2 = {"count": 3, "next": None, "previous": None, "results": [{"id": 3}]}
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
+    )
+
+    await list_all_pages(
+        client,
+        _index(),
+        "dcim",
+        "devices",
+        query_pairs=["status=active"],
+        header_pairs=['If-Match: "etag"'],
+    )
+
+    assert client.calls[0]["query"] == {"status": "active"}
+    assert client.calls[0]["headers"] == {"If-Match": '"etag"'}
+    assert client.calls[1]["query"]["tag"] == ["prod", "edge"]
+    assert client.calls[1]["headers"] == {"If-Match": '"etag"'}
+
+
 async def test_list_all_pages_respects_max_records():
     page1 = {
         "count": 4,
@@ -250,3 +313,23 @@ async def test_list_all_pages_non_paginated_response():
     client = _MockClient([ApiResponse(status=200, text=raw)])
     result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
     assert result.text == raw
+
+
+async def test_run_dynamic_command_forwards_headers_and_repeated_query_params():
+    client = _MockClient([ApiResponse(status=200, text='{"count": 0, "results": []}')])
+
+    await run_dynamic_command(
+        client,
+        _index(),
+        "dcim",
+        "devices",
+        "list",
+        object_id=None,
+        query_pairs=["tag=prod", "tag=edge"],
+        header_pairs=['If-Match: "etag"'],
+        body_json=None,
+        body_file=None,
+    )
+
+    assert client.calls[0]["query"] == {"tag": ["prod", "edge"]}
+    assert client.calls[0]["headers"] == {"If-Match": '"etag"'}
