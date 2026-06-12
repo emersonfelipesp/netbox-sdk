@@ -111,6 +111,21 @@ def _call_cli_override(
     return _resolve_cli_override(name, current, original)(*args, **kwargs)
 
 
+def _demo_runtime_index_for_tui() -> Any:
+    """Resolve the demo schema index after the demo client path has run.
+
+    The demo client path owns profile initialization. Keeping index resolution
+    free of an eager config prompt lets tests and patched non-interactive
+    launches replace the client/index factories independently.
+    """
+    return _call_cli_override(
+        "_get_runtime_index",
+        _get_runtime_index,
+        _ORIGINAL_GET_RUNTIME_INDEX,
+        DEMO_PROFILE,
+    )
+
+
 @demo_app.command(
     "graphql", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
 )
@@ -551,17 +566,7 @@ def demo_tui_command(
                 _get_demo_client,
                 _ORIGINAL_GET_DEMO_CLIENT,
             ),
-            index=_call_cli_override(
-                "_get_runtime_index",
-                _get_runtime_index,
-                _ORIGINAL_GET_RUNTIME_INDEX,
-                DEMO_PROFILE,
-                _call_cli_override(
-                    "_ensure_demo_runtime_config",
-                    _ensure_demo_runtime_config,
-                    _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
-                ),
-            ),
+            index=_demo_runtime_index_for_tui(),
             theme_name=selected_theme,
             demo_mode=True,
         )
@@ -605,17 +610,7 @@ def demo_dev_tui_command(
                 _get_demo_client,
                 _ORIGINAL_GET_DEMO_CLIENT,
             ),
-            index=_call_cli_override(
-                "_get_runtime_index",
-                _get_runtime_index,
-                _ORIGINAL_GET_RUNTIME_INDEX,
-                DEMO_PROFILE,
-                _call_cli_override(
-                    "_ensure_demo_runtime_config",
-                    _ensure_demo_runtime_config,
-                    _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
-                ),
-            ),
+            index=_demo_runtime_index_for_tui(),
             theme_name=selected_theme,
         )
     except Exception as exc:
@@ -658,17 +653,7 @@ def demo_cli_tui_command(
                 _get_demo_client,
                 _ORIGINAL_GET_DEMO_CLIENT,
             ),
-            index=_call_cli_override(
-                "_get_runtime_index",
-                _get_runtime_index,
-                _ORIGINAL_GET_RUNTIME_INDEX,
-                DEMO_PROFILE,
-                _call_cli_override(
-                    "_ensure_demo_runtime_config",
-                    _ensure_demo_runtime_config,
-                    _ORIGINAL_ENSURE_DEMO_RUNTIME_CONFIG,
-                ),
-            ),
+            index=_demo_runtime_index_for_tui(),
             theme_name=selected_theme,
             demo_mode=True,
         )
