@@ -501,6 +501,16 @@ def test_demo_cli_tui_command_uses_demo_profile(monkeypatch) -> None:
     monkeypatch.setattr(cli, "_get_demo_client", lambda: object())
     monkeypatch.setattr(cli, "_get_runtime_index", lambda *args, **kwargs: object())
 
+    def _fail_prompt(*args, **kwargs):
+        raise AssertionError("demo profile prompt should not run with patched factories")
+
+    monkeypatch.setattr(cli.typer, "prompt", _fail_prompt)
+
+    import netbox_cli.demo as demo_module
+
+    monkeypatch.setattr(demo_module, "_ensure_demo_runtime_config", _fail_prompt)
+    monkeypatch.setattr(cli, "_ensure_demo_runtime_config", _fail_prompt)
+
     def _fake_run_cli_tui(*, client, index, theme_name=None, demo_mode=False):
         called["client"] = client
         called["index"] = index
