@@ -3921,7 +3921,7 @@
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">schema_index</span><span class="o">.</span><span class="n">add_discovered_resource</span><span class="p">(</span><span class="n">group_resource</span><span class="p">,</span> <span class="n">paths_obj</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="versioned-bundled-schemas">Versioned Bundled Schemas<a class="headerlink" href="#versioned-bundled-schemas" title="Permanent link">&para;</a></h3>
-<p>Five OpenAPI schemas ship with the package under <code>netbox_sdk/reference/openapi/</code>:</p>
+<p>Versioned OpenAPI schemas ship with the package under <code>netbox_sdk/reference/openapi/</code>. <code>load_openapi_schema()</code> defaults to the NetBox 4.6 schema unless a supported release line is supplied explicitly.</p>
 <table>
 <thead>
 <tr>
@@ -3932,7 +3932,7 @@
 <tbody>
 <tr>
 <td><code>netbox-openapi.json</code></td>
-<td>Default (latest)</td>
+<td>Legacy compatibility alias</td>
 </tr>
 <tr>
 <td><code>netbox-openapi-4.6.json</code></td>
