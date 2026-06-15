@@ -136,6 +136,17 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 
 **Filter discovery**: `filters` is a synthetic local action that calls `SchemaIndex.filter_params()` and prints the available query parameters without making an HTTP request.
 
+**Plugin auto-discovery** (`netbox_sdk/plugin_discovery.py`): when `dynamic.py` is asked to act on a `group/resource` pair that is absent from the bundled schema (`index.resource_paths(group, resource) is None`), it lazily calls `enrich_schema_index_with_runtime_resources(index, client)`. That function does a BFS walk starting at `GET /api/plugins/` and follows every URL found in API root responses, collecting collection and detail path pairs into the live `SchemaIndex`. Any installed NetBox plugin that exposes a `NetBoxRouter` root is therefore automatically reachable via `nbx plugins <plugin> <resource> <action>` — no CLI rebuild or SDK configuration required.
+
+Plugin auto-discovery also runs unconditionally in `runtime.py::_get_enriched_index()`, which is used when the CLI needs a fully populated index without a prior resource-miss trigger.
+
+**What a plugin needs to be auto-discovered:**
+1. Register a `NetBoxRouter` with `APIRootView` in its `api/urls.py`.
+2. Return a JSON dict of collection URLs from `GET /api/plugins/<plugin>/`.
+3. Each collection URL must serve a paginated `{"count": …, "results": […]}` response.
+
+Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are discovered through the same BFS as long as the plugin root links to the sub-namespace root, which `NetBoxRouter` includes automatically. `netbox-proxbox` satisfies all three requirements across all 29 of its ViewSets.
+
 ## Core Rules
 
 - SDK code in `netbox_sdk/` must not import `netbox_cli` or `netbox_tui`.
