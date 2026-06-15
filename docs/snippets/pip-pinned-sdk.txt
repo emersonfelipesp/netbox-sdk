@@ -1,1 +1,1 @@
-pip install netbox-sdk==0.0.10rc1
+pip install netbox-sdk==0.0.10
