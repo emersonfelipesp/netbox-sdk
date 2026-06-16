@@ -28,7 +28,7 @@ The SDK package itself exposes three layers:
 
 The current typed SDK release lines are NetBox `4.6`, `4.5`, `4.4`, and `4.3`.
 Continuous integration exercises the live-NetBox suite against
-`v4.6.2`, `v4.5.10`, and `v4.5.8`.
+`v4.6.3`, `v4.6.2`, and `v4.5.10`.
 
 --8<-- "snippets/documented-release-en.md"
 
