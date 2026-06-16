@@ -56,7 +56,7 @@ uv run mkdocs build --strict
   - detects whether a change affects `netbox_sdk`, `netbox_cli`, `netbox_tui`, or shared repo-wide validation inputs
   - runs `suite_sdk`, `suite_cli`, or `suite_tui` on Python 3.11, 3.12, and 3.13 for branch/PR changes
   - escalates to a full `pytest` matrix when shared files change or when the push targets `main`
-  - adds the `mock` extra for mock API coverage and runs live NetBox tests on `main` against `v4.6.2`, `v4.5.10`, and `v4.5.8`
+  - adds the `mock` extra for mock API coverage and runs live NetBox tests on `main` against `v4.6.3`, `v4.6.2`, and `v4.5.10`
 - `workflows/security.yml`
   - path-routes SDK, CLI, and TUI security tests
   - runs the relevant `tests/test_security_*.py` module on Python 3.11, 3.12, and 3.13

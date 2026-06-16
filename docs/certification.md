@@ -22,7 +22,7 @@ tests, documentation, supportability, and maintainability.
 | Package metadata | `pyproject.toml` declares project URLs, Python range, SPDX license, license files, entry points, optional extras, and package data |
 | Python support | Python 3.11, 3.12, and 3.13 |
 | NetBox compatibility | Typed SDK release lines for NetBox `4.6`, `4.5`, `4.4`, and `4.3` |
-| Live NetBox validation | CI runs live SDK tests against NetBox `v4.6.2`, `v4.5.10`, and `v4.5.8` |
+| Live NetBox validation | CI runs live SDK tests against NetBox `v4.6.3`, `v4.6.2`, and `v4.5.10` |
 | Offline validation | Mock NetBox API, typed-client tests, schema tests, SDK/CLI/TUI suites, and security tests |
 | Package validation | Build, `twine check`, and wheel install/import smoke tests in CI |
 | Documentation | README plus MkDocs site covering install, auth, requests, typed SDK, schema, errors, branching, mock API, CLI, and TUI |
@@ -32,7 +32,7 @@ tests, documentation, supportability, and maintainability.
 
 | `netbox-sdk` release | Python | Typed NetBox API lines | Live CI NetBox targets |
 | --- | --- | --- | --- |
-| `0.0.9.post2` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.2`, `v4.5.10`, `v4.5.8` |
+| `0.0.9.post2` | `>=3.11,<3.14` | `4.6`, `4.5`, `4.4`, `4.3` | `v4.6.3`, `v4.6.2`, `v4.5.10` |
 
 Patch releases normalize to their release line for the typed SDK. For example,
 `4.6.2` uses the committed `4.6` typed client.

@@ -228,7 +228,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        netbox-version: ["v4.5.8", "v4.5.10", "v4.6.2"]
+        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3"]
     # Only postgres and redis as service containers — netbox is started
     # manually in a step so postgres is healthy before netbox connects.
     services:

@@ -111,7 +111,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 - Branch and pull request CI routes to the affected package suites based on changed files.
 - Shared files such as `pyproject.toml`, `uv.lock`, `tests/conftest.py`, and test workflow definitions trigger the full suite instead of package-selective runs.
 - Direct pushes to `main` always run the full `uv run pytest` matrix.
-- Direct pushes to `main` also run live NetBox SDK integration tests against `v4.6.2`, `v4.5.10`, and `v4.5.8`.
+- Direct pushes to `main` also run live NetBox SDK integration tests against `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 - Security CI path-routes `test_security_sdk.py`, `test_security_cli.py`, and `test_security_tui.py`.
 - Release validation always runs the full `uv run pytest` matrix before publish.
 
