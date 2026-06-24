@@ -2825,6 +2825,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#descoberta-de-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Descoberta de Plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#esquemas-embutidos-por-versao" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3375,6 +3386,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#descoberta-de-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Descoberta de Plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#esquemas-embutidos-por-versao" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3781,6 +3803,23 @@
 </span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    OPS --&gt; OPFOR
 </span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    RPATHS --&gt; FILTER
 </span></code></pre></div>
+<h3 id="descoberta-de-plugins">Descoberta de Plugins<a class="headerlink" href="#descoberta-de-plugins" title="Permanent link">&para;</a></h3>
+<p><code>enrich_schema_index_with_runtime_resources()</code> é a chamada de alto nível preferida: percorre o endpoint <code>/api/plugins/</code> ao vivo, analisa cada caminho descoberto e chama <code>add_discovered_resource()</code> no índice fornecido. Retorna <code>True</code> se o índice foi alterado.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk.plugin_discovery</span><span class="w"> </span><span class="kn">import</span> <span class="n">enrich_schema_index_with_runtime_resources</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">changed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">enrich_schema_index_with_runtime_resources</span><span class="p">(</span><span class="n">schema_index</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># True quando pelo menos um novo recurso foi registrado</span>
+</span></code></pre></div>
+<p>Para controle de mais baixo nível, <code>discover_plugin_resource_paths()</code> retorna uma lista de tuplas <code>(list_path, detail_path)</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk.plugin_discovery</span><span class="w"> </span><span class="kn">import</span> <span class="n">discover_plugin_resource_paths</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">paths</span> <span class="o">=</span> <span class="k">await</span> <span class="n">discover_plugin_resource_paths</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># [(&quot;/api/plugins/gpon/olts/&quot;, &quot;/api/plugins/gpon/olts/{id}/&quot;), ...]</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">for</span> <span class="n">list_path</span><span class="p">,</span> <span class="n">detail_path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="c1"># analise grupo/recurso a partir de list_path e chame add_discovered_resource manualmente</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="o">...</span>
+</span></code></pre></div>
 <h3 id="esquemas-embutidos-por-versao">Esquemas embutidos por versão<a class="headerlink" href="#esquemas-embutidos-por-versao" title="Permanent link">&para;</a></h3>
 <p>Esquemas OpenAPI versionados são fornecidos com o pacote em <code>netbox_sdk/reference/openapi/</code>. <code>load_openapi_schema()</code> usa o esquema NetBox 4.6 por padrão, a menos que uma linha de release suportada seja fornecida explicitamente.</p>
 <table>
@@ -3816,89 +3855,89 @@
 <hr />
 <h2 id="hierarquia-de-objetos-da-fachada">Hierarquia de objetos da fachada<a class="headerlink" href="#hierarquia-de-objetos-da-fachada" title="Permanent link">&para;</a></h2>
 <p><code>netbox_sdk/facade.py</code> fornece uma API async compatível com PyNetBox. A função <code>api()</code> constrói o objeto <code>Api</code> raiz; acessos de atributo subsequentes criam <code>App</code> → <code>Endpoint</code> → <code>Record</code> / <code>RecordSet</code>.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>flowchart TB
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    APIFN[&quot;api(url, token)\nfunção factory&quot;]
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    API[&quot;Api\n.client · .schema · .dcim · .ipam · …&quot;]
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    APP[&quot;App(&#39;dcim&#39;)\n__getattr__ → Endpoint&quot;]
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    ENDPOINT[&quot;Endpoint(&#39;devices&#39;)\n.all() · .filter() · .get() · .create()&quot;]
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    RECORDSET[&quot;RecordSet\niterador async · paginação automática&quot;]
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    RECORD[&quot;Record\nacesso por atributo · rastreamento dirty\n.save() · .delete()&quot;]
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    APIFN --&gt; API
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    API --&gt;|&quot;.dcim&quot;| APP
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    APP --&gt;|&quot;.devices&quot;| ENDPOINT
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    ENDPOINT --&gt;|&quot;.all()&quot;| RECORDSET
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    RECORDSET --&gt;|&quot;async for item in …&quot;| RECORD
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    ENDPOINT --&gt;|&quot;.get(id)&quot;| RECORD
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    ENDPOINT --&gt;|&quot;.create(payload)&quot;| RECORD
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>flowchart TB
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    APIFN[&quot;api(url, token)\nfunção factory&quot;]
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    API[&quot;Api\n.client · .schema · .dcim · .ipam · …&quot;]
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    APP[&quot;App(&#39;dcim&#39;)\n__getattr__ → Endpoint&quot;]
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    ENDPOINT[&quot;Endpoint(&#39;devices&#39;)\n.all() · .filter() · .get() · .create()&quot;]
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    RECORDSET[&quot;RecordSet\niterador async · paginação automática&quot;]
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    RECORD[&quot;Record\nacesso por atributo · rastreamento dirty\n.save() · .delete()&quot;]
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    APIFN --&gt; API
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    API --&gt;|&quot;.dcim&quot;| APP
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    APP --&gt;|&quot;.devices&quot;| ENDPOINT
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    ENDPOINT --&gt;|&quot;.all()&quot;| RECORDSET
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    RECORDSET --&gt;|&quot;async for item in …&quot;| RECORD
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    ENDPOINT --&gt;|&quot;.get(id)&quot;| RECORD
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    ENDPOINT --&gt;|&quot;.create(payload)&quot;| RECORD
 </span></code></pre></div>
 <h3 id="operacoes-crud">Operações CRUD<a class="headerlink" href="#operacoes-crud" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><span class="filename">netbox_sdk/facade.py (uso)</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># Listar todos — iteração async com paginação automática</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">async</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">device</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Filtrar com parâmetros de query</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">records</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="s2">&quot;nyc-dc1&quot;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;active&quot;</span><span class="p">)</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">async</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="c1"># Obter por ID</span>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
-</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="c1"># Criar</span>
-</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">tag</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;proxmox&quot;</span><span class="p">,</span>
-</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    <span class="s2">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;proxmox&quot;</span><span class="p">,</span>
-</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;ff5722&quot;</span><span class="p">,</span>
-</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="p">})</span>
+<div class="language-python highlight"><span class="filename">netbox_sdk/facade.py (uso)</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># Listar todos — iteração async com paginação automática</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="k">async</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">device</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Filtrar com parâmetros de query</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">records</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="s2">&quot;nyc-dc1&quot;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;active&quot;</span><span class="p">)</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="k">async</span> <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1"># Obter por ID</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="c1"># Criar</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">tag</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;proxmox&quot;</span><span class="p">,</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="s2">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;proxmox&quot;</span><span class="p">,</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;ff5722&quot;</span><span class="p">,</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="p">})</span>
 </span></code></pre></div>
 <h3 id="rastreamento-dirty-em-record">Rastreamento dirty em Record<a class="headerlink" href="#rastreamento-dirty-em-record" title="Permanent link">&para;</a></h3>
 <p><code>Record</code> captura um snapshot dos valores de campo na criação. Mutar um campo o adiciona a um dict <code>_updates</code>; chamar <code>.save()</code> envia apenas os campos alterados como PATCH:</p>
-<div class="language-python highlight"><span class="filename">netbox_sdk/facade.py (uso)</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">device</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;offline&quot;</span>          <span class="c1"># marca &quot;status&quot; como dirty</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">device</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;decommissioned&quot;</span> <span class="c1"># marca &quot;comments&quot; como dirty</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>                 <span class="c1"># PATCH {status, comments} apenas</span>
+<div class="language-python highlight"><span class="filename">netbox_sdk/facade.py (uso)</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">device</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;offline&quot;</span>          <span class="c1"># marca &quot;status&quot; como dirty</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">device</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;decommissioned&quot;</span> <span class="c1"># marca &quot;comments&quot; como dirty</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>                 <span class="c1"># PATCH {status, comments} apenas</span>
 </span></code></pre></div>
 <hr />
 <h2 id="api-tipada-clientes-por-versao">API Tipada (Clientes por versão)<a class="headerlink" href="#api-tipada-clientes-por-versao" title="Permanent link">&para;</a></h2>
 <p><code>typed_api()</code> em <code>netbox_sdk/typed_api.py</code> retorna um cliente tipado por versão, respaldado por modelos Pydantic gerados para completação completa em IDE e validação em runtime.</p>
-<div class="language-python highlight"><span class="filename">Uso</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">typed_api</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">typed_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.5&quot;</span><span class="p">)</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1"># Validação Pydantic completa em request e response</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">device</span><span class="o">.</span><span class="n">name</span>    <span class="c1"># str — a IDE conhece o tipo</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">device</span><span class="o">.</span><span class="n">status</span>  <span class="c1"># enum DeviceStatus</span>
+<div class="language-python highlight"><span class="filename">Uso</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">typed_api</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">typed_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.5&quot;</span><span class="p">)</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># Validação Pydantic completa em request e response</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">device</span><span class="o">.</span><span class="n">name</span>    <span class="c1"># str — a IDE conhece o tipo</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">device</span><span class="o">.</span><span class="n">status</span>  <span class="c1"># enum DeviceStatus</span>
 </span></code></pre></div>
 <hr />
 <h2 id="cache-http">Cache HTTP<a class="headerlink" href="#cache-http" title="Permanent link">&para;</a></h2>
 <p><code>HttpCacheStore</code> em <code>netbox_sdk/http_cache.py</code> fornece um cache JSON baseado em disco armazenado em <code>~/.config/netbox-sdk/http-cache/</code>.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>flowchart TD
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    REQ[&quot;Requisição GET entrante&quot;]
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    KEY[&quot;build_cache_key()\nSHA-256 de base_url + método + caminho + query + fingerprint do token&quot;]
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    LOAD[&quot;HttpCacheStore.load(key)&quot;]
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    FRESH{&quot;Entrada existe\ne está fresca?&quot;}
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    STALE{&quot;Entrada existe\nmas expirada?&quot;}
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    COND[&quot;Adicionar If-None-Match /\nIf-Modified-Since&quot;]
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    HTTP[&quot;Fazer requisição HTTP&quot;]
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    STATUS{&quot;Status da resposta&quot;}
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    S304[&quot;304 Not Modified\n→ atualizar timestamps&quot;]
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    S2XX[&quot;2xx → salvar nova entrada&quot;]
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    S5XX[&quot;Erro 5xx\n→ servir expirado se dentro de\nstale_if_error_until&quot;]
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    RETURN[&quot;Retornar ApiResponse\n(cabeçalho X-NBX-Cache)&quot;]
-</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
-</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    REQ --&gt; KEY --&gt; LOAD --&gt; FRESH
-</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>    FRESH --&gt;|Sim| RETURN
-</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    FRESH --&gt;|Não| STALE
-</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    STALE --&gt;|Sim| COND --&gt; HTTP
-</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>    STALE --&gt;|Não| HTTP
-</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    HTTP --&gt; STATUS
-</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>    STATUS --&gt; S304 --&gt; RETURN
-</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>    STATUS --&gt; S2XX --&gt; RETURN
-</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>    STATUS --&gt; S5XX --&gt; RETURN
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>flowchart TD
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    REQ[&quot;Requisição GET entrante&quot;]
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    KEY[&quot;build_cache_key()\nSHA-256 de base_url + método + caminho + query + fingerprint do token&quot;]
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    LOAD[&quot;HttpCacheStore.load(key)&quot;]
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    FRESH{&quot;Entrada existe\ne está fresca?&quot;}
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    STALE{&quot;Entrada existe\nmas expirada?&quot;}
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    COND[&quot;Adicionar If-None-Match /\nIf-Modified-Since&quot;]
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    HTTP[&quot;Fazer requisição HTTP&quot;]
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    STATUS{&quot;Status da resposta&quot;}
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    S304[&quot;304 Not Modified\n→ atualizar timestamps&quot;]
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    S2XX[&quot;2xx → salvar nova entrada&quot;]
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    S5XX[&quot;Erro 5xx\n→ servir expirado se dentro de\nstale_if_error_until&quot;]
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>    RETURN[&quot;Retornar ApiResponse\n(cabeçalho X-NBX-Cache)&quot;]
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    REQ --&gt; KEY --&gt; LOAD --&gt; FRESH
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    FRESH --&gt;|Sim| RETURN
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    FRESH --&gt;|Não| STALE
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    STALE --&gt;|Sim| COND --&gt; HTTP
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>    STALE --&gt;|Não| HTTP
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>    HTTP --&gt; STATUS
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>    STATUS --&gt; S304 --&gt; RETURN
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>    STATUS --&gt; S2XX --&gt; RETURN
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>    STATUS --&gt; S5XX --&gt; RETURN
 </span></code></pre></div>
 <h3 id="politicas-de-cache">Políticas de cache<a class="headerlink" href="#politicas-de-cache" title="Permanent link">&para;</a></h3>
 <table>
@@ -3979,11 +4018,11 @@
 </table>
 <h3 id="resolve_dynamic_request">resolve_dynamic_request()<a class="headerlink" href="#resolve_dynamic_request" title="Permanent link">&para;</a></h3>
 <p>Recebe uma tupla <code>(grupo, recurso, ação, id, query_params, payload)</code> e retorna um <code>ResolvedRequest(método, caminho, query, payload)</code>:</p>
-<div class="language-python highlight"><span class="filename">netbox_sdk/services.py</span><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ResolvedRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+<div class="language-python highlight"><span class="filename">netbox_sdk/services.py</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ResolvedRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
 </span></code></pre></div>
 <h3 id="run_dynamic_command">run_dynamic_command()<a class="headerlink" href="#run_dynamic_command" title="Permanent link">&para;</a></h3>
 <p>Combina <code>resolve_dynamic_request()</code> com um <code>NetBoxApiClient</code> para executar a requisição completa de ponta a ponta. Usado por <code>netbox_cli/dynamic.py</code> para alimentar todos os comandos <code>nbx &lt;grupo&gt; &lt;recurso&gt; &lt;ação&gt;</code> gerados na inicialização a partir do esquema OpenAPI.</p>
