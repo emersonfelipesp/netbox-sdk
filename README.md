@@ -74,6 +74,12 @@ TUI:
 pip install 'netbox-sdk[tui]'
 ```
 
+OpenTelemetry tracing:
+
+```bash
+pip install 'netbox-sdk[otel]'
+```
+
 Everything:
 
 ```bash
@@ -162,10 +168,39 @@ Base SDK installs depend on `aiohttp`, `pydantic`, `email-validator`, `rich`, an
 - `demo`: Playwright-powered demo setup automation
 - `branching`: semantic marker for NetBox Branching workflows; no extra runtime
   dependency is required today
+- `otel`: OpenTelemetry API, SDK, and OTLP HTTP/protobuf exporter for opt-in
+  request tracing
 
 External services are optional at runtime. The Python SDK can target any NetBox
 instance reachable over HTTPS/HTTP, and the local mock API can be used for
 offline tests.
+
+## OpenTelemetry Request Tracing
+
+Tracing is disabled by default. Install the `otel` extra and enable it with
+`NETBOX_OTEL_ENABLED=true` or `Config(otel_enabled=True)` to emit one
+OpenTelemetry CLIENT span for each `NetBoxApiClient.request()` call. Spans use
+HTTP-client semantic attributes for method, server address, URL path, and final
+response status; authorization headers, tokens, and query strings are never added
+as span attributes.
+
+The SDK uses an existing global OpenTelemetry provider when the host application
+has configured one. Otherwise, when tracing is explicitly enabled, it installs a
+provider with a BatchSpanProcessor and the OTLP HTTP/protobuf exporter. Collector
+endpoint, headers, service name, resource attributes, sampler, and exporter
+selection are controlled by the standard OpenTelemetry environment variables.
+
+| Variable | Purpose |
+| --- | --- |
+| `NETBOX_OTEL_ENABLED` | SDK-specific opt-in toggle (`true`/`false`) |
+| `OTEL_SDK_DISABLED` | Standard OpenTelemetry kill switch; disables SDK tracing when true |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint for the HTTP exporter |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | Must be `http/protobuf` for the bundled HTTP exporter |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Standard OTLP exporter headers |
+| `OTEL_SERVICE_NAME` | Service name, defaulting to `netbox-sdk` |
+| `OTEL_RESOURCE_ATTRIBUTES` | Additional OpenTelemetry resource attributes |
+| `OTEL_TRACES_SAMPLER` | Standard OpenTelemetry sampler selection |
+| `OTEL_TRACES_EXPORTER` | Use `otlp` or `none` for the SDK-installed provider |
 
 ## netbox-sdk vs pynetbox
 

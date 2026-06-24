@@ -28,6 +28,7 @@ netbox_sdk/
 ├── decorators.py
 ├── http_cache.py
 ├── http_ssl.py
+├── telemetry.py
 ├── schema.py
 ├── services.py
 ├── plugin_discovery.py
@@ -61,6 +62,7 @@ netbox_sdk/
 - `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
 - `netbox_sdk.http_cache` — filesystem cache primitives
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
+- `netbox_sdk.telemetry` — optional OpenTelemetry request tracing with lazy guarded imports
 - `netbox_sdk.schema` — OpenAPI loading and indexing; `load_openapi_schema()` / `build_schema_index()` default to the bundled NetBox 4.6 schema and accept supported release lines such as `version="4.5"`; `SchemaIndex.filter_params(group, resource)` returns a sorted `list[FilterParam]` of filterable query parameters for the list endpoint (excludes pagination params including `limit`, `offset`, `start`, `format`, plus lookup-suffix variants such as `__ic`, `__n`; puts `q` first); `FilterParam` is a frozen Pydantic model with `.name`, `.label`, `.type` (`string|integer|boolean|enum|array`), `.choices` (non-empty only for enum), and `.description`
 - `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value` forms; `ACTION_METHOD_MAP` includes bulk ops (`bulk-update`, `bulk-patch`, `bulk-delete`); `list_all_pages` follows NetBox pagination `next` links and returns a synthesised single-page response while preserving repeated `next` query params
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
@@ -79,3 +81,13 @@ netbox_sdk/
 - Use `logging.getLogger(__name__)` per module. Do not log secrets (tokens, passwords, full `Authorization` headers, or response bodies that may contain credentials).
 - Prefer structured `extra` keys for machine-readable logs: `nbx_event` (short stable name), `request_path`, `http_method`, `http_status`, `profile`, `path` (filesystem), etc.
 - **INFO**: one-line lifecycle (config save, request completed, logging init). **DEBUG**: cache/schema/plugin discovery detail, parse failures that are handled. **WARNING**: unreadable config, TLS verification disabled. **ERROR/exception**: unexpected failures with traceback when appropriate.
+
+## Telemetry policy
+
+- OpenTelemetry request tracing must stay disabled by default and must not import
+  `opentelemetry.*` unless tracing is enabled.
+- Spans may include HTTP method, host, path, response status, and SDK cache
+  status. Never add tokens, `Authorization` headers, credentials, full URLs with
+  query strings, or request/response bodies to spans or logs.
+- Use a host application's global tracer provider when one exists; only
+  `netbox_sdk.telemetry` may install the SDK fallback provider.

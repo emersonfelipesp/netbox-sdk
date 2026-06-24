@@ -36,6 +36,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── exceptions.py
     ├── http_cache.py
     ├── http_ssl.py
+    ├── telemetry.py
     ├── mock_main.py
     ├── schema.py
     ├── services.py
@@ -155,6 +156,9 @@ Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are disco
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
+- OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
+  all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works
+  without the `otel` extra.
 - Bundled typed and OpenAPI support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; CLI defaults to 4.6 and can be pinned to 4.5/4.6 via `--netbox-version` or `NETBOX_SDK_NETBOX_VERSION`. The CI live-NetBox suite exercises `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.

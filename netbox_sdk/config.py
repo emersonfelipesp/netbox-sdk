@@ -40,6 +40,7 @@ BASE_URL_ENV_VAR = "NETBOX_URL"
 DEMO_USERNAME_ENV_VAR = "DEMO_USERNAME"
 DEMO_PASSWORD_ENV_VAR = "DEMO_PASSWORD"
 SSL_VERIFY_ENV_VAR = "NETBOX_SSL_VERIFY"
+OTEL_ENABLED_ENV_VAR = "NETBOX_OTEL_ENABLED"
 DEFAULT_PROFILE = "default"
 DEMO_PROFILE = "demo"
 DEMO_BASE_URL = "https://demo.netbox.dev"
@@ -54,6 +55,7 @@ class Config(BaseModel):
     demo_password: str | None = None
     timeout: float = DEFAULT_TIMEOUT
     ssl_verify: bool | None = None
+    otel_enabled: bool | None = None
 
     @field_validator("base_url", mode="before")
     @classmethod
@@ -92,7 +94,7 @@ class Config(BaseModel):
         except (TypeError, ValueError):
             return DEFAULT_TIMEOUT
 
-    @field_validator("ssl_verify", mode="before")
+    @field_validator("ssl_verify", "otel_enabled", mode="before")
     @classmethod
     def _coerce_optional_bool(cls, v: object) -> bool | None:
         if v is None or v == "":
@@ -205,6 +207,18 @@ def _parse_ssl_verify_env() -> bool | None:
     return None
 
 
+def _parse_otel_enabled_env() -> bool | None:
+    raw = os.environ.get(OTEL_ENABLED_ENV_VAR)
+    if raw is None:
+        return None
+    s = str(raw).strip().lower()
+    if s in ("1", "true", "yes", "on"):
+        return True
+    if s in ("0", "false", "no", "off"):
+        return False
+    return None
+
+
 def _load_raw_document() -> dict[str, object]:
     path = config_path()
     if not path.exists():
@@ -256,6 +270,9 @@ def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
         env_ssl = _parse_ssl_verify_env()
         if env_ssl is not None:
             raw["ssl_verify"] = env_ssl
+        env_otel = _parse_otel_enabled_env()
+        if env_otel is not None:
+            raw["otel_enabled"] = env_otel
     return Config.model_validate(raw)
 
 
@@ -299,6 +316,7 @@ def save_profile_config(profile: str, cfg: Config) -> None:
                 "token_secret": stored.get("token_secret"),
                 "timeout": stored.get("timeout") or DEFAULT_TIMEOUT,
                 "ssl_verify": stored.get("ssl_verify"),
+                "otel_enabled": stored.get("otel_enabled"),
             }
         }
     else:

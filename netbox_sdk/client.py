@@ -41,6 +41,7 @@ from netbox_sdk.http_cache import (
     build_cache_key,
 )
 from netbox_sdk.http_ssl import connector_for_config
+from netbox_sdk.telemetry import client_request_span, server_address_from_url
 
 if TYPE_CHECKING:
     import aiohttp
@@ -257,6 +258,34 @@ class NetBoxApiClient:
         return normalized
 
     async def request(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | list[Any] | None = None,
+        headers: dict[str, str] | None = None,
+        expect_json: bool = True,
+    ) -> ApiResponse:
+        with client_request_span(
+            self.config,
+            method,
+            path,
+            server_address_from_url(self.config.base_url),
+        ) as span:
+            response = await self._request_impl(
+                method=method,
+                path=path,
+                query=query,
+                payload=payload,
+                headers=headers,
+                expect_json=expect_json,
+            )
+            span.set_response_status(response.status)
+            span.set_cache_status(response.headers.get("X-NBX-Cache"))
+            return response
+
+    async def _request_impl(
         self,
         method: str,
         path: str,
