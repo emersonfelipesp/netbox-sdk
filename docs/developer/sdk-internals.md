@@ -175,14 +175,26 @@ flowchart LR
 
 ### Plugin Discovery
 
-`discover_plugin_resource_paths()` in `netbox_sdk/plugin_discovery.py` walks the live `/api/plugins/` endpoint to find non-schema plugin routes and augments the active `SchemaIndex` at runtime:
+`enrich_schema_index_with_runtime_resources()` is the preferred high-level call: it walks the live `/api/plugins/` endpoint, parses each discovered path, and calls `add_discovered_resource()` on the supplied index. It returns `True` if the index changed.
+
+```python
+from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
+
+changed = await enrich_schema_index_with_runtime_resources(schema_index, client)
+# True when at least one new resource was registered
+```
+
+For lower-level control, `discover_plugin_resource_paths()` returns a list of `(list_path, detail_path)` tuples:
 
 ```python
 from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
 
 paths = await discover_plugin_resource_paths(client)
-for group_resource, paths_obj in paths.items():
-    schema_index.add_discovered_resource(group_resource, paths_obj)
+# [("/api/plugins/gpon/olts/", "/api/plugins/gpon/olts/{id}/"), ...]
+
+for list_path, detail_path in paths:
+    # parse group/resource from list_path and call add_discovered_resource manually
+    ...
 ```
 
 ### Versioned Bundled Schemas

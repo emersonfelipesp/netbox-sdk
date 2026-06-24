@@ -161,6 +161,30 @@ flowchart LR
     RPATHS --> FILTER
 ```
 
+### Descoberta de Plugins
+
+`enrich_schema_index_with_runtime_resources()` é a chamada de alto nível preferida: percorre o endpoint `/api/plugins/` ao vivo, analisa cada caminho descoberto e chama `add_discovered_resource()` no índice fornecido. Retorna `True` se o índice foi alterado.
+
+```python
+from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
+
+changed = await enrich_schema_index_with_runtime_resources(schema_index, client)
+# True quando pelo menos um novo recurso foi registrado
+```
+
+Para controle de mais baixo nível, `discover_plugin_resource_paths()` retorna uma lista de tuplas `(list_path, detail_path)`:
+
+```python
+from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
+
+paths = await discover_plugin_resource_paths(client)
+# [("/api/plugins/gpon/olts/", "/api/plugins/gpon/olts/{id}/"), ...]
+
+for list_path, detail_path in paths:
+    # analise grupo/recurso a partir de list_path e chame add_discovered_resource manualmente
+    ...
+```
+
 ### Esquemas embutidos por versão
 
 Esquemas OpenAPI versionados são fornecidos com o pacote em `netbox_sdk/reference/openapi/`. `load_openapi_schema()` usa o esquema NetBox 4.6 por padrão, a menos que uma linha de release suportada seja fornecida explicitamente.

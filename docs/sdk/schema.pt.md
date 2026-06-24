@@ -139,6 +139,18 @@ Retorna `True` se o índice mudou, `False` se já estava registrado identicament
 
 ### Descoberta ao vivo
 
+A API preferida é `enrich_schema_index_with_runtime_resources()`. Ela percorre `/api/plugins/`, analisa cada caminho descoberto e registra todos os novos recursos no índice em uma única chamada:
+
+```python
+from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
+
+idx = build_schema_index()
+changed = await enrich_schema_index_with_runtime_resources(idx, client)
+# changed é True quando pelo menos um novo recurso foi adicionado
+```
+
+Para controle de mais baixo nível, `discover_plugin_resource_paths()` retorna uma lista de tuplas `(list_path, detail_path)`:
+
 ```python
 from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
 

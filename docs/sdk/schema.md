@@ -139,6 +139,18 @@ Returns `True` if the index changed, `False` if already registered identically.
 
 ### Live discovery
 
+The preferred API is `enrich_schema_index_with_runtime_resources()`. It walks `/api/plugins/`, parses each discovered path, and registers all new resources into the provided index in one call:
+
+```python
+from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
+
+idx = build_schema_index()
+changed = await enrich_schema_index_with_runtime_resources(idx, client)
+# changed is True when at least one new resource was added
+```
+
+For lower-level control you can use `discover_plugin_resource_paths()`, which returns a list of `(list_path, detail_path)` tuples:
+
 ```python
 from netbox_sdk.plugin_discovery import discover_plugin_resource_paths
 
