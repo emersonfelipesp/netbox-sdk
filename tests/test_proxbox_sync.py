@@ -184,10 +184,16 @@ class _FakeContent:
 
 
 class _FakeStreamResponse:
-    def __init__(self, status: int, chunks: list[bytes], text: str = "") -> None:
+    def __init__(
+        self,
+        status: int,
+        chunks: list[bytes],
+        text: str = "",
+        content_type: str = "text/event-stream",
+    ) -> None:
         self.status = status
         self.content = _FakeContent(chunks)
-        self.headers = {"Content-Type": "text/event-stream"}
+        self.headers = {"Content-Type": content_type}
         self._text = text
 
     async def __aenter__(self) -> _FakeStreamResponse:
@@ -257,3 +263,43 @@ async def test_stream_sse_raises_request_error_with_body(monkeypatch) -> None:
 
     assert excinfo.value.response.status == 403
     assert "permission denied" in excinfo.value.response.text
+
+
+async def test_stream_sse_rejects_non_event_stream_success(monkeypatch) -> None:
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com"))
+    session = _FakeSession(
+        _FakeStreamResponse(
+            200,
+            [b"<html>login</html>"],
+            text="<html>login</html>",
+            content_type="text/html; charset=utf-8",
+        )
+    )
+
+    async def _fake_get_session() -> _FakeSession:
+        return session
+
+    monkeypatch.setattr(client, "_get_session", _fake_get_session)
+
+    with pytest.raises(RequestError) as excinfo:
+        _ = [block async for block in client.stream_sse("GET", "/plugins/proxbox/jobs/42/stream/")]
+
+    assert excinfo.value.response.status == 200
+    assert "did not return an event stream" in excinfo.value.response.text
+    # Redirects must not be followed for a stream request.
+    assert session.request_kwargs["allow_redirects"] is False
+
+
+async def test_stream_sse_rejects_redirect(monkeypatch) -> None:
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com"))
+    session = _FakeSession(_FakeStreamResponse(302, [], text="", content_type="text/html"))
+
+    async def _fake_get_session() -> _FakeSession:
+        return session
+
+    monkeypatch.setattr(client, "_get_session", _fake_get_session)
+
+    with pytest.raises(RequestError) as excinfo:
+        _ = [block async for block in client.stream_sse("GET", "/plugins/proxbox/jobs/42/stream/")]
+
+    assert excinfo.value.response.status == 302

@@ -155,7 +155,10 @@ Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are disco
 `netbox_sdk.client.NetBoxApiClient.stream_sse()` is the transport-only primitive
 for long-running Server-Sent Event streams. It bypasses HTTP cache and token
 retry logic, keeps the aiohttp response context open while yielding raw SSE
-blocks, and is intentionally generic.
+blocks, and is intentionally generic. It does **not** follow redirects
+(`allow_redirects=False`) and raises `RequestError` on any `>=400`, any `3xx`, or
+any success whose `Content-Type` is not `text/event-stream`, so a non-SSE body
+(login/redirect/interstitial) can never be silently parsed as an empty stream.
 
 `netbox_sdk.proxbox_sync.ProxboxSyncClient` owns the netbox-proxbox contract:
 scheduling `POST /api/plugins/proxbox/sync/schedule/`, resolving Proxmox

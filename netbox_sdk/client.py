@@ -326,6 +326,9 @@ class NetBoxApiClient:
             json=payload,
             headers=req_headers,
             timeout=request_timeout,
+            # A redirect to a 200 HTML page (e.g. a login/interstitial) must not be
+            # followed and then parsed as SSE — surface it as an error instead.
+            allow_redirects=False,
         ) as response:
             if response.status >= 400:
                 text = await response.text()
@@ -334,6 +337,26 @@ class NetBoxApiClient:
                     ApiResponse(
                         status=response.status,
                         text=(f"SSE stream request failed with HTTP {response.status}: {snippet}"),
+                        headers=dict(response.headers),
+                    )
+                )
+
+            # Guard against a non-SSE success/redirect body being silently parsed
+            # as an empty event stream (which would yield no frames and no error).
+            # A 3xx (redirect, not followed above) or any 2xx whose Content-Type is
+            # not ``text/event-stream`` is a broken stream, not valid SSE.
+            content_type = response.headers.get("Content-Type", "")
+            if response.status >= 300 or "text/event-stream" not in content_type.lower():
+                text = await response.text()
+                snippet = text[:1000]
+                raise RequestError(
+                    ApiResponse(
+                        status=response.status,
+                        text=(
+                            "SSE stream request did not return an event stream "
+                            f"(HTTP {response.status}, Content-Type "
+                            f"{content_type or '<none>'!r}): {snippet}"
+                        ),
                         headers=dict(response.headers),
                     )
                 )
