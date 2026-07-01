@@ -34,6 +34,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── client.py
     ├── decorators.py
     ├── exceptions.py
+    ├── proxbox_sync.py
     ├── http_cache.py
     ├── http_ssl.py
     ├── telemetry.py
@@ -71,6 +72,7 @@ netbox_cli/   optional Typer layer
     ├── decorators.py reusable Typer decorator factories
     ├── runtime.py    config/index/client factories
     ├── dynamic.py    OpenAPI command registration/execution
+    ├── proxbox.py    netbox-proxbox sync job commands
     ├── support.py    shared CLI rendering/error helpers
     ├── demo.py       demo profile command tree
     ├── dev.py        dev command tree
@@ -147,6 +149,25 @@ Plugin auto-discovery also runs unconditionally in `runtime.py::_get_enriched_in
 3. Each collection URL must serve a paginated `{"count": …, "results": […]}` response.
 
 Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are discovered through the same BFS as long as the plugin root links to the sub-namespace root, which `NetBoxRouter` includes automatically. `netbox-proxbox` satisfies all three requirements across all 29 of its ViewSets.
+
+## Proxbox Sync Surface
+
+`netbox_sdk.client.NetBoxApiClient.stream_sse()` is the transport-only primitive
+for long-running Server-Sent Event streams. It bypasses HTTP cache and token
+retry logic, keeps the aiohttp response context open while yielding raw SSE
+blocks, and is intentionally generic.
+
+`netbox_sdk.proxbox_sync.ProxboxSyncClient` owns the netbox-proxbox contract:
+scheduling `POST /api/plugins/proxbox/sync/schedule/`, resolving Proxmox
+endpoint names through `/api/plugins/proxbox/endpoints/proxmox/`, parsing SSE
+blocks into `SseFrame`, streaming `/plugins/proxbox/jobs/{job_id}/stream/`, and
+fetching `/api/core/jobs/{job_id}/` after the stream for authoritative status
+and error log entries.
+
+`netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox sync` and
+`nbx proxbox sync-types`. Keep Rich rendering out of the SDK; final CLI results
+must merge streamed errors with post-stream Job `error` and error-level
+`log_entries` because server-side SSE throttling can drop granular errors.
 
 ## Core Rules
 

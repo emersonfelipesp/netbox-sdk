@@ -3,7 +3,7 @@
 `nbx` is the command-line interface for NetBox SDK. It shares configuration,
 schema discovery, and request logic with the Python SDK and the TUI layer.
 
-It supports four complementary interaction modes:
+It supports five complementary interaction modes:
 
 | Mode | Example | When to use |
 |------|---------|-------------|
@@ -11,6 +11,7 @@ It supports four complementary interaction modes:
 | **Explicit HTTP** | `nbx call GET /api/status/` | Custom paths, bulk API exploration |
 | **Discovery** | `nbx groups` / `nbx resources dcim` | Learning what's available |
 | **GraphQL** | `nbx graphql "{ sites { name } }"` | Cross-resource queries and schema experimentation |
+| **Plugin jobs** | `nbx proxbox sync -t storage` | Guided workflows for plugin job APIs |
 
 ---
 
@@ -25,6 +26,9 @@ nbx
 ├── ops GROUP RESOURCE      list operations for a resource
 ├── graphql                 execute GraphQL queries
 ├── call METHOD PATH        explicit HTTP request
+├── proxbox                 trigger and stream Proxbox sync jobs
+│   ├── sync                schedule sync job and stream progress
+│   └── sync-types          list available Proxbox sync types
 ├── tui                     launch the main Textual browser
 ├── logs                    show recent structured application logs
 ├── cli                     CLI-specific helpers

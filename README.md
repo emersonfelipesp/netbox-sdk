@@ -144,6 +144,11 @@ nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"colo
 nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
 nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
 
+# Proxbox plugin sync jobs
+nbx proxbox sync
+nbx proxbox sync pve-prod -t virtual-machines -t storage
+nbx proxbox sync-types
+
 # TUI and developer tools
 nbx tui
 nbx dev tui

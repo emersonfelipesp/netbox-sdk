@@ -16,7 +16,7 @@ import contextvars
 import json
 import logging
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, TypeAlias
@@ -284,6 +284,81 @@ class NetBoxApiClient:
             span.set_response_status(response.status)
             span.set_cache_status(response.headers.get("X-NBX-Cache"))
             return response
+
+    async def stream_sse(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | list[Any] | None = None,
+        headers: dict[str, str] | None = None,
+        timeout: float | None = None,
+    ) -> AsyncIterator[str]:
+        """Stream raw Server-Sent Event blocks from a NetBox-relative path.
+
+        This intentionally bypasses the normal request stack: streamed responses
+        cannot be cached or replayed for token fallback/retry behavior.
+        """
+        try:
+            import aiohttp
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "aiohttp is required for HTTP requests. Install project dependencies first."
+            ) from exc
+
+        authorization = authorization_header_value(self.config)
+        req_headers = dict(self.persistent_headers)
+        scoped = _scoped_headers.get() or {}
+        req_headers.update(scoped)
+        req_headers.update(headers or {})
+        req_headers.setdefault("Accept", "text/event-stream")
+        if authorization:
+            req_headers["Authorization"] = authorization
+
+        stream_timeout = 7200.0 if timeout is None else timeout
+        request_timeout = aiohttp.ClientTimeout(total=stream_timeout, sock_read=None)
+        session = await self._get_session()
+        async with session.request(
+            method=method.upper(),
+            url=self.build_url(path),
+            params=query,
+            json=payload,
+            headers=req_headers,
+            timeout=request_timeout,
+        ) as response:
+            if response.status >= 400:
+                text = await response.text()
+                snippet = text[:1000]
+                raise RequestError(
+                    ApiResponse(
+                        status=response.status,
+                        text=(f"SSE stream request failed with HTTP {response.status}: {snippet}"),
+                        headers=dict(response.headers),
+                    )
+                )
+
+            buffer = ""
+            async for raw in response.content:
+                buffer += raw.decode("utf-8", errors="replace")
+                while True:
+                    block, buffer = self._pop_sse_block(buffer)
+                    if block is None:
+                        break
+                    if block.strip():
+                        yield block
+            if buffer.strip():
+                yield buffer
+
+    @staticmethod
+    def _pop_sse_block(buffer: str) -> tuple[str | None, str]:
+        candidates = [
+            (idx, marker) for marker in ("\n\n", "\r\n\r\n") if (idx := buffer.find(marker)) >= 0
+        ]
+        if not candidates:
+            return None, buffer
+        index, marker = min(candidates, key=lambda item: item[0])
+        return buffer[:index], buffer[index + len(marker) :]
 
     async def _request_impl(
         self,

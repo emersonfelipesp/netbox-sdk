@@ -44,6 +44,12 @@ __all__ = [
     "BranchConflictError",
     "BranchingPluginUnavailableError",
     "BranchJobTimeoutError",
+    "ProxboxSyncClient",
+    "ProxboxSyncError",
+    "ScheduleResult",
+    "SseFrame",
+    "SyncType",
+    "validate_sync_types",
     "typed_api",
     "SupportedNetBoxVersion",
     "SUPPORTED_NETBOX_VERSIONS",
@@ -136,6 +142,14 @@ from netbox_sdk.plugin_discovery import (
     discover_plugin_resources,
     discover_runtime_resources,
     enrich_schema_index_with_runtime_resources,
+)
+from netbox_sdk.proxbox_sync import (
+    ProxboxSyncClient,
+    ProxboxSyncError,
+    ScheduleResult,
+    SseFrame,
+    SyncType,
+    validate_sync_types,
 )
 from netbox_sdk.schema import (
     FilterParam,

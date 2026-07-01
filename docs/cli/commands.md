@@ -119,6 +119,51 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 
 ---
 
+## `nbx proxbox sync [ENDPOINT]`
+
+Trigger a synchronization job through the `netbox-proxbox` plugin and stream
+Server-Sent Events until the job reports completion. `ENDPOINT` is optional; it
+can be a Proxmox endpoint primary key or exact endpoint name. Omit it to sync
+all configured Proxmox endpoints.
+
+```bash
+nbx proxbox sync
+nbx proxbox sync pve-prod -t virtual-machines -t storage
+nbx proxbox sync 12 -t all --job-name nightly-proxbox-sync
+nbx proxbox sync --json
+```
+
+The live view shows the scheduled job, per-phase progress bars, recent stream
+events, and an authoritative final summary. After the stream ends, the CLI
+fetches `/api/core/jobs/{job_id}/` and merges job errors and error-level log
+entries with streamed errors so throttled server-side SSE messages are not lost.
+
+**Options**
+
+| Flag | Description |
+|------|-------------|
+| `-t` / `--type TEXT` | Proxbox sync type slug. Repeat for multiple types. Defaults to `all` |
+| `--job-name TEXT` | Optional NetBox job name |
+| `--timeout FLOAT` | Maximum seconds to keep the SSE stream open (default: `7200`) |
+| `--json` | Skip the live UI and emit `{job_id,status,ok,errors,summary}` JSON |
+
+Valid sync types are: `virtual-machines`, `storage`, `vm-disks`, `vm-backups`,
+`vm-snapshots`, `devices`, `network-interfaces`, `vm-interfaces`,
+`ip-addresses`, `sdn`, `backup-routines`, `replications`, `task-history`, and
+`all`. The `all` type cannot be combined with any other type.
+
+---
+
+## `nbx proxbox sync-types`
+
+Print the sync type slugs accepted by `nbx proxbox sync`.
+
+```bash
+nbx proxbox sync-types
+```
+
+---
+
 ## `nbx graphql QUERY`
 
 Execute a GraphQL query against the NetBox API.
