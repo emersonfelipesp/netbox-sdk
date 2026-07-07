@@ -23,6 +23,9 @@ def test_docgen_specs_cover_cli_and_tui_surfaces() -> None:
     assert "nbx graphql tui --theme" in titles
     assert "nbx demo graphql tui --help" in titles
     assert "nbx demo graphql tui --theme" in titles
+    assert "nbx proxbox resources --json" in titles
+    assert "nbx proxbox ops firewall/rules --json" in titles
+    assert "nbx proxbox tui --theme" in titles
 
 
 def test_docgen_demo_backed_specs_use_demo_prefix() -> None:

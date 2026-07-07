@@ -3,7 +3,7 @@
 `nbx` é a interface de linha de comando do NetBox SDK. Compartilha configuração,
 descoberta de esquema e lógica de requisição com o SDK Python e a camada TUI.
 
-Há cinco modos complementares de interação:
+Há seis modos complementares de interação:
 
 | Modo | Exemplo | Quando usar |
 |------|---------|-------------|
@@ -12,6 +12,7 @@ Há cinco modos complementares de interação:
 | **Descoberta** | `nbx groups` / `nbx resources dcim` | Aprender o que está disponível |
 | **GraphQL** | `nbx graphql "{ sites { name } }"` | Consultas entre recursos e experimentação de esquema |
 | **Jobs de plugin** | `nbx proxbox sync -t storage` | Fluxos guiados para APIs de job de plugins |
+| **CRUD Proxbox** | `nbx proxbox firewall rules patch --id 7` | Catálogo, CRUD e TUI dedicados ao `netbox-proxbox` |
 
 ---
 
@@ -26,9 +27,13 @@ nbx
 ├── ops GROUP RESOURCE      lista operações de um recurso
 ├── graphql                 executa consultas GraphQL
 ├── call METHOD PATH        requisição HTTP explícita
-├── proxbox                 dispara e acompanha jobs de sync Proxbox
+├── proxbox                 catálogo, CRUD, sync e TUI Proxbox
+│   ├── resources           lista recursos do catálogo Proxbox
+│   ├── ops RESOURCE        lista operações de um recurso Proxbox
+│   ├── tui                 lança a bancada de requisições Proxbox
 │   ├── sync                agenda job de sync e transmite progresso
-│   └── sync-types          lista tipos de sync Proxbox disponíveis
+│   ├── sync-types          lista tipos de sync Proxbox disponíveis
+│   └── <família> <recurso> comandos gerados list/get/create/update/patch/delete
 ├── tui                     lança o navegador Textual principal
 ├── logs                    mostra logs estruturados recentes da aplicação
 ├── cli                     auxiliares específicos da CLI
@@ -64,6 +69,7 @@ nbx
 
 - [Comandos](commands.md) para o conjunto de comandos de nível superior
 - [Comandos dinâmicos](dynamic-commands.md) para operações de recursos orientadas por OpenAPI
+- [Proxbox](proxbox.md) para catálogo, CRUD, sync e TUI dedicados ao `netbox-proxbox`
 - [GraphQL](graphql.md) para uso específico de GraphQL
 - [Perfil demo](demo-profile.md) para a árvore `nbx demo`
 - [Saída de comandos capturados](../reference/cli/command-examples/index.md) para exemplos gerados da CLI

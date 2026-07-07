@@ -104,6 +104,39 @@ def all_specs() -> list[CaptureSpec]:
             ["demo", "dcim", "devices", "create", "--dry-run", "--body-json", '{"name":"test"}'],
             notes="Preview a write operation without executing it.",
         ),
+        # CLI: Proxbox catalog and CRUD
+        _spec("cli", "Proxbox", "nbx proxbox --help", ["proxbox", "--help"]),
+        _spec(
+            "cli",
+            "Proxbox",
+            "nbx proxbox resources --json",
+            ["proxbox", "resources", "--json"],
+            notes="Lists the static netbox-proxbox resource catalog without a network call.",
+        ),
+        _spec(
+            "cli",
+            "Proxbox",
+            "nbx proxbox ops firewall/rules --json",
+            ["proxbox", "ops", "firewall/rules", "--json"],
+            notes="Shows catalog-backed methods and paths for one Proxbox resource.",
+        ),
+        _spec(
+            "cli",
+            "Proxbox",
+            'nbx proxbox firewall rules patch --id 7 --dry-run --body-json {"enabled":false}',
+            [
+                "proxbox",
+                "firewall",
+                "rules",
+                "patch",
+                "--id",
+                "7",
+                "--dry-run",
+                "--body-json",
+                '{"enabled":false}',
+            ],
+            notes="Preview a catalog-backed Proxbox write request without executing it.",
+        ),
         # CLI: developer tools
         _spec("cli", "Developer Tools", "nbx dev --help", ["dev", "--help"]),
         _spec("cli", "Developer Tools", "nbx dev http --help", ["dev", "http", "--help"]),
@@ -205,6 +238,20 @@ def all_specs() -> list[CaptureSpec]:
             notes="Lists available themes for the logs viewer TUI.",
         ),
         # TUI: developer workbench
+        _spec(
+            "tui",
+            "Proxbox TUI",
+            "nbx proxbox tui --help",
+            ["proxbox", "tui", "--help"],
+            notes="Launches the Proxbox-only request workbench when invoked without flags.",
+        ),
+        _spec(
+            "tui",
+            "Proxbox TUI",
+            "nbx proxbox tui --theme",
+            ["proxbox", "tui", "--theme"],
+            notes="Lists available themes without launching the Proxbox TUI.",
+        ),
         _spec(
             "tui",
             "Developer Workbench",

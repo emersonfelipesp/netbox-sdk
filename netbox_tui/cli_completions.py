@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from netbox_sdk.proxbox import ProxboxResourceSpec, proxbox_resources
 from netbox_sdk.schema import SchemaIndex
 
 
@@ -107,6 +108,119 @@ def _action_leaf_nodes(group: str, resource: str, index: SchemaIndex) -> list[Cl
     return nodes
 
 
+def _proxbox_action_leaf_nodes(actions: tuple[str, ...]) -> list[CliCommandNode]:
+    nodes: list[CliCommandNode] = []
+    for action in actions:
+        req_id = action in {"get", "update", "patch", "delete"}
+        allow_body = action in {"create", "update", "patch"}
+        allow_query = action == "list"
+        desc = _ACTION_DESCRIPTIONS.get(action, action)
+        hints: list[str] = []
+        if req_id:
+            hints.append("required: --id N")
+        if allow_body:
+            hints.append("payload: --body-json")
+        if allow_query:
+            hints.append("optional: -q key=value")
+        suffix = f"  [{', '.join(hints)}]" if hints else ""
+        nodes.append(
+            CliCommandNode(
+                label=action,
+                description=f"{desc}{suffix}",
+                tail=(action,),
+                requires_id=req_id,
+                allows_body=allow_body,
+                allows_query=allow_query,
+            )
+        )
+    return nodes
+
+
+def _proxbox_spec_for_path(command_path: tuple[str, ...]) -> ProxboxResourceSpec | None:
+    for spec in proxbox_resources():
+        if spec.command_parts == command_path:
+            return spec
+    return None
+
+
+def _proxbox_child_parts(prefix: tuple[str, ...]) -> list[str]:
+    prefix_len = len(prefix)
+    return sorted(
+        {
+            spec.command_parts[prefix_len]
+            for spec in proxbox_resources()
+            if len(spec.command_parts) > prefix_len
+            and spec.command_parts[:prefix_len] == prefix
+        }
+    )
+
+
+def _proxbox_branch_node(
+    command_path: tuple[str, ...],
+    spec: ProxboxResourceSpec | None,
+) -> CliCommandNode:
+    children: list[CliCommandNode] = []
+    for child_part in _proxbox_child_parts(command_path):
+        child_path = (*command_path, child_part)
+        children.append(_proxbox_branch_node(child_path, _proxbox_spec_for_path(child_path)))
+    if spec is not None:
+        children.extend(_proxbox_action_leaf_nodes(spec.supported_actions))
+
+    label = command_path[-1]
+    description = spec.description if spec is not None else f"Proxbox {' '.join(command_path)}"
+    return CliCommandNode(
+        label=label,
+        description=description,
+        enter_tail=(label,),
+        children=tuple(children),
+    )
+
+
+def _proxbox_utility_nodes() -> list[CliCommandNode]:
+    return [
+        CliCommandNode(
+            label="resources",
+            description="List the dedicated Proxbox resource catalog",
+            tail=("resources",),
+        ),
+        CliCommandNode(
+            label="ops",
+            description="Show operations for one Proxbox catalog resource",
+            tail=("ops",),
+        ),
+        CliCommandNode(
+            label="sync",
+            description="Schedule a Proxbox sync job and stream progress",
+            tail=("sync",),
+        ),
+        CliCommandNode(
+            label="sync-types",
+            description="List Proxbox sync type slugs",
+            tail=("sync-types",),
+        ),
+        CliCommandNode(
+            label="tui",
+            description="Launch the Proxbox request workbench",
+            tail=("tui",),
+        ),
+    ]
+
+
+def _proxbox_root_nodes() -> list[CliCommandNode]:
+    children = _proxbox_utility_nodes()
+    for child_part in _proxbox_child_parts(()):
+        command_path = (child_part,)
+        children.append(_proxbox_branch_node(command_path, _proxbox_spec_for_path(command_path)))
+    return [
+        CliCommandNode(
+            label="proxbox",
+            description="Dedicated netbox-proxbox CRUD, sync, and TUI commands",
+            enter_tail=("proxbox",),
+            children=tuple(children),
+        )
+    ]
+
+
 def _resource_branch_nodes(group: str, index: SchemaIndex) -> list[CliCommandNode]:
     nodes: list[CliCommandNode] = []
     for resource in index.resources(group):
@@ -175,4 +289,4 @@ def _static_leaf_nodes() -> list[CliCommandNode]:
 
 def nbx_root_command_nodes(index: SchemaIndex) -> list[CliCommandNode]:
     """Return all root-level command nodes (static leaves + schema group branches)."""
-    return _static_leaf_nodes() + _schema_group_nodes(index)
+    return _static_leaf_nodes() + _proxbox_root_nodes() + _schema_group_nodes(index)

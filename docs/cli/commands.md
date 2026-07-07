@@ -119,6 +119,64 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 
 ---
 
+## `nbx proxbox resources`
+
+List the dedicated `netbox-proxbox` catalog as a Rich-colored table or JSON.
+The catalog includes command paths, categories, supported actions, API paths,
+and read-only status.
+
+```bash
+nbx proxbox resources
+nbx proxbox resources --json
+```
+
+---
+
+## `nbx proxbox ops RESOURCE`
+
+Show HTTP operations for one Proxbox resource. `RESOURCE` can be a catalog key
+such as `firewall/rules`, a command path such as
+`operations/deletion-requests`, or the plugin resource name.
+
+```bash
+nbx proxbox ops firewall/rules
+nbx proxbox ops operations/deletion-requests --json
+```
+
+---
+
+## `nbx proxbox <family> <resource> ACTION`
+
+Run catalog-backed Proxbox CRUD commands. Writable model resources expose
+`list`, `get`, `create`, `update`, `patch`, and `delete`; read-only resources
+only register read actions. Write actions support `--dry-run` previews.
+
+```bash
+nbx proxbox endpoints proxmox list -q name=pve-prod
+nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod"}'
+nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}'
+nbx proxbox operations deletion-requests get --id 12
+nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
+```
+
+See [Proxbox](proxbox.md) for the resource families and full workflow examples.
+
+---
+
+## `nbx proxbox tui`
+
+Launch the Proxbox-focused Textual request workbench. It uses the same request
+editor and response panes as `nbx dev tui`, but starts from the stable Proxbox
+catalog and disables live plugin discovery.
+
+```bash
+nbx proxbox tui
+nbx proxbox tui --theme dracula
+nbx proxbox tui --theme
+```
+
+---
+
 ## `nbx proxbox sync [ENDPOINT]`
 
 Trigger a synchronization job through the `netbox-proxbox` plugin and stream

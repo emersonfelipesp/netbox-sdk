@@ -144,6 +144,27 @@ def test_load_schema_falls_back_on_connection_error(monkeypatch) -> None:
     assert result["_source"] == "fallback"
 
 
+def test_load_schema_falls_back_on_non_openapi_response(monkeypatch) -> None:
+    from netbox_cli import runtime
+
+    fallback_doc = {"paths": {}, "_source": "fallback"}
+
+    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: fallback_doc)
+    monkeypatch.setattr(
+        runtime,
+        "load_profile_config",
+        lambda profile: type("cfg", (), {"base_url": "https://netbox.example.com"})(),
+    )
+    def _return_error(coro):
+        coro.close()
+        return {"error": "authentication required"}
+
+    monkeypatch.setattr(runtime, "run_with_spinner", _return_error)
+
+    result = runtime._load_schema_for_connected_instance()
+    assert result["_source"] == "fallback"
+
+
 def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> None:
     bundled_doc = {"paths": {}, "_source": "bundled"}
 

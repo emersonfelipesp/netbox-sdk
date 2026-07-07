@@ -34,6 +34,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── client.py
     ├── decorators.py
     ├── exceptions.py
+    ├── proxbox.py
     ├── proxbox_sync.py
     ├── http_cache.py
     ├── http_ssl.py
@@ -58,7 +59,7 @@ netbox_sdk/   standalone runtime-independent API layer
     └── reference/openapi/
 
 netbox_tui/   optional Textual layer
-    ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py
+    ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py / proxbox_app.py
     ├── branch_screen.py / filter_overlay.py / login_modal.py / ssl_verify_support.py
     ├── chrome.py / widgets.py / navigation.py / nav_blueprint.py / panels.py / state.py
     ├── cli_completions.py / dev_rendering.py / lifecycle.py / logo_render.py
@@ -72,7 +73,7 @@ netbox_cli/   optional Typer layer
     ├── decorators.py reusable Typer decorator factories
     ├── runtime.py    config/index/client factories
     ├── dynamic.py    OpenAPI command registration/execution
-    ├── proxbox.py    netbox-proxbox sync job commands
+    ├── proxbox.py    netbox-proxbox catalog, CRUD, TUI, and sync commands
     ├── support.py    shared CLI rendering/error helpers
     ├── demo.py       demo profile command tree
     ├── dev.py        dev command tree
@@ -150,7 +151,13 @@ Plugin auto-discovery also runs unconditionally in `runtime.py::_get_enriched_in
 
 Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are discovered through the same BFS as long as the plugin root links to the sub-namespace root, which `NetBoxRouter` includes automatically. `netbox-proxbox` satisfies all three requirements across all 29 of its ViewSets.
 
-## Proxbox Sync Surface
+## Proxbox Surface
+
+`netbox_sdk.proxbox` owns the stable catalog for the dedicated Proxbox command
+surface. It registers Proxbox plugin resources into a `SchemaIndex` without a
+live schema probe, marks read-only plugin resources as read-only, and feeds the
+generated `nbx proxbox <family> <resource> <action>` commands plus the
+Proxbox-only TUI.
 
 `netbox_sdk.client.NetBoxApiClient.stream_sse()` is the transport-only primitive
 for long-running Server-Sent Event streams. It bypasses HTTP cache and token
@@ -167,10 +174,11 @@ blocks into `SseFrame`, streaming `/plugins/proxbox/jobs/{job_id}/stream/`, and
 fetching `/api/core/jobs/{job_id}/` after the stream for authoritative status
 and error log entries.
 
-`netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox sync` and
-`nbx proxbox sync-types`. Keep Rich rendering out of the SDK; final CLI results
-must merge streamed errors with post-stream Job `error` and error-level
-`log_entries` because server-side SSE throttling can drop granular errors.
+`netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox resources`,
+`ops`, generated CRUD commands, the Proxbox TUI launcher, `sync`, and
+`sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
+merge streamed errors with post-stream Job `error` and error-level `log_entries`
+because server-side SSE throttling can drop granular errors.
 
 ## Core Rules
 

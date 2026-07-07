@@ -93,6 +93,7 @@ plugins:
             CLI: CLI
             Commands: Comandos
             Dynamic Commands: Comandos dinâmicos
+            Proxbox: Proxbox
             GraphQL: GraphQL
             Demo Profile: Perfil demo
             Captured Command Output: Saída de comandos capturados
@@ -193,6 +194,7 @@ nav:
     - cli/index.md
     - Commands: cli/commands.md
     - Dynamic Commands: cli/dynamic-commands.md
+    - Proxbox: cli/proxbox.md
     - GraphQL: cli/graphql.md
     - Demo Profile: cli/demo-profile.md
     - Branching: cli/branching.md

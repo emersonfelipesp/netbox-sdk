@@ -30,6 +30,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `demo.py` | `nbx demo ...` command tree |
 | `dev.py` | `nbx dev ...` command tree |
 | `django_model.py` | Django model CLI commands |
+| `proxbox.py` | `nbx proxbox ...` catalog, generated Proxbox CRUD commands, TUI launcher, and streaming sync commands |
 | `markdown_output.py` | Markdown rendering helpers |
 | `docgen_capture.py` / `docgen_specs.py` / `docgen/` | Documentation capture pipeline |
 | `tui_simulation.py` | TUI launch simulation helpers used by docs/tests |

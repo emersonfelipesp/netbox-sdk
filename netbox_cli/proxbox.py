@@ -1,4 +1,4 @@
-"""``nbx proxbox`` commands for netbox-proxbox synchronization jobs."""
+"""``nbx proxbox`` commands for netbox-proxbox resources and sync jobs."""
 
 from __future__ import annotations
 
@@ -16,10 +16,22 @@ from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressC
 from rich.table import Table
 from rich.text import Text
 
+from netbox_cli.dynamic import _build_action_command
 from netbox_cli.runtime import _get_client
-from netbox_cli.support import console
+from netbox_cli.support import (
+    console,
+    load_tui_callables,
+    resolve_requested_theme,
+    rethrow_theme_catalog_error,
+)
 from netbox_sdk.exceptions import RequestError
 from netbox_sdk.output_safety import sanitize_terminal_text
+from netbox_sdk.proxbox import (
+    ProxboxResourceSpec,
+    build_proxbox_schema_index,
+    find_proxbox_resource,
+    proxbox_resources,
+)
 from netbox_sdk.proxbox_sync import (
     SYNC_TYPE_VALUES,
     ProxboxSyncClient,
@@ -29,15 +41,20 @@ from netbox_sdk.proxbox_sync import (
     SyncType,
     validate_sync_types,
 )
+from netbox_sdk.schema import SchemaIndex
 
 proxbox_app = typer.Typer(
     add_completion=False,
     no_args_is_help=True,
-    help="Trigger and stream Proxmox (Proxbox) synchronization jobs.",
+    help="Manage netbox-proxbox resources and synchronization jobs.",
 )
 
 _RECENT_EVENT_LIMIT = 14
 _ERROR_EVENTS = {"error", "error_detail"}
+
+
+def _proxbox_index_factory() -> SchemaIndex:
+    return build_proxbox_schema_index()
 
 
 @dataclass(slots=True)
@@ -171,6 +188,111 @@ def render_frame(frame: SseFrame, state: RenderState) -> None:
         state.complete = dict(data)
 
 
+@proxbox_app.command("resources")
+def resources_command(
+    json_output: bool = typer.Option(False, "--json", help="Emit the catalog as JSON."),
+) -> None:
+    """List Proxbox resources known to the dedicated CLI surface."""
+    resources = proxbox_resources()
+    if json_output:
+        payload = [
+            {
+                "key": spec.key,
+                "command": f"nbx proxbox {spec.command_path}",
+                "category": spec.category,
+                "label": spec.label,
+                "list_path": spec.list_path,
+                "detail_path": spec.detail_path,
+                "actions": list(spec.supported_actions),
+                "read_only": spec.read_only,
+            }
+            for spec in resources
+        ]
+        typer.echo(json.dumps(payload, indent=2, sort_keys=True))
+        return
+
+    table = Table(title="Proxbox Resource Catalog", show_header=True, header_style="bold cyan")
+    table.add_column("Command", style="cyan", no_wrap=True)
+    table.add_column("Category", style="magenta")
+    table.add_column("Actions", style="green")
+    table.add_column("Description", overflow="fold", ratio=2)
+    for spec in resources:
+        table.add_row(
+            f"proxbox {spec.command_path}",
+            spec.category,
+            ", ".join(spec.supported_actions),
+            spec.description,
+        )
+    console.print(table)
+
+
+@proxbox_app.command("ops")
+def ops_command(
+    resource: str = typer.Argument(
+        ...,
+        help="Catalog key or command path, for example endpoints/proxmox or firewall/rules.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Emit operations as JSON."),
+) -> None:
+    """Show HTTP operations for one Proxbox resource."""
+    try:
+        spec = find_proxbox_resource(resource)
+    except KeyError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+    operations = _operations_for_spec(spec)
+    if json_output:
+        typer.echo(json.dumps(operations, indent=2, sort_keys=True))
+        return
+
+    table = Table(title=f"Proxbox Operations: {spec.command_path}", show_header=True)
+    table.add_column("Action", style="cyan", no_wrap=True)
+    table.add_column("Method", style="bold")
+    table.add_column("Path", overflow="fold", ratio=2)
+    table.add_column("Notes", overflow="fold")
+    for operation in operations:
+        table.add_row(
+            str(operation["action"]),
+            str(operation["method"]),
+            str(operation["path"]),
+            str(operation["notes"]),
+        )
+    console.print(table)
+
+
+@proxbox_app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+def proxbox_tui_command(
+    ctx: typer.Context,
+    theme: bool = typer.Option(
+        False,
+        "--theme",
+        help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
+    ),
+) -> None:
+    """Launch the Proxbox-focused Textual request workbench."""
+    available_theme_names, resolve_theme_name, run_proxbox_tui = load_tui_callables(
+        "netbox_tui.proxbox_app",
+        "available_theme_names",
+        "resolve_theme_name",
+        "run_proxbox_tui",
+    )
+
+    selected_theme = resolve_requested_theme(
+        ctx,
+        theme=theme,
+        available_theme_names=available_theme_names,
+        resolve_theme_name=resolve_theme_name,
+        usage="nbx proxbox tui --theme <name>",
+    )
+    if theme and not ctx.args:
+        return
+
+    try:
+        run_proxbox_tui(client=_get_client(), theme_name=selected_theme)
+    except Exception as exc:
+        rethrow_theme_catalog_error(exc)
+
+
 @proxbox_app.command("sync")
 def sync_command(
     endpoint: str | None = typer.Argument(
@@ -243,6 +365,103 @@ def sync_types_command() -> None:
         description = "Run every Proxbox sync stage" if value == SyncType.ALL else ""
         table.add_row(value, description)
     console.print(table)
+
+
+def _operations_for_spec(spec: ProxboxResourceSpec) -> list[dict[str, str]]:
+    operations: list[dict[str, str]] = []
+    for action in spec.supported_actions:
+        if action == "list":
+            operations.append(
+                {
+                    "action": action,
+                    "method": "GET",
+                    "path": spec.list_path,
+                    "notes": "List records; supports -q key=value and --all.",
+                }
+            )
+        elif action == "get" and spec.detail_path:
+            operations.append(
+                {
+                    "action": action,
+                    "method": "GET",
+                    "path": spec.detail_path,
+                    "notes": "Read one record; requires --id.",
+                }
+            )
+        elif action == "create":
+            operations.append(
+                {
+                    "action": action,
+                    "method": "POST",
+                    "path": spec.list_path,
+                    "notes": "Create a record from --body-json or --body-file.",
+                }
+            )
+        elif action == "update" and spec.detail_path:
+            operations.append(
+                {
+                    "action": action,
+                    "method": "PUT",
+                    "path": spec.detail_path,
+                    "notes": "Replace one record; requires --id and a body.",
+                }
+            )
+        elif action == "patch" and spec.detail_path:
+            operations.append(
+                {
+                    "action": action,
+                    "method": "PATCH",
+                    "path": spec.detail_path,
+                    "notes": "Partially update one record; requires --id and a body.",
+                }
+            )
+        elif action == "delete" and spec.detail_path:
+            operations.append(
+                {
+                    "action": action,
+                    "method": "DELETE",
+                    "path": spec.detail_path,
+                    "notes": "Delete one record; requires --id.",
+                }
+            )
+    return operations
+
+
+def _proxbox_branch_help(command_path: tuple[str, ...]) -> str:
+    label = " ".join(command_path)
+    return f"Proxbox resource group: {label}"
+
+
+def _register_proxbox_resource_commands(target_app: typer.Typer) -> None:
+    """Attach catalog-backed ``nbx proxbox <resource> <action>`` commands."""
+    apps: dict[tuple[str, ...], typer.Typer] = {(): target_app}
+    for spec in proxbox_resources():
+        parent_path: tuple[str, ...] = ()
+        for index, part in enumerate(spec.command_parts, start=1):
+            command_path = spec.command_parts[:index]
+            if command_path not in apps:
+                child_app = typer.Typer(
+                    add_completion=False,
+                    no_args_is_help=True,
+                    help=_proxbox_branch_help(command_path),
+                )
+                apps[parent_path].add_typer(child_app, name=part)
+                apps[command_path] = child_app
+            parent_path = command_path
+
+        leaf_app = apps[spec.command_parts]
+        for action in spec.supported_actions:
+            cmd = _build_action_command(
+                group="plugins",
+                resource=spec.resource,
+                action=action,
+                client_factory=_get_client,
+                index_factory=_proxbox_index_factory,
+            )
+            leaf_app.command(
+                name=action,
+                help=f"{action} {spec.command_path}",
+            )(cmd)
 
 
 async def _run_sync(
@@ -722,6 +941,9 @@ def _float_value(value: Any) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+_register_proxbox_resource_commands(proxbox_app)
 
 
 __all__ = [
