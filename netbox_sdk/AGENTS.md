@@ -42,6 +42,7 @@ netbox_sdk/
 ├── schema.py
 ├── services.py
 ├── plugin_discovery.py
+├── proxbox.py
 ├── exceptions.py
 ├── logging_runtime.py
 ├── output_safety.py
@@ -76,6 +77,7 @@ netbox_sdk/
 - `netbox_sdk.schema` — OpenAPI loading and indexing; `load_openapi_schema()` / `build_schema_index()` default to the bundled NetBox 4.6 schema and accept supported release lines such as `version="4.5"`; `SchemaIndex.filter_params(group, resource)` excludes pagination params including `limit`, `offset`, `start`, `format`
 - `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value`; `list_all_pages` preserves repeated `next` query params
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
+- `netbox_sdk.proxbox` — stable netbox-proxbox resource catalog plus catalog-backed request helper used by the dedicated CLI and TUI surfaces
 - `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
 - Shared cross-package helpers: `formatting`, `logging_runtime`, `output_safety`, `trace_ascii`, `demo_auth`, `django_models`
 

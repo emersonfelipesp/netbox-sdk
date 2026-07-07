@@ -86,6 +86,10 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_output_safety.py` | ANSI stripping, control character replacement, safe Rich Text rendering |
 | `test_pagination_cursor.py` | Cursor and paginated response handling |
 | `test_plugin_discovery.py` | `discover_plugin_resource_paths()` — mock API walk, collection detection, deduplication |
+| `test_proxbox_cli.py` | `nbx proxbox` catalog, CRUD dry-run, read-only command protection, and sync stream rendering |
+| `test_proxbox_resources.py` | Dedicated netbox-proxbox SDK catalog, schema registration, and catalog-backed request helper |
+| `test_proxbox_sync.py` | Proxbox sync scheduling, endpoint resolution, SSE parsing, and stream transport |
+| `test_proxbox_tui.py` | Proxbox-only request workbench catalog and resource activation behavior |
 | `test_return_annotations.py` | Repo-wide non-test return annotation regression guard |
 | `test_schema_index.py` | Group/resource extraction, list/detail path identification, trace path support |
 | `test_schema_version_detection.py` | Schema version detection and release-line selection |

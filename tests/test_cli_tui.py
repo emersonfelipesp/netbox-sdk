@@ -19,6 +19,7 @@ from netbox_sdk.schema import build_schema_index
 from netbox_tui.cli_completions import (
     CliCommandNode,
     _action_leaf_nodes,
+    _proxbox_root_nodes,
     _resource_branch_nodes,
     _schema_group_nodes,
     _static_leaf_nodes,
@@ -199,8 +200,22 @@ def test_nbx_root_command_nodes_has_static_and_groups(real_index) -> None:
     root = nbx_root_command_nodes(real_index)
     labels = {n.label for n in root}
     assert "init" in labels
+    assert "proxbox" in labels
     assert "dcim" in labels
     assert "ipam" in labels
+
+
+def test_proxbox_root_nodes_include_generated_actions() -> None:
+    proxbox = _proxbox_root_nodes()[0]
+    children = {node.label: node for node in proxbox.children}
+    endpoints = {node.label: node for node in children["endpoints"].children}
+    proxmox_actions = {node.label for node in endpoints["proxmox"].children}
+    operations = {node.label: node for node in children["operations"].children}
+    deletion_actions = {node.label for node in operations["deletion-requests"].children}
+
+    assert "resources" in children
+    assert {"list", "get", "create", "update", "patch", "delete"} <= proxmox_actions
+    assert deletion_actions == {"list", "get"}
 
 
 # ---------------------------------------------------------------------------
@@ -371,6 +386,30 @@ async def test_cli_tui_navigating_to_action_fills_command_input(real_index) -> N
         assert "--json" not in cmd.value
         assert "--yaml" not in cmd.value
         assert "--markdown" not in cmd.value
+
+
+@pytest.mark.asyncio
+async def test_cli_tui_navigating_to_proxbox_action_fills_command_input(real_index) -> None:
+    app = _make_app(real_index)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        nav_list = app.query_one("#nav_list", ListView)
+
+        for label in ("proxbox", "firewall", "rules", "patch"):
+            items = list(nav_list.query(ListItem))
+            item_index = next(
+                i for i, item in enumerate(items) if label in str(item.query_one(Static).content)
+            )
+            nav_list.index = item_index
+            await pilot.press("enter")
+            await pilot.pause()
+
+        cmd = app.query_one("#command_input", Input)
+        assert "proxbox" in cmd.value
+        assert "firewall" in cmd.value
+        assert "rules" in cmd.value
+        assert "patch" in cmd.value
 
 
 @pytest.mark.asyncio

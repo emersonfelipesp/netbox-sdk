@@ -127,12 +127,27 @@ class NetBoxDevTuiApp(App[None]):
         client: NetBoxApiClient,
         index: SchemaIndex,
         theme_name: str | None = None,
+        *,
+        discard_plugin_resources: bool = True,
+        discover_plugin_resources: bool = True,
+        title: str | None = None,
+        subtitle: str | None = None,
+        sidebar_title: str = "Resources",
+        idle_summary: str = "Choose a resource from the left sidebar to load its operations.",
     ) -> None:
         super().__init__()
+        if title is not None:
+            self.TITLE = title
+        if subtitle is not None:
+            self.SUB_TITLE = subtitle
         self.client = client
         self.index = index
-        # Plugin resources must come from the connected instance, not the bundled schema.
-        self.index.remove_group_resources("plugins")
+        self._discover_plugin_resources_enabled = discover_plugin_resources
+        self._sidebar_title = sidebar_title
+        self._idle_summary = idle_summary
+        if discard_plugin_resources:
+            # Plugin resources must come from the connected instance, not the bundled schema.
+            self.index.remove_group_resources("plugins")
         self._state_scope = self.client.config.base_url
         self.state: DevTuiState = load_dev_tui_state(self._state_scope)
         self.theme_catalog, self.theme_name, self.theme_options = initialize_theme_state(
@@ -217,7 +232,7 @@ class NetBoxDevTuiApp(App[None]):
 
         with Horizontal(id="dev_shell"):
             with Vertical(id="dev_sidebar"):
-                yield Static("Resources", id="dev_sidebar_title")
+                yield Static(self._sidebar_title, id="dev_sidebar_title")
                 yield Tree("NetBox", id="dev_nav_tree")
                 yield Static("g nav | o ops | / path | ctrl+enter send", id="dev_help")
 
@@ -319,7 +334,8 @@ class NetBoxDevTuiApp(App[None]):
         self._update_clock()
         self._set_connection_badge_checking()
         self._probe_connection_health()
-        self._discover_plugin_resources()
+        if self._discover_plugin_resources_enabled:
+            self._discover_plugin_resources()
         self._clock_timer = self.set_interval(1.0, self._update_clock, name="nbx_dev_clock")
         self._connection_timer = self.set_interval(
             30.0, self._probe_connection_health, name="nbx_dev_connection"
@@ -487,9 +503,7 @@ class NetBoxDevTuiApp(App[None]):
             if self.index.resource_paths(last_view.group, last_view.resource) is not None:
                 self._activate_resource(last_view.group, last_view.resource)
                 return
-        self._set_response_summary(
-            "Choose a resource from the left sidebar to load its operations."
-        )
+        self._set_response_summary(self._idle_summary)
 
     def _activate_resource(self, group: str, resource: str) -> None:
         logger.info("dev tui selected resource %s/%s", group, resource)

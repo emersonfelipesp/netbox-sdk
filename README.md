@@ -144,7 +144,12 @@ nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"colo
 nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
 nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
 
-# Proxbox plugin sync jobs
+# Proxbox plugin catalog, CRUD, TUI, and sync jobs
+nbx proxbox resources
+nbx proxbox ops firewall/rules
+nbx proxbox endpoints proxmox list -q name=pve-prod
+nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
+nbx proxbox tui --theme
 nbx proxbox sync
 nbx proxbox sync pve-prod -t virtual-machines -t storage
 nbx proxbox sync-types

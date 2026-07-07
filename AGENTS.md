@@ -48,6 +48,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── schema.py
     ├── services.py
     ├── plugin_discovery.py
+    ├── proxbox.py
     ├── formatting.py
     ├── logging_runtime.py
     ├── output_safety.py
@@ -64,7 +65,7 @@ netbox_sdk/   standalone runtime-independent API layer
     └── reference/openapi/
 
 netbox_tui/   optional Textual layer
-    ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py
+    ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py / proxbox_app.py
     ├── branch_screen.py / filter_overlay.py / login_modal.py / ssl_verify_support.py
     ├── chrome.py / widgets.py / navigation.py / nav_blueprint.py / panels.py / state.py
     ├── theme_registry.py
@@ -77,6 +78,7 @@ netbox_cli/   optional Typer layer
     ├── decorators.py reusable Typer decorator factories
     ├── runtime.py    config/index/client factories
     ├── dynamic.py    OpenAPI command registration/execution
+    ├── proxbox.py    netbox-proxbox catalog, CRUD, TUI, and sync commands
     ├── support.py    shared CLI rendering/error helpers
     ├── demo.py       demo profile command tree
     ├── dev.py        dev command tree

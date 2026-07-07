@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import pytest
@@ -69,6 +70,89 @@ def _install_fake_proxbox(
     monkeypatch.setattr(proxbox_mod, "_get_client", _get_client)
     monkeypatch.setattr(proxbox_mod, "ProxboxSyncClient", _FakeProxbox)
     return raw
+
+
+def test_proxbox_resources_command_lists_catalog_json() -> None:
+    result = runner.invoke(nbx_app, ["proxbox", "resources", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    commands = {item["command"] for item in payload}
+    assert "nbx proxbox endpoints/proxmox" in commands
+    assert "nbx proxbox operations/deletion-requests" in commands
+    deletion_request = next(
+        item for item in payload if item["command"] == "nbx proxbox operations/deletion-requests"
+    )
+    assert deletion_request["actions"] == ["list", "get"]
+    assert deletion_request["read_only"] is True
+
+
+def test_proxbox_ops_command_shows_read_only_operations() -> None:
+    result = runner.invoke(nbx_app, ["proxbox", "ops", "operations/deletion-requests", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert [item["action"] for item in payload] == ["list", "get"]
+    assert {item["method"] for item in payload} == {"GET"}
+
+
+def test_proxbox_generated_create_dry_run_resolves_endpoint_path() -> None:
+    result = runner.invoke(
+        nbx_app,
+        [
+            "proxbox",
+            "endpoints",
+            "proxmox",
+            "create",
+            "--dry-run",
+            "--body-json",
+            '{"name":"pve-prod"}',
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "POST" in result.stdout
+    assert "/api/plugins/proxbox/endpoints/proxmox/" in result.stdout
+
+
+def test_proxbox_generated_patch_dry_run_resolves_nested_path() -> None:
+    result = runner.invoke(
+        nbx_app,
+        [
+            "proxbox",
+            "firewall",
+            "rules",
+            "patch",
+            "--id",
+            "7",
+            "--dry-run",
+            "--body-json",
+            '{"enabled":false}',
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "PATCH" in result.stdout
+    assert "/api/plugins/proxbox/firewall/rules/7/" in result.stdout
+
+
+def test_proxbox_read_only_resources_do_not_register_write_commands() -> None:
+    result = runner.invoke(
+        nbx_app,
+        [
+            "proxbox",
+            "operations",
+            "deletion-requests",
+            "patch",
+            "--id",
+            "1",
+            "--body-json",
+            '{"approved":true}',
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "No such command" in result.output
 
 
 def test_proxbox_sync_success_renders_summary(monkeypatch: pytest.MonkeyPatch) -> None:

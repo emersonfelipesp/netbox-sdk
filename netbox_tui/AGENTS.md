@@ -40,8 +40,10 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `login_modal.py` | Login/profile prompt modal |
 | `logs_app.py` | Log viewer TUI |
 | `django_model_app.py` | Django model inspector TUI |
+| `proxbox_app.py` | Proxbox-only request workbench entrypoint backed by the stable Proxbox catalog |
 | `chrome.py` | Shared theme/clock/logo/topbar helpers |
 | `navigation.py`, `nav_blueprint.py` | Navigation model and blueprint |
+| `cli_completions.py` | `CliCommandNode` model and `nbx_root_command_nodes()` — builds the full command-tree for the CLI-builder TUI, including generated Proxbox command branches |
 | `plugin_discovery.py` | TUI-facing plugin discovery helpers |
 | `ssl_verify_support.py` | TLS verification prompt/support helpers |
 | `widgets.py`, `panels.py` | Shared widgets and composed panels |

@@ -55,6 +55,7 @@ docs/
 │   ├── branching.md                 # NetBox Branching CLI workflows
 │   ├── commands.md                 # Static command reference
 │   ├── dynamic-commands.md         # How dynamic commands work
+│   ├── proxbox.md                  # Dedicated Proxbox catalog/CRUD/sync/TUI CLI guide
 │   ├── graphql.md                  # GraphQL and raw HTTP command docs
 │   └── demo-profile.md             # Demo profile setup
 ├── sdk/
@@ -102,6 +103,7 @@ docs/
 │   │       ├── schema-discovery.md
 │   │       ├── graphql-and-http.md
 │   │       ├── dynamic-commands.md
+│   │       ├── proxbox.md
 │   │       ├── developer-tools.md
 │   │       └── demo-profile.md
 │   └── tui/
@@ -110,6 +112,7 @@ docs/
 │           ├── main-browser.md
 │           ├── logs-viewer.md
 │           ├── developer-workbench.md
+│           ├── proxbox-tui.md
 │           ├── graphql-tui.md
 │           ├── cli-builder.md
 │           └── django-models-browser.md

@@ -30,9 +30,10 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `login_modal.py` | Login/profile prompt modal |
 | `logs_app.py` | Log viewer TUI |
 | `django_model_app.py` | Django model inspector TUI |
+| `proxbox_app.py` | Proxbox-only request workbench entrypoint backed by the stable Proxbox catalog |
 | `chrome.py` | Shared theme/clock/logo/topbar helpers |
 | `navigation.py`, `nav_blueprint.py` | Navigation model and blueprint |
-| `cli_completions.py` | `CliCommandNode` model and `nbx_root_command_nodes()` — builds the full command-tree for the CLI-builder TUI |
+| `cli_completions.py` | `CliCommandNode` model and `nbx_root_command_nodes()` — builds the full command-tree for the CLI-builder TUI, including generated Proxbox command branches |
 | `dev_rendering.py` | Stateless Rich `Text` rendering helpers for the dev workbench TUI (HTTP method styles, status codes, operation lines) |
 | `lifecycle.py` | Shared async `close_client_for_tui()` helper used by all Textual app `on_unmount` handlers |
 | `logo_render.py` | Theme-aware Rich renderable for the NetBox wordmark (`build_netbox_logo()`) used in the top bar |

@@ -136,7 +136,14 @@ def _load_schema_for_connected_instance(
         if not cfg.base_url:
             logger.debug("no base_url configured; using default bundled schema")
             return load_openapi_schema()
-        return run_with_spinner(_detect_and_fetch_schema(cfg))
+        schema = run_with_spinner(_detect_and_fetch_schema(cfg))
+        if not isinstance(schema.get("paths"), dict):
+            logger.debug(
+                "connected schema response did not contain OpenAPI paths; using default bundled schema",
+                extra={"nbx_event": "schema_runtime_invalid_document"},
+            )
+            return load_openapi_schema()
+        return schema
     except Exception as exc:  # noqa: BLE001
         logger.debug(
             "schema version detection failed (%s); using default bundled schema",
