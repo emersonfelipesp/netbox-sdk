@@ -1,44 +1,44 @@
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="pt" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="SDK-first NetBox toolkit with Python SDK, CLI, and Textual TUIs">
+        <meta name="description" content="Kit de ferramentas NetBox com SDK Python, CLI e TUIs Textual, priorizando o SDK.">
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/tui/themes/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/proxbox/">
       
       
-        <link rel="prev" href="../../reference/tui/launch-examples/django-models-browser/">
+        <link rel="prev" href="../dynamic-commands/">
       
       
-        <link rel="next" href="../keybindings/">
+        <link rel="next" href="../graphql/">
       
       
         
-          <link rel="alternate" href="./" hreflang="en">
+          <link rel="alternate" href="../../../cli/proxbox/" hreflang="en">
         
-          <link rel="alternate" href="../../pt/tui/themes/" hreflang="pt">
+          <link rel="alternate" href="./" hreflang="pt">
         
       
       
-      <link rel="icon" href="../../assets/logo.svg">
+      <link rel="icon" href="../../../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Themes - NetBox SDK</title>
+        <title>Proxbox - NetBox SDK</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -57,9 +57,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../../../assets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -84,8 +84,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#themes" class="md-skip">
-          Skip to content
+        <a href="#cli-proxbox" class="md-skip">
+          Ir para o conteúdo
         </a>
       
     </div>
@@ -99,10 +99,10 @@
   
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="NetBox SDK" class="md-header__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../" title="NetBox SDK" class="md-header__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../../../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Themes
+              Proxbox
             
           </span>
         </div>
@@ -132,9 +132,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Mudar para o modo claro"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Mudar para o modo claro" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -142,9 +142,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Mudar para o modo escuro"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="Mudar para o modo escuro" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -159,20 +159,20 @@
       <div class="md-header__option">
   <div class="md-select">
     
-    <button class="md-header__button md-icon" aria-label="Select language">
+    <button class="md-header__button md-icon" aria-label="Selecione o idioma">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
     </button>
     <div class="md-select__inner">
       <ul class="md-select__list">
         
           <li class="md-select__item">
-            <a href="./" hreflang="en" class="md-select__link">
+            <a href="../../../cli/proxbox/" hreflang="en" class="md-select__link">
               English
             </a>
           </li>
         
           <li class="md-select__item">
-            <a href="../../pt/tui/themes/" hreflang="pt" class="md-select__link">
+            <a href="./" hreflang="pt" class="md-select__link">
               Português (Brasil)
             </a>
           </li>
@@ -193,16 +193,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="Search">
+      <nav class="md-search__options" aria-label="Pesquisar">
         
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -215,7 +215,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            Initializing search
+            Inicializando a pesquisa
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -227,7 +227,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/emersonfelipesp/netbox-sdk" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/emersonfelipesp/netbox-sdk" title="Ir ao repositório" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
@@ -242,7 +242,7 @@
   
     
       
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
       
@@ -252,13 +252,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../" class="md-tabs__link">
         
   
   
     
   
-  Home
+  Início
 
       </a>
     </li>
@@ -279,7 +279,7 @@
   
     
   
-  Getting Started
+  Primeiros passos
 
         </a>
       </li>
@@ -323,29 +323,7 @@
   
     
   
-  Mock API
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../cli/" class="md-tabs__link">
-          
-  
-  
-    
-  
-  CLI
+  API Mock
 
         </a>
       </li>
@@ -364,6 +342,28 @@
     
       <li class="md-tabs__item md-tabs__item--active">
         <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tui/" class="md-tabs__link">
           
   
   
@@ -391,7 +391,7 @@
   
     
   
-  Developer Guide
+  Guia do desenvolvedor
 
         </a>
       </li>
@@ -425,18 +425,18 @@
   
 
 
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="NetBox SDK" class="md-nav__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
+    <a href="../../" title="NetBox SDK" class="md-nav__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../../../assets/logo.svg" alt="logo">
 
     </a>
     NetBox SDK
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/emersonfelipesp/netbox-sdk" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/emersonfelipesp/netbox-sdk" title="Ir ao repositório" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
@@ -456,14 +456,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Home
+    Início
   
 
     
@@ -521,7 +521,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Primeiros passos
   
 
     
@@ -543,7 +543,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Getting Started
+    Primeiros passos
   
 
           </label>
@@ -565,7 +565,7 @@
   <span class="md-ellipsis">
     
   
-    Installation
+    Instalação
   
 
     
@@ -593,7 +593,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    Configuração
   
 
     
@@ -621,7 +621,7 @@
   <span class="md-ellipsis">
     
   
-    Quick Start
+    Início rápido
   
 
     
@@ -739,7 +739,7 @@
   <span class="md-ellipsis">
     
   
-    Authentication
+    Autenticação
   
 
     
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Requests and Transport
+    Requisições e transporte
   
 
     
@@ -795,7 +795,7 @@
   <span class="md-ellipsis">
     
   
-    Facade API
+    API de fachada
   
 
     
@@ -823,7 +823,7 @@
   <span class="md-ellipsis">
     
   
-    Typed API
+    API tipada
   
 
     
@@ -851,7 +851,7 @@
   <span class="md-ellipsis">
     
   
-    Schema Indexing
+    Indexação de esquema
   
 
     
@@ -879,7 +879,7 @@
   <span class="md-ellipsis">
     
   
-    Error Handling
+    Tratamento de erros
   
 
     
@@ -977,7 +977,7 @@
   <span class="md-ellipsis">
     
   
-    Mock API
+    API Mock
   
 
     
@@ -999,7 +999,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Mock API
+    API Mock
   
 
           </label>
@@ -1021,7 +1021,7 @@
   <span class="md-ellipsis">
     
   
-    CRUD Operations
+    Operações CRUD
   
 
     
@@ -1049,7 +1049,7 @@
   <span class="md-ellipsis">
     
   
-    Bulk Operations
+    Operações em lote
   
 
     
@@ -1077,7 +1077,7 @@
   <span class="md-ellipsis">
     
   
-    Pagination and Filtering
+    Paginação e filtragem
   
 
     
@@ -1105,7 +1105,7 @@
   <span class="md-ellipsis">
     
   
-    pytest Integration
+    Integração com pytest
   
 
     
@@ -1133,7 +1133,7 @@
   <span class="md-ellipsis">
     
   
-    Standalone Server
+    Servidor standalone
   
 
     
@@ -1158,551 +1158,6 @@
       
   
   
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../cli/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CLI
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    CLI
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Commands
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/dynamic-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dynamic Commands
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/proxbox/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Proxbox
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/graphql/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GraphQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/demo-profile/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Demo Profile
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cli/branching/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Branching
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_8" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../reference/cli/command-examples/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Captured Command Output
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_8">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Captured Command Output
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/core-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Core Commands
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/schema-discovery/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Schema Discovery
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/graphql-and-http/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GraphQL and HTTP
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/dynamic-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dynamic Commands
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/developer-tools/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Developer Tools
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/demo-profile/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Demo Profile
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../generated/nbx-command-capture/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Raw Capture Artifact
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -1712,12 +1167,6 @@
       
         
           
-        
-      
-        
-      
-        
-      
         
       
         
@@ -1752,7 +1201,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -1763,7 +1212,7 @@
   <span class="md-ellipsis">
     
   
-    TUI
+    CLI
   
 
     
@@ -1774,244 +1223,18 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    TUI
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../dev-workbench/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Developer Workbench
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../graphql/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GraphQL TUI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cli-builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CLI Builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../logs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logs Viewer
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../django-models/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Django Models Browser
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_8" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../reference/tui/launch-examples/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Launch Command Output
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Launch Command Output
+    CLI
   
 
           </label>
@@ -2026,14 +1249,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/main-browser/" class="md-nav__link">
+      <a href="../commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Main Browser
+    Comandos
   
 
     
@@ -2054,14 +1277,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/logs-viewer/" class="md-nav__link">
+      <a href="../dynamic-commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Logs Viewer
+    Comandos dinâmicos
   
 
     
@@ -2070,126 +1293,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/developer-workbench/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Developer Workbench
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/graphql-tui/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GraphQL TUI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/cli-builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CLI Builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/django-models-browser/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Django Models Browser
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2218,7 +1321,7 @@
   <span class="md-ellipsis">
     
   
-    Themes
+    Proxbox
   
 
     
@@ -2236,7 +1339,7 @@
   <span class="md-ellipsis">
     
   
-    Themes
+    Proxbox
   
 
     
@@ -2248,7 +1351,7 @@
       
         
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
   
   
   
@@ -2257,15 +1360,15 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      Índice
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#built-in-themes" class="md-nav__link">
+  <a href="#mapa-de-comandos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in themes
+        Mapa de Comandos
       
     </span>
   </a>
@@ -2273,10 +1376,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#selecting-a-theme" class="md-nav__link">
+  <a href="#exemplos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selecting a theme
+        Exemplos
       
     </span>
   </a>
@@ -2284,99 +1387,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#theme-compliance" class="md-nav__link">
+  <a href="#familias-de-recursos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Theme compliance
+        Famílias de Recursos
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Theme compliance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#debugging-theme-specific-mismatches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Debugging theme-specific mismatches
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-custom-theme" class="md-nav__link">
+  <a href="#fluxo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Creating a custom theme
+        Fluxo
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Creating a custom theme">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#required-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required structure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#required-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#validation-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Validation rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-guidelines" class="md-nav__link">
+  <a href="#tui" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Design guidelines
+        TUI
       
     </span>
   </a>
@@ -2399,14 +1435,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../keybindings/" class="md-nav__link">
+      <a href="../graphql/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Keyboard Shortcuts
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../demo-profile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Perfil demo
   
 
     
@@ -2458,6 +1522,8 @@
     
       
         
+          
+        
       
         
       
@@ -2489,17 +1555,881 @@
         
           
         
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/cli/command-examples/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saída de comandos capturados
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Saída de comandos capturados
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/command-examples/core-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Comandos principais
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/command-examples/schema-discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Descoberta de esquema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/command-examples/graphql-and-http/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL e HTTP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/command-examples/dynamic-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Comandos dinâmicos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/command-examples/developer-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ferramentas de desenvolvimento
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli/command-examples/demo-profile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Perfil demo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generated/nbx-command-capture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Artefato bruto de captura
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tui/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TUI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/dev-workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bancada do desenvolvedor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/graphql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/cli-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Construtor de CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizador de logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/django-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador de modelos Django
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/tui/launch-examples/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Saída de comandos de lançamento
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Saída de comandos de lançamento
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/main-browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador principal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/logs-viewer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizador de logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/developer-workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bancada do desenvolvedor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/graphql-tui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TUI GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/cli-builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Construtor de CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tui/launch-examples/django-models-browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navegador de modelos Django
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/themes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Temas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/keybindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Atalhos de teclado
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tui/branching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_12" >
         
           
-          <label class="md-nav__link" for="__nav_6_12" id="__nav_6_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6_12" id="__nav_6_12_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Screenshot Gallery
+    Galeria de capturas de tela
   
 
     
@@ -2515,7 +2445,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Screenshot Gallery
+    Galeria de capturas de tela
   
 
           </label>
@@ -2528,14 +2458,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots/" class="md-nav__link">
+      <a href="../../tui/screenshots/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    TUI Screenshots
+    Capturas de tela da TUI
   
 
     
@@ -2556,14 +2486,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-default/" class="md-nav__link">
+      <a href="../../tui/screenshots-default/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Main Browser
+    Navegador principal
   
 
     
@@ -2584,14 +2514,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-dev/" class="md-nav__link">
+      <a href="../../tui/screenshots-dev/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Developer Workbench
+    Bancada do desenvolvedor
   
 
     
@@ -2612,14 +2542,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-graphql/" class="md-nav__link">
+      <a href="../../tui/screenshots-graphql/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    GraphQL TUI
+    TUI GraphQL
   
 
     
@@ -2640,14 +2570,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-logs/" class="md-nav__link">
+      <a href="../../tui/screenshots-logs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Logs Viewer
+    Visualizador de logs
   
 
     
@@ -2668,14 +2598,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-cli/" class="md-nav__link">
+      <a href="../../tui/screenshots-cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    CLI Builder
+    Construtor de CLI
   
 
     
@@ -2696,14 +2626,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-django/" class="md-nav__link">
+      <a href="../../tui/screenshots-django/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Django Models Browser
+    Navegador de modelos Django
   
 
     
@@ -2793,7 +2723,7 @@
   <span class="md-ellipsis">
     
   
-    Developer Guide
+    Guia do desenvolvedor
   
 
     
@@ -2815,7 +2745,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Developer Guide
+    Guia do desenvolvedor
   
 
           </label>
@@ -2837,7 +2767,7 @@
   <span class="md-ellipsis">
     
   
-    Architecture
+    Arquitetura
   
 
     
@@ -2865,7 +2795,7 @@
   <span class="md-ellipsis">
     
   
-    SDK Internals
+    Internos do SDK
   
 
     
@@ -2893,7 +2823,7 @@
   <span class="md-ellipsis">
     
   
-    Integration with proxbox-api
+    Integração com proxbox-api
   
 
     
@@ -2921,7 +2851,7 @@
   <span class="md-ellipsis">
     
   
-    Package integration
+    Integração de pacotes
   
 
     
@@ -2949,7 +2879,7 @@
   <span class="md-ellipsis">
     
   
-    Design principles
+    Princípios de design
   
 
     
@@ -2977,7 +2907,7 @@
   <span class="md-ellipsis">
     
   
-    Textual Composition Pattern
+    Padrão de composição Textual
   
 
     
@@ -3005,7 +2935,7 @@
   <span class="md-ellipsis">
     
   
-    Documentation Generation
+    Geração de documentação
   
 
     
@@ -3033,7 +2963,7 @@
   <span class="md-ellipsis">
     
   
-    Certification Readiness
+    Prontidão para certificação
   
 
     
@@ -3061,7 +2991,7 @@
   <span class="md-ellipsis">
     
   
-    IDE Support
+    Suporte de IDE
   
 
     
@@ -3089,7 +3019,7 @@
   <span class="md-ellipsis">
     
   
-    Command Capture Guide
+    Guia de captura de comandos
   
 
     
@@ -3117,7 +3047,7 @@
   <span class="md-ellipsis">
     
   
-    NetBox UI Guidelines
+    Diretrizes de UI do NetBox
   
 
     
@@ -3151,7 +3081,7 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
   
   
   
@@ -3160,15 +3090,15 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      Table of contents
+      Índice
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#built-in-themes" class="md-nav__link">
+  <a href="#mapa-de-comandos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in themes
+        Mapa de Comandos
       
     </span>
   </a>
@@ -3176,10 +3106,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#selecting-a-theme" class="md-nav__link">
+  <a href="#exemplos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selecting a theme
+        Exemplos
       
     </span>
   </a>
@@ -3187,99 +3117,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#theme-compliance" class="md-nav__link">
+  <a href="#familias-de-recursos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Theme compliance
+        Famílias de Recursos
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Theme compliance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#debugging-theme-specific-mismatches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Debugging theme-specific mismatches
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-custom-theme" class="md-nav__link">
+  <a href="#fluxo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Creating a custom theme
+        Fluxo
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Creating a custom theme">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#required-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required structure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#required-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#validation-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Validation rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-guidelines" class="md-nav__link">
+  <a href="#tui" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Design guidelines
+        TUI
       
     </span>
   </a>
@@ -3304,17 +3167,17 @@
   
 
 
-  <nav class="md-path" aria-label="Navigation" >
+  <nav class="md-path" aria-label="Navegação" >
     <ol class="md-path__list">
       
         
   
   
     <li class="md-path__item">
-      <a href="../.." class="md-path__link">
+      <a href="../../" class="md-path__link">
         
   <span class="md-ellipsis">
-    Home
+    Início
   </span>
 
       </a>
@@ -3332,7 +3195,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    TUI
+    CLI
   </span>
 
         </a>
@@ -3354,238 +3217,155 @@
   
 
 
-<h1 id="themes">Themes<a class="headerlink" href="#themes" title="Permanent link">&para;</a></h1>
-<p>The TUI ships with four built-in themes and supports unlimited custom themes defined as JSON files.</p>
-<hr />
-<h2 id="built-in-themes">Built-in themes<a class="headerlink" href="#built-in-themes" title="Permanent link">&para;</a></h2>
+<h1 id="cli-proxbox">CLI Proxbox<a class="headerlink" href="#cli-proxbox" title="Permanent link">&para;</a></h1>
+<p><code>nbx proxbox</code> é a superfície dedicada ao plugin <code>netbox-proxbox</code>. Ela inclui um
+catálogo estável de endpoints do plugin, comandos CRUD gerados, o fluxo
+existente de sincronização com stream e uma bancada Textual focada em Proxbox.</p>
+<p>Use esta superfície quando quiser operar Proxbox sem memorizar caminhos brutos
+como <code>/api/plugins/proxbox/firewall/rules/{id}/</code>.</p>
+<h2 id="mapa-de-comandos">Mapa de Comandos<a class="headerlink" href="#mapa-de-comandos" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Theme name</th>
-<th>Label</th>
-<th>Aliases</th>
+<th>Comando</th>
+<th>Finalidade</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>default</code></td>
-<td>Default</td>
-<td>-</td>
+<td><code>nbx proxbox resources</code></td>
+<td>Mostra o catálogo com colunas Rich coloridas de comando, categoria, ações e descrição</td>
 </tr>
 <tr>
-<td><code>dracula</code></td>
-<td>Dracula</td>
-<td><code>dracula-dark</code></td>
+<td><code>nbx proxbox ops RESOURCE</code></td>
+<td>Mostra métodos HTTP e caminhos de um recurso do catálogo</td>
 </tr>
 <tr>
-<td><code>netbox-dark</code></td>
-<td>NetBox Dark</td>
-<td><code>netbox</code></td>
+<td><code>nbx proxbox &lt;categoria&gt; &lt;recurso&gt; list</code></td>
+<td>GET no endpoint de lista Proxbox</td>
 </tr>
 <tr>
-<td><code>netbox-light</code></td>
-<td>NetBox Light</td>
-<td><code>light</code></td>
+<td><code>nbx proxbox &lt;categoria&gt; &lt;recurso&gt; get --id N</code></td>
+<td>GET no endpoint de detalhe Proxbox</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;categoria&gt; &lt;recurso&gt; create --body-json ...</code></td>
+<td>POST em endpoints de lista graváveis</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;categoria&gt; &lt;recurso&gt; update --id N --body-json ...</code></td>
+<td>PUT em endpoints de detalhe graváveis</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;categoria&gt; &lt;recurso&gt; patch --id N --body-json ...</code></td>
+<td>PATCH em endpoints de detalhe graváveis</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;categoria&gt; &lt;recurso&gt; delete --id N</code></td>
+<td>DELETE em endpoints de detalhe graváveis</td>
+</tr>
+<tr>
+<td><code>nbx proxbox sync</code></td>
+<td>Agenda um job de sync guiado e transmite progresso SSE</td>
+</tr>
+<tr>
+<td><code>nbx proxbox tui</code></td>
+<td>Abre a bancada de requisições somente para Proxbox</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="selecting-a-theme">Selecting a theme<a class="headerlink" href="#selecting-a-theme" title="Permanent link">&para;</a></h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">At launch</label><label for="__tabbed_1_2">At runtime</label><label for="__tabbed_1_3">List available themes</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>netbox
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>netbox-light
+<p>Recursos Proxbox somente leitura registram apenas comandos de leitura. Por
+exemplo, <code>operations deletion-requests</code> e <code>operations apply-jobs</code> expõem apenas
+<code>list</code> e <code>get</code>; subcomandos de escrita não aparecem.</p>
+<h2 id="exemplos">Exemplos<a class="headerlink" href="#exemplos" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Descobrir recursos e ações suportados.</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>resources
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>resources<span class="w"> </span>--json
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Inspecionar um recurso antes de criar automação.</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>ops<span class="w"> </span>firewall/rules
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>ops<span class="w"> </span>operations/deletion-requests<span class="w"> </span>--json
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Comandos CRUD padrão.</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>list<span class="w"> </span>-q<span class="w"> </span><span class="nv">name</span><span class="o">=</span>pve-prod
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">12</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>create<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;pve-prod&quot;,&quot;url&quot;:&quot;https://pve.example.com:8006&quot;}&#39;</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>firewall<span class="w"> </span>rules<span class="w"> </span>patch<span class="w"> </span>--id<span class="w"> </span><span class="m">7</span><span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>sdn<span class="w"> </span>vnets<span class="w"> </span>delete<span class="w"> </span>--id<span class="w"> </span><span class="m">31</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># Simular escritas sem enviar a requisição.</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>firewall<span class="w"> </span>rules<span class="w"> </span>patch<span class="w"> </span>--id<span class="w"> </span><span class="m">7</span><span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># Endpoint baixo nível de agendamento. O comando guiado abaixo costuma ser melhor.</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>schedule<span class="w"> </span>create<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;sync_types&quot;:[&quot;all&quot;]}&#39;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># Sync guiado com barras de progresso ao vivo.</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>sync<span class="w"> </span>pve-prod<span class="w"> </span>-t<span class="w"> </span>virtual-machines<span class="w"> </span>-t<span class="w"> </span>storage
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># TUI somente para Proxbox.</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--theme
 </span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<p>Use the <strong>Theme</strong> dropdown in the top-left corner of the TUI to switch themes live.</p>
-</div>
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<hr />
-<h2 id="theme-compliance">Theme compliance<a class="headerlink" href="#theme-compliance" title="Permanent link">&para;</a></h2>
-<p>Theme switching is not limited to top-level containers. Every Textual widget and widget subcomponent must follow the selected theme, including:</p>
-<ul>
-<li>overlays and dropdowns</li>
-<li>tab bars and active indicators</li>
-<li>tree cursor and highlight states</li>
-<li>option list hover and selected rows</li>
-<li><code>TextArea</code> gutter, cursor line, selection, cursor, and placeholder styling</li>
-</ul>
-<p>Theme audits must be recursive. For every themed widget, check the framework-owned internals that Textual mounts inside it, not just the parent selector. This includes:</p>
-<ul>
-<li>tab internals like <code>ContentTab</code> and <code>Underline</code></li>
-<li>select internals like <code>SelectCurrent Static#label</code>, arrow glyphs, and <code>SelectOverlay</code></li>
-<li>input internals like <code>.input--cursor</code>, <code>.input--selection</code>, <code>.input--placeholder</code>, and <code>.input--suggestion</code></li>
-<li>list-style internals like <code>.option-list--option-*</code> and <code>ListItem</code> state classes</li>
-<li>tree internals like <code>.tree--label</code>, <code>.tree--guides*</code>, <code>.tree--cursor</code>, and hover/highlight states</li>
-<li>table internals like <code>.datatable--header</code>, <code>.datatable--cursor</code>, and hover states</li>
-<li>editor internals like <code>.text-area--gutter</code>, <code>.text-area--cursor-line</code>, <code>.text-area--selection</code>, and <code>.text-area--placeholder</code></li>
-<li>footer internals like <code>.footer-key--key</code> and <code>.footer-key--description</code></li>
-<li>notification internals like <code>ToastRack</code>, <code>ToastHolder</code>, <code>Toast</code>, and <code>.toast--title</code></li>
-</ul>
-<p>When a custom widget composes nested Textual widgets internally, propagate semantic theme intent down to those children and verify the final rendered child states after a runtime theme switch, including focus, hover, active, overlay, and ANSI paths.</p>
-<p>Project rules:</p>
-<ul>
-<li>Never hardcode runtime colors in Python or TCSS outside <code>netbox_tui/themes/*.json</code></li>
-<li>Never leave Textual default colors visible after a theme switch</li>
-<li>Avoid built-in widget palettes when they bypass the repo theme tokens; style component classes with semantic variables instead</li>
-</ul>
-<h3 id="debugging-theme-specific-mismatches">Debugging theme-specific mismatches<a class="headerlink" href="#debugging-theme-specific-mismatches" title="Permanent link">&para;</a></h3>
-<p>If one built-in theme renders correctly and another still shows stray color blocks, do not assume the remaining issue is always a widget selector bug. Compare the theme JSON palette itself against a known-good built-in theme before adding more TCSS overrides.</p>
-<p>Use this workflow:</p>
-<ul>
-<li>compare <code>background</code>, <code>surface</code>, <code>panel</code>, <code>boost</code>, <code>nb-border</code>, and <code>nb-border-subtle</code> between the broken theme and a known-good theme</li>
-<li>verify the dark-surface hierarchy is progressive: <code>background &lt; surface &lt; panel &lt; boost</code> in perceived lightness</li>
-<li>for dark themes, keep the surface stack low-saturation enough that panel layers read as neutral structure, not bright blue-violet blocks</li>
-<li>check Textual ANSI paths separately, because <code>Screen</code> / <code>ModalScreen</code> and nested framework widgets may still apply ANSI-mode defaults in a real terminal even when headless tests look fine</li>
-</ul>
-<p>Practical lesson from the Dracula fix:</p>
-<ul>
-<li>the remaining blue support-modal and Dev-TUI pane backgrounds were not only widget-style leaks</li>
-<li>Dracula's own <code>surface</code> / <code>panel</code> / <code>boost</code> / border tokens were too blue compared with the calmer NetBox Dark surface stack</li>
-<li>the durable fix was two-part:</li>
-<li>rebalance the Dracula surface hierarchy in <code>netbox_tui/themes/dracula.json</code></li>
-<li>explicitly account for Textual ANSI-mode screen / modal behavior and runtime-mounted inner widgets</li>
-</ul>
-<p>When reviewing or creating a dark theme, treat the following as a built-in sanity check:</p>
-<ul>
-<li>surfaces should get progressively lighter from app background to nested panel emphasis</li>
-<li>adjacent surface tokens should not jump too far in saturation</li>
-<li>border tokens should separate regions without reading as neon outlines</li>
-<li>modal bodies and large content panes should look like neutral structure, not colored feature blocks</li>
-</ul>
-<hr />
-<h2 id="creating-a-custom-theme">Creating a custom theme<a class="headerlink" href="#creating-a-custom-theme" title="Permanent link">&para;</a></h2>
-<p>Place a JSON file in <code>netbox_tui/themes/</code>. It will be discovered automatically — no code changes required.</p>
-<h3 id="required-structure">Required structure<a class="headerlink" href="#required-structure" title="Permanent link">&para;</a></h3>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my-theme&quot;</span><span class="p">,</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Theme&quot;</span><span class="p">,</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;dark&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;aliases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;my&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mytheme&quot;</span><span class="p">],</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">&quot;colors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&quot;primary&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#BD93F9&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">&quot;secondary&quot;</span><span class="p">:</span><span class="w">  </span><span class="s2">&quot;#6272A4&quot;</span><span class="p">,</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">&quot;warning&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#FFB86C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#FF5555&quot;</span><span class="p">,</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#50FA7B&quot;</span><span class="p">,</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="nt">&quot;accent&quot;</span><span class="p">:</span><span class="w">     </span><span class="s2">&quot;#FF79C6&quot;</span><span class="p">,</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">&quot;background&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#282A36&quot;</span><span class="p">,</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">&quot;surface&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#343746&quot;</span><span class="p">,</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">&quot;panel&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#21222C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">&quot;boost&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#414558&quot;</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="nt">&quot;variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="nt">&quot;nb-success-text&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#82D18E&quot;</span><span class="p">,</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="nt">&quot;nb-success-bg&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#1C3326&quot;</span><span class="p">,</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="nt">&quot;nb-info-text&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;#79C0FF&quot;</span><span class="p">,</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="nt">&quot;nb-info-bg&quot;</span><span class="p">:</span><span class="w">         </span><span class="s2">&quot;#172131&quot;</span><span class="p">,</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="nt">&quot;nb-warning-text&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#F2CC60&quot;</span><span class="p">,</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">    </span><span class="nt">&quot;nb-warning-bg&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#332B00&quot;</span><span class="p">,</span>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">    </span><span class="nt">&quot;nb-danger-text&quot;</span><span class="p">:</span><span class="w">     </span><span class="s2">&quot;#FF7B7B&quot;</span><span class="p">,</span>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="nt">&quot;nb-danger-bg&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;#3B1111&quot;</span><span class="p">,</span>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">    </span><span class="nt">&quot;nb-border&quot;</span><span class="p">:</span><span class="w">          </span><span class="s2">&quot;#414558&quot;</span><span class="p">,</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="w">    </span><span class="nt">&quot;nb-border-subtle&quot;</span><span class="p">:</span><span class="w">   </span><span class="s2">&quot;#343746&quot;</span><span class="p">,</span>
-</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">    </span><span class="nt">&quot;nb-muted-text&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#6272A4&quot;</span><span class="p">,</span>
-</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">    </span><span class="nt">&quot;nb-link-text&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;#8BE9FD&quot;</span><span class="p">,</span>
-</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">    </span><span class="nt">&quot;nb-id-text&quot;</span><span class="p">:</span><span class="w">         </span><span class="s2">&quot;#FFB86C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">    </span><span class="nt">&quot;nb-key-text&quot;</span><span class="p">:</span><span class="w">        </span><span class="s2">&quot;#F1FA8C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">    </span><span class="nt">&quot;nb-tag-text&quot;</span><span class="p">:</span><span class="w">        </span><span class="s2">&quot;#FF79C6&quot;</span><span class="p">,</span>
-</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">    </span><span class="nt">&quot;nb-tag-bg&quot;</span><span class="p">:</span><span class="w">          </span><span class="s2">&quot;#3A1F3A&quot;</span>
-</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="p">}</span>
-</span></code></pre></div>
-<h3 id="required-fields">Required fields<a class="headerlink" href="#required-fields" title="Permanent link">&para;</a></h3>
+<h2 id="familias-de-recursos">Famílias de Recursos<a class="headerlink" href="#familias-de-recursos" title="Permanent link">&para;</a></h2>
+<p>O catálogo agrupa endpoints do plugin por fluxo operacional:</p>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
+<th>Família</th>
+<th>Exemplos</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>name</code></td>
-<td>string</td>
-<td>Unique identifier used in CLI flags</td>
+<td>Endpoints</td>
+<td><code>endpoints proxmox</code>, <code>endpoints netbox</code>, <code>endpoints pbs</code>, <code>endpoints pdm</code></td>
 </tr>
 <tr>
-<td><code>label</code></td>
-<td>string</td>
-<td>Human-readable display name</td>
+<td>Inventário</td>
+<td><code>inventory clusters</code>, <code>inventory nodes</code>, <code>inventory storage</code></td>
 </tr>
 <tr>
-<td><code>dark</code></td>
-<td>boolean</td>
-<td>Whether this is a dark theme</td>
+<td>Máquinas virtuais</td>
+<td><code>virtual-machines templates</code>, <code>virtual-machines cloudinit</code></td>
 </tr>
 <tr>
-<td><code>colors</code></td>
-<td>object</td>
-<td>10 Textual semantic color keys (all required)</td>
+<td>Operações</td>
+<td><code>operations backups</code>, <code>operations snapshots</code>, <code>operations task-history</code></td>
+</tr>
+<tr>
+<td>Firecracker</td>
+<td><code>firecracker host-pools</code>, <code>firecracker hosts</code>, <code>firecracker microvms</code></td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td><code>firewall security-groups</code>, <code>firewall rules</code>, <code>firewall ipsets</code></td>
+</tr>
+<tr>
+<td>SDN</td>
+<td><code>sdn fabrics</code>, <code>sdn controllers</code>, <code>sdn zones</code>, <code>sdn vnets</code>, <code>sdn subnets</code></td>
+</tr>
+<tr>
+<td>Views</td>
+<td><code>views home</code>, <code>views dashboard</code>, <code>resource-views virtual-machines</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="optional-fields">Optional fields<a class="headerlink" href="#optional-fields" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>aliases</code></td>
-<td>array of strings</td>
-<td>Alternative names for this theme</td>
-</tr>
-<tr>
-<td><code>variables</code></td>
-<td>object</td>
-<td>16 NetBox-specific CSS variable overrides</td>
-</tr>
-</tbody>
-</table>
-<h3 id="validation-rules">Validation rules<a class="headerlink" href="#validation-rules" title="Permanent link">&para;</a></h3>
-<p>Themes are strictly validated at load time:</p>
-<ul>
-<li>All 10 <code>colors</code> keys are required</li>
-<li>All 16 <code>variables</code> keys are required when the <code>variables</code> object is present</li>
-<li>All color values must be <code>#RRGGBB</code> hex strings</li>
-<li>No duplicate theme names or alias conflicts allowed</li>
-<li>Unknown top-level keys cause an error</li>
-</ul>
-<p>A malformed theme raises <code>ThemeCatalogError</code> with a clear message indicating which key or value failed.</p>
-<hr />
-<h2 id="design-guidelines">Design guidelines<a class="headerlink" href="#design-guidelines" title="Permanent link">&para;</a></h2>
-<p>Themes should follow the NetBox dark mode visual hierarchy:</p>
-<ul>
-<li>Use <code>primary</code> for interactive elements and focus rings</li>
-<li>Use <code>surface</code> for card/panel backgrounds</li>
-<li>Use <code>panel</code> for nested containers</li>
-<li>Use <code>boost</code> for highlighted backgrounds</li>
-<li>Use <code>nb-border</code> for standard borders, <code>nb-border-subtle</code> for inner/secondary borders</li>
-<li>Status colors: <code>nb-success-*</code>, <code>nb-info-*</code>, <code>nb-warning-*</code>, <code>nb-danger-*</code></li>
-</ul>
-<p>Additional surface guidance for dark themes:</p>
-<ul>
-<li><code>background</code> should be the darkest neutral foundation</li>
-<li><code>surface</code> should lift slightly from <code>background</code> without becoming obviously colored</li>
-<li><code>panel</code> should sit above <code>surface</code> for nested containers and modal bodies</li>
-<li><code>boost</code> should be the strongest neutral emphasis layer, not a substitute for accent color</li>
-<li>if a theme's surface stack reads as blue or purple slabs in large panes, reduce saturation in those structural tokens before patching widgets</li>
-</ul>
-<p>See <code>reference/design/NETBOX-DARK-PATTERNS.md</code> in the repository for the full design reference.</p>
+<h2 id="fluxo">Fluxo<a class="headerlink" href="#fluxo" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[comando nbx proxbox] --&gt; B[catálogo Proxbox]
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[caminho no SchemaIndex]
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[resolvedor dinâmico de requisição]
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    D --&gt; E[NetBoxApiClient]
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    E --&gt; F[API do plugin netbox-proxbox]
+</span></code></pre></div>
+<h2 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h2>
+<p><code>nbx proxbox tui</code> lança a mesma bancada de requisições usada por <code>nbx dev tui</code>,
+mas com índice de esquema somente Proxbox. A barra lateral começa no catálogo
+Proxbox, os painéis de método/caminho/corpo/resposta funcionam como na bancada
+de desenvolvedor, e a descoberta ao vivo de plugins fica desativada para manter
+o catálogo estável mesmo quando a instância NetBox conectada não expõe metadados
+OpenAPI do plugin.</p>
 
 
 
@@ -3611,7 +3391,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
+  Voltar ao topo
 </button>
         
       </main>
@@ -3659,10 +3439,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.path", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.path", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "Mais 1 nesta p\u00e1gina", "search.result.more.other": "Mais # nesta p\u00e1gina", "search.result.none": "Nenhum resultado encontrado", "search.result.one": "1 resultado encontrado", "search.result.other": "# resultados encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

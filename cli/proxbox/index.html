@@ -10,19 +10,19 @@
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/tui/themes/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/cli/proxbox/">
       
       
-        <link rel="prev" href="../../reference/tui/launch-examples/django-models-browser/">
+        <link rel="prev" href="../dynamic-commands/">
       
       
-        <link rel="next" href="../keybindings/">
+        <link rel="next" href="../graphql/">
       
       
         
           <link rel="alternate" href="./" hreflang="en">
         
-          <link rel="alternate" href="../../pt/tui/themes/" hreflang="pt">
+          <link rel="alternate" href="../../pt/cli/proxbox/" hreflang="pt">
         
       
       
@@ -31,7 +31,7 @@
     
     
       
-        <title>Themes - NetBox SDK</title>
+        <title>Proxbox - NetBox SDK</title>
       
     
     
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#themes" class="md-skip">
+        <a href="#proxbox-cli" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Themes
+              Proxbox
             
           </span>
         </div>
@@ -172,7 +172,7 @@
           </li>
         
           <li class="md-select__item">
-            <a href="../../pt/tui/themes/" hreflang="pt" class="md-select__link">
+            <a href="../../pt/cli/proxbox/" hreflang="pt" class="md-select__link">
               Português (Brasil)
             </a>
           </li>
@@ -335,11 +335,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../cli/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -357,13 +359,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../tui/" class="md-tabs__link">
           
   
   
@@ -1158,6 +1158,8 @@
       
   
   
+    
+  
   
   
     
@@ -1187,22 +1189,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../cli/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1220,13 +1223,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1246,7 +1249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/commands/" class="md-nav__link">
+      <a href="../commands/" class="md-nav__link">
         
   
   
@@ -1274,7 +1277,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/dynamic-commands/" class="md-nav__link">
+      <a href="../dynamic-commands/" class="md-nav__link">
         
   
   
@@ -1299,10 +1302,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../cli/proxbox/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proxbox
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1318,6 +1348,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#command-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command Map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-families" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Families
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1330,7 +1435,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/graphql/" class="md-nav__link">
+      <a href="../graphql/" class="md-nav__link">
         
   
   
@@ -1358,7 +1463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/demo-profile/" class="md-nav__link">
+      <a href="../demo-profile/" class="md-nav__link">
         
   
   
@@ -1386,7 +1491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli/branching/" class="md-nav__link">
+      <a href="../branching/" class="md-nav__link">
         
   
   
@@ -1438,10 +1543,13 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1469,7 +1577,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -1703,8 +1811,6 @@
       
   
   
-    
-  
   
   
     
@@ -1740,23 +1846,22 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../tui/" class="md-nav__link ">
               
   
   
@@ -1774,13 +1879,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1802,7 +1907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dev-workbench/" class="md-nav__link">
+      <a href="../../tui/dev-workbench/" class="md-nav__link">
         
   
   
@@ -1830,7 +1935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../graphql/" class="md-nav__link">
+      <a href="../../tui/graphql/" class="md-nav__link">
         
   
   
@@ -1858,7 +1963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli-builder/" class="md-nav__link">
+      <a href="../../tui/cli-builder/" class="md-nav__link">
         
   
   
@@ -1886,7 +1991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../logs/" class="md-nav__link">
+      <a href="../../tui/logs/" class="md-nav__link">
         
   
   
@@ -1914,7 +2019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../django-models/" class="md-nav__link">
+      <a href="../../tui/django-models/" class="md-nav__link">
         
   
   
@@ -1966,13 +2071,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -2000,7 +2102,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="">
+              <label class="md-nav__link " for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -2199,37 +2301,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Themes
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../tui/themes/" class="md-nav__link">
         
   
   
@@ -2245,148 +2320,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#built-in-themes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Built-in themes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#selecting-a-theme" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Selecting a theme
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#theme-compliance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Theme compliance
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Theme compliance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#debugging-theme-specific-mismatches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Debugging theme-specific mismatches
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#creating-a-custom-theme" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating a custom theme
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Creating a custom theme">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#required-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required structure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#required-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#validation-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Validation rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-guidelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design guidelines
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2399,7 +2332,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../keybindings/" class="md-nav__link">
+      <a href="../../tui/keybindings/" class="md-nav__link">
         
   
   
@@ -2427,7 +2360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../branching/" class="md-nav__link">
+      <a href="../../tui/branching/" class="md-nav__link">
         
   
   
@@ -2477,13 +2410,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -2492,7 +2422,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_12" >
         
           
-          <label class="md-nav__link" for="__nav_6_12" id="__nav_6_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6_12" id="__nav_6_12_label" tabindex="0">
             
   
   
@@ -2528,7 +2458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots/" class="md-nav__link">
+      <a href="../../tui/screenshots/" class="md-nav__link">
         
   
   
@@ -2556,7 +2486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-default/" class="md-nav__link">
+      <a href="../../tui/screenshots-default/" class="md-nav__link">
         
   
   
@@ -2584,7 +2514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-dev/" class="md-nav__link">
+      <a href="../../tui/screenshots-dev/" class="md-nav__link">
         
   
   
@@ -2612,7 +2542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-graphql/" class="md-nav__link">
+      <a href="../../tui/screenshots-graphql/" class="md-nav__link">
         
   
   
@@ -2640,7 +2570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-logs/" class="md-nav__link">
+      <a href="../../tui/screenshots-logs/" class="md-nav__link">
         
   
   
@@ -2668,7 +2598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-cli/" class="md-nav__link">
+      <a href="../../tui/screenshots-cli/" class="md-nav__link">
         
   
   
@@ -2696,7 +2626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-django/" class="md-nav__link">
+      <a href="../../tui/screenshots-django/" class="md-nav__link">
         
   
   
@@ -3165,10 +3095,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#built-in-themes" class="md-nav__link">
+  <a href="#command-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Built-in themes
+        Command Map
       
     </span>
   </a>
@@ -3176,10 +3106,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#selecting-a-theme" class="md-nav__link">
+  <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selecting a theme
+        Examples
       
     </span>
   </a>
@@ -3187,99 +3117,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#theme-compliance" class="md-nav__link">
+  <a href="#resource-families" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Theme compliance
+        Resource Families
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Theme compliance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#debugging-theme-specific-mismatches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Debugging theme-specific mismatches
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#creating-a-custom-theme" class="md-nav__link">
+  <a href="#flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Creating a custom theme
+        Flow
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Creating a custom theme">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#required-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required structure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#required-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Required fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional fields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#validation-rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Validation rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-guidelines" class="md-nav__link">
+  <a href="#tui" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Design guidelines
+        TUI
       
     </span>
   </a>
@@ -3332,7 +3195,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    TUI
+    CLI
   </span>
 
         </a>
@@ -3354,238 +3217,156 @@
   
 
 
-<h1 id="themes">Themes<a class="headerlink" href="#themes" title="Permanent link">&para;</a></h1>
-<p>The TUI ships with four built-in themes and supports unlimited custom themes defined as JSON files.</p>
-<hr />
-<h2 id="built-in-themes">Built-in themes<a class="headerlink" href="#built-in-themes" title="Permanent link">&para;</a></h2>
+<h1 id="proxbox-cli">Proxbox CLI<a class="headerlink" href="#proxbox-cli" title="Permanent link">&para;</a></h1>
+<p><code>nbx proxbox</code> is the dedicated command surface for the <code>netbox-proxbox</code> plugin.
+It includes a stable catalog of Proxbox plugin endpoints, generated CRUD
+commands, the existing streaming sync workflow, and a Proxbox-focused Textual
+request workbench.</p>
+<p>Use this surface when you want Proxbox operations without remembering raw plugin
+paths such as <code>/api/plugins/proxbox/firewall/rules/{id}/</code>.</p>
+<h2 id="command-map">Command Map<a class="headerlink" href="#command-map" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Theme name</th>
-<th>Label</th>
-<th>Aliases</th>
+<th>Command</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>default</code></td>
-<td>Default</td>
-<td>-</td>
+<td><code>nbx proxbox resources</code></td>
+<td>Show the catalog with Rich-colored command, category, action, and description columns</td>
 </tr>
 <tr>
-<td><code>dracula</code></td>
-<td>Dracula</td>
-<td><code>dracula-dark</code></td>
+<td><code>nbx proxbox ops RESOURCE</code></td>
+<td>Show the HTTP methods and paths behind one catalog resource</td>
 </tr>
 <tr>
-<td><code>netbox-dark</code></td>
-<td>NetBox Dark</td>
-<td><code>netbox</code></td>
+<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; list</code></td>
+<td>GET a Proxbox list endpoint</td>
 </tr>
 <tr>
-<td><code>netbox-light</code></td>
-<td>NetBox Light</td>
-<td><code>light</code></td>
+<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; get --id N</code></td>
+<td>GET a Proxbox detail endpoint</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; create --body-json ...</code></td>
+<td>POST to writable list endpoints</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; update --id N --body-json ...</code></td>
+<td>PUT to writable detail endpoints</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; patch --id N --body-json ...</code></td>
+<td>PATCH writable detail endpoints</td>
+</tr>
+<tr>
+<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; delete --id N</code></td>
+<td>DELETE writable detail endpoints</td>
+</tr>
+<tr>
+<td><code>nbx proxbox sync</code></td>
+<td>Schedule a guided sync job and stream SSE progress</td>
+</tr>
+<tr>
+<td><code>nbx proxbox tui</code></td>
+<td>Open the Proxbox-only request workbench</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="selecting-a-theme">Selecting a theme<a class="headerlink" href="#selecting-a-theme" title="Permanent link">&para;</a></h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">At launch</label><label for="__tabbed_1_2">At runtime</label><label for="__tabbed_1_3">List available themes</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>netbox
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>netbox-light
+<p>Read-only Proxbox resources only register read commands. For example,
+<code>operations deletion-requests</code> and <code>operations apply-jobs</code> expose <code>list</code> and
+<code>get</code> only; write subcommands are not present.</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Find supported resources and actions.</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>resources
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>resources<span class="w"> </span>--json
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Inspect one resource before writing automation around it.</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>ops<span class="w"> </span>firewall/rules
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>ops<span class="w"> </span>operations/deletion-requests<span class="w"> </span>--json
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Standard CRUD commands.</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>list<span class="w"> </span>-q<span class="w"> </span><span class="nv">name</span><span class="o">=</span>pve-prod
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">12</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>create<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;pve-prod&quot;,&quot;url&quot;:&quot;https://pve.example.com:8006&quot;}&#39;</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>firewall<span class="w"> </span>rules<span class="w"> </span>patch<span class="w"> </span>--id<span class="w"> </span><span class="m">7</span><span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>sdn<span class="w"> </span>vnets<span class="w"> </span>delete<span class="w"> </span>--id<span class="w"> </span><span class="m">31</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># Dry-run write requests without sending them.</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>firewall<span class="w"> </span>rules<span class="w"> </span>patch<span class="w"> </span>--id<span class="w"> </span><span class="m">7</span><span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># Low-level schedule endpoint. The guided command below is usually better.</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>schedule<span class="w"> </span>create<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;sync_types&quot;:[&quot;all&quot;]}&#39;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># Guided sync with live progress bars.</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>sync<span class="w"> </span>pve-prod<span class="w"> </span>-t<span class="w"> </span>virtual-machines<span class="w"> </span>-t<span class="w"> </span>storage
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># Proxbox-only TUI.</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--theme
 </span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<p>Use the <strong>Theme</strong> dropdown in the top-left corner of the TUI to switch themes live.</p>
-</div>
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>nbx<span class="w"> </span>tui<span class="w"> </span>--theme
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<hr />
-<h2 id="theme-compliance">Theme compliance<a class="headerlink" href="#theme-compliance" title="Permanent link">&para;</a></h2>
-<p>Theme switching is not limited to top-level containers. Every Textual widget and widget subcomponent must follow the selected theme, including:</p>
-<ul>
-<li>overlays and dropdowns</li>
-<li>tab bars and active indicators</li>
-<li>tree cursor and highlight states</li>
-<li>option list hover and selected rows</li>
-<li><code>TextArea</code> gutter, cursor line, selection, cursor, and placeholder styling</li>
-</ul>
-<p>Theme audits must be recursive. For every themed widget, check the framework-owned internals that Textual mounts inside it, not just the parent selector. This includes:</p>
-<ul>
-<li>tab internals like <code>ContentTab</code> and <code>Underline</code></li>
-<li>select internals like <code>SelectCurrent Static#label</code>, arrow glyphs, and <code>SelectOverlay</code></li>
-<li>input internals like <code>.input--cursor</code>, <code>.input--selection</code>, <code>.input--placeholder</code>, and <code>.input--suggestion</code></li>
-<li>list-style internals like <code>.option-list--option-*</code> and <code>ListItem</code> state classes</li>
-<li>tree internals like <code>.tree--label</code>, <code>.tree--guides*</code>, <code>.tree--cursor</code>, and hover/highlight states</li>
-<li>table internals like <code>.datatable--header</code>, <code>.datatable--cursor</code>, and hover states</li>
-<li>editor internals like <code>.text-area--gutter</code>, <code>.text-area--cursor-line</code>, <code>.text-area--selection</code>, and <code>.text-area--placeholder</code></li>
-<li>footer internals like <code>.footer-key--key</code> and <code>.footer-key--description</code></li>
-<li>notification internals like <code>ToastRack</code>, <code>ToastHolder</code>, <code>Toast</code>, and <code>.toast--title</code></li>
-</ul>
-<p>When a custom widget composes nested Textual widgets internally, propagate semantic theme intent down to those children and verify the final rendered child states after a runtime theme switch, including focus, hover, active, overlay, and ANSI paths.</p>
-<p>Project rules:</p>
-<ul>
-<li>Never hardcode runtime colors in Python or TCSS outside <code>netbox_tui/themes/*.json</code></li>
-<li>Never leave Textual default colors visible after a theme switch</li>
-<li>Avoid built-in widget palettes when they bypass the repo theme tokens; style component classes with semantic variables instead</li>
-</ul>
-<h3 id="debugging-theme-specific-mismatches">Debugging theme-specific mismatches<a class="headerlink" href="#debugging-theme-specific-mismatches" title="Permanent link">&para;</a></h3>
-<p>If one built-in theme renders correctly and another still shows stray color blocks, do not assume the remaining issue is always a widget selector bug. Compare the theme JSON palette itself against a known-good built-in theme before adding more TCSS overrides.</p>
-<p>Use this workflow:</p>
-<ul>
-<li>compare <code>background</code>, <code>surface</code>, <code>panel</code>, <code>boost</code>, <code>nb-border</code>, and <code>nb-border-subtle</code> between the broken theme and a known-good theme</li>
-<li>verify the dark-surface hierarchy is progressive: <code>background &lt; surface &lt; panel &lt; boost</code> in perceived lightness</li>
-<li>for dark themes, keep the surface stack low-saturation enough that panel layers read as neutral structure, not bright blue-violet blocks</li>
-<li>check Textual ANSI paths separately, because <code>Screen</code> / <code>ModalScreen</code> and nested framework widgets may still apply ANSI-mode defaults in a real terminal even when headless tests look fine</li>
-</ul>
-<p>Practical lesson from the Dracula fix:</p>
-<ul>
-<li>the remaining blue support-modal and Dev-TUI pane backgrounds were not only widget-style leaks</li>
-<li>Dracula's own <code>surface</code> / <code>panel</code> / <code>boost</code> / border tokens were too blue compared with the calmer NetBox Dark surface stack</li>
-<li>the durable fix was two-part:</li>
-<li>rebalance the Dracula surface hierarchy in <code>netbox_tui/themes/dracula.json</code></li>
-<li>explicitly account for Textual ANSI-mode screen / modal behavior and runtime-mounted inner widgets</li>
-</ul>
-<p>When reviewing or creating a dark theme, treat the following as a built-in sanity check:</p>
-<ul>
-<li>surfaces should get progressively lighter from app background to nested panel emphasis</li>
-<li>adjacent surface tokens should not jump too far in saturation</li>
-<li>border tokens should separate regions without reading as neon outlines</li>
-<li>modal bodies and large content panes should look like neutral structure, not colored feature blocks</li>
-</ul>
-<hr />
-<h2 id="creating-a-custom-theme">Creating a custom theme<a class="headerlink" href="#creating-a-custom-theme" title="Permanent link">&para;</a></h2>
-<p>Place a JSON file in <code>netbox_tui/themes/</code>. It will be discovered automatically — no code changes required.</p>
-<h3 id="required-structure">Required structure<a class="headerlink" href="#required-structure" title="Permanent link">&para;</a></h3>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my-theme&quot;</span><span class="p">,</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My Theme&quot;</span><span class="p">,</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;dark&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;aliases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;my&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mytheme&quot;</span><span class="p">],</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">&quot;colors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&quot;primary&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#BD93F9&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">&quot;secondary&quot;</span><span class="p">:</span><span class="w">  </span><span class="s2">&quot;#6272A4&quot;</span><span class="p">,</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">&quot;warning&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#FFB86C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#FF5555&quot;</span><span class="p">,</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#50FA7B&quot;</span><span class="p">,</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="nt">&quot;accent&quot;</span><span class="p">:</span><span class="w">     </span><span class="s2">&quot;#FF79C6&quot;</span><span class="p">,</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">&quot;background&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#282A36&quot;</span><span class="p">,</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">&quot;surface&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#343746&quot;</span><span class="p">,</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">&quot;panel&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#21222C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">&quot;boost&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#414558&quot;</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="p">},</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="nt">&quot;variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="nt">&quot;nb-success-text&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#82D18E&quot;</span><span class="p">,</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="nt">&quot;nb-success-bg&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#1C3326&quot;</span><span class="p">,</span>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="nt">&quot;nb-info-text&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;#79C0FF&quot;</span><span class="p">,</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="nt">&quot;nb-info-bg&quot;</span><span class="p">:</span><span class="w">         </span><span class="s2">&quot;#172131&quot;</span><span class="p">,</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="nt">&quot;nb-warning-text&quot;</span><span class="p">:</span><span class="w">    </span><span class="s2">&quot;#F2CC60&quot;</span><span class="p">,</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">    </span><span class="nt">&quot;nb-warning-bg&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#332B00&quot;</span><span class="p">,</span>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">    </span><span class="nt">&quot;nb-danger-text&quot;</span><span class="p">:</span><span class="w">     </span><span class="s2">&quot;#FF7B7B&quot;</span><span class="p">,</span>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="nt">&quot;nb-danger-bg&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;#3B1111&quot;</span><span class="p">,</span>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">    </span><span class="nt">&quot;nb-border&quot;</span><span class="p">:</span><span class="w">          </span><span class="s2">&quot;#414558&quot;</span><span class="p">,</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="w">    </span><span class="nt">&quot;nb-border-subtle&quot;</span><span class="p">:</span><span class="w">   </span><span class="s2">&quot;#343746&quot;</span><span class="p">,</span>
-</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">    </span><span class="nt">&quot;nb-muted-text&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;#6272A4&quot;</span><span class="p">,</span>
-</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">    </span><span class="nt">&quot;nb-link-text&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;#8BE9FD&quot;</span><span class="p">,</span>
-</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">    </span><span class="nt">&quot;nb-id-text&quot;</span><span class="p">:</span><span class="w">         </span><span class="s2">&quot;#FFB86C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">    </span><span class="nt">&quot;nb-key-text&quot;</span><span class="p">:</span><span class="w">        </span><span class="s2">&quot;#F1FA8C&quot;</span><span class="p">,</span>
-</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">    </span><span class="nt">&quot;nb-tag-text&quot;</span><span class="p">:</span><span class="w">        </span><span class="s2">&quot;#FF79C6&quot;</span><span class="p">,</span>
-</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">    </span><span class="nt">&quot;nb-tag-bg&quot;</span><span class="p">:</span><span class="w">          </span><span class="s2">&quot;#3A1F3A&quot;</span>
-</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="p">}</span>
-</span></code></pre></div>
-<h3 id="required-fields">Required fields<a class="headerlink" href="#required-fields" title="Permanent link">&para;</a></h3>
+<h2 id="resource-families">Resource Families<a class="headerlink" href="#resource-families" title="Permanent link">&para;</a></h2>
+<p>The catalog groups plugin endpoints by operator workflow:</p>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
+<th>Family</th>
+<th>Examples</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>name</code></td>
-<td>string</td>
-<td>Unique identifier used in CLI flags</td>
+<td>Endpoints</td>
+<td><code>endpoints proxmox</code>, <code>endpoints netbox</code>, <code>endpoints pbs</code>, <code>endpoints pdm</code></td>
 </tr>
 <tr>
-<td><code>label</code></td>
-<td>string</td>
-<td>Human-readable display name</td>
+<td>Inventory</td>
+<td><code>inventory clusters</code>, <code>inventory nodes</code>, <code>inventory storage</code></td>
 </tr>
 <tr>
-<td><code>dark</code></td>
-<td>boolean</td>
-<td>Whether this is a dark theme</td>
+<td>Virtual machines</td>
+<td><code>virtual-machines templates</code>, <code>virtual-machines cloudinit</code></td>
 </tr>
 <tr>
-<td><code>colors</code></td>
-<td>object</td>
-<td>10 Textual semantic color keys (all required)</td>
+<td>Operations</td>
+<td><code>operations backups</code>, <code>operations snapshots</code>, <code>operations task-history</code></td>
+</tr>
+<tr>
+<td>Firecracker</td>
+<td><code>firecracker host-pools</code>, <code>firecracker hosts</code>, <code>firecracker microvms</code></td>
+</tr>
+<tr>
+<td>Firewall</td>
+<td><code>firewall security-groups</code>, <code>firewall rules</code>, <code>firewall ipsets</code></td>
+</tr>
+<tr>
+<td>SDN</td>
+<td><code>sdn fabrics</code>, <code>sdn controllers</code>, <code>sdn zones</code>, <code>sdn vnets</code>, <code>sdn subnets</code></td>
+</tr>
+<tr>
+<td>Views</td>
+<td><code>views home</code>, <code>views dashboard</code>, <code>resource-views virtual-machines</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="optional-fields">Optional fields<a class="headerlink" href="#optional-fields" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>aliases</code></td>
-<td>array of strings</td>
-<td>Alternative names for this theme</td>
-</tr>
-<tr>
-<td><code>variables</code></td>
-<td>object</td>
-<td>16 NetBox-specific CSS variable overrides</td>
-</tr>
-</tbody>
-</table>
-<h3 id="validation-rules">Validation rules<a class="headerlink" href="#validation-rules" title="Permanent link">&para;</a></h3>
-<p>Themes are strictly validated at load time:</p>
-<ul>
-<li>All 10 <code>colors</code> keys are required</li>
-<li>All 16 <code>variables</code> keys are required when the <code>variables</code> object is present</li>
-<li>All color values must be <code>#RRGGBB</code> hex strings</li>
-<li>No duplicate theme names or alias conflicts allowed</li>
-<li>Unknown top-level keys cause an error</li>
-</ul>
-<p>A malformed theme raises <code>ThemeCatalogError</code> with a clear message indicating which key or value failed.</p>
-<hr />
-<h2 id="design-guidelines">Design guidelines<a class="headerlink" href="#design-guidelines" title="Permanent link">&para;</a></h2>
-<p>Themes should follow the NetBox dark mode visual hierarchy:</p>
-<ul>
-<li>Use <code>primary</code> for interactive elements and focus rings</li>
-<li>Use <code>surface</code> for card/panel backgrounds</li>
-<li>Use <code>panel</code> for nested containers</li>
-<li>Use <code>boost</code> for highlighted backgrounds</li>
-<li>Use <code>nb-border</code> for standard borders, <code>nb-border-subtle</code> for inner/secondary borders</li>
-<li>Status colors: <code>nb-success-*</code>, <code>nb-info-*</code>, <code>nb-warning-*</code>, <code>nb-danger-*</code></li>
-</ul>
-<p>Additional surface guidance for dark themes:</p>
-<ul>
-<li><code>background</code> should be the darkest neutral foundation</li>
-<li><code>surface</code> should lift slightly from <code>background</code> without becoming obviously colored</li>
-<li><code>panel</code> should sit above <code>surface</code> for nested containers and modal bodies</li>
-<li><code>boost</code> should be the strongest neutral emphasis layer, not a substitute for accent color</li>
-<li>if a theme's surface stack reads as blue or purple slabs in large panes, reduce saturation in those structural tokens before patching widgets</li>
-</ul>
-<p>See <code>reference/design/NETBOX-DARK-PATTERNS.md</code> in the repository for the full design reference.</p>
+<h2 id="flow">Flow<a class="headerlink" href="#flow" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[nbx proxbox command] --&gt; B[Proxbox catalog]
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[SchemaIndex resource path]
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[Dynamic request resolver]
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    D --&gt; E[NetBoxApiClient]
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    E --&gt; F[netbox-proxbox plugin API]
+</span></code></pre></div>
+<h2 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h2>
+<p><code>nbx proxbox tui</code> launches the same request workbench used by <code>nbx dev tui</code>,
+but with a Proxbox-only schema index. The sidebar starts at the Proxbox catalog,
+the method/path/body/response panels work the same way as the developer
+workbench, and live plugin discovery is disabled so the catalog remains stable
+even when the connected NetBox instance does not expose OpenAPI metadata for the
+plugin.</p>
 
 
 
