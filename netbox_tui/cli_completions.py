@@ -149,8 +149,7 @@ def _proxbox_child_parts(prefix: tuple[str, ...]) -> list[str]:
         {
             spec.command_parts[prefix_len]
             for spec in proxbox_resources()
-            if len(spec.command_parts) > prefix_len
-            and spec.command_parts[:prefix_len] == prefix
+            if len(spec.command_parts) > prefix_len and spec.command_parts[:prefix_len] == prefix
         }
     )
 

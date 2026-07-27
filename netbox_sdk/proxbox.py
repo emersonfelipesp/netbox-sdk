@@ -49,8 +49,7 @@ class ProxboxResourceSpec(BaseModel):
     @property
     def read_only(self) -> bool:
         return not any(
-            action in {"create", "update", "patch", "delete"}
-            for action in self.supported_actions
+            action in {"create", "update", "patch", "delete"} for action in self.supported_actions
         )
 
     @property

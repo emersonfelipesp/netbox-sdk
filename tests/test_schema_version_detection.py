@@ -155,6 +155,7 @@ def test_load_schema_falls_back_on_non_openapi_response(monkeypatch) -> None:
         "load_profile_config",
         lambda profile: type("cfg", (), {"base_url": "https://netbox.example.com"})(),
     )
+
     def _return_error(coro):
         coro.close()
         return {"error": "authentication required"}
