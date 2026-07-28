@@ -66,6 +66,7 @@ def test_ci_contains_certification_package_and_docs_gates() -> None:
     certification_workflow = _read(".github/workflows/certification.yml")
     docs_workflow = _read(".github/workflows/docs.yml")
     tests_workflow = _read(".github/workflows/test.yml")
+    gitea_workflow = _read(".gitea/workflows/ci.yml")
 
     assert "python -m build" in certification_workflow
     assert "twine check dist/*" in certification_workflow
@@ -73,3 +74,8 @@ def test_ci_contains_certification_package_and_docs_gates() -> None:
     assert "mkdocs build --strict" in docs_workflow
     assert "pull_request:" in docs_workflow
     assert 'netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3"]' in tests_workflow
+    assert "tests/test_certification_readiness.py" in gitea_workflow
+    assert "mkdocs build --strict" in gitea_workflow
+    assert "python -m build" in gitea_workflow
+    assert "twine check dist/*" in gitea_workflow
+    assert "tests/test_security_sdk.py" in gitea_workflow
