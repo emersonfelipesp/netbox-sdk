@@ -2983,6 +2983,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gates-de-qualidade-para-pull-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gates de qualidade para pull requests
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -3061,6 +3080,19 @@
 <li><a href="docgen/">Geração de documentação</a> — sistema de captura de comandos e fluxo de CI</li>
 <li><a href="ide-support/">Suporte de IDE</a> — workspace do VS Code, Pylance via marcadores PEP 561 e gates duplos <code>ty</code> + <code>pyright</code></li>
 </ul>
+<h2 id="gates-de-qualidade-para-pull-requests">Gates de qualidade para pull requests<a class="headerlink" href="#gates-de-qualidade-para-pull-requests" title="Permanent link">&para;</a></h2>
+<p>Pull requests do Gitea direcionados a <code>main</code> executam
+<code>.gitea/workflows/ci.yml</code> sem segredos no runner isolado
+<code>ci-untrusted-python312</code>. O gate verifica o ambiente travado, a política dos
+workflows, ty, Pyright, pre-commit em todos os arquivos, a suíte mock offline
+completa, todos os módulos de segurança do SDK/CLI/TUI, MkDocs estrito,
+metadados da distribuição e um smoke test do wheel instalado. Ele não pode
+publicar, implantar, enviar commits ou acessar um serviço NetBox real.</p>
+<p>O GitHub continua responsável pelas matrizes Python 3.11–3.13 e NetBox real. O
+Gitea valida <code>refs/pull/&lt;N&gt;/head</code>; a proteção da branch deve exigir que o head do
+PR esteja atualizado com <code>main</code>, além de exigir todos os contextos terminais.
+Um job na fila com <code>runner_id: 0</code> é evidência ausente e nunca deve ser tratado
+como aprovação.</p>
 
 
 

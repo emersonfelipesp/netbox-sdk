@@ -2983,6 +2983,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pull-request-quality-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull-request quality gates
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -3061,6 +3080,17 @@
 <li><a href="docgen/">Documentation Generation</a> — the command capture system and CI workflow</li>
 <li><a href="ide-support/">IDE Support</a> — VS Code workspace, Pylance via PEP 561 markers, and the dual <code>ty</code> + <code>pyright</code> checker gates</li>
 </ul>
+<h2 id="pull-request-quality-gates">Pull-request quality gates<a class="headerlink" href="#pull-request-quality-gates" title="Permanent link">&para;</a></h2>
+<p>Gitea pull requests targeting <code>main</code> run <code>.gitea/workflows/ci.yml</code> without
+secrets on the isolated <code>ci-untrusted-python312</code> runner. The gate verifies the
+locked environment, workflow policy, ty, Pyright, all-files pre-commit, the
+complete offline mocked suite, all SDK/CLI/TUI security modules, strict MkDocs,
+distribution metadata, and an installed-wheel smoke. It cannot publish, deploy,
+push, or contact a live NetBox service.</p>
+<p>GitHub continues to own the Python 3.11–3.13 and live-NetBox matrices. Gitea
+validates <code>refs/pull/&lt;N&gt;/head</code>; branch protection must require the PR head to be
+current with <code>main</code> as well as requiring all terminal contexts. A queued job
+with <code>runner_id: 0</code> is missing evidence and must never be treated as a pass.</p>
 
 
 
