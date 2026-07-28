@@ -147,6 +147,24 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 - Theme changes must propagate through nested Textual internals, not only parent widgets.
 - Keep visual state in TCSS classes, not Python conditionals.
 
+## Continuous Integration
+
+`.gitea/workflows/ci.yml` is the secret-free Gitea-first review gate. It runs
+the complete locked offline environment on the isolated
+`ci-untrusted-python312` label: workflow policy, ty, Pyright, all-files
+pre-commit, the full mocked suite, SDK/CLI/TUI security regressions, strict
+documentation, lifecycle/package evidence, distribution metadata, and an
+installed-wheel smoke check. Pull-request jobs have read-only repository
+permissions and must never receive credentials, publish, deploy, push, or
+contact a live NetBox service.
+
+The Gitea workflow supplements rather than replaces GitHub's Python 3.11–3.13
+and live-NetBox matrices. A workflow file alone is not a merge gate: require an
+eligible runner, terminal successful contexts, protected-branch requirements,
+and a PR branch current with its base. Gitea evaluates `refs/pull/<N>/head`, not
+a synthetic merge commit; a queued job with `runner_id: 0` is missing evidence,
+not a pass.
+
 ## Verification Before Done
 
 - Run `uv run pre-commit run --all-files`.

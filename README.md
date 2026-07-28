@@ -226,6 +226,14 @@ uv run ty check netbox_sdk netbox_cli netbox_tui tests
 uv run pytest
 ```
 
+Gitea pull requests targeting `main` also run a secret-free quality gate on the
+isolated `ci-untrusted-python312` runner. It covers workflow policy, both type
+checkers, pre-commit, the complete offline mocked suite, SDK/CLI/TUI security
+regressions, strict MkDocs, and wheel/sdist metadata plus an installed-wheel
+smoke. GitHub retains the Python 3.11–3.13 and live-NetBox matrices. Do not merge
+on queued or missing Gitea evidence; `runner_id: 0` means no eligible runner has
+accepted the job.
+
 ## IDE Support
 
 Open the repository in VS Code. When prompted, install the recommended

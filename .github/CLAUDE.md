@@ -36,7 +36,26 @@ uv sync --group docs --group dev --extra cli --extra tui --extra demo --locked
 uv run mkdocs build --strict
 ```
 
+## Gitea Feature Gate
+
+`.gitea/workflows/ci.yml` mirrors the secret-free pull-request requirements on
+the isolated `ci-untrusted-python312` runner. Its four bounded jobs cover static
+and workflow policy, the complete offline mocked suite, all three package
+security modules, and strict docs/package/installed-wheel validation. All
+third-party actions are pinned to reviewed commit SHAs and repository
+permissions are read-only.
+
+This does not replace the GitHub Python-version or live-NetBox matrices. Do not
+treat the Gitea contexts as authoritative until an eligible runner and required
+branch checks exist. Gitea tests the PR head ref, so branch protection must also
+require the head to be current with its base before merge.
+
 ## Workflow Summary
+
+- `.gitea/workflows/ci.yml`
+  - runs on pushes and pull requests targeting `main`
+  - consumes no secrets and has no publish, deploy, repository-write, or live-NetBox authority
+  - runs the full locked offline, security, documentation, and package evidence gates
 
 - `workflows/lint.yml`
   - installs dev dependencies plus `cli`, `tui`, and `demo` extras

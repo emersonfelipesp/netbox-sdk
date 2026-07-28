@@ -1,0 +1,173 @@
+name: Gitea CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitea-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Static analysis and workflow policy
+    runs-on: ci-untrusted-python312
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact event source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up locked Python tooling
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.11.28"
+          enable-cache: true
+          python-version: "3.12.13"
+
+      - name: Sync the complete locked development environment
+        run: |
+          set -euo pipefail
+          uv lock --check
+          uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+
+      - name: Validate GitHub and Gitea workflow syntax
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/actionlint
+          curl --fail --show-error --silent --location \
+            --connect-timeout 10 --max-time 120 --retry 3 \
+            --output /tmp/actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" /tmp/actionlint.tar.gz \
+            | sha256sum --check --strict -
+          tar --no-same-owner -xzf /tmp/actionlint.tar.gz \
+            -C /tmp/actionlint actionlint
+          /tmp/actionlint/actionlint -color .github/workflows/*.yml
+          /tmp/actionlint/actionlint -color \
+            -ignore 'label ".*" is unknown' .gitea/workflows/*.yml
+
+      - name: Run ty type checks
+        run: >-
+          uv run --locked ty check netbox_sdk netbox_cli netbox_tui tests
+          --output-format concise
+
+      - name: Run Pyright package checks
+        run: uv run --locked pyright netbox_sdk netbox_cli netbox_tui
+
+      - name: Run all repository pre-commit checks
+        run: >-
+          uv run --locked pre-commit run --all-files
+          --show-diff-on-failure --color=always
+
+  full-tests:
+    name: Complete offline mocked suite
+    runs-on: ci-untrusted-python312
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact event source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up locked Python tooling
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.11.28"
+          enable-cache: true
+          python-version: "3.12.13"
+
+      - name: Sync the complete locked test environment
+        run: |
+          set -euo pipefail
+          uv lock --check
+          uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+
+      - name: Run the complete offline mocked suite
+        run: uv run --locked pytest -v --tb=short -p no:randomly
+
+  security:
+    name: SDK, CLI, and TUI security regressions
+    runs-on: ci-untrusted-python312
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact event source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up locked Python tooling
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.11.28"
+          enable-cache: true
+          python-version: "3.12.13"
+
+      - name: Sync the complete locked security environment
+        run: |
+          set -euo pipefail
+          uv lock --check
+          uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+
+      - name: Run all package security regression modules
+        run: >-
+          uv run --locked pytest -v --tb=short -p no:randomly
+          tests/test_security_sdk.py
+          tests/test_security_cli.py
+          tests/test_security_tui.py
+
+  docs-package:
+    name: Strict docs, evidence, and package contract
+    runs-on: ci-untrusted-python312
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact event source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up locked Python tooling
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.11.28"
+          enable-cache: true
+          python-version: "3.12.13"
+
+      - name: Sync locked docs and package dependencies
+        run: |
+          set -euo pipefail
+          uv lock --check
+          uv sync --group docs --group dev --extra cli --extra tui --extra demo --extra mock --locked
+
+      - name: Build documentation strictly
+        run: uv run --locked mkdocs build --strict
+
+      - name: Validate lifecycle and package evidence
+        run: uv run --locked pytest -q tests/test_certification_readiness.py
+
+      - name: Build wheel and source distribution
+        run: uv run --no-project --with build==1.5.0 python -m build
+
+      - name: Validate distribution metadata
+        run: uv run --no-project --with twine==6.2.0 python -m twine check dist/*
+
+      - name: Smoke the installed base wheel
+        run: |
+          set -euo pipefail
+          smoke_dir="${RUNNER_TEMP}/netbox-sdk-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
+          uv venv "$smoke_dir"
+          wheel="$(find dist -maxdepth 1 -type f -name '*.whl' -print -quit)"
+          test -n "$wheel"
+          uv pip install --python "$smoke_dir/bin/python" "$wheel"
+          "$smoke_dir/bin/python" - <<'PY'
+          import importlib.resources
+
+          import netbox_sdk
+
+          assert netbox_sdk.__version__
+          assert importlib.resources.files("netbox_sdk").joinpath("py.typed").is_file()
+          print("netbox-sdk wheel import ok:", netbox_sdk.__version__)
+          PY
