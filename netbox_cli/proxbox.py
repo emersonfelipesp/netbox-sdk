@@ -260,7 +260,9 @@ def ops_command(
     console.print(table)
 
 
-@proxbox_app.command("tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@proxbox_app.command(
+    "tui", context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
 def proxbox_tui_command(
     ctx: typer.Context,
     theme: bool = typer.Option(

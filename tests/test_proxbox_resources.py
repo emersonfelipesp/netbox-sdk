@@ -84,8 +84,7 @@ def test_register_proxbox_resources_adds_dynamic_operations() -> None:
 
     paths = index.resource_paths("plugins", "proxbox/firewall/rules")
     operations = {
-        (op.method, op.path)
-        for op in index.operations_for("plugins", "proxbox/firewall/rules")
+        (op.method, op.path) for op in index.operations_for("plugins", "proxbox/firewall/rules")
     }
 
     assert paths is not None
