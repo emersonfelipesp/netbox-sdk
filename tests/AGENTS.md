@@ -105,7 +105,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |
 | `test_typed_generation.py` | OpenAPI typed-binding generation, query-model identity, and multipart selection |
-| `test_live_netbox.py` | Read-only core API, runtime OpenAPI, typed response, and NetBox 4.6.6 any-tag filter checks against the CI live matrix |
+| `test_live_netbox.py` | Read-only core API/runtime OpenAPI checks plus a `NETBOX_LIVE_TEST=1`-gated disposable NetBox 4.6.6 any-tag fixture roundtrip against ephemeral CI instances |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
 | `test_tui_screenshots.py` | Screenshot harness registration and deterministic GraphQL screenshot setup for docs generation |
 | `test_tui_simulation.py` | TUI launch simulation helpers used by docs/tests |
