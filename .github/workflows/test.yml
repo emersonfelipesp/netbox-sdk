@@ -35,6 +35,7 @@ jobs:
               - '.github/workflows/publish-testpypi.yml'
             sdk:
               - 'netbox_sdk/**'
+              - 'scripts/generate_typed_sdk.py'
               - 'tests/test_api_auth.py'
               - 'tests/test_api_cache.py'
               - 'tests/test_config_profiles.py'
@@ -51,6 +52,8 @@ jobs:
               - 'tests/test_sdk_pynetbox_parity.py'
               - 'tests/test_services.py'
               - 'tests/test_typed_sdk.py'
+              - 'tests/test_typed_generation.py'
+              - 'tests/test_live_netbox.py'
               - 'tests/test_security_sdk.py'
             cli:
               - 'netbox_cli/**'
@@ -78,7 +81,7 @@ jobs:
               - 'tests/test_security_tui.py'
 
   # ------------------------------------------------------------------ #
-  # Branch / PR jobs — mock API only, no real NetBox container          #
+  # Branch / PR jobs — offline mock suites selected by changed paths    #
   # ------------------------------------------------------------------ #
 
   test-sdk:
@@ -190,7 +193,7 @@ jobs:
         run: uv run pytest -v --tb=short -p no:randomly
 
   # ------------------------------------------------------------------ #
-  # main branch — mock API suite + real NetBox container                #
+  # main mock suite + SDK-affected branch/PR and main live matrix        #
   # ------------------------------------------------------------------ #
 
   test-all-mock-main:
@@ -223,12 +226,12 @@ jobs:
   test-live-netbox:
     name: live NetBox ${{ matrix.netbox-version }} / Python 3.11
     needs: changes
-    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    if: ${{ (github.event_name == 'push' && github.ref_name == 'main') || needs.changes.outputs.run_all == 'true' || needs.changes.outputs.sdk == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3"]
+        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6"]
     # Only postgres and redis as service containers — netbox is started
     # manually in a step so postgres is healthy before netbox connects.
     services:

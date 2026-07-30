@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import keyword
 import os
 import re
+import shutil
 import subprocess
 from collections import defaultdict
 from dataclasses import dataclass
@@ -18,6 +20,19 @@ SDK_ROOT = REPO_ROOT / "netbox_sdk"
 MODELS_ROOT = SDK_ROOT / "models"
 TYPED_ROOT = SDK_ROOT / "typed_versions"
 OPENAPI_ROOT = SDK_ROOT / "reference" / "openapi"
+DATAMODEL_CODE_GENERATOR_VERSION = "0.55.0"
+RUFF_VERSION = "0.15.9"
+
+RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
+    "4.6": {
+        "netbox_release": "v4.6.6",
+        "release_commit": "fb8c455ba61b57119a70670612dfdd05e8438b10",
+        "source_path": "contrib/openapi.json",
+        "source_blob_sha": "024d34500a04ec876fb3b32fa18c685e953a02f8",
+        "source_sha256": "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e",
+        "source_url": "https://github.com/netbox-community/netbox/blob/v4.6.6/contrib/openapi.json",
+    }
+}
 
 SCHEMA_SOURCES = {
     "4.6": Path("/tmp/netbox-v4.6-openapi.json"),
@@ -99,6 +114,8 @@ class OperationSpec:
     method_name: str
     query_model_name: str | None
     body_model_expr: str | None
+    body_media_type: str | None
+    body_binary_field_names: tuple[str, ...]
     response_model_expr: str | None
     raw_response: bool = False
     path_param_names: tuple[str, ...] = ()
@@ -127,19 +144,123 @@ def render_query_model(name: str, parameters: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def request_body_expr(operation: dict[str, Any]) -> str | None:
+def _resolve_schema_ref(
+    schema: dict[str, Any],
+    components: dict[str, Any],
+    visited: frozenset[str] = frozenset(),
+) -> dict[str, Any]:
+    ref = schema.get("$ref")
+    if not isinstance(ref, str) or not ref.startswith("#/components/schemas/"):
+        return schema
+    if ref in visited:
+        return {}
+    resolved = components.get(ref.rsplit("/", 1)[-1])
+    if not isinstance(resolved, dict):
+        return {}
+    return _resolve_schema_ref(resolved, components, visited | {ref})
+
+
+def _schema_contains_binary(
+    schema: dict[str, Any],
+    components: dict[str, Any],
+    visited: frozenset[str] = frozenset(),
+) -> bool:
+    if schema.get("format") == "binary":
+        return True
+    ref = schema.get("$ref")
+    if isinstance(ref, str):
+        if ref in visited:
+            return False
+        resolved = _resolve_schema_ref(schema, components, visited)
+        return _schema_contains_binary(resolved, components, visited | {ref})
+    for composition_keyword in ("oneOf", "anyOf", "allOf"):
+        variants = schema.get(composition_keyword)
+        if isinstance(variants, list) and any(
+            _schema_contains_binary(item, components, visited)
+            for item in variants
+            if isinstance(item, dict)
+        ):
+            return True
+    items = schema.get("items")
+    if isinstance(items, dict) and _schema_contains_binary(items, components, visited):
+        return True
+    properties = schema.get("properties")
+    return isinstance(properties, dict) and any(
+        _schema_contains_binary(value, components, visited)
+        for value in properties.values()
+        if isinstance(value, dict)
+    )
+
+
+def _binary_field_names(
+    schema: dict[str, Any],
+    components: dict[str, Any],
+    visited: frozenset[str] = frozenset(),
+) -> tuple[str, ...]:
+    ref = schema.get("$ref")
+    if isinstance(ref, str):
+        if ref in visited:
+            return ()
+        resolved = _resolve_schema_ref(schema, components, visited)
+        return _binary_field_names(resolved, components, visited | {ref})
+
+    names: set[str] = set()
+    properties = schema.get("properties")
+    if isinstance(properties, dict):
+        for name, value in properties.items():
+            if isinstance(value, dict) and _schema_contains_binary(value, components, visited):
+                names.add(str(name))
+    for composition_keyword in ("oneOf", "anyOf", "allOf"):
+        variants = schema.get(composition_keyword)
+        if isinstance(variants, list):
+            for variant in variants:
+                if isinstance(variant, dict):
+                    names.update(_binary_field_names(variant, components, visited))
+    items = schema.get("items")
+    if isinstance(items, dict):
+        names.update(_binary_field_names(items, components, visited))
+    return tuple(sorted(names))
+
+
+@dataclass(frozen=True)
+class RequestBodySpec:
+    type_expr: str
+    media_type: str
+    binary_field_names: tuple[str, ...] = ()
+
+
+def request_body_spec(
+    operation: dict[str, Any], components: dict[str, Any]
+) -> RequestBodySpec | None:
     body = operation.get("requestBody")
     if not isinstance(body, dict):
         return None
     content = body.get("content")
     if not isinstance(content, dict):
         return None
+
+    multipart = content.get("multipart/form-data")
+    if isinstance(multipart, dict):
+        multipart_schema = multipart.get("schema")
+        if isinstance(multipart_schema, dict):
+            binary_fields = _binary_field_names(multipart_schema, components)
+            if binary_fields:
+                return RequestBodySpec(
+                    type_expr=type_expr(multipart_schema),
+                    media_type="multipart/form-data",
+                    binary_field_names=binary_fields,
+                )
+
     for media_type in ("application/json", "multipart/form-data"):
         media = content.get(media_type)
         if isinstance(media, dict):
             schema = media.get("schema")
             if isinstance(schema, dict):
-                return type_expr(schema)
+                return RequestBodySpec(
+                    type_expr=type_expr(schema),
+                    media_type=media_type,
+                    binary_field_names=_binary_field_names(schema, components),
+                )
     return None
 
 
@@ -176,6 +297,9 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
     )
     query_models: dict[str, str] = {}
     list_detail_pairs: dict[tuple[str, str], dict[str, str]] = defaultdict(dict)
+    components = schema.get("components", {}).get("schemas", {})
+    if not isinstance(components, dict):
+        components = {}
 
     for path, path_item in schema.get("paths", {}).items():
         if not isinstance(path_item, dict) or not path.startswith("/api/"):
@@ -192,7 +316,8 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
 
         action_parts = parts[4:] if is_detail else parts[3:]
         action_name = snake_case("_".join(action_parts)) if action_parts else ""
-        class_key = pascal_case(f"{group}_{resource}_{action_name or 'root'}")
+        query_scope = action_name or ("detail" if is_detail else "root")
+        class_key = pascal_case(f"{group}_{resource}_{query_scope}")
 
         for method, operation in path_item.items():
             if method.lower() not in {"get", "post", "put", "patch", "delete"}:
@@ -207,8 +332,15 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
             query_model_name = None
             if params:
                 query_model_name = f"{class_key}{pascal_case(method)}Query"
-                query_models[query_model_name] = render_query_model(query_model_name, params)
-            body_expr = request_body_expr(operation)
+                rendered_query = render_query_model(query_model_name, params)
+                existing_query = query_models.get(query_model_name)
+                if existing_query is not None and existing_query != rendered_query:
+                    raise ValueError(
+                        f"Conflicting query model {query_model_name!r} generated for "
+                        f"{method.upper()} {path}"
+                    )
+                query_models[query_model_name] = rendered_query
+            body_spec = request_body_spec(operation, components)
             response_model_expr, raw_response = response_expr(operation)
             method_name = None
             if is_action:
@@ -231,13 +363,20 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
                 path=path,
                 method_name=method_name,
                 query_model_name=query_model_name,
-                body_model_expr=body_expr,
+                body_model_expr=body_spec.type_expr if body_spec else None,
+                body_media_type=body_spec.media_type if body_spec else None,
+                body_binary_field_names=body_spec.binary_field_names if body_spec else (),
                 response_model_expr=response_model_expr,
                 raw_response=raw_response,
                 path_param_names=path_param_names(path),
             )
             resource_key = resource if not action_name else f"{resource}:{action_name}"
             per_group_resources[group][resource_key].append(spec)
+
+    raw_plugin_fallback = "plugins" not in per_group_resources
+    runtime_imports = ["TypedApiBase", "TypedAppBase", "build_typed_client"]
+    if raw_plugin_fallback:
+        runtime_imports.insert(0, "RawBranchingApp")
 
     imports = [
         '"""',
@@ -254,7 +393,7 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         "",
         "from netbox_sdk.client import NetBoxApiClient",
         f"from netbox_sdk.models.v{suffix} import *  # noqa: F403, F405",
-        "from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase, build_typed_client",
+        f"from netbox_sdk.typed_runtime import {', '.join(runtime_imports)}",
         "",
     ]
     body = []
@@ -303,7 +442,10 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
                     path_expr = path_expr.replace(f"{{{name}}}", f"{{{py_name}}}")
                 params = ["self", *path_params]
                 if spec.body_model_expr is not None:
-                    params.append(f"body: {spec.body_model_expr}")
+                    body_annotation = spec.body_model_expr
+                    if spec.body_media_type == "multipart/form-data":
+                        body_annotation = f"{body_annotation} | dict[str, Any]"
+                    params.append(f"body: {body_annotation}")
                 if spec.query_model_name is not None:
                     params.append(f"query: {spec.query_model_name} | dict[str, Any] | None = None")
                 signature = ", ".join(params)
@@ -330,8 +472,13 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
                         f"response_model={spec.response_model_expr or 'None'}",
                         f"return_none_on_404={'True' if spec.method_name == 'get' else 'False'}",
                     ]
+                    request_method = "_typed_json_request"
+                    if spec.body_media_type == "multipart/form-data":
+                        request_method = "_typed_multipart_request"
+                        kwargs.append(f"binary_field_names={spec.body_binary_field_names!r}")
                     lines.append(
-                        f"        return await self._typed_json_request({spec.method!r}, path, {', '.join(kwargs)})"
+                        f"        return await self.{request_method}({spec.method!r}, path, "
+                        f"{', '.join(kwargs)})"
                     )
                 lines.append("")
             if len(lines) == 4:
@@ -364,6 +511,27 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         app_classes.append("")
         api_assignments.append(f"        self.{group} = {app_class_name}(self)")
 
+    if raw_plugin_fallback:
+        app_classes.extend(
+            [
+                "\n".join(
+                    [
+                        "class PluginsApp(TypedAppBase):",
+                        '    """Typed-client access to NetBox plugin endpoints."""',
+                        "    def __init__(self, api: TypedApiBase) -> None:",
+                        "        super().__init__(api)",
+                        "",
+                        "    @property",
+                        "    def branching(self) -> RawBranchingApp:",
+                        "        return RawBranchingApp(self._api)",
+                        "",
+                    ]
+                ),
+                "",
+            ]
+        )
+        api_assignments.append("        self.plugins = PluginsApp(self)")
+
     api_class_name = f"TypedApiV{suffix}"
     api_lines = [
         f"class {api_class_name}(TypedApiBase):",
@@ -392,7 +560,7 @@ def generate_models(version: str, input_path: Path, output_path: Path) -> None:
         [
             "uvx",
             "--from",
-            "datamodel-code-generator",
+            f"datamodel-code-generator=={DATAMODEL_CODE_GENERATOR_VERSION}",
             "datamodel-codegen",
             "--input",
             str(input_path),
@@ -408,10 +576,104 @@ def generate_models(version: str, input_path: Path, output_path: Path) -> None:
             "--reuse-model",
             "--enum-field-as-literal",
             "all",
+            "--disable-timestamp",
         ],
         check=True,
         env=env,
     )
+
+
+def _ruff_command() -> list[str]:
+    executable = shutil.which("ruff")
+    if executable is None:
+        return ["uvx", "--from", f"ruff=={RUFF_VERSION}", "ruff"]
+
+    result = subprocess.run(
+        [executable, "--version"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    if result.stdout.strip() != f"ruff {RUFF_VERSION}":
+        raise RuntimeError(
+            f"Expected ruff {RUFF_VERSION}, found {result.stdout.strip() or 'unknown'}"
+        )
+    return [executable]
+
+
+def format_generated_artifacts(paths: list[Path]) -> None:
+    """Format generated Python artifacts with the pinned Ruff release."""
+
+    if not paths:
+        return
+    env = dict(os.environ)
+    env.setdefault("UV_CACHE_DIR", "/tmp/uv-cache")
+    env.setdefault("UV_TOOL_DIR", "/tmp/uv-tools")
+    subprocess.run(
+        [*_ruff_command(), "format", *(str(path) for path in paths)],
+        check=True,
+        env=env,
+    )
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate_release_source(version: str, source_path: Path) -> None:
+    """Reject release inputs that do not match the pinned official artifact."""
+
+    release = RELEASE_PROVENANCE.get(version)
+    if release is None:
+        return
+    expected = release["source_sha256"]
+    actual = _sha256(source_path)
+    if actual != expected:
+        raise ValueError(
+            f"NetBox {release['netbox_release']} source SHA-256 mismatch for "
+            f"{source_path}: expected {expected}, got {actual}"
+        )
+
+
+def write_release_provenance(
+    version: str,
+    *,
+    source_path: Path,
+    bundled_path: Path,
+    model_path: Path,
+    typed_path: Path,
+) -> Path | None:
+    """Write immutable source, tool, and artifact hashes for a release line."""
+
+    release = RELEASE_PROVENANCE.get(version)
+    if release is None:
+        return None
+    missing = [
+        str(path)
+        for path in (source_path, bundled_path, model_path, typed_path)
+        if not path.is_file()
+    ]
+    if missing:
+        raise FileNotFoundError(f"Cannot write provenance; missing artifacts: {missing}")
+    validate_release_source(version, source_path)
+
+    payload: dict[str, Any] = {
+        **release,
+        "generator": {
+            "name": "datamodel-code-generator",
+            "version": DATAMODEL_CODE_GENERATOR_VERSION,
+            "timestamp_disabled": True,
+        },
+        "formatter": {"name": "ruff", "version": RUFF_VERSION},
+        "artifacts": {
+            bundled_path.name: _sha256(bundled_path),
+            f"models/{model_path.name}": _sha256(model_path),
+            f"typed_versions/{typed_path.name}": _sha256(typed_path),
+        },
+    }
+    output_path = bundled_path.with_name(f"{bundled_path.stem}.provenance.json")
+    output_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return output_path
 
 
 def _prepend_models_module_doc(output_path: Path, version: str) -> None:
@@ -459,6 +721,7 @@ def main() -> None:
         source = SCHEMA_SOURCES[version]
         if not source.exists():
             raise FileNotFoundError(f"Schema source not found: {source}")
+        validate_release_source(version, source)
         version_suffix = version.replace(".", "_")
         bundled_path = OPENAPI_ROOT / f"netbox-openapi-{version}.json"
         bundled_path.parent.mkdir(parents=True, exist_ok=True)
@@ -469,6 +732,14 @@ def main() -> None:
         _prepend_models_module_doc(model_output, version)
         typed_output = TYPED_ROOT / f"v{version_suffix}.py"
         typed_output.write_text(build_bindings(version, schema), encoding="utf-8")
+        format_generated_artifacts([model_output, typed_output])
+        write_release_provenance(
+            version,
+            source_path=source,
+            bundled_path=bundled_path,
+            model_path=model_output,
+            typed_path=typed_output,
+        )
 
 
 if __name__ == "__main__":

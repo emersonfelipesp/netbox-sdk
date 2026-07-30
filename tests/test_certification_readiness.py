@@ -46,6 +46,7 @@ def test_integration_certification_packet_is_present() -> None:
     for text in (root_packet, docs_packet, readme):
         assert "integration package" in text.lower()
         assert "not a NetBox plugin" in text
+        assert "v4.6.6" in text
         assert "v4.6.3" in text
         assert "v4.6.2" in text
         assert "v4.5.10" in text
@@ -73,7 +74,10 @@ def test_ci_contains_certification_package_and_docs_gates() -> None:
     assert "tests/test_certification_readiness.py" in certification_workflow
     assert "mkdocs build --strict" in docs_workflow
     assert "pull_request:" in docs_workflow
-    assert 'netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3"]' in tests_workflow
+    assert 'netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6"]' in tests_workflow
+    assert "needs.changes.outputs.sdk == 'true'" in tests_workflow
+    assert "tests/test_typed_generation.py" in tests_workflow
+    assert "tests/test_live_netbox.py" in tests_workflow
     assert "tests/test_certification_readiness.py" in gitea_workflow
     assert "mkdocs build --strict" in gitea_workflow
     assert "python -m build" in gitea_workflow

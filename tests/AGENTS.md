@@ -104,6 +104,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_ssl_verify_cli.py` | TLS verification prompts and `nbx test` probe retry (`_prompt_ssl_verify_if_unset`, `_retry_probe_after_ssl_prompt`) |
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |
+| `test_typed_generation.py` | OpenAPI typed-binding generation, query-model identity, and multipart selection |
+| `test_live_netbox.py` | Read-only core API, runtime OpenAPI, typed response, and NetBox 4.6.6 any-tag filter checks against the CI live matrix |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
 | `test_tui_screenshots.py` | Screenshot harness registration and deterministic GraphQL screenshot setup for docs generation |
 | `test_tui_simulation.py` | TUI launch simulation helpers used by docs/tests |
@@ -115,7 +117,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 - Branch and pull request CI routes to the affected package suites based on changed files.
 - Shared files such as `pyproject.toml`, `uv.lock`, `tests/conftest.py`, and test workflow definitions trigger the full suite instead of package-selective runs.
 - Direct pushes to `main` always run the full `uv run pytest` matrix.
-- Direct pushes to `main` also run live NetBox SDK integration tests against `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+- SDK-affecting branch/PR changes and every direct push to `main` run live NetBox SDK integration tests against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 - Security CI path-routes `test_security_sdk.py`, `test_security_cli.py`, and `test_security_tui.py`.
 - Release validation always runs the full `uv run pytest` matrix before publish.
 

@@ -25,7 +25,7 @@ release maintainability.
 | License | Apache-2.0 in `LICENSE.txt` and `pyproject.toml` package metadata |
 | Package | `netbox-sdk` on PyPI, with `netbox_sdk`, `netbox_cli`, and `netbox_tui` import packages |
 | Python | Python `3.11`, `3.12`, and `3.13` |
-| NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.3`, `v4.6.2`, and `v4.5.10` |
+| NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10` |
 | Tests | Mock API suite, live NetBox suite, security tests, type checks, package metadata checks, and strict docs builds in GitHub Actions |
 | Support | GitHub issues for bugs/features/docs requests; docs at <https://emersonfelipesp.github.io/netbox-sdk/> |
 

@@ -32,7 +32,7 @@ Linhas de release suportadas:
 Versões de patch normalizam para sua linha de release, então `4.4.10` seleciona o
 cliente tipado `4.4`.
 
-A integração contínua exercita a suíte live-NetBox contra `v4.6.3`, `v4.6.2` e `v4.5.10`.
+A integração contínua exercita a suíte live-NetBox contra `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ## Exemplo
 
