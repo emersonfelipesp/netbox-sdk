@@ -1,0 +1,22 @@
+{
+  "netbox_release": "v4.6.6",
+  "release_commit": "fb8c455ba61b57119a70670612dfdd05e8438b10",
+  "source_path": "contrib/openapi.json",
+  "source_blob_sha": "024d34500a04ec876fb3b32fa18c685e953a02f8",
+  "source_url": "https://github.com/netbox-community/netbox/blob/v4.6.6/contrib/openapi.json",
+  "source_sha256": "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e",
+  "generator": {
+    "name": "datamodel-code-generator",
+    "version": "0.55.0",
+    "timestamp_disabled": true
+  },
+  "formatter": {
+    "name": "ruff",
+    "version": "0.15.9"
+  },
+  "artifacts": {
+    "netbox-openapi-4.6.json": "064b650aacb54d1a4484323962ae703efef85f408311a7dc09bebffb5f37e145",
+    "models/v4_6.py": "421c4ea92296461212e15266402420d7bdbbd84b0e4d9e7d80c8927b57f4c586",
+    "typed_versions/v4_6.py": "2ffd8dd3e5b73f46a4436814f415b21ef607e253f33694d9022f85b8957b159e"
+  }
+}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 from dataclasses import dataclass
 from typing import Any
 
@@ -121,6 +122,108 @@ def validate_payload(
     return _dump_validated(validated)
 
 
+def _is_file_like(value: object) -> bool:
+    if isinstance(value, (str, bytes, bytearray)):
+        return False
+    return hasattr(value, "read") and callable(getattr(value, "read"))
+
+
+def _is_multipart_file_value(value: object) -> bool:
+    if isinstance(value, (bytes, bytearray)) or _is_file_like(value):
+        return True
+    return isinstance(value, tuple) and len(value) in {2, 3} and _is_file_like(value[1])
+
+
+def _normalize_multipart_file(value: Any, *, field_name: str) -> Any:
+    if isinstance(value, bytes):
+        return io.BytesIO(value)
+    if isinstance(value, bytearray):
+        return io.BytesIO(bytes(value))
+    if _is_multipart_file_value(value):
+        return value
+    raise TypeError(
+        f"Multipart field {field_name!r} must be bytes, a file-like object, "
+        "or a (filename, file[, content_type]) tuple"
+    )
+
+
+def _list_contains_binary_file(payload: list[Any], binary_field_names: tuple[str, ...]) -> bool:
+    for item in payload:
+        if isinstance(item, BaseModel):
+            values = item.model_dump(mode="python", by_alias=True, exclude_none=True)
+        elif isinstance(item, dict):
+            values = item
+        else:
+            continue
+        if any(name in values and values[name] is not None for name in binary_field_names):
+            return True
+    return False
+
+
+def validate_multipart_payload(
+    model_type: type[Any] | None,
+    payload: Any,
+    *,
+    binary_field_names: tuple[str, ...],
+    method: str,
+    path: str,
+    version: SupportedNetBoxVersion,
+) -> Any:
+    """Validate multipart input while preserving file values for the HTTP client."""
+
+    if isinstance(payload, list):
+        if _list_contains_binary_file(payload, binary_field_names):
+            raise TypeError(
+                f"{method} {path} cannot encode binary fields in a bulk list as multipart data"
+            )
+        return validate_payload(
+            model_type,
+            payload,
+            method=method,
+            path=path,
+            version=version,
+        )
+    if payload is None or model_type is None:
+        return payload
+    if isinstance(payload, BaseModel):
+        raw = payload.model_dump(mode="python", by_alias=True, exclude_none=True)
+    elif isinstance(payload, dict):
+        raw = dict(payload)
+    else:
+        raw = payload
+
+    if not isinstance(raw, dict):
+        return validate_payload(
+            model_type,
+            raw,
+            method=method,
+            path=path,
+            version=version,
+        )
+
+    preserved_files: dict[str, Any] = {}
+    validation_payload = dict(raw)
+    for field_name in binary_field_names:
+        value = raw.get(field_name)
+        if value is None:
+            continue
+        preserved_files[field_name] = _normalize_multipart_file(
+            value,
+            field_name=field_name,
+        )
+        validation_payload[field_name] = b""
+
+    try:
+        validated = TypeAdapter(model_type).validate_python(validation_payload)
+    except ValidationError as exc:
+        raise TypedRequestValidationError(method, path, version, exc) from exc
+    dumped = _dump_validated(validated)
+    if not isinstance(dumped, dict):
+        return dumped
+    dumped.update(preserved_files)
+    return dumped
+
+
 def validate_response(
     model_type: type[Any] | None,
     data: Any,
@@ -186,6 +289,51 @@ class TypedOperationMixin:
         request_payload = validate_payload(
             body_model,
             body,
+            method=method,
+            path=path,
+            version=self._api.netbox_version,
+        )
+        payload = await self._typed_json_response(
+            method,
+            path,
+            query=request_query,
+            payload=request_payload,
+            return_none_on_404=return_none_on_404,
+        )
+        if payload is None:
+            return None
+        return validate_response(
+            response_model,
+            payload,
+            method=method,
+            path=path,
+            version=self._api.netbox_version,
+        )
+
+    async def _typed_multipart_request(
+        self,
+        method: str,
+        path: str,
+        *,
+        query_model: type[Any] | None = None,
+        query: BaseModel | dict[str, Any] | None = None,
+        body_model: type[Any] | None = None,
+        body: Any = None,
+        response_model: type[Any] | None = None,
+        return_none_on_404: bool = False,
+        binary_field_names: tuple[str, ...] = (),
+    ) -> Any:
+        request_query = validate_query(
+            query_model,
+            query,
+            method=method,
+            path=path,
+            version=self._api.netbox_version,
+        )
+        request_payload = validate_multipart_payload(
+            body_model,
+            body,
+            binary_field_names=binary_field_names,
             method=method,
             path=path,
             version=self._api.netbox_version,

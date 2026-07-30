@@ -123,7 +123,7 @@ typed_api("https://netbox.example.com", token="tok", netbox_version="4.5.5")
 
 O cliente tipado suporta NetBox `4.6`, `4.5`, `4.4` e `4.3`. Modelos gerados
 para essas linhas de release estão versionados no repositório e acompanham
-o pacote. A suíte live-NetBox de CI exercita `v4.6.3`, `v4.6.2` e `v4.5.10`.
+o pacote. A suíte live-NetBox de CI exercita `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ---
 

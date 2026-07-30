@@ -17,6 +17,7 @@ This directory contains reference material packaged with or directly relevant to
 |---|---|
 | `openapi/netbox-openapi.json` | Legacy compatibility alias; do not treat as the active default |
 | `openapi/netbox-openapi-4.6.json` | Bundled NetBox 4.6 release-line schema and default for `load_openapi_schema()` |
+| `openapi/netbox-openapi-4.6.provenance.json` | Immutable source and generator provenance for the NetBox 4.6 artifacts |
 | `openapi/netbox-openapi-4.5.json` | Bundled NetBox 4.5 release-line schema |
 | `openapi/netbox-openapi-4.4.json` | Bundled NetBox 4.4 release-line schema |
 | `openapi/netbox-openapi-4.3.json` | Bundled NetBox 4.3 release-line schema |
@@ -24,5 +25,6 @@ This directory contains reference material packaged with or directly relevant to
 ## Notes
 
 - Runtime code should prefer the versioned bundled schemas for typed and schema-loading workflows; default CLI/static SDK schema selection is NetBox 4.6 unless overridden.
+- The 4.6 schema is pinned to the NetBox v4.6.6 release and its provenance file records the upstream commit/blob plus artifact hashes.
 - `netbox_sdk.versioning` defines the supported release lines: `4.6`, `4.5`, `4.4`, and `4.3`.
 - Broader design and prior-art references live in the repo-level [`reference/`](../../reference/) directory, including [`reference/PYNETBOX.md`](../../reference/PYNETBOX.md).

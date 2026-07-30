@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import io
+
 import pytest
+from pydantic import BaseModel
 
 from netbox_sdk import (
     TypedRequestValidationError,
@@ -10,7 +13,11 @@ from netbox_sdk import (
     typed_api,
 )
 from netbox_sdk.client import ApiResponse, RequestError
-from netbox_sdk.typed_runtime import validate_query
+from netbox_sdk.typed_runtime import (
+    TypedOperationMixin,
+    validate_multipart_payload,
+    validate_query,
+)
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -133,6 +140,94 @@ def test_validate_query_preserves_array_parameters() -> None:
         "limit": "50",
         "brief": "True",
     }
+
+
+class _BinaryUploadRequest(BaseModel):
+    file: bytes
+
+
+def test_validate_multipart_payload_preserves_non_utf8_binary() -> None:
+    payload = validate_multipart_payload(
+        _BinaryUploadRequest,
+        {"file": b"\xff\x00\x80"},
+        binary_field_names=("file",),
+        method="POST",
+        path="/api/extras/scripts/upload/",
+        version="4.6",
+    )
+
+    assert isinstance(payload["file"], io.BytesIO)
+    assert payload["file"].read() == b"\xff\x00\x80"
+
+
+def test_validate_multipart_payload_preserves_named_file_tuple() -> None:
+    source = io.BytesIO(b"print('ok')")
+    value = ("health.py", source, "text/x-python")
+
+    payload = validate_multipart_payload(
+        _BinaryUploadRequest,
+        {"file": value},
+        binary_field_names=("file",),
+        method="POST",
+        path="/api/extras/scripts/upload/",
+        version="4.6",
+    )
+
+    assert payload["file"] is value
+
+
+def test_v46_generated_device_query_models_keep_list_filters() -> None:
+    _require_email_validator()
+    from netbox_sdk.typed_versions.v4_6 import (
+        DcimDevicesDetailGetQuery,
+        DcimDevicesRootGetQuery,
+    )
+
+    root_aliases = {field.alias for field in DcimDevicesRootGetQuery.model_fields.values()}
+    detail_aliases = {field.alias for field in DcimDevicesDetailGetQuery.model_fields.values()}
+
+    assert {"tag__any", "tag_id__any"} <= root_aliases
+    assert "tag__any" not in detail_aliases
+    assert "tag_id__any" not in detail_aliases
+
+
+@pytest.mark.asyncio
+async def test_v46_typed_script_uploads_reach_client_as_multipart(monkeypatch) -> None:
+    _require_email_validator()
+    api = typed_api("https://netbox.example.com", token="tok", netbox_version="4.6.6")
+    captured: list[tuple[str, str, dict[str, object]]] = []
+
+    async def fake_response(
+        self,
+        method: str,
+        path: str,
+        *,
+        query,
+        payload,
+        return_none_on_404: bool,
+    ) -> None:
+        assert query is None
+        assert return_none_on_404 is False
+        captured.append((method, path, payload))
+        return None
+
+    monkeypatch.setattr(TypedOperationMixin, "_typed_json_response", fake_response)
+
+    await api.extras.scripts.upload.create(body={"file": b"\xff\x00"})
+    source = io.BytesIO(b"print('patched')")
+    await api.extras.scripts.upload_id.partial_update(
+        "health.py",
+        body={"file": ("health.py", source, "text/x-python")},
+    )
+
+    assert [(method, path) for method, path, _ in captured] == [
+        ("POST", "/api/extras/scripts/upload/"),
+        ("PATCH", "/api/extras/scripts/upload/health.py/"),
+    ]
+    for _, _, payload in captured:
+        clean_payload, form = api.client._extract_files(payload)
+        assert clean_payload == {}
+        assert form is not None
 
 
 @pytest.mark.asyncio

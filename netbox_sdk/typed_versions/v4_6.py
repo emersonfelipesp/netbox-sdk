@@ -12,15 +12,17 @@ from pydantic import BaseModel, Field
 
 from netbox_sdk.client import NetBoxApiClient
 from netbox_sdk.models.v4_6 import *  # noqa: F403, F405
-from netbox_sdk.typed_runtime import (
-    RawBranchingApp,
-    TypedApiBase,
-    TypedAppBase,
-    build_typed_client,
-)
+from netbox_sdk.typed_runtime import RawBranchingApp, TypedApiBase, TypedAppBase, build_typed_client
+
+
+class CircuitsCircuitGroupAssignmentsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
+    brief: bool | None = None
     circuit: list[str] | None = None
     circuit_id: list[int] | None = None
     created: list[str] | None = None
@@ -31,6 +33,7 @@ class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
     created_lte: list[str] | None = Field(None, alias="created__lte")
     created_n: list[str] | None = Field(None, alias="created__n")
     created_by_request: str | None = None
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -61,6 +64,7 @@ class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
     member_type_n: list[str] | None = Field(None, alias="member_type__n")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     priority: Literal["inactive", "null", "primary", "secondary", "tertiary"] | None = None
     priority_empty: bool | None = Field(None, alias="priority__empty")
@@ -82,15 +86,24 @@ class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_circuit: list[str] | None = None
     virtual_circuit_id: list[int] | None = None
 
 
+class CircuitsCircuitGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsCircuitGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -112,6 +125,7 @@ class CircuitsCircuitGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -142,6 +156,7 @@ class CircuitsCircuitGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -167,8 +182,10 @@ class CircuitsCircuitGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -181,7 +198,20 @@ class CircuitsCircuitGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsCircuitTerminationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CircuitsCircuitTerminationsPathsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -228,6 +258,7 @@ class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -251,6 +282,7 @@ class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
     modified_by_request: str | None = None
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     port_speed: list[int] | None = None
     port_speed_empty: bool | None = Field(None, alias="port_speed__empty")
@@ -293,8 +325,10 @@ class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     term_side: Literal["A", "Z", "null"] | None = None
     term_side_empty: bool | None = Field(None, alias="term_side__empty")
@@ -341,7 +375,14 @@ class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
     xconnect_id_regex: list[str] | None = Field(None, alias="xconnect_id__regex")
 
 
+class CircuitsCircuitTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsCircuitTypesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -376,6 +417,7 @@ class CircuitsCircuitTypesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -406,6 +448,7 @@ class CircuitsCircuitTypesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -431,13 +474,22 @@ class CircuitsCircuitTypesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class CircuitsCircuitsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsCircuitsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cid: list[str] | None = None
     cid_empty: bool | None = Field(None, alias="cid__empty")
     cid_ic: list[str] | None = Field(None, alias="cid__ic")
@@ -507,6 +559,7 @@ class CircuitsCircuitsRootGetQuery(BaseModel):
     distance_unit_niew: list[str] | None = Field(None, alias="distance_unit__niew")
     distance_unit_nisw: list[str] | None = Field(None, alias="distance_unit__nisw")
     distance_unit_regex: list[str] | None = Field(None, alias="distance_unit__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -533,6 +586,7 @@ class CircuitsCircuitsRootGetQuery(BaseModel):
     location_id_n: list[int] | None = Field(None, alias="location_id__n")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -580,8 +634,10 @@ class CircuitsCircuitsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -609,6 +665,12 @@ class CircuitsCircuitsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsProviderAccountsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsProviderAccountsRootGetQuery(BaseModel):
     account: list[str] | None = None
     account_empty: bool | None = Field(None, alias="account__empty")
@@ -623,6 +685,7 @@ class CircuitsProviderAccountsRootGetQuery(BaseModel):
     account_niew: list[str] | None = Field(None, alias="account__niew")
     account_nisw: list[str] | None = Field(None, alias="account__nisw")
     account_regex: list[str] | None = Field(None, alias="account__regex")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -650,6 +713,7 @@ class CircuitsProviderAccountsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -680,6 +744,7 @@ class CircuitsProviderAccountsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -696,13 +761,22 @@ class CircuitsProviderAccountsRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class CircuitsProviderNetworksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsProviderNetworksRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -724,6 +798,7 @@ class CircuitsProviderNetworksRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -754,6 +829,7 @@ class CircuitsProviderNetworksRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -783,10 +859,18 @@ class CircuitsProviderNetworksRootGetQuery(BaseModel):
     service_id_regex: list[str] | None = Field(None, alias="service_id__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class CircuitsProvidersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class CircuitsProvidersRootGetQuery(BaseModel):
@@ -794,6 +878,7 @@ class CircuitsProvidersRootGetQuery(BaseModel):
     asn_n: list[int] | None = Field(None, alias="asn__n")
     asn_id: list[int] | None = None
     asn_id_n: list[int] | None = Field(None, alias="asn_id__n")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -821,6 +906,7 @@ class CircuitsProvidersRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -851,6 +937,7 @@ class CircuitsProvidersRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -888,13 +975,28 @@ class CircuitsProvidersRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class CircuitsVirtualCircuitTerminationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CircuitsVirtualCircuitTerminationsPathsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsVirtualCircuitTerminationsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -916,6 +1018,7 @@ class CircuitsVirtualCircuitTerminationsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -935,6 +1038,7 @@ class CircuitsVirtualCircuitTerminationsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     provider: list[str] | None = None
     provider_n: list[str] | None = Field(None, alias="provider__n")
@@ -962,15 +1066,24 @@ class CircuitsVirtualCircuitTerminationsRootGetQuery(BaseModel):
     role_regex: list[str] | None = Field(None, alias="role__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_circuit_id: list[int] | None = None
     virtual_circuit_id_n: list[int] | None = Field(None, alias="virtual_circuit_id__n")
 
 
+class CircuitsVirtualCircuitTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsVirtualCircuitTypesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -1005,6 +1118,7 @@ class CircuitsVirtualCircuitTypesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1035,6 +1149,7 @@ class CircuitsVirtualCircuitTypesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -1060,13 +1175,22 @@ class CircuitsVirtualCircuitTypesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class CircuitsVirtualCircuitsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cid: list[str] | None = None
     cid_empty: bool | None = Field(None, alias="cid__empty")
     cid_ic: list[str] | None = Field(None, alias="cid__ic")
@@ -1101,6 +1225,7 @@ class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1118,6 +1243,7 @@ class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -1153,8 +1279,10 @@ class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -1171,7 +1299,50 @@ class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CoreBackgroundQueuesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CoreBackgroundQueuesRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CoreBackgroundTasksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CoreBackgroundTasksRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CoreBackgroundWorkersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CoreBackgroundWorkersRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class CoreDataFilesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CoreDataFilesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -1180,6 +1351,7 @@ class CoreDataFilesRootGetQuery(BaseModel):
     created_lte: list[str] | None = Field(None, alias="created__lte")
     created_n: list[str] | None = Field(None, alias="created__n")
     created_by_request: str | None = None
+    fields: str | None = None
     hash: list[str] | None = None
     hash_empty: bool | None = Field(None, alias="hash__empty")
     hash_ic: list[str] | None = Field(None, alias="hash__ic")
@@ -1210,6 +1382,7 @@ class CoreDataFilesRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     path: list[str] | None = None
     path_empty: bool | None = Field(None, alias="path__empty")
@@ -1240,7 +1413,14 @@ class CoreDataFilesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CoreDataSourcesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CoreDataSourcesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -1263,6 +1443,7 @@ class CoreDataSourcesRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1300,6 +1481,7 @@ class CoreDataSourcesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -1350,8 +1532,10 @@ class CoreDataSourcesRootGetQuery(BaseModel):
     sync_interval_nisw: list[int] | None = Field(None, alias="sync_interval__nisw")
     sync_interval_regex: list[int] | None = Field(None, alias="sync_interval__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     type: list[str] | None = None
     type_empty: bool | None = Field(None, alias="type__empty")
@@ -1369,13 +1553,21 @@ class CoreDataSourcesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CoreJobsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CoreJobsRootGetQuery(BaseModel):
+    brief: bool | None = None
     completed: str | None = None
     completed_after: str | None = Field(None, alias="completed__after")
     completed_before: str | None = Field(None, alias="completed__before")
     created: str | None = None
     created_after: str | None = Field(None, alias="created__after")
     created_before: str | None = Field(None, alias="created__before")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1405,6 +1597,19 @@ class CoreJobsRootGetQuery(BaseModel):
     name_niew: list[str] | None = Field(None, alias="name__niew")
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
+    notifications: list[str] | None = None
+    notifications_empty: bool | None = Field(None, alias="notifications__empty")
+    notifications_ic: list[str] | None = Field(None, alias="notifications__ic")
+    notifications_ie: list[str] | None = Field(None, alias="notifications__ie")
+    notifications_iew: list[str] | None = Field(None, alias="notifications__iew")
+    notifications_iregex: list[str] | None = Field(None, alias="notifications__iregex")
+    notifications_isw: list[str] | None = Field(None, alias="notifications__isw")
+    notifications_n: list[str] | None = Field(None, alias="notifications__n")
+    notifications_nic: list[str] | None = Field(None, alias="notifications__nic")
+    notifications_nie: list[str] | None = Field(None, alias="notifications__nie")
+    notifications_niew: list[str] | None = Field(None, alias="notifications__niew")
+    notifications_nisw: list[str] | None = Field(None, alias="notifications__nisw")
+    notifications_regex: list[str] | None = Field(None, alias="notifications__regex")
     object_id: list[int] | None = None
     object_id_empty: bool | None = Field(None, alias="object_id__empty")
     object_id_gt: list[int] | None = Field(None, alias="object_id__gt")
@@ -1417,6 +1622,7 @@ class CoreJobsRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     queue_name: str | None = None
@@ -1452,8 +1658,16 @@ class CoreJobsRootGetQuery(BaseModel):
     status_niew: list[str] | None = Field(None, alias="status__niew")
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
-    user: int | None = None
-    user_n: int | None = Field(None, alias="user__n")
+    user: list[str] | None = None
+    user_n: list[str] | None = Field(None, alias="user__n")
+    user_id: list[int] | None = None
+    user_id_n: list[int] | None = Field(None, alias="user_id__n")
+
+
+class CoreObjectChangesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class CoreObjectChangesRootGetQuery(BaseModel):
@@ -1470,6 +1684,7 @@ class CoreObjectChangesRootGetQuery(BaseModel):
     action_niew: list[str] | None = Field(None, alias="action__niew")
     action_nisw: list[str] | None = Field(None, alias="action__nisw")
     action_regex: list[str] | None = Field(None, alias="action__regex")
+    brief: bool | None = None
     changed_object_id: list[int] | None = None
     changed_object_id_empty: bool | None = Field(None, alias="changed_object_id__empty")
     changed_object_id_gt: list[int] | None = Field(None, alias="changed_object_id__gt")
@@ -1481,6 +1696,7 @@ class CoreObjectChangesRootGetQuery(BaseModel):
     changed_object_type_n: list[str] | None = Field(None, alias="changed_object_type__n")
     changed_object_type_id: list[int] | None = None
     changed_object_type_id_n: list[int] | None = Field(None, alias="changed_object_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1503,6 +1719,7 @@ class CoreObjectChangesRootGetQuery(BaseModel):
     object_repr_nisw: list[str] | None = Field(None, alias="object_repr__nisw")
     object_repr_regex: list[str] | None = Field(None, alias="object_repr__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     related_object_id: list[int] | None = None
@@ -1537,6 +1754,12 @@ class CoreObjectChangesRootGetQuery(BaseModel):
     user_name_regex: list[str] | None = Field(None, alias="user_name__regex")
 
 
+class CoreObjectTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class CoreObjectTypesRootGetQuery(BaseModel):
     app_label: list[str] | None = None
     app_label_empty: bool | None = Field(None, alias="app_label__empty")
@@ -1551,7 +1774,9 @@ class CoreObjectTypesRootGetQuery(BaseModel):
     app_label_niew: list[str] | None = Field(None, alias="app_label__niew")
     app_label_nisw: list[str] | None = Field(None, alias="app_label__nisw")
     app_label_regex: list[str] | None = Field(None, alias="app_label__regex")
+    brief: bool | None = None
     features: str | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1574,13 +1799,21 @@ class CoreObjectTypesRootGetQuery(BaseModel):
     model_nisw: list[str] | None = Field(None, alias="model__nisw")
     model_regex: list[str] | None = Field(None, alias="model__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     public: bool | None = None
     q: str | None = None
     start: int | None = None
 
 
+class DcimCableBundlesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimCableBundlesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -1602,6 +1835,7 @@ class DcimCableBundlesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1632,6 +1866,7 @@ class DcimCableBundlesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -1644,13 +1879,22 @@ class DcimCableBundlesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class DcimCableTerminationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimCableTerminationsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable: int | None = None
     cable_n: int | None = Field(None, alias="cable__n")
     cable_end: Literal["A", "B", "null"] | None = None
@@ -1666,6 +1910,11 @@ class DcimCableTerminationsRootGetQuery(BaseModel):
     cable_end_niew: list[str] | None = Field(None, alias="cable_end__niew")
     cable_end_nisw: list[str] | None = Field(None, alias="cable_end__nisw")
     cable_end_regex: list[str] | None = Field(None, alias="cable_end__regex")
+    cable_id: list[int] | None = None
+    cable_id_n: list[int] | None = Field(None, alias="cable_id__n")
+    circuittermination_id: list[int] | None = None
+    consoleport_id: list[int] | None = None
+    consoleserverport_id: list[int] | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -1674,6 +1923,8 @@ class DcimCableTerminationsRootGetQuery(BaseModel):
     created_lte: list[str] | None = Field(None, alias="created__lte")
     created_n: list[str] | None = Field(None, alias="created__n")
     created_by_request: str | None = None
+    fields: str | None = None
+    frontport_id: list[int] | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1681,6 +1932,7 @@ class DcimCableTerminationsRootGetQuery(BaseModel):
     id_lt: list[int] | None = Field(None, alias="id__lt")
     id_lte: list[int] | None = Field(None, alias="id__lte")
     id_n: list[int] | None = Field(None, alias="id__n")
+    interface_id: list[int] | None = None
     last_updated: list[str] | None = None
     last_updated_empty: list[str] | None = Field(None, alias="last_updated__empty")
     last_updated_gt: list[str] | None = Field(None, alias="last_updated__gt")
@@ -1691,7 +1943,12 @@ class DcimCableTerminationsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
+    powerfeed_id: list[int] | None = None
+    poweroutlet_id: list[int] | None = None
+    powerport_id: list[int] | None = None
+    rearport_id: list[int] | None = None
     start: int | None = None
     termination_id: list[int] | None = None
     termination_id_empty: bool | None = Field(None, alias="termination_id__empty")
@@ -1705,7 +1962,14 @@ class DcimCableTerminationsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimCablesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimCablesRootGetQuery(BaseModel):
+    brief: bool | None = None
     bundle: list[str] | None = None
     bundle_n: list[str] | None = Field(None, alias="bundle__n")
     bundle_id: list[int] | None = None
@@ -1749,6 +2013,7 @@ class DcimCablesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device: list[str] | None = None
     device_id: list[int] | None = None
+    fields: str | None = None
     frontport_id: list[int] | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
@@ -1805,6 +2070,7 @@ class DcimCablesRootGetQuery(BaseModel):
     location_id: list[int] | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -1851,8 +2117,10 @@ class DcimCablesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -1886,11 +2154,21 @@ class DcimCablesRootGetQuery(BaseModel):
 
 
 class DcimConnectedDeviceRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
     peer_device: str = ...
     peer_interface: str = ...
 
 
+class DcimConsolePortTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimConsolePortTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -1914,6 +2192,7 @@ class DcimConsolePortTemplatesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -1959,6 +2238,7 @@ class DcimConsolePortTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
@@ -1976,9 +2256,16 @@ class DcimConsolePortTemplatesRootGetQuery(BaseModel):
     type_nisw: list[str] | None = Field(None, alias="type__nisw")
     type_regex: list[str] | None = Field(None, alias="type__regex")
     updated_by_request: str | None = None
+
+
+class DcimConsolePortsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimConsolePortsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -2049,6 +2336,7 @@ class DcimConsolePortsRootGetQuery(BaseModel):
     device_type_n: list[str] | None = Field(None, alias="device_type__n")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -2100,6 +2388,7 @@ class DcimConsolePortsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -2142,8 +2431,10 @@ class DcimConsolePortsRootGetQuery(BaseModel):
     speed_regex: list[int] | None = Field(None, alias="speed__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -2169,7 +2460,20 @@ class DcimConsolePortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimConsolePortsTraceGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimConsoleServerPortTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimConsoleServerPortTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -2193,6 +2497,7 @@ class DcimConsoleServerPortTemplatesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -2238,6 +2543,7 @@ class DcimConsoleServerPortTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
@@ -2257,7 +2563,14 @@ class DcimConsoleServerPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimConsoleServerPortsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimConsoleServerPortsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -2328,6 +2641,7 @@ class DcimConsoleServerPortsRootGetQuery(BaseModel):
     device_type_n: list[str] | None = Field(None, alias="device_type__n")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -2379,6 +2693,7 @@ class DcimConsoleServerPortsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -2421,8 +2736,10 @@ class DcimConsoleServerPortsRootGetQuery(BaseModel):
     speed_regex: list[int] | None = Field(None, alias="speed__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -2448,7 +2765,20 @@ class DcimConsoleServerPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimConsoleServerPortsTraceGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimDeviceBayTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimDeviceBayTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -2473,6 +2803,7 @@ class DcimDeviceBayTemplatesRootGetQuery(BaseModel):
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -2516,13 +2847,21 @@ class DcimDeviceBayTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
     updated_by_request: str | None = None
 
 
+class DcimDeviceBaysDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimDeviceBaysRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -2570,6 +2909,7 @@ class DcimDeviceBaysRootGetQuery(BaseModel):
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -2621,6 +2961,7 @@ class DcimDeviceBaysRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -2649,8 +2990,10 @@ class DcimDeviceBaysRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -2663,11 +3006,18 @@ class DcimDeviceBaysRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimDeviceRolesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimDeviceRolesRootGetQuery(BaseModel):
     ancestor: list[str] | None = None
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -2704,6 +3054,7 @@ class DcimDeviceRolesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -2734,6 +3085,7 @@ class DcimDeviceRolesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -2763,11 +3115,19 @@ class DcimDeviceRolesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     vm_role: bool | None = None
+
+
+class DcimDeviceTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimDeviceTypesRootGetQuery(BaseModel):
@@ -2814,6 +3174,7 @@ class DcimDeviceTypesRootGetQuery(BaseModel):
     airflow_niew: list[str] | None = Field(None, alias="airflow__niew")
     airflow_nisw: list[str] | None = Field(None, alias="airflow__nisw")
     airflow_regex: list[str] | None = Field(None, alias="airflow__regex")
+    brief: bool | None = None
     console_port_template_count: list[int] | None = None
     console_port_template_count_empty: bool | None = Field(
         None, alias="console_port_template_count__empty"
@@ -2907,6 +3268,7 @@ class DcimDeviceTypesRootGetQuery(BaseModel):
     device_count_lte: list[int] | None = Field(None, alias="device_count__lte")
     device_count_n: list[int] | None = Field(None, alias="device_count__n")
     exclude_from_utilization: bool | None = None
+    fields: str | None = None
     front_port_template_count: list[int] | None = None
     front_port_template_count_empty: bool | None = Field(
         None, alias="front_port_template_count__empty"
@@ -3021,6 +3383,7 @@ class DcimDeviceTypesRootGetQuery(BaseModel):
     )
     module_bays: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -3132,8 +3495,10 @@ class DcimDeviceTypesRootGetQuery(BaseModel):
     subdevice_role_nisw: list[str] | None = Field(None, alias="subdevice_role__nisw")
     subdevice_role_regex: list[str] | None = Field(None, alias="subdevice_role__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     u_height: list[float] | None = None
     u_height_empty: bool | None = Field(None, alias="u_height__empty")
@@ -3165,6 +3530,12 @@ class DcimDeviceTypesRootGetQuery(BaseModel):
     weight_unit_niew: list[str] | None = Field(None, alias="weight_unit__niew")
     weight_unit_nisw: list[str] | None = Field(None, alias="weight_unit__nisw")
     weight_unit_regex: list[str] | None = Field(None, alias="weight_unit__regex")
+
+
+class DcimDevicesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimDevicesRenderConfigPostQuery(BaseModel):
@@ -3228,6 +3599,7 @@ class DcimDevicesRootGetQuery(BaseModel):
     asset_tag_niew: list[str] | None = Field(None, alias="asset_tag__niew")
     asset_tag_nisw: list[str] | None = Field(None, alias="asset_tag__nisw")
     asset_tag_regex: list[str] | None = Field(None, alias="asset_tag__regex")
+    brief: bool | None = None
     cluster_group: list[str] | None = None
     cluster_group_n: list[str] | None = Field(None, alias="cluster_group__n")
     cluster_group_id: list[int] | None = None
@@ -3316,6 +3688,7 @@ class DcimDevicesRootGetQuery(BaseModel):
     face_niew: list[str] | None = Field(None, alias="face__niew")
     face_nisw: list[str] | None = Field(None, alias="face__nisw")
     face_regex: list[str] | None = Field(None, alias="face__regex")
+    fields: str | None = None
     front_port_count: list[int] | None = None
     front_port_count_empty: bool | None = Field(None, alias="front_port_count__empty")
     front_port_count_gt: list[int] | None = Field(None, alias="front_port_count__gt")
@@ -3417,6 +3790,7 @@ class DcimDevicesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     oob_ip_id: list[int] | None = None
     oob_ip_id_n: list[int] | None = Field(None, alias="oob_ip_id__n")
     ordering: str | None = None
@@ -3522,8 +3896,10 @@ class DcimDevicesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -3553,7 +3929,14 @@ class DcimDevicesRootGetQuery(BaseModel):
     virtual_chassis_member: bool | None = None
 
 
+class DcimFrontPortTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimFrontPortTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -3590,6 +3973,7 @@ class DcimFrontPortTemplatesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -3635,6 +4019,7 @@ class DcimFrontPortTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     positions: list[int] | None = None
     positions_empty: bool | None = Field(None, alias="positions__empty")
@@ -3663,7 +4048,20 @@ class DcimFrontPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimFrontPortsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimFrontPortsPathsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimFrontPortsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -3746,6 +4144,7 @@ class DcimFrontPortsRootGetQuery(BaseModel):
     device_type_n: list[str] | None = Field(None, alias="device_type__n")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -3797,6 +4196,7 @@ class DcimFrontPortsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -3834,8 +4234,10 @@ class DcimFrontPortsRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -3861,9 +4263,16 @@ class DcimFrontPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimInterfaceTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimInterfaceTemplatesRootGetQuery(BaseModel):
     bridge_id: list[int] | None = None
     bridge_id_n: list[int] | None = Field(None, alias="bridge_id__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -3888,6 +4297,7 @@ class DcimInterfaceTemplatesRootGetQuery(BaseModel):
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -3934,6 +4344,7 @@ class DcimInterfaceTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     poe_mode: list[str] | None = None
     poe_mode_empty: bool | None = Field(None, alias="poe_mode__empty")
@@ -3992,9 +4403,16 @@ class DcimInterfaceTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimInterfacesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimInterfacesRootGetQuery(BaseModel):
     bridge_id: list[int] | None = None
     bridge_id_n: list[int] | None = Field(None, alias="bridge_id__n")
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -4079,6 +4497,7 @@ class DcimInterfacesRootGetQuery(BaseModel):
     duplex_nisw: list[str] | None = Field(None, alias="duplex__nisw")
     duplex_regex: list[str] | None = Field(None, alias="duplex__regex")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -4170,6 +4589,7 @@ class DcimInterfacesRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -4277,8 +4697,10 @@ class DcimInterfacesRootGetQuery(BaseModel):
     speed_n: list[int] | None = Field(None, alias="speed__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -4355,7 +4777,20 @@ class DcimInterfacesRootGetQuery(BaseModel):
     wwn_regex: list[str] | None = Field(None, alias="wwn__regex")
 
 
+class DcimInterfacesTraceGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimInventoryItemRolesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimInventoryItemRolesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -4390,6 +4825,7 @@ class DcimInventoryItemRolesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -4420,6 +4856,7 @@ class DcimInventoryItemRolesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -4445,13 +4882,22 @@ class DcimInventoryItemRolesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class DcimInventoryItemTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimInventoryItemTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     component_id: list[int] | None = None
     component_id_empty: list[int] | None = Field(None, alias="component_id__empty")
     component_id_gt: list[int] | None = Field(None, alias="component_id__gt")
@@ -4484,6 +4930,7 @@ class DcimInventoryItemTemplatesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -4531,6 +4978,7 @@ class DcimInventoryItemTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     parent_id: list[int] | None = None
     parent_id_n: list[int] | None = Field(None, alias="parent_id__n")
@@ -4556,6 +5004,12 @@ class DcimInventoryItemTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimInventoryItemsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimInventoryItemsRootGetQuery(BaseModel):
     asset_tag: list[str] | None = None
     asset_tag_empty: bool | None = Field(None, alias="asset_tag__empty")
@@ -4570,6 +5024,7 @@ class DcimInventoryItemsRootGetQuery(BaseModel):
     asset_tag_niew: list[str] | None = Field(None, alias="asset_tag__niew")
     asset_tag_nisw: list[str] | None = Field(None, alias="asset_tag__nisw")
     asset_tag_regex: list[str] | None = Field(None, alias="asset_tag__regex")
+    brief: bool | None = None
     component_id: list[int] | None = None
     component_id_empty: list[int] | None = Field(None, alias="component_id__empty")
     component_id_gt: list[int] | None = Field(None, alias="component_id__gt")
@@ -4626,6 +5081,7 @@ class DcimInventoryItemsRootGetQuery(BaseModel):
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
     discovered: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -4677,6 +5133,7 @@ class DcimInventoryItemsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -4750,8 +5207,10 @@ class DcimInventoryItemsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -4764,11 +5223,18 @@ class DcimInventoryItemsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimLocationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimLocationsRootGetQuery(BaseModel):
     ancestor: list[str] | None = None
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -4809,6 +5275,7 @@ class DcimLocationsRootGetQuery(BaseModel):
     facility_niew: list[str] | None = Field(None, alias="facility__niew")
     facility_nisw: list[str] | None = Field(None, alias="facility__nisw")
     facility_regex: list[str] | None = Field(None, alias="facility__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -4839,6 +5306,7 @@ class DcimLocationsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -4893,8 +5361,10 @@ class DcimLocationsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -4905,6 +5375,12 @@ class DcimLocationsRootGetQuery(BaseModel):
     tenant_id: list[int] | None = None
     tenant_id_n: list[int] | None = Field(None, alias="tenant_id__n")
     updated_by_request: str | None = None
+
+
+class DcimMacAddressesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimMacAddressesRootGetQuery(BaseModel):
@@ -4918,6 +5394,7 @@ class DcimMacAddressesRootGetQuery(BaseModel):
     assigned_object_id_n: list[int] | None = Field(None, alias="assigned_object_id__n")
     assigned_object_type: list[str] | None = None
     assigned_object_type_n: list[str] | None = Field(None, alias="assigned_object_type__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -4941,6 +5418,7 @@ class DcimMacAddressesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device: list[str] | None = None
     device_id: list[int] | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -4974,6 +5452,7 @@ class DcimMacAddressesRootGetQuery(BaseModel):
     mac_address_regex: list[str] | None = Field(None, alias="mac_address__regex")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -4987,8 +5466,10 @@ class DcimMacAddressesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_machine: list[str] | None = None
@@ -4999,7 +5480,14 @@ class DcimMacAddressesRootGetQuery(BaseModel):
     vminterface_id_n: list[int] | None = Field(None, alias="vminterface_id__n")
 
 
+class DcimManufacturersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimManufacturersRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -5027,6 +5515,7 @@ class DcimManufacturersRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5057,6 +5546,7 @@ class DcimManufacturersRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5082,13 +5572,22 @@ class DcimManufacturersRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class DcimModuleBayTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimModuleBayTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -5113,6 +5612,7 @@ class DcimModuleBayTemplatesRootGetQuery(BaseModel):
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5158,6 +5658,7 @@ class DcimModuleBayTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     position: list[str] | None = None
     position_empty: bool | None = Field(None, alias="position__empty")
@@ -5177,7 +5678,14 @@ class DcimModuleBayTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimModuleBaysDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimModuleBaysRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -5225,6 +5733,7 @@ class DcimModuleBaysRootGetQuery(BaseModel):
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5276,6 +5785,7 @@ class DcimModuleBaysRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5319,8 +5829,10 @@ class DcimModuleBaysRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -5333,7 +5845,14 @@ class DcimModuleBaysRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimModuleTypeProfilesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimModuleTypeProfilesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -5355,6 +5874,7 @@ class DcimModuleTypeProfilesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5385,6 +5905,7 @@ class DcimModuleTypeProfilesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5397,10 +5918,18 @@ class DcimModuleTypeProfilesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimModuleTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimModuleTypesRootGetQuery(BaseModel):
@@ -5439,7 +5968,46 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     airflow_niew: list[str] | None = Field(None, alias="airflow__niew")
     airflow_nisw: list[str] | None = Field(None, alias="airflow__nisw")
     airflow_regex: list[str] | None = Field(None, alias="airflow__regex")
+    brief: bool | None = None
+    console_port_template_count: list[int] | None = None
+    console_port_template_count_empty: bool | None = Field(
+        None, alias="console_port_template_count__empty"
+    )
+    console_port_template_count_gt: list[int] | None = Field(
+        None, alias="console_port_template_count__gt"
+    )
+    console_port_template_count_gte: list[int] | None = Field(
+        None, alias="console_port_template_count__gte"
+    )
+    console_port_template_count_lt: list[int] | None = Field(
+        None, alias="console_port_template_count__lt"
+    )
+    console_port_template_count_lte: list[int] | None = Field(
+        None, alias="console_port_template_count__lte"
+    )
+    console_port_template_count_n: list[int] | None = Field(
+        None, alias="console_port_template_count__n"
+    )
     console_ports: bool | None = None
+    console_server_port_template_count: list[int] | None = None
+    console_server_port_template_count_empty: bool | None = Field(
+        None, alias="console_server_port_template_count__empty"
+    )
+    console_server_port_template_count_gt: list[int] | None = Field(
+        None, alias="console_server_port_template_count__gt"
+    )
+    console_server_port_template_count_gte: list[int] | None = Field(
+        None, alias="console_server_port_template_count__gte"
+    )
+    console_server_port_template_count_lt: list[int] | None = Field(
+        None, alias="console_server_port_template_count__lt"
+    )
+    console_server_port_template_count_lte: list[int] | None = Field(
+        None, alias="console_server_port_template_count__lte"
+    )
+    console_server_port_template_count_n: list[int] | None = Field(
+        None, alias="console_server_port_template_count__n"
+    )
     console_server_ports: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
@@ -5462,6 +6030,26 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
+    front_port_template_count: list[int] | None = None
+    front_port_template_count_empty: bool | None = Field(
+        None, alias="front_port_template_count__empty"
+    )
+    front_port_template_count_gt: list[int] | None = Field(
+        None, alias="front_port_template_count__gt"
+    )
+    front_port_template_count_gte: list[int] | None = Field(
+        None, alias="front_port_template_count__gte"
+    )
+    front_port_template_count_lt: list[int] | None = Field(
+        None, alias="front_port_template_count__lt"
+    )
+    front_port_template_count_lte: list[int] | None = Field(
+        None, alias="front_port_template_count__lte"
+    )
+    front_port_template_count_n: list[int] | None = Field(
+        None, alias="front_port_template_count__n"
+    )
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5469,6 +6057,23 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     id_lt: list[int] | None = Field(None, alias="id__lt")
     id_lte: list[int] | None = Field(None, alias="id__lte")
     id_n: list[int] | None = Field(None, alias="id__n")
+    interface_template_count: list[int] | None = None
+    interface_template_count_empty: bool | None = Field(
+        None, alias="interface_template_count__empty"
+    )
+    interface_template_count_gt: list[int] | None = Field(
+        None, alias="interface_template_count__gt"
+    )
+    interface_template_count_gte: list[int] | None = Field(
+        None, alias="interface_template_count__gte"
+    )
+    interface_template_count_lt: list[int] | None = Field(
+        None, alias="interface_template_count__lt"
+    )
+    interface_template_count_lte: list[int] | None = Field(
+        None, alias="interface_template_count__lte"
+    )
+    interface_template_count_n: list[int] | None = Field(None, alias="interface_template_count__n")
     interfaces: bool | None = None
     last_updated: list[str] | None = None
     last_updated_empty: list[str] | None = Field(None, alias="last_updated__empty")
@@ -5496,6 +6101,26 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     model_nisw: list[str] | None = Field(None, alias="model__nisw")
     model_regex: list[str] | None = Field(None, alias="model__regex")
     modified_by_request: str | None = None
+    module_bay_template_count: list[int] | None = None
+    module_bay_template_count_empty: bool | None = Field(
+        None, alias="module_bay_template_count__empty"
+    )
+    module_bay_template_count_gt: list[int] | None = Field(
+        None, alias="module_bay_template_count__gt"
+    )
+    module_bay_template_count_gte: list[int] | None = Field(
+        None, alias="module_bay_template_count__gte"
+    )
+    module_bay_template_count_lt: list[int] | None = Field(
+        None, alias="module_bay_template_count__lt"
+    )
+    module_bay_template_count_lte: list[int] | None = Field(
+        None, alias="module_bay_template_count__lte"
+    )
+    module_bay_template_count_n: list[int] | None = Field(
+        None, alias="module_bay_template_count__n"
+    )
+    module_bays: bool | None = None
     module_count: list[int] | None = None
     module_count_empty: bool | None = Field(None, alias="module_count__empty")
     module_count_gt: list[int] | None = Field(None, alias="module_count__gt")
@@ -5504,6 +6129,7 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     module_count_lte: list[int] | None = Field(None, alias="module_count__lte")
     module_count_n: list[int] | None = Field(None, alias="module_count__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5527,17 +6153,74 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     part_number_nisw: list[str] | None = Field(None, alias="part_number__nisw")
     part_number_regex: list[str] | None = Field(None, alias="part_number__regex")
     pass_through_ports: bool | None = None
+    power_outlet_template_count: list[int] | None = None
+    power_outlet_template_count_empty: bool | None = Field(
+        None, alias="power_outlet_template_count__empty"
+    )
+    power_outlet_template_count_gt: list[int] | None = Field(
+        None, alias="power_outlet_template_count__gt"
+    )
+    power_outlet_template_count_gte: list[int] | None = Field(
+        None, alias="power_outlet_template_count__gte"
+    )
+    power_outlet_template_count_lt: list[int] | None = Field(
+        None, alias="power_outlet_template_count__lt"
+    )
+    power_outlet_template_count_lte: list[int] | None = Field(
+        None, alias="power_outlet_template_count__lte"
+    )
+    power_outlet_template_count_n: list[int] | None = Field(
+        None, alias="power_outlet_template_count__n"
+    )
     power_outlets: bool | None = None
+    power_port_template_count: list[int] | None = None
+    power_port_template_count_empty: bool | None = Field(
+        None, alias="power_port_template_count__empty"
+    )
+    power_port_template_count_gt: list[int] | None = Field(
+        None, alias="power_port_template_count__gt"
+    )
+    power_port_template_count_gte: list[int] | None = Field(
+        None, alias="power_port_template_count__gte"
+    )
+    power_port_template_count_lt: list[int] | None = Field(
+        None, alias="power_port_template_count__lt"
+    )
+    power_port_template_count_lte: list[int] | None = Field(
+        None, alias="power_port_template_count__lte"
+    )
+    power_port_template_count_n: list[int] | None = Field(
+        None, alias="power_port_template_count__n"
+    )
     power_ports: bool | None = None
     profile: list[str] | None = None
     profile_n: list[str] | None = Field(None, alias="profile__n")
     profile_id: list[int] | None = None
     profile_id_n: list[int] | None = Field(None, alias="profile_id__n")
     q: str | None = None
+    rear_port_template_count: list[int] | None = None
+    rear_port_template_count_empty: bool | None = Field(
+        None, alias="rear_port_template_count__empty"
+    )
+    rear_port_template_count_gt: list[int] | None = Field(
+        None, alias="rear_port_template_count__gt"
+    )
+    rear_port_template_count_gte: list[int] | None = Field(
+        None, alias="rear_port_template_count__gte"
+    )
+    rear_port_template_count_lt: list[int] | None = Field(
+        None, alias="rear_port_template_count__lt"
+    )
+    rear_port_template_count_lte: list[int] | None = Field(
+        None, alias="rear_port_template_count__lte"
+    )
+    rear_port_template_count_n: list[int] | None = Field(None, alias="rear_port_template_count__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     weight: list[float] | None = None
@@ -5564,6 +6247,12 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     weight_unit_regex: list[str] | None = Field(None, alias="weight_unit__regex")
 
 
+class DcimModulesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimModulesRootGetQuery(BaseModel):
     asset_tag: list[str] | None = None
     asset_tag_empty: bool | None = Field(None, alias="asset_tag__empty")
@@ -5578,6 +6267,7 @@ class DcimModulesRootGetQuery(BaseModel):
     asset_tag_niew: list[str] | None = Field(None, alias="asset_tag__niew")
     asset_tag_nisw: list[str] | None = Field(None, alias="asset_tag__nisw")
     asset_tag_regex: list[str] | None = Field(None, alias="asset_tag__regex")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -5603,6 +6293,7 @@ class DcimModulesRootGetQuery(BaseModel):
     device_n: list[str] | None = Field(None, alias="device__n")
     device_id: list[int] | None = None
     device_id_n: list[int] | None = Field(None, alias="device_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5634,6 +6325,7 @@ class DcimModulesRootGetQuery(BaseModel):
     module_type_id: list[int] | None = None
     module_type_id_n: list[int] | None = Field(None, alias="module_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5692,10 +6384,18 @@ class DcimModulesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimPlatformsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimPlatformsRootGetQuery(BaseModel):
@@ -5704,6 +6404,7 @@ class DcimPlatformsRootGetQuery(BaseModel):
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
     available_for_device_type: str | None = None
+    brief: bool | None = None
     config_template_id: list[int] | None = None
     config_template_id_n: list[int] | None = Field(None, alias="config_template_id__n")
     created: list[str] | None = None
@@ -5727,6 +6428,7 @@ class DcimPlatformsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5761,6 +6463,7 @@ class DcimPlatformsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5790,10 +6493,18 @@ class DcimPlatformsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimPowerFeedsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimPowerFeedsRootGetQuery(BaseModel):
@@ -5811,6 +6522,7 @@ class DcimPowerFeedsRootGetQuery(BaseModel):
     available_power_lt: list[int] | None = Field(None, alias="available_power__lt")
     available_power_lte: list[int] | None = Field(None, alias="available_power__lte")
     available_power_n: list[int] | None = Field(None, alias="available_power__n")
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -5856,6 +6568,7 @@ class DcimPowerFeedsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -5895,6 +6608,7 @@ class DcimPowerFeedsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -5962,8 +6676,10 @@ class DcimPowerFeedsRootGetQuery(BaseModel):
     supply_nisw: list[str] | None = Field(None, alias="supply__nisw")
     supply_regex: list[str] | None = Field(None, alias="supply__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -5996,7 +6712,20 @@ class DcimPowerFeedsRootGetQuery(BaseModel):
     voltage_n: list[int] | None = Field(None, alias="voltage__n")
 
 
+class DcimPowerFeedsTraceGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimPowerOutletTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimPowerOutletTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -6046,6 +6775,7 @@ class DcimPowerOutletTemplatesRootGetQuery(BaseModel):
     feed_leg_niew: list[str] | None = Field(None, alias="feed_leg__niew")
     feed_leg_nisw: list[str] | None = Field(None, alias="feed_leg__nisw")
     feed_leg_regex: list[str] | None = Field(None, alias="feed_leg__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -6091,6 +6821,7 @@ class DcimPowerOutletTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     power_port_id: list[int] | None = None
     power_port_id_n: list[int] | None = Field(None, alias="power_port_id__n")
@@ -6146,7 +6877,14 @@ class DcimPowerOutletTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimPowerOutletsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimPowerOutletsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -6243,6 +6981,7 @@ class DcimPowerOutletsRootGetQuery(BaseModel):
     feed_leg_niew: list[str] | None = Field(None, alias="feed_leg__niew")
     feed_leg_nisw: list[str] | None = Field(None, alias="feed_leg__nisw")
     feed_leg_regex: list[str] | None = Field(None, alias="feed_leg__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -6294,6 +7033,7 @@ class DcimPowerOutletsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -6337,8 +7077,10 @@ class DcimPowerOutletsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -6364,7 +7106,20 @@ class DcimPowerOutletsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimPowerOutletsTraceGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimPowerPanelsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimPowerPanelsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -6392,6 +7147,7 @@ class DcimPowerPanelsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -6424,6 +7180,7 @@ class DcimPowerPanelsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -6448,10 +7205,18 @@ class DcimPowerPanelsRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimPowerPortTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimPowerPortTemplatesRootGetQuery(BaseModel):
@@ -6462,6 +7227,7 @@ class DcimPowerPortTemplatesRootGetQuery(BaseModel):
     allocated_draw_lt: list[int] | None = Field(None, alias="allocated_draw__lt")
     allocated_draw_lte: list[int] | None = Field(None, alias="allocated_draw__lte")
     allocated_draw_n: list[int] | None = Field(None, alias="allocated_draw__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -6485,6 +7251,7 @@ class DcimPowerPortTemplatesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -6537,6 +7304,7 @@ class DcimPowerPortTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
@@ -6590,6 +7358,12 @@ class DcimPowerPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimPowerPortsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimPowerPortsRootGetQuery(BaseModel):
     allocated_draw: list[int] | None = None
     allocated_draw_empty: bool | None = Field(None, alias="allocated_draw__empty")
@@ -6598,6 +7372,7 @@ class DcimPowerPortsRootGetQuery(BaseModel):
     allocated_draw_lt: list[int] | None = Field(None, alias="allocated_draw__lt")
     allocated_draw_lte: list[int] | None = Field(None, alias="allocated_draw__lte")
     allocated_draw_n: list[int] | None = Field(None, alias="allocated_draw__n")
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -6668,6 +7443,7 @@ class DcimPowerPortsRootGetQuery(BaseModel):
     device_type_n: list[str] | None = Field(None, alias="device_type__n")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -6726,6 +7502,7 @@ class DcimPowerPortsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -6754,8 +7531,10 @@ class DcimPowerPortsRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -6781,7 +7560,20 @@ class DcimPowerPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimPowerPortsTraceGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimRackGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRackGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -6803,6 +7595,7 @@ class DcimRackGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -6833,6 +7626,7 @@ class DcimRackGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -6858,13 +7652,22 @@ class DcimRackGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class DcimRackReservationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRackReservationsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -6886,6 +7689,7 @@ class DcimRackReservationsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -6911,6 +7715,7 @@ class DcimRackReservationsRootGetQuery(BaseModel):
     location_id_n: list[str] | None = Field(None, alias="location_id__n")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -6950,8 +7755,10 @@ class DcimRackReservationsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -6977,7 +7784,14 @@ class DcimRackReservationsRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class DcimRackRolesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRackRolesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -7012,6 +7826,7 @@ class DcimRackRolesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -7042,6 +7857,7 @@ class DcimRackRolesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -7067,13 +7883,22 @@ class DcimRackRolesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class DcimRackTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRackTypesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -7096,6 +7921,7 @@ class DcimRackTypesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     form_factor: list[str] | None = None
     form_factor_empty: bool | None = Field(None, alias="form_factor__empty")
     form_factor_ic: list[str] | None = Field(None, alias="form_factor__ic")
@@ -7157,6 +7983,7 @@ class DcimRackTypesRootGetQuery(BaseModel):
     mounting_depth_lte: list[int] | None = Field(None, alias="mounting_depth__lte")
     mounting_depth_n: list[int] | None = Field(None, alias="mounting_depth__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     outer_depth: list[int] | None = None
     outer_depth_empty: bool | None = Field(None, alias="outer_depth__empty")
@@ -7230,8 +8057,10 @@ class DcimRackTypesRootGetQuery(BaseModel):
     starting_unit_lte: list[int] | None = Field(None, alias="starting_unit__lte")
     starting_unit_n: list[int] | None = Field(None, alias="starting_unit__n")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     u_height: list[int] | None = None
     u_height_empty: bool | None = Field(None, alias="u_height__empty")
@@ -7277,15 +8106,24 @@ class DcimRackTypesRootGetQuery(BaseModel):
     width_regex: list[int] | None = Field(None, alias="width__regex")
 
 
+class DcimRacksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRacksElevationGetQuery(BaseModel):
+    brief: bool | None = None
     exclude: int | None = None
     expand_devices: bool | None = None
     face: Literal["front", "rear"] | None = None
+    fields: str | None = None
     include_images: bool | None = None
     legend_width: int | None = None
     limit: int | None = None
     margin_width: int | None = None
     offset: int | None = None
+    omit: str | None = None
     q: str | None = None
     render: Literal["json", "svg"] | None = None
     start: int | None = None
@@ -7322,6 +8160,7 @@ class DcimRacksRootGetQuery(BaseModel):
     asset_tag_niew: list[str] | None = Field(None, alias="asset_tag__niew")
     asset_tag_nisw: list[str] | None = Field(None, alias="asset_tag__nisw")
     asset_tag_regex: list[str] | None = Field(None, alias="asset_tag__regex")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -7363,6 +8202,7 @@ class DcimRacksRootGetQuery(BaseModel):
     facility_id_niew: list[str] | None = Field(None, alias="facility_id__niew")
     facility_id_nisw: list[str] | None = Field(None, alias="facility_id__nisw")
     facility_id_regex: list[str] | None = Field(None, alias="facility_id__regex")
+    fields: str | None = None
     form_factor: list[str] | None = None
     form_factor_empty: bool | None = Field(None, alias="form_factor__empty")
     form_factor_ic: list[str] | None = Field(None, alias="form_factor__ic")
@@ -7432,6 +8272,7 @@ class DcimRacksRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     outer_depth: list[int] | None = None
     outer_depth_empty: bool | None = Field(None, alias="outer_depth__empty")
@@ -7531,8 +8372,10 @@ class DcimRacksRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -7586,7 +8429,14 @@ class DcimRacksRootGetQuery(BaseModel):
     width_regex: list[int] | None = Field(None, alias="width__regex")
 
 
+class DcimRearPortTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRearPortTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -7623,6 +8473,7 @@ class DcimRearPortTemplatesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     front_port_id: list[int] | None = None
     front_port_id_n: list[int] | None = Field(None, alias="front_port_id__n")
     id: list[int] | None = None
@@ -7670,6 +8521,7 @@ class DcimRearPortTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     positions: list[int] | None = None
     positions_empty: bool | None = Field(None, alias="positions__empty")
@@ -7696,7 +8548,20 @@ class DcimRearPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimRearPortsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class DcimRearPortsPathsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRearPortsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cable_connector: list[int] | None = None
     cable_connector_empty: bool | None = Field(None, alias="cable_connector__empty")
     cable_connector_gt: list[int] | None = Field(None, alias="cable_connector__gt")
@@ -7779,6 +8644,7 @@ class DcimRearPortsRootGetQuery(BaseModel):
     device_type_n: list[str] | None = Field(None, alias="device_type__n")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     front_port_id: list[int] | None = None
     front_port_id_n: list[int] | None = Field(None, alias="front_port_id__n")
     id: list[int] | None = None
@@ -7832,6 +8698,7 @@ class DcimRearPortsRootGetQuery(BaseModel):
     name_regex: list[str] | None = Field(None, alias="name__regex")
     occupied: bool | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -7867,8 +8734,10 @@ class DcimRearPortsRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -7894,11 +8763,18 @@ class DcimRearPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimRegionsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimRegionsRootGetQuery(BaseModel):
     ancestor: list[str] | None = None
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -7926,6 +8802,7 @@ class DcimRegionsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -7956,6 +8833,7 @@ class DcimRegionsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -7985,10 +8863,18 @@ class DcimRegionsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimSiteGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimSiteGroupsRootGetQuery(BaseModel):
@@ -7996,6 +8882,7 @@ class DcimSiteGroupsRootGetQuery(BaseModel):
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -8023,6 +8910,7 @@ class DcimSiteGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -8053,6 +8941,7 @@ class DcimSiteGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8082,10 +8971,18 @@ class DcimSiteGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimSitesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class DcimSitesRootGetQuery(BaseModel):
@@ -8093,6 +8990,7 @@ class DcimSitesRootGetQuery(BaseModel):
     asn_n: list[int] | None = Field(None, alias="asn__n")
     asn_id: list[int] | None = None
     asn_id_n: list[int] | None = Field(None, alias="asn_id__n")
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -8133,6 +9031,7 @@ class DcimSitesRootGetQuery(BaseModel):
     facility_niew: list[str] | None = Field(None, alias="facility__niew")
     facility_nisw: list[str] | None = Field(None, alias="facility__nisw")
     facility_regex: list[str] | None = Field(None, alias="facility__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[str] | None = None
@@ -8181,6 +9080,7 @@ class DcimSitesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8223,8 +9123,10 @@ class DcimSitesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -8249,7 +9151,14 @@ class DcimSitesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimVirtualChassisDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimVirtualChassisRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -8284,6 +9193,7 @@ class DcimVirtualChassisRootGetQuery(BaseModel):
     domain_niew: list[str] | None = Field(None, alias="domain__niew")
     domain_nisw: list[str] | None = Field(None, alias="domain__nisw")
     domain_regex: list[str] | None = Field(None, alias="domain__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -8325,6 +9235,7 @@ class DcimVirtualChassisRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8349,8 +9260,10 @@ class DcimVirtualChassisRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -8359,7 +9272,14 @@ class DcimVirtualChassisRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimVirtualDeviceContextsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -8385,6 +9305,7 @@ class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
     device_n: list[int] | None = Field(None, alias="device__n")
     device_id: list[int] | None = None
     device_id_n: list[int] | None = Field(None, alias="device_id__n")
+    fields: str | None = None
     has_primary_ip: bool | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
@@ -8425,6 +9346,7 @@ class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8458,8 +9380,10 @@ class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -8472,8 +9396,16 @@ class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasBookmarksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasBookmarksRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: str | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -8499,6 +9431,7 @@ class ExtrasBookmarksRootGetQuery(BaseModel):
     object_type_id_lte: list[int] | None = Field(None, alias="object_type_id__lte")
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     start: int | None = None
     user: list[str] | None = None
@@ -8507,8 +9440,15 @@ class ExtrasBookmarksRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class ExtrasConfigContextProfilesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasConfigContextProfilesRootGetQuery(BaseModel):
     auto_sync_enabled: bool | None = None
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -8541,6 +9481,7 @@ class ExtrasConfigContextProfilesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -8571,6 +9512,7 @@ class ExtrasConfigContextProfilesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8583,14 +9525,23 @@ class ExtrasConfigContextProfilesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class ExtrasConfigContextsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasConfigContextsRootGetQuery(BaseModel):
     auto_sync_enabled: bool | None = None
+    brief: bool | None = None
     cluster_group: list[str] | None = None
     cluster_group_n: list[str] | None = Field(None, alias="cluster_group__n")
     cluster_group_id: list[int] | None = None
@@ -8639,6 +9590,7 @@ class ExtrasConfigContextsRootGetQuery(BaseModel):
     device_role_id_n: list[int] | None = Field(None, alias="device_role_id__n")
     device_type_id: list[int] | None = None
     device_type_id_n: list[int] | None = Field(None, alias="device_type_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -8674,6 +9626,7 @@ class ExtrasConfigContextsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8727,6 +9680,12 @@ class ExtrasConfigContextsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasConfigTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasConfigTemplatesRenderPostQuery(BaseModel):
     format: Literal["json", "txt"] | None = None
 
@@ -8734,6 +9693,7 @@ class ExtrasConfigTemplatesRenderPostQuery(BaseModel):
 class ExtrasConfigTemplatesRootGetQuery(BaseModel):
     as_attachment: bool | None = None
     auto_sync_enabled: bool | None = None
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -8767,6 +9727,7 @@ class ExtrasConfigTemplatesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     file_extension: list[str] | None = None
     file_extension_empty: bool | None = Field(None, alias="file_extension__empty")
     file_extension_ic: list[str] | None = Field(None, alias="file_extension__ic")
@@ -8836,6 +9797,7 @@ class ExtrasConfigTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -8848,10 +9810,24 @@ class ExtrasConfigTemplatesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class ExtrasCustomFieldChoiceSetsChoicesGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class ExtrasCustomFieldChoiceSetsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
@@ -8870,6 +9846,7 @@ class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
     base_choices_niew: list[str] | None = Field(None, alias="base_choices__niew")
     base_choices_nisw: list[str] | None = Field(None, alias="base_choices__nisw")
     base_choices_regex: list[str] | None = Field(None, alias="base_choices__regex")
+    brief: bool | None = None
     choice: list[str] | None = None
     choice_colors: list[Any] | None = None
     created: list[str] | None = None
@@ -8893,6 +9870,7 @@ class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -8923,6 +9901,7 @@ class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     order_alphabetically: bool | None = None
     ordering: str | None = None
     owner: list[str] | None = None
@@ -8938,7 +9917,14 @@ class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasCustomFieldsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasCustomFieldsRootGetQuery(BaseModel):
+    brief: bool | None = None
     choice_set: list[str] | None = None
     choice_set_n: list[str] | None = Field(None, alias="choice_set__n")
     choice_set_id: list[int] | None = None
@@ -8964,6 +9950,7 @@ class ExtrasCustomFieldsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     filter_logic: Literal["disabled", "exact", "loose", "null"] | None = None
     filter_logic_empty: bool | None = Field(None, alias="filter_logic__empty")
     filter_logic_ic: list[str] | None = Field(None, alias="filter_logic__ic")
@@ -9050,6 +10037,7 @@ class ExtrasCustomFieldsRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -9154,7 +10142,14 @@ class ExtrasCustomFieldsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasCustomLinksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasCustomLinksRootGetQuery(BaseModel):
+    brief: bool | None = None
     button_class: (
         Literal[
             "black",
@@ -9217,6 +10212,7 @@ class ExtrasCustomLinksRootGetQuery(BaseModel):
     created_n: list[str] | None = Field(None, alias="created__n")
     created_by_request: str | None = None
     enabled: bool | None = None
+    fields: str | None = None
     group_name: list[str] | None = None
     group_name_empty: bool | None = Field(None, alias="group_name__empty")
     group_name_ic: list[str] | None = Field(None, alias="group_name__ic")
@@ -9299,6 +10295,7 @@ class ExtrasCustomLinksRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -9318,6 +10315,18 @@ class ExtrasCustomLinksRootGetQuery(BaseModel):
     weight_lt: list[int] | None = Field(None, alias="weight__lt")
     weight_lte: list[int] | None = Field(None, alias="weight__lte")
     weight_n: list[int] | None = Field(None, alias="weight__n")
+
+
+class ExtrasDashboardRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class ExtrasEventRulesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class ExtrasEventRulesRootGetQuery(BaseModel):
@@ -9343,6 +10352,7 @@ class ExtrasEventRulesRootGetQuery(BaseModel):
     action_type_niew: list[str] | None = Field(None, alias="action_type__niew")
     action_type_nisw: list[str] | None = Field(None, alias="action_type__nisw")
     action_type_regex: list[str] | None = Field(None, alias="action_type__regex")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -9366,6 +10376,7 @@ class ExtrasEventRulesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     enabled: bool | None = None
     event_type: list[str] | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9410,6 +10421,7 @@ class ExtrasEventRulesRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -9422,15 +10434,24 @@ class ExtrasEventRulesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class ExtrasExportTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class ExtrasExportTemplatesRootGetQuery(BaseModel):
     as_attachment: bool | None = None
     auto_sync_enabled: bool | None = None
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -9463,6 +10484,7 @@ class ExtrasExportTemplatesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     file_extension: list[str] | None = None
     file_extension_empty: bool | None = Field(None, alias="file_extension__empty")
     file_extension_ic: list[str] | None = Field(None, alias="file_extension__ic")
@@ -9546,6 +10568,7 @@ class ExtrasExportTemplatesRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -9560,7 +10583,14 @@ class ExtrasExportTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasImageAttachmentsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasImageAttachmentsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -9582,6 +10612,7 @@ class ExtrasImageAttachmentsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9596,6 +10627,13 @@ class ExtrasImageAttachmentsRootGetQuery(BaseModel):
     image_height_lt: list[int] | None = Field(None, alias="image_height__lt")
     image_height_lte: list[int] | None = Field(None, alias="image_height__lte")
     image_height_n: list[int] | None = Field(None, alias="image_height__n")
+    image_size: list[int] | None = None
+    image_size_empty: bool | None = Field(None, alias="image_size__empty")
+    image_size_gt: list[int] | None = Field(None, alias="image_size__gt")
+    image_size_gte: list[int] | None = Field(None, alias="image_size__gte")
+    image_size_lt: list[int] | None = Field(None, alias="image_size__lt")
+    image_size_lte: list[int] | None = Field(None, alias="image_size__lte")
+    image_size_n: list[int] | None = Field(None, alias="image_size__n")
     image_width: list[int] | None = None
     image_width_empty: bool | None = Field(None, alias="image_width__empty")
     image_width_gt: list[int] | None = Field(None, alias="image_width__gt")
@@ -9637,10 +10675,17 @@ class ExtrasImageAttachmentsRootGetQuery(BaseModel):
     object_type_id: int | None = None
     object_type_id_n: int | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
     updated_by_request: str | None = None
+
+
+class ExtrasJournalEntriesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class ExtrasJournalEntriesRootGetQuery(BaseModel):
@@ -9655,6 +10700,7 @@ class ExtrasJournalEntriesRootGetQuery(BaseModel):
     assigned_object_type_n: list[str] | None = Field(None, alias="assigned_object_type__n")
     assigned_object_type_id: list[int] | None = None
     assigned_object_type_id_n: list[int] | None = Field(None, alias="assigned_object_type_id__n")
+    brief: bool | None = None
     created_after: str | None = None
     created_before: str | None = None
     created_by: list[str] | None = None
@@ -9662,6 +10708,7 @@ class ExtrasJournalEntriesRootGetQuery(BaseModel):
     created_by_id: list[int] | None = None
     created_by_id_n: list[int] | None = Field(None, alias="created_by_id__n")
     created_by_request: str | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9692,31 +10739,59 @@ class ExtrasJournalEntriesRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class ExtrasNotificationGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasNotificationGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
     limit: int | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     start: int | None = None
+
+
+class ExtrasNotificationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class ExtrasNotificationsRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
     limit: int | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     start: int | None = None
 
 
+class ExtrasSavedFiltersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasSavedFiltersRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -9739,6 +10814,7 @@ class ExtrasSavedFiltersRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9783,6 +10859,7 @@ class ExtrasSavedFiltersRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -9823,7 +10900,15 @@ class ExtrasSavedFiltersRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasScriptsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasScriptsRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9849,19 +10934,36 @@ class ExtrasScriptsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
 
 
+class ExtrasSubscriptionsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasSubscriptionsRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
     limit: int | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     start: int | None = None
 
 
+class ExtrasTableConfigsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasTableConfigsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -9884,6 +10986,7 @@ class ExtrasTableConfigsRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9918,6 +11021,7 @@ class ExtrasTableConfigsRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     shared: bool | None = None
@@ -9950,7 +11054,15 @@ class ExtrasTableConfigsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasTaggedObjectsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasTaggedObjectsRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -9971,6 +11083,7 @@ class ExtrasTaggedObjectsRootGetQuery(BaseModel):
     object_type_id: list[int] | None = None
     object_type_id_n: list[int] | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
@@ -9980,7 +11093,14 @@ class ExtrasTaggedObjectsRootGetQuery(BaseModel):
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
 
 
+class ExtrasTagsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasTagsRootGetQuery(BaseModel):
+    brief: bool | None = None
     color: list[str] | None = None
     color_empty: bool | None = Field(None, alias="color__empty")
     color_ic: list[str] | None = Field(None, alias="color__ic")
@@ -10017,6 +11137,7 @@ class ExtrasTagsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     for_object_type_id: list[int] | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
@@ -10050,6 +11171,7 @@ class ExtrasTagsRootGetQuery(BaseModel):
     object_types: list[int] | None = None
     object_types_n: list[int] | None = Field(None, alias="object_types__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10084,7 +11206,14 @@ class ExtrasTagsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasWebhooksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class ExtrasWebhooksRootGetQuery(BaseModel):
+    brief: bool | None = None
     ca_file_path: list[str] | None = None
     ca_file_path_empty: bool | None = Field(None, alias="ca_file_path__empty")
     ca_file_path_ic: list[str] | None = Field(None, alias="ca_file_path__ic")
@@ -10119,6 +11248,7 @@ class ExtrasWebhooksRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     http_content_type: list[str] | None = None
     http_content_type_empty: bool | None = Field(None, alias="http_content_type__empty")
     http_content_type_ic: list[str] | None = Field(None, alias="http_content_type__ic")
@@ -10175,6 +11305,7 @@ class ExtrasWebhooksRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10202,13 +11333,22 @@ class ExtrasWebhooksRootGetQuery(BaseModel):
     ssl_verification: bool | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class IpamAggregatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamAggregatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -10244,6 +11384,7 @@ class IpamAggregatesRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     family: float | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -10261,6 +11402,7 @@ class IpamAggregatesRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10278,8 +11420,10 @@ class IpamAggregatesRootGetQuery(BaseModel):
     rir_id_n: list[int] | None = Field(None, alias="rir_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -10292,7 +11436,20 @@ class IpamAggregatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamAsnRangesAvailableAsnsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class IpamAsnRangesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamAsnRangesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -10321,6 +11478,7 @@ class IpamAsnRangesRootGetQuery(BaseModel):
     end_lt: list[int] | None = Field(None, alias="end__lt")
     end_lte: list[int] | None = Field(None, alias="end__lte")
     end_n: list[int] | None = Field(None, alias="end__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -10351,6 +11509,7 @@ class IpamAsnRangesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10386,8 +11545,10 @@ class IpamAsnRangesRootGetQuery(BaseModel):
     start_lte: list[int] | None = Field(None, alias="start__lte")
     start_n: list[int] | None = Field(None, alias="start__n")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -10400,6 +11561,12 @@ class IpamAsnRangesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamAsnsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamAsnsRootGetQuery(BaseModel):
     asn: list[int] | None = None
     asn_empty: bool | None = Field(None, alias="asn__empty")
@@ -10408,6 +11575,7 @@ class IpamAsnsRootGetQuery(BaseModel):
     asn_lt: list[int] | None = Field(None, alias="asn__lt")
     asn_lte: list[int] | None = Field(None, alias="asn__lte")
     asn_n: list[int] | None = Field(None, alias="asn__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -10429,6 +11597,7 @@ class IpamAsnsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -10446,6 +11615,7 @@ class IpamAsnsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10478,8 +11648,10 @@ class IpamAsnsRootGetQuery(BaseModel):
     site_id_n: list[int] | None = Field(None, alias="site_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -10492,7 +11664,14 @@ class IpamAsnsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamFhrpGroupAssignmentsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamFhrpGroupAssignmentsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -10503,6 +11682,7 @@ class IpamFhrpGroupAssignmentsRootGetQuery(BaseModel):
     created_by_request: str | None = None
     device: list[str] | None = None
     device_id: list[int] | None = None
+    fields: str | None = None
     group_id: list[int] | None = None
     group_id_n: list[int] | None = Field(None, alias="group_id__n")
     id: list[int] | None = None
@@ -10531,6 +11711,7 @@ class IpamFhrpGroupAssignmentsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     priority: list[int] | None = None
     priority_empty: bool | None = Field(None, alias="priority__empty")
@@ -10543,6 +11724,12 @@ class IpamFhrpGroupAssignmentsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
     virtual_machine: list[str] | None = None
     virtual_machine_id: list[int] | None = None
+
+
+class IpamFhrpGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class IpamFhrpGroupsRootGetQuery(BaseModel):
@@ -10572,6 +11759,7 @@ class IpamFhrpGroupsRootGetQuery(BaseModel):
     auth_type_niew: list[str] | None = Field(None, alias="auth_type__niew")
     auth_type_nisw: list[str] | None = Field(None, alias="auth_type__nisw")
     auth_type_regex: list[str] | None = Field(None, alias="auth_type__regex")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -10593,6 +11781,7 @@ class IpamFhrpGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group_id: list[int] | None = None
     group_id_empty: bool | None = Field(None, alias="group_id__empty")
     group_id_gt: list[int] | None = Field(None, alias="group_id__gt")
@@ -10630,6 +11819,7 @@ class IpamFhrpGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10656,10 +11846,18 @@ class IpamFhrpGroupsRootGetQuery(BaseModel):
     related_ip: list[str] | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class IpamIpAddressesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class IpamIpAddressesRootGetQuery(BaseModel):
@@ -10675,6 +11873,7 @@ class IpamIpAddressesRootGetQuery(BaseModel):
     assigned_object_type: list[str] | None = None
     assigned_object_type_n: list[str] | None = Field(None, alias="assigned_object_type__n")
     assigned_to_interface: bool | None = None
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -10720,6 +11919,7 @@ class IpamIpAddressesRootGetQuery(BaseModel):
     family: float | None = None
     fhrpgroup_id: list[int] | None = None
     fhrpgroup_id_n: list[int] | None = Field(None, alias="fhrpgroup_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -10746,6 +11946,7 @@ class IpamIpAddressesRootGetQuery(BaseModel):
     nat_inside_id: list[int] | None = None
     nat_inside_id_n: list[int] | None = Field(None, alias="nat_inside_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10789,8 +11990,10 @@ class IpamIpAddressesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -10813,7 +12016,20 @@ class IpamIpAddressesRootGetQuery(BaseModel):
     vrf_id_n: list[int] | None = Field(None, alias="vrf_id__n")
 
 
+class IpamIpRangesAvailableIpsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class IpamIpRangesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamIpRangesRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -10844,6 +12060,7 @@ class IpamIpRangesRootGetQuery(BaseModel):
     description_regex: list[str] | None = Field(None, alias="description__regex")
     end_address: list[str] | None = None
     family: float | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -10863,6 +12080,7 @@ class IpamIpRangesRootGetQuery(BaseModel):
     mark_utilized: bool | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -10901,8 +12119,10 @@ class IpamIpRangesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -10919,7 +12139,26 @@ class IpamIpRangesRootGetQuery(BaseModel):
     vrf_id_n: list[int] | None = Field(None, alias="vrf_id__n")
 
 
+class IpamPrefixesAvailableIpsGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class IpamPrefixesAvailablePrefixesGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class IpamPrefixesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamPrefixesRootGetQuery(BaseModel):
+    brief: bool | None = None
     children: list[int] | None = None
     children_empty: list[int] | None = Field(None, alias="children__empty")
     children_gt: list[int] | None = Field(None, alias="children__gt")
@@ -10963,6 +12202,7 @@ class IpamPrefixesRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     family: float | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -10989,6 +12229,7 @@ class IpamPrefixesRootGetQuery(BaseModel):
     mask_length_lte: float | None = Field(None, alias="mask_length__lte")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11042,8 +12283,10 @@ class IpamPrefixesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -11075,7 +12318,14 @@ class IpamPrefixesRootGetQuery(BaseModel):
     within_include: str | None = None
 
 
+class IpamRirsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamRirsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11097,6 +12347,7 @@ class IpamRirsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11128,6 +12379,7 @@ class IpamRirsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11153,13 +12405,22 @@ class IpamRirsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class IpamRolesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamRolesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11181,6 +12442,7 @@ class IpamRolesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11211,6 +12473,7 @@ class IpamRolesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11236,8 +12499,10 @@ class IpamRolesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     weight: list[int] | None = None
@@ -11249,7 +12514,14 @@ class IpamRolesRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class IpamRouteTargetsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamRouteTargetsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11279,6 +12551,7 @@ class IpamRouteTargetsRootGetQuery(BaseModel):
     exporting_vrf_n: list[str] | None = Field(None, alias="exporting_vrf__n")
     exporting_vrf_id: list[int] | None = None
     exporting_vrf_id_n: list[int] | None = Field(None, alias="exporting_vrf_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11317,6 +12590,7 @@ class IpamRouteTargetsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11329,8 +12603,10 @@ class IpamRouteTargetsRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -11343,7 +12619,14 @@ class IpamRouteTargetsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamServiceTemplatesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamServiceTemplatesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11365,6 +12648,7 @@ class IpamServiceTemplatesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11395,6 +12679,7 @@ class IpamServiceTemplatesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11427,13 +12712,22 @@ class IpamServiceTemplatesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class IpamServicesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamServicesRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -11465,6 +12759,7 @@ class IpamServicesRootGetQuery(BaseModel):
     device_id: list[int] | None = None
     fhrpgroup: list[str] | None = None
     fhrpgroup_id: list[int] | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11499,6 +12794,7 @@ class IpamServicesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11540,15 +12836,30 @@ class IpamServicesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_machine: list[str] | None = None
     virtual_machine_id: list[int] | None = None
 
 
+class IpamVlanGroupsAvailableVlansGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class IpamVlanGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamVlanGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     cluster: int | None = None
     cluster_group: int | None = None
     contains_vid: float | None = None
@@ -11573,6 +12884,7 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11604,6 +12916,7 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11643,8 +12956,10 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -11664,7 +12979,14 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamVlanTranslationPoliciesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamVlanTranslationPoliciesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11686,6 +13008,7 @@ class IpamVlanTranslationPoliciesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11716,6 +13039,7 @@ class IpamVlanTranslationPoliciesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11728,13 +13052,22 @@ class IpamVlanTranslationPoliciesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class IpamVlanTranslationRulesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamVlanTranslationRulesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11756,6 +13089,7 @@ class IpamVlanTranslationRulesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -11780,6 +13114,7 @@ class IpamVlanTranslationRulesRootGetQuery(BaseModel):
     local_vid_n: list[int] | None = Field(None, alias="local_vid__n")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     policy: list[str] | None = None
     policy_n: list[str] | None = Field(None, alias="policy__n")
@@ -11795,16 +13130,26 @@ class IpamVlanTranslationRulesRootGetQuery(BaseModel):
     remote_vid_n: list[int] | None = Field(None, alias="remote_vid__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class IpamVlansDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamVlansRootGetQuery(BaseModel):
     available_at_site: str | None = None
+    available_at_site_group: str | None = None
     available_on_device: str | None = None
     available_on_virtualmachine: str | None = None
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11826,6 +13171,7 @@ class IpamVlansRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -11865,6 +13211,7 @@ class IpamVlansRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -11928,8 +13275,10 @@ class IpamVlansRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -11950,7 +13299,14 @@ class IpamVlansRootGetQuery(BaseModel):
     vminterface_id: int | None = None
 
 
+class IpamVrfsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class IpamVrfsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -11977,6 +13333,7 @@ class IpamVrfsRootGetQuery(BaseModel):
     export_target_n: list[str] | None = Field(None, alias="export_target__n")
     export_target_id: list[int] | None = None
     export_target_id_n: list[int] | None = Field(None, alias="export_target_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12011,6 +13368,7 @@ class IpamVrfsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12036,8 +13394,10 @@ class IpamVrfsRootGetQuery(BaseModel):
     rd_regex: list[str] | None = Field(None, alias="rd__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -12050,7 +13410,14 @@ class IpamVrfsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyContactAssignmentsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class TenancyContactAssignmentsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact_id: list[int] | None = None
     contact_id_n: list[int] | None = Field(None, alias="contact_id__n")
     created: list[str] | None = None
@@ -12061,6 +13428,7 @@ class TenancyContactAssignmentsRootGetQuery(BaseModel):
     created_lte: list[str] | None = Field(None, alias="created__lte")
     created_n: list[str] | None = Field(None, alias="created__n")
     created_by_request: str | None = None
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[str] | None = None
@@ -12093,6 +13461,7 @@ class TenancyContactAssignmentsRootGetQuery(BaseModel):
     object_type_id: int | None = None
     object_type_id_n: int | None = Field(None, alias="object_type_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     priority: Literal["inactive", "null", "primary", "secondary", "tertiary"] | None = None
     priority_empty: bool | None = Field(None, alias="priority__empty")
@@ -12116,10 +13485,18 @@ class TenancyContactAssignmentsRootGetQuery(BaseModel):
     role_id_n: list[int] | None = Field(None, alias="role_id__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class TenancyContactGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class TenancyContactGroupsRootGetQuery(BaseModel):
@@ -12127,6 +13504,7 @@ class TenancyContactGroupsRootGetQuery(BaseModel):
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     contact_id: list[int] | None = None
     contact_id_n: list[int] | None = Field(None, alias="contact_id__n")
     created: list[str] | None = None
@@ -12150,6 +13528,7 @@ class TenancyContactGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12180,6 +13559,7 @@ class TenancyContactGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12209,13 +13589,22 @@ class TenancyContactGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class TenancyContactRolesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class TenancyContactRolesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -12237,6 +13626,7 @@ class TenancyContactRolesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12267,6 +13657,7 @@ class TenancyContactRolesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12292,10 +13683,18 @@ class TenancyContactRolesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class TenancyContactsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class TenancyContactsRootGetQuery(BaseModel):
@@ -12312,6 +13711,7 @@ class TenancyContactsRootGetQuery(BaseModel):
     address_niew: list[str] | None = Field(None, alias="address__niew")
     address_nisw: list[str] | None = Field(None, alias="address__nisw")
     address_regex: list[str] | None = Field(None, alias="address__regex")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -12346,6 +13746,7 @@ class TenancyContactsRootGetQuery(BaseModel):
     email_niew: list[str] | None = Field(None, alias="email__niew")
     email_nisw: list[str] | None = Field(None, alias="email__nisw")
     email_regex: list[str] | None = Field(None, alias="email__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[str] | None = None
@@ -12393,6 +13794,7 @@ class TenancyContactsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12418,8 +13820,10 @@ class TenancyContactsRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     title: list[str] | None = None
     title_empty: bool | None = Field(None, alias="title__empty")
@@ -12437,11 +13841,18 @@ class TenancyContactsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyTenantGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class TenancyTenantGroupsRootGetQuery(BaseModel):
     ancestor: list[str] | None = None
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -12463,6 +13874,7 @@ class TenancyTenantGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12493,6 +13905,7 @@ class TenancyTenantGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12522,13 +13935,22 @@ class TenancyTenantGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class TenancyTenantsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class TenancyTenantsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -12556,6 +13978,7 @@ class TenancyTenantsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[str] | None = None
@@ -12590,6 +14013,7 @@ class TenancyTenantsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12615,13 +14039,28 @@ class TenancyTenantsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class UsersConfigRootGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
+class UsersGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class UsersGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     description: list[str] | None = None
     description_empty: bool | None = Field(None, alias="description__empty")
     description_ic: list[str] | None = Field(None, alias="description__ic")
@@ -12635,6 +14074,7 @@ class UsersGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12659,6 +14099,7 @@ class UsersGroupsRootGetQuery(BaseModel):
     notification_group_id: list[int] | None = None
     notification_group_id_n: list[int] | None = Field(None, alias="notification_group_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -12672,7 +14113,14 @@ class UsersGroupsRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class UsersOwnerGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class UsersOwnerGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     description: list[str] | None = None
     description_empty: bool | None = Field(None, alias="description__empty")
     description_ic: list[str] | None = Field(None, alias="description__ic")
@@ -12686,6 +14134,7 @@ class UsersOwnerGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12708,12 +14157,20 @@ class UsersOwnerGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
 
 
+class UsersOwnersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class UsersOwnersRootGetQuery(BaseModel):
+    brief: bool | None = None
     description: list[str] | None = None
     description_empty: bool | None = Field(None, alias="description__empty")
     description_ic: list[str] | None = Field(None, alias="description__ic")
@@ -12727,6 +14184,7 @@ class UsersOwnersRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -12753,6 +14211,7 @@ class UsersOwnersRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
@@ -12766,7 +14225,14 @@ class UsersOwnersRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class UsersPermissionsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class UsersPermissionsRootGetQuery(BaseModel):
+    brief: bool | None = None
     can_add: bool | None = None
     can_change: bool | None = None
     can_delete: bool | None = None
@@ -12785,6 +14251,7 @@ class UsersPermissionsRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     enabled: bool | None = None
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -12827,6 +14294,7 @@ class UsersPermissionsRootGetQuery(BaseModel):
     object_types: list[int] | None = None
     object_types_n: list[int] | None = Field(None, alias="object_types__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
@@ -12836,7 +14304,14 @@ class UsersPermissionsRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class UsersTokensDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class UsersTokensRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: str | None = None
     created_gte: str | None = Field(None, alias="created__gte")
     created_lte: str | None = Field(None, alias="created__lte")
@@ -12857,6 +14332,7 @@ class UsersTokensRootGetQuery(BaseModel):
     expires: str | None = None
     expires_gte: str | None = Field(None, alias="expires__gte")
     expires_lte: str | None = Field(None, alias="expires__lte")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -12882,6 +14358,7 @@ class UsersTokensRootGetQuery(BaseModel):
     last_used_lte: str | None = Field(None, alias="last_used__lte")
     limit: int | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     pepper_id: list[int] | None = None
     pepper_id_empty: bool | None = Field(None, alias="pepper_id__empty")
@@ -12911,7 +14388,14 @@ class UsersTokensRootGetQuery(BaseModel):
     write_enabled: bool | None = None
 
 
+class UsersUsersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class UsersUsersRootGetQuery(BaseModel):
+    brief: bool | None = None
     date_joined: list[str] | None = None
     date_joined_empty: bool | None = Field(None, alias="date_joined__empty")
     date_joined_gt: list[str] | None = Field(None, alias="date_joined__gt")
@@ -12932,6 +14416,7 @@ class UsersUsersRootGetQuery(BaseModel):
     email_niew: list[str] | None = Field(None, alias="email__niew")
     email_nisw: list[str] | None = Field(None, alias="email__nisw")
     email_regex: list[str] | None = Field(None, alias="email__regex")
+    fields: str | None = None
     first_name: list[str] | None = None
     first_name_empty: bool | None = Field(None, alias="first_name__empty")
     first_name_ic: list[str] | None = Field(None, alias="first_name__ic")
@@ -12982,6 +14467,7 @@ class UsersUsersRootGetQuery(BaseModel):
     notification_group_id: list[int] | None = None
     notification_group_id_n: list[int] | None = Field(None, alias="notification_group_id__n")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13006,7 +14492,14 @@ class UsersUsersRootGetQuery(BaseModel):
     username_regex: list[str] | None = Field(None, alias="username__regex")
 
 
+class VirtualizationClusterGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VirtualizationClusterGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -13034,6 +14527,7 @@ class VirtualizationClusterGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -13064,6 +14558,7 @@ class VirtualizationClusterGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13089,13 +14584,22 @@ class VirtualizationClusterGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class VirtualizationClusterTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class VirtualizationClusterTypesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -13117,6 +14621,7 @@ class VirtualizationClusterTypesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -13147,6 +14652,7 @@ class VirtualizationClusterTypesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13172,13 +14678,22 @@ class VirtualizationClusterTypesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class VirtualizationClustersDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VirtualizationClustersRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -13206,6 +14721,7 @@ class VirtualizationClustersRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -13244,6 +14760,7 @@ class VirtualizationClustersRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13290,8 +14807,10 @@ class VirtualizationClustersRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -13308,9 +14827,16 @@ class VirtualizationClustersRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VirtualizationInterfacesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VirtualizationInterfacesRootGetQuery(BaseModel):
     bridge_id: list[int] | None = None
     bridge_id_n: list[int] | None = Field(None, alias="bridge_id__n")
+    brief: bool | None = None
     cluster: list[str] | None = None
     cluster_n: list[str] | None = Field(None, alias="cluster__n")
     cluster_id: list[int] | None = None
@@ -13337,6 +14863,7 @@ class VirtualizationInterfacesRootGetQuery(BaseModel):
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
     enabled: bool | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -13403,6 +14930,7 @@ class VirtualizationInterfacesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13421,8 +14949,10 @@ class VirtualizationInterfacesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_machine: list[str] | None = None
@@ -13443,7 +14973,14 @@ class VirtualizationInterfacesRootGetQuery(BaseModel):
     vrf_id_n: list[int] | None = Field(None, alias="vrf_id__n")
 
 
+class VirtualizationVirtualDisksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VirtualizationVirtualDisksRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -13465,6 +15002,7 @@ class VirtualizationVirtualDisksRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -13495,6 +15033,7 @@ class VirtualizationVirtualDisksRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13514,8 +15053,10 @@ class VirtualizationVirtualDisksRootGetQuery(BaseModel):
     size_n: list[int] | None = Field(None, alias="size__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_machine: list[str] | None = None
@@ -13524,7 +15065,14 @@ class VirtualizationVirtualDisksRootGetQuery(BaseModel):
     virtual_machine_id_n: list[int] | None = Field(None, alias="virtual_machine_id__n")
 
 
+class VirtualizationVirtualMachineTypesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -13564,6 +15112,7 @@ class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -13594,6 +15143,7 @@ class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13619,8 +15169,10 @@ class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_machine_count: list[int] | None = None
@@ -13632,11 +15184,18 @@ class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
     virtual_machine_count_n: list[int] | None = Field(None, alias="virtual_machine_count__n")
 
 
+class VirtualizationVirtualMachinesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VirtualizationVirtualMachinesRenderConfigPostQuery(BaseModel):
     format: Literal["json", "txt"] | None = None
 
 
 class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
+    brief: bool | None = None
     cluster: list[str] | None = None
     cluster_n: list[str] | None = Field(None, alias="cluster__n")
     cluster_group: list[str] | None = None
@@ -13689,6 +15248,7 @@ class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
     disk_lt: list[int] | None = Field(None, alias="disk__lt")
     disk_lte: list[int] | None = Field(None, alias="disk__lte")
     disk_n: list[int] | None = Field(None, alias="disk__n")
+    fields: str | None = None
     has_primary_ip: bool | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
@@ -13747,6 +15307,7 @@ class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13826,8 +15387,10 @@ class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -13858,7 +15421,14 @@ class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
     virtual_machine_type_id_n: list[int] | None = Field(None, alias="virtual_machine_type_id__n")
 
 
+class VpnIkePoliciesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnIkePoliciesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -13880,6 +15450,7 @@ class VpnIkePoliciesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -13927,6 +15498,7 @@ class VpnIkePoliciesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -13951,8 +15523,10 @@ class VpnIkePoliciesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     version: list[int] | None = None
@@ -13967,6 +15541,12 @@ class VpnIkePoliciesRootGetQuery(BaseModel):
     version_niew: list[int] | None = Field(None, alias="version__niew")
     version_nisw: list[int] | None = Field(None, alias="version__nisw")
     version_regex: list[int] | None = Field(None, alias="version__regex")
+
+
+class VpnIkeProposalsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class VpnIkeProposalsRootGetQuery(BaseModel):
@@ -14022,6 +15602,7 @@ class VpnIkeProposalsRootGetQuery(BaseModel):
     authentication_method_regex: list[str] | None = Field(
         None, alias="authentication_method__regex"
     )
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14058,6 +15639,7 @@ class VpnIkeProposalsRootGetQuery(BaseModel):
     encryption_algorithm_niew: list[str] | None = Field(None, alias="encryption_algorithm__niew")
     encryption_algorithm_nisw: list[str] | None = Field(None, alias="encryption_algorithm__nisw")
     encryption_algorithm_regex: list[str] | None = Field(None, alias="encryption_algorithm__regex")
+    fields: str | None = None
     group: list[int] | None = None
     group_ic: list[int] | None = Field(None, alias="group__ic")
     group_ie: list[int] | None = Field(None, alias="group__ie")
@@ -14104,6 +15686,7 @@ class VpnIkeProposalsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14123,13 +15706,22 @@ class VpnIkeProposalsRootGetQuery(BaseModel):
     sa_lifetime_n: list[int] | None = Field(None, alias="sa_lifetime__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class VpnIpsecPoliciesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnIpsecPoliciesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14151,6 +15743,7 @@ class VpnIpsecPoliciesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14185,6 +15778,7 @@ class VpnIpsecPoliciesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14209,13 +15803,22 @@ class VpnIpsecPoliciesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class VpnIpsecProfilesDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnIpsecProfilesRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14237,6 +15840,7 @@ class VpnIpsecProfilesRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14288,6 +15892,7 @@ class VpnIpsecProfilesRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14300,10 +15905,18 @@ class VpnIpsecProfilesRootGetQuery(BaseModel):
     q: str | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class VpnIpsecProposalsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class VpnIpsecProposalsRootGetQuery(BaseModel):
@@ -14342,6 +15955,7 @@ class VpnIpsecProposalsRootGetQuery(BaseModel):
     authentication_algorithm_regex: list[str] | None = Field(
         None, alias="authentication_algorithm__regex"
     )
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14378,6 +15992,7 @@ class VpnIpsecProposalsRootGetQuery(BaseModel):
     encryption_algorithm_niew: list[str] | None = Field(None, alias="encryption_algorithm__niew")
     encryption_algorithm_nisw: list[str] | None = Field(None, alias="encryption_algorithm__nisw")
     encryption_algorithm_regex: list[str] | None = Field(None, alias="encryption_algorithm__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14412,6 +16027,7 @@ class VpnIpsecProposalsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14438,10 +16054,18 @@ class VpnIpsecProposalsRootGetQuery(BaseModel):
     sa_lifetime_seconds_n: list[int] | None = Field(None, alias="sa_lifetime_seconds__n")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class VpnL2vpnTerminationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class VpnL2vpnTerminationsRootGetQuery(BaseModel):
@@ -14456,6 +16080,7 @@ class VpnL2vpnTerminationsRootGetQuery(BaseModel):
     assigned_object_type_n: list[str] | None = Field(None, alias="assigned_object_type__n")
     assigned_object_type_id: list[int] | None = None
     assigned_object_type_id_n: list[int] | None = Field(None, alias="assigned_object_type_id__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14468,6 +16093,7 @@ class VpnL2vpnTerminationsRootGetQuery(BaseModel):
     device_n: list[str] | None = Field(None, alias="device__n")
     device_id: list[int] | None = None
     device_id_n: list[int] | None = Field(None, alias="device_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14493,6 +16119,7 @@ class VpnL2vpnTerminationsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     q: str | None = None
     region: list[str] | None = None
@@ -14501,8 +16128,10 @@ class VpnL2vpnTerminationsRootGetQuery(BaseModel):
     site_id: list[int] | None = None
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
     virtual_machine: list[str] | None = None
@@ -14526,7 +16155,14 @@ class VpnL2vpnTerminationsRootGetQuery(BaseModel):
     vminterface_id_n: list[int] | None = Field(None, alias="vminterface_id__n")
 
 
+class VpnL2vpnsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnL2vpnsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -14558,6 +16194,7 @@ class VpnL2vpnsRootGetQuery(BaseModel):
     export_target_n: list[str] | None = Field(None, alias="export_target__n")
     export_target_id: list[int] | None = None
     export_target_id_n: list[int] | None = Field(None, alias="export_target_id__n")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14599,6 +16236,7 @@ class VpnL2vpnsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14637,8 +16275,10 @@ class VpnL2vpnsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -14664,7 +16304,14 @@ class VpnL2vpnsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnTunnelGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnTunnelGroupsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -14692,6 +16339,7 @@ class VpnTunnelGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14722,6 +16370,7 @@ class VpnTunnelGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14747,13 +16396,22 @@ class VpnTunnelGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
 
 
+class VpnTunnelTerminationsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnTunnelTerminationsRootGetQuery(BaseModel):
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14762,6 +16420,7 @@ class VpnTunnelTerminationsRootGetQuery(BaseModel):
     created_lte: list[str] | None = Field(None, alias="created__lte")
     created_n: list[str] | None = Field(None, alias="created__n")
     created_by_request: str | None = None
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -14783,6 +16442,7 @@ class VpnTunnelTerminationsRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     outside_ip_id: list[int] | None = None
     outside_ip_id_n: list[int] | None = Field(None, alias="outside_ip_id__n")
@@ -14802,8 +16462,10 @@ class VpnTunnelTerminationsRootGetQuery(BaseModel):
     role_regex: list[str] | None = Field(None, alias="role__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     termination_id: list[int] | None = None
     termination_id_empty: bool | None = Field(None, alias="termination_id__empty")
@@ -14825,7 +16487,14 @@ class VpnTunnelTerminationsRootGetQuery(BaseModel):
     vminterface_id_n: list[int] | None = Field(None, alias="vminterface_id__n")
 
 
+class VpnTunnelsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class VpnTunnelsRootGetQuery(BaseModel):
+    brief: bool | None = None
     contact: list[int] | None = None
     contact_n: list[int] | None = Field(None, alias="contact__n")
     contact_group: list[str] | None = None
@@ -14866,6 +16535,7 @@ class VpnTunnelsRootGetQuery(BaseModel):
     encapsulation_niew: list[str] | None = Field(None, alias="encapsulation__niew")
     encapsulation_nisw: list[str] | None = Field(None, alias="encapsulation__nisw")
     encapsulation_regex: list[str] | None = Field(None, alias="encapsulation__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[int] | None = None
@@ -14904,6 +16574,7 @@ class VpnTunnelsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -14929,8 +16600,10 @@ class VpnTunnelsRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -14950,11 +16623,18 @@ class VpnTunnelsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class WirelessWirelessLanGroupsDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
+
+
 class WirelessWirelessLanGroupsRootGetQuery(BaseModel):
     ancestor: list[str] | None = None
     ancestor_n: list[str] | None = Field(None, alias="ancestor__n")
     ancestor_id: list[str] | None = None
     ancestor_id_n: list[str] | None = Field(None, alias="ancestor_id__n")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -14976,6 +16656,7 @@ class WirelessWirelessLanGroupsRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -15006,6 +16687,7 @@ class WirelessWirelessLanGroupsRootGetQuery(BaseModel):
     name_nisw: list[str] | None = Field(None, alias="name__nisw")
     name_regex: list[str] | None = Field(None, alias="name__regex")
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -15035,10 +16717,18 @@ class WirelessWirelessLanGroupsRootGetQuery(BaseModel):
     slug_regex: list[str] | None = Field(None, alias="slug__regex")
     start: int | None = None
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class WirelessWirelessLansDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class WirelessWirelessLansRootGetQuery(BaseModel):
@@ -15081,6 +16771,7 @@ class WirelessWirelessLansRootGetQuery(BaseModel):
     auth_type_niew: list[str] | None = Field(None, alias="auth_type__niew")
     auth_type_nisw: list[str] | None = Field(None, alias="auth_type__nisw")
     auth_type_regex: list[str] | None = Field(None, alias="auth_type__regex")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -15102,6 +16793,7 @@ class WirelessWirelessLansRootGetQuery(BaseModel):
     description_niew: list[str] | None = Field(None, alias="description__niew")
     description_nisw: list[str] | None = Field(None, alias="description__nisw")
     description_regex: list[str] | None = Field(None, alias="description__regex")
+    fields: str | None = None
     group: list[str] | None = None
     group_n: list[str] | None = Field(None, alias="group__n")
     group_id: list[str] | None = None
@@ -15129,6 +16821,7 @@ class WirelessWirelessLansRootGetQuery(BaseModel):
     location_id_n: list[str] | None = Field(None, alias="location_id__n")
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -15188,8 +16881,10 @@ class WirelessWirelessLansRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -15202,6 +16897,12 @@ class WirelessWirelessLansRootGetQuery(BaseModel):
     updated_by_request: str | None = None
     vlan_id: list[int] | None = None
     vlan_id_n: list[int] | None = Field(None, alias="vlan_id__n")
+
+
+class WirelessWirelessLinksDetailGetQuery(BaseModel):
+    brief: bool | None = None
+    fields: str | None = None
+    omit: str | None = None
 
 
 class WirelessWirelessLinksRootGetQuery(BaseModel):
@@ -15244,6 +16945,7 @@ class WirelessWirelessLinksRootGetQuery(BaseModel):
     auth_type_niew: list[str] | None = Field(None, alias="auth_type__niew")
     auth_type_nisw: list[str] | None = Field(None, alias="auth_type__nisw")
     auth_type_regex: list[str] | None = Field(None, alias="auth_type__regex")
+    brief: bool | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
     created_gt: list[str] | None = Field(None, alias="created__gt")
@@ -15287,6 +16989,7 @@ class WirelessWirelessLinksRootGetQuery(BaseModel):
     distance_unit_niew: list[str] | None = Field(None, alias="distance_unit__niew")
     distance_unit_nisw: list[str] | None = Field(None, alias="distance_unit__nisw")
     distance_unit_regex: list[str] | None = Field(None, alias="distance_unit__regex")
+    fields: str | None = None
     id: list[int] | None = None
     id_empty: bool | None = Field(None, alias="id__empty")
     id_gt: list[int] | None = Field(None, alias="id__gt")
@@ -15308,6 +17011,7 @@ class WirelessWirelessLinksRootGetQuery(BaseModel):
     limit: int | None = None
     modified_by_request: str | None = None
     offset: int | None = None
+    omit: str | None = None
     ordering: str | None = None
     owner: list[str] | None = None
     owner_n: list[str] | None = Field(None, alias="owner__n")
@@ -15346,8 +17050,10 @@ class WirelessWirelessLinksRootGetQuery(BaseModel):
     status_nisw: list[str] | None = Field(None, alias="status__nisw")
     status_regex: list[str] | None = Field(None, alias="status__regex")
     tag: list[str] | None = None
+    tag_any: list[str] | None = Field(None, alias="tag__any")
     tag_n: list[str] | None = Field(None, alias="tag__n")
     tag_id: list[int] | None = None
+    tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     tenant: list[str] | None = None
     tenant_n: list[str] | None = Field(None, alias="tenant__n")
@@ -15399,7 +17105,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[CircuitGroupAssignmentRequest]
+        self, body: list[BulkCircuitGroupAssignmentRequest]
     ) -> list[CircuitGroupAssignment]:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
@@ -15407,14 +17113,14 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitGroupAssignmentRequest],
+            body_model=list[BulkCircuitGroupAssignmentRequest],
             body=body,
             response_model=list[CircuitGroupAssignment],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[CircuitGroupAssignmentRequest]
+        self, body: list[PatchedBulkCircuitGroupAssignmentRequest]
     ) -> list[CircuitGroupAssignment]:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
@@ -15422,7 +17128,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitGroupAssignmentRequest],
+            body_model=list[PatchedBulkCircuitGroupAssignmentRequest],
             body=body,
             response_model=list[CircuitGroupAssignment],
             return_none_on_404=False,
@@ -15441,13 +17147,17 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CircuitGroupAssignment | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsCircuitGroupAssignmentsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> CircuitGroupAssignment | None:
         path = f"/api/circuits/circuit-group-assignments/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupAssignmentsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CircuitGroupAssignment,
@@ -15532,27 +17242,29 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CircuitGroupRequest]) -> list[CircuitGroup]:
+    async def bulk_update(self, body: list[BulkCircuitGroupRequest]) -> list[CircuitGroup]:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitGroupRequest],
+            body_model=list[BulkCircuitGroupRequest],
             body=body,
             response_model=list[CircuitGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CircuitGroupRequest]) -> list[CircuitGroup]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkCircuitGroupRequest]
+    ) -> list[CircuitGroup]:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitGroupRequest],
+            body_model=list[PatchedBulkCircuitGroupRequest],
             body=body,
             response_model=list[CircuitGroup],
             return_none_on_404=False,
@@ -15571,13 +17283,17 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CircuitGroup | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsCircuitGroupsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> CircuitGroup | None:
         path = f"/api/circuits/circuit-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CircuitGroup,
@@ -15664,21 +17380,23 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CircuitTerminationRequest]) -> list[CircuitTermination]:
+    async def bulk_update(
+        self, body: list[BulkCircuitTerminationRequest]
+    ) -> list[CircuitTermination]:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitTerminationRequest],
+            body_model=list[BulkCircuitTerminationRequest],
             body=body,
             response_model=list[CircuitTermination],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[CircuitTerminationRequest]
+        self, body: list[PatchedBulkCircuitTerminationRequest]
     ) -> list[CircuitTermination]:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
@@ -15686,7 +17404,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitTerminationRequest],
+            body_model=list[PatchedBulkCircuitTerminationRequest],
             body=body,
             response_model=list[CircuitTermination],
             return_none_on_404=False,
@@ -15705,13 +17423,17 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CircuitTermination | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsCircuitTerminationsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> CircuitTermination | None:
         path = f"/api/circuits/circuit-terminations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTerminationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CircuitTermination,
@@ -15766,13 +17488,17 @@ class CircuitsCircuitTerminationsPaths(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> CircuitTermination:
+    async def list(
+        self,
+        id: int | str,
+        query: CircuitsCircuitTerminationsPathsGetQuery | dict[str, Any] | None = None,
+    ) -> CircuitTermination:
         path = f"/api/circuits/circuit-terminations/{id}/paths/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTerminationsPathsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CircuitTermination,
@@ -15814,27 +17540,29 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CircuitTypeRequest]) -> list[CircuitType]:
+    async def bulk_update(self, body: list[BulkCircuitTypeRequest]) -> list[CircuitType]:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitTypeRequest],
+            body_model=list[BulkCircuitTypeRequest],
             body=body,
             response_model=list[CircuitType],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CircuitTypeRequest]) -> list[CircuitType]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkCircuitTypeRequest]
+    ) -> list[CircuitType]:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitTypeRequest],
+            body_model=list[PatchedBulkCircuitTypeRequest],
             body=body,
             response_model=list[CircuitType],
             return_none_on_404=False,
@@ -15853,13 +17581,17 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CircuitType | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsCircuitTypesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> CircuitType | None:
         path = f"/api/circuits/circuit-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CircuitType,
@@ -15940,27 +17672,27 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CircuitRequest]) -> list[Circuit]:
+    async def bulk_update(self, body: list[BulkCircuitRequest]) -> list[Circuit]:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitRequest],
+            body_model=list[BulkCircuitRequest],
             body=body,
             response_model=list[Circuit],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CircuitRequest]) -> list[Circuit]:
+    async def bulk_partial_update(self, body: list[PatchedBulkCircuitRequest]) -> list[Circuit]:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CircuitRequest],
+            body_model=list[PatchedBulkCircuitRequest],
             body=body,
             response_model=list[Circuit],
             return_none_on_404=False,
@@ -15979,13 +17711,15 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Circuit | None:
+    async def get(
+        self, id: int | str, query: CircuitsCircuitsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Circuit | None:
         path = f"/api/circuits/circuits/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Circuit,
@@ -16068,21 +17802,21 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ProviderAccountRequest]) -> list[ProviderAccount]:
+    async def bulk_update(self, body: list[BulkProviderAccountRequest]) -> list[ProviderAccount]:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ProviderAccountRequest],
+            body_model=list[BulkProviderAccountRequest],
             body=body,
             response_model=list[ProviderAccount],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ProviderAccountRequest]
+        self, body: list[PatchedBulkProviderAccountRequest]
     ) -> list[ProviderAccount]:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
@@ -16090,7 +17824,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ProviderAccountRequest],
+            body_model=list[PatchedBulkProviderAccountRequest],
             body=body,
             response_model=list[ProviderAccount],
             return_none_on_404=False,
@@ -16109,13 +17843,17 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ProviderAccount | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsProviderAccountsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ProviderAccount | None:
         path = f"/api/circuits/provider-accounts/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderAccountsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ProviderAccount,
@@ -16200,21 +17938,21 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ProviderNetworkRequest]) -> list[ProviderNetwork]:
+    async def bulk_update(self, body: list[BulkProviderNetworkRequest]) -> list[ProviderNetwork]:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ProviderNetworkRequest],
+            body_model=list[BulkProviderNetworkRequest],
             body=body,
             response_model=list[ProviderNetwork],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ProviderNetworkRequest]
+        self, body: list[PatchedBulkProviderNetworkRequest]
     ) -> list[ProviderNetwork]:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
@@ -16222,7 +17960,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ProviderNetworkRequest],
+            body_model=list[PatchedBulkProviderNetworkRequest],
             body=body,
             response_model=list[ProviderNetwork],
             return_none_on_404=False,
@@ -16241,13 +17979,17 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ProviderNetwork | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsProviderNetworksDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ProviderNetwork | None:
         path = f"/api/circuits/provider-networks/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderNetworksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ProviderNetwork,
@@ -16330,27 +18072,27 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ProviderRequest]) -> list[Provider]:
+    async def bulk_update(self, body: list[BulkProviderRequest]) -> list[Provider]:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ProviderRequest],
+            body_model=list[BulkProviderRequest],
             body=body,
             response_model=list[Provider],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ProviderRequest]) -> list[Provider]:
+    async def bulk_partial_update(self, body: list[PatchedBulkProviderRequest]) -> list[Provider]:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ProviderRequest],
+            body_model=list[PatchedBulkProviderRequest],
             body=body,
             response_model=list[Provider],
             return_none_on_404=False,
@@ -16369,13 +18111,15 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Provider | None:
+    async def get(
+        self, id: int | str, query: CircuitsProvidersDetailGetQuery | dict[str, Any] | None = None
+    ) -> Provider | None:
         path = f"/api/circuits/providers/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProvidersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Provider,
@@ -16466,7 +18210,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[VirtualCircuitTerminationRequest]
+        self, body: list[BulkVirtualCircuitTerminationRequest]
     ) -> list[VirtualCircuitTermination]:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
@@ -16474,14 +18218,14 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualCircuitTerminationRequest],
+            body_model=list[BulkVirtualCircuitTerminationRequest],
             body=body,
             response_model=list[VirtualCircuitTermination],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VirtualCircuitTerminationRequest]
+        self, body: list[PatchedBulkVirtualCircuitTerminationRequest]
     ) -> list[VirtualCircuitTermination]:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
@@ -16489,7 +18233,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualCircuitTerminationRequest],
+            body_model=list[PatchedBulkVirtualCircuitTerminationRequest],
             body=body,
             response_model=list[VirtualCircuitTermination],
             return_none_on_404=False,
@@ -16508,13 +18252,17 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualCircuitTermination | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsVirtualCircuitTerminationsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualCircuitTermination | None:
         path = f"/api/circuits/virtual-circuit-terminations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTerminationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualCircuitTermination,
@@ -16571,13 +18319,17 @@ class CircuitsVirtualCircuitTerminationsPaths(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> VirtualCircuitTermination:
+    async def list(
+        self,
+        id: int | str,
+        query: CircuitsVirtualCircuitTerminationsPathsGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualCircuitTermination:
         path = f"/api/circuits/virtual-circuit-terminations/{id}/paths/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTerminationsPathsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualCircuitTermination,
@@ -16621,21 +18373,23 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VirtualCircuitTypeRequest]) -> list[VirtualCircuitType]:
+    async def bulk_update(
+        self, body: list[BulkVirtualCircuitTypeRequest]
+    ) -> list[VirtualCircuitType]:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualCircuitTypeRequest],
+            body_model=list[BulkVirtualCircuitTypeRequest],
             body=body,
             response_model=list[VirtualCircuitType],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VirtualCircuitTypeRequest]
+        self, body: list[PatchedBulkVirtualCircuitTypeRequest]
     ) -> list[VirtualCircuitType]:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
@@ -16643,7 +18397,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualCircuitTypeRequest],
+            body_model=list[PatchedBulkVirtualCircuitTypeRequest],
             body=body,
             response_model=list[VirtualCircuitType],
             return_none_on_404=False,
@@ -16662,13 +18416,17 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualCircuitType | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsVirtualCircuitTypesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualCircuitType | None:
         path = f"/api/circuits/virtual-circuit-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualCircuitType,
@@ -16753,27 +18511,29 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VirtualCircuitRequest]) -> list[VirtualCircuit]:
+    async def bulk_update(self, body: list[BulkVirtualCircuitRequest]) -> list[VirtualCircuit]:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualCircuitRequest],
+            body_model=list[BulkVirtualCircuitRequest],
             body=body,
             response_model=list[VirtualCircuit],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VirtualCircuitRequest]) -> list[VirtualCircuit]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkVirtualCircuitRequest]
+    ) -> list[VirtualCircuit]:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualCircuitRequest],
+            body_model=list[PatchedBulkVirtualCircuitRequest],
             body=body,
             response_model=list[VirtualCircuit],
             return_none_on_404=False,
@@ -16792,13 +18552,17 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualCircuit | None:
+    async def get(
+        self,
+        id: int | str,
+        query: CircuitsVirtualCircuitsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualCircuit | None:
         path = f"/api/circuits/virtual-circuits/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualCircuit,
@@ -16853,26 +18617,32 @@ class CoreBackgroundQueuesEndpoint(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self) -> dict[str, Any]:
+    async def list(
+        self, query: CoreBackgroundQueuesRootGetQuery | dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         path = "/api/core/background-queues/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreBackgroundQueuesRootGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
             return_none_on_404=False,
         )
 
-    async def get(self, name: int | str) -> dict[str, Any] | None:
+    async def get(
+        self,
+        name: int | str,
+        query: CoreBackgroundQueuesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         path = f"/api/core/background-queues/{name}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreBackgroundQueuesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
@@ -16902,26 +18672,30 @@ class CoreBackgroundTasksEndpoint(TypedAppBase):
     def stop(self) -> CoreBackgroundTasksStop:
         return CoreBackgroundTasksStop(self._api)
 
-    async def list(self) -> dict[str, Any]:
+    async def list(
+        self, query: CoreBackgroundTasksRootGetQuery | dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         path = "/api/core/background-tasks/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreBackgroundTasksRootGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> dict[str, Any] | None:
+    async def get(
+        self, id: int | str, query: CoreBackgroundTasksDetailGetQuery | dict[str, Any] | None = None
+    ) -> dict[str, Any] | None:
         path = f"/api/core/background-tasks/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreBackgroundTasksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
@@ -17015,26 +18789,32 @@ class CoreBackgroundWorkersEndpoint(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self) -> dict[str, Any]:
+    async def list(
+        self, query: CoreBackgroundWorkersRootGetQuery | dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         path = "/api/core/background-workers/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreBackgroundWorkersRootGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
             return_none_on_404=False,
         )
 
-    async def get(self, name: int | str) -> dict[str, Any] | None:
+    async def get(
+        self,
+        name: int | str,
+        query: CoreBackgroundWorkersDetailGetQuery | dict[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         path = f"/api/core/background-workers/{name}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreBackgroundWorkersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
@@ -17063,13 +18843,15 @@ class CoreDataFilesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> DataFile | None:
+    async def get(
+        self, id: int | str, query: CoreDataFilesDetailGetQuery | dict[str, Any] | None = None
+    ) -> DataFile | None:
         path = f"/api/core/data-files/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreDataFilesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DataFile,
@@ -17117,27 +18899,29 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[DataSourceRequest]) -> list[DataSource]:
+    async def bulk_update(self, body: list[BulkDataSourceRequest]) -> list[DataSource]:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[DataSourceRequest],
+            body_model=list[BulkDataSourceRequest],
             body=body,
             response_model=list[DataSource],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[DataSourceRequest]) -> list[DataSource]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkDataSourceRequest]
+    ) -> list[DataSource]:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[DataSourceRequest],
+            body_model=list[PatchedBulkDataSourceRequest],
             body=body,
             response_model=list[DataSource],
             return_none_on_404=False,
@@ -17156,13 +18940,15 @@ class CoreDataSourcesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> DataSource | None:
+    async def get(
+        self, id: int | str, query: CoreDataSourcesDetailGetQuery | dict[str, Any] | None = None
+    ) -> DataSource | None:
         path = f"/api/core/data-sources/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreDataSourcesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DataSource,
@@ -17252,13 +19038,15 @@ class CoreJobsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Job | None:
+    async def get(
+        self, id: int | str, query: CoreJobsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Job | None:
         path = f"/api/core/jobs/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreJobsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Job,
@@ -17287,13 +19075,15 @@ class CoreObjectChangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ObjectChange | None:
+    async def get(
+        self, id: int | str, query: CoreObjectChangesDetailGetQuery | dict[str, Any] | None = None
+    ) -> ObjectChange | None:
         path = f"/api/core/object-changes/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreObjectChangesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ObjectChange,
@@ -17322,13 +19112,15 @@ class CoreObjectTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ObjectType | None:
+    async def get(
+        self, id: int | str, query: CoreObjectTypesDetailGetQuery | dict[str, Any] | None = None
+    ) -> ObjectType | None:
         path = f"/api/core/object-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreObjectTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ObjectType,
@@ -17370,27 +19162,29 @@ class DcimCableBundlesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CableBundleRequest]) -> list[CableBundle]:
+    async def bulk_update(self, body: list[BulkCableBundleRequest]) -> list[CableBundle]:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CableBundleRequest],
+            body_model=list[BulkCableBundleRequest],
             body=body,
             response_model=list[CableBundle],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CableBundleRequest]) -> list[CableBundle]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkCableBundleRequest]
+    ) -> list[CableBundle]:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CableBundleRequest],
+            body_model=list[PatchedBulkCableBundleRequest],
             body=body,
             response_model=list[CableBundle],
             return_none_on_404=False,
@@ -17409,13 +19203,15 @@ class DcimCableBundlesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CableBundle | None:
+    async def get(
+        self, id: int | str, query: DcimCableBundlesDetailGetQuery | dict[str, Any] | None = None
+    ) -> CableBundle | None:
         path = f"/api/dcim/cable-bundles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCableBundlesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CableBundle,
@@ -17483,13 +19279,17 @@ class DcimCableTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CableTermination | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimCableTerminationsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> CableTermination | None:
         path = f"/api/dcim/cable-terminations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCableTerminationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CableTermination,
@@ -17531,27 +19331,27 @@ class DcimCablesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CableRequest]) -> list[Cable]:
+    async def bulk_update(self, body: list[BulkCableRequest]) -> list[Cable]:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CableRequest],
+            body_model=list[BulkCableRequest],
             body=body,
             response_model=list[Cable],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CableRequest]) -> list[Cable]:
+    async def bulk_partial_update(self, body: list[PatchedBulkCableRequest]) -> list[Cable]:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CableRequest],
+            body_model=list[PatchedBulkCableRequest],
             body=body,
             response_model=list[Cable],
             return_none_on_404=False,
@@ -17570,13 +19370,15 @@ class DcimCablesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Cable | None:
+    async def get(
+        self, id: int | str, query: DcimCablesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Cable | None:
         path = f"/api/dcim/cables/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCablesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Cable,
@@ -17683,7 +19485,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[ConsolePortTemplateRequest]
+        self, body: list[BulkConsolePortTemplateRequest]
     ) -> list[ConsolePortTemplate]:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
@@ -17691,14 +19493,14 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsolePortTemplateRequest],
+            body_model=list[BulkConsolePortTemplateRequest],
             body=body,
             response_model=list[ConsolePortTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ConsolePortTemplateRequest]
+        self, body: list[PatchedBulkConsolePortTemplateRequest]
     ) -> list[ConsolePortTemplate]:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
@@ -17706,7 +19508,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsolePortTemplateRequest],
+            body_model=list[PatchedBulkConsolePortTemplateRequest],
             body=body,
             response_model=list[ConsolePortTemplate],
             return_none_on_404=False,
@@ -17725,13 +19527,17 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConsolePortTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimConsolePortTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ConsolePortTemplate | None:
         path = f"/api/dcim/console-port-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConsolePortTemplate,
@@ -17822,27 +19628,29 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ConsolePortRequest]) -> list[ConsolePort]:
+    async def bulk_update(self, body: list[BulkConsolePortRequest]) -> list[ConsolePort]:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsolePortRequest],
+            body_model=list[BulkConsolePortRequest],
             body=body,
             response_model=list[ConsolePort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ConsolePortRequest]) -> list[ConsolePort]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkConsolePortRequest]
+    ) -> list[ConsolePort]:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsolePortRequest],
+            body_model=list[PatchedBulkConsolePortRequest],
             body=body,
             response_model=list[ConsolePort],
             return_none_on_404=False,
@@ -17861,13 +19669,15 @@ class DcimConsolePortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConsolePort | None:
+    async def get(
+        self, id: int | str, query: DcimConsolePortsDetailGetQuery | dict[str, Any] | None = None
+    ) -> ConsolePort | None:
         path = f"/api/dcim/console-ports/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConsolePort,
@@ -17922,13 +19732,15 @@ class DcimConsolePortsTrace(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> ConsolePort:
+    async def list(
+        self, id: int | str, query: DcimConsolePortsTraceGetQuery | dict[str, Any] | None = None
+    ) -> ConsolePort:
         path = f"/api/dcim/console-ports/{id}/trace/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortsTraceGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConsolePort,
@@ -17976,7 +19788,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[ConsoleServerPortTemplateRequest]
+        self, body: list[BulkConsoleServerPortTemplateRequest]
     ) -> list[ConsoleServerPortTemplate]:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
@@ -17984,14 +19796,14 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsoleServerPortTemplateRequest],
+            body_model=list[BulkConsoleServerPortTemplateRequest],
             body=body,
             response_model=list[ConsoleServerPortTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ConsoleServerPortTemplateRequest]
+        self, body: list[PatchedBulkConsoleServerPortTemplateRequest]
     ) -> list[ConsoleServerPortTemplate]:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
@@ -17999,7 +19811,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsoleServerPortTemplateRequest],
+            body_model=list[PatchedBulkConsoleServerPortTemplateRequest],
             body=body,
             response_model=list[ConsoleServerPortTemplate],
             return_none_on_404=False,
@@ -18018,13 +19830,17 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConsoleServerPortTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimConsoleServerPortTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ConsoleServerPortTemplate | None:
         path = f"/api/dcim/console-server-port-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConsoleServerPortTemplate,
@@ -18115,21 +19931,23 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ConsoleServerPortRequest]) -> list[ConsoleServerPort]:
+    async def bulk_update(
+        self, body: list[BulkConsoleServerPortRequest]
+    ) -> list[ConsoleServerPort]:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsoleServerPortRequest],
+            body_model=list[BulkConsoleServerPortRequest],
             body=body,
             response_model=list[ConsoleServerPort],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ConsoleServerPortRequest]
+        self, body: list[PatchedBulkConsoleServerPortRequest]
     ) -> list[ConsoleServerPort]:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
@@ -18137,7 +19955,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConsoleServerPortRequest],
+            body_model=list[PatchedBulkConsoleServerPortRequest],
             body=body,
             response_model=list[ConsoleServerPort],
             return_none_on_404=False,
@@ -18156,13 +19974,17 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConsoleServerPort | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimConsoleServerPortsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ConsoleServerPort | None:
         path = f"/api/dcim/console-server-ports/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConsoleServerPort,
@@ -18219,13 +20041,17 @@ class DcimConsoleServerPortsTrace(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> ConsoleServerPort:
+    async def list(
+        self,
+        id: int | str,
+        query: DcimConsoleServerPortsTraceGetQuery | dict[str, Any] | None = None,
+    ) -> ConsoleServerPort:
         path = f"/api/dcim/console-server-ports/{id}/trace/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortsTraceGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConsoleServerPort,
@@ -18269,21 +20095,23 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[DeviceBayTemplateRequest]) -> list[DeviceBayTemplate]:
+    async def bulk_update(
+        self, body: list[BulkDeviceBayTemplateRequest]
+    ) -> list[DeviceBayTemplate]:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceBayTemplateRequest],
+            body_model=list[BulkDeviceBayTemplateRequest],
             body=body,
             response_model=list[DeviceBayTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[DeviceBayTemplateRequest]
+        self, body: list[PatchedBulkDeviceBayTemplateRequest]
     ) -> list[DeviceBayTemplate]:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
@@ -18291,7 +20119,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceBayTemplateRequest],
+            body_model=list[PatchedBulkDeviceBayTemplateRequest],
             body=body,
             response_model=list[DeviceBayTemplate],
             return_none_on_404=False,
@@ -18310,13 +20138,17 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> DeviceBayTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimDeviceBayTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> DeviceBayTemplate | None:
         path = f"/api/dcim/device-bay-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBayTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DeviceBayTemplate,
@@ -18399,27 +20231,27 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[DeviceBayRequest]) -> list[DeviceBay]:
+    async def bulk_update(self, body: list[BulkDeviceBayRequest]) -> list[DeviceBay]:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceBayRequest],
+            body_model=list[BulkDeviceBayRequest],
             body=body,
             response_model=list[DeviceBay],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[DeviceBayRequest]) -> list[DeviceBay]:
+    async def bulk_partial_update(self, body: list[PatchedBulkDeviceBayRequest]) -> list[DeviceBay]:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceBayRequest],
+            body_model=list[PatchedBulkDeviceBayRequest],
             body=body,
             response_model=list[DeviceBay],
             return_none_on_404=False,
@@ -18438,13 +20270,15 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> DeviceBay | None:
+    async def get(
+        self, id: int | str, query: DcimDeviceBaysDetailGetQuery | dict[str, Any] | None = None
+    ) -> DeviceBay | None:
         path = f"/api/dcim/device-bays/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBaysDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DeviceBay,
@@ -18527,27 +20361,29 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[DeviceRoleRequest]) -> list[DeviceRole]:
+    async def bulk_update(self, body: list[BulkDeviceRoleRequest]) -> list[DeviceRole]:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceRoleRequest],
+            body_model=list[BulkDeviceRoleRequest],
             body=body,
             response_model=list[DeviceRole],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[DeviceRoleRequest]) -> list[DeviceRole]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkDeviceRoleRequest]
+    ) -> list[DeviceRole]:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceRoleRequest],
+            body_model=list[PatchedBulkDeviceRoleRequest],
             body=body,
             response_model=list[DeviceRole],
             return_none_on_404=False,
@@ -18566,13 +20402,15 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> DeviceRole | None:
+    async def get(
+        self, id: int | str, query: DcimDeviceRolesDetailGetQuery | dict[str, Any] | None = None
+    ) -> DeviceRole | None:
         path = f"/api/dcim/device-roles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceRolesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DeviceRole,
@@ -18643,10 +20481,10 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableDeviceTypeRequest | list[WritableDeviceTypeRequest]
+        self, body: WritableDeviceTypeRequest | list[WritableDeviceTypeRequest] | dict[str, Any]
     ) -> DeviceType:
         path = "/api/dcim/device-types/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "POST",
             path,
             query_model=None,
@@ -18655,37 +20493,44 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body=body,
             response_model=DeviceType,
             return_none_on_404=False,
+            binary_field_names=("front_image", "rear_image"),
         )
 
-    async def bulk_update(self, body: list[DeviceTypeRequest]) -> list[DeviceType]:
+    async def bulk_update(
+        self, body: list[BulkDeviceTypeRequest] | dict[str, Any]
+    ) -> list[DeviceType]:
         path = "/api/dcim/device-types/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceTypeRequest],
+            body_model=list[BulkDeviceTypeRequest],
             body=body,
             response_model=list[DeviceType],
             return_none_on_404=False,
+            binary_field_names=("front_image", "rear_image"),
         )
 
-    async def bulk_partial_update(self, body: list[DeviceTypeRequest]) -> list[DeviceType]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkDeviceTypeRequest] | dict[str, Any]
+    ) -> list[DeviceType]:
         path = "/api/dcim/device-types/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceTypeRequest],
+            body_model=list[PatchedBulkDeviceTypeRequest],
             body=body,
             response_model=list[DeviceType],
             return_none_on_404=False,
+            binary_field_names=("front_image", "rear_image"),
         )
 
-    async def bulk_delete(self, body: list[DeviceTypeRequest]) -> None:
+    async def bulk_delete(self, body: list[DeviceTypeRequest] | dict[str, Any]) -> None:
         path = "/api/dcim/device-types/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "DELETE",
             path,
             query_model=None,
@@ -18694,24 +20539,29 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body=body,
             response_model=None,
             return_none_on_404=False,
+            binary_field_names=("front_image", "rear_image"),
         )
 
-    async def get(self, id: int | str) -> DeviceType | None:
+    async def get(
+        self, id: int | str, query: DcimDeviceTypesDetailGetQuery | dict[str, Any] | None = None
+    ) -> DeviceType | None:
         path = f"/api/dcim/device-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DeviceType,
             return_none_on_404=True,
         )
 
-    async def update(self, id: int | str, body: WritableDeviceTypeRequest) -> DeviceType:
+    async def update(
+        self, id: int | str, body: WritableDeviceTypeRequest | dict[str, Any]
+    ) -> DeviceType:
         path = f"/api/dcim/device-types/{id}/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PUT",
             path,
             query_model=None,
@@ -18720,13 +20570,14 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body=body,
             response_model=DeviceType,
             return_none_on_404=False,
+            binary_field_names=("front_image", "rear_image"),
         )
 
     async def partial_update(
-        self, id: int | str, body: PatchedWritableDeviceTypeRequest
+        self, id: int | str, body: PatchedWritableDeviceTypeRequest | dict[str, Any]
     ) -> DeviceType:
         path = f"/api/dcim/device-types/{id}/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PATCH",
             path,
             query_model=None,
@@ -18735,6 +20586,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             body=body,
             response_model=DeviceType,
             return_none_on_404=False,
+            binary_field_names=("front_image", "rear_image"),
         )
 
     async def delete(self, id: int | str) -> None:
@@ -18794,7 +20646,7 @@ class DcimDevicesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[DeviceWithConfigContextRequest]
+        self, body: list[BulkDeviceWithConfigContextRequest]
     ) -> list[DeviceWithConfigContext]:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
@@ -18802,14 +20654,14 @@ class DcimDevicesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceWithConfigContextRequest],
+            body_model=list[BulkDeviceWithConfigContextRequest],
             body=body,
             response_model=list[DeviceWithConfigContext],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[DeviceWithConfigContextRequest]
+        self, body: list[PatchedBulkDeviceWithConfigContextRequest]
     ) -> list[DeviceWithConfigContext]:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
@@ -18817,7 +20669,7 @@ class DcimDevicesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[DeviceWithConfigContextRequest],
+            body_model=list[PatchedBulkDeviceWithConfigContextRequest],
             body=body,
             response_model=list[DeviceWithConfigContext],
             return_none_on_404=False,
@@ -18836,13 +20688,15 @@ class DcimDevicesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> DeviceWithConfigContext | None:
+    async def get(
+        self, id: int | str, query: DcimDevicesDetailGetQuery | dict[str, Any] | None = None
+    ) -> DeviceWithConfigContext | None:
         path = f"/api/dcim/devices/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDevicesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=DeviceWithConfigContext,
@@ -18902,18 +20756,18 @@ class DcimDevicesRenderConfig(TypedAppBase):
     async def create(
         self,
         id: int | str,
-        body: WritableDeviceWithConfigContextRequest,
+        body: RenderConfigInputRequest,
         query: DcimDevicesRenderConfigPostQuery | dict[str, Any] | None = None,
-    ) -> DeviceWithConfigContext:
+    ) -> RenderedConfig:
         path = f"/api/dcim/devices/{id}/render-config/"
         return await self._typed_json_request(
             "POST",
             path,
             query_model=DcimDevicesRenderConfigPostQuery,
             query=query,
-            body_model=WritableDeviceWithConfigContextRequest,
+            body_model=RenderConfigInputRequest,
             body=body,
-            response_model=DeviceWithConfigContext,
+            response_model=RenderedConfig,
             return_none_on_404=False,
         )
 
@@ -18954,21 +20808,23 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[FrontPortTemplateRequest]) -> list[FrontPortTemplate]:
+    async def bulk_update(
+        self, body: list[BulkFrontPortTemplateRequest]
+    ) -> list[FrontPortTemplate]:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[FrontPortTemplateRequest],
+            body_model=list[BulkFrontPortTemplateRequest],
             body=body,
             response_model=list[FrontPortTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[FrontPortTemplateRequest]
+        self, body: list[PatchedBulkFrontPortTemplateRequest]
     ) -> list[FrontPortTemplate]:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
@@ -18976,7 +20832,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[FrontPortTemplateRequest],
+            body_model=list[PatchedBulkFrontPortTemplateRequest],
             body=body,
             response_model=list[FrontPortTemplate],
             return_none_on_404=False,
@@ -18995,13 +20851,17 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> FrontPortTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimFrontPortTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> FrontPortTemplate | None:
         path = f"/api/dcim/front-port-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=FrontPortTemplate,
@@ -19092,27 +20952,27 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[FrontPortRequest]) -> list[FrontPort]:
+    async def bulk_update(self, body: list[BulkFrontPortRequest]) -> list[FrontPort]:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[FrontPortRequest],
+            body_model=list[BulkFrontPortRequest],
             body=body,
             response_model=list[FrontPort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[FrontPortRequest]) -> list[FrontPort]:
+    async def bulk_partial_update(self, body: list[PatchedBulkFrontPortRequest]) -> list[FrontPort]:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[FrontPortRequest],
+            body_model=list[PatchedBulkFrontPortRequest],
             body=body,
             response_model=list[FrontPort],
             return_none_on_404=False,
@@ -19131,13 +20991,15 @@ class DcimFrontPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> FrontPort | None:
+    async def get(
+        self, id: int | str, query: DcimFrontPortsDetailGetQuery | dict[str, Any] | None = None
+    ) -> FrontPort | None:
         path = f"/api/dcim/front-ports/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=FrontPort,
@@ -19192,13 +21054,15 @@ class DcimFrontPortsPaths(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> FrontPort:
+    async def list(
+        self, id: int | str, query: DcimFrontPortsPathsGetQuery | dict[str, Any] | None = None
+    ) -> FrontPort:
         path = f"/api/dcim/front-ports/{id}/paths/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortsPathsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=FrontPort,
@@ -19242,21 +21106,23 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[InterfaceTemplateRequest]) -> list[InterfaceTemplate]:
+    async def bulk_update(
+        self, body: list[BulkInterfaceTemplateRequest]
+    ) -> list[InterfaceTemplate]:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[InterfaceTemplateRequest],
+            body_model=list[BulkInterfaceTemplateRequest],
             body=body,
             response_model=list[InterfaceTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[InterfaceTemplateRequest]
+        self, body: list[PatchedBulkInterfaceTemplateRequest]
     ) -> list[InterfaceTemplate]:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
@@ -19264,7 +21130,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[InterfaceTemplateRequest],
+            body_model=list[PatchedBulkInterfaceTemplateRequest],
             body=body,
             response_model=list[InterfaceTemplate],
             return_none_on_404=False,
@@ -19283,13 +21149,17 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> InterfaceTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimInterfaceTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> InterfaceTemplate | None:
         path = f"/api/dcim/interface-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfaceTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=InterfaceTemplate,
@@ -19380,27 +21250,27 @@ class DcimInterfacesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[InterfaceRequest]) -> list[Interface]:
+    async def bulk_update(self, body: list[BulkInterfaceRequest]) -> list[Interface]:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[InterfaceRequest],
+            body_model=list[BulkInterfaceRequest],
             body=body,
             response_model=list[Interface],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[InterfaceRequest]) -> list[Interface]:
+    async def bulk_partial_update(self, body: list[PatchedBulkInterfaceRequest]) -> list[Interface]:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[InterfaceRequest],
+            body_model=list[PatchedBulkInterfaceRequest],
             body=body,
             response_model=list[Interface],
             return_none_on_404=False,
@@ -19419,13 +21289,15 @@ class DcimInterfacesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Interface | None:
+    async def get(
+        self, id: int | str, query: DcimInterfacesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Interface | None:
         path = f"/api/dcim/interfaces/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfacesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Interface,
@@ -19480,13 +21352,15 @@ class DcimInterfacesTrace(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> Interface:
+    async def list(
+        self, id: int | str, query: DcimInterfacesTraceGetQuery | dict[str, Any] | None = None
+    ) -> Interface:
         path = f"/api/dcim/interfaces/{id}/trace/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfacesTraceGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Interface,
@@ -19530,21 +21404,23 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[InventoryItemRoleRequest]) -> list[InventoryItemRole]:
+    async def bulk_update(
+        self, body: list[BulkInventoryItemRoleRequest]
+    ) -> list[InventoryItemRole]:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[InventoryItemRoleRequest],
+            body_model=list[BulkInventoryItemRoleRequest],
             body=body,
             response_model=list[InventoryItemRole],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[InventoryItemRoleRequest]
+        self, body: list[PatchedBulkInventoryItemRoleRequest]
     ) -> list[InventoryItemRole]:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
@@ -19552,7 +21428,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[InventoryItemRoleRequest],
+            body_model=list[PatchedBulkInventoryItemRoleRequest],
             body=body,
             response_model=list[InventoryItemRole],
             return_none_on_404=False,
@@ -19571,13 +21447,17 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> InventoryItemRole | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimInventoryItemRolesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> InventoryItemRole | None:
         path = f"/api/dcim/inventory-item-roles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemRolesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=InventoryItemRole,
@@ -19663,7 +21543,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[InventoryItemTemplateRequest]
+        self, body: list[BulkInventoryItemTemplateRequest]
     ) -> list[InventoryItemTemplate]:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
@@ -19671,14 +21551,14 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[InventoryItemTemplateRequest],
+            body_model=list[BulkInventoryItemTemplateRequest],
             body=body,
             response_model=list[InventoryItemTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[InventoryItemTemplateRequest]
+        self, body: list[PatchedBulkInventoryItemTemplateRequest]
     ) -> list[InventoryItemTemplate]:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
@@ -19686,7 +21566,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[InventoryItemTemplateRequest],
+            body_model=list[PatchedBulkInventoryItemTemplateRequest],
             body=body,
             response_model=list[InventoryItemTemplate],
             return_none_on_404=False,
@@ -19705,13 +21585,17 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> InventoryItemTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimInventoryItemTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> InventoryItemTemplate | None:
         path = f"/api/dcim/inventory-item-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=InventoryItemTemplate,
@@ -19798,27 +21682,29 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[InventoryItemRequest]) -> list[InventoryItem]:
+    async def bulk_update(self, body: list[BulkInventoryItemRequest]) -> list[InventoryItem]:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[InventoryItemRequest],
+            body_model=list[BulkInventoryItemRequest],
             body=body,
             response_model=list[InventoryItem],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[InventoryItemRequest]) -> list[InventoryItem]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkInventoryItemRequest]
+    ) -> list[InventoryItem]:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[InventoryItemRequest],
+            body_model=list[PatchedBulkInventoryItemRequest],
             body=body,
             response_model=list[InventoryItem],
             return_none_on_404=False,
@@ -19837,13 +21723,15 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> InventoryItem | None:
+    async def get(
+        self, id: int | str, query: DcimInventoryItemsDetailGetQuery | dict[str, Any] | None = None
+    ) -> InventoryItem | None:
         path = f"/api/dcim/inventory-items/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=InventoryItem,
@@ -19928,27 +21816,27 @@ class DcimLocationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[LocationRequest]) -> list[Location]:
+    async def bulk_update(self, body: list[BulkLocationRequest]) -> list[Location]:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[LocationRequest],
+            body_model=list[BulkLocationRequest],
             body=body,
             response_model=list[Location],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[LocationRequest]) -> list[Location]:
+    async def bulk_partial_update(self, body: list[PatchedBulkLocationRequest]) -> list[Location]:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[LocationRequest],
+            body_model=list[PatchedBulkLocationRequest],
             body=body,
             response_model=list[Location],
             return_none_on_404=False,
@@ -19967,13 +21855,15 @@ class DcimLocationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Location | None:
+    async def get(
+        self, id: int | str, query: DcimLocationsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Location | None:
         path = f"/api/dcim/locations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimLocationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Location,
@@ -20054,27 +21944,29 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[MACAddressRequest]) -> list[MACAddress]:
+    async def bulk_update(self, body: list[BulkMACAddressRequest]) -> list[MACAddress]:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[MACAddressRequest],
+            body_model=list[BulkMACAddressRequest],
             body=body,
             response_model=list[MACAddress],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[MACAddressRequest]) -> list[MACAddress]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkMACAddressRequest]
+    ) -> list[MACAddress]:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[MACAddressRequest],
+            body_model=list[PatchedBulkMACAddressRequest],
             body=body,
             response_model=list[MACAddress],
             return_none_on_404=False,
@@ -20093,13 +21985,15 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> MACAddress | None:
+    async def get(
+        self, id: int | str, query: DcimMacAddressesDetailGetQuery | dict[str, Any] | None = None
+    ) -> MACAddress | None:
         path = f"/api/dcim/mac-addresses/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimMacAddressesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=MACAddress,
@@ -20180,27 +22074,29 @@ class DcimManufacturersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ManufacturerRequest]) -> list[Manufacturer]:
+    async def bulk_update(self, body: list[BulkManufacturerRequest]) -> list[Manufacturer]:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ManufacturerRequest],
+            body_model=list[BulkManufacturerRequest],
             body=body,
             response_model=list[Manufacturer],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ManufacturerRequest]) -> list[Manufacturer]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkManufacturerRequest]
+    ) -> list[Manufacturer]:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ManufacturerRequest],
+            body_model=list[PatchedBulkManufacturerRequest],
             body=body,
             response_model=list[Manufacturer],
             return_none_on_404=False,
@@ -20219,13 +22115,15 @@ class DcimManufacturersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Manufacturer | None:
+    async def get(
+        self, id: int | str, query: DcimManufacturersDetailGetQuery | dict[str, Any] | None = None
+    ) -> Manufacturer | None:
         path = f"/api/dcim/manufacturers/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimManufacturersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Manufacturer,
@@ -20308,21 +22206,23 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ModuleBayTemplateRequest]) -> list[ModuleBayTemplate]:
+    async def bulk_update(
+        self, body: list[BulkModuleBayTemplateRequest]
+    ) -> list[ModuleBayTemplate]:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleBayTemplateRequest],
+            body_model=list[BulkModuleBayTemplateRequest],
             body=body,
             response_model=list[ModuleBayTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ModuleBayTemplateRequest]
+        self, body: list[PatchedBulkModuleBayTemplateRequest]
     ) -> list[ModuleBayTemplate]:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
@@ -20330,7 +22230,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleBayTemplateRequest],
+            body_model=list[PatchedBulkModuleBayTemplateRequest],
             body=body,
             response_model=list[ModuleBayTemplate],
             return_none_on_404=False,
@@ -20349,13 +22249,17 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ModuleBayTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimModuleBayTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ModuleBayTemplate | None:
         path = f"/api/dcim/module-bay-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ModuleBayTemplate,
@@ -20438,27 +22342,27 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ModuleBayRequest]) -> list[ModuleBay]:
+    async def bulk_update(self, body: list[BulkModuleBayRequest]) -> list[ModuleBay]:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleBayRequest],
+            body_model=list[BulkModuleBayRequest],
             body=body,
             response_model=list[ModuleBay],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ModuleBayRequest]) -> list[ModuleBay]:
+    async def bulk_partial_update(self, body: list[PatchedBulkModuleBayRequest]) -> list[ModuleBay]:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleBayRequest],
+            body_model=list[PatchedBulkModuleBayRequest],
             body=body,
             response_model=list[ModuleBay],
             return_none_on_404=False,
@@ -20477,13 +22381,15 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ModuleBay | None:
+    async def get(
+        self, id: int | str, query: DcimModuleBaysDetailGetQuery | dict[str, Any] | None = None
+    ) -> ModuleBay | None:
         path = f"/api/dcim/module-bays/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBaysDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ModuleBay,
@@ -20566,21 +22472,23 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ModuleTypeProfileRequest]) -> list[ModuleTypeProfile]:
+    async def bulk_update(
+        self, body: list[BulkModuleTypeProfileRequest]
+    ) -> list[ModuleTypeProfile]:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleTypeProfileRequest],
+            body_model=list[BulkModuleTypeProfileRequest],
             body=body,
             response_model=list[ModuleTypeProfile],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ModuleTypeProfileRequest]
+        self, body: list[PatchedBulkModuleTypeProfileRequest]
     ) -> list[ModuleTypeProfile]:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
@@ -20588,7 +22496,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleTypeProfileRequest],
+            body_model=list[PatchedBulkModuleTypeProfileRequest],
             body=body,
             response_model=list[ModuleTypeProfile],
             return_none_on_404=False,
@@ -20607,13 +22515,17 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ModuleTypeProfile | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimModuleTypeProfilesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ModuleTypeProfile | None:
         path = f"/api/dcim/module-type-profiles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypeProfilesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ModuleTypeProfile,
@@ -20698,27 +22610,29 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ModuleTypeRequest]) -> list[ModuleType]:
+    async def bulk_update(self, body: list[BulkModuleTypeRequest]) -> list[ModuleType]:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleTypeRequest],
+            body_model=list[BulkModuleTypeRequest],
             body=body,
             response_model=list[ModuleType],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ModuleTypeRequest]) -> list[ModuleType]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkModuleTypeRequest]
+    ) -> list[ModuleType]:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleTypeRequest],
+            body_model=list[PatchedBulkModuleTypeRequest],
             body=body,
             response_model=list[ModuleType],
             return_none_on_404=False,
@@ -20737,13 +22651,15 @@ class DcimModuleTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ModuleType | None:
+    async def get(
+        self, id: int | str, query: DcimModuleTypesDetailGetQuery | dict[str, Any] | None = None
+    ) -> ModuleType | None:
         path = f"/api/dcim/module-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ModuleType,
@@ -20826,27 +22742,27 @@ class DcimModulesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ModuleRequest]) -> list[Module]:
+    async def bulk_update(self, body: list[BulkModuleRequest]) -> list[Module]:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleRequest],
+            body_model=list[BulkModuleRequest],
             body=body,
             response_model=list[Module],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ModuleRequest]) -> list[Module]:
+    async def bulk_partial_update(self, body: list[PatchedBulkModuleRequest]) -> list[Module]:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ModuleRequest],
+            body_model=list[PatchedBulkModuleRequest],
             body=body,
             response_model=list[Module],
             return_none_on_404=False,
@@ -20865,13 +22781,15 @@ class DcimModulesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Module | None:
+    async def get(
+        self, id: int | str, query: DcimModulesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Module | None:
         path = f"/api/dcim/modules/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModulesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Module,
@@ -20954,27 +22872,27 @@ class DcimPlatformsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PlatformRequest]) -> list[Platform]:
+    async def bulk_update(self, body: list[BulkPlatformRequest]) -> list[Platform]:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PlatformRequest],
+            body_model=list[BulkPlatformRequest],
             body=body,
             response_model=list[Platform],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PlatformRequest]) -> list[Platform]:
+    async def bulk_partial_update(self, body: list[PatchedBulkPlatformRequest]) -> list[Platform]:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[PlatformRequest],
+            body_model=list[PatchedBulkPlatformRequest],
             body=body,
             response_model=list[Platform],
             return_none_on_404=False,
@@ -20993,13 +22911,15 @@ class DcimPlatformsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Platform | None:
+    async def get(
+        self, id: int | str, query: DcimPlatformsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Platform | None:
         path = f"/api/dcim/platforms/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPlatformsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Platform,
@@ -21086,27 +23006,27 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PowerFeedRequest]) -> list[PowerFeed]:
+    async def bulk_update(self, body: list[BulkPowerFeedRequest]) -> list[PowerFeed]:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerFeedRequest],
+            body_model=list[BulkPowerFeedRequest],
             body=body,
             response_model=list[PowerFeed],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PowerFeedRequest]) -> list[PowerFeed]:
+    async def bulk_partial_update(self, body: list[PatchedBulkPowerFeedRequest]) -> list[PowerFeed]:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerFeedRequest],
+            body_model=list[PatchedBulkPowerFeedRequest],
             body=body,
             response_model=list[PowerFeed],
             return_none_on_404=False,
@@ -21125,13 +23045,15 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> PowerFeed | None:
+    async def get(
+        self, id: int | str, query: DcimPowerFeedsDetailGetQuery | dict[str, Any] | None = None
+    ) -> PowerFeed | None:
         path = f"/api/dcim/power-feeds/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerFeedsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerFeed,
@@ -21186,13 +23108,15 @@ class DcimPowerFeedsTrace(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> PowerFeed:
+    async def list(
+        self, id: int | str, query: DcimPowerFeedsTraceGetQuery | dict[str, Any] | None = None
+    ) -> PowerFeed:
         path = f"/api/dcim/power-feeds/{id}/trace/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerFeedsTraceGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerFeed,
@@ -21238,7 +23162,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[PowerOutletTemplateRequest]
+        self, body: list[BulkPowerOutletTemplateRequest]
     ) -> list[PowerOutletTemplate]:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
@@ -21246,14 +23170,14 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerOutletTemplateRequest],
+            body_model=list[BulkPowerOutletTemplateRequest],
             body=body,
             response_model=list[PowerOutletTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[PowerOutletTemplateRequest]
+        self, body: list[PatchedBulkPowerOutletTemplateRequest]
     ) -> list[PowerOutletTemplate]:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
@@ -21261,7 +23185,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerOutletTemplateRequest],
+            body_model=list[PatchedBulkPowerOutletTemplateRequest],
             body=body,
             response_model=list[PowerOutletTemplate],
             return_none_on_404=False,
@@ -21280,13 +23204,17 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> PowerOutletTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimPowerOutletTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> PowerOutletTemplate | None:
         path = f"/api/dcim/power-outlet-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerOutletTemplate,
@@ -21377,27 +23305,29 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PowerOutletRequest]) -> list[PowerOutlet]:
+    async def bulk_update(self, body: list[BulkPowerOutletRequest]) -> list[PowerOutlet]:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerOutletRequest],
+            body_model=list[BulkPowerOutletRequest],
             body=body,
             response_model=list[PowerOutlet],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PowerOutletRequest]) -> list[PowerOutlet]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkPowerOutletRequest]
+    ) -> list[PowerOutlet]:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerOutletRequest],
+            body_model=list[PatchedBulkPowerOutletRequest],
             body=body,
             response_model=list[PowerOutlet],
             return_none_on_404=False,
@@ -21416,13 +23346,15 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> PowerOutlet | None:
+    async def get(
+        self, id: int | str, query: DcimPowerOutletsDetailGetQuery | dict[str, Any] | None = None
+    ) -> PowerOutlet | None:
         path = f"/api/dcim/power-outlets/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerOutlet,
@@ -21477,13 +23409,15 @@ class DcimPowerOutletsTrace(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> PowerOutlet:
+    async def list(
+        self, id: int | str, query: DcimPowerOutletsTraceGetQuery | dict[str, Any] | None = None
+    ) -> PowerOutlet:
         path = f"/api/dcim/power-outlets/{id}/trace/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletsTraceGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerOutlet,
@@ -21525,27 +23459,29 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PowerPanelRequest]) -> list[PowerPanel]:
+    async def bulk_update(self, body: list[BulkPowerPanelRequest]) -> list[PowerPanel]:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerPanelRequest],
+            body_model=list[BulkPowerPanelRequest],
             body=body,
             response_model=list[PowerPanel],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PowerPanelRequest]) -> list[PowerPanel]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkPowerPanelRequest]
+    ) -> list[PowerPanel]:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerPanelRequest],
+            body_model=list[PatchedBulkPowerPanelRequest],
             body=body,
             response_model=list[PowerPanel],
             return_none_on_404=False,
@@ -21564,13 +23500,15 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> PowerPanel | None:
+    async def get(
+        self, id: int | str, query: DcimPowerPanelsDetailGetQuery | dict[str, Any] | None = None
+    ) -> PowerPanel | None:
         path = f"/api/dcim/power-panels/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPanelsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerPanel,
@@ -21653,21 +23591,23 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PowerPortTemplateRequest]) -> list[PowerPortTemplate]:
+    async def bulk_update(
+        self, body: list[BulkPowerPortTemplateRequest]
+    ) -> list[PowerPortTemplate]:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerPortTemplateRequest],
+            body_model=list[BulkPowerPortTemplateRequest],
             body=body,
             response_model=list[PowerPortTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[PowerPortTemplateRequest]
+        self, body: list[PatchedBulkPowerPortTemplateRequest]
     ) -> list[PowerPortTemplate]:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
@@ -21675,7 +23615,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerPortTemplateRequest],
+            body_model=list[PatchedBulkPowerPortTemplateRequest],
             body=body,
             response_model=list[PowerPortTemplate],
             return_none_on_404=False,
@@ -21694,13 +23634,17 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> PowerPortTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimPowerPortTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> PowerPortTemplate | None:
         path = f"/api/dcim/power-port-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerPortTemplate,
@@ -21791,27 +23735,27 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PowerPortRequest]) -> list[PowerPort]:
+    async def bulk_update(self, body: list[BulkPowerPortRequest]) -> list[PowerPort]:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerPortRequest],
+            body_model=list[BulkPowerPortRequest],
             body=body,
             response_model=list[PowerPort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PowerPortRequest]) -> list[PowerPort]:
+    async def bulk_partial_update(self, body: list[PatchedBulkPowerPortRequest]) -> list[PowerPort]:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[PowerPortRequest],
+            body_model=list[PatchedBulkPowerPortRequest],
             body=body,
             response_model=list[PowerPort],
             return_none_on_404=False,
@@ -21830,13 +23774,15 @@ class DcimPowerPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> PowerPort | None:
+    async def get(
+        self, id: int | str, query: DcimPowerPortsDetailGetQuery | dict[str, Any] | None = None
+    ) -> PowerPort | None:
         path = f"/api/dcim/power-ports/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerPort,
@@ -21891,13 +23837,15 @@ class DcimPowerPortsTrace(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> PowerPort:
+    async def list(
+        self, id: int | str, query: DcimPowerPortsTraceGetQuery | dict[str, Any] | None = None
+    ) -> PowerPort:
         path = f"/api/dcim/power-ports/{id}/trace/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortsTraceGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=PowerPort,
@@ -21939,27 +23887,27 @@ class DcimRackGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RackGroupRequest]) -> list[RackGroup]:
+    async def bulk_update(self, body: list[BulkRackGroupRequest]) -> list[RackGroup]:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackGroupRequest],
+            body_model=list[BulkRackGroupRequest],
             body=body,
             response_model=list[RackGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RackGroupRequest]) -> list[RackGroup]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRackGroupRequest]) -> list[RackGroup]:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackGroupRequest],
+            body_model=list[PatchedBulkRackGroupRequest],
             body=body,
             response_model=list[RackGroup],
             return_none_on_404=False,
@@ -21978,13 +23926,15 @@ class DcimRackGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RackGroup | None:
+    async def get(
+        self, id: int | str, query: DcimRackGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> RackGroup | None:
         path = f"/api/dcim/rack-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RackGroup,
@@ -22067,21 +24017,21 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RackReservationRequest]) -> list[RackReservation]:
+    async def bulk_update(self, body: list[BulkRackReservationRequest]) -> list[RackReservation]:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackReservationRequest],
+            body_model=list[BulkRackReservationRequest],
             body=body,
             response_model=list[RackReservation],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[RackReservationRequest]
+        self, body: list[PatchedBulkRackReservationRequest]
     ) -> list[RackReservation]:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
@@ -22089,7 +24039,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[RackReservationRequest],
+            body_model=list[PatchedBulkRackReservationRequest],
             body=body,
             response_model=list[RackReservation],
             return_none_on_404=False,
@@ -22108,13 +24058,17 @@ class DcimRackReservationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RackReservation | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimRackReservationsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> RackReservation | None:
         path = f"/api/dcim/rack-reservations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackReservationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RackReservation,
@@ -22197,27 +24151,27 @@ class DcimRackRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RackRoleRequest]) -> list[RackRole]:
+    async def bulk_update(self, body: list[BulkRackRoleRequest]) -> list[RackRole]:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackRoleRequest],
+            body_model=list[BulkRackRoleRequest],
             body=body,
             response_model=list[RackRole],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RackRoleRequest]) -> list[RackRole]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRackRoleRequest]) -> list[RackRole]:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackRoleRequest],
+            body_model=list[PatchedBulkRackRoleRequest],
             body=body,
             response_model=list[RackRole],
             return_none_on_404=False,
@@ -22236,13 +24190,15 @@ class DcimRackRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RackRole | None:
+    async def get(
+        self, id: int | str, query: DcimRackRolesDetailGetQuery | dict[str, Any] | None = None
+    ) -> RackRole | None:
         path = f"/api/dcim/rack-roles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackRolesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RackRole,
@@ -22325,27 +24281,27 @@ class DcimRackTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RackTypeRequest]) -> list[RackType]:
+    async def bulk_update(self, body: list[BulkRackTypeRequest]) -> list[RackType]:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackTypeRequest],
+            body_model=list[BulkRackTypeRequest],
             body=body,
             response_model=list[RackType],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RackTypeRequest]) -> list[RackType]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRackTypeRequest]) -> list[RackType]:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackTypeRequest],
+            body_model=list[PatchedBulkRackTypeRequest],
             body=body,
             response_model=list[RackType],
             return_none_on_404=False,
@@ -22364,13 +24320,15 @@ class DcimRackTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RackType | None:
+    async def get(
+        self, id: int | str, query: DcimRackTypesDetailGetQuery | dict[str, Any] | None = None
+    ) -> RackType | None:
         path = f"/api/dcim/rack-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RackType,
@@ -22455,27 +24413,27 @@ class DcimRacksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RackRequest]) -> list[Rack]:
+    async def bulk_update(self, body: list[BulkRackRequest]) -> list[Rack]:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackRequest],
+            body_model=list[BulkRackRequest],
             body=body,
             response_model=list[Rack],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RackRequest]) -> list[Rack]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRackRequest]) -> list[Rack]:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RackRequest],
+            body_model=list[PatchedBulkRackRequest],
             body=body,
             response_model=list[Rack],
             return_none_on_404=False,
@@ -22494,13 +24452,15 @@ class DcimRacksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Rack | None:
+    async def get(
+        self, id: int | str, query: DcimRacksDetailGetQuery | dict[str, Any] | None = None
+    ) -> Rack | None:
         path = f"/api/dcim/racks/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRacksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Rack,
@@ -22605,21 +24565,21 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RearPortTemplateRequest]) -> list[RearPortTemplate]:
+    async def bulk_update(self, body: list[BulkRearPortTemplateRequest]) -> list[RearPortTemplate]:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RearPortTemplateRequest],
+            body_model=list[BulkRearPortTemplateRequest],
             body=body,
             response_model=list[RearPortTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[RearPortTemplateRequest]
+        self, body: list[PatchedBulkRearPortTemplateRequest]
     ) -> list[RearPortTemplate]:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
@@ -22627,7 +24587,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[RearPortTemplateRequest],
+            body_model=list[PatchedBulkRearPortTemplateRequest],
             body=body,
             response_model=list[RearPortTemplate],
             return_none_on_404=False,
@@ -22646,13 +24606,17 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RearPortTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimRearPortTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> RearPortTemplate | None:
         path = f"/api/dcim/rear-port-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RearPortTemplate,
@@ -22743,27 +24707,27 @@ class DcimRearPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RearPortRequest]) -> list[RearPort]:
+    async def bulk_update(self, body: list[BulkRearPortRequest]) -> list[RearPort]:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RearPortRequest],
+            body_model=list[BulkRearPortRequest],
             body=body,
             response_model=list[RearPort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RearPortRequest]) -> list[RearPort]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRearPortRequest]) -> list[RearPort]:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RearPortRequest],
+            body_model=list[PatchedBulkRearPortRequest],
             body=body,
             response_model=list[RearPort],
             return_none_on_404=False,
@@ -22782,13 +24746,15 @@ class DcimRearPortsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RearPort | None:
+    async def get(
+        self, id: int | str, query: DcimRearPortsDetailGetQuery | dict[str, Any] | None = None
+    ) -> RearPort | None:
         path = f"/api/dcim/rear-ports/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RearPort,
@@ -22841,13 +24807,15 @@ class DcimRearPortsPaths(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> RearPort:
+    async def list(
+        self, id: int | str, query: DcimRearPortsPathsGetQuery | dict[str, Any] | None = None
+    ) -> RearPort:
         path = f"/api/dcim/rear-ports/{id}/paths/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortsPathsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RearPort,
@@ -22889,27 +24857,27 @@ class DcimRegionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RegionRequest]) -> list[Region]:
+    async def bulk_update(self, body: list[BulkRegionRequest]) -> list[Region]:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RegionRequest],
+            body_model=list[BulkRegionRequest],
             body=body,
             response_model=list[Region],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RegionRequest]) -> list[Region]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRegionRequest]) -> list[Region]:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RegionRequest],
+            body_model=list[PatchedBulkRegionRequest],
             body=body,
             response_model=list[Region],
             return_none_on_404=False,
@@ -22928,13 +24896,15 @@ class DcimRegionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Region | None:
+    async def get(
+        self, id: int | str, query: DcimRegionsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Region | None:
         path = f"/api/dcim/regions/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRegionsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Region,
@@ -23017,27 +24987,27 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[SiteGroupRequest]) -> list[SiteGroup]:
+    async def bulk_update(self, body: list[BulkSiteGroupRequest]) -> list[SiteGroup]:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[SiteGroupRequest],
+            body_model=list[BulkSiteGroupRequest],
             body=body,
             response_model=list[SiteGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[SiteGroupRequest]) -> list[SiteGroup]:
+    async def bulk_partial_update(self, body: list[PatchedBulkSiteGroupRequest]) -> list[SiteGroup]:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[SiteGroupRequest],
+            body_model=list[PatchedBulkSiteGroupRequest],
             body=body,
             response_model=list[SiteGroup],
             return_none_on_404=False,
@@ -23056,13 +25026,15 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> SiteGroup | None:
+    async def get(
+        self, id: int | str, query: DcimSiteGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> SiteGroup | None:
         path = f"/api/dcim/site-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSiteGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=SiteGroup,
@@ -23145,27 +25117,27 @@ class DcimSitesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[SiteRequest]) -> list[Site]:
+    async def bulk_update(self, body: list[BulkSiteRequest]) -> list[Site]:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[SiteRequest],
+            body_model=list[BulkSiteRequest],
             body=body,
             response_model=list[Site],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[SiteRequest]) -> list[Site]:
+    async def bulk_partial_update(self, body: list[PatchedBulkSiteRequest]) -> list[Site]:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[SiteRequest],
+            body_model=list[PatchedBulkSiteRequest],
             body=body,
             response_model=list[Site],
             return_none_on_404=False,
@@ -23184,13 +25156,15 @@ class DcimSitesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Site | None:
+    async def get(
+        self, id: int | str, query: DcimSitesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Site | None:
         path = f"/api/dcim/sites/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSitesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Site,
@@ -23273,27 +25247,29 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VirtualChassisRequest]) -> list[VirtualChassis]:
+    async def bulk_update(self, body: list[BulkVirtualChassisRequest]) -> list[VirtualChassis]:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualChassisRequest],
+            body_model=list[BulkVirtualChassisRequest],
             body=body,
             response_model=list[VirtualChassis],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VirtualChassisRequest]) -> list[VirtualChassis]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkVirtualChassisRequest]
+    ) -> list[VirtualChassis]:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualChassisRequest],
+            body_model=list[PatchedBulkVirtualChassisRequest],
             body=body,
             response_model=list[VirtualChassis],
             return_none_on_404=False,
@@ -23312,13 +25288,15 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualChassis | None:
+    async def get(
+        self, id: int | str, query: DcimVirtualChassisDetailGetQuery | dict[str, Any] | None = None
+    ) -> VirtualChassis | None:
         path = f"/api/dcim/virtual-chassis/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualChassisDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualChassis,
@@ -23405,7 +25383,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[VirtualDeviceContextRequest]
+        self, body: list[BulkVirtualDeviceContextRequest]
     ) -> list[VirtualDeviceContext]:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
@@ -23413,14 +25391,14 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualDeviceContextRequest],
+            body_model=list[BulkVirtualDeviceContextRequest],
             body=body,
             response_model=list[VirtualDeviceContext],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VirtualDeviceContextRequest]
+        self, body: list[PatchedBulkVirtualDeviceContextRequest]
     ) -> list[VirtualDeviceContext]:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
@@ -23428,7 +25406,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualDeviceContextRequest],
+            body_model=list[PatchedBulkVirtualDeviceContextRequest],
             body=body,
             response_model=list[VirtualDeviceContext],
             return_none_on_404=False,
@@ -23447,13 +25425,17 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualDeviceContext | None:
+    async def get(
+        self,
+        id: int | str,
+        query: DcimVirtualDeviceContextsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualDeviceContext | None:
         path = f"/api/dcim/virtual-device-contexts/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualDeviceContextsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualDeviceContext,
@@ -23538,27 +25520,27 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BookmarkRequest]) -> list[Bookmark]:
+    async def bulk_update(self, body: list[BulkBookmarkRequest]) -> list[Bookmark]:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[BookmarkRequest],
+            body_model=list[BulkBookmarkRequest],
             body=body,
             response_model=list[Bookmark],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[BookmarkRequest]) -> list[Bookmark]:
+    async def bulk_partial_update(self, body: list[PatchedBulkBookmarkRequest]) -> list[Bookmark]:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[BookmarkRequest],
+            body_model=list[PatchedBulkBookmarkRequest],
             body=body,
             response_model=list[Bookmark],
             return_none_on_404=False,
@@ -23577,13 +25559,15 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Bookmark | None:
+    async def get(
+        self, id: int | str, query: ExtrasBookmarksDetailGetQuery | dict[str, Any] | None = None
+    ) -> Bookmark | None:
         path = f"/api/extras/bookmarks/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasBookmarksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Bookmark,
@@ -23671,7 +25655,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[ConfigContextProfileRequest]
+        self, body: list[BulkConfigContextProfileRequest]
     ) -> list[ConfigContextProfile]:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
@@ -23679,14 +25663,14 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConfigContextProfileRequest],
+            body_model=list[BulkConfigContextProfileRequest],
             body=body,
             response_model=list[ConfigContextProfile],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ConfigContextProfileRequest]
+        self, body: list[PatchedBulkConfigContextProfileRequest]
     ) -> list[ConfigContextProfile]:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
@@ -23694,7 +25678,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ConfigContextProfileRequest],
+            body_model=list[PatchedBulkConfigContextProfileRequest],
             body=body,
             response_model=list[ConfigContextProfile],
             return_none_on_404=False,
@@ -23713,13 +25697,17 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConfigContextProfile | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasConfigContextProfilesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ConfigContextProfile | None:
         path = f"/api/extras/config-context-profiles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextProfilesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConfigContextProfile,
@@ -23832,27 +25820,29 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ConfigContextRequest]) -> list[ConfigContext]:
+    async def bulk_update(self, body: list[BulkConfigContextRequest]) -> list[ConfigContext]:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConfigContextRequest],
+            body_model=list[BulkConfigContextRequest],
             body=body,
             response_model=list[ConfigContext],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ConfigContextRequest]) -> list[ConfigContext]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkConfigContextRequest]
+    ) -> list[ConfigContext]:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConfigContextRequest],
+            body_model=list[PatchedBulkConfigContextRequest],
             body=body,
             response_model=list[ConfigContext],
             return_none_on_404=False,
@@ -23871,13 +25861,17 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConfigContext | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasConfigContextsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ConfigContext | None:
         path = f"/api/extras/config-contexts/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConfigContext,
@@ -23990,27 +25984,29 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ConfigTemplateRequest]) -> list[ConfigTemplate]:
+    async def bulk_update(self, body: list[BulkConfigTemplateRequest]) -> list[ConfigTemplate]:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConfigTemplateRequest],
+            body_model=list[BulkConfigTemplateRequest],
             body=body,
             response_model=list[ConfigTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ConfigTemplateRequest]) -> list[ConfigTemplate]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkConfigTemplateRequest]
+    ) -> list[ConfigTemplate]:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ConfigTemplateRequest],
+            body_model=list[PatchedBulkConfigTemplateRequest],
             body=body,
             response_model=list[ConfigTemplate],
             return_none_on_404=False,
@@ -24029,13 +26025,17 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ConfigTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasConfigTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ConfigTemplate | None:
         path = f"/api/extras/config-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ConfigTemplate,
@@ -24093,18 +26093,18 @@ class ExtrasConfigTemplatesRender(TypedAppBase):
     async def create(
         self,
         id: int | str,
-        body: ConfigTemplateRequest,
+        body: dict[str, Any],
         query: ExtrasConfigTemplatesRenderPostQuery | dict[str, Any] | None = None,
-    ) -> ConfigTemplate:
+    ) -> RenderedConfig:
         path = f"/api/extras/config-templates/{id}/render/"
         return await self._typed_json_request(
             "POST",
             path,
             query_model=ExtrasConfigTemplatesRenderPostQuery,
             query=query,
-            body_model=ConfigTemplateRequest,
+            body_model=dict[str, Any],
             body=body,
-            response_model=ConfigTemplate,
+            response_model=RenderedConfig,
             return_none_on_404=False,
         )
 
@@ -24171,7 +26171,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[CustomFieldChoiceSetRequest]
+        self, body: list[BulkCustomFieldChoiceSetRequest]
     ) -> list[CustomFieldChoiceSet]:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
@@ -24179,14 +26179,14 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[CustomFieldChoiceSetRequest],
+            body_model=list[BulkCustomFieldChoiceSetRequest],
             body=body,
             response_model=list[CustomFieldChoiceSet],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[CustomFieldChoiceSetRequest]
+        self, body: list[PatchedBulkCustomFieldChoiceSetRequest]
     ) -> list[CustomFieldChoiceSet]:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
@@ -24194,7 +26194,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[CustomFieldChoiceSetRequest],
+            body_model=list[PatchedBulkCustomFieldChoiceSetRequest],
             body=body,
             response_model=list[CustomFieldChoiceSet],
             return_none_on_404=False,
@@ -24213,13 +26213,17 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CustomFieldChoiceSet | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasCustomFieldChoiceSetsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> CustomFieldChoiceSet | None:
         path = f"/api/extras/custom-field-choice-sets/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldChoiceSetsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CustomFieldChoiceSet,
@@ -24276,13 +26280,17 @@ class ExtrasCustomFieldChoiceSetsChoices(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> CustomFieldChoiceSet:
+    async def list(
+        self,
+        id: int | str,
+        query: ExtrasCustomFieldChoiceSetsChoicesGetQuery | dict[str, Any] | None = None,
+    ) -> CustomFieldChoiceSet:
         path = f"/api/extras/custom-field-choice-sets/{id}/choices/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldChoiceSetsChoicesGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CustomFieldChoiceSet,
@@ -24326,27 +26334,29 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CustomFieldRequest]) -> list[CustomField]:
+    async def bulk_update(self, body: list[BulkCustomFieldRequest]) -> list[CustomField]:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CustomFieldRequest],
+            body_model=list[BulkCustomFieldRequest],
             body=body,
             response_model=list[CustomField],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CustomFieldRequest]) -> list[CustomField]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkCustomFieldRequest]
+    ) -> list[CustomField]:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CustomFieldRequest],
+            body_model=list[PatchedBulkCustomFieldRequest],
             body=body,
             response_model=list[CustomField],
             return_none_on_404=False,
@@ -24365,13 +26375,15 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CustomField | None:
+    async def get(
+        self, id: int | str, query: ExtrasCustomFieldsDetailGetQuery | dict[str, Any] | None = None
+    ) -> CustomField | None:
         path = f"/api/extras/custom-fields/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CustomField,
@@ -24454,27 +26466,29 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[CustomLinkRequest]) -> list[CustomLink]:
+    async def bulk_update(self, body: list[BulkCustomLinkRequest]) -> list[CustomLink]:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[CustomLinkRequest],
+            body_model=list[BulkCustomLinkRequest],
             body=body,
             response_model=list[CustomLink],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[CustomLinkRequest]) -> list[CustomLink]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkCustomLinkRequest]
+    ) -> list[CustomLink]:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[CustomLinkRequest],
+            body_model=list[PatchedBulkCustomLinkRequest],
             body=body,
             response_model=list[CustomLink],
             return_none_on_404=False,
@@ -24493,13 +26507,15 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> CustomLink | None:
+    async def get(
+        self, id: int | str, query: ExtrasCustomLinksDetailGetQuery | dict[str, Any] | None = None
+    ) -> CustomLink | None:
         path = f"/api/extras/custom-links/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomLinksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=CustomLink,
@@ -24552,13 +26568,15 @@ class ExtrasDashboardEndpoint(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self) -> Dashboard:
+    async def list(
+        self, query: ExtrasDashboardRootGetQuery | dict[str, Any] | None = None
+    ) -> Dashboard:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasDashboardRootGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Dashboard,
@@ -24641,27 +26659,27 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[EventRuleRequest]) -> list[EventRule]:
+    async def bulk_update(self, body: list[BulkEventRuleRequest]) -> list[EventRule]:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[EventRuleRequest],
+            body_model=list[BulkEventRuleRequest],
             body=body,
             response_model=list[EventRule],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[EventRuleRequest]) -> list[EventRule]:
+    async def bulk_partial_update(self, body: list[PatchedBulkEventRuleRequest]) -> list[EventRule]:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[EventRuleRequest],
+            body_model=list[PatchedBulkEventRuleRequest],
             body=body,
             response_model=list[EventRule],
             return_none_on_404=False,
@@ -24680,13 +26698,15 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> EventRule | None:
+    async def get(
+        self, id: int | str, query: ExtrasEventRulesDetailGetQuery | dict[str, Any] | None = None
+    ) -> EventRule | None:
         path = f"/api/extras/event-rules/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasEventRulesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=EventRule,
@@ -24775,27 +26795,29 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ExportTemplateRequest]) -> list[ExportTemplate]:
+    async def bulk_update(self, body: list[BulkExportTemplateRequest]) -> list[ExportTemplate]:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ExportTemplateRequest],
+            body_model=list[BulkExportTemplateRequest],
             body=body,
             response_model=list[ExportTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ExportTemplateRequest]) -> list[ExportTemplate]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkExportTemplateRequest]
+    ) -> list[ExportTemplate]:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ExportTemplateRequest],
+            body_model=list[PatchedBulkExportTemplateRequest],
             body=body,
             response_model=list[ExportTemplate],
             return_none_on_404=False,
@@ -24814,13 +26836,17 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ExportTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasExportTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ExportTemplate | None:
         path = f"/api/extras/export-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasExportTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ExportTemplate,
@@ -24911,10 +26937,10 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ImageAttachmentRequest | list[ImageAttachmentRequest]
+        self, body: ImageAttachmentRequest | list[ImageAttachmentRequest] | dict[str, Any]
     ) -> ImageAttachment:
         path = "/api/extras/image-attachments/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "POST",
             path,
             query_model=None,
@@ -24923,39 +26949,44 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body=body,
             response_model=ImageAttachment,
             return_none_on_404=False,
+            binary_field_names=("image",),
         )
 
-    async def bulk_update(self, body: list[ImageAttachmentRequest]) -> list[ImageAttachment]:
+    async def bulk_update(
+        self, body: list[BulkImageAttachmentRequest] | dict[str, Any]
+    ) -> list[ImageAttachment]:
         path = "/api/extras/image-attachments/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ImageAttachmentRequest],
+            body_model=list[BulkImageAttachmentRequest],
             body=body,
             response_model=list[ImageAttachment],
             return_none_on_404=False,
+            binary_field_names=("image",),
         )
 
     async def bulk_partial_update(
-        self, body: list[ImageAttachmentRequest]
+        self, body: list[PatchedBulkImageAttachmentRequest] | dict[str, Any]
     ) -> list[ImageAttachment]:
         path = "/api/extras/image-attachments/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ImageAttachmentRequest],
+            body_model=list[PatchedBulkImageAttachmentRequest],
             body=body,
             response_model=list[ImageAttachment],
             return_none_on_404=False,
+            binary_field_names=("image",),
         )
 
-    async def bulk_delete(self, body: list[ImageAttachmentRequest]) -> None:
+    async def bulk_delete(self, body: list[ImageAttachmentRequest] | dict[str, Any]) -> None:
         path = "/api/extras/image-attachments/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "DELETE",
             path,
             query_model=None,
@@ -24964,24 +26995,31 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body=body,
             response_model=None,
             return_none_on_404=False,
+            binary_field_names=("image",),
         )
 
-    async def get(self, id: int | str) -> ImageAttachment | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasImageAttachmentsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ImageAttachment | None:
         path = f"/api/extras/image-attachments/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasImageAttachmentsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ImageAttachment,
             return_none_on_404=True,
         )
 
-    async def update(self, id: int | str, body: ImageAttachmentRequest) -> ImageAttachment:
+    async def update(
+        self, id: int | str, body: ImageAttachmentRequest | dict[str, Any]
+    ) -> ImageAttachment:
         path = f"/api/extras/image-attachments/{id}/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PUT",
             path,
             query_model=None,
@@ -24990,13 +27028,14 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body=body,
             response_model=ImageAttachment,
             return_none_on_404=False,
+            binary_field_names=("image",),
         )
 
     async def partial_update(
-        self, id: int | str, body: PatchedImageAttachmentRequest
+        self, id: int | str, body: PatchedImageAttachmentRequest | dict[str, Any]
     ) -> ImageAttachment:
         path = f"/api/extras/image-attachments/{id}/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "PATCH",
             path,
             query_model=None,
@@ -25005,6 +27044,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             body=body,
             response_model=ImageAttachment,
             return_none_on_404=False,
+            binary_field_names=("image",),
         )
 
     async def delete(self, id: int | str) -> None:
@@ -25057,27 +27097,29 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[JournalEntryRequest]) -> list[JournalEntry]:
+    async def bulk_update(self, body: list[BulkJournalEntryRequest]) -> list[JournalEntry]:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[JournalEntryRequest],
+            body_model=list[BulkJournalEntryRequest],
             body=body,
             response_model=list[JournalEntry],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[JournalEntryRequest]) -> list[JournalEntry]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkJournalEntryRequest]
+    ) -> list[JournalEntry]:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[JournalEntryRequest],
+            body_model=list[PatchedBulkJournalEntryRequest],
             body=body,
             response_model=list[JournalEntry],
             return_none_on_404=False,
@@ -25096,13 +27138,17 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> JournalEntry | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasJournalEntriesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> JournalEntry | None:
         path = f"/api/extras/journal-entries/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasJournalEntriesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=JournalEntry,
@@ -25187,21 +27233,23 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[NotificationGroupRequest]) -> list[NotificationGroup]:
+    async def bulk_update(
+        self, body: list[BulkNotificationGroupRequest]
+    ) -> list[NotificationGroup]:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[NotificationGroupRequest],
+            body_model=list[BulkNotificationGroupRequest],
             body=body,
             response_model=list[NotificationGroup],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[NotificationGroupRequest]
+        self, body: list[PatchedBulkNotificationGroupRequest]
     ) -> list[NotificationGroup]:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
@@ -25209,7 +27257,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[NotificationGroupRequest],
+            body_model=list[PatchedBulkNotificationGroupRequest],
             body=body,
             response_model=list[NotificationGroup],
             return_none_on_404=False,
@@ -25228,13 +27276,17 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> NotificationGroup | None:
+    async def get(
+        self,
+        id: int | str,
+        query: ExtrasNotificationGroupsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> NotificationGroup | None:
         path = f"/api/extras/notification-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=NotificationGroup,
@@ -25317,27 +27369,29 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[NotificationRequest]) -> list[Notification]:
+    async def bulk_update(self, body: list[BulkNotificationRequest]) -> list[Notification]:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[NotificationRequest],
+            body_model=list[BulkNotificationRequest],
             body=body,
             response_model=list[Notification],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[NotificationRequest]) -> list[Notification]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkNotificationRequest]
+    ) -> list[Notification]:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[NotificationRequest],
+            body_model=list[PatchedBulkNotificationRequest],
             body=body,
             response_model=list[Notification],
             return_none_on_404=False,
@@ -25356,13 +27410,15 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Notification | None:
+    async def get(
+        self, id: int | str, query: ExtrasNotificationsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Notification | None:
         path = f"/api/extras/notifications/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Notification,
@@ -25443,27 +27499,29 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[SavedFilterRequest]) -> list[SavedFilter]:
+    async def bulk_update(self, body: list[BulkSavedFilterRequest]) -> list[SavedFilter]:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[SavedFilterRequest],
+            body_model=list[BulkSavedFilterRequest],
             body=body,
             response_model=list[SavedFilter],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[SavedFilterRequest]) -> list[SavedFilter]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkSavedFilterRequest]
+    ) -> list[SavedFilter]:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[SavedFilterRequest],
+            body_model=list[PatchedBulkSavedFilterRequest],
             body=body,
             response_model=list[SavedFilter],
             return_none_on_404=False,
@@ -25482,13 +27540,15 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> SavedFilter | None:
+    async def get(
+        self, id: int | str, query: ExtrasSavedFiltersDetailGetQuery | dict[str, Any] | None = None
+    ) -> SavedFilter | None:
         path = f"/api/extras/saved-filters/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSavedFiltersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=SavedFilter,
@@ -25545,6 +27605,10 @@ class ExtrasScriptsEndpoint(TypedAppBase):
     def upload(self) -> ExtrasScriptsUpload:
         return ExtrasScriptsUpload(self._api)
 
+    @property
+    def upload_id(self) -> ExtrasScriptsUploadId:
+        return ExtrasScriptsUploadId(self._api)
+
     async def list(
         self, query: ExtrasScriptsRootGetQuery | dict[str, Any] | None = None
     ) -> PaginatedScriptList:
@@ -25573,13 +27637,15 @@ class ExtrasScriptsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Script | None:
+    async def get(
+        self, id: int | str, query: ExtrasScriptsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Script | None:
         path = f"/api/extras/scripts/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasScriptsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Script,
@@ -25632,9 +27698,9 @@ class ExtrasScriptsUpload(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def create(self, body: ScriptModuleRequest) -> ScriptModule:
+    async def create(self, body: ScriptModuleRequest | dict[str, Any]) -> ScriptModule:
         path = "/api/extras/scripts/upload/"
-        return await self._typed_json_request(
+        return await self._typed_multipart_request(
             "POST",
             path,
             query_model=None,
@@ -25643,6 +27709,46 @@ class ExtrasScriptsUpload(TypedAppBase):
             body=body,
             response_model=ScriptModule,
             return_none_on_404=False,
+            binary_field_names=("file",),
+        )
+
+
+class ExtrasScriptsUploadId(TypedAppBase):
+    """Typed OpenAPI resource `extras/scripts:upload_id` for NetBox 4.6."""
+
+    def __init__(self, api: TypedApiBase) -> None:
+        super().__init__(api)
+
+    async def update(
+        self, id: int | str, body: ScriptModuleRequest | dict[str, Any]
+    ) -> ScriptModule:
+        path = f"/api/extras/scripts/upload/{id}/"
+        return await self._typed_multipart_request(
+            "PUT",
+            path,
+            query_model=None,
+            query=None,
+            body_model=ScriptModuleRequest,
+            body=body,
+            response_model=ScriptModule,
+            return_none_on_404=False,
+            binary_field_names=("file",),
+        )
+
+    async def partial_update(
+        self, id: int | str, body: PatchedScriptModuleRequest | dict[str, Any]
+    ) -> ScriptModule:
+        path = f"/api/extras/scripts/upload/{id}/"
+        return await self._typed_multipart_request(
+            "PATCH",
+            path,
+            query_model=None,
+            query=None,
+            body_model=PatchedScriptModuleRequest,
+            body=body,
+            response_model=ScriptModule,
+            return_none_on_404=False,
+            binary_field_names=("file",),
         )
 
 
@@ -25680,27 +27786,29 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[SubscriptionRequest]) -> list[Subscription]:
+    async def bulk_update(self, body: list[BulkSubscriptionRequest]) -> list[Subscription]:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[SubscriptionRequest],
+            body_model=list[BulkSubscriptionRequest],
             body=body,
             response_model=list[Subscription],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[SubscriptionRequest]) -> list[Subscription]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkSubscriptionRequest]
+    ) -> list[Subscription]:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[SubscriptionRequest],
+            body_model=list[PatchedBulkSubscriptionRequest],
             body=body,
             response_model=list[Subscription],
             return_none_on_404=False,
@@ -25719,13 +27827,15 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Subscription | None:
+    async def get(
+        self, id: int | str, query: ExtrasSubscriptionsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Subscription | None:
         path = f"/api/extras/subscriptions/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSubscriptionsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Subscription,
@@ -25806,27 +27916,29 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TableConfigRequest]) -> list[TableConfig]:
+    async def bulk_update(self, body: list[BulkTableConfigRequest]) -> list[TableConfig]:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TableConfigRequest],
+            body_model=list[BulkTableConfigRequest],
             body=body,
             response_model=list[TableConfig],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TableConfigRequest]) -> list[TableConfig]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkTableConfigRequest]
+    ) -> list[TableConfig]:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TableConfigRequest],
+            body_model=list[PatchedBulkTableConfigRequest],
             body=body,
             response_model=list[TableConfig],
             return_none_on_404=False,
@@ -25845,13 +27957,15 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> TableConfig | None:
+    async def get(
+        self, id: int | str, query: ExtrasTableConfigsDetailGetQuery | dict[str, Any] | None = None
+    ) -> TableConfig | None:
         path = f"/api/extras/table-configs/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTableConfigsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=TableConfig,
@@ -25919,13 +28033,15 @@ class ExtrasTaggedObjectsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> TaggedItem | None:
+    async def get(
+        self, id: int | str, query: ExtrasTaggedObjectsDetailGetQuery | dict[str, Any] | None = None
+    ) -> TaggedItem | None:
         path = f"/api/extras/tagged-objects/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTaggedObjectsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=TaggedItem,
@@ -25967,27 +28083,27 @@ class ExtrasTagsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TagRequest]) -> list[Tag]:
+    async def bulk_update(self, body: list[BulkTagRequest]) -> list[Tag]:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TagRequest],
+            body_model=list[BulkTagRequest],
             body=body,
             response_model=list[Tag],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TagRequest]) -> list[Tag]:
+    async def bulk_partial_update(self, body: list[PatchedBulkTagRequest]) -> list[Tag]:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TagRequest],
+            body_model=list[PatchedBulkTagRequest],
             body=body,
             response_model=list[Tag],
             return_none_on_404=False,
@@ -26006,13 +28122,15 @@ class ExtrasTagsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Tag | None:
+    async def get(
+        self, id: int | str, query: ExtrasTagsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Tag | None:
         path = f"/api/extras/tags/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTagsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Tag,
@@ -26093,27 +28211,27 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[WebhookRequest]) -> list[Webhook]:
+    async def bulk_update(self, body: list[BulkWebhookRequest]) -> list[Webhook]:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[WebhookRequest],
+            body_model=list[BulkWebhookRequest],
             body=body,
             response_model=list[Webhook],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[WebhookRequest]) -> list[Webhook]:
+    async def bulk_partial_update(self, body: list[PatchedBulkWebhookRequest]) -> list[Webhook]:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[WebhookRequest],
+            body_model=list[PatchedBulkWebhookRequest],
             body=body,
             response_model=list[Webhook],
             return_none_on_404=False,
@@ -26132,13 +28250,15 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Webhook | None:
+    async def get(
+        self, id: int | str, query: ExtrasWebhooksDetailGetQuery | dict[str, Any] | None = None
+    ) -> Webhook | None:
         path = f"/api/extras/webhooks/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasWebhooksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Webhook,
@@ -26221,27 +28341,27 @@ class IpamAggregatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[AggregateRequest]) -> list[Aggregate]:
+    async def bulk_update(self, body: list[BulkAggregateRequest]) -> list[Aggregate]:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[AggregateRequest],
+            body_model=list[BulkAggregateRequest],
             body=body,
             response_model=list[Aggregate],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[AggregateRequest]) -> list[Aggregate]:
+    async def bulk_partial_update(self, body: list[PatchedBulkAggregateRequest]) -> list[Aggregate]:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[AggregateRequest],
+            body_model=list[PatchedBulkAggregateRequest],
             body=body,
             response_model=list[Aggregate],
             return_none_on_404=False,
@@ -26260,13 +28380,15 @@ class IpamAggregatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Aggregate | None:
+    async def get(
+        self, id: int | str, query: IpamAggregatesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Aggregate | None:
         path = f"/api/ipam/aggregates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAggregatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Aggregate,
@@ -26353,27 +28475,27 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ASNRangeRequest]) -> list[ASNRange]:
+    async def bulk_update(self, body: list[BulkASNRangeRequest]) -> list[ASNRange]:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ASNRangeRequest],
+            body_model=list[BulkASNRangeRequest],
             body=body,
             response_model=list[ASNRange],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ASNRangeRequest]) -> list[ASNRange]:
+    async def bulk_partial_update(self, body: list[PatchedBulkASNRangeRequest]) -> list[ASNRange]:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ASNRangeRequest],
+            body_model=list[PatchedBulkASNRangeRequest],
             body=body,
             response_model=list[ASNRange],
             return_none_on_404=False,
@@ -26392,13 +28514,15 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ASNRange | None:
+    async def get(
+        self, id: int | str, query: IpamAsnRangesDetailGetQuery | dict[str, Any] | None = None
+    ) -> ASNRange | None:
         path = f"/api/ipam/asn-ranges/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnRangesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ASNRange,
@@ -26451,13 +28575,17 @@ class IpamAsnRangesAvailableAsns(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> list[AvailableASN]:
+    async def list(
+        self,
+        id: int | str,
+        query: IpamAsnRangesAvailableAsnsGetQuery | dict[str, Any] | None = None,
+    ) -> list[AvailableASN]:
         path = f"/api/ipam/asn-ranges/{id}/available-asns/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnRangesAvailableAsnsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=list[AvailableASN],
@@ -26512,27 +28640,27 @@ class IpamAsnsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ASNRequest]) -> list[ASN]:
+    async def bulk_update(self, body: list[BulkASNRequest]) -> list[ASN]:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ASNRequest],
+            body_model=list[BulkASNRequest],
             body=body,
             response_model=list[ASN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ASNRequest]) -> list[ASN]:
+    async def bulk_partial_update(self, body: list[PatchedBulkASNRequest]) -> list[ASN]:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ASNRequest],
+            body_model=list[PatchedBulkASNRequest],
             body=body,
             response_model=list[ASN],
             return_none_on_404=False,
@@ -26551,13 +28679,15 @@ class IpamAsnsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ASN | None:
+    async def get(
+        self, id: int | str, query: IpamAsnsDetailGetQuery | dict[str, Any] | None = None
+    ) -> ASN | None:
         path = f"/api/ipam/asns/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ASN,
@@ -26641,7 +28771,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[FHRPGroupAssignmentRequest]
+        self, body: list[BulkFHRPGroupAssignmentRequest]
     ) -> list[FHRPGroupAssignment]:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
@@ -26649,14 +28779,14 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[FHRPGroupAssignmentRequest],
+            body_model=list[BulkFHRPGroupAssignmentRequest],
             body=body,
             response_model=list[FHRPGroupAssignment],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[FHRPGroupAssignmentRequest]
+        self, body: list[PatchedBulkFHRPGroupAssignmentRequest]
     ) -> list[FHRPGroupAssignment]:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
@@ -26664,7 +28794,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[FHRPGroupAssignmentRequest],
+            body_model=list[PatchedBulkFHRPGroupAssignmentRequest],
             body=body,
             response_model=list[FHRPGroupAssignment],
             return_none_on_404=False,
@@ -26683,13 +28813,17 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> FHRPGroupAssignment | None:
+    async def get(
+        self,
+        id: int | str,
+        query: IpamFhrpGroupAssignmentsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> FHRPGroupAssignment | None:
         path = f"/api/ipam/fhrp-group-assignments/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupAssignmentsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=FHRPGroupAssignment,
@@ -26772,27 +28906,27 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[FHRPGroupRequest]) -> list[FHRPGroup]:
+    async def bulk_update(self, body: list[BulkFHRPGroupRequest]) -> list[FHRPGroup]:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[FHRPGroupRequest],
+            body_model=list[BulkFHRPGroupRequest],
             body=body,
             response_model=list[FHRPGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[FHRPGroupRequest]) -> list[FHRPGroup]:
+    async def bulk_partial_update(self, body: list[PatchedBulkFHRPGroupRequest]) -> list[FHRPGroup]:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[FHRPGroupRequest],
+            body_model=list[PatchedBulkFHRPGroupRequest],
             body=body,
             response_model=list[FHRPGroup],
             return_none_on_404=False,
@@ -26811,13 +28945,15 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> FHRPGroup | None:
+    async def get(
+        self, id: int | str, query: IpamFhrpGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> FHRPGroup | None:
         path = f"/api/ipam/fhrp-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=FHRPGroup,
@@ -26900,27 +29036,27 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IPAddressRequest]) -> list[IPAddress]:
+    async def bulk_update(self, body: list[BulkIPAddressRequest]) -> list[IPAddress]:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPAddressRequest],
+            body_model=list[BulkIPAddressRequest],
             body=body,
             response_model=list[IPAddress],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IPAddressRequest]) -> list[IPAddress]:
+    async def bulk_partial_update(self, body: list[PatchedBulkIPAddressRequest]) -> list[IPAddress]:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPAddressRequest],
+            body_model=list[PatchedBulkIPAddressRequest],
             body=body,
             response_model=list[IPAddress],
             return_none_on_404=False,
@@ -26939,13 +29075,15 @@ class IpamIpAddressesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IPAddress | None:
+    async def get(
+        self, id: int | str, query: IpamIpAddressesDetailGetQuery | dict[str, Any] | None = None
+    ) -> IPAddress | None:
         path = f"/api/ipam/ip-addresses/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpAddressesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IPAddress,
@@ -27032,27 +29170,27 @@ class IpamIpRangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IPRangeRequest]) -> list[IPRange]:
+    async def bulk_update(self, body: list[BulkIPRangeRequest]) -> list[IPRange]:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPRangeRequest],
+            body_model=list[BulkIPRangeRequest],
             body=body,
             response_model=list[IPRange],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IPRangeRequest]) -> list[IPRange]:
+    async def bulk_partial_update(self, body: list[PatchedBulkIPRangeRequest]) -> list[IPRange]:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPRangeRequest],
+            body_model=list[PatchedBulkIPRangeRequest],
             body=body,
             response_model=list[IPRange],
             return_none_on_404=False,
@@ -27071,13 +29209,15 @@ class IpamIpRangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IPRange | None:
+    async def get(
+        self, id: int | str, query: IpamIpRangesDetailGetQuery | dict[str, Any] | None = None
+    ) -> IPRange | None:
         path = f"/api/ipam/ip-ranges/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpRangesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IPRange,
@@ -27130,13 +29270,15 @@ class IpamIpRangesAvailableIps(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> list[AvailableIP]:
+    async def list(
+        self, id: int | str, query: IpamIpRangesAvailableIpsGetQuery | dict[str, Any] | None = None
+    ) -> list[AvailableIP]:
         path = f"/api/ipam/ip-ranges/{id}/available-ips/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpRangesAvailableIpsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=list[AvailableIP],
@@ -27199,27 +29341,27 @@ class IpamPrefixesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[PrefixRequest]) -> list[Prefix]:
+    async def bulk_update(self, body: list[BulkPrefixRequest]) -> list[Prefix]:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[PrefixRequest],
+            body_model=list[BulkPrefixRequest],
             body=body,
             response_model=list[Prefix],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PrefixRequest]) -> list[Prefix]:
+    async def bulk_partial_update(self, body: list[PatchedBulkPrefixRequest]) -> list[Prefix]:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[PrefixRequest],
+            body_model=list[PatchedBulkPrefixRequest],
             body=body,
             response_model=list[Prefix],
             return_none_on_404=False,
@@ -27238,13 +29380,15 @@ class IpamPrefixesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Prefix | None:
+    async def get(
+        self, id: int | str, query: IpamPrefixesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Prefix | None:
         path = f"/api/ipam/prefixes/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Prefix,
@@ -27297,13 +29441,15 @@ class IpamPrefixesAvailableIps(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> list[AvailableIP]:
+    async def list(
+        self, id: int | str, query: IpamPrefixesAvailableIpsGetQuery | dict[str, Any] | None = None
+    ) -> list[AvailableIP]:
         path = f"/api/ipam/prefixes/{id}/available-ips/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesAvailableIpsGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=list[AvailableIP],
@@ -27330,13 +29476,17 @@ class IpamPrefixesAvailablePrefixes(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> list[AvailablePrefix]:
+    async def list(
+        self,
+        id: int | str,
+        query: IpamPrefixesAvailablePrefixesGetQuery | dict[str, Any] | None = None,
+    ) -> list[AvailablePrefix]:
         path = f"/api/ipam/prefixes/{id}/available-prefixes/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesAvailablePrefixesGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=list[AvailablePrefix],
@@ -27391,27 +29541,27 @@ class IpamRirsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RIRRequest]) -> list[RIR]:
+    async def bulk_update(self, body: list[BulkRIRRequest]) -> list[RIR]:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RIRRequest],
+            body_model=list[BulkRIRRequest],
             body=body,
             response_model=list[RIR],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RIRRequest]) -> list[RIR]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRIRRequest]) -> list[RIR]:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RIRRequest],
+            body_model=list[PatchedBulkRIRRequest],
             body=body,
             response_model=list[RIR],
             return_none_on_404=False,
@@ -27430,13 +29580,15 @@ class IpamRirsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RIR | None:
+    async def get(
+        self, id: int | str, query: IpamRirsDetailGetQuery | dict[str, Any] | None = None
+    ) -> RIR | None:
         path = f"/api/ipam/rirs/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRirsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RIR,
@@ -27517,27 +29669,27 @@ class IpamRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RoleRequest]) -> list[Role]:
+    async def bulk_update(self, body: list[BulkRoleRequest]) -> list[Role]:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RoleRequest],
+            body_model=list[BulkRoleRequest],
             body=body,
             response_model=list[Role],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RoleRequest]) -> list[Role]:
+    async def bulk_partial_update(self, body: list[PatchedBulkRoleRequest]) -> list[Role]:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RoleRequest],
+            body_model=list[PatchedBulkRoleRequest],
             body=body,
             response_model=list[Role],
             return_none_on_404=False,
@@ -27556,13 +29708,15 @@ class IpamRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Role | None:
+    async def get(
+        self, id: int | str, query: IpamRolesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Role | None:
         path = f"/api/ipam/roles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRolesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Role,
@@ -27643,27 +29797,29 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[RouteTargetRequest]) -> list[RouteTarget]:
+    async def bulk_update(self, body: list[BulkRouteTargetRequest]) -> list[RouteTarget]:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[RouteTargetRequest],
+            body_model=list[BulkRouteTargetRequest],
             body=body,
             response_model=list[RouteTarget],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[RouteTargetRequest]) -> list[RouteTarget]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkRouteTargetRequest]
+    ) -> list[RouteTarget]:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[RouteTargetRequest],
+            body_model=list[PatchedBulkRouteTargetRequest],
             body=body,
             response_model=list[RouteTarget],
             return_none_on_404=False,
@@ -27682,13 +29838,15 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> RouteTarget | None:
+    async def get(
+        self, id: int | str, query: IpamRouteTargetsDetailGetQuery | dict[str, Any] | None = None
+    ) -> RouteTarget | None:
         path = f"/api/ipam/route-targets/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRouteTargetsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=RouteTarget,
@@ -27771,21 +29929,21 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ServiceTemplateRequest]) -> list[ServiceTemplate]:
+    async def bulk_update(self, body: list[BulkServiceTemplateRequest]) -> list[ServiceTemplate]:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ServiceTemplateRequest],
+            body_model=list[BulkServiceTemplateRequest],
             body=body,
             response_model=list[ServiceTemplate],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ServiceTemplateRequest]
+        self, body: list[PatchedBulkServiceTemplateRequest]
     ) -> list[ServiceTemplate]:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
@@ -27793,7 +29951,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ServiceTemplateRequest],
+            body_model=list[PatchedBulkServiceTemplateRequest],
             body=body,
             response_model=list[ServiceTemplate],
             return_none_on_404=False,
@@ -27812,13 +29970,17 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ServiceTemplate | None:
+    async def get(
+        self,
+        id: int | str,
+        query: IpamServiceTemplatesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ServiceTemplate | None:
         path = f"/api/ipam/service-templates/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServiceTemplatesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ServiceTemplate,
@@ -27901,27 +30063,27 @@ class IpamServicesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ServiceRequest]) -> list[Service]:
+    async def bulk_update(self, body: list[BulkServiceRequest]) -> list[Service]:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ServiceRequest],
+            body_model=list[BulkServiceRequest],
             body=body,
             response_model=list[Service],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ServiceRequest]) -> list[Service]:
+    async def bulk_partial_update(self, body: list[PatchedBulkServiceRequest]) -> list[Service]:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ServiceRequest],
+            body_model=list[PatchedBulkServiceRequest],
             body=body,
             response_model=list[Service],
             return_none_on_404=False,
@@ -27940,13 +30102,15 @@ class IpamServicesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Service | None:
+    async def get(
+        self, id: int | str, query: IpamServicesDetailGetQuery | dict[str, Any] | None = None
+    ) -> Service | None:
         path = f"/api/ipam/services/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServicesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Service,
@@ -28031,27 +30195,27 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VLANGroupRequest]) -> list[VLANGroup]:
+    async def bulk_update(self, body: list[BulkVLANGroupRequest]) -> list[VLANGroup]:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANGroupRequest],
+            body_model=list[BulkVLANGroupRequest],
             body=body,
             response_model=list[VLANGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VLANGroupRequest]) -> list[VLANGroup]:
+    async def bulk_partial_update(self, body: list[PatchedBulkVLANGroupRequest]) -> list[VLANGroup]:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANGroupRequest],
+            body_model=list[PatchedBulkVLANGroupRequest],
             body=body,
             response_model=list[VLANGroup],
             return_none_on_404=False,
@@ -28070,13 +30234,15 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VLANGroup | None:
+    async def get(
+        self, id: int | str, query: IpamVlanGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> VLANGroup | None:
         path = f"/api/ipam/vlan-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VLANGroup,
@@ -28129,13 +30295,17 @@ class IpamVlanGroupsAvailableVlans(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self, id: int | str) -> list[AvailableVLAN]:
+    async def list(
+        self,
+        id: int | str,
+        query: IpamVlanGroupsAvailableVlansGetQuery | dict[str, Any] | None = None,
+    ) -> list[AvailableVLAN]:
         path = f"/api/ipam/vlan-groups/{id}/available-vlans/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanGroupsAvailableVlansGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=list[AvailableVLAN],
@@ -28193,7 +30363,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[VLANTranslationPolicyRequest]
+        self, body: list[BulkVLANTranslationPolicyRequest]
     ) -> list[VLANTranslationPolicy]:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
@@ -28201,14 +30371,14 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANTranslationPolicyRequest],
+            body_model=list[BulkVLANTranslationPolicyRequest],
             body=body,
             response_model=list[VLANTranslationPolicy],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VLANTranslationPolicyRequest]
+        self, body: list[PatchedBulkVLANTranslationPolicyRequest]
     ) -> list[VLANTranslationPolicy]:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
@@ -28216,7 +30386,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANTranslationPolicyRequest],
+            body_model=list[PatchedBulkVLANTranslationPolicyRequest],
             body=body,
             response_model=list[VLANTranslationPolicy],
             return_none_on_404=False,
@@ -28235,13 +30405,17 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VLANTranslationPolicy | None:
+    async def get(
+        self,
+        id: int | str,
+        query: IpamVlanTranslationPoliciesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VLANTranslationPolicy | None:
         path = f"/api/ipam/vlan-translation-policies/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationPoliciesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VLANTranslationPolicy,
@@ -28329,7 +30503,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[VLANTranslationRuleRequest]
+        self, body: list[BulkVLANTranslationRuleRequest]
     ) -> list[VLANTranslationRule]:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
@@ -28337,14 +30511,14 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANTranslationRuleRequest],
+            body_model=list[BulkVLANTranslationRuleRequest],
             body=body,
             response_model=list[VLANTranslationRule],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VLANTranslationRuleRequest]
+        self, body: list[PatchedBulkVLANTranslationRuleRequest]
     ) -> list[VLANTranslationRule]:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
@@ -28352,7 +30526,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANTranslationRuleRequest],
+            body_model=list[PatchedBulkVLANTranslationRuleRequest],
             body=body,
             response_model=list[VLANTranslationRule],
             return_none_on_404=False,
@@ -28371,13 +30545,17 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VLANTranslationRule | None:
+    async def get(
+        self,
+        id: int | str,
+        query: IpamVlanTranslationRulesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VLANTranslationRule | None:
         path = f"/api/ipam/vlan-translation-rules/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationRulesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VLANTranslationRule,
@@ -28460,27 +30638,27 @@ class IpamVlansEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VLANRequest]) -> list[VLAN]:
+    async def bulk_update(self, body: list[BulkVLANRequest]) -> list[VLAN]:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANRequest],
+            body_model=list[BulkVLANRequest],
             body=body,
             response_model=list[VLAN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VLANRequest]) -> list[VLAN]:
+    async def bulk_partial_update(self, body: list[PatchedBulkVLANRequest]) -> list[VLAN]:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VLANRequest],
+            body_model=list[PatchedBulkVLANRequest],
             body=body,
             response_model=list[VLAN],
             return_none_on_404=False,
@@ -28499,13 +30677,15 @@ class IpamVlansEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VLAN | None:
+    async def get(
+        self, id: int | str, query: IpamVlansDetailGetQuery | dict[str, Any] | None = None
+    ) -> VLAN | None:
         path = f"/api/ipam/vlans/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlansDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VLAN,
@@ -28586,27 +30766,27 @@ class IpamVrfsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VRFRequest]) -> list[VRF]:
+    async def bulk_update(self, body: list[BulkVRFRequest]) -> list[VRF]:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VRFRequest],
+            body_model=list[BulkVRFRequest],
             body=body,
             response_model=list[VRF],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VRFRequest]) -> list[VRF]:
+    async def bulk_partial_update(self, body: list[PatchedBulkVRFRequest]) -> list[VRF]:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VRFRequest],
+            body_model=list[PatchedBulkVRFRequest],
             body=body,
             response_model=list[VRF],
             return_none_on_404=False,
@@ -28625,13 +30805,15 @@ class IpamVrfsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VRF | None:
+    async def get(
+        self, id: int | str, query: IpamVrfsDetailGetQuery | dict[str, Any] | None = None
+    ) -> VRF | None:
         path = f"/api/ipam/vrfs/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVrfsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VRF,
@@ -28714,21 +30896,23 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ContactAssignmentRequest]) -> list[ContactAssignment]:
+    async def bulk_update(
+        self, body: list[BulkContactAssignmentRequest]
+    ) -> list[ContactAssignment]:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactAssignmentRequest],
+            body_model=list[BulkContactAssignmentRequest],
             body=body,
             response_model=list[ContactAssignment],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ContactAssignmentRequest]
+        self, body: list[PatchedBulkContactAssignmentRequest]
     ) -> list[ContactAssignment]:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
@@ -28736,7 +30920,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactAssignmentRequest],
+            body_model=list[PatchedBulkContactAssignmentRequest],
             body=body,
             response_model=list[ContactAssignment],
             return_none_on_404=False,
@@ -28755,13 +30939,17 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ContactAssignment | None:
+    async def get(
+        self,
+        id: int | str,
+        query: TenancyContactAssignmentsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ContactAssignment | None:
         path = f"/api/tenancy/contact-assignments/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactAssignmentsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ContactAssignment,
@@ -28848,27 +31036,29 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ContactGroupRequest]) -> list[ContactGroup]:
+    async def bulk_update(self, body: list[BulkContactGroupRequest]) -> list[ContactGroup]:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactGroupRequest],
+            body_model=list[BulkContactGroupRequest],
             body=body,
             response_model=list[ContactGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ContactGroupRequest]) -> list[ContactGroup]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkContactGroupRequest]
+    ) -> list[ContactGroup]:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactGroupRequest],
+            body_model=list[PatchedBulkContactGroupRequest],
             body=body,
             response_model=list[ContactGroup],
             return_none_on_404=False,
@@ -28887,13 +31077,17 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ContactGroup | None:
+    async def get(
+        self,
+        id: int | str,
+        query: TenancyContactGroupsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ContactGroup | None:
         path = f"/api/tenancy/contact-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ContactGroup,
@@ -28976,27 +31170,29 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ContactRoleRequest]) -> list[ContactRole]:
+    async def bulk_update(self, body: list[BulkContactRoleRequest]) -> list[ContactRole]:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactRoleRequest],
+            body_model=list[BulkContactRoleRequest],
             body=body,
             response_model=list[ContactRole],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ContactRoleRequest]) -> list[ContactRole]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkContactRoleRequest]
+    ) -> list[ContactRole]:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactRoleRequest],
+            body_model=list[PatchedBulkContactRoleRequest],
             body=body,
             response_model=list[ContactRole],
             return_none_on_404=False,
@@ -29015,13 +31211,15 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ContactRole | None:
+    async def get(
+        self, id: int | str, query: TenancyContactRolesDetailGetQuery | dict[str, Any] | None = None
+    ) -> ContactRole | None:
         path = f"/api/tenancy/contact-roles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactRolesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ContactRole,
@@ -29102,27 +31300,27 @@ class TenancyContactsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ContactRequest]) -> list[Contact]:
+    async def bulk_update(self, body: list[BulkContactRequest]) -> list[Contact]:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactRequest],
+            body_model=list[BulkContactRequest],
             body=body,
             response_model=list[Contact],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ContactRequest]) -> list[Contact]:
+    async def bulk_partial_update(self, body: list[PatchedBulkContactRequest]) -> list[Contact]:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ContactRequest],
+            body_model=list[PatchedBulkContactRequest],
             body=body,
             response_model=list[Contact],
             return_none_on_404=False,
@@ -29141,13 +31339,15 @@ class TenancyContactsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Contact | None:
+    async def get(
+        self, id: int | str, query: TenancyContactsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Contact | None:
         path = f"/api/tenancy/contacts/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Contact,
@@ -29230,27 +31430,29 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TenantGroupRequest]) -> list[TenantGroup]:
+    async def bulk_update(self, body: list[BulkTenantGroupRequest]) -> list[TenantGroup]:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TenantGroupRequest],
+            body_model=list[BulkTenantGroupRequest],
             body=body,
             response_model=list[TenantGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TenantGroupRequest]) -> list[TenantGroup]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkTenantGroupRequest]
+    ) -> list[TenantGroup]:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TenantGroupRequest],
+            body_model=list[PatchedBulkTenantGroupRequest],
             body=body,
             response_model=list[TenantGroup],
             return_none_on_404=False,
@@ -29269,13 +31471,15 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> TenantGroup | None:
+    async def get(
+        self, id: int | str, query: TenancyTenantGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> TenantGroup | None:
         path = f"/api/tenancy/tenant-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=TenantGroup,
@@ -29358,27 +31562,27 @@ class TenancyTenantsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TenantRequest]) -> list[Tenant]:
+    async def bulk_update(self, body: list[BulkTenantRequest]) -> list[Tenant]:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TenantRequest],
+            body_model=list[BulkTenantRequest],
             body=body,
             response_model=list[Tenant],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TenantRequest]) -> list[Tenant]:
+    async def bulk_partial_update(self, body: list[PatchedBulkTenantRequest]) -> list[Tenant]:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TenantRequest],
+            body_model=list[PatchedBulkTenantRequest],
             body=body,
             response_model=list[Tenant],
             return_none_on_404=False,
@@ -29397,13 +31601,15 @@ class TenancyTenantsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Tenant | None:
+    async def get(
+        self, id: int | str, query: TenancyTenantsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Tenant | None:
         path = f"/api/tenancy/tenants/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Tenant,
@@ -29456,13 +31662,15 @@ class UsersConfigEndpoint(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def list(self) -> dict[str, Any]:
+    async def list(
+        self, query: UsersConfigRootGetQuery | dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         path = "/api/users/config/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersConfigRootGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=dict[str, Any],
@@ -29504,27 +31712,27 @@ class UsersGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[GroupRequest]) -> list[Group]:
+    async def bulk_update(self, body: list[BulkGroupRequest]) -> list[Group]:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[GroupRequest],
+            body_model=list[BulkGroupRequest],
             body=body,
             response_model=list[Group],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[GroupRequest]) -> list[Group]:
+    async def bulk_partial_update(self, body: list[PatchedBulkGroupRequest]) -> list[Group]:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[GroupRequest],
+            body_model=list[PatchedBulkGroupRequest],
             body=body,
             response_model=list[Group],
             return_none_on_404=False,
@@ -29543,13 +31751,15 @@ class UsersGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Group | None:
+    async def get(
+        self, id: int | str, query: UsersGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Group | None:
         path = f"/api/users/groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Group,
@@ -29630,27 +31840,29 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[OwnerGroupRequest]) -> list[OwnerGroup]:
+    async def bulk_update(self, body: list[BulkOwnerGroupRequest]) -> list[OwnerGroup]:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[OwnerGroupRequest],
+            body_model=list[BulkOwnerGroupRequest],
             body=body,
             response_model=list[OwnerGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[OwnerGroupRequest]) -> list[OwnerGroup]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkOwnerGroupRequest]
+    ) -> list[OwnerGroup]:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[OwnerGroupRequest],
+            body_model=list[PatchedBulkOwnerGroupRequest],
             body=body,
             response_model=list[OwnerGroup],
             return_none_on_404=False,
@@ -29669,13 +31881,15 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> OwnerGroup | None:
+    async def get(
+        self, id: int | str, query: UsersOwnerGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> OwnerGroup | None:
         path = f"/api/users/owner-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnerGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=OwnerGroup,
@@ -29756,27 +31970,27 @@ class UsersOwnersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[OwnerRequest]) -> list[Owner]:
+    async def bulk_update(self, body: list[BulkOwnerRequest]) -> list[Owner]:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[OwnerRequest],
+            body_model=list[BulkOwnerRequest],
             body=body,
             response_model=list[Owner],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[OwnerRequest]) -> list[Owner]:
+    async def bulk_partial_update(self, body: list[PatchedBulkOwnerRequest]) -> list[Owner]:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[OwnerRequest],
+            body_model=list[PatchedBulkOwnerRequest],
             body=body,
             response_model=list[Owner],
             return_none_on_404=False,
@@ -29795,13 +32009,15 @@ class UsersOwnersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Owner | None:
+    async def get(
+        self, id: int | str, query: UsersOwnersDetailGetQuery | dict[str, Any] | None = None
+    ) -> Owner | None:
         path = f"/api/users/owners/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Owner,
@@ -29884,21 +32100,21 @@ class UsersPermissionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ObjectPermissionRequest]) -> list[ObjectPermission]:
+    async def bulk_update(self, body: list[BulkObjectPermissionRequest]) -> list[ObjectPermission]:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ObjectPermissionRequest],
+            body_model=list[BulkObjectPermissionRequest],
             body=body,
             response_model=list[ObjectPermission],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[ObjectPermissionRequest]
+        self, body: list[PatchedBulkObjectPermissionRequest]
     ) -> list[ObjectPermission]:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
@@ -29906,7 +32122,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[ObjectPermissionRequest],
+            body_model=list[PatchedBulkObjectPermissionRequest],
             body=body,
             response_model=list[ObjectPermission],
             return_none_on_404=False,
@@ -29925,13 +32141,15 @@ class UsersPermissionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ObjectPermission | None:
+    async def get(
+        self, id: int | str, query: UsersPermissionsDetailGetQuery | dict[str, Any] | None = None
+    ) -> ObjectPermission | None:
         path = f"/api/users/permissions/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersPermissionsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ObjectPermission,
@@ -30018,27 +32236,27 @@ class UsersTokensEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TokenRequest]) -> list[Token]:
+    async def bulk_update(self, body: list[BulkTokenRequest]) -> list[Token]:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TokenRequest],
+            body_model=list[BulkTokenRequest],
             body=body,
             response_model=list[Token],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TokenRequest]) -> list[Token]:
+    async def bulk_partial_update(self, body: list[PatchedBulkTokenRequest]) -> list[Token]:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TokenRequest],
+            body_model=list[PatchedBulkTokenRequest],
             body=body,
             response_model=list[Token],
             return_none_on_404=False,
@@ -30057,13 +32275,15 @@ class UsersTokensEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Token | None:
+    async def get(
+        self, id: int | str, query: UsersTokensDetailGetQuery | dict[str, Any] | None = None
+    ) -> Token | None:
         path = f"/api/users/tokens/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersTokensDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Token,
@@ -30164,27 +32384,27 @@ class UsersUsersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[UserRequest]) -> list[User]:
+    async def bulk_update(self, body: list[BulkUserRequest]) -> list[User]:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[UserRequest],
+            body_model=list[BulkUserRequest],
             body=body,
             response_model=list[User],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[UserRequest]) -> list[User]:
+    async def bulk_partial_update(self, body: list[PatchedBulkUserRequest]) -> list[User]:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[UserRequest],
+            body_model=list[PatchedBulkUserRequest],
             body=body,
             response_model=list[User],
             return_none_on_404=False,
@@ -30203,13 +32423,15 @@ class UsersUsersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> User | None:
+    async def get(
+        self, id: int | str, query: UsersUsersDetailGetQuery | dict[str, Any] | None = None
+    ) -> User | None:
         path = f"/api/users/users/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersUsersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=User,
@@ -30290,27 +32512,29 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ClusterGroupRequest]) -> list[ClusterGroup]:
+    async def bulk_update(self, body: list[BulkClusterGroupRequest]) -> list[ClusterGroup]:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ClusterGroupRequest],
+            body_model=list[BulkClusterGroupRequest],
             body=body,
             response_model=list[ClusterGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ClusterGroupRequest]) -> list[ClusterGroup]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkClusterGroupRequest]
+    ) -> list[ClusterGroup]:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ClusterGroupRequest],
+            body_model=list[PatchedBulkClusterGroupRequest],
             body=body,
             response_model=list[ClusterGroup],
             return_none_on_404=False,
@@ -30329,13 +32553,17 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ClusterGroup | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationClusterGroupsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ClusterGroup | None:
         path = f"/api/virtualization/cluster-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ClusterGroup,
@@ -30416,27 +32644,29 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ClusterTypeRequest]) -> list[ClusterType]:
+    async def bulk_update(self, body: list[BulkClusterTypeRequest]) -> list[ClusterType]:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ClusterTypeRequest],
+            body_model=list[BulkClusterTypeRequest],
             body=body,
             response_model=list[ClusterType],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ClusterTypeRequest]) -> list[ClusterType]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkClusterTypeRequest]
+    ) -> list[ClusterType]:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ClusterTypeRequest],
+            body_model=list[PatchedBulkClusterTypeRequest],
             body=body,
             response_model=list[ClusterType],
             return_none_on_404=False,
@@ -30455,13 +32685,17 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> ClusterType | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationClusterTypesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> ClusterType | None:
         path = f"/api/virtualization/cluster-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=ClusterType,
@@ -30542,27 +32776,27 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[ClusterRequest]) -> list[Cluster]:
+    async def bulk_update(self, body: list[BulkClusterRequest]) -> list[Cluster]:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[ClusterRequest],
+            body_model=list[BulkClusterRequest],
             body=body,
             response_model=list[Cluster],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[ClusterRequest]) -> list[Cluster]:
+    async def bulk_partial_update(self, body: list[PatchedBulkClusterRequest]) -> list[Cluster]:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[ClusterRequest],
+            body_model=list[PatchedBulkClusterRequest],
             body=body,
             response_model=list[Cluster],
             return_none_on_404=False,
@@ -30581,13 +32815,17 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Cluster | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationClustersDetailGetQuery | dict[str, Any] | None = None,
+    ) -> Cluster | None:
         path = f"/api/virtualization/clusters/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClustersDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Cluster,
@@ -30670,27 +32908,29 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VMInterfaceRequest]) -> list[VMInterface]:
+    async def bulk_update(self, body: list[BulkVMInterfaceRequest]) -> list[VMInterface]:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VMInterfaceRequest],
+            body_model=list[BulkVMInterfaceRequest],
             body=body,
             response_model=list[VMInterface],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VMInterfaceRequest]) -> list[VMInterface]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkVMInterfaceRequest]
+    ) -> list[VMInterface]:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VMInterfaceRequest],
+            body_model=list[PatchedBulkVMInterfaceRequest],
             body=body,
             response_model=list[VMInterface],
             return_none_on_404=False,
@@ -30709,13 +32949,17 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VMInterface | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationInterfacesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VMInterface | None:
         path = f"/api/virtualization/interfaces/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationInterfacesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VMInterface,
@@ -30798,27 +33042,29 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VirtualDiskRequest]) -> list[VirtualDisk]:
+    async def bulk_update(self, body: list[BulkVirtualDiskRequest]) -> list[VirtualDisk]:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualDiskRequest],
+            body_model=list[BulkVirtualDiskRequest],
             body=body,
             response_model=list[VirtualDisk],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[VirtualDiskRequest]) -> list[VirtualDisk]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkVirtualDiskRequest]
+    ) -> list[VirtualDisk]:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualDiskRequest],
+            body_model=list[PatchedBulkVirtualDiskRequest],
             body=body,
             response_model=list[VirtualDisk],
             return_none_on_404=False,
@@ -30837,13 +33083,17 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualDisk | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationVirtualDisksDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualDisk | None:
         path = f"/api/virtualization/virtual-disks/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualDisksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualDisk,
@@ -30926,21 +33176,23 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[VirtualMachineTypeRequest]) -> list[VirtualMachineType]:
+    async def bulk_update(
+        self, body: list[BulkVirtualMachineTypeRequest]
+    ) -> list[VirtualMachineType]:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualMachineTypeRequest],
+            body_model=list[BulkVirtualMachineTypeRequest],
             body=body,
             response_model=list[VirtualMachineType],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VirtualMachineTypeRequest]
+        self, body: list[PatchedBulkVirtualMachineTypeRequest]
     ) -> list[VirtualMachineType]:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
@@ -30948,7 +33200,7 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualMachineTypeRequest],
+            body_model=list[PatchedBulkVirtualMachineTypeRequest],
             body=body,
             response_model=list[VirtualMachineType],
             return_none_on_404=False,
@@ -30967,13 +33219,17 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualMachineType | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationVirtualMachineTypesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualMachineType | None:
         path = f"/api/virtualization/virtual-machine-types/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachineTypesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualMachineType,
@@ -31066,7 +33322,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[VirtualMachineWithConfigContextRequest]
+        self, body: list[BulkVirtualMachineWithConfigContextRequest]
     ) -> list[VirtualMachineWithConfigContext]:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
@@ -31074,14 +33330,14 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualMachineWithConfigContextRequest],
+            body_model=list[BulkVirtualMachineWithConfigContextRequest],
             body=body,
             response_model=list[VirtualMachineWithConfigContext],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[VirtualMachineWithConfigContextRequest]
+        self, body: list[PatchedBulkVirtualMachineWithConfigContextRequest]
     ) -> list[VirtualMachineWithConfigContext]:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
@@ -31089,7 +33345,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[VirtualMachineWithConfigContextRequest],
+            body_model=list[PatchedBulkVirtualMachineWithConfigContextRequest],
             body=body,
             response_model=list[VirtualMachineWithConfigContext],
             return_none_on_404=False,
@@ -31108,13 +33364,17 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> VirtualMachineWithConfigContext | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VirtualizationVirtualMachinesDetailGetQuery | dict[str, Any] | None = None,
+    ) -> VirtualMachineWithConfigContext | None:
         path = f"/api/virtualization/virtual-machines/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachinesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=VirtualMachineWithConfigContext,
@@ -31174,18 +33434,18 @@ class VirtualizationVirtualMachinesRenderConfig(TypedAppBase):
     async def create(
         self,
         id: int | str,
-        body: WritableVirtualMachineWithConfigContextRequest,
+        body: RenderConfigInputRequest,
         query: VirtualizationVirtualMachinesRenderConfigPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualMachineWithConfigContext:
+    ) -> RenderedConfig:
         path = f"/api/virtualization/virtual-machines/{id}/render-config/"
         return await self._typed_json_request(
             "POST",
             path,
             query_model=VirtualizationVirtualMachinesRenderConfigPostQuery,
             query=query,
-            body_model=WritableVirtualMachineWithConfigContextRequest,
+            body_model=RenderConfigInputRequest,
             body=body,
-            response_model=VirtualMachineWithConfigContext,
+            response_model=RenderedConfig,
             return_none_on_404=False,
         )
 
@@ -31226,27 +33486,27 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IKEPolicyRequest]) -> list[IKEPolicy]:
+    async def bulk_update(self, body: list[BulkIKEPolicyRequest]) -> list[IKEPolicy]:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IKEPolicyRequest],
+            body_model=list[BulkIKEPolicyRequest],
             body=body,
             response_model=list[IKEPolicy],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IKEPolicyRequest]) -> list[IKEPolicy]:
+    async def bulk_partial_update(self, body: list[PatchedBulkIKEPolicyRequest]) -> list[IKEPolicy]:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IKEPolicyRequest],
+            body_model=list[PatchedBulkIKEPolicyRequest],
             body=body,
             response_model=list[IKEPolicy],
             return_none_on_404=False,
@@ -31265,13 +33525,15 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IKEPolicy | None:
+    async def get(
+        self, id: int | str, query: VpnIkePoliciesDetailGetQuery | dict[str, Any] | None = None
+    ) -> IKEPolicy | None:
         path = f"/api/vpn/ike-policies/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkePoliciesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IKEPolicy,
@@ -31356,27 +33618,29 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IKEProposalRequest]) -> list[IKEProposal]:
+    async def bulk_update(self, body: list[BulkIKEProposalRequest]) -> list[IKEProposal]:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IKEProposalRequest],
+            body_model=list[BulkIKEProposalRequest],
             body=body,
             response_model=list[IKEProposal],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IKEProposalRequest]) -> list[IKEProposal]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkIKEProposalRequest]
+    ) -> list[IKEProposal]:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IKEProposalRequest],
+            body_model=list[PatchedBulkIKEProposalRequest],
             body=body,
             response_model=list[IKEProposal],
             return_none_on_404=False,
@@ -31395,13 +33659,15 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IKEProposal | None:
+    async def get(
+        self, id: int | str, query: VpnIkeProposalsDetailGetQuery | dict[str, Any] | None = None
+    ) -> IKEProposal | None:
         path = f"/api/vpn/ike-proposals/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkeProposalsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IKEProposal,
@@ -31486,27 +33752,29 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IPSecPolicyRequest]) -> list[IPSecPolicy]:
+    async def bulk_update(self, body: list[BulkIPSecPolicyRequest]) -> list[IPSecPolicy]:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPSecPolicyRequest],
+            body_model=list[BulkIPSecPolicyRequest],
             body=body,
             response_model=list[IPSecPolicy],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IPSecPolicyRequest]) -> list[IPSecPolicy]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkIPSecPolicyRequest]
+    ) -> list[IPSecPolicy]:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPSecPolicyRequest],
+            body_model=list[PatchedBulkIPSecPolicyRequest],
             body=body,
             response_model=list[IPSecPolicy],
             return_none_on_404=False,
@@ -31525,13 +33793,15 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IPSecPolicy | None:
+    async def get(
+        self, id: int | str, query: VpnIpsecPoliciesDetailGetQuery | dict[str, Any] | None = None
+    ) -> IPSecPolicy | None:
         path = f"/api/vpn/ipsec-policies/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecPoliciesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IPSecPolicy,
@@ -31616,27 +33886,29 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IPSecProfileRequest]) -> list[IPSecProfile]:
+    async def bulk_update(self, body: list[BulkIPSecProfileRequest]) -> list[IPSecProfile]:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPSecProfileRequest],
+            body_model=list[BulkIPSecProfileRequest],
             body=body,
             response_model=list[IPSecProfile],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IPSecProfileRequest]) -> list[IPSecProfile]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkIPSecProfileRequest]
+    ) -> list[IPSecProfile]:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPSecProfileRequest],
+            body_model=list[PatchedBulkIPSecProfileRequest],
             body=body,
             response_model=list[IPSecProfile],
             return_none_on_404=False,
@@ -31655,13 +33927,15 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IPSecProfile | None:
+    async def get(
+        self, id: int | str, query: VpnIpsecProfilesDetailGetQuery | dict[str, Any] | None = None
+    ) -> IPSecProfile | None:
         path = f"/api/vpn/ipsec-profiles/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProfilesDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IPSecProfile,
@@ -31746,27 +34020,29 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[IPSecProposalRequest]) -> list[IPSecProposal]:
+    async def bulk_update(self, body: list[BulkIPSecProposalRequest]) -> list[IPSecProposal]:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPSecProposalRequest],
+            body_model=list[BulkIPSecProposalRequest],
             body=body,
             response_model=list[IPSecProposal],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[IPSecProposalRequest]) -> list[IPSecProposal]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkIPSecProposalRequest]
+    ) -> list[IPSecProposal]:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[IPSecProposalRequest],
+            body_model=list[PatchedBulkIPSecProposalRequest],
             body=body,
             response_model=list[IPSecProposal],
             return_none_on_404=False,
@@ -31785,13 +34061,15 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> IPSecProposal | None:
+    async def get(
+        self, id: int | str, query: VpnIpsecProposalsDetailGetQuery | dict[str, Any] | None = None
+    ) -> IPSecProposal | None:
         path = f"/api/vpn/ipsec-proposals/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProposalsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=IPSecProposal,
@@ -31876,21 +34154,21 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[L2VPNTerminationRequest]) -> list[L2VPNTermination]:
+    async def bulk_update(self, body: list[BulkL2VPNTerminationRequest]) -> list[L2VPNTermination]:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[L2VPNTerminationRequest],
+            body_model=list[BulkL2VPNTerminationRequest],
             body=body,
             response_model=list[L2VPNTermination],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[L2VPNTerminationRequest]
+        self, body: list[PatchedBulkL2VPNTerminationRequest]
     ) -> list[L2VPNTermination]:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
@@ -31898,7 +34176,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[L2VPNTerminationRequest],
+            body_model=list[PatchedBulkL2VPNTerminationRequest],
             body=body,
             response_model=list[L2VPNTermination],
             return_none_on_404=False,
@@ -31917,13 +34195,17 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> L2VPNTermination | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VpnL2vpnTerminationsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> L2VPNTermination | None:
         path = f"/api/vpn/l2vpn-terminations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnTerminationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=L2VPNTermination,
@@ -32006,27 +34288,27 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[L2VPNRequest]) -> list[L2VPN]:
+    async def bulk_update(self, body: list[BulkL2VPNRequest]) -> list[L2VPN]:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[L2VPNRequest],
+            body_model=list[BulkL2VPNRequest],
             body=body,
             response_model=list[L2VPN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[L2VPNRequest]) -> list[L2VPN]:
+    async def bulk_partial_update(self, body: list[PatchedBulkL2VPNRequest]) -> list[L2VPN]:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[L2VPNRequest],
+            body_model=list[PatchedBulkL2VPNRequest],
             body=body,
             response_model=list[L2VPN],
             return_none_on_404=False,
@@ -32045,13 +34327,15 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> L2VPN | None:
+    async def get(
+        self, id: int | str, query: VpnL2vpnsDetailGetQuery | dict[str, Any] | None = None
+    ) -> L2VPN | None:
         path = f"/api/vpn/l2vpns/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=L2VPN,
@@ -32132,27 +34416,29 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TunnelGroupRequest]) -> list[TunnelGroup]:
+    async def bulk_update(self, body: list[BulkTunnelGroupRequest]) -> list[TunnelGroup]:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TunnelGroupRequest],
+            body_model=list[BulkTunnelGroupRequest],
             body=body,
             response_model=list[TunnelGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TunnelGroupRequest]) -> list[TunnelGroup]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkTunnelGroupRequest]
+    ) -> list[TunnelGroup]:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TunnelGroupRequest],
+            body_model=list[PatchedBulkTunnelGroupRequest],
             body=body,
             response_model=list[TunnelGroup],
             return_none_on_404=False,
@@ -32171,13 +34457,15 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> TunnelGroup | None:
+    async def get(
+        self, id: int | str, query: VpnTunnelGroupsDetailGetQuery | dict[str, Any] | None = None
+    ) -> TunnelGroup | None:
         path = f"/api/vpn/tunnel-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=TunnelGroup,
@@ -32260,21 +34548,23 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TunnelTerminationRequest]) -> list[TunnelTermination]:
+    async def bulk_update(
+        self, body: list[BulkTunnelTerminationRequest]
+    ) -> list[TunnelTermination]:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TunnelTerminationRequest],
+            body_model=list[BulkTunnelTerminationRequest],
             body=body,
             response_model=list[TunnelTermination],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[TunnelTerminationRequest]
+        self, body: list[PatchedBulkTunnelTerminationRequest]
     ) -> list[TunnelTermination]:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
@@ -32282,7 +34572,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[TunnelTerminationRequest],
+            body_model=list[PatchedBulkTunnelTerminationRequest],
             body=body,
             response_model=list[TunnelTermination],
             return_none_on_404=False,
@@ -32301,13 +34591,17 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> TunnelTermination | None:
+    async def get(
+        self,
+        id: int | str,
+        query: VpnTunnelTerminationsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> TunnelTermination | None:
         path = f"/api/vpn/tunnel-terminations/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelTerminationsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=TunnelTermination,
@@ -32392,27 +34686,27 @@ class VpnTunnelsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[TunnelRequest]) -> list[Tunnel]:
+    async def bulk_update(self, body: list[BulkTunnelRequest]) -> list[Tunnel]:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[TunnelRequest],
+            body_model=list[BulkTunnelRequest],
             body=body,
             response_model=list[Tunnel],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[TunnelRequest]) -> list[Tunnel]:
+    async def bulk_partial_update(self, body: list[PatchedBulkTunnelRequest]) -> list[Tunnel]:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[TunnelRequest],
+            body_model=list[PatchedBulkTunnelRequest],
             body=body,
             response_model=list[Tunnel],
             return_none_on_404=False,
@@ -32431,13 +34725,15 @@ class VpnTunnelsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> Tunnel | None:
+    async def get(
+        self, id: int | str, query: VpnTunnelsDetailGetQuery | dict[str, Any] | None = None
+    ) -> Tunnel | None:
         path = f"/api/vpn/tunnels/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=Tunnel,
@@ -32520,21 +34816,21 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[WirelessLANGroupRequest]) -> list[WirelessLANGroup]:
+    async def bulk_update(self, body: list[BulkWirelessLANGroupRequest]) -> list[WirelessLANGroup]:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[WirelessLANGroupRequest],
+            body_model=list[BulkWirelessLANGroupRequest],
             body=body,
             response_model=list[WirelessLANGroup],
             return_none_on_404=False,
         )
 
     async def bulk_partial_update(
-        self, body: list[WirelessLANGroupRequest]
+        self, body: list[PatchedBulkWirelessLANGroupRequest]
     ) -> list[WirelessLANGroup]:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
@@ -32542,7 +34838,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             path,
             query_model=None,
             query=None,
-            body_model=list[WirelessLANGroupRequest],
+            body_model=list[PatchedBulkWirelessLANGroupRequest],
             body=body,
             response_model=list[WirelessLANGroup],
             return_none_on_404=False,
@@ -32561,13 +34857,17 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> WirelessLANGroup | None:
+    async def get(
+        self,
+        id: int | str,
+        query: WirelessWirelessLanGroupsDetailGetQuery | dict[str, Any] | None = None,
+    ) -> WirelessLANGroup | None:
         path = f"/api/wireless/wireless-lan-groups/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLanGroupsDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=WirelessLANGroup,
@@ -32654,27 +34954,29 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[WirelessLANRequest]) -> list[WirelessLAN]:
+    async def bulk_update(self, body: list[BulkWirelessLANRequest]) -> list[WirelessLAN]:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[WirelessLANRequest],
+            body_model=list[BulkWirelessLANRequest],
             body=body,
             response_model=list[WirelessLAN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[WirelessLANRequest]) -> list[WirelessLAN]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkWirelessLANRequest]
+    ) -> list[WirelessLAN]:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[WirelessLANRequest],
+            body_model=list[PatchedBulkWirelessLANRequest],
             body=body,
             response_model=list[WirelessLAN],
             return_none_on_404=False,
@@ -32693,13 +34995,17 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> WirelessLAN | None:
+    async def get(
+        self,
+        id: int | str,
+        query: WirelessWirelessLansDetailGetQuery | dict[str, Any] | None = None,
+    ) -> WirelessLAN | None:
         path = f"/api/wireless/wireless-lans/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLansDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=WirelessLAN,
@@ -32784,27 +35090,29 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[WirelessLinkRequest]) -> list[WirelessLink]:
+    async def bulk_update(self, body: list[BulkWirelessLinkRequest]) -> list[WirelessLink]:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "PUT",
             path,
             query_model=None,
             query=None,
-            body_model=list[WirelessLinkRequest],
+            body_model=list[BulkWirelessLinkRequest],
             body=body,
             response_model=list[WirelessLink],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[WirelessLinkRequest]) -> list[WirelessLink]:
+    async def bulk_partial_update(
+        self, body: list[PatchedBulkWirelessLinkRequest]
+    ) -> list[WirelessLink]:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "PATCH",
             path,
             query_model=None,
             query=None,
-            body_model=list[WirelessLinkRequest],
+            body_model=list[PatchedBulkWirelessLinkRequest],
             body=body,
             response_model=list[WirelessLink],
             return_none_on_404=False,
@@ -32823,13 +35131,17 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def get(self, id: int | str) -> WirelessLink | None:
+    async def get(
+        self,
+        id: int | str,
+        query: WirelessWirelessLinksDetailGetQuery | dict[str, Any] | None = None,
+    ) -> WirelessLink | None:
         path = f"/api/wireless/wireless-links/{id}/"
         return await self._typed_json_request(
             "GET",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLinksDetailGetQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=WirelessLink,
@@ -33521,12 +35833,12 @@ class TypedApiV4_6(TypedApiBase):
         self.dcim = DcimApp(self)
         self.extras = ExtrasApp(self)
         self.ipam = IpamApp(self)
-        self.plugins = PluginsApp(self)
         self.tenancy = TenancyApp(self)
         self.users = UsersApp(self)
         self.virtualization = VirtualizationApp(self)
         self.vpn = VpnApp(self)
         self.wireless = WirelessApp(self)
+        self.plugins = PluginsApp(self)
 
 
 def build_api(url: str, token: str | None = None) -> TypedApiV4_6:
