@@ -1,0 +1,4 @@
+interface:
+  display_name: "NetBox SDK Operations"
+  short_description: "Safely inspect and operate NetBox through the SDK"
+  default_prompt: "Use $netbox-sdk-operations to inspect NetBox capabilities, preview any write, execute safely, and verify the result."
