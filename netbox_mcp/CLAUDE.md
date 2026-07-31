@@ -53,3 +53,23 @@ OpenAPI operation.
 - Default transport: stdio
 - Optional transport: `nbx-mcp --transport streamable-http`
 - Ownership test marker: `suite_mcp`
+
+## Streamable HTTP Auth
+
+`nbx-mcp --transport streamable-http` is gated by a shared-secret bearer
+token, since Streamable HTTP is the transport used when the server is
+network-reachable rather than spawned as a local stdio subprocess.
+
+- Set the token via `--auth-token <value>` or `NETBOX_MCP_AUTH_TOKEN`
+  (`--auth-token` wins if both are set).
+- Binding to a non-loopback `--host` (anything other than `127.0.0.1`,
+  `localhost`, or `::1`) without a configured token raises `RuntimeError`
+  and refuses to start — there is no unauthenticated non-loopback mode.
+- Loopback binds may omit the token; every request must still be behind
+  whatever forwards to `127.0.0.1`.
+- Enforcement is a raw ASGI middleware (`netbox_mcp.app.BearerTokenMiddleware`)
+  wrapping `FastMCP.streamable_http_app()`, not Starlette's
+  `BaseHTTPMiddleware`, because `BaseHTTPMiddleware` buffers the full
+  response body and breaks Streamable HTTP's long-lived streaming
+  responses. Callers must send `Authorization: Bearer <token>`; failures
+  return `401`.

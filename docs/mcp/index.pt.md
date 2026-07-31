@@ -19,8 +19,13 @@ stdio é o transporte padrão. Para Streamable HTTP:
 nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-O endpoint MCP é `/mcp`. Use uma interface confiável e aplique autenticação de
-transporte e TLS quando o serviço for exposto além do host local.
+O endpoint MCP é `/mcp`. Vincular a um `--host` que não seja loopback (qualquer
+valor diferente de `127.0.0.1`, `localhost` ou `::1`) exige um token bearer
+compartilhado via `--auth-token` ou `NETBOX_MCP_AUTH_TOKEN`; o servidor levanta
+`RuntimeError` e recusa iniciar sem ele. Vínculos loopback podem omitir o
+token. Aplique terminação TLS na frente do serviço quando ele for exposto além
+do host local — o token bearer autentica quem chama, não criptografa o
+transporte.
 
 ## Ferramentas
 
@@ -42,6 +47,12 @@ No stdio, o servidor lê o perfil padrão existente de `netbox_sdk.config`; não
 há um segundo armazenamento de credenciais. Ferramentas que acessam o NetBox
 também aceitam um token bearer por chamada. Não coloque tokens em logs,
 transcrições visíveis ao modelo ou configurações versionadas.
+
+Esse token do NetBox por chamada é distinto do token bearer do próprio
+transporte Streamable HTTP (`--auth-token`/`NETBOX_MCP_AUTH_TOKEN`, descrito
+acima): o token de transporte autentica *quem chama o MCP* perante *este
+servidor*, enquanto o token por chamada autentica *este servidor* perante o
+*NetBox*.
 
 ## Segurança de mutações
 
