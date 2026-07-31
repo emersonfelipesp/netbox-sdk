@@ -65,7 +65,7 @@ def test_every_job_uses_the_complete_locked_environment() -> None:
     for job in _workflow()["jobs"].values():
         commands = _commands(job)
         assert "uv lock --check" in commands
-        for extra in ("cli", "tui", "demo", "mock"):
+        for extra in ("cli", "tui", "demo", "mock", "mcp"):
             assert f"--extra {extra}" in commands
         assert "--locked" in commands
 
@@ -78,8 +78,8 @@ def test_static_job_preserves_type_format_and_workflow_policy() -> None:
         ".gitea/workflows/*.yml",
         "sha256sum --check --strict",
         "--connect-timeout 10 --max-time 120 --retry 3",
-        "ty check netbox_sdk netbox_cli netbox_tui tests",
-        "pyright netbox_sdk netbox_cli netbox_tui",
+        "ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests",
+        "pyright netbox_sdk netbox_cli netbox_tui netbox_mcp",
         "pre-commit run --all-files",
         "--show-diff-on-failure --color=always",
     ):
@@ -112,6 +112,7 @@ def test_docs_and_package_job_validates_source_and_installed_artifacts() -> None
         "uv pip install --python",
         "import netbox_sdk",
         'joinpath("py.typed").is_file()',
+        "import netbox_mcp",
     ):
         assert command in commands
 

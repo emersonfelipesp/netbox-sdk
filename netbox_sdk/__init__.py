@@ -71,6 +71,12 @@ __all__ = [
     "load_openapi_schema",
     "build_schema_index",
     "fetch_schema_for_client",
+    "serialize_capabilities",
+    "serialize_filter",
+    "serialize_groups",
+    "serialize_operation",
+    "serialize_resource_description",
+    "serialize_resources",
     # services
     "ResolvedRequest",
     "resolve_dynamic_request",
@@ -135,6 +141,14 @@ from netbox_sdk.facade import (
     async_api,
 )
 from netbox_sdk.http_cache import CacheEntry, CachePolicy, HttpCacheStore, build_cache_key
+from netbox_sdk.introspection import (
+    serialize_capabilities,
+    serialize_filter,
+    serialize_groups,
+    serialize_operation,
+    serialize_resource_description,
+    serialize_resources,
+)
 from netbox_sdk.plugin_discovery import (
     DiscoveredResource,
     discover_object_type_resources,

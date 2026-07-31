@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "netbox-sdk"
 version = "0.0.10rc1"
-description = "SDK-first NetBox toolkit with Python SDK, CLI, and Textual TUIs"
+description = "SDK-first NetBox toolkit with Python SDK, CLI, MCP server, and Textual TUIs"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE.txt"]
@@ -48,6 +48,7 @@ tui = ["textual>=8.2.0"]
 # 0.26.0 and dropped its runtime dependency on the standalone package, so
 # ``click`` must be declared explicitly or ``nbx`` breaks with ModuleNotFoundError.
 cli = ["typer>=0.24.1", "click>=8.1.0"]
+mcp = ["mcp>=1.23.0,<2"]
 demo = ["playwright>=1.58.0"]
 mock = [
   "fastapi>=0.115.0",
@@ -74,6 +75,7 @@ all = [
   "opentelemetry-api",
   "opentelemetry-sdk",
   "opentelemetry-exporter-otlp-proto-http",
+  "mcp>=1.23.0,<2",
 ]
 dev = [
   "pre-commit>=4.5.1",
@@ -95,6 +97,7 @@ dev = [
   "opentelemetry-api",
   "opentelemetry-sdk",
   "opentelemetry-exporter-otlp-proto-http",
+  "mcp>=1.23.0,<2",
 ]
 docs = [
   "mkdocs-material>=9.7.6",
@@ -122,6 +125,7 @@ dev = [
   "opentelemetry-api",
   "opentelemetry-sdk",
   "opentelemetry-exporter-otlp-proto-http",
+  "mcp>=1.23.0,<2",
 ]
 docs = [
   "mkdocs-material>=9.7.6",
@@ -131,6 +135,7 @@ docs = [
 [project.scripts]
 nbx = "netbox_cli:main"
 nbx-mock = "netbox_sdk.mock_main:run"
+nbx-mcp = "netbox_mcp:run"
 
 [project.urls]
 Homepage = "https://github.com/emersonfelipesp/netbox-sdk"
@@ -144,12 +149,13 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["netbox_sdk*", "netbox_tui*", "netbox_cli*"]
+include = ["netbox_sdk*", "netbox_tui*", "netbox_cli*", "netbox_mcp*"]
 
 [tool.setuptools.package-data]
 netbox_sdk = ["reference/openapi/*.json", "py.typed"]
 netbox_cli = ["py.typed"]
 netbox_tui = ["*.tcss", "themes/*.json", "py.typed"]
+netbox_mcp = ["py.typed"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -161,6 +167,7 @@ markers = [
   "suite_sdk: tests owned by the standalone netbox_sdk package",
   "suite_cli: tests owned by the optional netbox_cli package",
   "suite_tui: tests owned by the optional netbox_tui package",
+  "suite_mcp: tests owned by the optional netbox_mcp package",
   "live: tests that require a live NetBox instance (skipped when NETBOX_URL is absent)",
   "demo_live: tests that run live against demo.netbox.dev (skipped when NETBOX_DEMO_LIVE=1 is not set)",
 ]
@@ -183,7 +190,7 @@ select = [
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["netbox_sdk", "netbox_tui", "netbox_cli"]
+known-first-party = ["netbox_sdk", "netbox_tui", "netbox_cli", "netbox_mcp"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["ANN"]
@@ -212,7 +219,7 @@ include = ["tests/**"]
 all = "ignore"
 
 [tool.pyright]
-include = ["netbox_sdk", "netbox_cli", "netbox_tui"]
+include = ["netbox_sdk", "netbox_cli", "netbox_tui", "netbox_mcp"]
 exclude = [
   "netbox_sdk/models/**",
   "netbox_sdk/typed_versions/**",

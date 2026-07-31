@@ -15,13 +15,13 @@ repos:
         stages: [pre-commit]
       - id: ty-check
         name: ty-check
-        entry: uv run ty check netbox_sdk netbox_cli netbox_tui tests --output-format concise
+        entry: uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests --output-format concise
         language: system
         pass_filenames: false
         stages: [pre-commit]
       - id: pyright-check
         name: pyright-check
-        entry: uv run pyright netbox_sdk netbox_cli netbox_tui
+        entry: uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
         language: system
         pass_filenames: false
         stages: [pre-commit]
