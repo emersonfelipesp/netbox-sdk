@@ -420,13 +420,17 @@ class NetBoxApiClient:
         scoped = _scoped_headers.get() or {}
         req_headers.update(scoped)
         req_headers.update(headers or {})
+        # A per-call bearer (e.g. MCP's persistent_headers override for a
+        # forwarded caller token) must scope the cache key too, or requests
+        # made under different tokens collide on the same cached response.
+        effective_authorization = req_headers.get("Authorization") or authorization
         if cache_policy is not None and self.config.base_url:
             cache_key = build_cache_key(
                 base_url=self.config.base_url,
                 method=method,
                 path=path,
                 query=query,
-                authorization=authorization,
+                authorization=effective_authorization,
             )
             cache_entry = self._cache.load(cache_key)
             if cache_entry is not None and cache_entry.is_fresh(self._now()):
@@ -447,7 +451,9 @@ class NetBoxApiClient:
             expect_json=expect_json,
         )
         try:
-            response = await self._request_once(session, authorization=authorization, **req_kwargs)
+            response = await self._request_once(
+                session, authorization=effective_authorization, **req_kwargs
+            )
         except Exception:
             logger.exception(
                 "api request failed",

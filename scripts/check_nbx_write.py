@@ -23,6 +23,11 @@ WRITE_ACTIONS = frozenset(
         "bulk-delete",
     }
 )
+# HTTP methods that mutate state when issued through the raw ``nbx call
+# <METHOD> <path>`` escape hatch, which bypasses the named-action grammar
+# WRITE_ACTIONS covers. `nbx call` uppercases the method before dispatch, but
+# accepts any case, so this is matched case-insensitively too.
+WRITE_HTTP_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _SEPARATORS = frozenset({";", "&&", "||", "|", "&", "(", ")"})
 _SHELLS = frozenset({"bash", "dash", "fish", "ksh", "sh", "zsh"})
 _GLOBAL_OPTIONS_WITH_VALUES = frozenset({"--api-version", "--branch", "--netbox-version"})
@@ -90,7 +95,13 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
         name = _command_name(token)
         if name == "nbx":
             positionals = _positionals_after_nbx(tokens, index)
-            if any(action in WRITE_ACTIONS for action in positionals[2:4]):
+            is_dynamic_write = any(action in WRITE_ACTIONS for action in positionals[2:4])
+            is_raw_call_write = (
+                len(positionals) >= 2
+                and positionals[0] == "call"
+                and positionals[1].upper() in WRITE_HTTP_METHODS
+            )
+            if is_dynamic_write or is_raw_call_write:
                 if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
                     return True
         if name in _SHELLS and "-c" in tokens[index + 1 :]:
@@ -116,7 +127,7 @@ def command_has_unconfirmed_write(command: str, *, inherited_confirmation: bool 
         # Bash remains outside this hook's narrow scope.
         words = re.findall(r"[A-Za-z0-9_.\-/]+", command)
         return any(_command_name(word) == "nbx" for word in words) and any(
-            word in WRITE_ACTIONS for word in words
+            word in WRITE_ACTIONS or word.upper() in WRITE_HTTP_METHODS for word in words
         )
 
 

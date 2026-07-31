@@ -3,11 +3,31 @@
 from __future__ import annotations
 
 import argparse
+import os
+from typing import TYPE_CHECKING
 
-from netbox_mcp.app import create_mcp_server
+from netbox_mcp.app import (
+    AUTH_TOKEN_ENV_VAR,
+    build_streamable_http_app,
+    create_mcp_server,
+    is_loopback_host,
+)
 from netbox_mcp.service import MUTATION_ENV_VAR, NetBoxMCPService
 
+if TYPE_CHECKING:
+    from mcp.server.fastmcp import FastMCP
+
 __all__ = ["MUTATION_ENV_VAR", "NetBoxMCPService", "create_mcp_server", "run"]
+
+
+async def _run_streamable_http(
+    server: FastMCP, *, host: str, port: int, auth_token: str | None
+) -> None:
+    import uvicorn
+
+    app = build_streamable_http_app(server, auth_token=auth_token)
+    config = uvicorn.Config(app, host=host, port=port, log_level=server.settings.log_level.lower())
+    await uvicorn.Server(config).serve()
 
 
 def run(argv: list[str] | None = None) -> None:
@@ -22,6 +42,15 @@ def run(argv: list[str] | None = None) -> None:
     parser.add_argument("--host", default="127.0.0.1", help="Streamable HTTP bind host")
     parser.add_argument("--port", type=int, default=8000, help="Streamable HTTP bind port")
     parser.add_argument(
+        "--auth-token",
+        default=None,
+        help=(
+            "Shared-secret bearer token required of every Streamable HTTP caller "
+            f"(equivalent to {AUTH_TOKEN_ENV_VAR}). Required when --host is not "
+            "loopback."
+        ),
+    )
+    parser.add_argument(
         "--allow-mutations",
         action="store_true",
         default=None,
@@ -30,4 +59,20 @@ def run(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
     service = NetBoxMCPService(allow_mutations=args.allow_mutations)
     server = create_mcp_server(service, host=args.host, port=args.port)
-    server.run(transport=args.transport)
+    if args.transport == "streamable-http":
+        import anyio
+
+        auth_token = args.auth_token or os.environ.get(AUTH_TOKEN_ENV_VAR)
+        if not is_loopback_host(args.host) and not auth_token:
+            raise RuntimeError(
+                f"Refusing to bind Streamable HTTP to non-loopback host {args.host!r} "
+                f"without an auth token. Set --auth-token or {AUTH_TOKEN_ENV_VAR}, or "
+                "bind to 127.0.0.1/localhost/::1."
+            )
+        anyio.run(
+            lambda: _run_streamable_http(
+                server, host=args.host, port=args.port, auth_token=auth_token
+            )
+        )
+    else:
+        server.run(transport=args.transport)
