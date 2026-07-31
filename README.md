@@ -7,6 +7,7 @@ one shared runtime:
 
 - `netbox_cli` — Typer command-line interface
 - `netbox_tui` — Textual terminal applications
+- `netbox_mcp` — schema-driven Model Context Protocol server
 - `netbox_sdk` — standalone REST API SDK shared by both
 
 Published package name: `netbox-sdk`. `netbox-console` was a legacy alias published in earlier releases and is no longer shipped from this project.
@@ -23,7 +24,7 @@ release maintainability.
 | Area | Evidence |
 | --- | --- |
 | License | Apache-2.0 in `LICENSE.txt` and `pyproject.toml` package metadata |
-| Package | `netbox-sdk` on PyPI, with `netbox_sdk`, `netbox_cli`, and `netbox_tui` import packages |
+| Package | `netbox-sdk` on PyPI, with `netbox_sdk`, `netbox_cli`, `netbox_tui`, and `netbox_mcp` import packages |
 | Python | Python `3.11`, `3.12`, and `3.13` |
 | NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`; live CI against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10` |
 | Tests | Mock API suite, live NetBox suite, security tests, type checks, package metadata checks, and strict docs builds in GitHub Actions |
@@ -74,6 +75,12 @@ TUI:
 pip install 'netbox-sdk[tui]'
 ```
 
+MCP server:
+
+```bash
+pip install 'netbox-sdk[mcp]'
+```
+
 OpenTelemetry tracing:
 
 ```bash
@@ -103,7 +110,7 @@ Developer checkout:
 ```bash
 git clone https://github.com/emersonfelipesp/netbox-sdk.git
 cd netbox-sdk
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run nbx --help
 ```
 
@@ -161,11 +168,50 @@ nbx cli tui
 nbx logs
 ```
 
+## MCP Server and Agent Safety
+
+Install the `mcp` extra and run the server over stdio (the default):
+
+```bash
+pip install 'netbox-sdk[mcp]'
+nbx-mcp
+```
+
+Streamable HTTP is also available at `/mcp`:
+
+```bash
+nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
+```
+
+The server exposes a narrow schema-driven tool set for introspection, reads,
+mutations, plugin discovery, and guarded raw calls. It reads the existing
+`netbox_sdk.config` profile for stdio credentials and accepts an optional
+per-call bearer token. Live mutations are denied by default; enable them only
+for a reviewed execution window with `NETBOX_MCP_ALLOW_MUTATIONS=1` or
+`--allow-mutations`. A mutation `dry_run=true` only resolves the local request
+and does not validate it against NetBox.
+
+Agents can inspect the same JSON capability contract through the CLI:
+
+```bash
+nbx groups --json
+nbx resources dcim --json
+nbx ops dcim devices --json
+nbx capabilities --json
+```
+
+Repository-local Claude Code and Codex hooks mechanically block unconfirmed
+`nbx` writes. After reviewing `--dry-run`, prefix an approved write with
+`NETBOX_SDK_CONFIRM_WRITE=1`. The mirrored `netbox-sdk-operations` Skill in
+`.claude/skills/` and `.codex/skills/` documents introspect → preview → execute
+→ verify.
+
 ## Architecture
 
 - `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, shared formatting, and demo helpers.
 - `netbox_cli` owns the `nbx` command tree and lazy-loads `netbox_tui` where needed.
 - `netbox_tui` owns all Textual apps, themes, widgets, and TCSS.
+- `netbox_mcp` owns the validated MCP tools and imports only `netbox_sdk`.
 
 ## Runtime Dependencies
 
@@ -174,6 +220,7 @@ Base SDK installs depend on `aiohttp`, `pydantic`, `email-validator`, `rich`, an
 
 - `cli`: Typer-powered `nbx` command tree
 - `tui`: Textual terminal applications
+- `mcp`: official Python MCP SDK and the `nbx-mcp` server
 - `mock`: FastAPI/uvicorn mock NetBox API for integration tests
 - `demo`: Playwright-powered demo setup automation
 - `branching`: semantic marker for NetBox Branching workflows; no extra runtime
@@ -219,16 +266,16 @@ selection are controlled by the standard OpenTelemetry environment variables.
 ## Contributor Workflow
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
-uv run ty check netbox_sdk netbox_cli netbox_tui tests
+uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
 uv run pytest
 ```
 
 Gitea pull requests targeting `main` also run a secret-free quality gate on the
 isolated `ci-untrusted-python312` runner. It covers workflow policy, both type
-checkers, pre-commit, the complete offline mocked suite, SDK/CLI/TUI security
+checkers, pre-commit, the complete offline mocked suite, SDK/CLI/TUI/MCP security
 regressions, strict MkDocs, and wheel/sdist metadata plus an installed-wheel
 smoke. GitHub retains the Python 3.11–3.13 and live-NetBox matrices. Do not merge
 on queued or missing Gitea evidence; `runner_id: 0` means no eligible runner has
@@ -238,7 +285,7 @@ accepted the job.
 
 Open the repository in VS Code. When prompted, install the recommended
 extensions (`ms-python.vscode-pylance`, `ms-python.python`,
-`charliermarsh.ruff`). Pylance picks up types from all three packages
+`charliermarsh.ruff`). Pylance picks up types from all four packages
 automatically — each ships a `py.typed` PEP 561 marker.
 
 Type checking uses two gates: `ty` (Astral, fast, pre-commit + CI) and
@@ -246,8 +293,8 @@ Type checking uses two gates: `ty` (Astral, fast, pre-commit + CI) and
 "basic"`. To run them manually:
 
 ```bash
-uv run ty check netbox_sdk netbox_cli netbox_tui tests
-uv run pyright netbox_sdk netbox_cli netbox_tui
+uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
+uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 ```
 
 ## Release Process

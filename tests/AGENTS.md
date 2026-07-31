@@ -27,6 +27,7 @@ uv run pytest                 # full suite
 uv run pytest -m suite_sdk    # netbox_sdk-owned tests
 uv run pytest -m suite_cli    # netbox_cli-owned tests
 uv run pytest -m suite_tui    # netbox_tui-owned tests
+uv run pytest -m suite_mcp    # netbox_mcp-owned tests
 ```
 
 **Async mode:** `asyncio_mode = "auto"` (set in `pyproject.toml`) — every `async def test_*` runs automatically under an event loop without needing `@pytest.mark.asyncio`.
@@ -38,6 +39,7 @@ Each test module is marked with exactly one package ownership marker:
 - `suite_sdk` — tests whose primary contract is the standalone `netbox_sdk` package
 - `suite_cli` — tests whose primary contract is the optional `netbox_cli` package
 - `suite_tui` — tests whose primary contract is the optional `netbox_tui` package
+- `suite_mcp` — tests whose primary contract is the optional `netbox_mcp` package
 
 The default `pytest` invocation still means “test everything”. Marker runs are for package-scoped validation and CI routing.
 
@@ -81,6 +83,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_logo_render.py` | NetBox logo wordmark rendering against each built-in theme |
 | `test_logs_tui.py` | `NetBoxLogsTuiApp` Pilot tests: log entry display, surface theming across all built-in themes |
 | `test_markdown_output.py` | Markdown rendering helpers and `--output markdown` flag handling |
+| `test_mcp.py` | MCP schemas, mutation gate, dry-run, mocked reads, CLI JSON parity, and deterministic hook behavior |
 | `test_mock_api.py` | FastAPI mock NetBox API CRUD, pagination, filtering, and Branching routes |
 | `test_no_hardcoded_colors.py` | Two checks: (1) zero hex literals in any runtime TCSS file; (2) all `$token` references in TCSS are in the explicit `_ALLOWED_THEME_TOKENS` allowlist |
 | `test_output_safety.py` | ANSI stripping, control character replacement, safe Rich Text rendering |

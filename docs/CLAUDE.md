@@ -13,16 +13,16 @@ Built with MkDocs Material theme and **mkdocs-static-i18n**: English (`en`) is t
 
 **Local preview:**
 ```bash
-uv sync --group docs --extra cli --extra tui --extra demo
+uv sync --group docs --extra cli --extra tui --extra demo --extra mcp
 uv run mkdocs serve
 ```
 
 **Contributor hooks:**
 ```bash
-uv sync --group docs --group dev --extra cli --extra tui --extra demo
+uv sync --group docs --group dev --extra cli --extra tui --extra demo --extra mcp
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
-uv run ty check netbox_sdk netbox_cli netbox_tui tests
+uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
 ```
 
 When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside `netbox_tui/themes/*.json`.
@@ -58,6 +58,8 @@ docs/
 │   ├── proxbox.md                  # Dedicated Proxbox catalog/CRUD/sync/TUI CLI guide
 │   ├── graphql.md                  # GraphQL and raw HTTP command docs
 │   └── demo-profile.md             # Demo profile setup
+├── mcp/
+│   └── index.md                    # Tools, transports, auth, and mutation safety
 ├── sdk/
 │   ├── index.md
 │   ├── authentication.md
@@ -162,6 +164,7 @@ Home
 Getting Started → Installation, Configuration, Quick Start
 Certification   → Integration package evidence
 CLI Reference   → Commands, Dynamic Commands, GraphQL, Branching, Demo Profile
+MCP Server      → Tools, transports, authentication, and mutation safety
 SDK             → Authentication, Facade API, Typed API, Branching, Making Requests, Schema Indexing, Error Handling
 TUI             → Themes, Keyboard Shortcuts, Branching, CLI Builder, GraphQL, Logs, Django Models, Screenshots
 Mock API        → CRUD, bulk operations, pagination/filtering, pytest integration, standalone server

@@ -27,6 +27,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `netbox_tui/` | [→](netbox_tui/CLAUDE.md) | Textual TUI package: apps, chrome, widgets, navigation, state, TCSS, theme registry |
 | `netbox_tui/themes/` | [→](netbox_tui/themes/CLAUDE.md) | JSON theme files auto-discovered by the TUI |
 | `netbox_cli/` | [→](netbox_cli/CLAUDE.md) | Typer CLI package: root app, runtime, dynamic commands, demo/dev/docgen wiring |
+| `netbox_mcp/` | [→](netbox_mcp/CLAUDE.md) | Optional schema-driven MCP package: validated tools, stdio/HTTP transports, auth, mutation gate |
 | `netbox_sdk/reference/` | [→](netbox_sdk/reference/CLAUDE.md) | Bundled SDK OpenAPI assets for supported NetBox release lines |
 | `tests/` | [→](tests/CLAUDE.md) | pytest suite |
 | `docs/` | [→](docs/CLAUDE.md) | MkDocs sources |
@@ -85,19 +86,26 @@ netbox_cli/   optional Typer layer
     ├── django_model.py
     ├── markdown_output.py
     └── docgen*/ docgen/
+
+netbox_mcp/   optional Model Context Protocol layer
+    ├── __init__.py   entrypoint + transport selection
+    ├── app.py        explicit FastMCP tool registration
+    ├── models.py     strict tool argument schemas
+    └── service.py    SDK-backed dispatch + mutation gate
 ```
 
 Data flow:
 1. `netbox_sdk` owns API behavior and shared data transformation.
 2. `netbox_cli` imports `netbox_sdk` and lazy-loads `netbox_tui` where needed.
 3. `netbox_tui` imports `netbox_sdk` directly and only reaches into `netbox_cli` for CLI app/runtime callbacks where required.
+4. `netbox_mcp` imports only `netbox_sdk`; it never imports CLI or TUI code.
 
 ## Contributor Workflow
 
 Initial setup:
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
@@ -109,6 +117,7 @@ uv run pytest
 uv run pytest -m suite_sdk
 uv run pytest -m suite_cli
 uv run pytest -m suite_tui
+uv run pytest -m suite_mcp
 ```
 
 If you need a minimal install boundary check:
@@ -117,6 +126,7 @@ If you need a minimal install boundary check:
 pip install -e .
 pip install -e '.[cli]'
 pip install -e '.[tui]'
+pip install -e '.[mcp]'
 pip install -e '.[all]'
 ```
 
@@ -131,7 +141,8 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 - SDK code in `netbox_sdk/` must not import `netbox_cli` or `netbox_tui`.
 - CLI code in `netbox_cli/` must lazy-import TUI entrypoints so `import netbox_cli` works without `textual`.
 - TUI code in `netbox_tui/` may depend on `netbox_sdk` and `textual`, not on old `netbox_cli/ui` paths.
-- Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
+- MCP code in `netbox_mcp/` may depend on `netbox_sdk` and `mcp`, never on `netbox_cli` or `netbox_tui`.
+- Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`, `netbox_mcp.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
@@ -152,7 +163,7 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 `.gitea/workflows/ci.yml` is the secret-free Gitea-first review gate. It runs
 the complete locked offline environment on the isolated
 `ci-untrusted-python312` label: workflow policy, ty, Pyright, all-files
-pre-commit, the full mocked suite, SDK/CLI/TUI security regressions, strict
+pre-commit, the full mocked suite, SDK/CLI/TUI/MCP security regressions, strict
 documentation, lifecycle/package evidence, distribution metadata, and an
 installed-wheel smoke check. Pull-request jobs have read-only repository
 permissions and must never receive credentials, publish, deploy, push, or
@@ -168,8 +179,9 @@ not a pass.
 ## Verification Before Done
 
 - Run `uv run pre-commit run --all-files`.
-- Run `uv run pyright netbox_sdk netbox_cli netbox_tui` alongside `ty check`.
-  Both gates must pass. All three packages ship `py.typed` PEP 561 markers.
+- Run `uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp` alongside
+  `ty check`. Both gates must pass. All four packages ship `py.typed` PEP 561
+  markers.
 - Run the package-specific marker suite for the package(s) you changed.
 - Run `uv run pytest` when shared files or release/main validation paths are involved.
 - For packaging changes, verify extras and import boundaries.

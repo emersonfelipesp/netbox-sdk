@@ -27,6 +27,12 @@ TUI:
 pip install 'netbox-sdk[tui]'
 ```
 
+Servidor MCP:
+
+```bash
+pip install 'netbox-sdk[mcp]'
+```
+
 Tudo:
 
 ```bash
@@ -61,7 +67,7 @@ nbx --help
 ```bash
 git clone https://github.com/emersonfelipesp/netbox-sdk.git
 cd netbox-sdk
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run nbx --help
 ```
 
@@ -73,7 +79,8 @@ localmente. A CI testa o SDK contra `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ## Type hints na IDE
 
-Os três pacotes instalados (`netbox_sdk`, `netbox_cli`, `netbox_tui`) trazem
+Os quatro pacotes instalados (`netbox_sdk`, `netbox_cli`, `netbox_tui`,
+`netbox_mcp`) trazem
 marcadores `py.typed` (PEP 561). Pylance, Pyright e outros editores compatíveis
 com PEP 561 resolvem tipos automaticamente a partir da wheel instalada — sem
 configuração extra. Veja o guia do desenvolvedor
@@ -86,6 +93,8 @@ e os gates duplos no pre-commit.
 - `pip install 'netbox-sdk[cli]'` se você quer o comando `nbx`
 - `pip install 'netbox-sdk[tui]'` se você quer lançar TUIs Textual a partir do
   pacote em um ambiente Python existente
+- `pip install 'netbox-sdk[mcp]'` se você quer o servidor `nbx-mcp` por stdio ou
+  Streamable HTTP
 - `pip install 'netbox-sdk[all]'` se você quer todas as interfaces disponíveis localmente
 
 ## Fluxo do contribuidor
