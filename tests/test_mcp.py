@@ -8,12 +8,23 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import httpx
 import pytest
 from pydantic import ValidationError
+from starlette.applications import Starlette
+from starlette.responses import PlainTextResponse
+from starlette.routing import Route
 from typer.testing import CliRunner
 
 import netbox_cli as cli
-from netbox_mcp.app import create_mcp_server
+import netbox_mcp
+from netbox_mcp.app import (
+    AUTH_TOKEN_ENV_VAR,
+    BearerTokenMiddleware,
+    build_streamable_http_app,
+    create_mcp_server,
+    is_loopback_host,
+)
 from netbox_mcp.models import CallInput, GetInput
 from netbox_mcp.service import MutationDeniedError, NetBoxMCPService
 from netbox_sdk.client import ApiResponse
@@ -305,3 +316,114 @@ def test_hook_fails_closed_for_malformed_nbx_write() -> None:
     result = _run_hook("nbx dcim devices delete --body-json '{")
     assert result.returncode == 0
     assert json.loads(result.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+@pytest.mark.parametrize("method", ["POST", "PUT", "PATCH", "DELETE", "post", "Delete"])
+def test_hook_blocks_unconfirmed_raw_call_write(method: str) -> None:
+    blocked = _run_hook(f"nbx call {method} /api/dcim/devices/1/")
+    allowed = _run_hook(f"NETBOX_SDK_CONFIRM_WRITE=1 nbx call {method} /api/dcim/devices/1/")
+
+    assert blocked.returncode == 0
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize("method", ["GET", "HEAD", "get"])
+def test_hook_allows_unconfirmed_raw_call_read(method: str) -> None:
+    result = _run_hook(f"nbx call {method} /api/dcim/devices/1/")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_is_loopback_host() -> None:
+    assert is_loopback_host("127.0.0.1")
+    assert is_loopback_host("localhost")
+    assert is_loopback_host("::1")
+    assert not is_loopback_host("0.0.0.0")
+    assert not is_loopback_host("10.0.0.5")
+
+
+def _trivial_app() -> Starlette:
+    async def _handler(request: Any) -> PlainTextResponse:
+        return PlainTextResponse("ok")
+
+    return Starlette(routes=[Route("/", _handler)])
+
+
+@pytest.mark.asyncio
+async def test_bearer_token_middleware_enforces_shared_secret() -> None:
+    app = BearerTokenMiddleware(_trivial_app(), "secret-token")
+    transport = httpx.ASGITransport(app=app)
+
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        missing = await client.get("/")
+        wrong = await client.get("/", headers={"Authorization": "Bearer nope"})
+        wrong_scheme = await client.get("/", headers={"Authorization": "Basic secret-token"})
+        correct = await client.get("/", headers={"Authorization": "Bearer secret-token"})
+
+    assert missing.status_code == 401
+    assert wrong.status_code == 401
+    assert wrong_scheme.status_code == 401
+    assert correct.status_code == 200
+    assert correct.text == "ok"
+
+
+def test_build_streamable_http_app_only_wraps_when_token_configured() -> None:
+    server = create_mcp_server(host="127.0.0.1", port=8000)
+
+    unwrapped = build_streamable_http_app(server, auth_token=None)
+    wrapped = build_streamable_http_app(server, auth_token="secret")
+
+    assert not isinstance(unwrapped, BearerTokenMiddleware)
+    assert isinstance(wrapped, BearerTokenMiddleware)
+
+
+def test_run_streamable_http_fails_closed_without_auth_token(monkeypatch) -> None:
+    monkeypatch.delenv(AUTH_TOKEN_ENV_VAR, raising=False)
+    with pytest.raises(RuntimeError, match="loopback"):
+        netbox_mcp.run(["--transport", "streamable-http", "--host", "0.0.0.0"])
+
+
+def test_run_streamable_http_allows_non_loopback_with_configured_token(monkeypatch) -> None:
+    monkeypatch.delenv(AUTH_TOKEN_ENV_VAR, raising=False)
+    captured: dict[str, Any] = {}
+
+    async def _fake_run(server: Any, *, host: str, port: int, auth_token: str | None) -> None:
+        captured.update(host=host, port=port, auth_token=auth_token)
+
+    monkeypatch.setattr(netbox_mcp, "_run_streamable_http", _fake_run)
+
+    netbox_mcp.run(
+        ["--transport", "streamable-http", "--host", "0.0.0.0", "--auth-token", "secret"]
+    )
+
+    assert captured == {"host": "0.0.0.0", "port": 8000, "auth_token": "secret"}
+
+
+def test_run_streamable_http_reads_auth_token_from_env(monkeypatch) -> None:
+    monkeypatch.setenv(AUTH_TOKEN_ENV_VAR, "env-secret")
+    captured: dict[str, Any] = {}
+
+    async def _fake_run(server: Any, *, host: str, port: int, auth_token: str | None) -> None:
+        captured.update(host=host, port=port, auth_token=auth_token)
+
+    monkeypatch.setattr(netbox_mcp, "_run_streamable_http", _fake_run)
+
+    netbox_mcp.run(["--transport", "streamable-http", "--host", "0.0.0.0"])
+
+    assert captured["auth_token"] == "env-secret"
+
+
+def test_run_streamable_http_allows_loopback_without_token(monkeypatch) -> None:
+    monkeypatch.delenv(AUTH_TOKEN_ENV_VAR, raising=False)
+    captured: dict[str, Any] = {}
+
+    async def _fake_run(server: Any, *, host: str, port: int, auth_token: str | None) -> None:
+        captured.update(host=host, port=port, auth_token=auth_token)
+
+    monkeypatch.setattr(netbox_mcp, "_run_streamable_http", _fake_run)
+
+    netbox_mcp.run(["--transport", "streamable-http"])
+
+    assert captured == {"host": "127.0.0.1", "port": 8000, "auth_token": None}

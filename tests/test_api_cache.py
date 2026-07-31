@@ -191,3 +191,38 @@ async def test_api_client_cache_uses_private_permissions(monkeypatch, tmp_path) 
     if os.name != "nt":
         assert stat.S_IMODE(client._cache.root.stat().st_mode) == 0o700  # noqa: SLF001
         assert stat.S_IMODE(entries[0].stat().st_mode) == 0o600
+
+
+@pytest.mark.asyncio
+async def test_api_client_cache_key_scopes_per_call_bearer_override(monkeypatch, tmp_path) -> None:
+    """A per-call Authorization override (e.g. MCP forwarding a caller token via
+    ``persistent_headers``) must not share a cache entry with a different token,
+    even when the client's own config carries no credentials."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(base_url="https://demo.netbox.dev")
+    client = NetBoxApiClient(cfg)
+    calls: list[dict[str, object]] = []
+
+    async def _fake_request_once(self, session, *, authorization, **kwargs):
+        calls.append({"authorization": authorization, **kwargs})
+        return ApiResponse(status=200, text='{"results": [1]}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    client.persistent_headers["Authorization"] = "Bearer token-a"
+    response_a1 = await client.request("GET", "/api/dcim/devices/")
+    response_a2 = await client.request("GET", "/api/dcim/devices/")
+
+    client.persistent_headers["Authorization"] = "Bearer token-b"
+    response_b = await client.request("GET", "/api/dcim/devices/")
+
+    assert response_a1.headers["X-NBX-Cache"] == "MISS"
+    assert response_a2.headers["X-NBX-Cache"] == "HIT"
+    assert response_b.headers["X-NBX-Cache"] == "MISS"
+    assert len(calls) == 2
+    assert calls[0]["authorization"] == "Bearer token-a"
+    assert calls[1]["authorization"] == "Bearer token-b"
+    assert calls[0]["headers"]["Authorization"] == "Bearer token-a"
+    assert calls[1]["headers"]["Authorization"] == "Bearer token-b"
