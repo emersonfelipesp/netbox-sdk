@@ -317,6 +317,68 @@ async def test_mcp_introspection_matches_cli_json_contract(monkeypatch: pytest.M
     }
 
 
+def _live_only_index() -> SchemaIndex:
+    """A schema containing a resource absent from `_index()`, standing in for
+    a plugin resource or newer-release resource only visible via live
+    discovery against the connected NetBox instance."""
+    return SchemaIndex(
+        {
+            "openapi": "3.0.0",
+            "paths": {
+                "/api/ipam/vlans/": {
+                    "get": {"operationId": "ipam_vlans_list", "summary": "List VLANs"},
+                },
+                "/api/ipam/vlans/{id}/": {
+                    "get": {"operationId": "ipam_vlans_retrieve", "summary": "Get VLAN"},
+                },
+            },
+        }
+    )
+
+
+async def test_mcp_live_dispatch_resolves_resource_absent_from_bundled_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """describe_operation(live=True) already discovers instance-only
+    resources through a disposable per-call SchemaIndex. Before this fix,
+    list()/get() always dispatched through the static self.index, so a
+    resource reachable via live introspection could never actually be
+    listed or fetched -- describe, but never call. list()/get() must accept
+    the same live flag and resolve through the same live-fetched index."""
+    live_index = _live_only_index()
+
+    async def _fake_live_index(self: NetBoxMCPService, token: str | None) -> SchemaIndex:
+        return live_index
+
+    monkeypatch.setattr(NetBoxMCPService, "_live_index", _fake_live_index, raising=True)
+
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text='{"count": 0, "results": []}', headers={}),
+            ApiResponse(status=200, text='{"id": 3, "vid": 100}', headers={}),
+        ]
+    )
+    service = _service(client)
+
+    described = await service.describe_operation(group="ipam", resource="vlans", live=True)
+    assert described["group"] == "ipam"
+    assert described["resource"] == "vlans"
+
+    with pytest.raises(ValueError, match="Resource not found"):
+        await service.list(group="ipam", resource="vlans")
+
+    listed = await service.list(group="ipam", resource="vlans", live=True)
+    assert listed["status"] == 200
+    assert client.calls[0]["path"] == "/api/ipam/vlans/"
+
+    fetched = await service.get(group="ipam", resource="vlans", id=3, live=True)
+    assert fetched["status"] == 200
+    assert client.calls[1]["path"] == "/api/ipam/vlans/3/"
+
+    with pytest.raises(ValueError, match="Resource not found"):
+        await service.get(group="ipam", resource="vlans", id=3)
+
+
 def _run_hook(command: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(ROOT / "scripts/check_nbx_write.py")],

@@ -161,9 +161,15 @@ def create_mcp_server(
         all: bool = False,
         max_records: int = 10_000,
         header: list[str] | None = None,
+        live: bool = False,
         token: str | None = None,
     ) -> dict[str, Any]:
-        """List NetBox records, optionally following all pagination links."""
+        """List NetBox records, optionally following all pagination links.
+
+        live=True resolves the resource against the connected instance's
+        schema (including runtime-discovered plugin resources) instead of
+        the server's bundled schema, matching describe_operation(live=True).
+        """
         return await active.list(
             group=group,
             resource=resource,
@@ -171,6 +177,7 @@ def create_mcp_server(
             all=all,
             max_records=max_records,
             header=header,
+            live=live,
             token=token,
         )
 
@@ -180,10 +187,18 @@ def create_mcp_server(
         resource: str,
         id: int,
         header: list[str] | None = None,
+        live: bool = False,
         token: str | None = None,
     ) -> dict[str, Any]:
-        """Get one NetBox record by positive integer ID."""
-        return await active.get(group=group, resource=resource, id=id, header=header, token=token)
+        """Get one NetBox record by positive integer ID.
+
+        live=True resolves the resource against the connected instance's
+        schema (including runtime-discovered plugin resources) instead of
+        the server's bundled schema, matching describe_operation(live=True).
+        """
+        return await active.get(
+            group=group, resource=resource, id=id, header=header, live=live, token=token
+        )
 
     @server.tool()
     def filters(group: str, resource: str) -> dict[str, Any]:

@@ -191,6 +191,7 @@ class NetBoxMCPService:
         all: bool = False,
         max_records: int = 10_000,
         header: StringList | None = None,
+        live: bool = False,
         token: str | None = None,
     ) -> dict[str, Any]:
         values = ListInput.model_validate(
@@ -201,10 +202,12 @@ class NetBoxMCPService:
                 "all": all,
                 "max_records": max_records,
                 "header": header or [],
+                "live": live,
                 "token": token,
             }
         )
-        self._ensure_resource(self.index, values.group, values.resource)
+        index = await self._selected_index(live=values.live, token=values.token)
+        self._ensure_resource(index, values.group, values.resource)
         client = self._make_client(values.token)
         header_pairs = list(values.header)
         if values.token is not None:
@@ -213,7 +216,7 @@ class NetBoxMCPService:
             if values.all:
                 response = await list_all_pages(
                     client,
-                    self.index,
+                    index,
                     values.group,
                     values.resource,
                     query_pairs=values.query,
@@ -222,7 +225,7 @@ class NetBoxMCPService:
                 )
             else:
                 resolved = resolve_dynamic_request(
-                    self.index,
+                    index,
                     values.group,
                     values.resource,
                     "list",
@@ -248,6 +251,7 @@ class NetBoxMCPService:
         resource: str,
         id: int,
         header: StringList | None = None,
+        live: bool = False,
         token: str | None = None,
     ) -> dict[str, Any]:
         values = GetInput.model_validate(
@@ -256,11 +260,13 @@ class NetBoxMCPService:
                 "resource": resource,
                 "id": id,
                 "header": header or [],
+                "live": live,
                 "token": token,
             }
         )
+        index = await self._selected_index(live=values.live, token=values.token)
         resolved = resolve_dynamic_request(
-            self.index,
+            index,
             values.group,
             values.resource,
             "get",

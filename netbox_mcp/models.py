@@ -62,12 +62,14 @@ class ListInput(ResourceInput):
     all: bool = False
     max_records: MaxRecords = 10_000
     header: list[str] = Field(default_factory=list, max_length=100)
+    live: bool = False
     token: Token | None = None
 
 
 class GetInput(ResourceInput):
     id: PositiveId
     header: list[str] = Field(default_factory=list, max_length=100)
+    live: bool = False
     token: Token | None = None
 
 

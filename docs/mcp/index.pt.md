@@ -53,7 +53,7 @@ atributo de instância usado pelo Streamable HTTP.
 | Ferramenta | Comportamento |
 |---|---|
 | `list_groups`, `list_resources`, `describe_operation` | Introspecção JSON estável; `live=true` inclui recursos em runtime |
-| `list`, `get` | Leituras resolvidas pelo schema; `list` suporta paginação e filtros repetidos |
+| `list`, `get` | Leituras resolvidas pelo schema; `list` suporta paginação e filtros repetidos; `live=true` despacha contra o mesmo schema da instância conectada relatado por `describe_operation(live=true)`, permitindo listar ou buscar um recurso descoberto em runtime, não apenas descrevê-lo |
 | `filters` | Introspecção local sem requisição HTTP |
 | `create`, `update`, `patch`, `delete` | Mutações desabilitadas por padrão |
 | `bulk_update`, `bulk_patch`, `bulk_delete` | Mutações em lote desabilitadas por padrão |

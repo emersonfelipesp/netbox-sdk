@@ -51,7 +51,7 @@ shadowing mechanism as Streamable HTTP.
 | Tool | Behavior |
 |---|---|
 | `list_groups`, `list_resources`, `describe_operation` | Stable JSON schema introspection; `live=true` includes runtime resources |
-| `list`, `get` | Schema-resolved reads; `list` supports pagination and repeated query keys |
+| `list`, `get` | Schema-resolved reads; `list` supports pagination and repeated query keys; `live=true` dispatches against the same connected-instance schema `describe_operation(live=true)` reports, so a runtime-discovered resource can be listed or fetched, not just described |
 | `filters` | Local filter introspection with no HTTP request |
 | `create`, `update`, `patch`, `delete` | Detail mutations guarded off by default |
 | `bulk_update`, `bulk_patch`, `bulk_delete` | List-path mutations guarded off by default |
