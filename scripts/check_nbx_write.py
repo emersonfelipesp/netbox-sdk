@@ -112,6 +112,15 @@ _XARGS_OPTIONS_WITH_VALUES = frozenset(
         "--max-procs",
     }
 )
+# `sudo`/`doas` re-invoke another command with elevated privileges; they do
+# not themselves read stdin as commands, but when they wrap a stdin-reading
+# shell (e.g. `printf '%s' 'nbx dcim devices delete --id 7' | sudo bash`),
+# that shell is what actually executes the piped-in text. The pipe-consumer
+# check below inspects only the segment's literal command-name token, so
+# without unwrapping this prefix first, `sudo`/`doas` would hide the shell
+# from detection the same way `-c` hides an inline string.
+_PRIVILEGE_WRAPPERS = frozenset({"sudo", "doas"})
+_SUDO_OPTIONS_WITH_VALUES = frozenset({"-U", "-u", "-g", "-p", "-h", "-C", "-D", "-R", "-T"})
 _GLOBAL_OPTIONS_WITH_VALUES = frozenset({"--api-version", "--branch", "--netbox-version"})
 _OPTIONS_WITH_VALUES = frozenset(
     {
@@ -132,22 +141,32 @@ _OPTIONS_WITH_VALUES = frozenset(
 )
 
 
-def _segments(command: str) -> list[list[str]]:
+def _segments(command: str) -> list[tuple[str | None, list[str]]]:
+    """Split ``command`` into shell segments, paired with the separator before each.
+
+    The separator (``None`` for the first segment) lets callers distinguish a
+    pipe (``|``) from ``;``/``&&``/``||``/``&`` — only a pipe feeds one
+    segment's stdout into the next segment's stdin, which matters for
+    detecting a shell that consumes piped-in text as commands (see
+    ``_shell_reads_stdin``).
+    """
     lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|()")
     lexer.commenters = ""
     lexer.whitespace_split = True
     tokens = list(lexer)
-    segments: list[list[str]] = []
+    segments: list[tuple[str | None, list[str]]] = []
     current: list[str] = []
+    preceding_separator: str | None = None
     for token in tokens:
         if token in _SEPARATORS or all(character in ";&|()" for character in token):
             if current:
-                segments.append(current)
+                segments.append((preceding_separator, current))
                 current = []
+            preceding_separator = token
             continue
         current.append(token)
     if current:
-        segments.append(current)
+        segments.append((preceding_separator, current))
     return segments
 
 
@@ -211,6 +230,59 @@ def _xargs_command_index(tokens: list[str], xargs_index: int) -> int | None:
             index += 1
             continue
         return index
+    return None
+
+
+def _shell_reads_stdin(tokens: list[str], shell_index: int) -> bool:
+    """Return whether the shell at ``shell_index`` will execute its stdin as commands.
+
+    A shell reads commands from stdin whenever it is given no ``-c`` (an
+    inline command string) and has no script-file positional following it —
+    this covers a bare invocation, an explicit ``-s``, a heredoc (``<<EOF``),
+    and a here-string (``<<<``) alike. It is the behavior that lets ``printf
+    '%s' 'nbx dcim devices delete --id 7' | bash`` and ``bash -s <<< 'nbx
+    dcim devices delete --id 7'`` execute an nbx write that never appears as
+    a token positioned after a literal ``nbx`` on this shell's own command
+    line, since shlex dequotes the payload into one multi-word token instead.
+    """
+    index = shell_index + 1
+    while index < len(tokens):
+        token = tokens[index]
+        if token == "-c":
+            return False
+        if token == "<<<" or token.startswith("<<"):
+            return True
+        if token.startswith("-"):
+            index += 1
+            continue
+        return False
+    return True
+
+
+def _unwrap_privilege_command_index(tokens: list[str], index: int | None) -> int | None:
+    """Walk past any leading ``sudo``/``doas`` wrapper(s) to the wrapped command's index.
+
+    Returns ``index`` unchanged when it does not point at a known privilege
+    wrapper (including when it is ``None``).
+    """
+    while (
+        index is not None
+        and index < len(tokens)
+        and _command_name(tokens[index]) in _PRIVILEGE_WRAPPERS
+    ):
+        index += 1
+        while index < len(tokens) and tokens[index].startswith("-") and tokens[index] != "--":
+            index += 2 if tokens[index] in _SUDO_OPTIONS_WITH_VALUES else 1
+        if index < len(tokens) and tokens[index] == "--":
+            index += 1
+    return index if index is not None and index < len(tokens) else None
+
+
+def _here_string_index(tokens: list[str], shell_index: int) -> int | None:
+    """Return the index of a ``<<<`` here-string operator after ``shell_index``, if any."""
+    for index in range(shell_index + 1, len(tokens)):
+        if tokens[index] == "<<<":
+            return index
     return None
 
 
@@ -348,13 +420,33 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
                 if invoked_name == "nbx" or _SHELL_EXPANSION_PATTERN.search(xargs_command_token):
                     if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
                         return True
-        if name in _SHELLS and "-c" in tokens[index + 1 :]:
-            option_index = tokens.index("-c", index + 1)
-            if option_index + 1 < len(tokens) and command_has_unconfirmed_write(
-                tokens[option_index + 1],
-                inherited_confirmation=(inherited_confirmation or CONFIRMATION in tokens[:index]),
-            ):
-                return True
+        if name in _SHELLS:
+            if "-c" in tokens[index + 1 :]:
+                option_index = tokens.index("-c", index + 1)
+                if option_index + 1 < len(tokens) and command_has_unconfirmed_write(
+                    tokens[option_index + 1],
+                    inherited_confirmation=(
+                        inherited_confirmation or CONFIRMATION in tokens[:index]
+                    ),
+                ):
+                    return True
+            elif _shell_reads_stdin(tokens, index):
+                # No `-c`: this shell executes whatever reaches its stdin as
+                # a command batch. A here-string (`<<<`) carries that content
+                # as a literal token right here; a pipe carries it in the
+                # preceding segment (see the cross-segment check in
+                # `command_has_unconfirmed_write`); a plain unquoted heredoc
+                # body is already covered by the `name == "nbx"` branch above
+                # since its words tokenize like an ordinary command line.
+                here_string_index = _here_string_index(tokens, index)
+                if here_string_index is not None and here_string_index + 1 < len(tokens):
+                    if command_has_unconfirmed_write(
+                        tokens[here_string_index + 1],
+                        inherited_confirmation=(
+                            inherited_confirmation or CONFIRMATION in tokens[:index]
+                        ),
+                    ):
+                        return True
         if name == "eval":
             # The shell builtin `eval` joins its remaining arguments with a
             # space and re-parses the result as a command, e.g. `eval 'nbx
@@ -375,10 +467,7 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
 def command_has_unconfirmed_write(command: str, *, inherited_confirmation: bool = False) -> bool:
     """Return whether ``command`` contains an unconfirmed mutating nbx invocation."""
     try:
-        return any(
-            _segment_has_unconfirmed_write(segment, inherited_confirmation=inherited_confirmation)
-            for segment in _segments(command)
-        )
+        segments = _segments(command)
     except ValueError:
         # If shell quoting is malformed, fail closed only when the command
         # still plainly names both nbx and a write action. Unrelated malformed
@@ -387,6 +476,28 @@ def command_has_unconfirmed_write(command: str, *, inherited_confirmation: bool 
         return any(_command_name(word) == "nbx" for word in words) and any(
             word in _ALL_WRITE_WORDS or word.upper() in WRITE_HTTP_METHODS for word in words
         )
+    for position, (separator, tokens) in enumerate(segments):
+        if _segment_has_unconfirmed_write(tokens, inherited_confirmation=inherited_confirmation):
+            return True
+        if separator == "|" and position > 0:
+            # A pipe feeds this segment's stdin. If the segment invokes a
+            # shell with no `-c` (see `_shell_reads_stdin`), that shell will
+            # execute whatever the previous segment produced as commands —
+            # e.g. `printf '%s' 'nbx dcim devices delete --id 7' | bash`.
+            # The producer's literal text is visible here even though the
+            # consuming shell's own tokens never mention `nbx`.
+            command_index = _unwrap_privilege_command_index(tokens, _command_token_index(tokens))
+            if (
+                command_index is not None
+                and _command_name(tokens[command_index]) in _SHELLS
+                and _shell_reads_stdin(tokens, command_index)
+            ):
+                _, producer_tokens = segments[position - 1]
+                if command_has_unconfirmed_write(
+                    " ".join(producer_tokens), inherited_confirmation=inherited_confirmation
+                ):
+                    return True
+    return False
 
 
 def _hook_command(payload: dict[str, Any]) -> str | None:

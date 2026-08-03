@@ -908,6 +908,132 @@ def test_hook_does_not_false_positive_on_unrelated_xargs_invocation() -> None:
     assert result.stdout == ""
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | bash",
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | sh -s",
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | bash -s",
+    ],
+)
+def test_hook_blocks_unconfirmed_write_piped_into_stdin_reading_shell(command: str) -> None:
+    """A shell invoked without `-c` (bare, or with `-s`) executes whatever it
+    reads from stdin as commands, so piping a write into `bash`/`sh` hides
+    the write from the existing `-c`-string re-parse path entirely — the
+    static command text never contains `nbx` as a direct token of the shell
+    invocation. This must fail closed exactly like the `-c` string case."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_piped_into_stdin_reading_shell() -> None:
+    allowed = _run_hook(
+        "NETBOX_SDK_CONFIRM_WRITE=1 printf '%s\\n' 'nbx dcim devices delete --id 7' | bash"
+    )
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_blocks_unconfirmed_write_piped_into_shell_even_with_marker_on_consumer_side() -> None:
+    """The confirmation marker must scope to the segment that actually
+    contains the write. Placing it only on the consuming shell side of the
+    pipe — after the write-bearing producer segment has already been
+    written — must not retroactively confirm the producer's write."""
+    blocked = _run_hook(
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | NETBOX_SDK_CONFIRM_WRITE=1 bash"
+    )
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_does_not_false_positive_on_pipe_into_shell_without_nbx() -> None:
+    result = _run_hook("echo 'safe text' | bash")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_write_text_piped_into_non_shell_command() -> None:
+    """Only a pipe consumer that is itself a stdin-reading shell should
+    trigger the producer-segment recursion; piping the same text into an
+    unrelated command like `cat` must not be treated as command execution."""
+    result = _run_hook("printf '%s\\n' 'nbx dcim devices delete --id 7' | cat")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_hook_blocks_unconfirmed_write_via_shell_here_string() -> None:
+    """`bash <<< '...'` feeds the here-string as stdin, which the shell then
+    executes as commands — the same execution path as piping, expressed with
+    redirection syntax instead of a pipe."""
+    blocked = _run_hook("bash <<< 'nbx dcim devices delete --id 7'")
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_shell_here_string() -> None:
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 bash <<< 'nbx dcim devices delete --id 7'")
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "bash <<'EOF'\nnbx dcim devices delete --id 7\nEOF",
+        "bash <<EOF\nnbx dcim devices delete --id 7\nEOF",
+    ],
+)
+def test_hook_blocks_unconfirmed_write_via_shell_heredoc(command: str) -> None:
+    """A heredoc body tokenizes as ordinary words on the shell's own command
+    line (unlike a pipe or here-string, whose payload text is opaque to the
+    consuming shell's static tokens), so the existing `nbx`-literal scan
+    already sees it directly. This locks that coverage in as a regression."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_shell_heredoc() -> None:
+    allowed = _run_hook(
+        "NETBOX_SDK_CONFIRM_WRITE=1 bash <<'EOF'\nnbx dcim devices delete --id 7\nEOF"
+    )
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | sudo bash",
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | sudo -u root bash",
+        "printf '%s\\n' 'nbx dcim devices delete --id 7' | doas bash",
+    ],
+)
+def test_hook_blocks_unconfirmed_write_piped_into_shell_behind_privilege_wrapper(
+    command: str,
+) -> None:
+    """`sudo`/`doas` re-invoke another command with elevated privileges; when
+    that command is a stdin-reading shell, the wrapper does not change which
+    process actually executes the piped-in text. The pipe-consumer check
+    inspects only the segment's literal command-name token, so without
+    unwrapping the privilege-escalation prefix first, `sudo bash`/`doas bash`
+    would hide the shell from detection the same way a bare `-c` string
+    would."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_piped_into_shell_behind_privilege_wrapper() -> None:
+    allowed = _run_hook(
+        "NETBOX_SDK_CONFIRM_WRITE=1 printf '%s\\n' 'nbx dcim devices delete --id 7' | sudo bash"
+    )
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_sudo_pipe_into_non_shell_command() -> None:
+    result = _run_hook("printf '%s\\n' 'nbx dcim devices delete --id 7' | sudo cat")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_is_loopback_host() -> None:
     assert is_loopback_host("127.0.0.1")
     assert is_loopback_host("localhost")
