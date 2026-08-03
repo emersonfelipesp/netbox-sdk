@@ -123,7 +123,11 @@ Launches the guided command-builder TUI against the demo profile.
 ```bash
 nbx demo dev http get --path /api/status/
 nbx demo dev http get --path /dcim/devices/ -q limit=3 --markdown
+nbx demo dev http patch --path /dcim/devices/ --id 7 --body-json '{"status":"active"}' --confirm
 ```
+
+As on the default profile, demo `post`/`put`/`patch`/`delete` calls require
+`--confirm` or `NETBOX_SDK_CONFIRM_WRITE=1`; reads remain unaffected.
 
 ---
 

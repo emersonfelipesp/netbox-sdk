@@ -5,6 +5,7 @@ import json
 import pytest
 
 from netbox_sdk.client import ApiResponse
+from netbox_sdk.exceptions import PaginationError
 from netbox_sdk.schema import build_schema_index
 from netbox_sdk.services import (
     ACTION_METHOD_MAP,
@@ -254,6 +255,63 @@ async def test_list_all_pages_multi_page():
     data = json.loads(result.text)
     assert data["count"] == 3
     assert [r["id"] for r in data["results"]] == [1, 2, 3]
+
+
+async def test_list_all_pages_rejects_empty_page_with_next_link():
+    repeated_next = "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2"
+    page1 = {
+        "count": 3,
+        "next": repeated_next,
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    page2 = {"count": 3, "next": repeated_next, "previous": None, "results": []}
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
+    )
+
+    with pytest.raises(PaginationError, match="no forward progress"):
+        await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+
+    assert len(client.calls) == 2
+
+
+async def test_list_all_pages_rejects_repeated_next_link_even_with_results():
+    repeated_next = "http://netbox.example.com/api/dcim/devices/?limit=1&offset=1"
+    page1 = {
+        "count": 3,
+        "next": repeated_next,
+        "previous": None,
+        "results": [{"id": 1}],
+    }
+    page2 = {
+        "count": 3,
+        "next": repeated_next,
+        "previous": None,
+        "results": [{"id": 2}],
+    }
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
+    )
+
+    with pytest.raises(PaginationError, match="repeated next link"):
+        await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+
+    assert len(client.calls) == 2
+
+
+async def test_list_all_pages_rejects_non_list_results():
+    malformed_page = {"count": 1, "next": None, "previous": None, "results": {"id": 1}}
+    client = _MockClient([ApiResponse(status=200, text=json.dumps(malformed_page))])
+
+    with pytest.raises(PaginationError, match="'results' to be a list"):
+        await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
 
 
 async def test_list_all_pages_preserves_repeated_next_query_and_headers():

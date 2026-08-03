@@ -576,6 +576,58 @@ async def test_api_client_available_ips_write_invalidates_ip_address_collection_
 
 
 @pytest.mark.asyncio
+async def test_detail_action_write_invalidates_own_resource_collection_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """A real five-segment mutating detail action must invalidate its own
+    resource's collection and filtered-list entries, not only the action path
+    and immediate parent detail path."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 5, "status": "failed"}]}',
+                headers={},
+            ),
+            ApiResponse(status=200, text='{"id": 5, "status": "queued"}', headers={}),
+            ApiResponse(
+                status=200,
+                text='{"count": 0, "results": []}',
+                headers={},
+            ),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    collection_path = "/api/core/background-tasks/"
+    query = {"status": "failed"}
+    list_before = await client.request("GET", collection_path, query=query)
+    assert list_before.headers["X-NBX-Cache"] == "MISS"
+
+    action_response = await client.request(
+        "POST", "/api/core/background-tasks/5/requeue/", payload={}
+    )
+    assert action_response.status == 200
+
+    list_after = await client.request("GET", collection_path, query=query)
+    assert list_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(list_after.text)["count"] == 0
+
+
+@pytest.mark.asyncio
 async def test_api_client_available_asns_write_invalidates_asn_collection_cache(
     monkeypatch, tmp_path
 ) -> None:

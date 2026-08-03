@@ -371,7 +371,11 @@ Auxiliares HTTP orientados ao desenvolvedor para explorar caminhos e operações
 nbx dev http paths
 nbx dev http ops --path /api/dcim/devices/
 nbx dev http get --path /api/status/
+nbx dev http patch --path /api/dcim/devices/ --id 7 --body-json '{"status":"active"}' --confirm
 ```
+
+`post`, `put`, `patch` e `delete` exigem `--confirm` ou
+`NETBOX_SDK_CONFIRM_WRITE=1`; `get`, `paths` e `ops` não exigem.
 
 Use `nbx dev http --help` e os helps dos subcomandos para a matriz completa de opções.
 

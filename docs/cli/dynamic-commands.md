@@ -180,6 +180,9 @@ nbx dcim devices list --all -q status=active --json
 ```
 
 `--max-records` defaults to 10 000. When the accumulated count reaches the cap, pagination stops and the partial result is returned.
+Repeated page targets, malformed `results` values, and pages that provide a
+further `next` link without adding records fail with `PaginationError` instead
+of retrying indefinitely.
 
 ---
 
@@ -297,8 +300,10 @@ Live writes are refused by the executing CLI unless the command includes
 `--confirm` or the process environment contains
 `NETBOX_SDK_CONFIRM_WRITE=1`. This gate applies to every dynamic action that
 resolves to `POST`, `PUT`, `PATCH`, or `DELETE`, including a raw HTTP-method
-action spelling, plus Proxbox CRUD/sync and write-method `nbx call` requests,
-regardless of whether `nbx` was launched directly, through a script, or from a subprocess.
+action spelling, plus Proxbox CRUD/sync, write-method `nbx call` and
+`nbx dev http` requests, and mutating `nbx branching`/`nbx branch` verbs,
+regardless of whether `nbx` was launched directly, through a script, or from
+a subprocess.
 `--dry-run` does not require confirmation because it makes no HTTP request.
 
 ---

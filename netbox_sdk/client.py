@@ -968,8 +968,9 @@ class NetBoxApiClient:
         object's own detail path for bulk writes whose payload is a list of
         objects carrying an ``id`` (since bulk operations target the
         collection path rather than individual detail paths), and — for a
-        recognized "detail action" endpoint such as ``available-ips`` — the
-        unrelated collection(s) that action actually creates objects in.
+        recognized "detail action" endpoint such as ``requeue`` or
+        ``available-ips`` — the resource's true collection plus any unrelated
+        collection(s) that action creates objects in.
         """
         paths = [path]
         collection_path = self._collection_path_for(path)
@@ -981,7 +982,17 @@ class NetBoxApiClient:
                     paths.append(f"{path.rstrip('/')}/{item['id']}/")
         action_name = self._trailing_action_name(path)
         if action_name is not None:
-            paths.extend(_ACTION_CROSS_RESOURCE_CACHE_PATHS.get(action_name, ()))
+            # ``collection_path`` is the action's immediate parent detail
+            # path (e.g. ``/api/core/background-tasks/5/``). Preserve that
+            # invalidation and additionally step up once more to invalidate
+            # the resource's real collection/list caches.
+            if collection_path is not None:
+                resource_collection_path = self._collection_path_for(collection_path)
+                if resource_collection_path is not None and resource_collection_path not in paths:
+                    paths.append(resource_collection_path)
+            for cross_resource_path in _ACTION_CROSS_RESOURCE_CACHE_PATHS.get(action_name, ()):
+                if cross_resource_path not in paths:
+                    paths.append(cross_resource_path)
         return paths
 
     def _invalidate_related_cache(

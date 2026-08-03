@@ -21,6 +21,7 @@ from netbox_cli.decorators import (
     table_result,
 )
 from netbox_cli.runtime import _get_client
+from netbox_cli.write_confirmation import require_write_confirmation
 from netbox_sdk.branching import BranchingClient
 
 branching_app = typer.Typer(
@@ -114,8 +115,15 @@ def cmd_create(
     name: str = typer.Option(..., "--name", help="Branch name."),
     description: str | None = typer.Option(None, "--description", help="Optional description."),
     comments: str | None = typer.Option(None, "--comments", help="Optional comments."),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Create a branch."""
+
+    require_write_confirmation(confirmed=confirm)
 
     fields: dict[str, Any] = {}
     if description is not None:
@@ -133,6 +141,11 @@ def cmd_update(
     name: str = typer.Option(None, "--name"),
     description: str = typer.Option(None, "--description"),
     comments: str = typer.Option(None, "--comments"),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Patch branch fields."""
 
@@ -144,6 +157,7 @@ def cmd_update(
     if not fields:
         typer.echo("Provide at least one --name/--description/--comments to update.", err=True)
         raise typer.Exit(code=1)
+    require_write_confirmation(confirmed=confirm)
 
     return lambda client: client.update(_resolve_id(id_or_schema), **fields)
 
@@ -153,8 +167,15 @@ def cmd_update(
 def cmd_delete(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation."),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> Callable[[BranchingClient], Awaitable[None]]:
     """Delete a branch."""
+
+    require_write_confirmation(confirmed=confirm)
 
     if not yes:
         if not typer.confirm(f"Delete branch {id_or_schema}?", default=False):
@@ -180,7 +201,14 @@ def _action_factory(verb: str) -> Callable[..., None]:
             True, "--wait/--no-wait", help="Wait for the background job to finish."
         ),
         timeout: float = typer.Option(600.0, "--timeout", help="Maximum seconds to wait."),
+        confirm: bool = typer.Option(
+            False,
+            "--confirm",
+            help="Confirm execution of a live NetBox write.",
+        ),
     ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
+        require_write_confirmation(confirmed=confirm)
+
         async def _run_async(client: BranchingClient) -> dict[str, Any]:
             method = getattr(client, verb)
             return await method(
@@ -208,8 +236,15 @@ def cmd_revert(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     wait: bool = typer.Option(True, "--wait/--no-wait"),
     timeout: float = typer.Option(600.0, "--timeout"),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Revert a previously-merged branch."""
+
+    require_write_confirmation(confirmed=confirm)
 
     return lambda client: client.revert(_resolve_id(id_or_schema), wait=wait, timeout=timeout)
 
@@ -219,8 +254,15 @@ def cmd_revert(
 def cmd_archive(
     id_or_schema: str = typer.Argument(..., help="Branch PK or schema_id."),
     yes: bool = typer.Option(False, "--yes", "-y"),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> Callable[[BranchingClient], Awaitable[dict[str, Any]]]:
     """Archive a branch (synchronous server-side)."""
+
+    require_write_confirmation(confirmed=confirm)
 
     if not yes:
         if not typer.confirm(f"Archive branch {id_or_schema}?", default=False):

@@ -40,6 +40,7 @@ __all__ = [
     "AllocationError",
     "ParameterValidationError",
     "JsonPayloadError",
+    "PaginationError",
     "BranchingClient",
     "BranchConflictError",
     "BranchingPluginUnavailableError",
@@ -124,6 +125,7 @@ from netbox_sdk.exceptions import (
     AllocationError,
     ContentError,
     JsonPayloadError,
+    PaginationError,
     ParameterValidationError,
     RequestError,
 )

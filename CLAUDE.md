@@ -144,11 +144,12 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 | `filters` | — | local only | Prints available filter parameters from schema |
 
 Every dynamic action that resolves to `POST`, `PUT`, `PATCH`, or `DELETE`
-(including a raw HTTP-method action spelling), write-method `nbx call`
-requests, and Proxbox CRUD/sync scheduling require `--confirm` or
+(including a raw HTTP-method action spelling), write-method `nbx call` and
+`nbx dev http` requests, every mutating `nbx branching`/`nbx branch` verb,
+and Proxbox CRUD/sync scheduling require `--confirm` or
 `NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation.
 
-**Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. `--max-records N` (default 10 000) is the hard ceiling on accumulated records.
+**Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. It raises `PaginationError` on malformed result arrays, repeated page targets, or a page that supplies another link without adding records. `--max-records N` (default 10 000) remains the hard ceiling on accumulated records.
 
 **Query/header forwarding**: `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.
 

@@ -145,6 +145,11 @@ nbx dcim devices filters
 # HTTP headers for ETag / conditional update workflows
 nbx dcim devices patch --id 1 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
 nbx call PATCH /api/dcim/devices/1/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
+nbx dev http patch --path /api/dcim/devices/ --id 1 --body-json '{"status":"active"}' --confirm
+
+# NetBox Branching writes use the same confirmation gate
+nbx branching create --name feature-x --confirm
+nbx branching sync 7 --confirm
 
 # Bulk operations (array body to list path)
 nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]' --confirm
@@ -219,7 +224,8 @@ nbx capabilities --json
 
 The `nbx` process itself refuses every dynamic action resolving to a write
 method (including raw `POST`/`PUT`/`PATCH`/`DELETE` action spellings),
-write-method `nbx call` requests, Proxbox CRUD, and Proxbox sync scheduling
+write-method `nbx call` and `nbx dev http` requests, mutating
+`nbx branching`/`nbx branch` verbs, Proxbox CRUD, and Proxbox sync scheduling
 unless the invocation includes `--confirm` or its environment contains
 `NETBOX_SDK_CONFIRM_WRITE=1`. Dry runs remain available without confirmation.
 Repository-local Claude Code and Codex hooks provide an earlier defense-in-depth

@@ -122,7 +122,11 @@ Lança a TUI de construtor de comandos guiado no perfil demo.
 ```bash
 nbx demo dev http get --path /api/status/
 nbx demo dev http get --path /dcim/devices/ -q limit=3 --markdown
+nbx demo dev http patch --path /dcim/devices/ --id 7 --body-json '{"status":"active"}' --confirm
 ```
+
+Como no perfil padrão, chamadas demo `post`/`put`/`patch`/`delete` exigem
+`--confirm` ou `NETBOX_SDK_CONFIRM_WRITE=1`; leituras não são afetadas.
 
 ---
 

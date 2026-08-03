@@ -57,7 +57,7 @@ netbox_sdk/
 - `netbox_sdk.branching` — NetBox Branching API client, branch-scoped header helpers, job polling helpers
 - `netbox_sdk.client` — async API client and connection probe; caller-supplied paths reject percent-encoded `/` and `\` separators before cache or network dispatch
 - `netbox_sdk.decorators` — reusable decorator factories for SDK command/resource wrapper metadata
-- `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`)
+- `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`, `PaginationError`)
 - `netbox_sdk.facade` — async convenience facade exposed via `api()`
 - `netbox_sdk.typed_api` — versioned typed client factory exposed via `typed_api()`
 - `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
@@ -65,7 +65,7 @@ netbox_sdk/
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
 - `netbox_sdk.telemetry` — optional OpenTelemetry request tracing with lazy guarded imports
 - `netbox_sdk.schema` — OpenAPI loading and indexing; `load_openapi_schema()` / `build_schema_index()` default to the bundled NetBox 4.6 schema and accept supported release lines such as `version="4.5"`; `SchemaIndex.filter_params(group, resource)` returns a sorted `list[FilterParam]` of filterable query parameters for the list endpoint (excludes pagination params including `limit`, `offset`, `start`, `format`, plus lookup-suffix variants such as `__ic`, `__n`; puts `q` first); `FilterParam` is a frozen Pydantic model with `.name`, `.label`, `.type` (`string|integer|boolean|enum|array`), `.choices` (non-empty only for enum), and `.description`
-- `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value` forms; `ACTION_METHOD_MAP` includes bulk ops (`bulk-update`, `bulk-patch`, `bulk-delete`); `list_all_pages` follows NetBox pagination `next` links and returns a synthesised single-page response while preserving repeated `next` query params; a non-2xx status or unparseable body on any page (including a later page after earlier ones succeeded) returns that raw failing response instead of folding partial results into a synthesised `status=200` envelope
+- `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value` forms; `ACTION_METHOD_MAP` includes bulk ops (`bulk-update`, `bulk-patch`, `bulk-delete`); `list_all_pages` follows NetBox pagination `next` links and returns a synthesised single-page response while preserving repeated `next` query params; a non-2xx status or unparseable body on any page (including a later page after earlier ones succeeded) returns that raw failing response instead of folding partial results into a synthesised `status=200` envelope, while malformed result arrays, repeated page targets, and non-progressing pages raise `PaginationError`
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
 - `netbox_sdk.proxbox` — stable netbox-proxbox resource catalog plus catalog-backed request helper used by the dedicated CLI and TUI surfaces
 - `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
