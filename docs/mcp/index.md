@@ -16,7 +16,7 @@ nbx-mcp
 stdio is the default transport. For Streamable HTTP:
 
 ```bash
-nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000 --auth-token "$NETBOX_MCP_AUTH_TOKEN"
+NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
 The MCP endpoint is `/mcp`. Every Streamable HTTP bind requires a
@@ -28,7 +28,10 @@ local processes or users, who could otherwise reach the server's loaded
 NetBox credential (and any active `--allow-mutations` window) unauthenticated
 on a shared dev or bastion host. Put TLS termination in front of it when it
 is exposed beyond the local host — the bearer token authenticates the
-caller, it does not encrypt the transport.
+caller, it does not encrypt the transport. Prefer `NETBOX_MCP_AUTH_TOKEN`
+over `--auth-token` on any shared host: a CLI argument's value is visible to
+other local users through `ps` and `/proc/<pid>/cmdline`, while the
+environment variable is not.
 
 This gate cannot be bypassed by calling the server object directly instead
 of going through `run()`: `create_mcp_server()` always shadows the returned

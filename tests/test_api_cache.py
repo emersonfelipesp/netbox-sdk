@@ -891,6 +891,62 @@ async def test_api_client_write_through_percent_encoded_dot_segment_invalidates_
     assert client._cache.load(key) is None
 
 
+@pytest.mark.asyncio
+async def test_api_client_write_through_repeated_slash_alias_invalidates_canonical_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """Same hazard as the dot-segment alias test above, but for a
+    repeated-slash alias (e.g. "/api//dcim/devices/5/") that contains no
+    literal or percent-encoded dot segment at all. build_url() always calls
+    normalized.lstrip("/") before urljoin(), and that merge collapses
+    internal "//" runs down to a single "/" even without a dot segment
+    present — so this alias also lands on the canonical resource on the
+    wire. If _normalize_request_path() only resolved dot segments and left
+    repeated slashes alone, the cache key, generation fence, and
+    invalidate_path() would all operate on the unnormalized alias while the
+    canonical cached entry silently survived the write."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    canonical_path = "/api/dcim/devices/5/"
+    alias_path = "/api//dcim/devices/5/"
+
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", canonical_path)
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=canonical_path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is not None
+
+    patch_response = await client.request("PATCH", alias_path, payload={"name": "new"})
+    assert patch_response.status == 200
+
+    assert client._cache.load(key) is None
+
+
 def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:
     """Mirrors save()'s fencing: a 304 revalidation must not resurrect an
     entry that a concurrent write already purged via invalidate_path()."""
@@ -1166,6 +1222,70 @@ def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> 
 
     _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert sorted(keys) == ["key-a", "key-b"]
+
+
+def test_purge_all_entries_serializes_against_concurrent_path_write(tmp_path) -> None:
+    """A store-wide corruption purge (``_purge_all_entries``) must never run
+    while a *different* path's ``save()`` is mid-way through its
+    index-then-entry write pair. Before this fix, ``_purge_all_entries``
+    deleted every ``*.json`` file under the cache root without taking out
+    any lock, so it could delete another path's just-written index file
+    after that path's ``save()`` had registered a new key but before it had
+    written the corresponding entry file. The entry file would then land on
+    disk unindexed: ``load()`` decides hits by entry-file existence alone,
+    so it would be served as a permanently fresh hit that no later
+    ``invalidate_path()`` call could ever discover and purge, since the
+    index that would have listed it was already gone. This test proves the
+    two operations are now strictly ordered: ``_purge_all_entries`` cannot
+    start its deletion pass until a concurrent write's entire index+entry
+    pair has finished."""
+    store = HttpCacheStore(tmp_path)
+    other_path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+
+    original_write_entry = store._write_entry
+    entry_write_started = threading.Event()
+    release_entry_write = threading.Event()
+
+    def _paused_write_entry(path, entry):
+        entry_write_started.set()
+        release_entry_write.wait(timeout=5)
+        original_write_entry(path, entry)
+
+    store._write_entry = _paused_write_entry  # type: ignore[method-assign]
+
+    save_thread = threading.Thread(
+        target=lambda: store.save(
+            "other-key", ApiResponse(status=200, text="{}", headers={}), policy, path=other_path
+        )
+    )
+    save_thread.start()
+    assert entry_write_started.wait(timeout=5)
+
+    # other_path's index file has already been written (registering
+    # "other-key") but its entry file has not yet been written — exactly
+    # the window the pre-fix race exploited.
+    other_index_path = store._index_path_file(other_path)
+    assert other_index_path.exists()
+    _generation, keys = store._load_index_state_or_none(other_index_path)
+    assert keys == ["other-key"]
+    assert not store._entry_path("other-key").exists()
+
+    purge_thread = threading.Thread(target=store._purge_all_entries)
+    purge_thread.start()
+    time.sleep(0.05)
+    assert purge_thread.is_alive()  # blocked on the global guard lock, not racing ahead
+
+    release_entry_write.set()
+    save_thread.join(timeout=5)
+    purge_thread.join(timeout=5)
+
+    # The purge always runs eventually (either before other-key's write pair
+    # starts or, as forced here, strictly after it finishes) and wipes the
+    # whole store either way — the meaningful assertion above is that the
+    # purge thread stayed blocked instead of interleaving mid-pair.
+    assert not store._entry_path("other-key").exists()
+    assert not other_index_path.exists()
 
 
 def test_save_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:

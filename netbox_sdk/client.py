@@ -302,22 +302,29 @@ class NetBoxApiClient:
                 for original, decoded in zip(segments, decoded_segments)
             ]
             normalized = "/".join(segments)
-        if "." in segments or ".." in segments:
-            # Resolve dot segments the same way the outbound request's own
-            # urljoin() in build_url() already does, so the path used for
-            # cache keys, cache-generation fencing, and invalidate_path()
-            # can never diverge from what is actually sent on the wire.
-            # Left unresolved, a request through an equivalent-but-
-            # unnormalized alias (e.g. "/api/dcim/../ipam/prefixes/")
-            # mutated the canonical resource on the wire while invalidating
-            # cache entries keyed to the literal alias instead — the
-            # canonical cached entries stayed untouched and a verification
-            # read could still return stale pre-write data.
-            had_trailing_slash = normalized.endswith("/") and normalized != "/"
-            resolved = posixpath.normpath(normalized)
-            if had_trailing_slash and not resolved.endswith("/"):
-                resolved += "/"
-            normalized = resolved
+        # Resolve dot segments and collapse repeated "/" the same way the
+        # outbound request's own build_url() already does, so the path used
+        # for cache keys, cache-generation fencing, and invalidate_path() can
+        # never diverge from what is actually sent on the wire. build_url()
+        # always strips every leading "/" before merging the path onto the
+        # base URL via urljoin(), and that merge collapses internal "//"
+        # runs down to a single "/" even when neither segment is a literal
+        # "." or "..". This runs unconditionally, not only when a dot
+        # segment is present: left unresolved, a request through an
+        # equivalent-but-unnormalized alias (e.g. "/api/dcim/../ipam/" or
+        # "/api//dcim/devices/5/") mutated the canonical resource on the
+        # wire while invalidating cache entries keyed to the literal alias
+        # instead — the canonical cached entries stayed untouched and a
+        # verification read could still return stale pre-write data.
+        # urlsplit() above already rejects a leading "//" as a netloc, so
+        # `normalized` is always exactly one leading "/" here — posixpath's
+        # POSIX-mandated special case for exactly two leading slashes never
+        # applies.
+        had_trailing_slash = normalized.endswith("/") and normalized != "/"
+        resolved = posixpath.normpath(normalized)
+        if had_trailing_slash and not resolved.endswith("/"):
+            resolved += "/"
+        normalized = resolved
         return normalized
 
     async def request(

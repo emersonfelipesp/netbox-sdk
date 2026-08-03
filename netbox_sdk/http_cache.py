@@ -240,8 +240,9 @@ class HttpCacheStore:
                     return entry
                 if key not in keys:
                     keys.append(key)
-                self._write_index_state(index_path, generation, keys)
-                self._write_entry(self._entry_path(key), entry)
+                with self._locked_index(self._global_guard_path()):
+                    self._write_index_state(index_path, generation, keys)
+                    self._write_entry(self._entry_path(key), entry)
         except TimeoutError:
             # A response was already received; failing to persist it to the
             # cache must never turn a successful request into a raised
@@ -328,8 +329,9 @@ class HttpCacheStore:
                     return refreshed
                 if key not in keys:
                     keys.append(key)
-                self._write_index_state(index_path, generation, keys)
-                self._write_entry(self._entry_path(key), refreshed)
+                with self._locked_index(self._global_guard_path()):
+                    self._write_index_state(index_path, generation, keys)
+                    self._write_entry(self._entry_path(key), refreshed)
         except TimeoutError:
             logger.warning(
                 "netbox_sdk cache index lock unavailable while refreshing %s; entry was not persisted",
@@ -358,9 +360,21 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         with self._locked_index(index_path):
             generation, keys = self._load_index_state_or_purge(index_path)
-            for key in keys:
-                self._entry_path(key).unlink(missing_ok=True)
-            self._write_index_state(index_path, generation + 1, [])
+            with self._locked_index(self._global_guard_path()):
+                for key in keys:
+                    self._entry_path(key).unlink(missing_ok=True)
+                self._write_index_state(index_path, generation + 1, [])
+
+    def _global_guard_path(self) -> Path:
+        """Nominal path whose neighboring ``.lock`` file serializes purges against writes.
+
+        Never read or written itself — only passed to :meth:`_locked_index`
+        so ``save``, ``refresh``, and ``invalidate_path`` can take out the
+        same lock :meth:`_purge_all_entries` uses around its own deletion
+        pass, via the same per-path locking primitive those methods already
+        use for their own index file.
+        """
+        return self.root / "__global_purge_guard__"
 
     def _purge_all_entries(self) -> None:
         """Delete every cached entry and per-path index file under ``root``.
@@ -373,9 +387,31 @@ class HttpCacheStore:
         invariant: an in-flight GET for an unrelated path that captured a
         pre-purge generation will see a mismatch against the reset index and
         be discarded as an extra cache miss, never a stale hit.
+
+        The deletion pass runs under :meth:`_global_guard_path`'s lock, the
+        same lock ``save``/``refresh``/``invalidate_path`` take out around
+        their own index-then-entry write pair (never around their full
+        critical section, which would self-deadlock against this very call —
+        this method is only ever reached from inside one of those methods'
+        *own* per-path lock, before that caller has acquired the guard
+        itself). Without this, this glob-and-unlink pass raced a concurrent
+        writer for a *different* path that had already written its per-path
+        index (registering a new key) but not yet its entry file: this purge
+        could delete that just-written index between the two writes, so the
+        writer's subsequent entry-file write landed on disk unindexed —
+        served by ``load`` (which only checks entry-file existence) as a
+        permanently fresh hit that no later ``invalidate_path`` call could
+        ever discover and purge, since the index that would have listed it
+        was gone. Serializing the purge against every writer's index+entry
+        pair makes the two operations strictly ordered instead: a writer
+        either finishes its whole pair before this purge starts (so the
+        purge deletes both files together, leaving no orphan) or starts
+        after this purge finishes (so it writes onto an already-clean
+        state) — never interleaved.
         """
-        for cached_file in self.root.glob("*.json"):
-            cached_file.unlink(missing_ok=True)
+        with self._locked_index(self._global_guard_path()):
+            for cached_file in self.root.glob("*.json"):
+                cached_file.unlink(missing_ok=True)
 
     def _entry_path(self, key: str) -> Path:
         return self.root / f"{key}.json"

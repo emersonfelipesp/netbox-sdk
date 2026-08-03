@@ -61,7 +61,12 @@ token, since Streamable HTTP is the transport used when the server is
 network-reachable rather than spawned as a local stdio subprocess.
 
 - Set the token via `--auth-token <value>` or `NETBOX_MCP_AUTH_TOKEN`
-  (`--auth-token` wins if both are set).
+  (`--auth-token` wins if both are set). Prefer `NETBOX_MCP_AUTH_TOKEN` on any
+  shared host: an argument's value is visible to other local users through
+  `ps` and `/proc/<pid>/cmdline`, while the environment variable is not.
+  `README.md` and `docs/mcp/index.md` document the invocation as
+  `NETBOX_MCP_AUTH_TOKEN=<value> nbx-mcp --transport streamable-http ...`
+  for this reason, never `--auth-token "$NETBOX_MCP_AUTH_TOKEN"`.
 - Every `--host` value, including loopback (`127.0.0.1`, `localhost`,
   `::1`), requires a configured token — without one, `run()` raises
   `RuntimeError` before the server binds. There is no unauthenticated mode
