@@ -156,11 +156,21 @@ class HttpCacheStore:
         would resurrect stale data for the fresh TTL and stale-if-error window,
         hiding the mutation from subsequent reads. When ``path`` and
         ``expected_generation`` are both given, the entry write and index
-        registration happen atomically under the same per-path lock
-        ``invalidate_path`` uses, and are skipped entirely (the in-memory
-        entry is still returned to satisfy the caller's own in-flight request)
-        if the path's generation has advanced since ``expected_generation`` was
-        captured.
+        registration happen under the same per-path lock ``invalidate_path``
+        uses, and are skipped entirely (the in-memory entry is still returned
+        to satisfy the caller's own in-flight request) if the path's
+        generation has advanced since ``expected_generation`` was captured.
+
+        The index is registered *before* the entry file is written. Each
+        individual write is already atomic (temp file + rename), but the pair
+        together is not a single transaction — a crash or ``OSError`` between
+        them must never leave an entry file that is invisible to
+        ``invalidate_path`` (which only walks keys already registered in the
+        index) yet still servable by ``load`` (which only checks that the
+        entry file exists, never index membership). Registering the index
+        first means the only possible interruption leaves an index key with
+        no matching entry file, which ``load`` already treats as a safe
+        cache miss.
         """
         now = time.time()
         headers = dict(response.headers)
@@ -182,10 +192,10 @@ class HttpCacheStore:
             generation, keys = self._load_index_state(index_path)
             if expected_generation is not None and generation != expected_generation:
                 return entry
-            self._write_entry(self._entry_path(key), entry)
             if key not in keys:
                 keys.append(key)
             self._write_index_state(index_path, generation, keys)
+            self._write_entry(self._entry_path(key), entry)
         return entry
 
     def path_generation(self, path: str) -> int:
@@ -220,6 +230,10 @@ class HttpCacheStore:
         otherwise the already-purged on-disk entry is left untouched so the
         next read is a genuine cache miss instead of resurrecting pre-write
         data.
+
+        As in :meth:`save`, the index is registered before the entry file is
+        written so an interrupted commit degrades to a safe cache miss
+        instead of an entry that ``invalidate_path`` can never discover.
         """
         now = time.time()
         refreshed = CacheEntry(
@@ -240,10 +254,10 @@ class HttpCacheStore:
             generation, keys = self._load_index_state(index_path)
             if expected_generation is not None and generation != expected_generation:
                 return refreshed
-            self._write_entry(self._entry_path(key), refreshed)
             if key not in keys:
                 keys.append(key)
             self._write_index_state(index_path, generation, keys)
+            self._write_entry(self._entry_path(key), refreshed)
         return refreshed
 
     def invalidate_path(self, path: str) -> None:

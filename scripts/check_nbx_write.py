@@ -47,10 +47,20 @@ _ALL_WRITE_WORDS = WRITE_ACTIONS | _BRANCHING_WRITE_VERBS | _DEV_HTTP_WRITE_VERB
 # WRITE_HTTP_METHODS/etc. — shlex only tokenizes here, it never performs the
 # shell's own variable/command substitution, so the hook cannot know what the
 # token will actually expand to. Any positional that could name a write verb
-# is therefore treated as an unprovable, and thus mutating, invocation.
+# is therefore treated as an unprovable, and thus mutating, invocation. The
+# same reasoning applies when the *executable name itself* is a shell
+# variable or command substitution (e.g. ``tool=nbx; $tool dcim devices
+# delete --id 7``): ``_command_name()`` can only compare the literal
+# pre-expansion token against ``"nbx"``, so such a token would otherwise
+# never be recognised as an nbx invocation at all and every check below
+# would be silently skipped. See ``_command_token_index`` and its use in
+# ``_segment_has_unconfirmed_write``.
 _SHELL_EXPANSION_PATTERN = re.compile(r"[$`]")
 _SEPARATORS = frozenset({";", "&&", "||", "|", "&", "(", ")"})
 _SHELLS = frozenset({"bash", "dash", "fish", "ksh", "sh", "zsh"})
+# Matches a leading inline environment assignment (``VAR=value cmd ...``) so
+# the real command-name token can be found past any such prefix.
+_ENV_ASSIGNMENT_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 _GLOBAL_OPTIONS_WITH_VALUES = frozenset({"--api-version", "--branch", "--netbox-version"})
 _OPTIONS_WITH_VALUES = frozenset(
     {
@@ -90,6 +100,20 @@ def _segments(command: str) -> list[list[str]]:
 
 def _command_name(token: str) -> str:
     return PurePosixPath(token.replace("\\", "/")).name
+
+
+def _command_token_index(tokens: list[str]) -> int | None:
+    """Return the index of the token occupying a segment's command-name position.
+
+    A shell command may be preceded by inline environment assignments
+    (``VAR=value cmd ...``); those tokens are not the invoked command.
+    Returns ``None`` if every token in the segment looks like an assignment
+    (or the segment is empty).
+    """
+    for index, token in enumerate(tokens):
+        if not _ENV_ASSIGNMENT_PATTERN.match(token):
+            return index
+    return None
 
 
 def _positionals_after_nbx(tokens: list[str], nbx_index: int) -> list[str]:
@@ -181,9 +205,23 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
 
 
 def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation: bool) -> bool:
+    command_index = _command_token_index(tokens)
     for index, token in enumerate(tokens):
         name = _command_name(token)
         if name == "nbx":
+            positionals = _positionals_after_nbx(tokens, index)
+            if _positionals_indicate_write(positionals):
+                if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
+                    return True
+        elif index == command_index and _SHELL_EXPANSION_PATTERN.search(token) is not None:
+            # The command name itself is a shell variable/command
+            # substitution (e.g. `tool=nbx; $tool dcim devices delete --id
+            # 7`, or `` `resolve_cmd` dcim devices delete --id 7 ``). This
+            # token can never be proven to be, or not be, `nbx` — treat the
+            # tokens that follow it exactly like `nbx`'s own positionals and
+            # fail closed if they look like a write, instead of silently
+            # skipping the whole segment because its literal basename isn't
+            # the string "nbx".
             positionals = _positionals_after_nbx(tokens, index)
             if _positionals_indicate_write(positionals):
                 if not (inherited_confirmation or CONFIRMATION in tokens[:index]):

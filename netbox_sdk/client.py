@@ -15,6 +15,7 @@ import asyncio
 import contextvars
 import json
 import logging
+import posixpath
 import time
 from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
@@ -279,6 +280,23 @@ class NetBoxApiClient:
         if parsed.query or parsed.fragment:
             raise ValueError("Request path must not include query parameters or fragments")
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
+        segments = normalized.split("/")
+        if "." in segments or ".." in segments:
+            # Resolve dot segments the same way the outbound request's own
+            # urljoin() in build_url() already does, so the path used for
+            # cache keys, cache-generation fencing, and invalidate_path()
+            # can never diverge from what is actually sent on the wire.
+            # Left unresolved, a request through an equivalent-but-
+            # unnormalized alias (e.g. "/api/dcim/../ipam/prefixes/")
+            # mutated the canonical resource on the wire while invalidating
+            # cache entries keyed to the literal alias instead — the
+            # canonical cached entries stayed untouched and a verification
+            # read could still return stale pre-write data.
+            had_trailing_slash = normalized.endswith("/") and normalized != "/"
+            resolved = posixpath.normpath(normalized)
+            if had_trailing_slash and not resolved.endswith("/"):
+                resolved += "/"
+            normalized = resolved
         return normalized
 
     async def request(
@@ -423,6 +441,13 @@ class NetBoxApiClient:
         headers: dict[str, str] | None = None,
         expect_json: bool = True,
     ) -> ApiResponse:
+        # Canonicalize once, up front, so the cache key, the cache-generation
+        # fence, invalidate_path(), and the outbound request all agree on the
+        # same path — build_url() below would otherwise silently resolve an
+        # unnormalized alias (e.g. "/api/dcim/../ipam/prefixes/") to its
+        # canonical form only for the wire request, leaving every
+        # cache-related lookup keyed to the literal, never-cached alias.
+        path = self._normalize_request_path(path)
         authorization = authorization_header_value(self.config)
         cache_policy = self._cache_policy(
             method=method,

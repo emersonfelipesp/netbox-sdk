@@ -124,17 +124,23 @@ class CallInput(ToolInput):
             raise ValueError("path must be a relative /api/ path with no backslashes")
         if not path.startswith("/api/"):
             raise ValueError("path must begin with /api/")
-        # A reverse proxy or NetBox itself may percent-decode and resolve dot
-        # segments server-side even though this client never does, so a raw
-        # path passing the prefix check above (e.g. "/api/../admin/" or its
-        # percent-encoded form) can still land outside /api/ once decoded and
-        # normalized downstream. Reject anything that would escape /api/ after
-        # decoding, without changing what actually gets sent on the wire.
+        # A reverse proxy, NetBox itself, or NetBoxApiClient's own dot-segment
+        # resolution (used to keep cache keys aligned with the outbound
+        # request) may resolve dot segments server- or client-side even
+        # though this raw path never states its true target explicitly. A
+        # path like "/api/dcim/../ipam/prefixes/" would still land under
+        # /api/ and pass a naive prefix check, but silently resolve to a
+        # different resource than its literal text names — reject "." and
+        # ".." segments outright instead of trying to reason about where
+        # they would resolve, so a raw call always targets exactly the
+        # resource its path spells out.
         decoded = unquote(path)
         if any(character in decoded for character in ("\r", "\n", "\x00")) or "\\" in decoded:
             raise ValueError("path must not contain controls or backslashes once decoded")
         if "://" in decoded:
             raise ValueError("path must be a relative /api/ path once decoded")
+        if any(segment in (".", "..") for segment in decoded.split("/")):
+            raise ValueError("path must not contain '.' or '..' segments")
         normalized = posixpath.normpath(decoded)
         if normalized != "/api" and not normalized.startswith("/api/"):
             raise ValueError("path must stay within /api/ once decoded and normalized")

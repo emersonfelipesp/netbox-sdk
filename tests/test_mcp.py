@@ -504,6 +504,46 @@ def test_hook_allows_confirmed_write_verb_built_from_shell_expansion() -> None:
     assert allowed.stdout == ""
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "tool=nbx; $tool dcim devices delete --id 7",
+        "tool=nbx; ${tool} dcim devices delete --id 7",
+        "`resolve_nbx` dcim devices delete --id 7",
+        "tool=nbx; $tool call DELETE /api/dcim/devices/1/",
+        "tool=nbx; $tool branching delete 7 --yes",
+        "tool=nbx; $tool proxbox sync",
+    ],
+)
+def test_hook_blocks_write_via_shell_expanded_executable_name(command: str) -> None:
+    """The invoked *executable name* itself can be a shell variable or
+    command substitution (e.g. `tool=nbx; $tool dcim devices delete --id 7`)
+    that resolves to `nbx` only once the shell expands it. `_command_name`
+    can only compare the literal pre-expansion token against the string
+    `"nbx"`, so without this check the whole segment would never even be
+    recognised as an nbx invocation and every downstream write check would be
+    silently skipped, regardless of how plainly mutating the rest of the
+    command looks."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_shell_expanded_executable_name() -> None:
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 $tool dcim devices delete --id 7")
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_shell_expanded_executable_reads() -> None:
+    """A shell-expanded executable name followed by a plainly read-only
+    invocation (no write verb anywhere in the resolved positionals) must not
+    trip the write gate — only the read-vs-write shape of what follows
+    matters, not that the executable name itself is unprovable."""
+    result = _run_hook("tool=nbx; $tool dcim devices list")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_hook_does_not_false_positive_on_expansion_inside_option_values() -> None:
     """An option value (e.g. a ``--query`` filter) containing ``$`` must not
     trip the write gate — only positionals that could themselves name a verb

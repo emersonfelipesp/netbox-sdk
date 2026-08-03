@@ -705,6 +705,60 @@ async def test_api_client_invalidates_cache_after_non_2xx_write_response(
     assert client._cache.load(key) is None
 
 
+@pytest.mark.asyncio
+async def test_api_client_write_through_dot_segment_alias_invalidates_canonical_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """A write issued through a dot-segment alias (e.g.
+    "/api/dcim/../ipam/prefixes/5/") must invalidate the same cache entry a
+    canonical-path read populated. build_url() resolves dot segments via
+    urljoin() before the request hits the wire, so the mutation always lands
+    on the canonical resource — if cache keys, the generation fence, and
+    invalidate_path() used the raw unnormalized alias instead, the canonical
+    cached entry would survive the write and a verification read could still
+    return stale pre-write data."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    canonical_path = "/api/ipam/prefixes/5/"
+    alias_path = "/api/dcim/../ipam/prefixes/5/"
+
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "prefix": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "prefix": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", canonical_path)
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=canonical_path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is not None
+
+    patch_response = await client.request("PATCH", alias_path, payload={"prefix": "new"})
+    assert patch_response.status == 200
+
+    assert client._cache.load(key) is None
+
+
 def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:
     """Mirrors save()'s fencing: a 304 revalidation must not resurrect an
     entry that a concurrent write already purged via invalidate_path()."""
@@ -932,3 +986,101 @@ def test_save_persists_when_generation_unchanged(tmp_path) -> None:
     loaded = store.load(key)
     assert loaded is not None
     assert loaded.text == '{"fresh": true}'
+
+
+def test_save_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> None:
+    """save() registers the index key before writing the entry file. If the
+    process is interrupted between those two steps (simulated here by making
+    _write_entry raise), the index must not be left pointing at an orphan
+    entry that invalidate_path() can never discover: load() must treat the
+    missing entry file as a plain cache miss, never as a hit for stale or
+    nonexistent data."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+
+    def _crash(entry_path, entry) -> None:
+        raise OSError("simulated crash before entry file is written")
+
+    store._write_entry = _crash  # type: ignore[method-assign]
+
+    with pytest.raises(OSError):
+        store.save(
+            key,
+            ApiResponse(status=200, text='{"data": true}', headers={}),
+            policy,
+            path=path,
+            expected_generation=store.path_generation(path),
+        )
+
+    # The index may already reference the key (registered before the crash)...
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert key in keys
+    # ...but load() must never resurrect it, since no entry file exists.
+    assert store.load(key) is None
+
+    # A subsequent invalidate_path() for the same path must not fail even
+    # though it will try to unlink an entry file that was never created.
+    store.invalidate_path(path)
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert key not in keys
+
+
+def test_refresh_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> None:
+    """Mirrors test_save_interrupted_after_index_write_leaves_safe_cache_miss
+    for refresh(): an interruption between the index write and the entry
+    write during a 304 revalidation must degrade to a safe cache miss, not an
+    invalidation-invisible orphan entry."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    entry = store.save(
+        key,
+        ApiResponse(status=200, text='{"old": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=store.path_generation(path),
+    )
+    assert store.load(key) is not None
+
+    # Simulate a crash between the index write and the entry write by first
+    # letting invalidate_path() clear both, then re-registering only the
+    # index side the way save()/refresh() now do, and making the entry write
+    # raise.
+    store.invalidate_path(path)
+
+    def _crash(entry_path, refreshed_entry) -> None:
+        raise OSError("simulated crash before entry file is written")
+
+    store._write_entry = _crash  # type: ignore[method-assign]
+
+    with pytest.raises(OSError):
+        store.refresh(
+            key,
+            entry,
+            policy,
+            path=path,
+            expected_generation=store.path_generation(path),
+        )
+
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert key in keys
+    assert store.load(key) is None
+
+    store.invalidate_path(path)
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert key not in keys

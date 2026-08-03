@@ -397,6 +397,14 @@ This makes the entry write and index registration atomic with respect to concurr
 
 The per-path index's read-modify-write is serialized by `HttpCacheStore._locked_index()`. On platforms with `fcntl` (Linux, macOS) this is a standard `flock()`. Where `fcntl` is unavailable, a portable fallback (`_portable_lock`) uses `O_CREAT | O_EXCL` atomic file creation — guaranteed exclusive-create semantics on every supported filesystem — bounded by a timeout that raises `TimeoutError` rather than deadlocking forever or silently allowing two writers to race the same index file.
 
+### Path Canonicalization
+
+Every fencing guarantee above depends on the cache key, the generation fence, `invalidate_path()`, and the outbound request all agreeing on the *same* request path. `NetBoxApiClient.build_url()` resolves `.`/`..` path segments via `urljoin()` before a request hits the wire, so a request through an unnormalized-but-equivalent alias (e.g. `/api/dcim/../ipam/prefixes/5/`) still lands on the canonical resource (`/api/ipam/prefixes/5/`) on the wire. `_normalize_request_path()` performs the identical dot-segment resolution and is called once, at the very top of `_request_impl()`, before any cache-related computation — so the cache key, the generation snapshot, and every `invalidate_path()` call downstream are always keyed to the same canonical path the request actually used, never the literal alias text. Without this, a write issued through such an alias would mutate the canonical resource while invalidating cache entries for the never-cached alias path, leaving the canonical cached entries (which a normal read would hit) stale and servable. `netbox_mcp/models.py`'s `CallInput._validate_path()` independently rejects decoded `.`/`..` segments outright at the MCP tool boundary, so a raw `nbx-mcp` call always targets exactly the resource its path spells out.
+
+### Crash-Consistent Cache Commits
+
+`save()` and `refresh()` register the key in the per-path index *before* writing the entry file — not the reverse. Each individual write (`_write_entry`, `_write_index_state`) is already atomic on its own (temp file + `os.replace()`), but committing an entry is inherently a two-file operation, and a crash or `OSError` between the two writes must degrade to a safe outcome. `load()` only checks whether the entry file exists — it never consults the index — while `invalidate_path()` only walks keys already registered in the index. Writing the entry first (the order used before this fix) could leave an orphan entry file on disk that `load()` would happily serve, but that `invalidate_path()` could never discover to purge on a later write — an invalidation-invisible stale hit servable indefinitely. Registering the index first means the only possible interruption leaves an index key with no matching entry file, which `load()` already treats as an ordinary cache miss.
+
 ---
 
 ## Services Layer
