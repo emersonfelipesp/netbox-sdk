@@ -76,3 +76,15 @@ network-reachable rather than spawned as a local stdio subprocess.
   response body and breaks Streamable HTTP's long-lived streaming
   responses. Callers must send `Authorization: Bearer <token>`; failures
   return `401`.
+- The middleware wrapping is not opt-in at the call site: `create_mcp_server()`
+  unconditionally shadows the returned `FastMCP` instance's
+  `streamable_http_app` **instance attribute** with a closure over
+  `build_streamable_http_app(server, auth_token=...)`, including when
+  `auth_token` is `None`. `FastMCP.run(transport="streamable-http")` calls
+  `self.streamable_http_app()` internally, and Python resolves an instance
+  attribute before the class method of the same name — so both a direct
+  `server.streamable_http_app()` call and `server.run("streamable-http")`
+  are routed through the same auth gate as `_run_streamable_http()`, and
+  both raise `RuntimeError` instead of silently serving an unauthenticated
+  app when no token is configured. There is no `create_mcp_server()`-produced
+  server instance capable of exposing an unauthenticated Streamable HTTP app.

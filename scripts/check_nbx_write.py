@@ -61,6 +61,38 @@ _SHELLS = frozenset({"bash", "dash", "fish", "ksh", "sh", "zsh"})
 # Matches a leading inline environment assignment (``VAR=value cmd ...``) so
 # the real command-name token can be found past any such prefix.
 _ENV_ASSIGNMENT_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+# `xargs` in default (non-replace-string) mode appends as many stdin-derived
+# arguments as fit to the END of the command line it runs at execution time —
+# so any positional visible after `nbx` in the static text can never be
+# proven complete: more tokens, potentially including the write verb itself,
+# can always be silently appended beyond what appears here. Replace-string
+# mode (`-I repl` / `-i[repl]` / `--replace[=repl]`) is different: it
+# substitutes the placeholder in place and runs the command exactly as
+# written once per input line with no appending, so the existing per-token
+# `nbx` scan below (which finds `nbx` at whatever position it occurs) already
+# proves the full argument list from the static text alone.
+_XARGS_REPLACE_STRING_PATTERN = re.compile(r"^(-I|-i|--replace(=|$))")
+# xargs options that consume the following token as a value, used to walk
+# past xargs' own flags to find the command token it will actually invoke.
+_XARGS_OPTIONS_WITH_VALUES = frozenset(
+    {
+        "-a",
+        "-d",
+        "-E",
+        "-I",
+        "-L",
+        "-n",
+        "-P",
+        "-s",
+        "--arg-file",
+        "--delimiter",
+        "--eof",
+        "--max-args",
+        "--max-chars",
+        "--max-lines",
+        "--max-procs",
+    }
+)
 _GLOBAL_OPTIONS_WITH_VALUES = frozenset({"--api-version", "--branch", "--netbox-version"})
 _OPTIONS_WITH_VALUES = frozenset(
     {
@@ -133,6 +165,32 @@ def _positionals_after_nbx(tokens: list[str], nbx_index: int) -> list[str]:
         positionals.append(token)
         index += 1
     return positionals
+
+
+def _xargs_command_index(tokens: list[str], xargs_index: int) -> int | None:
+    """Return the index of the command token ``xargs`` will invoke.
+
+    Skips ``xargs``'s own option tokens (and the values of options that take
+    one) to find the first positional, which is the command xargs runs for
+    each input batch/line. Returns ``None`` when the end of the segment is
+    reached without finding one.
+    """
+    index = xargs_index + 1
+    while index < len(tokens):
+        token = tokens[index]
+        if token == "--":
+            return index + 1 if index + 1 < len(tokens) else None
+        if token in _XARGS_OPTIONS_WITH_VALUES:
+            index += 2
+            continue
+        if token.startswith("--") and "=" in token:
+            index += 1
+            continue
+        if token.startswith("-") and token != "-":
+            index += 1
+            continue
+        return index
+    return None
 
 
 def _positionals_indicate_write(positionals: list[str]) -> bool:
@@ -234,6 +292,19 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
             if not positionals or _positionals_indicate_write(positionals):
                 if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
                     return True
+        if name == "xargs":
+            following = tokens[index + 1 :]
+            replace_mode = any(_XARGS_REPLACE_STRING_PATTERN.match(t) for t in following)
+            if not replace_mode:
+                xargs_command_index = _xargs_command_index(tokens, index)
+                if xargs_command_index is not None:
+                    xargs_command_token = tokens[xargs_command_index]
+                    invoked_name = _command_name(xargs_command_token)
+                    if invoked_name == "nbx" or _SHELL_EXPANSION_PATTERN.search(
+                        xargs_command_token
+                    ):
+                        if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
+                            return True
         if name in _SHELLS and "-c" in tokens[index + 1 :]:
             option_index = tokens.index("-c", index + 1)
             if option_index + 1 < len(tokens) and command_has_unconfirmed_write(

@@ -53,11 +53,23 @@ class BearerTokenMiddleware:
 
 
 def build_streamable_http_app(server: FastMCP, *, auth_token: str | None) -> ASGIApp:
-    """Return the server's Streamable HTTP ASGI app, gated by ``auth_token`` when set."""
-    app: ASGIApp = server.streamable_http_app()
-    if auth_token:
-        app = BearerTokenMiddleware(app, auth_token)
-    return app
+    """Return the server's Streamable HTTP ASGI app, always gated by ``auth_token``.
+
+    Rebuilds from ``FastMCP.streamable_http_app`` (the class method) rather
+    than ``server.streamable_http_app`` (the instance attribute), because
+    ``create_mcp_server`` shadows the latter with this same wrapped app to
+    close the direct-call bypass described there. Calling the class method
+    here instead avoids re-wrapping an already-wrapped app or recursing back
+    into this function.
+    """
+    if not auth_token:
+        raise RuntimeError(
+            "Refusing to build a Streamable HTTP app without an auth_token — "
+            "an unauthenticated app would expose the configured NetBox "
+            "credential and any active mutation window to every reachable caller."
+        )
+    app: ASGIApp = FastMCP.streamable_http_app(server)
+    return BearerTokenMiddleware(app, auth_token)
 
 
 def create_mcp_server(
@@ -65,8 +77,20 @@ def create_mcp_server(
     *,
     host: str = "127.0.0.1",
     port: int = 8000,
+    auth_token: str | None = None,
 ) -> FastMCP:
-    """Create a stateless JSON FastMCP server with the explicit NetBox tools."""
+    """Create a stateless JSON FastMCP server with the explicit NetBox tools.
+
+    The returned server's ``streamable_http_app`` instance attribute always
+    shadows the class method with one that routes through
+    :func:`build_streamable_http_app`, which requires a non-empty
+    ``auth_token``. This closes the bypass where calling
+    ``server.streamable_http_app()`` or ``server.run("streamable-http")``
+    directly — instead of going through this module's own transport
+    helpers — would otherwise start an unauthenticated network server: with
+    no ``auth_token`` configured here, either call now raises
+    ``RuntimeError`` instead of silently binding unauthenticated.
+    """
     active = service or NetBoxMCPService()
     server = FastMCP(
         "netbox-sdk",
@@ -250,5 +274,9 @@ def create_mcp_server(
             header=header,
             token=token,
         )
+
+    server.streamable_http_app = lambda: build_streamable_http_app(  # type: ignore[method-assign]
+        server, auth_token=auth_token
+    )
 
     return server

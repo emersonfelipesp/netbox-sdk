@@ -357,10 +357,40 @@ class HttpCacheStore:
         """
         index_path = self._index_path_file(path)
         with self._locked_index(index_path):
-            generation, keys = self._load_index_state(index_path)
+            state = self._load_index_state_or_none(index_path)
+            if state is None:
+                # The index file exists but its contents could not be parsed
+                # as a valid index, so its ``keys`` list — the only record of
+                # which entry files were ever saved for this path — is
+                # unrecoverable. ``load`` decides cache hits purely by entry
+                # file existence, never by index membership (see ``save``'s
+                # docstring), so any entry file that predates the corruption
+                # would otherwise keep being served as a fresh hit forever,
+                # defeating this exact invalidation call. There is no way to
+                # know which entries belonged to this path from the index
+                # alone, so fail safe by purging every cached entry across
+                # the whole store rather than silently leaving them intact.
+                self._purge_all_entries()
+                generation, keys = 0, []
+            else:
+                generation, keys = state
             for key in keys:
                 self._entry_path(key).unlink(missing_ok=True)
             self._write_index_state(index_path, generation + 1, [])
+
+    def _purge_all_entries(self) -> None:
+        """Delete every cached entry and per-path index file under ``root``.
+
+        The fail-safe fallback for :meth:`invalidate_path` when a corrupted
+        index makes it impossible to enumerate which entries it registered.
+        Resetting other paths' generations back to 0 here is safe under the
+        same fencing invariant :meth:`_load_index_state` documents: an
+        in-flight GET for an unrelated path that captured a pre-purge
+        generation will see a mismatch against the reset index and be
+        discarded as an extra cache miss, never a stale hit.
+        """
+        for cached_file in self.root.glob("*.json"):
+            cached_file.unlink(missing_ok=True)
 
     def _entry_path(self, key: str) -> Path:
         return self.root / f"{key}.json"
@@ -483,6 +513,34 @@ class HttpCacheStore:
             if isinstance(generation, int) and isinstance(keys, list):
                 return generation, [str(item) for item in keys]
         return 0, []
+
+    def _load_index_state_or_none(self, index_path: Path) -> tuple[int, list[str]] | None:
+        """Load ``(generation, keys)``, distinguishing "never written" from "corrupted".
+
+        Unlike :meth:`_load_index_state`, a missing file still resolves to a
+        safe ``(0, [])`` state, but a file that exists yet cannot be parsed
+        as a valid index resolves to ``None`` instead of silently discarding
+        its (unrecoverable) ``keys`` list. :meth:`_load_index_state`'s
+        degrade-to-empty behavior is safe for its own callers (``save``,
+        ``refresh``, ``path_generation``), which only need a consistent
+        generation number and tolerate a wrong one as an extra cache miss.
+        :meth:`invalidate_path` is different: it needs the actual ``keys``
+        list to know which entry files to delete, so silently treating
+        "corrupted" the same as "empty" there would leave stale entries on
+        disk, unpurged and unreachable through the index, forever.
+        """
+        if not index_path.exists():
+            return 0, []
+        try:
+            data = json.loads(index_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        if isinstance(data, dict):
+            generation = data.get("generation")
+            keys = data.get("keys")
+            if isinstance(generation, int) and isinstance(keys, list):
+                return generation, [str(item) for item in keys]
+        return None
 
     def _write_index_state(self, index_path: Path, generation: int, keys: list[str]) -> None:
         payload = json.dumps({"generation": generation, "keys": keys})

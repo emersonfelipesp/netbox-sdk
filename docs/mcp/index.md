@@ -30,6 +30,14 @@ on a shared dev or bastion host. Put TLS termination in front of it when it
 is exposed beyond the local host — the bearer token authenticates the
 caller, it does not encrypt the transport.
 
+This gate cannot be bypassed by calling the server object directly instead
+of going through `run()`: `create_mcp_server()` always shadows the returned
+server's `streamable_http_app` with a wrapper that enforces the same
+`auth_token`, including raising `RuntimeError` when no token was configured
+at all. There is no code path — `run("streamable-http")`,
+`streamable_http_app()`, or otherwise — that yields an unauthenticated
+Streamable HTTP app from a `create_mcp_server()`-produced instance.
+
 ## Tool surface
 
 | Tool | Behavior |

@@ -628,6 +628,56 @@ def test_hook_allows_confirmed_write_hidden_entirely_inside_a_shell_variable() -
     assert allowed.stdout == ""
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "printf '%s\\n' 'dcim devices delete --id 7' | xargs nbx",
+        "cat ids.txt | xargs -n 1 nbx dcim devices delete --id",
+        "cat ids.txt | xargs -P 4 nbx dcim devices get --id",
+    ],
+)
+def test_hook_blocks_unconfirmed_write_via_xargs_default_mode(command: str) -> None:
+    """`xargs` in default (non-replace-string) mode appends stdin-derived
+    arguments to the END of the command line it runs at execution time, so
+    even a command with no write verb visible in the static text (e.g. bare
+    `xargs nbx`) can execute an arbitrary write once stdin supplies the rest.
+    This must fail closed unconditionally the moment `xargs` invokes `nbx` in
+    default mode, regardless of what positionals happen to be visible,
+    including ones that look read-only (`get`) — more tokens can always be
+    silently appended beyond what this hook can see."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_xargs_default_mode() -> None:
+    allowed = _run_hook(
+        "printf '%s\\n' 'dcim devices delete --id 7' | NETBOX_SDK_CONFIRM_WRITE=1 xargs nbx"
+    )
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_blocks_unconfirmed_write_via_xargs_replace_string_mode() -> None:
+    """Replace-string mode (`-I {}`) substitutes the placeholder in place and
+    runs the exact command once per input line with no appending, so the
+    full argument list is always fully visible in the static text — the
+    existing per-token `nbx` scan already proves this case; this locks that
+    behavior in explicitly rather than relying on the new default-mode-only
+    override."""
+    blocked = _run_hook("cat ids.txt | xargs -I {} nbx dcim devices delete --id {}")
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_does_not_false_positive_on_unrelated_xargs_invocation() -> None:
+    """An `xargs` invocation that never invokes `nbx` at all — including one
+    with unrelated shell expansion in its own arguments — must not trip the
+    write gate; only the command `xargs` actually invokes matters, not every
+    token that happens to follow it."""
+    result = _run_hook('echo "$file" | xargs -n 1 -- cat "$other"')
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_is_loopback_host() -> None:
     assert is_loopback_host("127.0.0.1")
     assert is_loopback_host("localhost")
@@ -661,14 +711,38 @@ async def test_bearer_token_middleware_enforces_shared_secret() -> None:
     assert correct.text == "ok"
 
 
-def test_build_streamable_http_app_only_wraps_when_token_configured() -> None:
+def test_build_streamable_http_app_requires_auth_token() -> None:
     server = create_mcp_server(host="127.0.0.1", port=8000)
 
-    unwrapped = build_streamable_http_app(server, auth_token=None)
-    wrapped = build_streamable_http_app(server, auth_token="secret")
+    with pytest.raises(RuntimeError, match="auth_token"):
+        build_streamable_http_app(server, auth_token=None)
 
-    assert not isinstance(unwrapped, BearerTokenMiddleware)
+    wrapped = build_streamable_http_app(server, auth_token="secret")
     assert isinstance(wrapped, BearerTokenMiddleware)
+
+
+def test_create_mcp_server_direct_streamable_http_app_call_requires_token() -> None:
+    # Regression: calling the server's own `.streamable_http_app()` directly,
+    # instead of going through `build_streamable_http_app`, must not bypass
+    # the auth gate and start an unauthenticated app.
+    server = create_mcp_server(host="127.0.0.1", port=8000)
+
+    with pytest.raises(RuntimeError, match="auth_token"):
+        server.streamable_http_app()
+
+    authed_server = create_mcp_server(host="127.0.0.1", port=8000, auth_token="secret")
+    assert isinstance(authed_server.streamable_http_app(), BearerTokenMiddleware)
+
+
+def test_create_mcp_server_direct_run_streamable_http_requires_token() -> None:
+    # Regression: `FastMCP.run("streamable-http")` internally calls
+    # `self.streamable_http_app()` with zero auth wrapping of its own; the
+    # instance-level shadow installed by `create_mcp_server` must still catch
+    # this path even when the caller never touches `build_streamable_http_app`.
+    server = create_mcp_server(host="127.0.0.1", port=8000)
+
+    with pytest.raises(RuntimeError, match="auth_token"):
+        server.run(transport="streamable-http")
 
 
 def test_run_streamable_http_fails_closed_without_auth_token(monkeypatch) -> None:

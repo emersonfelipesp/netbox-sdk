@@ -1273,6 +1273,91 @@ def test_save_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> 
     assert key not in keys
 
 
+def test_invalidate_path_purges_stale_entry_when_index_is_corrupted(tmp_path) -> None:
+    """Regression: a corrupted per-path index file must not silently defeat
+    invalidate_path(). Before this fix, a malformed index degraded to an
+    empty (0, []) keys list, so invalidate_path() purged nothing — the entry
+    file written before the corruption stayed on disk and, since load()
+    decides hits by entry-file existence alone (never index membership),
+    kept being served as a fresh hit forever, even after the "invalidating"
+    write that was supposed to remove it."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    store.save(
+        key,
+        ApiResponse(status=200, text='{"stale": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=store.path_generation(path),
+    )
+    assert store.load(key) is not None
+
+    store._index_path_file(path).write_text("not valid json", encoding="utf-8")
+
+    store.invalidate_path(path)
+
+    assert store.load(key) is None
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert keys == []
+
+
+def test_invalidate_path_corrupted_index_purges_entire_store(tmp_path) -> None:
+    """The fail-safe fallback purges every cached entry, not just the
+    corrupted path's own: a corrupted index cannot tell us which entries it
+    registered, so the only way to guarantee no orphaned entry survives is to
+    wipe the whole store. This is a deliberate, coarser trade-off favoring
+    correctness over precision on what should be a rare (corruption)
+    event."""
+    store = HttpCacheStore(tmp_path)
+    corrupted_path = "/api/dcim/devices/5/"
+    unrelated_path = "/api/dcim/sites/9/"
+    policy = CachePolicy()
+    corrupted_key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=corrupted_path,
+        query=None,
+        authorization=None,
+    )
+    unrelated_key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=unrelated_path,
+        query=None,
+        authorization=None,
+    )
+    store.save(
+        corrupted_key,
+        ApiResponse(status=200, text='{"a": true}', headers={}),
+        policy,
+        path=corrupted_path,
+        expected_generation=store.path_generation(corrupted_path),
+    )
+    store.save(
+        unrelated_key,
+        ApiResponse(status=200, text='{"b": true}', headers={}),
+        policy,
+        path=unrelated_path,
+        expected_generation=store.path_generation(unrelated_path),
+    )
+    assert store.load(unrelated_key) is not None
+
+    store._index_path_file(corrupted_path).write_text("{not json", encoding="utf-8")
+
+    store.invalidate_path(corrupted_path)
+
+    assert store.load(corrupted_key) is None
+    assert store.load(unrelated_key) is None
+
+
 def test_refresh_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> None:
     """Mirrors test_save_interrupted_after_index_write_leaves_safe_cache_miss
     for refresh(): an interruption between the index write and the entry

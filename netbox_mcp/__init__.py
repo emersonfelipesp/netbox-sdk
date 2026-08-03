@@ -59,7 +59,6 @@ def run(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
     service = NetBoxMCPService(allow_mutations=args.allow_mutations)
-    server = create_mcp_server(service, host=args.host, port=args.port)
     if args.transport == "streamable-http":
         import anyio
 
@@ -75,10 +74,12 @@ def run(argv: list[str] | None = None) -> None:
                 f"an auth token. Set --auth-token or {AUTH_TOKEN_ENV_VAR} — this "
                 "is required even for loopback hosts."
             )
+        server = create_mcp_server(service, host=args.host, port=args.port, auth_token=auth_token)
         anyio.run(
             lambda: _run_streamable_http(
                 server, host=args.host, port=args.port, auth_token=auth_token
             )
         )
     else:
+        server = create_mcp_server(service, host=args.host, port=args.port)
         server.run(transport=args.transport)
