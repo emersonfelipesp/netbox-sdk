@@ -30,7 +30,7 @@ from netbox_mcp.app import (
 )
 from netbox_mcp.models import CallInput, GetInput
 from netbox_mcp.service import MutationDeniedError, NetBoxMCPService
-from netbox_sdk.client import ApiResponse
+from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
 from netbox_sdk.schema import SchemaIndex
 
@@ -357,6 +357,28 @@ async def test_raw_call_rejects_writes_until_mutations_are_enabled() -> None:
     assert allowed_client.calls[0]["method"] == "POST"
 
 
+async def test_mcp_raw_call_rejects_encoded_separator_before_transport(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com"))
+
+    async def _unexpected_session() -> Any:
+        pytest.fail("encoded path separator must be rejected before transport setup")
+
+    monkeypatch.setattr(client, "_get_session", _unexpected_session)
+    service = NetBoxMCPService(
+        index=_index(),
+        client_factory=lambda _config: client,
+        config_loader=lambda: Config(base_url="https://netbox.example.com"),
+        allow_mutations=False,
+    )
+
+    with pytest.raises(ValueError, match="percent-encoded path separators"):
+        await service.call(method="GET", path="/api/dcim/devices%2F1/")
+
+
 async def test_mcp_introspection_matches_cli_json_contract(monkeypatch: pytest.MonkeyPatch) -> None:
     index = _index()
     service = NetBoxMCPService(index=index, allow_mutations=False)
@@ -590,6 +612,16 @@ def test_hook_blocks_unconfirmed_raw_call_write(method: str) -> None:
     allowed = _run_hook(f"NETBOX_SDK_CONFIRM_WRITE=1 nbx call {method} /api/dcim/devices/1/")
 
     assert blocked.returncode == 0
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize("method", ["POST", "put", "PATCH", "delete"])
+def test_hook_blocks_unconfirmed_dynamic_raw_method_action(method: str) -> None:
+    blocked = _run_hook(f"nbx dcim devices {method} --body-json '{{}}'")
+    allowed = _run_hook(f"NETBOX_SDK_CONFIRM_WRITE=1 nbx dcim devices {method} --body-json '{{}}'")
+
     assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
     assert allowed.returncode == 0
     assert allowed.stdout == ""

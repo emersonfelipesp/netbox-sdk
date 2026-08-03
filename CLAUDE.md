@@ -143,8 +143,9 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 | `bulk-delete` | DELETE | list path | Array body; no `--id` |
 | `filters` | — | local only | Prints available filter parameters from schema |
 
-Live dynamic CRUD/bulk writes, write-method `nbx call` requests, and Proxbox
-CRUD/sync scheduling require `--confirm` or
+Every dynamic action that resolves to `POST`, `PUT`, `PATCH`, or `DELETE`
+(including a raw HTTP-method action spelling), write-method `nbx call`
+requests, and Proxbox CRUD/sync scheduling require `--confirm` or
 `NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation.
 
 **Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. `--max-records N` (default 10 000) is the hard ceiling on accumulated records.
@@ -193,7 +194,10 @@ and error log entries.
 `ops`, generated CRUD commands, the Proxbox TUI launcher, `sync`, and
 `sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
 merge streamed errors with post-stream Job `error` and error-level `log_entries`
-because server-side SSE throttling can drop granular errors.
+because server-side SSE throttling can drop granular errors. After a stream
+failure, the fetched job status is authoritative: poll the same job within the
+remaining timeout when necessary, keep terminal success successful, and report
+the transport loss as a warning rather than a job error.
 
 ## Core Rules
 

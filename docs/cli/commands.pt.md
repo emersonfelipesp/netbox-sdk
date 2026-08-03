@@ -119,6 +119,9 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 `--json`, `--yaml` e `--markdown` são mutuamente exclusivos.
 Métodos de escrita são recusados sem `--confirm` ou
 `NETBOX_SDK_CONFIRM_WRITE=1` no ambiente do processo `nbx`.
+Caminhos com separador codificado por porcentagem (`%2F` ou `%5C`, em qualquer
+combinação de maiúsculas/minúsculas) são rejeitados antes do cache ou da rede;
+passe valores de query por `-q` em vez de incorporá-los em `PATH`.
 
 ---
 
@@ -202,8 +205,11 @@ a CLI busca `/api/core/jobs/{job_id}/` e combina erros do job e entradas de log
 em nível de erro com erros transmitidos para não perder mensagens SSE removidas
 por throttling no servidor.
 Se o stream SSE expirar, desconectar ou falhar na validação de protocolo após o
-agendamento, a CLI ainda busca o job e informa seu `job_id`, status autoritativo
-e erro do stream, evitando um sync duplicado inseguro.
+agendamento, a CLI busca o job e, se ele ainda não for terminal, consulta o
+mesmo `job_id` dentro do orçamento restante de `--timeout`. Um job concluído
+com sucesso continua bem-sucedido e expõe a perda do stream como aviso; um job
+com falha ainda relata seus erros autoritativos, enquanto um job em execução
+sem resultado confirmado é identificado explicitamente para evitar sync duplicado.
 
 **Opções**
 
@@ -211,8 +217,8 @@ e erro do stream, evitando um sync duplicado inseguro.
 |------|-------------|
 | `-t` / `--type TEXT` | Slug de tipo de sync Proxbox. Repita para múltiplos tipos. Padrão: `all` |
 | `--job-name TEXT` | Nome opcional do job NetBox |
-| `--timeout FLOAT` | Segundos máximos para manter o stream SSE aberto (padrão: `7200`) |
-| `--json` | Ignora a UI ao vivo e emite JSON `{job_id,status,ok,errors,summary}` |
+| `--timeout FLOAT` | Segundos máximos para o stream SSE e consultas de recuperação (padrão: `7200`) |
+| `--json` | Ignora a UI ao vivo e emite JSON `{job_id,status,ok,errors,warnings,summary}` |
 | `--confirm` | Confirma o agendamento do job de sincronização real |
 
 Tipos válidos: `virtual-machines`, `storage`, `vm-disks`, `vm-backups`,

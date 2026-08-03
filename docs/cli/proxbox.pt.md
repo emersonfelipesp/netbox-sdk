@@ -61,8 +61,11 @@ nbx proxbox tui --theme
 
 CRUD Proxbox real e agendamento de sync exigem `--confirm` ou
 `NETBOX_SDK_CONFIRM_WRITE=1`; dry runs continuam sem confirmação. Se o stream
-SSE de um sync falhar após o agendamento, a CLI ainda busca o job autoritativo
-no NetBox e informa `job_id`, status e erro do stream.
+SSE de um sync falhar após o agendamento, a CLI busca o job autoritativo no
+NetBox e consulta esse mesmo job dentro do timeout restante quando necessário.
+Um job concluído continua bem-sucedido com a desconexão em `warnings`; um job
+com falha ou ainda não terminal é informado pelo status autoritativo sem
+sugerir que o trabalho agendado nunca ocorreu.
 
 ## Famílias de Recursos
 

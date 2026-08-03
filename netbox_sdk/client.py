@@ -16,6 +16,7 @@ import contextvars
 import json
 import logging
 import posixpath
+import re
 import time
 from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
@@ -48,6 +49,8 @@ if TYPE_CHECKING:
     import aiohttp
 
 logger = logging.getLogger(__name__)
+
+_ENCODED_PATH_SEPARATOR_RE = re.compile(r"%(?:2f|5c)", re.IGNORECASE)
 
 JSONScalar: TypeAlias = str | int | float | bool | None
 JSONValue: TypeAlias = JSONScalar | list["JSONValue"] | dict[str, "JSONValue"]
@@ -317,6 +320,10 @@ class NetBoxApiClient:
             raise ValueError("Request path must be relative to the configured NetBox base URL")
         if parsed.query or parsed.fragment:
             raise ValueError("Request path must not include query parameters or fragments")
+        if _ENCODED_PATH_SEPARATOR_RE.search(parsed.path):
+            raise ValueError(
+                "Request path must not contain percent-encoded path separators (%2F or %5C)"
+            )
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
         # Collapse repeated "/" the same way the outbound request's own
         # build_url() already does, so the path used for cache keys, the
@@ -346,17 +353,16 @@ class NetBoxApiClient:
         # "."/".." segments AND percent-decodes every octet that encodes an
         # RFC 3986 "unreserved" character (e.g. "%64cim" -> "dcim",
         # "device%73" -> "devices"), while leaving encoded reserved
-        # delimiters such as "%2F" (a literal "/" *within* a segment) or
-        # "%3F"/"%23" (a literal "?"/"#") untouched. The dot-segment-only
+        # delimiters such as "%3F"/"%23" untouched. Encoded path separators
+        # are rejected above because servers and proxies disagree on whether
+        # to decode them before route matching. The dot-segment-only
         # handling this function used to do did not decode non-dot aliases
         # at all, so a write through e.g. "/api/%64cim/devices/5/" mutated
         # the canonical "/api/dcim/devices/5/" resource on the wire while
         # invalidating cache entries keyed to the literal encoded alias,
         # leaving the canonical cached entries stale and servable by a
-        # verification read. Delegating to yarl's own ``raw_path`` (not
-        # ``path``, which further decodes "%2F" into an extra path
-        # separator and would silently change the number of segments)
-        # reproduces aiohttp's canonicalization exactly rather than
+        # verification read. Delegating to yarl's own ``raw_path`` reproduces
+        # aiohttp's canonicalization exactly rather than
         # re-implementing RFC 3986's unreserved-character set by hand — the
         # host portion is a fixed placeholder because path canonicalization
         # does not depend on it.
@@ -415,6 +421,7 @@ class NetBoxApiClient:
         This intentionally bypasses the normal request stack: streamed responses
         cannot be cached or replayed for token fallback/retry behavior.
         """
+        path = self._normalize_request_path(path)
         try:
             import aiohttp
         except ModuleNotFoundError as exc:

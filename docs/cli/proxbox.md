@@ -62,8 +62,11 @@ nbx proxbox tui --theme
 
 Live Proxbox CRUD and sync scheduling require `--confirm` or
 `NETBOX_SDK_CONFIRM_WRITE=1`; dry runs remain confirmation-free. If a sync SSE
-stream fails after scheduling, the CLI still fetches the authoritative NetBox
-job and reports its `job_id`, status, and stream error.
+stream fails after scheduling, the CLI fetches the authoritative NetBox job
+and polls that same job within the remaining timeout when needed. A completed
+job stays successful with the disconnect in `warnings`; a failed or still
+non-terminal job is reported from its authoritative status without implying
+the scheduled work never happened.
 
 ## Resource Families
 

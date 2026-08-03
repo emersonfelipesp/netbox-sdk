@@ -61,6 +61,9 @@ atributo de instância usado pelo Streamable HTTP.
 | `call` | Escape hatch relativo a `/api/`; somente GET/HEAD com o gate fechado |
 
 Cada entrada é validada por um schema Pydantic explícito antes do despacho.
+Caminhos brutos de `call` com separador codificado (`%2F` ou `%5C`, sem
+diferenciar maiúsculas/minúsculas) são rejeitados antes do cache ou da rede,
+pois roteadores divergem sobre esses octetos dividirem ou não segmentos.
 
 ## Autenticação
 

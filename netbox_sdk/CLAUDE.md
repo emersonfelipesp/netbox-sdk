@@ -55,7 +55,7 @@ netbox_sdk/
 
 - `netbox_sdk.config` — config model, profile persistence, auth headers
 - `netbox_sdk.branching` — NetBox Branching API client, branch-scoped header helpers, job polling helpers
-- `netbox_sdk.client` — async API client and connection probe
+- `netbox_sdk.client` — async API client and connection probe; caller-supplied paths reject percent-encoded `/` and `\` separators before cache or network dispatch
 - `netbox_sdk.decorators` — reusable decorator factories for SDK command/resource wrapper metadata
 - `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`)
 - `netbox_sdk.facade` — async convenience facade exposed via `api()`

@@ -217,9 +217,10 @@ nbx ops dcim devices --json
 nbx capabilities --json
 ```
 
-The `nbx` process itself refuses dynamic CRUD/bulk writes, write-method
-`nbx call` requests, Proxbox CRUD, and Proxbox sync scheduling unless the
-invocation includes `--confirm` or its environment contains
+The `nbx` process itself refuses every dynamic action resolving to a write
+method (including raw `POST`/`PUT`/`PATCH`/`DELETE` action spellings),
+write-method `nbx call` requests, Proxbox CRUD, and Proxbox sync scheduling
+unless the invocation includes `--confirm` or its environment contains
 `NETBOX_SDK_CONFIRM_WRITE=1`. Dry runs remain available without confirmation.
 Repository-local Claude Code and Codex hooks provide an earlier defense-in-depth
 denial for recognizable Bash commands, but arbitrary decoded/generated shell

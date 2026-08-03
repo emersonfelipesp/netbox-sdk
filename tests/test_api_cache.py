@@ -1260,25 +1260,40 @@ async def test_api_client_write_through_percent_encoded_unreserved_alias_invalid
 
 
 @pytest.mark.asyncio
-async def test_api_client_percent_encoded_slash_within_segment_is_preserved(
-    monkeypatch, tmp_path
+@pytest.mark.parametrize("encoded_separator", ["%2F", "%2f", "%5C", "%5c"])
+async def test_api_client_rejects_percent_encoded_path_separator_before_cache_or_network(
+    monkeypatch, tmp_path, encoded_separator
 ) -> None:
-    """A percent-encoded "/" *inside* a single path segment (``%2F``) must
-    never be decoded into an extra path separator: doing so would silently
-    change the number of segments aiohttp actually sends on the wire versus
-    what the cache key, generation fence, and invalidate_path() operate on.
-    yarl.URL(...).path further decodes "%2F" into a literal "/" and must
-    never be used for this purpose; only yarl.URL(...).raw_path -- which
-    keeps "%2F" encoded, matching what aiohttp actually places on the wire
-    -- is correct here."""
+    """Encoded separators are ambiguous across NetBox/proxy routers and must
+    fail before cache lookup, cache mutation, session creation, or dispatch."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     _install_fake_aiohttp(monkeypatch)
 
     cfg = Config(base_url="https://demo.netbox.dev")
     client = NetBoxApiClient(cfg)
 
-    normalized = client._normalize_request_path("/api/dcim/devices/a%2Fb/")
-    assert normalized == "/api/dcim/devices/a%2Fb/"
+    def _unexpected_cache(*args, **kwargs):
+        del args, kwargs
+        pytest.fail("encoded path separator must be rejected before cache access")
+
+    async def _unexpected_session():
+        pytest.fail("encoded path separator must be rejected before transport setup")
+
+    monkeypatch.setattr(client._cache, "path_generation", _unexpected_cache)
+    monkeypatch.setattr(client._cache, "load", _unexpected_cache)
+    monkeypatch.setattr(client._cache, "save", _unexpected_cache)
+    monkeypatch.setattr(client._cache, "invalidate_path", _unexpected_cache)
+    monkeypatch.setattr(client, "_get_session", _unexpected_session)
+
+    with pytest.raises(ValueError, match="percent-encoded path separators"):
+        await client.request("GET", f"/api/dcim/devices/a{encoded_separator}b/")
+
+
+def test_api_client_still_canonicalizes_unreserved_percent_encoding(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    client = NetBoxApiClient(Config(base_url="https://demo.netbox.dev"))
+
+    assert client._normalize_request_path("/api/%64cim/device%73/5/") == "/api/dcim/devices/5/"
 
 
 def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import json
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -52,6 +53,10 @@ proxbox_app = typer.Typer(
 
 _RECENT_EVENT_LIMIT = 14
 _ERROR_EVENTS = {"error", "error_detail"}
+_TERMINAL_JOB_STATUSES = frozenset(
+    {"completed", "errored", "failed", "terminated", "canceled", "cancelled"}
+)
+_JOB_POLL_INTERVAL = 1.0
 
 
 def _proxbox_index_factory() -> SchemaIndex:
@@ -498,6 +503,7 @@ async def _run_sync(
             schedule_message=schedule.message,
         )
         stream_error: Exception | None = None
+        stream_started_at = time.monotonic()
         try:
             if json_output:
                 await _consume_stream(proxbox, state, timeout=timeout)
@@ -511,7 +517,7 @@ async def _run_sync(
                     await _consume_stream(proxbox, state, timeout=timeout, live=live)
         except Exception as exc:  # noqa: BLE001 - recover the authoritative job after any stream failure
             stream_error = exc
-            state.errors.append(
+            state.warnings.append(
                 SyncErrorEntry(
                     source="stream",
                     phase="stream",
@@ -521,24 +527,59 @@ async def _run_sync(
             )
 
         if state.complete is None and stream_error is None:
-            state.errors.append(
+            state.warnings.append(
                 SyncErrorEntry(
                     source="stream",
                     phase="stream",
                     message="SSE stream ended before the terminal complete frame arrived.",
                 )
             )
+        stream_failed = stream_error is not None or state.complete is None
 
         try:
             job = await proxbox.fetch_job(job_id)
         except Exception as fetch_error:
-            if stream_error is None:
+            if not stream_failed:
                 raise
+            stream_detail = (
+                f"{stream_error.__class__.__name__}: {stream_error}"
+                if stream_error is not None
+                else "the SSE stream ended before a terminal complete frame"
+            )
             raise ProxboxSyncError(
-                f"Proxbox job {job_id} stream failed ({stream_error.__class__.__name__}: "
-                f"{stream_error}); authoritative job fetch also failed "
+                f"Proxbox job {job_id} stream failed ({stream_detail}); "
+                "authoritative job fetch also failed "
                 f"({fetch_error.__class__.__name__}: {fetch_error})."
             ) from fetch_error
+        if stream_failed and not _job_status_is_terminal(job):
+            remaining_timeout = max(0.0, timeout - (time.monotonic() - stream_started_at))
+            job, poll_error = await _poll_job_to_terminal(
+                proxbox,
+                job_id,
+                initial_job=job,
+                timeout=remaining_timeout,
+            )
+            if not _job_status_is_terminal(job):
+                status = _status_value(job.get("status")) or "non-terminal"
+                detail = (
+                    f"Polling also failed ({poll_error.__class__.__name__}: {poll_error}). "
+                    if poll_error is not None
+                    else ""
+                )
+                state.errors.append(
+                    SyncErrorEntry(
+                        source="job",
+                        phase=status,
+                        message=(
+                            f"Proxbox job {job_id} is still {status} server-side; "
+                            "completion was not confirmed before the --timeout budget expired."
+                        ),
+                        detail=(
+                            f"{detail}The sync was scheduled; inspect this existing job before "
+                            "considering another sync."
+                        ),
+                    )
+                )
         return _build_final_result(job_id, state, job)
     finally:
         await _close_raw_client(raw_client)
@@ -557,6 +598,35 @@ async def _consume_stream(
             live.update(_live_renderable(state))
         if frame.event == "complete":
             break
+
+
+async def _poll_job_to_terminal(
+    proxbox: ProxboxSyncClient,
+    job_id: int,
+    *,
+    initial_job: dict[str, Any],
+    timeout: float,
+) -> tuple[dict[str, Any], Exception | None]:
+    """Poll an already scheduled job within the remaining stream timeout budget."""
+    job = initial_job
+    deadline = time.monotonic() + timeout
+    while not _job_status_is_terminal(job):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return job, None
+        await asyncio.sleep(min(_JOB_POLL_INTERVAL, remaining))
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return job, None
+        try:
+            job = await asyncio.wait_for(proxbox.fetch_job(job_id), timeout=remaining)
+        except Exception as exc:  # noqa: BLE001 - report unresolved authoritative status
+            return job, exc
+    return job, None
+
+
+def _job_status_is_terminal(job: dict[str, Any]) -> bool:
+    return _status_value(job.get("status")) in _TERMINAL_JOB_STATUSES
 
 
 async def _resolve_endpoint_arg(
@@ -599,8 +669,11 @@ def _build_final_result(
     job: dict[str, Any],
 ) -> tuple[dict[str, Any], bool]:
     status = _status_value(job.get("status"))
-    complete_ok = bool(state.complete and state.complete.get("ok"))
     complete_status = _status_value((state.complete or {}).get("status"))
+    stream_recovered = any(
+        warning.source == "stream" and warning.phase == "stream" for warning in state.warnings
+    )
+    complete_ok = bool(state.complete.get("ok")) if state.complete is not None else stream_recovered
     errors = _dedupe_errors(
         [
             *state.errors,
@@ -608,12 +681,20 @@ def _build_final_result(
             *_complete_error_entries(state),
         ]
     )
+    if status in _TERMINAL_JOB_STATUSES - {"completed"} and not errors:
+        errors.append(
+            SyncErrorEntry(
+                source="job",
+                phase=status,
+                message=f"Proxbox job finished with status '{status}'.",
+            )
+        )
+    warnings = _dedupe_errors(state.warnings)
     summary = _merged_summary(state, job)
     queued = (
-        state.complete is not None
-        and state.complete.get("ok") is False
-        and (complete_status == "waiting" or status == "waiting")
-    )
+        (state.complete is not None and state.complete.get("ok") is False)
+        and (complete_status in {"waiting", "pending", "queued", "scheduled"})
+    ) or (state.complete is None and status in {"waiting", "pending", "queued", "scheduled"})
     ok = complete_ok and status == "completed" and not errors
     return (
         {
@@ -621,6 +702,7 @@ def _build_final_result(
             "status": status,
             "ok": ok,
             "errors": [entry.as_dict() for entry in errors],
+            "warnings": [entry.as_dict() for entry in warnings],
             "summary": summary,
         },
         queued,
@@ -774,11 +856,13 @@ def _recent_events_panel(state: RenderState) -> Panel:
 
 def _render_final_result(result: dict[str, Any], *, queued: bool) -> None:
     if result["ok"]:
-        content = Group(
+        content_items: list[Any] = [
             Text("Proxbox sync completed successfully.", style="bold green"),
             _summary_table(result["summary"]),
-        )
-        console.print(Panel(content, title="Success", border_style="green"))
+        ]
+        if result["warnings"]:
+            content_items.append(_warning_table(result["warnings"]))
+        console.print(Panel(Group(*content_items), title="Success", border_style="green"))
         return
 
     if queued:
@@ -792,6 +876,8 @@ def _render_final_result(result: dict[str, Any], *, queued: bool) -> None:
                 border_style="yellow",
             )
         )
+    if result["warnings"]:
+        console.print(_warning_table(result["warnings"]))
     errors = result["errors"] or [
         {
             "source": "job",
@@ -819,6 +905,20 @@ def _render_final_result(result: dict[str, Any], *, queued: bool) -> None:
             _clean(entry.get("detail") or entry.get("suggestion") or entry.get("traceback")),
         )
     console.print(table)
+
+
+def _warning_table(warnings: list[dict[str, Any]]) -> Table:
+    table = Table(title="Proxbox Sync Warnings", show_header=True, header_style="bold yellow")
+    table.add_column("Source", style="yellow", overflow="fold")
+    table.add_column("Message", overflow="fold", ratio=2)
+    table.add_column("Detail", overflow="fold", ratio=2)
+    for entry in warnings:
+        table.add_row(
+            _clean(entry.get("source")),
+            _clean(entry.get("message")),
+            _clean(entry.get("detail") or entry.get("suggestion")),
+        )
+    return table
 
 
 def _summary_table(summary: dict[str, Any]) -> Table:
@@ -851,6 +951,7 @@ def _render_cli_exception(exc: Exception, *, json_output: bool) -> None:
                     "traceback": "",
                 }
             ],
+            "warnings": [],
             "summary": {},
         }
         typer.echo(json.dumps(payload, indent=2, sort_keys=True))

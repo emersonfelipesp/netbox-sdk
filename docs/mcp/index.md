@@ -60,7 +60,9 @@ shadowing mechanism as Streamable HTTP.
 
 Every tool input is validated by an explicit Pydantic schema. Names, IDs,
 methods, relative API paths, list sizes, unknown fields, and credential control
-characters are rejected before dispatch.
+characters are rejected before dispatch. Raw `call` paths containing an encoded
+path separator (`%2F` or `%5C`, case-insensitive) are rejected before cache or
+network access because routers disagree on whether those octets split segments.
 
 ## Authentication
 

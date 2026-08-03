@@ -20,11 +20,23 @@ from netbox_cli.support import (
     resolve_output_format,
     run_with_spinner,
 )
-from netbox_cli.write_confirmation import require_write_confirmation
+from netbox_cli.write_confirmation import WRITE_HTTP_METHODS, require_write_confirmation
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.services import ACTION_METHOD_MAP
 
 logger = logging.getLogger(__name__)
+
+
+def _resolved_action_method(action: str) -> str:
+    """Return the HTTP method used by dynamic request resolution."""
+    action_lower = action.lower()
+    return ACTION_METHOD_MAP.get(action_lower, action.upper())
+
+
+def _action_is_write(action: str) -> bool:
+    """Return whether a dynamic action resolves to a mutating HTTP method."""
+    return _resolved_action_method(action) in WRITE_HTTP_METHODS
 
 
 def _runtime_get_client() -> NetBoxApiClient:
@@ -147,18 +159,19 @@ def _handle_dynamic_invocation(
 
     if trace and trace_only:
         raise typer.BadParameter("Use either --trace or --trace-only, not both.")
-    if dry_run and action.lower() not in _ALL_WRITE_ACTIONS:
+    action_lower = action.lower()
+    action_is_write = _action_is_write(action)
+    if dry_run and not action_is_write:
         raise typer.BadParameter(
             "--dry-run is only supported for write operations "
-            "(create, update, patch, delete, bulk-update, bulk-patch, bulk-delete)"
+            "(actions resolving to POST, PUT, PATCH, or DELETE)"
         )
     if fetch_all and action.lower() != "list":
         raise typer.BadParameter("--all is only supported for the list action")
-    action_lower = action.lower()
-    if action_lower in _ALL_WRITE_ACTIONS and not dry_run:
+    if action_is_write and not dry_run:
         require_write_confirmation(confirmed=confirmed)
     # Dry-run previews only need the OpenAPI index; avoid building an API client (and loading config).
-    skip_client = bool(dry_run and action_lower in _ALL_WRITE_ACTIONS)
+    skip_client = bool(dry_run and action_is_write)
     index = index_factory()
     client = None if skip_client else client_factory()
     if client is not None and index.resource_paths(group, resource) is None:
@@ -438,9 +451,12 @@ def _execute_dynamic_action(
     index: SchemaIndex | None = None,
 ) -> ApiResponse | None:
     """Run OpenAPI-resolved request, or print dry-run preview when ``dry_run`` is True."""
-    action_lower = action.lower()
+    action_is_write = _action_is_write(action)
 
-    if dry_run and action_lower in _ALL_WRITE_ACTIONS:
+    if dry_run and not action_is_write:
+        raise typer.BadParameter("--dry-run is only supported for write operations")
+
+    if dry_run and action_is_write:
         from netbox_cli.support import print_dry_run
         from netbox_sdk.services import load_json_payload, resolve_dynamic_request
 
@@ -460,7 +476,7 @@ def _execute_dynamic_action(
             body=body,
         )
 
-    if action_lower in _ALL_WRITE_ACTIONS:
+    if action_is_write:
         require_write_confirmation(confirmed=confirmed)
 
     active_client = client or _runtime_get_client()
@@ -516,9 +532,6 @@ def _supported_actions(group: str, resource: str, *, index: SchemaIndex | None =
 
 
 _BULK_ACTIONS: frozenset[str] = frozenset({"bulk-update", "bulk-patch", "bulk-delete"})
-_ALL_WRITE_ACTIONS: frozenset[str] = frozenset(
-    {"create", "update", "patch", "delete", "bulk-update", "bulk-patch", "bulk-delete"}
-)
 
 
 def _build_action_command(
@@ -554,7 +567,10 @@ def _build_action_command(
         return _filters_command
 
     requires_id = action in {"get", "update", "patch", "delete"}
-    allows_body = action in {"create", "update", "patch"} | _BULK_ACTIONS
+    action_is_write = _action_is_write(action)
+    allows_body = _resolved_action_method(action) in {"POST", "PUT", "PATCH"} or action in (
+        _BULK_ACTIONS
+    )
 
     def _command(
         object_id: int | None = typer.Option(None, "--id", help="Object ID for detail operations"),
@@ -631,11 +647,11 @@ def _build_action_command(
             raise typer.BadParameter("Use either --trace or --trace-only, not both.")
         if (trace or trace_only) and action != "get":
             raise typer.BadParameter("--trace and --trace-only are only supported for get actions")
-        if dry_run and action.lower() not in _ALL_WRITE_ACTIONS:
+        if dry_run and not action_is_write:
             raise typer.BadParameter("--dry-run is only supported for write operations")
         if fetch_all and action != "list":
             raise typer.BadParameter("--all is only supported for the list action")
-        if action.lower() in _ALL_WRITE_ACTIONS and not dry_run:
+        if action_is_write and not dry_run:
             require_write_confirmation(confirmed=confirm)
 
         active_client = None if dry_run else client_factory()

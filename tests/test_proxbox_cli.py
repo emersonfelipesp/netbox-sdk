@@ -30,11 +30,12 @@ def _install_fake_proxbox(
     monkeypatch: pytest.MonkeyPatch,
     *,
     frames: list[SseFrame],
-    job: dict[str, Any],
+    job: dict[str, Any] | list[dict[str, Any]],
     schedule: ScheduleResult | None = None,
     stream_error: Exception | None = None,
 ) -> _RawClient:
     raw = _RawClient()
+    jobs = list(job) if isinstance(job, list) else [job]
 
     def _get_client() -> _RawClient:
         return raw
@@ -68,7 +69,9 @@ def _install_fake_proxbox(
         async def fetch_job(self, job_id: int) -> dict[str, Any]:
             assert job_id == 101
             raw.fetched_job_ids.append(job_id)
-            return job
+            if len(jobs) > 1:
+                return jobs.pop(0)
+            return jobs[0]
 
         async def resolve_endpoint(self, name_or_id: str | int) -> int:
             raise AssertionError(f"unexpected endpoint lookup: {name_or_id!r}")
@@ -274,24 +277,14 @@ def test_proxbox_sync_json_mode_outputs_final_object(monkeypatch: pytest.MonkeyP
     assert "Recent Events" not in result.stdout
 
 
-@pytest.mark.parametrize(
-    ("stream_error", "job_status", "error_text"),
-    [
-        (TimeoutError("SSE stream timed out"), "running", "SSE stream timed out"),
-        (RuntimeError("SSE protocol disconnect"), "errored", "SSE protocol disconnect"),
-    ],
-)
-def test_proxbox_sync_stream_failure_fetches_and_reports_authoritative_job(
+def test_proxbox_sync_stream_failure_with_terminal_success_is_warning(
     monkeypatch: pytest.MonkeyPatch,
-    stream_error: Exception,
-    job_status: str,
-    error_text: str,
 ) -> None:
     raw = _install_fake_proxbox(
         monkeypatch,
         frames=[],
-        stream_error=stream_error,
-        job={"status": job_status, "error": "", "data": {}, "log_entries": []},
+        stream_error=RuntimeError("SSE protocol disconnect"),
+        job={"status": "completed", "error": "", "data": {}, "log_entries": []},
     )
 
     result = runner.invoke(
@@ -299,11 +292,81 @@ def test_proxbox_sync_stream_failure_fetches_and_reports_authoritative_job(
         ["proxbox", "sync", "--json", "--confirm"],
     )
 
-    assert result.exit_code == 1
+    assert result.exit_code == 0
     payload = json.loads(result.stdout)
     assert payload["job_id"] == 101
-    assert payload["status"] == job_status
-    assert error_text in payload["errors"][0]["detail"]
+    assert payload["status"] == "completed"
+    assert payload["ok"] is True
+    assert payload["errors"] == []
+    assert "SSE protocol disconnect" in payload["warnings"][0]["detail"]
+    assert raw.fetched_job_ids == [101]
+    assert raw.closed is True
+
+
+def test_proxbox_sync_stream_eof_without_complete_uses_authoritative_success(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    raw = _install_fake_proxbox(
+        monkeypatch,
+        frames=[],
+        job={"status": "completed", "error": "", "data": {}, "log_entries": []},
+    )
+
+    result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["ok"] is True
+    assert payload["errors"] == []
+    assert "before the terminal complete frame" in payload["warnings"][0]["message"]
+    assert raw.fetched_job_ids == [101]
+    assert raw.closed is True
+
+
+def test_proxbox_sync_stream_failure_polls_nonterminal_job_to_completion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(proxbox_mod, "_JOB_POLL_INTERVAL", 0.0)
+    raw = _install_fake_proxbox(
+        monkeypatch,
+        frames=[],
+        stream_error=TimeoutError("SSE stream timed out"),
+        job=[
+            {"status": "running", "error": "", "data": {}, "log_entries": []},
+            {"status": "completed", "error": "", "data": {}, "log_entries": []},
+        ],
+    )
+
+    result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "completed"
+    assert payload["ok"] is True
+    assert payload["errors"] == []
+    assert "SSE stream timed out" in payload["warnings"][0]["detail"]
+    assert raw.fetched_job_ids == [101, 101]
+    assert raw.closed is True
+
+
+def test_proxbox_sync_stream_failure_with_authoritative_job_error_still_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    raw = _install_fake_proxbox(
+        monkeypatch,
+        frames=[],
+        stream_error=RuntimeError("SSE protocol disconnect"),
+        job={"status": "errored", "error": "job failed", "data": {}, "log_entries": []},
+    )
+
+    result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
+
+    assert result.exit_code == 1
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "errored"
+    assert payload["ok"] is False
+    assert any("job failed" in entry["detail"] for entry in payload["errors"])
+    assert "SSE protocol disconnect" in payload["warnings"][0]["detail"]
     assert raw.fetched_job_ids == [101]
     assert raw.closed is True
 

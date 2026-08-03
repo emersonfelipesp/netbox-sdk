@@ -366,7 +366,9 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
                 _SHELL_EXPANSION_PATTERN.search(verb) is not None or verb in _DEV_HTTP_WRITE_VERBS
             )
     return any(
-        word in WRITE_ACTIONS or _SHELL_EXPANSION_PATTERN.search(word) is not None
+        word in WRITE_ACTIONS
+        or word.upper() in WRITE_HTTP_METHODS
+        or _SHELL_EXPANSION_PATTERN.search(word) is not None
         for word in positionals
     )
 

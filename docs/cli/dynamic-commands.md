@@ -290,14 +290,15 @@ nbx dcim devices delete --dry-run --id 1
 ```
 
 Output shows the HTTP method, path, and request body in a formatted table. The
-`--dry-run` flag is only valid for write operations (`create`, `update`,
-`patch`, `delete`, `bulk-update`, `bulk-patch`, and `bulk-delete`).
+`--dry-run` flag is only valid for actions that resolve to `POST`, `PUT`,
+`PATCH`, or `DELETE` (including the named CRUD/bulk actions).
 
 Live writes are refused by the executing CLI unless the command includes
 `--confirm` or the process environment contains
-`NETBOX_SDK_CONFIRM_WRITE=1`. This gate applies to dynamic CRUD and bulk
-actions, Proxbox CRUD/sync, and write-method `nbx call` requests regardless of
-whether `nbx` was launched directly, through a script, or from a subprocess.
+`NETBOX_SDK_CONFIRM_WRITE=1`. This gate applies to every dynamic action that
+resolves to `POST`, `PUT`, `PATCH`, or `DELETE`, including a raw HTTP-method
+action spelling, plus Proxbox CRUD/sync and write-method `nbx call` requests,
+regardless of whether `nbx` was launched directly, through a script, or from a subprocess.
 `--dry-run` does not require confirmation because it makes no HTTP request.
 
 ---

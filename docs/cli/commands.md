@@ -119,6 +119,9 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 `--json`, `--yaml`, and `--markdown` are mutually exclusive.
 Write methods are refused unless `--confirm` is passed or
 `NETBOX_SDK_CONFIRM_WRITE=1` is present in the `nbx` process environment.
+Paths containing a percent-encoded path separator (`%2F` or `%5C`, in any
+letter case) are rejected before cache access or network dispatch; pass query
+values through `-q` instead of embedding them in `PATH`.
 
 ---
 
@@ -199,8 +202,11 @@ events, and an authoritative final summary. After the stream ends, the CLI
 fetches `/api/core/jobs/{job_id}/` and merges job errors and error-level log
 entries with streamed errors so throttled server-side SSE messages are not lost.
 If the SSE stream times out, disconnects, or fails protocol validation after
-scheduling, the CLI still fetches that job and reports its `job_id`,
-authoritative status, and the stream error to prevent an unsafe duplicate sync.
+scheduling, the CLI fetches that job and, when it is still non-terminal, polls
+the same `job_id` within the remaining `--timeout` budget. A terminal-success
+job remains successful and reports the stream loss as a warning; a failed job
+still reports its authoritative errors, while an unconfirmed running job is
+identified explicitly so automation does not schedule an unsafe duplicate.
 
 **Options**
 
@@ -208,8 +214,8 @@ authoritative status, and the stream error to prevent an unsafe duplicate sync.
 |------|-------------|
 | `-t` / `--type TEXT` | Proxbox sync type slug. Repeat for multiple types. Defaults to `all` |
 | `--job-name TEXT` | Optional NetBox job name |
-| `--timeout FLOAT` | Maximum seconds to keep the SSE stream open (default: `7200`) |
-| `--json` | Skip the live UI and emit `{job_id,status,ok,errors,summary}` JSON |
+| `--timeout FLOAT` | Maximum seconds for the SSE stream and any recovery polling (default: `7200`) |
+| `--json` | Skip the live UI and emit `{job_id,status,ok,errors,warnings,summary}` JSON |
 | `--confirm` | Confirm scheduling the live synchronization job |
 
 Valid sync types are: `virtual-machines`, `storage`, `vm-disks`, `vm-backups`,

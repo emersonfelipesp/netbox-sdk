@@ -20,6 +20,19 @@ def _index():
     return build_schema_index(OPENAPI_PATH)
 
 
+class _DynamicWriteClient:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+        self.closed = False
+
+    async def request(self, method: str, path: str, **kwargs: Any) -> ApiResponse:
+        self.calls.append({"method": method, "path": path, **kwargs})
+        return ApiResponse(status=200, text='{"ok": true}', headers={})
+
+    async def close(self) -> None:
+        self.closed = True
+
+
 # ---- _supported_actions ----
 
 
@@ -209,6 +222,141 @@ def test_handle_dynamic_invocation_bulk_dry_run_patch(capsys):
     )
     captured = capsys.readouterr()
     assert "PATCH" in captured.out or "/api/dcim/devices/" in captured.out
+
+
+def test_handle_dynamic_invocation_raw_method_requires_confirmation_before_client(
+    monkeypatch,
+    capsys,
+):
+    from netbox_cli.dynamic import _handle_dynamic_invocation
+
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+
+    with pytest.raises(typer.BadParameter, match="explicit confirmation"):
+        _handle_dynamic_invocation(
+            ["dcim", "devices", "POST", "--body-json", '{"name":"leaf01"}'],
+            client_factory=MagicMock(side_effect=AssertionError("client must not be built")),
+            index_factory=MagicMock(side_effect=AssertionError("index must not be built")),
+        )
+
+    client = _DynamicWriteClient()
+    _handle_dynamic_invocation(
+        [
+            "dcim",
+            "devices",
+            "POST",
+            "--body-json",
+            '{"name":"leaf01"}',
+            "--confirm",
+        ],
+        client_factory=lambda: client,  # type: ignore[arg-type, return-value]
+        index_factory=_index,
+    )
+
+    assert client.calls[0]["method"] == "POST"
+    assert client.closed is True
+    assert "Status: 200" in capsys.readouterr().out
+
+
+def test_handle_dynamic_invocation_raw_method_dry_run_skips_client(capsys):
+    from netbox_cli.dynamic import _handle_dynamic_invocation
+
+    _handle_dynamic_invocation(
+        ["dcim", "devices", "POST", "--dry-run", "--body-json", '{"name":"leaf01"}'],
+        client_factory=MagicMock(side_effect=AssertionError("client must not be built")),
+        index_factory=_index,
+    )
+
+    captured = capsys.readouterr()
+    assert "POST" in captured.out
+    assert "/api/dcim/devices/" in captured.out
+
+
+def test_execute_dynamic_action_raw_method_requires_confirmation_before_dispatch(monkeypatch):
+    from netbox_cli.dynamic import _execute_dynamic_action
+
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    client = _DynamicWriteClient()
+    kwargs = {
+        "group": "dcim",
+        "resource": "devices",
+        "action": "put",
+        "object_id": None,
+        "query_pairs": [],
+        "body_json": '{"name":"leaf01"}',
+        "body_file": None,
+        "client": client,
+        "index": _index(),
+    }
+
+    with pytest.raises(typer.BadParameter, match="explicit confirmation"):
+        _execute_dynamic_action(**kwargs)
+    assert client.calls == []
+
+    response = _execute_dynamic_action(**kwargs, confirmed=True)
+    assert response is not None
+    assert response.status == 200
+    assert client.calls[0]["method"] == "PUT"
+
+
+def test_execute_dynamic_action_dry_run_rejects_resolved_read_before_dispatch():
+    from netbox_cli.dynamic import _execute_dynamic_action
+
+    client = _DynamicWriteClient()
+    with pytest.raises(typer.BadParameter, match="write operations"):
+        _execute_dynamic_action(
+            group="dcim",
+            resource="devices",
+            action="GET",
+            object_id=None,
+            query_pairs=[],
+            body_json=None,
+            body_file=None,
+            dry_run=True,
+            client=client,
+            index=_index(),
+        )
+    assert client.calls == []
+
+
+def test_generated_raw_method_command_requires_confirmation_before_client(monkeypatch):
+    from netbox_cli.dynamic import _build_action_command
+
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    client = _DynamicWriteClient()
+    client_factory = MagicMock(return_value=client)
+    command = _build_action_command(
+        group="dcim",
+        resource="devices",
+        action="POST",
+        client_factory=client_factory,
+        index_factory=_index,
+    )
+    kwargs = {
+        "object_id": None,
+        "query": None,
+        "body_json": '{"name":"leaf01"}',
+        "body_file": None,
+        "header": None,
+        "output_json": True,
+        "output_yaml": False,
+        "output_markdown": False,
+        "trace": False,
+        "trace_only": False,
+        "select_path": None,
+        "columns": None,
+        "max_columns": 6,
+        "dry_run": False,
+        "fetch_all": False,
+        "max_records": 10_000,
+    }
+
+    with pytest.raises(typer.BadParameter, match="explicit confirmation"):
+        command(**kwargs, confirm=False)
+    client_factory.assert_not_called()
+
+    command(**kwargs, confirm=True)
+    assert client.calls[0]["method"] == "POST"
 
 
 # ---- _handle_dynamic_invocation — --all flag with mock client ----
