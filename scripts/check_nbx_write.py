@@ -41,6 +41,14 @@ _DEV_HTTP_WRITE_VERBS = frozenset({"post", "put", "patch", "delete"})
 # Combined word set for the fail-closed fallback path below, where malformed
 # shell quoting means positional structure can't be trusted.
 _ALL_WRITE_WORDS = WRITE_ACTIONS | _BRANCHING_WRITE_VERBS | _DEV_HTTP_WRITE_VERBS
+# A positional built from a shell variable or command substitution (e.g.
+# ``$method``, ``${action}``, `` `verb` ``) can resolve to any write verb at
+# runtime even though the literal token itself never matches WRITE_ACTIONS/
+# WRITE_HTTP_METHODS/etc. — shlex only tokenizes here, it never performs the
+# shell's own variable/command substitution, so the hook cannot know what the
+# token will actually expand to. Any positional that could name a write verb
+# is therefore treated as an unprovable, and thus mutating, invocation.
+_SHELL_EXPANSION_PATTERN = re.compile(r"[$`]")
 _SEPARATORS = frozenset({";", "&&", "||", "|", "&", "(", ")"})
 _SHELLS = frozenset({"bash", "dash", "fish", "ksh", "sh", "zsh"})
 _GLOBAL_OPTIONS_WITH_VALUES = frozenset({"--api-version", "--branch", "--netbox-version"})
@@ -130,20 +138,46 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
       to leak into the positional list (as with an untracked ``--flag``)
       must never hide a real trailing action, so this checks membership
       rather than a fixed or trailing position.
+
+    Every branch above also fails closed the moment a positional it inspects
+    contains a ``$``/backtick shell-expansion marker: a command like
+    ``method=POST; nbx call $method /api/...`` or ``action=delete; nbx dcim
+    devices $action --id 7`` tokenizes to a literal ``$method``/``$action``
+    that never equals a known write verb, but the shell resolves it to one at
+    execution time. Since this hook only ever sees the pre-expansion text, it
+    cannot statically prove such a token is read-only, so it is treated as a
+    write.
     """
     if not positionals:
         return False
     root = positionals[0]
     if root == "call":
-        return len(positionals) >= 2 and positionals[1].upper() in WRITE_HTTP_METHODS
+        if len(positionals) < 2:
+            return False
+        return (
+            _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None
+            or positionals[1].upper() in WRITE_HTTP_METHODS
+        )
     if root in _BRANCHING_ROOTS:
-        return len(positionals) >= 2 and positionals[1] in _BRANCHING_WRITE_VERBS
-    if root == "proxbox" and len(positionals) >= 2 and positionals[1] == "sync":
-        return True
+        if len(positionals) < 2:
+            return False
+        return (
+            _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None
+            or positionals[1] in _BRANCHING_WRITE_VERBS
+        )
+    if root == "proxbox" and len(positionals) >= 2:
+        if _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None or positionals[1] == "sync":
+            return True
     for index in range(len(positionals) - 2):
         if positionals[index] == "dev" and positionals[index + 1] == "http":
-            return positionals[index + 2] in _DEV_HTTP_WRITE_VERBS
-    return any(word in WRITE_ACTIONS for word in positionals)
+            verb = positionals[index + 2]
+            return (
+                _SHELL_EXPANSION_PATTERN.search(verb) is not None or verb in _DEV_HTTP_WRITE_VERBS
+            )
+    return any(
+        word in WRITE_ACTIONS or _SHELL_EXPANSION_PATTERN.search(word) is not None
+        for word in positionals
+    )
 
 
 def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation: bool) -> bool:

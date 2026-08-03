@@ -598,6 +598,113 @@ async def test_api_client_304_race_with_concurrent_write_refetches_unconditional
     assert json.loads(loaded.text)["name"] == "new"
 
 
+@pytest.mark.asyncio
+async def test_api_client_304_race_recapture_survives_second_concurrent_write(
+    monkeypatch, tmp_path
+) -> None:
+    """If a second concurrent write invalidates the path while the
+    unconditional replacement request (triggered by the first race) is still
+    in flight, the fenced save must see that second invalidation and skip
+    persisting. Recapturing the generation only *after* the replacement
+    response arrives would let the now-stale replacement pass the fence and
+    be cached as if it were current."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+
+    async def _fake_initial(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={"ETag": '"abc"'})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_initial, raising=True)
+    await client.request("GET", path)
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    _expire_entry(client, key)
+
+    call_log: list[dict[str, object]] = []
+
+    async def _fake_double_race(self, session, **kwargs):
+        call_log.append(kwargs)
+        if len(call_log) == 1:
+            client._cache.invalidate_path(path)  # first concurrent write
+            return ApiResponse(status=304, text="", headers={"ETag": '"abc"'})
+        # A second concurrent write lands while the unconditional
+        # replacement request triggered by the first race is itself in
+        # flight.
+        client._cache.invalidate_path(path)
+        return ApiResponse(status=200, text='{"id": 5, "name": "newer"}', headers={"ETag": '"ghi"'})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_double_race, raising=True)
+
+    response = await client.request("GET", path)
+
+    assert len(call_log) == 2
+    assert response.status == 200
+    assert json.loads(response.text)["name"] == "newer"  # caller still gets the fresh response
+
+    assert client._cache.load(key) is None  # but never persisted — the second race wasn't lost
+
+
+@pytest.mark.asyncio
+async def test_api_client_invalidates_cache_after_non_2xx_write_response(
+    monkeypatch, tmp_path
+) -> None:
+    """A write that NetBox commits but then answers with a non-2xx status
+    (e.g. a 500 raised by post-commit signal/webhook processing) must still
+    purge related cache entries — restricting invalidation to confirmed 2xx
+    responses left a committed mutation invisible to the cache, so a
+    verification read could return the stale pre-write entry and encourage
+    an unsafe duplicate retry."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=500, text='{"detail": "post-commit error"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", "/api/dcim/devices/5/")
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    patch_response = await client.request("PATCH", "/api/dcim/devices/5/", payload={"name": "new"})
+    assert patch_response.status == 500
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path="/api/dcim/devices/5/",
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is None
+
+
 def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:
     """Mirrors save()'s fencing: a 304 revalidation must not resurrect an
     entry that a concurrent write already purged via invalidate_path()."""

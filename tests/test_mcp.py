@@ -474,6 +474,45 @@ def test_hook_allows_unconfirmed_demo_dev_http_reads(read_invocation: str) -> No
     assert result.stdout == ""
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "method=POST; nbx call $method /api/dcim/devices/1/",
+        "nbx call ${method} /api/dcim/devices/1/",
+        "nbx call `whoami` /api/dcim/devices/1/",
+        "action=delete; nbx dcim devices $action --id 7",
+        "verb=delete; nbx branching $verb 7 --yes",
+        "verb=sync; nbx proxbox $verb",
+        "verb=delete; nbx dev http $verb --path /api/dcim/devices/1/",
+        "verb=delete; nbx demo dev http $verb --path /api/dcim/devices/1/",
+    ],
+)
+def test_hook_blocks_write_verb_built_from_shell_expansion(command: str) -> None:
+    """A method/action/verb token built from a shell variable or command
+    substitution (``$method``, ``${action}``, `` `verb` ``) resolves to a
+    write verb only once the shell expands it — this hook only ever sees the
+    literal pre-expansion text, so it cannot statically prove the token is
+    read-only and must fail closed instead of comparing the unexpanded
+    literal against the known write-verb sets."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_verb_built_from_shell_expansion() -> None:
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 nbx call $method /api/dcim/devices/1/")
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_expansion_inside_option_values() -> None:
+    """An option value (e.g. a ``--query`` filter) containing ``$`` must not
+    trip the write gate — only positionals that could themselves name a verb
+    are treated as unprovable, not arbitrary option payloads."""
+    result = _run_hook("nbx dcim devices list --query name=$name")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_hook_blocks_unconfirmed_nested_plugin_catalog_write() -> None:
     """A write action at the end of a deeper-than-usual resource path (e.g. a
     Proxbox catalog sub-namespace) must still be caught; the detector keys

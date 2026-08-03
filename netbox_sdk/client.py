@@ -548,6 +548,14 @@ class NetBoxApiClient:
                 unconditional_headers = dict(req_headers)
                 unconditional_headers.pop("If-None-Match", None)
                 unconditional_headers.pop("If-Modified-Since", None)
+                # Captured before the replacement request is issued, exactly
+                # like the initial cache_generation capture above — if a
+                # second concurrent write invalidates the path while this
+                # unconditional request is in flight, the fenced save/refresh
+                # below must see that mismatch and skip persisting, not adopt
+                # a post-response generation that would make the now-stale
+                # replacement response pass the fence as if it were current.
+                cache_generation = self._cache.path_generation(path)
                 response = await self._request_once(
                     session,
                     authorization=effective_authorization,
@@ -558,7 +566,6 @@ class NetBoxApiClient:
                     headers=unconditional_headers,
                     expect_json=expect_json,
                 )
-                cache_generation = self._cache.path_generation(path)
         except Exception:
             logger.exception(
                 "api request failed",
@@ -582,7 +589,14 @@ class NetBoxApiClient:
                 "status": response.status,
             },
         )
-        if is_write_method and 200 <= response.status < 300:
+        if is_write_method:
+            # Invalidate regardless of response status, not only on 2xx: a
+            # plugin or raw endpoint can commit the mutation and then return
+            # a non-2xx status during post-commit processing (e.g. a 500 from
+            # signal/webhook handling after the row was written). Restricting
+            # this to confirmed success left that committed write invisible
+            # to the cache, so a verification read could still return the
+            # stale pre-write entry and encourage an unsafe duplicate retry.
             self._safe_invalidate_related_cache(path, payload)
         return self._finalize_cached_response(
             response=response,
