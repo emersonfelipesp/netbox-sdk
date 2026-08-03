@@ -143,6 +143,10 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 | `bulk-delete` | DELETE | list path | Array body; no `--id` |
 | `filters` | — | local only | Prints available filter parameters from schema |
 
+Live dynamic CRUD/bulk writes, write-method `nbx call` requests, and Proxbox
+CRUD/sync scheduling require `--confirm` or
+`NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation.
+
 **Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. `--max-records N` (default 10 000) is the hard ceiling on accumulated records.
 
 **Query/header forwarding**: `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.

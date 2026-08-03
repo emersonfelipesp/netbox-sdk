@@ -121,9 +121,9 @@ uv run nbx --help
 nbx init
 nbx dcim devices list
 nbx dcim devices get --id 1
-nbx dcim devices create --body-json '{"name":"sw01","site":1}'
-nbx dcim devices patch --id 1 --body-json '{"status":"active"}'
-nbx dcim devices delete --id 1
+nbx dcim devices create --body-json '{"name":"sw01","site":1}' --confirm
+nbx dcim devices patch --id 1 --body-json '{"status":"active"}' --confirm
+nbx dcim devices delete --id 1 --confirm
 
 # NetBox version selection
 # Default command discovery uses the bundled 4.6 schema; execution detects configured instances.
@@ -143,13 +143,13 @@ nbx dcim devices list -q tag=prod -q tag=edge
 nbx dcim devices filters
 
 # HTTP headers for ETag / conditional update workflows
-nbx dcim devices patch --id 1 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
-nbx call PATCH /api/dcim/devices/1/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx dcim devices patch --id 1 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
+nbx call PATCH /api/dcim/devices/1/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
 
 # Bulk operations (array body to list path)
-nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]'
-nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
-nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
+nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]' --confirm
+nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]' --confirm
+nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]' --confirm
 
 # Proxbox plugin catalog, CRUD, TUI, and sync jobs
 nbx proxbox resources
@@ -157,8 +157,8 @@ nbx proxbox ops firewall/rules
 nbx proxbox endpoints proxmox list -q name=pve-prod
 nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
 nbx proxbox tui --theme
-nbx proxbox sync
-nbx proxbox sync pve-prod -t virtual-machines -t storage
+nbx proxbox sync --confirm
+nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
 nbx proxbox sync-types
 
 # TUI and developer tools
@@ -217,9 +217,14 @@ nbx ops dcim devices --json
 nbx capabilities --json
 ```
 
-Repository-local Claude Code and Codex hooks mechanically block unconfirmed
-`nbx` writes. After reviewing `--dry-run`, prefix an approved write with
-`NETBOX_SDK_CONFIRM_WRITE=1`. The mirrored `netbox-sdk-operations` Skill in
+The `nbx` process itself refuses dynamic CRUD/bulk writes, write-method
+`nbx call` requests, Proxbox CRUD, and Proxbox sync scheduling unless the
+invocation includes `--confirm` or its environment contains
+`NETBOX_SDK_CONFIRM_WRITE=1`. Dry runs remain available without confirmation.
+Repository-local Claude Code and Codex hooks provide an earlier defense-in-depth
+denial for recognizable Bash commands, but arbitrary decoded/generated shell
+input is ultimately enforced by the CLI gate. The mirrored
+`netbox-sdk-operations` Skill in
 `.claude/skills/` and `.codex/skills/` documents introspect → preview → execute
 → verify.
 

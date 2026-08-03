@@ -15,7 +15,7 @@ For example:
 ```bash
 nbx dcim devices list
 nbx dcim devices get --id 1
-nbx ipam prefixes create --body-json '{...}'
+nbx ipam prefixes create --body-json '{...}' --confirm
 ```
 
 ---
@@ -82,7 +82,8 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 | `--select TEXT` | JSON dot-path to extract specific field from response (e.g., `results.0.name`) |
 | `--columns TEXT` | Comma-separated list of columns to display in table output |
 | `--max-columns INTEGER` | Maximum number of columns to display (default: 6) |
-| `--dry-run` | Preview write operation without executing (create/update/patch/delete only) |
+| `--dry-run` | Preview a create/update/patch/delete/bulk write without executing |
+| `--confirm` | Confirm execution of a live create/update/patch/delete/bulk write |
 
 `--json`, `--yaml`, and `--markdown` are mutually exclusive.
 
@@ -130,8 +131,8 @@ Multiple `-q` flags are ANDed together. Repeating the same key preserves repeate
 Use `-H` / `--header` on dynamic commands, `nbx call`, and `nbx dev http` when the API interaction needs conditional headers such as `If-Match` or custom headers:
 
 ```bash
-nbx dcim devices patch --id 42 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
-nbx call PATCH /api/dcim/devices/42/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx dcim devices patch --id 42 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
+nbx call PATCH /api/dcim/devices/42/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
 nbx dev http get --path /api/dcim/devices/ -H 'Accept: application/json'
 ```
 
@@ -188,13 +189,13 @@ Bulk operations target the list path with an array body — no `--id` is needed 
 
 ```bash
 # Bulk-patch: partial update for multiple objects
-nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]'
+nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]' --confirm
 
 # Bulk-update: full replacement for multiple objects (all required fields must be present)
-nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
+nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]' --confirm
 
 # Bulk-delete: delete multiple objects by id
-nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
+nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]' --confirm
 ```
 
 These actions are only registered for resources where the OpenAPI schema exposes PUT/PATCH/DELETE on the list path.
@@ -288,7 +289,16 @@ nbx dcim devices update --dry-run --id 1 --body-json '{"name":"updated-name"}'
 nbx dcim devices delete --dry-run --id 1
 ```
 
-Output shows the HTTP method, path, and request body in a formatted table. The `--dry-run` flag is only valid for write operations (`create`, `update`, `patch`, `delete`).
+Output shows the HTTP method, path, and request body in a formatted table. The
+`--dry-run` flag is only valid for write operations (`create`, `update`,
+`patch`, `delete`, `bulk-update`, `bulk-patch`, and `bulk-delete`).
+
+Live writes are refused by the executing CLI unless the command includes
+`--confirm` or the process environment contains
+`NETBOX_SDK_CONFIRM_WRITE=1`. This gate applies to dynamic CRUD and bulk
+actions, Proxbox CRUD/sync, and write-method `nbx call` requests regardless of
+whether `nbx` was launched directly, through a script, or from a subprocess.
+`--dry-run` does not require confirmation because it makes no HTTP request.
 
 ---
 

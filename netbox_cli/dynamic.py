@@ -20,6 +20,7 @@ from netbox_cli.support import (
     resolve_output_format,
     run_with_spinner,
 )
+from netbox_cli.write_confirmation import require_write_confirmation
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.schema import SchemaIndex
 
@@ -103,6 +104,7 @@ def _handle_dynamic_invocation(
 
     group, resource, action = raw_args[0], raw_args[1], raw_args[2]
     option_args, header_pairs = _extract_header_options(raw_args[3:])
+    option_args, confirmed = _extract_confirmation_option(option_args)
 
     (
         object_id,
@@ -153,6 +155,8 @@ def _handle_dynamic_invocation(
     if fetch_all and action.lower() != "list":
         raise typer.BadParameter("--all is only supported for the list action")
     action_lower = action.lower()
+    if action_lower in _ALL_WRITE_ACTIONS and not dry_run:
+        require_write_confirmation(confirmed=confirmed)
     # Dry-run previews only need the OpenAPI index; avoid building an API client (and loading config).
     skip_client = bool(dry_run and action_lower in _ALL_WRITE_ACTIONS)
     index = index_factory()
@@ -205,6 +209,7 @@ def _handle_dynamic_invocation(
         columns=columns,
         max_columns=max_columns,
         dry_run=dry_run,
+        confirmed=confirmed,
         client=client,
         index=index,
     )
@@ -402,6 +407,18 @@ def _extract_header_options(args: list[str]) -> tuple[list[str], list[str]]:
     return cleaned, headers
 
 
+def _extract_confirmation_option(args: list[str]) -> tuple[list[str], bool]:
+    """Remove the process-local write confirmation flag from a free-form invocation."""
+    cleaned: list[str] = []
+    confirmed = False
+    for token in args:
+        if token == "--confirm":
+            confirmed = True
+        else:
+            cleaned.append(token)
+    return cleaned, confirmed
+
+
 def _execute_dynamic_action(
     *,
     group: str,
@@ -416,6 +433,7 @@ def _execute_dynamic_action(
     columns: list[str] | None = None,
     max_columns: int = 6,
     dry_run: bool = False,
+    confirmed: bool = False,
     client: NetBoxApiClient | None = None,
     index: SchemaIndex | None = None,
 ) -> ApiResponse | None:
@@ -441,6 +459,9 @@ def _execute_dynamic_action(
             path=resolved.path,
             body=body,
         )
+
+    if action_lower in _ALL_WRITE_ACTIONS:
+        require_write_confirmation(confirmed=confirmed)
 
     active_client = client or _runtime_get_client()
     return run_with_spinner(
@@ -581,6 +602,11 @@ def _build_action_command(
             "--dry-run",
             help="Preview write operation without executing",
         ),
+        confirm: bool = typer.Option(
+            False,
+            "--confirm",
+            help="Confirm execution of a live NetBox write.",
+        ),
         fetch_all: bool = typer.Option(
             False,
             "--all",
@@ -609,6 +635,8 @@ def _build_action_command(
             raise typer.BadParameter("--dry-run is only supported for write operations")
         if fetch_all and action != "list":
             raise typer.BadParameter("--all is only supported for the list action")
+        if action.lower() in _ALL_WRITE_ACTIONS and not dry_run:
+            require_write_confirmation(confirmed=confirm)
 
         active_client = None if dry_run else client_factory()
         index = index_factory()
@@ -655,6 +683,7 @@ def _build_action_command(
             columns=columns_list,
             max_columns=max_columns,
             dry_run=dry_run,
+            confirmed=confirm,
             client=active_client,
             index=index,
         )

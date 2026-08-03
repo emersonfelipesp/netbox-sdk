@@ -62,6 +62,7 @@ from netbox_cli.support import (
     rethrow_theme_catalog_error,
     run_with_spinner,
 )
+from netbox_cli.write_confirmation import WRITE_HTTP_METHODS, require_write_confirmation
 from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_PROFILE,
@@ -516,6 +517,11 @@ def call_command(
         "--markdown",
         help="Output Markdown (mutually exclusive with --json/--yaml)",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution when METHOD can modify NetBox.",
+    ),
 ) -> None:
     """Call an arbitrary NetBox API path."""
     resolve_output_format(
@@ -530,6 +536,8 @@ def call_command(
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
     payload = load_json_payload(body_json, body_file)
+    if method.strip().upper() in WRITE_HTTP_METHODS:
+        require_write_confirmation(confirmed=confirm)
     client = _get_client()
     request_kwargs: dict[str, Any] = {"query": query_dict, "payload": payload}
     if headers:

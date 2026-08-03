@@ -98,6 +98,9 @@ class NetBoxMCPService:
     def _headers(self, values: StringList, token: str | None) -> dict[str, str]:
         headers = parse_header_pairs(values)
         if token is not None:
+            headers = {
+                name: value for name, value in headers.items() if name.casefold() != "authorization"
+            }
             headers["Authorization"] = f"Bearer {token}"
         return headers
 
@@ -209,9 +212,8 @@ class NetBoxMCPService:
         index = await self._selected_index(live=values.live, token=values.token)
         self._ensure_resource(index, values.group, values.resource)
         client = self._make_client(values.token)
-        header_pairs = list(values.header)
-        if values.token is not None:
-            header_pairs.append(f"Authorization: Bearer {values.token}")
+        headers = self._headers(values.header, values.token)
+        header_pairs = [f"{name}: {value}" for name, value in headers.items()]
         try:
             if values.all:
                 response = await list_all_pages(

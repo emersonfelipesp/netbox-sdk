@@ -40,9 +40,9 @@ nbx proxbox ops operations/deletion-requests --json
 # Comandos CRUD padrão.
 nbx proxbox endpoints proxmox list -q name=pve-prod
 nbx proxbox endpoints proxmox get --id 12
-nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod","url":"https://pve.example.com:8006"}'
-nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}'
-nbx proxbox sdn vnets delete --id 31
+nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod","url":"https://pve.example.com:8006"}' --confirm
+nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}' --confirm
+nbx proxbox sdn vnets delete --id 31 --confirm
 
 # Simular escritas sem enviar a requisição.
 nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
@@ -51,13 +51,18 @@ nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}
 nbx proxbox schedule create --dry-run --body-json '{"sync_types":["all"]}'
 
 # Sync guiado com barras de progresso ao vivo.
-nbx proxbox sync pve-prod -t virtual-machines -t storage
+nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
 
 # TUI somente para Proxbox.
 nbx proxbox tui
 nbx proxbox tui --theme dracula
 nbx proxbox tui --theme
 ```
+
+CRUD Proxbox real e agendamento de sync exigem `--confirm` ou
+`NETBOX_SDK_CONFIRM_WRITE=1`; dry runs continuam sem confirmação. Se o stream
+SSE de um sync falhar após o agendamento, a CLI ainda busca o job autoritativo
+no NetBox e informa `job_id`, status e erro do stream.
 
 ## Famílias de Recursos
 

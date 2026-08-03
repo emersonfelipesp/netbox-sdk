@@ -12,6 +12,7 @@ from pathlib import PurePosixPath
 from typing import Any
 
 CONFIRMATION = "NETBOX_SDK_CONFIRM_WRITE=1"
+CONFIRM_FLAG = "--confirm"
 WRITE_ACTIONS = frozenset(
     {
         "create",
@@ -377,7 +378,11 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
         if name == "nbx":
             positionals = _positionals_after_nbx(tokens, index)
             if _positionals_indicate_write(positionals):
-                if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
+                if not (
+                    inherited_confirmation
+                    or CONFIRMATION in tokens[:index]
+                    or CONFIRM_FLAG in tokens[index + 1 :]
+                ):
                     return True
         elif index == command_index and _SHELL_EXPANSION_PATTERN.search(token) is not None:
             # The command name itself is a shell variable/command
@@ -400,7 +405,11 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
             # of it.
             positionals = _positionals_after_nbx(tokens, index)
             if not positionals or _positionals_indicate_write(positionals):
-                if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
+                if not (
+                    inherited_confirmation
+                    or CONFIRMATION in tokens[:index]
+                    or CONFIRM_FLAG in tokens[index + 1 :]
+                ):
                     return True
         if name == "xargs":
             # Applies in every xargs mode, including replace-string mode
@@ -418,7 +427,11 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
                 xargs_command_token = tokens[xargs_command_index]
                 invoked_name = _command_name(xargs_command_token)
                 if invoked_name == "nbx" or _SHELL_EXPANSION_PATTERN.search(xargs_command_token):
-                    if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
+                    if not (
+                        inherited_confirmation
+                        or CONFIRMATION in tokens[:index]
+                        or CONFIRM_FLAG in tokens[xargs_command_index + 1 :]
+                    ):
                         return True
         if name in _SHELLS:
             if "-c" in tokens[index + 1 :]:
@@ -480,6 +493,12 @@ def command_has_unconfirmed_write(command: str, *, inherited_confirmation: bool 
         if _segment_has_unconfirmed_write(tokens, inherited_confirmation=inherited_confirmation):
             return True
         if separator == "|" and position > 0:
+            # Defense in depth only: arbitrary transforms (base64, gzip,
+            # generated scripts, and similar producers) make piped shell
+            # input impossible to prove safe from source text alone. The
+            # executing ``nbx`` process therefore enforces the authoritative
+            # NETBOX_SDK_CONFIRM_WRITE=1/--confirm gate before dispatching a
+            # live write; this check remains a best-effort early denial.
             # A pipe feeds this segment's stdin. If the segment invokes a
             # shell with no `-c` (see `_shell_reads_stdin`), that shell will
             # execute whatever the previous segment produced as commands —
@@ -530,7 +549,8 @@ def main() -> int:
                 "permissionDecision": "deny",
                 "permissionDecisionReason": (
                     "Mutating nbx commands require an explicit confirmation marker. "
-                    f"Prefix the invocation with {CONFIRMATION} after reviewing a dry-run."
+                    f"Pass {CONFIRM_FLAG} or prefix the invocation with {CONFIRMATION} "
+                    "after reviewing a dry-run."
                 ),
             }
         },

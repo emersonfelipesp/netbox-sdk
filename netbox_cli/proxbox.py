@@ -24,6 +24,7 @@ from netbox_cli.support import (
     resolve_requested_theme,
     rethrow_theme_catalog_error,
 )
+from netbox_cli.write_confirmation import require_write_confirmation
 from netbox_sdk.exceptions import RequestError
 from netbox_sdk.output_safety import sanitize_terminal_text
 from netbox_sdk.proxbox import (
@@ -321,9 +322,15 @@ def sync_command(
         "--json",
         help="Emit only a final machine-readable JSON result.",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm scheduling this live Proxbox synchronization job.",
+    ),
 ) -> None:
     """Schedule a Proxbox sync job and stream live progress until it finishes."""
     requested_types = _validate_cli_sync_types(sync_types)
+    require_write_confirmation(confirmed=confirm)
     raw_client = _get_client()
     proxbox = ProxboxSyncClient.from_client(raw_client)
     try:
@@ -490,18 +497,30 @@ async def _run_sync(
             sync_types=sync_types,
             schedule_message=schedule.message,
         )
-        if json_output:
-            await _consume_stream(proxbox, state, timeout=timeout)
-        else:
-            with Live(
-                _live_renderable(state),
-                console=console,
-                refresh_per_second=4,
-                transient=False,
-            ) as live:
-                await _consume_stream(proxbox, state, timeout=timeout, live=live)
+        stream_error: Exception | None = None
+        try:
+            if json_output:
+                await _consume_stream(proxbox, state, timeout=timeout)
+            else:
+                with Live(
+                    _live_renderable(state),
+                    console=console,
+                    refresh_per_second=4,
+                    transient=False,
+                ) as live:
+                    await _consume_stream(proxbox, state, timeout=timeout, live=live)
+        except Exception as exc:  # noqa: BLE001 - recover the authoritative job after any stream failure
+            stream_error = exc
+            state.errors.append(
+                SyncErrorEntry(
+                    source="stream",
+                    phase="stream",
+                    message="SSE stream failed after the Proxbox job was scheduled.",
+                    detail=f"{exc.__class__.__name__}: {exc}",
+                )
+            )
 
-        if state.complete is None:
+        if state.complete is None and stream_error is None:
             state.errors.append(
                 SyncErrorEntry(
                     source="stream",
@@ -510,7 +529,16 @@ async def _run_sync(
                 )
             )
 
-        job = await proxbox.fetch_job(job_id)
+        try:
+            job = await proxbox.fetch_job(job_id)
+        except Exception as fetch_error:
+            if stream_error is None:
+                raise
+            raise ProxboxSyncError(
+                f"Proxbox job {job_id} stream failed ({stream_error.__class__.__name__}: "
+                f"{stream_error}); authoritative job fetch also failed "
+                f"({fetch_error.__class__.__name__}: {fetch_error})."
+            ) from fetch_error
         return _build_final_result(job_id, state, job)
     finally:
         await _close_raw_client(raw_client)

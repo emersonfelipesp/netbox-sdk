@@ -623,6 +623,104 @@ async def test_api_client_available_asns_write_invalidates_asn_collection_cache(
 
 
 @pytest.mark.asyncio
+async def test_api_client_available_asns_write_invalidates_asn_range_collection_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """Allocating an ASN changes the parent ASNRange ``asn_count`` field, so
+    cached ASN range lists must be invalidated along with the ASN collection."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 5, "asn_count": 0}]}',
+                headers={},
+            ),
+            ApiResponse(status=201, text='{"id": 9, "asn": 65001}', headers={}),
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 5, "asn_count": 1}]}',
+                headers={},
+            ),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    parent_before = await client.request("GET", "/api/ipam/asn-ranges/")
+    assert parent_before.headers["X-NBX-Cache"] == "MISS"
+
+    action_response = await client.request("POST", "/api/ipam/asn-ranges/5/available-asns/")
+    assert action_response.status == 201
+
+    parent_after = await client.request("GET", "/api/ipam/asn-ranges/")
+    assert parent_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(parent_after.text)["results"][0]["asn_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_api_client_available_vlans_write_invalidates_vlan_group_collection_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """Allocating a VLAN changes the parent VLANGroup ``vlan_count`` and
+    ``utilization`` fields, so cached VLAN group lists must be invalidated."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(
+                status=200,
+                text=('{"count": 1, "results": [{"id": 5, "vlan_count": 0, "utilization": "0%"}]}'),
+                headers={},
+            ),
+            ApiResponse(status=201, text='{"id": 9, "vid": 100}', headers={}),
+            ApiResponse(
+                status=200,
+                text=(
+                    '{"count": 1, "results": [{"id": 5, "vlan_count": 1, "utilization": "10%"}]}'
+                ),
+                headers={},
+            ),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    parent_before = await client.request("GET", "/api/ipam/vlan-groups/")
+    assert parent_before.headers["X-NBX-Cache"] == "MISS"
+
+    action_response = await client.request("POST", "/api/ipam/vlan-groups/5/available-vlans/")
+    assert action_response.status == 201
+
+    parent_after = await client.request("GET", "/api/ipam/vlan-groups/")
+    assert parent_after.headers["X-NBX-Cache"] == "MISS"
+    updated_group = json.loads(parent_after.text)["results"][0]
+    assert updated_group["vlan_count"] == 1
+    assert updated_group["utilization"] == "10%"
+
+
+@pytest.mark.asyncio
 async def test_api_client_invalidates_cache_on_write_exception(monkeypatch, tmp_path) -> None:
     """A write whose response never arrives (e.g. the connection drops after
     NetBox already committed the mutation) must still purge related cache

@@ -89,10 +89,12 @@ nbx-mcp --allow-mutations
 constructing a client. It is not server-side validation and does not prove that
 the live NetBox call will succeed.
 
-Repository-local Claude Code and Codex hooks apply an additional deterministic
-gate to Bash-based CLI operations. They block `nbx` create, update, patch,
-delete, and bulk writes unless the reviewed command is prefixed with
-`NETBOX_SDK_CONFIRM_WRITE=1`.
+The `nbx` process independently refuses dynamic CRUD/bulk writes, Proxbox
+CRUD/sync, and write-method raw calls unless the reviewed command includes
+`--confirm` or its environment contains `NETBOX_SDK_CONFIRM_WRITE=1`.
+Repository-local Claude Code and Codex hooks add a defense-in-depth early denial
+for recognizable Bash source; decoded or generated shell input still reaches
+the authoritative CLI-process gate.
 
 ## Agent operating sequence
 

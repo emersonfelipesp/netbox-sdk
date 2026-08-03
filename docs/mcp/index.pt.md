@@ -89,9 +89,12 @@ nbx-mcp --allow-mutations
 um cliente. Não é validação no servidor e não prova que a chamada real terá
 sucesso.
 
-Hooks locais do Claude Code e do Codex também bloqueiam operações CLI `nbx` de
-criação, atualização, patch, remoção e lote, salvo quando o comando revisado é
-prefixado com `NETBOX_SDK_CONFIRM_WRITE=1`.
+O processo `nbx` recusa de forma independente CRUD dinâmico/em lote, CRUD/sync
+Proxbox e chamadas brutas com método de escrita, salvo quando o comando revisado
+inclui `--confirm` ou seu ambiente contém `NETBOX_SDK_CONFIRM_WRITE=1`. Hooks
+locais do Claude Code e do Codex acrescentam uma recusa antecipada de defesa em
+profundidade para fonte Bash reconhecível; entrada de shell decodificada ou
+gerada ainda chega ao gate autoritativo do processo CLI.
 
 ## Sequência operacional para agentes
 

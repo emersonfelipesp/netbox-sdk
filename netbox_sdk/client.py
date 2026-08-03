@@ -114,10 +114,15 @@ def _extract_case_insensitive(
 # read-only actions (napalm, trace, units, elevation, paths) are omitted
 # since a GET never stales anything.
 _ACTION_CROSS_RESOURCE_CACHE_PATHS: dict[str, tuple[str, ...]] = {
-    "available-asns": ("/api/ipam/asns/",),
+    # ASNRange.asn_count changes with the allocated ASN as well.
+    "available-asns": ("/api/ipam/asns/", "/api/ipam/asn-ranges/"),
+    # Prefix/IPRange serializers expose no affected utilization/count field.
     "available-ips": ("/api/ipam/ip-addresses/",),
+    # This collection is both the allocation target and the parent collection
+    # whose Prefix.children field changes.
     "available-prefixes": ("/api/ipam/prefixes/",),
-    "available-vlans": ("/api/ipam/vlans/",),
+    # VLANGroup.vlan_count/utilization change with the allocated VLAN as well.
+    "available-vlans": ("/api/ipam/vlans/", "/api/ipam/vlan-groups/"),
 }
 
 

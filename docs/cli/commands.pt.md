@@ -100,8 +100,8 @@ Faz uma requisição HTTP explícita a qualquer caminho da API NetBox.
 nbx call GET /api/status/
 nbx call GET /api/dcim/sites/ --json
 nbx call GET /api/dcim/sites/ --markdown
-nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}'
-nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
+nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}' --confirm
+nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 ```
 
 **Opções**
@@ -114,8 +114,11 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 | `--json` | Saída JSON bruta em vez de tabela Rich |
 | `--yaml` | Saída YAML |
 | `--markdown` | Respostas da API como Markdown com tabelas primeiro |
+| `--confirm` | Confirma uma requisição `POST`, `PUT`, `PATCH` ou `DELETE` |
 
 `--json`, `--yaml` e `--markdown` são mutuamente exclusivos.
+Métodos de escrita são recusados sem `--confirm` ou
+`NETBOX_SDK_CONFIRM_WRITE=1` no ambiente do processo `nbx`.
 
 ---
 
@@ -154,8 +157,8 @@ registram apenas ações de leitura. Ações de escrita aceitam prévia com
 
 ```bash
 nbx proxbox endpoints proxmox list -q name=pve-prod
-nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod"}'
-nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}'
+nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod"}' --confirm
+nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}' --confirm
 nbx proxbox operations deletion-requests get --id 12
 nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
 ```
@@ -187,10 +190,10 @@ a chave primária de um endpoint Proxmox ou o nome exato do endpoint. Omita para
 sincronizar todos os endpoints Proxmox configurados.
 
 ```bash
-nbx proxbox sync
-nbx proxbox sync pve-prod -t virtual-machines -t storage
-nbx proxbox sync 12 -t all --job-name nightly-proxbox-sync
-nbx proxbox sync --json
+nbx proxbox sync --confirm
+nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
+nbx proxbox sync 12 -t all --job-name nightly-proxbox-sync --confirm
+nbx proxbox sync --json --confirm
 ```
 
 A visão ao vivo mostra o job agendado, barras de progresso por fase, eventos
@@ -198,6 +201,9 @@ recentes do stream e um resumo final autoritativo. Depois que o stream termina,
 a CLI busca `/api/core/jobs/{job_id}/` e combina erros do job e entradas de log
 em nível de erro com erros transmitidos para não perder mensagens SSE removidas
 por throttling no servidor.
+Se o stream SSE expirar, desconectar ou falhar na validação de protocolo após o
+agendamento, a CLI ainda busca o job e informa seu `job_id`, status autoritativo
+e erro do stream, evitando um sync duplicado inseguro.
 
 **Opções**
 
@@ -207,6 +213,7 @@ por throttling no servidor.
 | `--job-name TEXT` | Nome opcional do job NetBox |
 | `--timeout FLOAT` | Segundos máximos para manter o stream SSE aberto (padrão: `7200`) |
 | `--json` | Ignora a UI ao vivo e emite JSON `{job_id,status,ok,errors,summary}` |
+| `--confirm` | Confirma o agendamento do job de sincronização real |
 
 Tipos válidos: `virtual-machines`, `storage`, `vm-disks`, `vm-backups`,
 `vm-snapshots`, `devices`, `network-interfaces`, `vm-interfaces`,

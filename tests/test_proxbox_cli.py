@@ -18,7 +18,9 @@ runner = CliRunner()
 
 
 class _RawClient:
-    closed = False
+    def __init__(self) -> None:
+        self.closed = False
+        self.fetched_job_ids: list[int] = []
 
     async def close(self) -> None:
         self.closed = True
@@ -30,6 +32,7 @@ def _install_fake_proxbox(
     frames: list[SseFrame],
     job: dict[str, Any],
     schedule: ScheduleResult | None = None,
+    stream_error: Exception | None = None,
 ) -> _RawClient:
     raw = _RawClient()
 
@@ -59,9 +62,12 @@ def _install_fake_proxbox(
             assert timeout is not None
             for frame in frames:
                 yield frame
+            if stream_error is not None:
+                raise stream_error
 
         async def fetch_job(self, job_id: int) -> dict[str, Any]:
             assert job_id == 101
+            raw.fetched_job_ids.append(job_id)
             return job
 
         async def resolve_endpoint(self, name_or_id: str | int) -> int:
@@ -155,6 +161,22 @@ def test_proxbox_read_only_resources_do_not_register_write_commands() -> None:
     assert "No such command" in result.output
 
 
+def test_proxbox_sync_requires_confirmation_before_building_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+
+    def _fail_client() -> Any:
+        pytest.fail("an unconfirmed sync must not construct an API client")
+
+    monkeypatch.setattr(proxbox_mod, "_get_client", _fail_client)
+
+    result = runner.invoke(nbx_app, ["proxbox", "sync"])
+
+    assert result.exit_code != 0
+    assert "Live NetBox writes require explicit confirmation" in result.output
+
+
 def test_proxbox_sync_success_renders_summary(monkeypatch: pytest.MonkeyPatch) -> None:
     raw = _install_fake_proxbox(
         monkeypatch,
@@ -181,7 +203,7 @@ def test_proxbox_sync_success_renders_summary(monkeypatch: pytest.MonkeyPatch) -
         job={"status": "completed", "error": "", "data": {}, "log_entries": []},
     )
 
-    result = runner.invoke(nbx_app, ["proxbox", "sync", "-t", "virtual-machines"])
+    result = runner.invoke(nbx_app, ["proxbox", "sync", "-t", "virtual-machines", "--confirm"])
 
     assert result.exit_code == 0
     assert "Proxbox sync completed successfully" in result.stdout
@@ -225,7 +247,7 @@ def test_proxbox_sync_failure_merges_stream_and_job_errors(
         },
     )
 
-    result = runner.invoke(nbx_app, ["proxbox", "sync", "-t", "storage"])
+    result = runner.invoke(nbx_app, ["proxbox", "sync", "-t", "storage", "--confirm"])
 
     assert result.exit_code == 1
     assert "Proxbox Sync Errors" in result.stdout
@@ -244,12 +266,46 @@ def test_proxbox_sync_json_mode_outputs_final_object(monkeypatch: pytest.MonkeyP
         job={"status": "completed", "error": "", "data": {}, "log_entries": []},
     )
 
-    result = runner.invoke(nbx_app, ["proxbox", "sync", "--json"])
+    result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
 
     assert result.exit_code == 0
     assert '"job_id": 101' in result.stdout
     assert '"ok": true' in result.stdout
     assert "Recent Events" not in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("stream_error", "job_status", "error_text"),
+    [
+        (TimeoutError("SSE stream timed out"), "running", "SSE stream timed out"),
+        (RuntimeError("SSE protocol disconnect"), "errored", "SSE protocol disconnect"),
+    ],
+)
+def test_proxbox_sync_stream_failure_fetches_and_reports_authoritative_job(
+    monkeypatch: pytest.MonkeyPatch,
+    stream_error: Exception,
+    job_status: str,
+    error_text: str,
+) -> None:
+    raw = _install_fake_proxbox(
+        monkeypatch,
+        frames=[],
+        stream_error=stream_error,
+        job={"status": job_status, "error": "", "data": {}, "log_entries": []},
+    )
+
+    result = runner.invoke(
+        nbx_app,
+        ["proxbox", "sync", "--json", "--confirm"],
+    )
+
+    assert result.exit_code == 1
+    payload = json.loads(result.stdout)
+    assert payload["job_id"] == 101
+    assert payload["status"] == job_status
+    assert error_text in payload["errors"][0]["detail"]
+    assert raw.fetched_job_ids == [101]
+    assert raw.closed is True
 
 
 def test_frame_to_line_styles_error_frames() -> None:

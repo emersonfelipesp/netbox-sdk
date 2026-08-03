@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import base64
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -268,6 +270,71 @@ async def test_read_tools_and_local_filters_use_schema_and_mock_client() -> None
     assert client.calls[0]["query"] == {"status": "active"}
 
 
+@pytest.mark.parametrize(
+    "header_values",
+    [
+        ["Authorization: Bearer canonical-first", "authorization: Bearer lowercase-last"],
+        ["authorization: Bearer lowercase-first", "Authorization: Bearer canonical-last"],
+    ],
+)
+@pytest.mark.parametrize("operation", ["get", "list", "list-all"])
+async def test_explicit_mcp_token_replaces_every_authorization_header_variant(
+    header_values: list[str],
+    operation: str,
+) -> None:
+    responses = [
+        ApiResponse(status=200, text='{"id": 1}', headers={}),
+    ]
+    if operation == "list-all":
+        responses = [
+            ApiResponse(
+                status=200,
+                text=(
+                    '{"count": 2, "next": '
+                    '"https://netbox.example.com/api/dcim/devices/?offset=1", '
+                    '"results": [{"id": 1}]}'
+                ),
+                headers={},
+            ),
+            ApiResponse(
+                status=200,
+                text='{"count": 2, "next": null, "results": [{"id": 2}]}',
+                headers={},
+            ),
+        ]
+    elif operation == "list":
+        responses = [
+            ApiResponse(status=200, text='{"count": 1, "results": [{"id": 1}]}', headers={})
+        ]
+
+    client = _MockClient(responses)
+    service = _service(client)
+    kwargs = {
+        "group": "dcim",
+        "resource": "devices",
+        "header": header_values,
+        "token": "intended-token",
+    }
+    if operation == "get":
+        await service.get(id=1, **kwargs)
+    else:
+        await service.list(all=operation == "list-all", **kwargs)
+
+    assert client.calls
+    for call in client.calls:
+        headers = call["headers"]
+        authorization = [
+            (name, value) for name, value in headers.items() if name.casefold() == "authorization"
+        ]
+        assert authorization == [("Authorization", "Bearer intended-token")]
+    persistent_authorization = [
+        (name, value)
+        for name, value in client.persistent_headers.items()
+        if name.casefold() == "authorization"
+    ]
+    assert persistent_authorization == [("Authorization", "Bearer intended-token")]
+
+
 async def test_raw_call_rejects_writes_until_mutations_are_enabled() -> None:
     denied_client = _MockClient()
     denied = _service(denied_client)
@@ -389,15 +456,119 @@ def _run_hook(command: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _run_cli_write_gate_probe(
+    surface: str,
+    args: list[str],
+    *,
+    environment_confirmed: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env.pop("NETBOX_SDK_CONFIRM_WRITE", None)
+    if environment_confirmed:
+        env["NETBOX_SDK_CONFIRM_WRITE"] = "1"
+    return subprocess.run(
+        [sys.executable, str(Path(__file__)), "--write-gate-probe", surface, *args],
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=ROOT,
+        env=env,
+    )
+
+
+@pytest.mark.parametrize(
+    ("surface", "command"),
+    [
+        (
+            "dynamic",
+            ["dcim", "devices", "create", "--body-json", '{"name":"leaf01"}', "--json"],
+        ),
+        (
+            "proxbox",
+            [
+                "proxbox",
+                "endpoints",
+                "proxmox",
+                "create",
+                "--body-json",
+                '{"name":"pve01"}',
+                "--json",
+            ],
+        ),
+    ],
+)
+def test_cli_process_write_gate_blocks_hook_bypass_and_accepts_explicit_confirmation(
+    surface: str,
+    command: list[str],
+) -> None:
+    """A direct Python subprocess never passes through the Bash hook, so
+    these denials and approvals are enforced by the executing CLI itself."""
+    blocked = _run_cli_write_gate_probe(surface, command)
+    confirmed_flag = _run_cli_write_gate_probe(surface, [*command, "--confirm"])
+    confirmed_environment = _run_cli_write_gate_probe(
+        surface,
+        command,
+        environment_confirmed=True,
+    )
+
+    assert blocked.returncode != 0
+    assert "Live NetBox writes require explicit confirmation" in blocked.stdout
+    assert '"executed": true' not in blocked.stdout
+    assert confirmed_flag.returncode == 0
+    assert '"executed": true' in confirmed_flag.stdout
+    assert confirmed_environment.returncode == 0
+    assert '"executed": true' in confirmed_environment.stdout
+
+
+@pytest.mark.parametrize("method", ["POST", "PUT", "PATCH", "DELETE", "post", "Delete"])
+def test_raw_call_cli_gate_blocks_request_until_confirmed(
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+) -> None:
+    client = _MockClient()
+    monkeypatch.setattr(cli, "_get_client", lambda: client)
+
+    blocked = runner.invoke(
+        cli.app,
+        ["call", method, "/api/dcim/devices/", "--body-json", '{"name":"leaf01"}'],
+    )
+    confirmed = runner.invoke(
+        cli.app,
+        [
+            "call",
+            method,
+            "/api/dcim/devices/",
+            "--body-json",
+            '{"name":"leaf01"}',
+            "--confirm",
+        ],
+    )
+
+    assert blocked.exit_code != 0
+    assert "Live NetBox writes require explicit confirmation" in blocked.output
+    assert client.calls == [
+        {
+            "method": method,
+            "path": "/api/dcim/devices/",
+            "query": {},
+            "payload": {"name": "leaf01"},
+        }
+    ]
+    assert confirmed.exit_code == 0
+
+
 def test_hook_blocks_unconfirmed_delete_and_allows_confirmed_delete() -> None:
     blocked = _run_hook("nbx dcim devices delete --id 7")
     allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 nbx dcim devices delete --id 7")
+    allowed_flag = _run_hook("nbx dcim devices delete --id 7 --confirm")
     marker_after = _run_hook("nbx dcim devices delete --id 7 NETBOX_SDK_CONFIRM_WRITE=1")
 
     assert blocked.returncode == 0
     assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
     assert allowed.returncode == 0
     assert allowed.stdout == ""
+    assert allowed_flag.returncode == 0
+    assert allowed_flag.stdout == ""
     assert json.loads(marker_after.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
@@ -960,6 +1131,17 @@ def test_hook_does_not_false_positive_on_write_text_piped_into_non_shell_command
     assert result.stdout == ""
 
 
+def test_hook_intentionally_defers_decode_then_pipe_to_cli_process_gate() -> None:
+    """Arbitrary pipeline transforms cannot be interpreted safely by this
+    source-text hook. The encoded payload is intentionally deferred to the
+    authoritative CLI-process gate covered by the subprocess regressions."""
+    payload = base64.b64encode(b"nbx dcim devices delete --id 7").decode("ascii")
+    result = _run_hook(f"printf '%s' '{payload}' | base64 -d | bash")
+
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_hook_blocks_unconfirmed_write_via_shell_here_string() -> None:
     """`bash <<< '...'` feeds the here-string as stdin, which the shell then
     executes as commands — the same execution path as piping, expressed with
@@ -1040,6 +1222,47 @@ def test_is_loopback_host() -> None:
     assert is_loopback_host("::1")
     assert not is_loopback_host("0.0.0.0")
     assert not is_loopback_host("10.0.0.5")
+
+
+def _write_gate_probe_main(args: list[str]) -> int:
+    """Run a real generated CLI command with an in-process fake transport."""
+    import typer
+
+    from netbox_cli.dynamic import _register_openapi_subcommands
+
+    if not args:
+        return 2
+    surface, *command = args
+    client = _MockClient([ApiResponse(status=200, text='{"executed": true}', headers={})])
+    probe_app = typer.Typer(add_completion=False)
+
+    if surface == "dynamic":
+        index = _index()
+        _register_openapi_subcommands(
+            probe_app,
+            client_factory=lambda: client,  # type: ignore[arg-type, return-value]
+            index_factory=lambda: index,
+            command_index_factory=lambda: index,
+        )
+    elif surface == "proxbox":
+        from netbox_cli import proxbox as proxbox_module
+
+        proxbox_module._get_client = lambda: client  # type: ignore[assignment]
+        probe_proxbox_app = typer.Typer(add_completion=False, no_args_is_help=True)
+        proxbox_module._register_proxbox_resource_commands(probe_proxbox_app)
+        probe_app.add_typer(probe_proxbox_app, name="proxbox")
+    else:
+        return 2
+
+    result = CliRunner().invoke(probe_app, command)
+    sys.stdout.write(result.output)
+    return result.exit_code
+
+
+if __name__ == "__main__":
+    if len(sys.argv) >= 3 and sys.argv[1] == "--write-gate-probe":
+        raise SystemExit(_write_gate_probe_main(sys.argv[2:]))
+    raise SystemExit(2)
 
 
 def _trivial_app() -> Starlette:
