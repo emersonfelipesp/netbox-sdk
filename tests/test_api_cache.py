@@ -576,6 +576,53 @@ async def test_api_client_available_ips_write_invalidates_ip_address_collection_
 
 
 @pytest.mark.asyncio
+async def test_api_client_available_asns_write_invalidates_asn_collection_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """POST /api/ipam/asn-ranges/{id}/available-asns/ creates ASN objects
+    that live under /api/ipam/asns/, not anything under
+    /api/ipam/asn-ranges/. The default invalidation derivation (exact action
+    path + its immediate parent detail path) never touches the asns
+    collection, so a list cached before the action would keep serving
+    pre-write data even though a new ASN now exists."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"count": 0, "results": []}', headers={}),
+            ApiResponse(status=201, text='{"id": 9, "asn": 65001}', headers={}),
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 9, "asn": 65001}]}',
+                headers={},
+            ),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    list_before = await client.request("GET", "/api/ipam/asns/")
+    assert list_before.headers["X-NBX-Cache"] == "MISS"
+
+    action_response = await client.request("POST", "/api/ipam/asn-ranges/5/available-asns/")
+    assert action_response.status == 201
+
+    list_after = await client.request("GET", "/api/ipam/asns/")
+    assert list_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(list_after.text)["count"] == 1
+
+
+@pytest.mark.asyncio
 async def test_api_client_invalidates_cache_on_write_exception(monkeypatch, tmp_path) -> None:
     """A write whose response never arrives (e.g. the connection drops after
     NetBox already committed the mutation) must still purge related cache

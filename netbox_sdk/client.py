@@ -114,6 +114,7 @@ def _extract_case_insensitive(
 # read-only actions (napalm, trace, units, elevation, paths) are omitted
 # since a GET never stales anything.
 _ACTION_CROSS_RESOURCE_CACHE_PATHS: dict[str, tuple[str, ...]] = {
+    "available-asns": ("/api/ipam/asns/",),
     "available-ips": ("/api/ipam/ip-addresses/",),
     "available-prefixes": ("/api/ipam/prefixes/",),
     "available-vlans": ("/api/ipam/vlans/",),
