@@ -141,8 +141,27 @@ class HttpCacheStore:
             return None
 
     def save(
-        self, key: str, response: ApiResponse, policy: CachePolicy, *, path: str | None = None
+        self,
+        key: str,
+        response: ApiResponse,
+        policy: CachePolicy,
+        *,
+        path: str | None = None,
+        expected_generation: int | None = None,
     ) -> CacheEntry:
+        """Persist ``response`` as a cache entry, optionally fenced by ``expected_generation``.
+
+        A GET that started before a concurrent write must never repopulate the
+        cache after that write's ``invalidate_path`` has already run — doing so
+        would resurrect stale data for the fresh TTL and stale-if-error window,
+        hiding the mutation from subsequent reads. When ``path`` and
+        ``expected_generation`` are both given, the entry write and index
+        registration happen atomically under the same per-path lock
+        ``invalidate_path`` uses, and are skipped entirely (the in-memory
+        entry is still returned to satisfy the caller's own in-flight request)
+        if the path's generation has advanced since ``expected_generation`` was
+        captured.
+        """
         now = time.time()
         headers = dict(response.headers)
         entry = CacheEntry(
@@ -155,10 +174,31 @@ class HttpCacheStore:
             etag=headers.get("ETag"),
             last_modified=headers.get("Last-Modified"),
         )
-        self._write_entry(self._entry_path(key), entry)
-        if path:
-            self._record_path_index(path, key)
+        if not path:
+            self._write_entry(self._entry_path(key), entry)
+            return entry
+        index_path = self._index_path_file(path)
+        with self._locked_index(index_path):
+            generation, keys = self._load_index_state(index_path)
+            if expected_generation is not None and generation != expected_generation:
+                return entry
+            self._write_entry(self._entry_path(key), entry)
+            if key not in keys:
+                keys.append(key)
+            self._write_index_state(index_path, generation, keys)
         return entry
+
+    def path_generation(self, path: str) -> int:
+        """Current invalidation generation for ``path``, to capture before a cacheable GET.
+
+        Pass the returned value back to :meth:`save` as ``expected_generation``
+        so a response that raced a concurrent write can detect the invalidation
+        and skip persisting itself.
+        """
+        index_path = self._index_path_file(path)
+        with self._locked_index(index_path):
+            generation, _keys = self._load_index_state(index_path)
+            return generation
 
     def refresh(self, key: str, entry: CacheEntry, policy: CachePolicy) -> CacheEntry:
         now = time.time()
@@ -183,13 +223,21 @@ class HttpCacheStore:
         string, scope headers, or bearer token produced it. Callers that know
         a mutation may have changed a resource must invalidate both the exact
         path and, where applicable, its containing collection path.
+
+        The index file is rewritten with an incremented generation rather than
+        deleted: a GET already in flight when this runs captured the
+        pre-invalidation generation via :meth:`path_generation`, and its
+        eventual :meth:`save` call must see a mismatch to know to discard
+        itself instead of resurrecting the just-invalidated data. Deleting the
+        index file outright would reset a fresh index back to generation 0,
+        indistinguishable from one that was never invalidated.
         """
         index_path = self._index_path_file(path)
         with self._locked_index(index_path):
-            keys = self._load_index(index_path)
+            generation, keys = self._load_index_state(index_path)
             for key in keys:
                 self._entry_path(key).unlink(missing_ok=True)
-            index_path.unlink(missing_ok=True)
+            self._write_index_state(index_path, generation + 1, [])
 
     def _entry_path(self, key: str) -> Path:
         return self.root / f"{key}.json"
@@ -224,27 +272,29 @@ class HttpCacheStore:
         finally:
             lock_handle.close()
 
-    def _record_path_index(self, path: str, key: str) -> None:
-        index_path = self._index_path_file(path)
-        with self._locked_index(index_path):
-            keys = self._load_index(index_path)
-            if key not in keys:
-                keys.append(key)
-                self._write_index(index_path, keys)
+    def _load_index_state(self, index_path: Path) -> tuple[int, list[str]]:
+        """Load ``(generation, keys)`` for a per-path index file.
 
-    def _load_index(self, index_path: Path) -> list[str]:
+        Missing, unreadable, or pre-generation-fencing files (a bare JSON
+        list from an older cache layout) all resolve to a fresh
+        ``(0, [])`` state — safe because a wrong generation only costs a
+        few extra cache misses, never a stale hit.
+        """
         if not index_path.exists():
-            return []
+            return 0, []
         try:
             data = json.loads(index_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
-            return []
-        if not isinstance(data, list):
-            return []
-        return [str(item) for item in data]
+            return 0, []
+        if isinstance(data, dict):
+            generation = data.get("generation")
+            keys = data.get("keys")
+            if isinstance(generation, int) and isinstance(keys, list):
+                return generation, [str(item) for item in keys]
+        return 0, []
 
-    def _write_index(self, index_path: Path, keys: list[str]) -> None:
-        payload = json.dumps(keys)
+    def _write_index_state(self, index_path: Path, generation: int, keys: list[str]) -> None:
+        payload = json.dumps({"generation": generation, "keys": keys})
         with tempfile.NamedTemporaryFile(
             "w",
             encoding="utf-8",

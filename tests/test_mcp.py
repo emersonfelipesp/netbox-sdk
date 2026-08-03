@@ -368,6 +368,104 @@ def test_hook_allows_unconfirmed_raw_call_read(method: str) -> None:
     assert result.stdout == ""
 
 
+@pytest.mark.parametrize("root", ["branching", "branch"])
+@pytest.mark.parametrize(
+    "verb_invocation",
+    [
+        'create --name "my-branch"',
+        "update 7 --name renamed",
+        "delete 7 --yes",
+        "sync 7",
+        "merge 7",
+        "revert 7",
+        "archive 7 --yes",
+    ],
+)
+def test_hook_blocks_unconfirmed_branching_writes(root: str, verb_invocation: str) -> None:
+    """Branching verbs sit right after the group name, not at a fixed slice
+    end — this covers every mutating verb including sync/merge/revert/archive,
+    which aren't in WRITE_ACTIONS at all, on both the `branching` and `branch`
+    alias roots."""
+    blocked = _run_hook(f"nbx {root} {verb_invocation}")
+    allowed = _run_hook(f"NETBOX_SDK_CONFIRM_WRITE=1 nbx {root} {verb_invocation}")
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "read_invocation",
+    [
+        "status",
+        "list",
+        "show 7",
+        "events --branch 7",
+        "changes --branch 7 --action create",
+        "models",
+    ],
+)
+def test_hook_allows_unconfirmed_branching_reads(read_invocation: str) -> None:
+    """`changes --action create` exercises the filter value literally named
+    after a write action, which must not trip the write gate."""
+    result = _run_hook(f"nbx branching {read_invocation}")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_hook_blocks_unconfirmed_proxbox_sync() -> None:
+    blocked = _run_hook("nbx proxbox sync")
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 nbx proxbox sync")
+    blocked_endpoint = _run_hook("nbx proxbox sync my-endpoint --type virtual-machines")
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+    assert json.loads(blocked_endpoint.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_unconfirmed_proxbox_sync_types() -> None:
+    result = _run_hook("nbx proxbox sync-types")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+@pytest.mark.parametrize("verb", ["post", "put", "patch", "delete"])
+def test_hook_blocks_unconfirmed_dev_http_writes(verb: str) -> None:
+    """`post`/`put` are mutating but were never members of WRITE_ACTIONS, so
+    they only ever matched the old slice check by accident (via `patch`/
+    `delete` sharing literal spelling with unrelated action names)."""
+    blocked = _run_hook(f"nbx dev http {verb} --path /api/dcim/devices/1/")
+    allowed = _run_hook(
+        f"NETBOX_SDK_CONFIRM_WRITE=1 nbx dev http {verb} --path /api/dcim/devices/1/"
+    )
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize("read_invocation", ["get --path /api/dcim/devices/", "paths", "ops"])
+def test_hook_allows_unconfirmed_dev_http_reads(read_invocation: str) -> None:
+    result = _run_hook(f"nbx dev http {read_invocation}")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_hook_blocks_unconfirmed_nested_plugin_catalog_write() -> None:
+    """A write action at the end of a deeper-than-usual resource path (e.g. a
+    Proxbox catalog sub-namespace) must still be caught; the detector keys
+    off the trailing positional rather than a fixed index."""
+    blocked = _run_hook("nbx proxbox endpoints proxmox create --body-json '{}'")
+    allowed = _run_hook(
+        "NETBOX_SDK_CONFIRM_WRITE=1 nbx proxbox endpoints proxmox create --body-json '{}'"
+    )
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
 def test_is_loopback_host() -> None:
     assert is_loopback_host("127.0.0.1")
     assert is_loopback_host("localhost")

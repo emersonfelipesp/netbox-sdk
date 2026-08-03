@@ -364,6 +364,61 @@ async def test_api_client_invalidates_cache_after_successful_write(monkeypatch, 
 
 
 @pytest.mark.asyncio
+async def test_api_client_get_in_flight_during_write_does_not_repopulate_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """A GET that captures its cache generation before a concurrent write's
+    invalidate_path() lands on the same path — the classic read-before-write,
+    write-lands-mid-flight, read-completes-after race — must not resurrect the
+    now-stale response it fetched. The in-flight caller still gets its own
+    response back (that part of the race is unavoidable), but the response
+    must never be persisted, so a subsequent verification read misses and
+    fetches the post-write data instead of silently serving the pre-write one.
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/7/"
+
+    async def _fake_get_races_write(self, session, **kwargs):
+        # The GET has already captured its cache generation (in _request_impl,
+        # before this call); simulate a write landing on the same path while
+        # this GET is still in flight, before it returns its own response.
+        client._cache.invalidate_path(path)
+        return ApiResponse(status=200, text='{"id": 7, "name": "old"}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_get_races_write, raising=True)
+
+    raced_response = await client.request("GET", path)
+    assert raced_response.status == 200
+    assert raced_response.text == '{"id": 7, "name": "old"}'
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is None  # never persisted despite the 200
+
+    async def _fake_get_fresh(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 7, "name": "new"}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_get_fresh, raising=True)
+    verification_read = await client.request("GET", path)
+
+    assert verification_read.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(verification_read.text)["name"] == "new"
+
+
+@pytest.mark.asyncio
 async def test_api_client_bulk_write_invalidates_individual_detail_paths(
     monkeypatch, tmp_path
 ) -> None:
@@ -416,22 +471,31 @@ def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> 
     then never purge the dropped entry, leaving it servable as a stale hit."""
     store = HttpCacheStore(tmp_path)
     path = "/api/dcim/devices/"
-    original_write = store._write_index
+    policy = CachePolicy()
+    original_write = store._write_index_state
     write_started = threading.Event()
     release_write = threading.Event()
 
-    def _slow_write(index_path, keys):
+    def _slow_write(index_path, generation, keys):
         write_started.set()
         release_write.wait(timeout=5)
-        original_write(index_path, keys)
+        original_write(index_path, generation, keys)
 
-    store._write_index = _slow_write  # type: ignore[method-assign]
+    store._write_index_state = _slow_write  # type: ignore[method-assign]
 
-    thread_a = threading.Thread(target=lambda: store._record_path_index(path, "key-a"))
+    thread_a = threading.Thread(
+        target=lambda: store.save(
+            "key-a", ApiResponse(status=200, text="{}", headers={}), policy, path=path
+        )
+    )
     thread_a.start()
     assert write_started.wait(timeout=5)
 
-    thread_b = threading.Thread(target=lambda: store._record_path_index(path, "key-b"))
+    thread_b = threading.Thread(
+        target=lambda: store.save(
+            "key-b", ApiResponse(status=200, text="{}", headers={}), policy, path=path
+        )
+    )
     thread_b.start()
     time.sleep(0.05)
     assert thread_b.is_alive()  # still blocked on the lock
@@ -440,5 +504,65 @@ def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> 
     thread_a.join(timeout=5)
     thread_b.join(timeout=5)
 
-    keys = store._load_index(store._index_path_file(path))
+    _generation, keys = store._load_index_state(store._index_path_file(path))
     assert sorted(keys) == ["key-a", "key-b"]
+
+
+def test_save_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:
+    """A GET that started before a write must not repopulate the cache after
+    the write's invalidate_path() already ran. save() still returns the
+    in-memory entry for the immediate caller, but must not write the entry
+    file or re-register it in the index once the generation it captured is
+    stale."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/"
+    policy = CachePolicy()
+
+    stale_generation = store.path_generation(path)
+    store.invalidate_path(path)  # simulates a write landing while the GET was in flight
+
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    entry = store.save(
+        key,
+        ApiResponse(status=200, text='{"stale": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=stale_generation,
+    )
+
+    assert entry.text == '{"stale": true}'  # immediate caller still gets its response
+    assert store.load(key) is None  # but nothing was persisted to disk
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert key not in keys
+
+
+def test_save_persists_when_generation_unchanged(tmp_path) -> None:
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/"
+    policy = CachePolicy()
+
+    generation = store.path_generation(path)
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    store.save(
+        key,
+        ApiResponse(status=200, text='{"fresh": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=generation,
+    )
+
+    loaded = store.load(key)
+    assert loaded is not None
+    assert loaded.text == '{"fresh": true}'

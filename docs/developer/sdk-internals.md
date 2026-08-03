@@ -382,6 +382,18 @@ def build_cache_key(*, base_url, method, path, query, authorization) -> str:
 
 Cache files use `0o600` permissions (owner read/write only) to protect token fingerprints.
 
+### Write Invalidation and Generation Fencing
+
+A successful non-GET request purges every cached entry for its path (and the containing collection path) via `HttpCacheStore.invalidate_path()`, keyed by a per-path index file rather than the full cache key — so invalidation is independent of which token, query string, or scope headers produced the cached entry.
+
+A GET that started before a write can still be in flight when that write's `invalidate_path()` runs. Without a fence, the GET's own `save()` call — which lands after the invalidation — could resurrect the pre-write response into a fresh cache entry, hiding a successful mutation from the next read for the rest of that entry's TTL. `HttpCacheStore` closes this race with a per-path generation counter:
+
+- `path_generation(path)` returns the path's current generation; the client captures it immediately before issuing a cacheable GET.
+- `invalidate_path(path)` increments the generation (and clears the key list) instead of deleting the index file outright, so a fence captured before invalidation can still be compared against it afterward.
+- `save(..., path=path, expected_generation=<captured>)` re-checks the generation under the same per-path lock `invalidate_path()` uses. If the generation has moved on, the entry is still returned to satisfy the in-flight caller's own request, but neither the entry file nor the index registration is written — the response is never persisted.
+
+This makes the entry write and index registration atomic with respect to concurrent invalidation, closing the same-race window that a lock alone (serializing writers, not fencing readers against a write that already committed) does not.
+
 ---
 
 ## Services Layer

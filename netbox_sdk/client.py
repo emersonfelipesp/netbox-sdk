@@ -441,6 +441,7 @@ class NetBoxApiClient:
         )
         cache_key: str | None = None
         cache_entry = None
+        cache_generation: int | None = None
         # Header precedence (lowest → highest): persistent_headers (client-wide,
         # e.g. the TUI's active branch) < _scoped_headers (per-task header_scope,
         # e.g. SDK ``activate``/``activate_branch``) < per-call ``headers``. A
@@ -484,6 +485,11 @@ class NetBoxApiClient:
                 authorization=effective_authorization,
                 scope_headers=scope_headers,
             )
+            # Captured before the request is issued so a concurrent write's
+            # invalidate_path() that lands while this GET is in flight is
+            # detected at save time below, instead of this now-stale response
+            # silently repopulating the cache after the write already purged it.
+            cache_generation = self._cache.path_generation(path)
             cache_entry = self._cache.load(cache_key)
             if cache_entry is not None and cache_entry.is_fresh(self._now()):
                 return self._cached_response(cache_entry, cache_status="HIT")
@@ -514,11 +520,21 @@ class NetBoxApiClient:
             if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
                 return self._cached_response(cache_entry, cache_status="STALE")
             raise
-        if self._should_retry_with_v1(response):
+        # These fallbacks retry using the client's own configured credential
+        # (or a refreshed one from the token-refresh callback), which is a
+        # different identity than a caller-supplied override. If a caller
+        # provided its own Authorization header, an invalid/foreign
+        # credential must never silently succeed by falling back to the
+        # SDK's configured account — that would both perform the request
+        # under the wrong identity and, for GET requests, cache the
+        # configured account's response under the cache key computed from
+        # the caller's (rejected) credential, serving it back to that
+        # caller or anyone else presenting the same override later.
+        if caller_authorization is None and self._should_retry_with_v1(response):
             response = await self._request_once(
                 session, authorization=self._v1_fallback_header(), **req_kwargs
             )
-        elif self._should_refresh_demo_v1_token(response):
+        elif caller_authorization is None and self._should_refresh_demo_v1_token(response):
             authorization = self._refresh_demo_v1_authorization()
             if authorization:
                 response = await self._request_once(
@@ -540,6 +556,7 @@ class NetBoxApiClient:
             cache_entry=cache_entry,
             cache_policy=cache_policy,
             path=path,
+            cache_generation=cache_generation,
         )
 
     async def _request_once(
@@ -770,6 +787,7 @@ class NetBoxApiClient:
         cache_entry: CacheEntry | None,
         cache_policy: CachePolicy | None,
         path: str,
+        cache_generation: int | None = None,
     ) -> ApiResponse:
         if cache_policy is None or cache_key is None:
             return response
@@ -777,7 +795,13 @@ class NetBoxApiClient:
             refreshed = self._cache.refresh(cache_key, cache_entry, cache_policy)
             return self._cached_response(refreshed, cache_status="REVALIDATED")
         if 200 <= response.status < 300:
-            stored = self._cache.save(cache_key, response, cache_policy, path=path)
+            stored = self._cache.save(
+                cache_key,
+                response,
+                cache_policy,
+                path=path,
+                expected_generation=cache_generation,
+            )
             return self._cached_response(stored, cache_status="MISS")
         if (
             cache_entry is not None
