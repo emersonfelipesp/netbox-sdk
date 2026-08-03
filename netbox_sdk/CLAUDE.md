@@ -55,7 +55,7 @@ netbox_sdk/
 
 - `netbox_sdk.config` — config model, profile persistence, auth headers
 - `netbox_sdk.branching` — NetBox Branching API client, branch-scoped header helpers, job polling helpers
-- `netbox_sdk.client` — async API client and connection probe; caller-supplied paths reject percent-encoded `/` and `\` separators before cache or network dispatch
+- `netbox_sdk.client` — async API client and connection probe; caller-supplied paths reject percent-encoded `/` and `\` separators before cache or network dispatch; normal and SSE request Authorization precedence is presence-based, so an explicitly empty per-call/scoped/persistent override remains anonymous and never falls through to the configured client credential
 - `netbox_sdk.decorators` — reusable decorator factories for SDK command/resource wrapper metadata
 - `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`, `PaginationError`)
 - `netbox_sdk.facade` — async convenience facade exposed via `api()`
@@ -68,6 +68,7 @@ netbox_sdk/
 - `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value` forms; `ACTION_METHOD_MAP` includes bulk ops (`bulk-update`, `bulk-patch`, `bulk-delete`); `list_all_pages` follows NetBox pagination `next` links and returns a synthesised single-page response while preserving repeated `next` query params; a non-2xx status or unparseable body on any page (including a later page after earlier ones succeeded) returns that raw failing response instead of folding partial results into a synthesised `status=200` envelope, while malformed result arrays, repeated page targets, and non-progressing pages raise `PaginationError`
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
 - `netbox_sdk.proxbox` — stable netbox-proxbox resource catalog plus catalog-backed request helper used by the dedicated CLI and TUI surfaces
+- `netbox_sdk.proxbox_sync` — Proxbox scheduling/SSE/job-fetch helpers and `ProxboxSyncError`, which carries an optional structured `job_id` once scheduling has succeeded
 - `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
 - Shared cross-package helpers: `formatting`, `logging_runtime`, `output_safety`, `trace_ascii`, `demo_auth`, `django_models`
 

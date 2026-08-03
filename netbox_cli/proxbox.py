@@ -27,6 +27,7 @@ from netbox_cli.support import (
 )
 from netbox_cli.write_confirmation import require_write_confirmation
 from netbox_sdk.exceptions import RequestError
+from netbox_sdk.logging_runtime import get_logger
 from netbox_sdk.output_safety import sanitize_terminal_text
 from netbox_sdk.proxbox import (
     ProxboxResourceSpec,
@@ -57,6 +58,7 @@ _TERMINAL_JOB_STATUSES = frozenset(
     {"completed", "errored", "failed", "terminated", "canceled", "cancelled"}
 )
 _JOB_POLL_INTERVAL = 1.0
+logger = get_logger(__name__)
 
 
 def _proxbox_index_factory() -> SchemaIndex:
@@ -276,6 +278,11 @@ def proxbox_tui_command(
         "--theme",
         help="Theme selector. Use '--theme' to list available themes or '--theme <name>' to launch with one.",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm launching a workbench capable of live Proxbox writes.",
+    ),
 ) -> None:
     """Launch the Proxbox-focused Textual request workbench."""
     available_theme_names, resolve_theme_name, run_proxbox_tui = load_tui_callables(
@@ -295,6 +302,7 @@ def proxbox_tui_command(
     if theme and not ctx.args:
         return
 
+    require_write_confirmation(confirmed=confirm)
     try:
         run_proxbox_tui(client=_get_client(), theme_name=selected_theme)
     except Exception as exc:
@@ -539,8 +547,21 @@ async def _run_sync(
         try:
             job = await proxbox.fetch_job(job_id)
         except Exception as fetch_error:
+            logger_message = (
+                f"Authoritative fetch failed for scheduled Proxbox job {job_id}; "
+                "inspect this existing job before considering another sync."
+            )
+            logger.warning(
+                logger_message,
+                extra={"nbx_event": "proxbox_authoritative_fetch_failed", "job_id": job_id},
+                exc_info=True,
+            )
             if not stream_failed:
-                raise
+                raise ProxboxSyncError(
+                    f"{logger_message} "
+                    f"Fetch error: {fetch_error.__class__.__name__}: {fetch_error}",
+                    job_id=job_id,
+                ) from fetch_error
             stream_detail = (
                 f"{stream_error.__class__.__name__}: {stream_error}"
                 if stream_error is not None
@@ -549,7 +570,10 @@ async def _run_sync(
             raise ProxboxSyncError(
                 f"Proxbox job {job_id} stream failed ({stream_detail}); "
                 "authoritative job fetch also failed "
-                f"({fetch_error.__class__.__name__}: {fetch_error})."
+                f"({fetch_error.__class__.__name__}: {fetch_error}). "
+                "The sync was already scheduled; inspect this existing job before "
+                "considering another sync.",
+                job_id=job_id,
             ) from fetch_error
         if stream_failed and not _job_status_is_terminal(job):
             remaining_timeout = max(0.0, timeout - (time.monotonic() - stream_started_at))
@@ -936,7 +960,7 @@ def _summary_table(summary: dict[str, Any]) -> Table:
 def _render_cli_exception(exc: Exception, *, json_output: bool) -> None:
     if json_output:
         payload = {
-            "job_id": None,
+            "job_id": getattr(exc, "job_id", None),
             "status": "error",
             "ok": False,
             "errors": [

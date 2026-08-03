@@ -690,6 +690,18 @@ def test_hook_blocks_unconfirmed_proxbox_sync() -> None:
     assert json.loads(blocked_endpoint.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
+def test_hook_blocks_unconfirmed_proxbox_tui() -> None:
+    blocked = _run_hook("nbx proxbox tui")
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 nbx proxbox tui")
+    allowed_flag = _run_hook("nbx proxbox tui --confirm")
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+    assert allowed_flag.returncode == 0
+    assert allowed_flag.stdout == ""
+
+
 def test_hook_allows_unconfirmed_proxbox_sync_types() -> None:
     result = _run_hook("nbx proxbox sync-types")
     assert result.returncode == 0

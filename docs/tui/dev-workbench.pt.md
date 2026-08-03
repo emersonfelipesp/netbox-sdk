@@ -28,6 +28,14 @@ nbx demo dev tui --theme dracula
 - `nbx cli tui` é o construtor de comandos guiado
 - `nbx logs` é o visualizador de log estruturado
 
+## Confirmação de escrita
+
+Cada envio `POST`, `PUT`, `PATCH` ou `DELETE` abre um diálogo de confirmação que
+mostra método, caminho e payload resolvidos. A requisição só é enviada após a
+escolha explícita de **Confirm write**; cancelar ou pressionar Escape não altera
+o NetBox. Esse gate por requisição também vale quando a bancada compartilhada é
+aberta por `nbx proxbox tui`.
+
 ## Capturas de tela
 
 - [Galeria da bancada do desenvolvedor](screenshots-dev.md)

@@ -7,6 +7,68 @@ Screen {
     display: none;
 }
 
+WriteConfirmationModal {
+    align: center middle;
+    background: $background 65%;
+}
+
+#write_confirmation_dialog {
+    width: 72;
+    max-width: 90%;
+    max-height: 85%;
+    height: auto;
+    padding: 1 2;
+    background: $surface;
+    border: tall $nb-border-subtle;
+}
+
+#write_confirmation_title {
+    color: $warning;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#write_confirmation_copy,
+#write_confirmation_request,
+#write_confirmation_payload_label {
+    color: $foreground;
+    margin-bottom: 1;
+}
+
+#write_confirmation_request,
+#write_confirmation_payload {
+    background: $background;
+    border: tall $nb-border-subtle;
+    padding: 0 1;
+}
+
+#write_confirmation_request {
+    color: $warning;
+    text-style: bold;
+}
+
+#write_confirmation_payload_label {
+    color: $nb-muted-text;
+    text-style: bold;
+}
+
+#write_confirmation_payload {
+    color: $foreground;
+    max-height: 16;
+    overflow: auto;
+    margin-bottom: 1;
+}
+
+#write_confirmation_actions {
+    width: 1fr;
+    height: auto;
+    align: right middle;
+}
+
+#write_confirmation_cancel {
+    margin-right: 1;
+}
+
 * {
     scrollbar-size: 1 1;
     scrollbar-background: transparent;

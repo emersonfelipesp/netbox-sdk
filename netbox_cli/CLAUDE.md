@@ -30,7 +30,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `demo.py` | `nbx demo ...` command tree |
 | `dev.py` | `nbx dev ...` command tree; `dev http` POST/PUT/PATCH/DELETE share the process-local write-confirmation gate while GET remains confirmation-free |
 | `django_model.py` | Django model CLI commands |
-| `proxbox.py` | `nbx proxbox ...` catalog, generated Proxbox CRUD commands, TUI launcher, and streaming sync commands; stream failures recover the authoritative job, poll within the remaining timeout, and report transport loss as a warning when the job succeeds |
+| `proxbox.py` | `nbx proxbox ...` catalog, generated Proxbox CRUD commands, confirmation-gated TUI launcher, and streaming sync commands; stream failures recover the authoritative job, poll within the remaining timeout, and report transport loss as a warning when the job succeeds; post-schedule authoritative-fetch failures preserve the structured `job_id` and warn automation to inspect that existing job before retrying |
 | `markdown_output.py` | Markdown rendering helpers |
 | `docgen_capture.py` / `docgen_specs.py` / `docgen/` | Documentation capture pipeline |
 | `tui_simulation.py` | TUI launch simulation helpers used by docs/tests |

@@ -92,9 +92,9 @@ constructing a client. It is not server-side validation and does not prove that
 the live NetBox call will succeed.
 
 The `nbx` process independently refuses dynamic CRUD/bulk writes, Proxbox
-CRUD/sync, write-method raw/dev-HTTP calls, and mutating Branching verbs unless
-the reviewed command includes `--confirm` or its environment contains
-`NETBOX_SDK_CONFIRM_WRITE=1`.
+CRUD/sync or TUI launch, write-method raw/dev-HTTP calls, and mutating Branching
+verbs unless the reviewed command includes `--confirm` or its environment
+contains `NETBOX_SDK_CONFIRM_WRITE=1`.
 Repository-local Claude Code and Codex hooks add a defense-in-depth early denial
 for recognizable Bash source; decoded or generated shell input still reaches
 the authoritative CLI-process gate.

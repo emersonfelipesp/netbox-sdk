@@ -69,11 +69,14 @@ _scoped_headers: contextvars.ContextVar[dict[str, str] | None] = contextvars.Con
 
 def _extract_case_insensitive(
     headers: dict[str, str], name: str
-) -> tuple[str | None, dict[str, str]]:
+) -> tuple[bool, str | None, dict[str, str]]:
     """Pop every case variant of header ``name`` from ``headers``.
 
-    Returns the value of the last matching key encountered in ``headers``'
-    own iteration order and a new dict with all matching keys removed.
+    Returns whether a matching key was present, the value of the last
+    matching key encountered in ``headers``' own iteration order, and a new
+    dict with all matching keys removed. Presence is tracked separately from
+    value so an explicitly empty Authorization header remains an intentional
+    anonymous override instead of falling through to a configured credential.
     Plain dicts are case-sensitive, but HTTP header names are not, so
     without this a caller-supplied "authorization" and a configured
     "Authorization" would be treated as two independent headers instead of
@@ -93,14 +96,30 @@ def _extract_case_insensitive(
     take precedence over both.
     """
     target = name.lower()
+    present = False
     value: str | None = None
     remaining: dict[str, str] = {}
     for key, header_value in headers.items():
         if key.lower() == target:
+            present = True
             value = header_value
         else:
             remaining[key] = header_value
-    return value, remaining
+    return present, value, remaining
+
+
+def _resolve_authorization_precedence(
+    *,
+    persistent: tuple[bool, str | None],
+    scoped: tuple[bool, str | None],
+    per_call: tuple[bool, str | None],
+    configured: str | None,
+) -> tuple[bool, str | None]:
+    """Resolve Authorization by header presence, not value truthiness."""
+    for present, value in (per_call, scoped, persistent):
+        if present:
+            return True, value
+    return False, configured
 
 
 # NetBox "detail action" endpoints (see netbox_sdk.facade.DETAIL_ENDPOINT_SPECS)
@@ -443,21 +462,27 @@ class NetBoxApiClient:
         # mutation intended for the explicit per-call token execute under a
         # different caller's credential instead.
         persistent = dict(self.persistent_headers)
-        persistent_authorization, persistent = _extract_case_insensitive(
-            persistent, "Authorization"
+        persistent_authorization_present, persistent_authorization, persistent = (
+            _extract_case_insensitive(persistent, "Authorization")
         )
         scoped = dict(_scoped_headers.get() or {})
-        scoped_authorization, scoped = _extract_case_insensitive(scoped, "Authorization")
+        scoped_authorization_present, scoped_authorization, scoped = _extract_case_insensitive(
+            scoped, "Authorization"
+        )
         call_headers = dict(headers or {})
-        call_authorization, call_headers = _extract_case_insensitive(call_headers, "Authorization")
+        call_authorization_present, call_authorization, call_headers = _extract_case_insensitive(
+            call_headers, "Authorization"
+        )
         req_headers = dict(persistent)
         req_headers.update(scoped)
         req_headers.update(call_headers)
         req_headers.setdefault("Accept", "text/event-stream")
-        caller_authorization = (
-            call_authorization or scoped_authorization or persistent_authorization
+        _, effective_authorization = _resolve_authorization_precedence(
+            persistent=(persistent_authorization_present, persistent_authorization),
+            scoped=(scoped_authorization_present, scoped_authorization),
+            per_call=(call_authorization_present, call_authorization),
+            configured=authorization,
         )
-        effective_authorization = caller_authorization or authorization
         if effective_authorization:
             req_headers["Authorization"] = effective_authorization
 
@@ -590,23 +615,29 @@ class NetBoxApiClient:
         # mutation intended for the explicit per-call token execute under a
         # different caller's credential instead.
         persistent = dict(self.persistent_headers)
-        persistent_authorization, persistent = _extract_case_insensitive(
-            persistent, "Authorization"
+        persistent_authorization_present, persistent_authorization, persistent = (
+            _extract_case_insensitive(persistent, "Authorization")
         )
         scoped = dict(_scoped_headers.get() or {})
-        scoped_authorization, scoped = _extract_case_insensitive(scoped, "Authorization")
+        scoped_authorization_present, scoped_authorization, scoped = _extract_case_insensitive(
+            scoped, "Authorization"
+        )
         call_headers = dict(headers or {})
-        call_authorization, call_headers = _extract_case_insensitive(call_headers, "Authorization")
+        call_authorization_present, call_authorization, call_headers = _extract_case_insensitive(
+            call_headers, "Authorization"
+        )
         req_headers = dict(persistent)
         req_headers.update(scoped)
         req_headers.update(call_headers)
         # A per-call bearer (e.g. MCP's persistent_headers override for a
         # forwarded caller token) must scope the cache key too, or requests
         # made under different tokens collide on the same cached response.
-        caller_authorization = (
-            call_authorization or scoped_authorization or persistent_authorization
+        caller_authorization_present, effective_authorization = _resolve_authorization_precedence(
+            persistent=(persistent_authorization_present, persistent_authorization),
+            scoped=(scoped_authorization_present, scoped_authorization),
+            per_call=(call_authorization_present, call_authorization),
+            configured=authorization,
         )
-        effective_authorization = caller_authorization or authorization
         # Any other header that can change the response representation (e.g.
         # X-NetBox-Branch) must scope the cache key too, or a same-token read
         # in one NetBox Branching schema can serve a response cached from a
@@ -665,11 +696,11 @@ class NetBoxApiClient:
             # configured account's response under the cache key computed from
             # the caller's (rejected) credential, serving it back to that
             # caller or anyone else presenting the same override later.
-            if caller_authorization is None and self._should_retry_with_v1(response):
+            if not caller_authorization_present and self._should_retry_with_v1(response):
                 response = await self._request_once(
                     session, authorization=self._v1_fallback_header(), **req_kwargs
                 )
-            elif caller_authorization is None and self._should_refresh_demo_v1_token(response):
+            elif not caller_authorization_present and self._should_refresh_demo_v1_token(response):
                 authorization = self._refresh_demo_v1_authorization()
                 if authorization:
                     response = await self._request_once(
@@ -1182,7 +1213,13 @@ class NetBoxApiClient:
         their own header set without races on shared state.
         """
         merged = dict(_scoped_headers.get() or {})
-        merged.update({k: v for k, v in headers.items() if v})
+        merged.update(
+            {
+                key: value
+                for key, value in headers.items()
+                if value or key.casefold() == "authorization"
+            }
+        )
         token = _scoped_headers.set(merged)
         try:
             yield self

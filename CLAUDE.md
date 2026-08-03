@@ -146,8 +146,10 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 Every dynamic action that resolves to `POST`, `PUT`, `PATCH`, or `DELETE`
 (including a raw HTTP-method action spelling), write-method `nbx call` and
 `nbx dev http` requests, every mutating `nbx branching`/`nbx branch` verb,
-and Proxbox CRUD/sync scheduling require `--confirm` or
-`NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation.
+and Proxbox CRUD/sync scheduling or TUI launch require `--confirm` or
+`NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation;
+the shared dev/Proxbox request workbench also presents a separate confirmation
+dialog before every POST, PUT, PATCH, or DELETE dispatch.
 
 **Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. It raises `PaginationError` on malformed result arrays, repeated page targets, or a page that supplies another link without adding records. `--max-records N` (default 10 000) remains the hard ceiling on accumulated records.
 
@@ -189,11 +191,13 @@ scheduling `POST /api/plugins/proxbox/sync/schedule/`, resolving Proxmox
 endpoint names through `/api/plugins/proxbox/endpoints/proxmox/`, parsing SSE
 blocks into `SseFrame`, streaming `/plugins/proxbox/jobs/{job_id}/stream/`, and
 fetching `/api/core/jobs/{job_id}/` after the stream for authoritative status
-and error log entries.
+and error log entries. `ProxboxSyncError` preserves a known scheduled `job_id`
+when that authoritative fetch fails so automation can inspect the existing job
+instead of blindly scheduling a duplicate.
 
 `netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox resources`,
-`ops`, generated CRUD commands, the Proxbox TUI launcher, `sync`, and
-`sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
+`ops`, generated CRUD commands, the confirmation-gated Proxbox TUI launcher,
+`sync`, and `sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
 merge streamed errors with post-stream Job `error` and error-level `log_entries`
 because server-side SSE throttling can drop granular errors. After a stream
 failure, the fetched job status is authoritative: poll the same job within the

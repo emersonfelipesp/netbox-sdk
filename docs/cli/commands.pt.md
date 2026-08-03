@@ -178,10 +178,14 @@ e painéis de resposta do `nbx dev tui`, mas começa no catálogo Proxbox estáv
 desativa descoberta ao vivo de plugins.
 
 ```bash
-nbx proxbox tui
-nbx proxbox tui --theme dracula
+nbx proxbox tui --confirm
+nbx proxbox tui --theme dracula --confirm
 nbx proxbox tui --theme
 ```
+
+A abertura exige `--confirm` ou `NETBOX_SDK_CONFIRM_WRITE=1`. Cada POST, PUT,
+PATCH ou DELETE dentro da bancada então requer um diálogo de confirmação
+separado para aquela requisição exata.
 
 ---
 
@@ -209,7 +213,9 @@ agendamento, a CLI busca o job e, se ele ainda não for terminal, consulta o
 mesmo `job_id` dentro do orçamento restante de `--timeout`. Um job concluído
 com sucesso continua bem-sucedido e expõe a perda do stream como aviso; um job
 com falha ainda relata seus erros autoritativos, enquanto um job em execução
-sem resultado confirmado é identificado explicitamente para evitar sync duplicado.
+sem resultado confirmado é identificado explicitamente para evitar sync
+duplicado. Se a busca autoritativa falhar, os erros JSON preservam o `job_id`
+conhecido; inspecione esse job existente antes de tentar ou reagendar novamente.
 
 **Opções**
 

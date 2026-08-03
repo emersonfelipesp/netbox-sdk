@@ -54,18 +54,23 @@ nbx proxbox schedule create --dry-run --body-json '{"sync_types":["all"]}'
 nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
 
 # TUI somente para Proxbox.
-nbx proxbox tui
-nbx proxbox tui --theme dracula
+nbx proxbox tui --confirm
+nbx proxbox tui --theme dracula --confirm
 nbx proxbox tui --theme
 ```
 
-CRUD Proxbox real e agendamento de sync exigem `--confirm` ou
-`NETBOX_SDK_CONFIRM_WRITE=1`; dry runs continuam sem confirmação. Se o stream
+CRUD Proxbox real, agendamento de sync e abertura da TUI exigem `--confirm` ou
+`NETBOX_SDK_CONFIRM_WRITE=1`; dry runs continuam sem confirmação. Dentro da
+bancada, cada POST, PUT, PATCH ou DELETE também exige seu próprio diálogo de
+confirmação com método, caminho e payload antes do envio. Se o stream
 SSE de um sync falhar após o agendamento, a CLI busca o job autoritativo no
 NetBox e consulta esse mesmo job dentro do timeout restante quando necessário.
 Um job concluído continua bem-sucedido com a desconexão em `warnings`; um job
 com falha ou ainda não terminal é informado pelo status autoritativo sem
-sugerir que o trabalho agendado nunca ocorreu.
+sugerir que o trabalho agendado nunca ocorreu. Se a própria busca autoritativa
+falhar, a saída de erro JSON preserva o `job_id` conhecido; a automação deve
+inspecionar esse job existente antes de considerar outro sync, sem reagendar às
+cegas.
 
 ## Famílias de Recursos
 
@@ -100,4 +105,6 @@ mas com índice de esquema somente Proxbox. A barra lateral começa no catálogo
 Proxbox, os painéis de método/caminho/corpo/resposta funcionam como na bancada
 de desenvolvedor, e a descoberta ao vivo de plugins fica desativada para manter
 o catálogo estável mesmo quando a instância NetBox conectada não expõe metadados
-OpenAPI do plugin.
+OpenAPI do plugin. A abertura exige `--confirm` (ou
+`NETBOX_SDK_CONFIRM_WRITE=1`) e cada envio mutável exige uma segunda confirmação
+específica da requisição dentro da TUI.

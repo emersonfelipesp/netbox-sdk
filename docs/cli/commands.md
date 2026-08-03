@@ -176,10 +176,14 @@ editor and response panes as `nbx dev tui`, but starts from the stable Proxbox
 catalog and disables live plugin discovery.
 
 ```bash
-nbx proxbox tui
-nbx proxbox tui --theme dracula
+nbx proxbox tui --confirm
+nbx proxbox tui --theme dracula --confirm
 nbx proxbox tui --theme
 ```
+
+Launching requires `--confirm` or `NETBOX_SDK_CONFIRM_WRITE=1`. Every POST,
+PUT, PATCH, or DELETE inside the workbench then requires a separate confirmation
+dialog for that exact request.
 
 ---
 
@@ -206,7 +210,9 @@ scheduling, the CLI fetches that job and, when it is still non-terminal, polls
 the same `job_id` within the remaining `--timeout` budget. A terminal-success
 job remains successful and reports the stream loss as a warning; a failed job
 still reports its authoritative errors, while an unconfirmed running job is
-identified explicitly so automation does not schedule an unsafe duplicate.
+identified explicitly so automation does not schedule an unsafe duplicate. If
+the authoritative fetch fails, JSON errors retain the known `job_id`; inspect
+that existing job before retrying or rescheduling.
 
 **Options**
 

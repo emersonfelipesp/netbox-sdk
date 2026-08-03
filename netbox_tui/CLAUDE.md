@@ -24,13 +24,13 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `app.py` | Main NetBox browser TUI |
 | `branch_screen.py` | Branch switcher overlay and branch selection workflow |
 | `cli_tui.py` | CLI-builder TUI |
-| `dev_app.py` | Dev/workbench TUI |
+| `dev_app.py` | Dev/workbench TUI; every POST/PUT/PATCH/DELETE send requires an explicit per-request confirmation modal showing the method, path, and payload before dispatch |
 | `filter_overlay.py` | Shared filter modal/overlay behavior |
 | `graphql_app.py` | GraphQL explorer TUI |
 | `login_modal.py` | Login/profile prompt modal |
 | `logs_app.py` | Log viewer TUI |
 | `django_model_app.py` | Django model inspector TUI |
-| `proxbox_app.py` | Proxbox-only request workbench entrypoint backed by the stable Proxbox catalog |
+| `proxbox_app.py` | Proxbox-only request workbench entrypoint backed by the stable Proxbox catalog and the shared per-write confirmation modal |
 | `chrome.py` | Shared theme/clock/logo/topbar helpers |
 | `navigation.py`, `nav_blueprint.py` | Navigation model and blueprint |
 | `cli_completions.py` | `CliCommandNode` model and `nbx_root_command_nodes()` — builds the full command-tree for the CLI-builder TUI, including generated Proxbox command branches |

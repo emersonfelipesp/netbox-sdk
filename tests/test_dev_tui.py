@@ -13,7 +13,12 @@ from textual.widgets import Button, Input, OptionList, Select, Static, TabbedCon
 from netbox_sdk.client import ApiResponse, ConnectionProbe
 from netbox_sdk.schema import build_schema_index
 from netbox_tui.chrome import SWITCH_TO_DEV_TUI, SWITCH_TO_MAIN_TUI
-from netbox_tui.dev_app import NetBoxDevTuiApp, _text_area_syntax_theme_for, run_dev_tui
+from netbox_tui.dev_app import (
+    NetBoxDevTuiApp,
+    WriteConfirmationModal,
+    _text_area_syntax_theme_for,
+    run_dev_tui,
+)
 from netbox_tui.dev_state import DevTuiState
 from netbox_tui.widgets import SPONSOR_URL, NbxButton, NbxPanelBody, NbxPanelHeader
 
@@ -111,6 +116,52 @@ async def test_dev_tui_send_request_uses_current_http_client(mock_client, real_i
         status = app.query_one("#dev_response_status", Static)
         assert '"count": 1' in body.text
         assert "HTTP 200" in str(status.content)
+
+
+@pytest.mark.parametrize("method", ["POST", "PUT", "PATCH", "DELETE"])
+async def test_dev_tui_mutating_request_requires_per_request_confirmation(
+    mock_client, real_index, method: str
+) -> None:
+    app = NetBoxDevTuiApp(client=mock_client, index=real_index, theme_name="netbox-dark")
+    payload = None if method == "DELETE" else {"name": "switch01"}
+
+    async with app.run_test(size=(160, 50)) as pilot:
+        app._activate_resource("dcim", "devices")
+        await pilot.pause()
+        app.query_one("#dev_method_select", Select).value = method
+        app.query_one("#dev_body_editor", TextArea).text = json.dumps({"name": "switch01"})
+        mock_client.request.reset_mock()
+
+        await pilot.click("#dev_send_button")
+        for _ in range(5):
+            await pilot.pause()
+            if isinstance(app.screen, WriteConfirmationModal):
+                break
+
+        assert isinstance(app.screen, WriteConfirmationModal)
+        assert method in str(app.screen.query_one("#write_confirmation_request", Static).content)
+        mock_client.request.assert_not_awaited()
+
+        await pilot.press("escape")
+        await pilot.pause()
+        mock_client.request.assert_not_awaited()
+
+        await pilot.click("#dev_send_button")
+        for _ in range(5):
+            await pilot.pause()
+            if isinstance(app.screen, WriteConfirmationModal):
+                break
+        assert isinstance(app.screen, WriteConfirmationModal)
+        await pilot.click("#write_confirmation_submit")
+        await pilot.pause()
+        await pilot.pause()
+
+        mock_client.request.assert_awaited_once_with(
+            method,
+            "/api/dcim/devices/",
+            query={},
+            payload=payload,
+        )
 
 
 @pytest.mark.asyncio

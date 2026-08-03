@@ -93,9 +93,9 @@ um cliente. Não é validação no servidor e não prova que a chamada real ter�
 sucesso.
 
 O processo `nbx` recusa de forma independente CRUD dinâmico/em lote, CRUD/sync
-Proxbox, chamadas brutas/dev-HTTP com método de escrita e verbos mutáveis de
-Branching, salvo quando o comando revisado inclui `--confirm` ou seu ambiente
-contém `NETBOX_SDK_CONFIRM_WRITE=1`. Hooks
+ou abertura da TUI Proxbox, chamadas brutas/dev-HTTP com método de escrita e
+verbos mutáveis de Branching, salvo quando o comando revisado inclui `--confirm`
+ou seu ambiente contém `NETBOX_SDK_CONFIRM_WRITE=1`. Hooks
 locais do Claude Code e do Codex acrescentam uma recusa antecipada de defesa em
 profundidade para fonte Bash reconhecível; entrada de shell decodificada ou
 gerada ainda chega ao gate autoritativo do processo CLI.

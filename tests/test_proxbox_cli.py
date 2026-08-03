@@ -10,7 +10,7 @@ from typer.testing import CliRunner
 
 from netbox_cli import app as nbx_app
 from netbox_cli import proxbox as proxbox_mod
-from netbox_sdk.proxbox_sync import ScheduleResult, SseFrame
+from netbox_sdk.proxbox_sync import ProxboxSyncError, ScheduleResult, SseFrame
 
 pytestmark = pytest.mark.suite_cli
 
@@ -178,6 +178,51 @@ def test_proxbox_sync_requires_confirmation_before_building_client(
 
     assert result.exit_code != 0
     assert "Live NetBox writes require explicit confirmation" in result.output
+
+
+def test_proxbox_tui_requires_confirmation_before_building_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    monkeypatch.setattr(
+        proxbox_mod,
+        "load_tui_callables",
+        lambda *args: (
+            lambda: ("netbox-dark",),
+            lambda theme: theme,
+            lambda **kwargs: pytest.fail("an unconfirmed TUI must not launch"),
+        ),
+    )
+
+    def _fail_client() -> Any:
+        pytest.fail("an unconfirmed TUI must not construct an API client")
+
+    monkeypatch.setattr(proxbox_mod, "_get_client", _fail_client)
+
+    result = runner.invoke(nbx_app, ["proxbox", "tui"])
+
+    assert result.exit_code != 0
+    assert "Live NetBox writes require explicit confirmation" in result.output
+
+
+def test_proxbox_tui_launches_when_confirmed(monkeypatch: pytest.MonkeyPatch) -> None:
+    client = object()
+    launches: list[dict[str, Any]] = []
+    monkeypatch.setattr(
+        proxbox_mod,
+        "load_tui_callables",
+        lambda *args: (
+            lambda: ("netbox-dark",),
+            lambda theme: theme,
+            lambda **kwargs: launches.append(kwargs),
+        ),
+    )
+    monkeypatch.setattr(proxbox_mod, "_get_client", lambda: client)
+
+    result = runner.invoke(nbx_app, ["proxbox", "tui", "--confirm"])
+
+    assert result.exit_code == 0
+    assert launches == [{"client": client, "theme_name": None}]
 
 
 def test_proxbox_sync_success_renders_summary(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -369,6 +414,57 @@ def test_proxbox_sync_stream_failure_with_authoritative_job_error_still_fails(
     assert "SSE protocol disconnect" in payload["warnings"][0]["detail"]
     assert raw.fetched_job_ids == [101]
     assert raw.closed is True
+
+
+@pytest.mark.parametrize("stream_fails", [False, True])
+async def test_proxbox_sync_authoritative_fetch_failure_preserves_job_id(
+    stream_fails: bool,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    raw = _RawClient()
+
+    class _FetchFailingProxbox:
+        async def schedule(
+            self,
+            sync_types: list[str],
+            *,
+            proxmox_endpoint_ids: list[int] | None = None,
+            job_name: str | None = None,
+        ) -> ScheduleResult:
+            del sync_types, proxmox_endpoint_ids, job_name
+            return ScheduleResult(ok=True, job_id=101, message="queued")
+
+        async def stream_job(self, job_id: int, *, timeout: float | None = None):
+            del job_id, timeout
+            if stream_fails:
+                raise RuntimeError("SSE protocol disconnect")
+            yield SseFrame(
+                event="complete",
+                data={"ok": True, "message": "done", "status": "completed"},
+            )
+
+        async def fetch_job(self, job_id: int) -> dict[str, Any]:
+            raise ConnectionError(f"job {job_id} fetch unavailable")
+
+    with pytest.raises(ProxboxSyncError) as excinfo:
+        await proxbox_mod._run_sync(
+            raw_client=raw,
+            proxbox=_FetchFailingProxbox(),  # type: ignore[arg-type]
+            endpoint=None,
+            sync_types=["all"],
+            job_name=None,
+            timeout=5.0,
+            json_output=True,
+        )
+
+    assert excinfo.value.job_id == 101
+    assert "inspect this existing job" in str(excinfo.value)
+    assert raw.closed is True
+
+    proxbox_mod._render_cli_exception(excinfo.value, json_output=True)
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["job_id"] == 101
+    assert payload["ok"] is False
 
 
 def test_frame_to_line_styles_error_frames() -> None:

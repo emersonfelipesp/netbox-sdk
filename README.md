@@ -162,6 +162,7 @@ nbx proxbox ops firewall/rules
 nbx proxbox endpoints proxmox list -q name=pve-prod
 nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
 nbx proxbox tui --theme
+nbx proxbox tui --theme dracula --confirm
 nbx proxbox sync --confirm
 nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
 nbx proxbox sync-types

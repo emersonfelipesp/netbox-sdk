@@ -298,7 +298,8 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
     - ``nbx branching|branch <verb> ...`` — verb is 2nd (before any
       ``<id_or_schema>`` positional), including verbs (sync/merge/revert/
       archive) that aren't in WRITE_ACTIONS at all.
-    - ``nbx proxbox sync [ENDPOINT] ...`` — top-level command, verb is 2nd.
+    - ``nbx proxbox sync [ENDPOINT] ...`` and ``nbx proxbox tui`` — top-level
+      write-capable commands, verb is 2nd.
     - ``nbx dev http <verb> --path ...`` and ``nbx demo dev http <verb>
       --path ...`` — both mount the same raw-HTTP ``dev_http_app`` Typer
       tree (``netbox_cli/demo.py`` nests it under ``demo dev``), so this
@@ -355,7 +356,10 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
             or positionals[1] in _BRANCHING_WRITE_VERBS
         )
     if root == "proxbox" and len(positionals) >= 2:
-        if _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None or positionals[1] == "sync":
+        if _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None or positionals[1] in {
+            "sync",
+            "tui",
+        }:
             return True
     if root == "graphql":
         return any(_SHELL_SUBSTITUTION_PATTERN.search(word) is not None for word in positionals[1:])
