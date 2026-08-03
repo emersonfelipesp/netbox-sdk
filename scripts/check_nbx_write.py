@@ -115,8 +115,13 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
       ``<id_or_schema>`` positional), including verbs (sync/merge/revert/
       archive) that aren't in WRITE_ACTIONS at all.
     - ``nbx proxbox sync [ENDPOINT] ...`` — top-level command, verb is 2nd.
-    - ``nbx dev http <verb> --path ... `` — raw HTTP request, verb is 3rd;
-      "post"/"put" mutate but aren't in WRITE_ACTIONS.
+    - ``nbx dev http <verb> --path ...`` and ``nbx demo dev http <verb>
+      --path ...`` — both mount the same raw-HTTP ``dev_http_app`` Typer
+      tree (``netbox_cli/demo.py`` nests it under ``demo dev``), so this
+      looks for a ``"dev", "http", <verb>`` triple anywhere in the
+      positionals rather than pinning it to a fixed offset — a future
+      command tree that nests it one level deeper again must not silently
+      fall through. "post"/"put" mutate but aren't in WRITE_ACTIONS.
     - Dynamic OpenAPI commands (``nbx <group> <resource...> <action>``) and
       the Proxbox catalog (``nbx proxbox <resource-path...> <action>``,
       variable nesting depth) place the action at a depth-dependent index
@@ -135,8 +140,9 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
         return len(positionals) >= 2 and positionals[1] in _BRANCHING_WRITE_VERBS
     if root == "proxbox" and len(positionals) >= 2 and positionals[1] == "sync":
         return True
-    if root == "dev" and len(positionals) >= 3 and positionals[1] == "http":
-        return positionals[2] in _DEV_HTTP_WRITE_VERBS
+    for index in range(len(positionals) - 2):
+        if positionals[index] == "dev" and positionals[index + 1] == "http":
+            return positionals[index + 2] in _DEV_HTTP_WRITE_VERBS
     return any(word in WRITE_ACTIONS for word in positionals)
 
 

@@ -464,6 +464,265 @@ async def test_api_client_bulk_write_invalidates_individual_detail_paths(
     assert json.loads(detail_after.text)["name"] == "new"
 
 
+@pytest.mark.asyncio
+async def test_api_client_invalidates_cache_on_write_exception(monkeypatch, tmp_path) -> None:
+    """A write whose response never arrives (e.g. the connection drops after
+    NetBox already committed the mutation) must still purge related cache
+    entries — otherwise a verification read can return the fresh pre-write
+    cache entry and encourage an unsafe blind retry."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque([ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={})])
+
+    async def _fake_request_once(self, session, **kwargs):
+        if responses:
+            return responses.popleft()
+        raise RuntimeError("connection dropped after commit")
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", "/api/dcim/devices/5/")
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    with pytest.raises(RuntimeError, match="connection dropped"):
+        await client.request("PATCH", "/api/dcim/devices/5/", payload={"name": "new"})
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path="/api/dcim/devices/5/",
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is None  # purged despite the ambiguous outcome
+
+
+@pytest.mark.asyncio
+async def test_api_client_write_succeeds_despite_cache_invalidation_failure(
+    monkeypatch, tmp_path
+) -> None:
+    """A cache-index filesystem error while invalidating after a write must
+    never be surfaced in place of the write's own confirmed HTTP result —
+    that would misreport a successful write as failed."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+
+    async def _fake_request_once(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={})
+
+    def _raise_oserror(self, path, payload):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+    monkeypatch.setattr(NetBoxApiClient, "_invalidate_related_cache", _raise_oserror, raising=True)
+
+    response = await client.request("PATCH", "/api/dcim/devices/5/", payload={"name": "new"})
+
+    assert response.status == 200
+    assert json.loads(response.text)["name"] == "new"
+
+
+@pytest.mark.asyncio
+async def test_api_client_304_race_with_concurrent_write_refetches_unconditionally(
+    monkeypatch, tmp_path
+) -> None:
+    """A conditional GET evaluated as 304 by NetBox only confirms the
+    pre-write ETag matched; if a concurrent write invalidated the path while
+    the request was in flight, that 304 can no longer be trusted. The client
+    must refetch unconditionally instead of resurrecting the stale cached
+    body through refresh()."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+
+    async def _fake_initial(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={"ETag": '"abc"'})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_initial, raising=True)
+    await client.request("GET", path)
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    _expire_entry(client, key)
+
+    call_log: list[dict[str, object]] = []
+
+    async def _fake_304_races_write(self, session, **kwargs):
+        call_log.append(kwargs)
+        if len(call_log) == 1:
+            # A concurrent write invalidates the path while our conditional
+            # request is in flight, server-evaluated against the pre-write
+            # ETag we sent.
+            client._cache.invalidate_path(path)
+            return ApiResponse(status=304, text="", headers={"ETag": '"abc"'})
+        return ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={"ETag": '"def"'})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_304_races_write, raising=True)
+
+    response = await client.request("GET", path)
+
+    assert len(call_log) == 2  # conditional attempt, then an unconditional refetch
+    assert "If-None-Match" not in call_log[1]["headers"]
+    assert response.status == 200
+    assert json.loads(response.text)["name"] == "new"
+    assert response.headers["X-NBX-Cache"] == "MISS"
+
+    loaded = client._cache.load(key)
+    assert loaded is not None
+    assert json.loads(loaded.text)["name"] == "new"
+
+
+def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:
+    """Mirrors save()'s fencing: a 304 revalidation must not resurrect an
+    entry that a concurrent write already purged via invalidate_path()."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    entry = store.save(
+        key,
+        ApiResponse(status=200, text='{"old": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=store.path_generation(path),
+    )
+
+    stale_generation = store.path_generation(path)
+    store.invalidate_path(path)  # concurrent write lands
+
+    refreshed = store.refresh(key, entry, policy, path=path, expected_generation=stale_generation)
+
+    assert refreshed.text == '{"old": true}'  # in-memory result still returned to the caller
+    assert store.load(key) is None  # but never persisted — stays purged
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert key not in keys
+
+
+def test_refresh_persists_when_generation_unchanged(tmp_path) -> None:
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    generation = store.path_generation(path)
+    entry = store.save(
+        key,
+        ApiResponse(status=200, text='{"data": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=generation,
+    )
+
+    refreshed = store.refresh(
+        key, entry, policy, path=path, expected_generation=store.path_generation(path)
+    )
+
+    loaded = store.load(key)
+    assert loaded is not None
+    assert loaded.text == '{"data": true}'
+    assert loaded.fresh_until == refreshed.fresh_until
+
+
+def test_locked_index_uses_portable_fallback_lock_when_fcntl_unavailable(
+    monkeypatch, tmp_path
+) -> None:
+    """On platforms without fcntl (e.g. Windows), the index lock must not be a
+    no-op — that previously let two concurrent saves silently drop each
+    other's index entries and reopened the generation-fencing race the lock
+    exists to close."""
+    import netbox_sdk.http_cache as http_cache_module
+
+    monkeypatch.setattr(http_cache_module, "fcntl", None)
+
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/"
+    policy = CachePolicy()
+    original_write = store._write_index_state
+    write_started = threading.Event()
+    release_write = threading.Event()
+
+    def _slow_write(index_path, generation, keys):
+        write_started.set()
+        release_write.wait(timeout=5)
+        original_write(index_path, generation, keys)
+
+    store._write_index_state = _slow_write  # type: ignore[method-assign]
+
+    thread_a = threading.Thread(
+        target=lambda: store.save(
+            "key-a", ApiResponse(status=200, text="{}", headers={}), policy, path=path
+        )
+    )
+    thread_a.start()
+    assert write_started.wait(timeout=5)
+
+    thread_b = threading.Thread(
+        target=lambda: store.save(
+            "key-b", ApiResponse(status=200, text="{}", headers={}), policy, path=path
+        )
+    )
+    thread_b.start()
+    time.sleep(0.05)
+    assert thread_b.is_alive()  # still blocked on the portable lock, not racing ahead
+
+    release_write.set()
+    thread_a.join(timeout=5)
+    thread_b.join(timeout=5)
+
+    _generation, keys = store._load_index_state(store._index_path_file(path))
+    assert sorted(keys) == ["key-a", "key-b"]
+
+
+def test_portable_lock_raises_timeout_instead_of_silent_corruption(tmp_path) -> None:
+    """A lock file left behind by a crashed process must not deadlock the
+    portable fallback forever; a bounded timeout raising loudly is strictly
+    safer than the previous no-op that corrupted the index silently."""
+    store = HttpCacheStore(tmp_path)
+    lock_path = tmp_path / "idx-test.json.lock"
+    lock_path.touch()  # simulates a stale lock left by a dead process
+
+    with pytest.raises(TimeoutError):
+        with store._portable_lock(lock_path, timeout=0.05, poll_interval=0.01):
+            pass  # pragma: no cover - must not be reached
+
+
 def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> None:
     """Two concurrent saves for the same path (e.g. two tokens reading it) must
     not lose either other's key from the on-disk index. Without locking, an

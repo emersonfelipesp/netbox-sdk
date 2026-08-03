@@ -200,7 +200,27 @@ class HttpCacheStore:
             generation, _keys = self._load_index_state(index_path)
             return generation
 
-    def refresh(self, key: str, entry: CacheEntry, policy: CachePolicy) -> CacheEntry:
+    def refresh(
+        self,
+        key: str,
+        entry: CacheEntry,
+        policy: CachePolicy,
+        *,
+        path: str | None = None,
+        expected_generation: int | None = None,
+    ) -> CacheEntry:
+        """Extend TTLs for a 304-revalidated entry, optionally fenced by ``expected_generation``.
+
+        Mirrors :meth:`save`'s fencing: a conditional GET that NetBox
+        answered with 304 only confirms the representation matched the
+        ETag/Last-Modified captured *before* the request, which a concurrent
+        write's :meth:`invalidate_path` may have since invalidated. When
+        ``path`` and ``expected_generation`` are both given, the refreshed
+        entry is persisted only if the path's generation is unchanged;
+        otherwise the already-purged on-disk entry is left untouched so the
+        next read is a genuine cache miss instead of resurrecting pre-write
+        data.
+        """
         now = time.time()
         refreshed = CacheEntry(
             status=entry.status,
@@ -212,7 +232,18 @@ class HttpCacheStore:
             etag=entry.etag,
             last_modified=entry.last_modified,
         )
-        self._write_entry(self._entry_path(key), refreshed)
+        if not path:
+            self._write_entry(self._entry_path(key), refreshed)
+            return refreshed
+        index_path = self._index_path_file(path)
+        with self._locked_index(index_path):
+            generation, keys = self._load_index_state(index_path)
+            if expected_generation is not None and generation != expected_generation:
+                return refreshed
+            self._write_entry(self._entry_path(key), refreshed)
+            if key not in keys:
+                keys.append(key)
+            self._write_index_state(index_path, generation, keys)
         return refreshed
 
     def invalidate_path(self, path: str) -> None:
@@ -250,18 +281,26 @@ class HttpCacheStore:
     def _locked_index(self, index_path: Path) -> Iterator[None]:
         """Serialize read-modify-write access to ``index_path`` across processes.
 
-        ``_record_path_index`` and ``invalidate_path`` both do a
+        ``save``, ``refresh``, and ``invalidate_path`` all do a
         load-then-replace cycle on the same per-path index file. Without a
         lock, two concurrent saves (e.g. the same path read under two
         different tokens or branches) can each load the same old index and
         overwrite it with only their own key, silently dropping the other
         key from the index — a later write's ``invalidate_path`` would then
         never purge the dropped entry, leaving it servable as a stale hit.
+        This would also reopen the generation-fencing race the index is
+        used for, since a fence check and its write must be atomic.
+
+        On platforms without ``fcntl`` (e.g. Windows), a portable
+        exclusive-create spin lock is used instead of the ``fcntl`` flock —
+        never a no-op, which previously left both hazards above fully
+        exposed on those platforms.
         """
-        if fcntl is None:  # pragma: no cover - non-POSIX platforms
-            yield
-            return
         lock_path = index_path.with_name(index_path.name + ".lock")
+        if fcntl is None:  # pragma: no cover - exercised via a forced monkeypatch in tests
+            with self._portable_lock(lock_path):
+                yield
+            return
         lock_handle = lock_path.open("a+")
         try:
             fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
@@ -271,6 +310,35 @@ class HttpCacheStore:
                 fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
         finally:
             lock_handle.close()
+
+    @contextlib.contextmanager
+    def _portable_lock(
+        self, lock_path: Path, *, timeout: float = 30.0, poll_interval: float = 0.01
+    ) -> Iterator[None]:
+        """Cross-platform exclusive lock via atomic file creation.
+
+        ``O_CREAT | O_EXCL`` atomic exclusive-create is guaranteed by every
+        supported filesystem, unlike ``fcntl.flock``. Unlike ``flock``, the
+        lock file is not released automatically if the holding process dies,
+        so a bounded ``timeout`` raises rather than deadlocking forever —
+        strictly safer than the previous no-op, which corrupted the index
+        silently instead of failing loudly.
+        """
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(f"timed out waiting for cache index lock: {lock_path}")
+                time.sleep(poll_interval)
+                continue
+            os.close(fd)
+            break
+        try:
+            yield
+        finally:
+            lock_path.unlink(missing_ok=True)
 
     def _load_index_state(self, index_path: Path) -> tuple[int, list[str]]:
         """Load ``(generation, keys)`` for a per-path index file.

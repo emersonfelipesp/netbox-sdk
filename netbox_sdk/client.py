@@ -508,38 +508,72 @@ class NetBoxApiClient:
             headers=req_headers,
             expect_json=expect_json,
         )
+        is_write_method = method.upper() not in {"GET", "HEAD"}
         try:
             response = await self._request_once(
                 session, authorization=effective_authorization, **req_kwargs
             )
+            # These fallbacks retry using the client's own configured credential
+            # (or a refreshed one from the token-refresh callback), which is a
+            # different identity than a caller-supplied override. If a caller
+            # provided its own Authorization header, an invalid/foreign
+            # credential must never silently succeed by falling back to the
+            # SDK's configured account — that would both perform the request
+            # under the wrong identity and, for GET requests, cache the
+            # configured account's response under the cache key computed from
+            # the caller's (rejected) credential, serving it back to that
+            # caller or anyone else presenting the same override later.
+            if caller_authorization is None and self._should_retry_with_v1(response):
+                response = await self._request_once(
+                    session, authorization=self._v1_fallback_header(), **req_kwargs
+                )
+            elif caller_authorization is None and self._should_refresh_demo_v1_token(response):
+                authorization = self._refresh_demo_v1_authorization()
+                if authorization:
+                    response = await self._request_once(
+                        session, authorization=authorization, **req_kwargs
+                    )
+            if (
+                response.status == 304
+                and cache_entry is not None
+                and cache_generation is not None
+                and self._cache.path_generation(path) != cache_generation
+            ):
+                # A concurrent write invalidated this path while our
+                # conditional request was in flight. The 304 only confirms
+                # the representation matched the ETag/Last-Modified we sent
+                # from the pre-write entry, which we can no longer trust —
+                # refetch unconditionally instead of letting the
+                # generation-fenced refresh() below resurrect stale data.
+                unconditional_headers = dict(req_headers)
+                unconditional_headers.pop("If-None-Match", None)
+                unconditional_headers.pop("If-Modified-Since", None)
+                response = await self._request_once(
+                    session,
+                    authorization=effective_authorization,
+                    method=method,
+                    path=path,
+                    query=query,
+                    payload=payload,
+                    headers=unconditional_headers,
+                    expect_json=expect_json,
+                )
+                cache_generation = self._cache.path_generation(path)
         except Exception:
             logger.exception(
                 "api request failed",
                 extra={"http_method": method.upper(), "request_path": path},
             )
+            if is_write_method:
+                # NetBox may have committed the write server-side even
+                # though we never received a definitive response (e.g. the
+                # connection dropped mid-read). Purge related cache entries
+                # defensively so a verification read can't serve the stale
+                # pre-write data as if the write never happened.
+                self._safe_invalidate_related_cache(path, payload)
             if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
                 return self._cached_response(cache_entry, cache_status="STALE")
             raise
-        # These fallbacks retry using the client's own configured credential
-        # (or a refreshed one from the token-refresh callback), which is a
-        # different identity than a caller-supplied override. If a caller
-        # provided its own Authorization header, an invalid/foreign
-        # credential must never silently succeed by falling back to the
-        # SDK's configured account — that would both perform the request
-        # under the wrong identity and, for GET requests, cache the
-        # configured account's response under the cache key computed from
-        # the caller's (rejected) credential, serving it back to that
-        # caller or anyone else presenting the same override later.
-        if caller_authorization is None and self._should_retry_with_v1(response):
-            response = await self._request_once(
-                session, authorization=self._v1_fallback_header(), **req_kwargs
-            )
-        elif caller_authorization is None and self._should_refresh_demo_v1_token(response):
-            authorization = self._refresh_demo_v1_authorization()
-            if authorization:
-                response = await self._request_once(
-                    session, authorization=authorization, **req_kwargs
-                )
         logger.info(
             "api request completed",
             extra={
@@ -548,8 +582,8 @@ class NetBoxApiClient:
                 "status": response.status,
             },
         )
-        if method.upper() not in {"GET", "HEAD"} and 200 <= response.status < 300:
-            self._invalidate_related_cache(path, payload)
+        if is_write_method and 200 <= response.status < 300:
+            self._safe_invalidate_related_cache(path, payload)
         return self._finalize_cached_response(
             response=response,
             cache_key=cache_key,
@@ -775,6 +809,27 @@ class NetBoxApiClient:
                     detail_path = f"{path.rstrip('/')}/{item['id']}/"
                     self._cache.invalidate_path(detail_path)
 
+    def _safe_invalidate_related_cache(
+        self, path: str, payload: dict[str, Any] | list[Any] | None
+    ) -> None:
+        """Best-effort cache purge that never overrides the underlying request outcome.
+
+        Called both after a confirmed 2xx write and after an ambiguous
+        request exception, since the write may have committed server-side
+        either way. A cache-maintenance failure (e.g. an index file write
+        error) must never propagate in its place — that would either
+        misreport a successful write as failed, or mask the real request
+        exception behind an unrelated filesystem error.
+        """
+        try:
+            self._invalidate_related_cache(path, payload)
+        except OSError:
+            logger.warning(
+                "cache invalidation failed after write attempt; stale reads "
+                "may be served until the affected entries expire",
+                extra={"nbx_event": "http_cache_invalidate_failed", "request_path": path},
+            )
+
     def _cached_response(self, entry: CacheEntry, *, cache_status: str) -> ApiResponse:
         status, text, headers = entry.response_parts(cache_status=cache_status)
         return ApiResponse(status=status, text=text, headers=headers)
@@ -792,7 +847,13 @@ class NetBoxApiClient:
         if cache_policy is None or cache_key is None:
             return response
         if response.status == 304 and cache_entry is not None:
-            refreshed = self._cache.refresh(cache_key, cache_entry, cache_policy)
+            refreshed = self._cache.refresh(
+                cache_key,
+                cache_entry,
+                cache_policy,
+                path=path,
+                expected_generation=cache_generation,
+            )
             return self._cached_response(refreshed, cache_status="REVALIDATED")
         if 200 <= response.status < 300:
             stored = self._cache.save(

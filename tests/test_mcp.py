@@ -452,6 +452,28 @@ def test_hook_allows_unconfirmed_dev_http_reads(read_invocation: str) -> None:
     assert result.stdout == ""
 
 
+@pytest.mark.parametrize("verb", ["post", "put", "patch", "delete"])
+def test_hook_blocks_unconfirmed_demo_dev_http_writes(verb: str) -> None:
+    """``netbox_cli/demo.py`` mounts the same ``dev_http_app`` Typer tree
+    under ``demo dev http``, one level deeper than the ``dev http`` root the
+    hook originally modeled — the generic nested matcher must catch it too."""
+    blocked = _run_hook(f"nbx demo dev http {verb} --path /api/dcim/devices/1/")
+    allowed = _run_hook(
+        f"NETBOX_SDK_CONFIRM_WRITE=1 nbx demo dev http {verb} --path /api/dcim/devices/1/"
+    )
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize("read_invocation", ["get --path /api/dcim/devices/", "paths", "ops"])
+def test_hook_allows_unconfirmed_demo_dev_http_reads(read_invocation: str) -> None:
+    result = _run_hook(f"nbx demo dev http {read_invocation}")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_hook_blocks_unconfirmed_nested_plugin_catalog_write() -> None:
     """A write action at the end of a deeper-than-usual resource path (e.g. a
     Proxbox catalog sub-namespace) must still be caught; the detector keys
