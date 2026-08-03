@@ -32,12 +32,17 @@ local — o token bearer autentica quem chama, não criptografa o transporte.
 
 Esse gate não pode ser contornado chamando o objeto do servidor diretamente
 em vez de passar por `run()`: `create_mcp_server()` sempre substitui o
-`streamable_http_app` do servidor retornado por um wrapper que aplica o
-mesmo `auth_token`, levantando `RuntimeError` inclusive quando nenhum token
-foi configurado. Não existe caminho de código — `run("streamable-http")`,
-`streamable_http_app()` ou qualquer outro — que produza um app Streamable
-HTTP sem autenticação a partir de uma instância criada por
-`create_mcp_server()`.
+`streamable_http_app` **e** o `sse_app` do servidor retornado por wrappers
+que aplicam o mesmo `auth_token`, levantando `RuntimeError` inclusive quando
+nenhum token foi configurado. Não existe caminho de código —
+`run("streamable-http")`, `streamable_http_app()`, `run("sse")`,
+`sse_app()` ou qualquer outro — que produza um app de rede sem autenticação
+a partir de uma instância criada por `create_mcp_server()`. A flag de CLI
+`--transport` só expõe `stdio` e `streamable-http`, mas qualquer código que
+segure a instância `FastMCP` retornada diretamente (não apenas o entrypoint
+`nbx-mcp`) poderia, de outra forma, alcançar o transporte SSE sem
+autenticação, já que ele compartilha o mesmo mecanismo de substituição de
+atributo de instância usado pelo Streamable HTTP.
 
 ## Ferramentas
 

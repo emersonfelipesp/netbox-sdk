@@ -72,6 +72,29 @@ def build_streamable_http_app(server: FastMCP, *, auth_token: str | None) -> ASG
     return BearerTokenMiddleware(app, auth_token)
 
 
+def build_sse_app(
+    server: FastMCP, *, auth_token: str | None, mount_path: str | None = None
+) -> ASGIApp:
+    """Return the server's SSE ASGI app, always gated by ``auth_token``.
+
+    Mirrors :func:`build_streamable_http_app`. ``FastMCP.sse_app`` (used by
+    both ``server.sse_app()`` and ``server.run("sse")`` /
+    ``run_sse_async()``) mounts its SSE and message-post routes completely
+    unauthenticated whenever no token verifier is configured on the
+    instance — which this codebase never sets — so this wrapper is the only
+    auth gate for the SSE transport. ``mount_path`` is forwarded to
+    ``FastMCP.sse_app`` for parity with ``run_sse_async(mount_path)``.
+    """
+    if not auth_token:
+        raise RuntimeError(
+            "Refusing to build an SSE app without an auth_token — an "
+            "unauthenticated app would expose the configured NetBox "
+            "credential and any active mutation window to every reachable caller."
+        )
+    app: ASGIApp = FastMCP.sse_app(server, mount_path)
+    return BearerTokenMiddleware(app, auth_token)
+
+
 def create_mcp_server(
     service: NetBoxMCPService | None = None,
     *,
@@ -81,15 +104,17 @@ def create_mcp_server(
 ) -> FastMCP:
     """Create a stateless JSON FastMCP server with the explicit NetBox tools.
 
-    The returned server's ``streamable_http_app`` instance attribute always
-    shadows the class method with one that routes through
-    :func:`build_streamable_http_app`, which requires a non-empty
-    ``auth_token``. This closes the bypass where calling
-    ``server.streamable_http_app()`` or ``server.run("streamable-http")``
-    directly — instead of going through this module's own transport
-    helpers — would otherwise start an unauthenticated network server: with
-    no ``auth_token`` configured here, either call now raises
-    ``RuntimeError`` instead of silently binding unauthenticated.
+    The returned server's ``streamable_http_app`` and ``sse_app`` instance
+    attributes always shadow their class methods with ones that route
+    through :func:`build_streamable_http_app` / :func:`build_sse_app`, both
+    of which require a non-empty ``auth_token``. This closes the bypass
+    where calling ``server.streamable_http_app()``,
+    ``server.run("streamable-http")``, ``server.sse_app()``, or
+    ``server.run("sse")`` directly — instead of going through this module's
+    own transport helpers — would otherwise start an unauthenticated
+    network server: with no ``auth_token`` configured here, every one of
+    those calls now raises ``RuntimeError`` instead of silently binding
+    unauthenticated.
     """
     active = service or NetBoxMCPService()
     server = FastMCP(
@@ -277,6 +302,9 @@ def create_mcp_server(
 
     server.streamable_http_app = lambda: build_streamable_http_app(  # type: ignore[method-assign]
         server, auth_token=auth_token
+    )
+    server.sse_app = lambda mount_path=None: build_sse_app(  # type: ignore[method-assign]
+        server, auth_token=auth_token, mount_path=mount_path
     )
 
     return server

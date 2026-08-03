@@ -32,11 +32,16 @@ caller, it does not encrypt the transport.
 
 This gate cannot be bypassed by calling the server object directly instead
 of going through `run()`: `create_mcp_server()` always shadows the returned
-server's `streamable_http_app` with a wrapper that enforces the same
-`auth_token`, including raising `RuntimeError` when no token was configured
-at all. There is no code path — `run("streamable-http")`,
-`streamable_http_app()`, or otherwise — that yields an unauthenticated
-Streamable HTTP app from a `create_mcp_server()`-produced instance.
+server's `streamable_http_app` **and** `sse_app` with wrappers that enforce
+the same `auth_token`, including raising `RuntimeError` when no token was
+configured at all. There is no code path — `run("streamable-http")`,
+`streamable_http_app()`, `run("sse")`, `sse_app()`, or otherwise — that
+yields an unauthenticated network app from a `create_mcp_server()`-produced
+instance. The `--transport` CLI flag only exposes `stdio` and
+`streamable-http`, but any embedder holding the returned `FastMCP` instance
+directly (not just the `nbx-mcp` entrypoint) could otherwise reach the SSE
+transport unauthenticated, since it shares the same instance-attribute
+shadowing mechanism as Streamable HTTP.
 
 ## Tool surface
 

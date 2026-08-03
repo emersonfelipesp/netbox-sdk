@@ -88,3 +88,16 @@ network-reachable rather than spawned as a local stdio subprocess.
   both raise `RuntimeError` instead of silently serving an unauthenticated
   app when no token is configured. There is no `create_mcp_server()`-produced
   server instance capable of exposing an unauthenticated Streamable HTTP app.
+- The same shadowing applies to the **SSE transport**: `create_mcp_server()`
+  also shadows the instance's `sse_app` attribute with a closure over
+  `build_sse_app(server, auth_token=..., mount_path=...)`. `FastMCP.sse_app()`
+  mounts its SSE and message-post routes with zero auth wrapping of its own
+  whenever no token verifier is configured on the instance — which this
+  codebase never sets — so `server.sse_app()`, `server.run("sse")`, and
+  `run_sse_async()` (which all resolve to the same instance attribute) are
+  routed through `build_sse_app` exactly like the Streamable HTTP path. The
+  `nbx-mcp` CLI entrypoint's `--transport` flag only exposes `stdio` and
+  `streamable-http`, so this closes a bypass reachable only by code holding
+  the `FastMCP` instance returned by `create_mcp_server()` directly, not by
+  the CLI itself — but that instance is a public return value, so the gate
+  still has to hold for it.

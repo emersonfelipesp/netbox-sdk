@@ -235,7 +235,7 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, keys = self._load_index_state(index_path)
+                generation, keys = self._load_index_state_or_purge(index_path)
                 if expected_generation is not None and generation != expected_generation:
                     return entry
                 if key not in keys:
@@ -269,7 +269,7 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, _keys = self._load_index_state(index_path)
+                generation, _keys = self._load_index_state_or_purge(index_path)
                 return generation
         except TimeoutError:
             logger.warning(
@@ -323,7 +323,7 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, keys = self._load_index_state(index_path)
+                generation, keys = self._load_index_state_or_purge(index_path)
                 if expected_generation is not None and generation != expected_generation:
                     return refreshed
                 if key not in keys:
@@ -357,23 +357,7 @@ class HttpCacheStore:
         """
         index_path = self._index_path_file(path)
         with self._locked_index(index_path):
-            state = self._load_index_state_or_none(index_path)
-            if state is None:
-                # The index file exists but its contents could not be parsed
-                # as a valid index, so its ``keys`` list — the only record of
-                # which entry files were ever saved for this path — is
-                # unrecoverable. ``load`` decides cache hits purely by entry
-                # file existence, never by index membership (see ``save``'s
-                # docstring), so any entry file that predates the corruption
-                # would otherwise keep being served as a fresh hit forever,
-                # defeating this exact invalidation call. There is no way to
-                # know which entries belonged to this path from the index
-                # alone, so fail safe by purging every cached entry across
-                # the whole store rather than silently leaving them intact.
-                self._purge_all_entries()
-                generation, keys = 0, []
-            else:
-                generation, keys = state
+            generation, keys = self._load_index_state_or_purge(index_path)
             for key in keys:
                 self._entry_path(key).unlink(missing_ok=True)
             self._write_index_state(index_path, generation + 1, [])
@@ -381,13 +365,14 @@ class HttpCacheStore:
     def _purge_all_entries(self) -> None:
         """Delete every cached entry and per-path index file under ``root``.
 
-        The fail-safe fallback for :meth:`invalidate_path` when a corrupted
-        index makes it impossible to enumerate which entries it registered.
-        Resetting other paths' generations back to 0 here is safe under the
-        same fencing invariant :meth:`_load_index_state` documents: an
-        in-flight GET for an unrelated path that captured a pre-purge
-        generation will see a mismatch against the reset index and be
-        discarded as an extra cache miss, never a stale hit.
+        The fail-safe fallback used by :meth:`_load_index_state_or_purge`
+        (and therefore by ``save``, ``refresh``, ``path_generation``, and
+        ``invalidate_path`` alike) when a corrupted index makes it
+        impossible to enumerate which entries it registered. Resetting other
+        paths' generations back to 0 here is safe under the same fencing
+        invariant: an in-flight GET for an unrelated path that captured a
+        pre-purge generation will see a mismatch against the reset index and
+        be discarded as an extra cache miss, never a stale hit.
         """
         for cached_file in self.root.glob("*.json"):
             cached_file.unlink(missing_ok=True)
@@ -493,41 +478,18 @@ class HttpCacheStore:
         lock_path.unlink(missing_ok=True)
         return True
 
-    def _load_index_state(self, index_path: Path) -> tuple[int, list[str]]:
-        """Load ``(generation, keys)`` for a per-path index file.
-
-        Missing, unreadable, or pre-generation-fencing files (a bare JSON
-        list from an older cache layout) all resolve to a fresh
-        ``(0, [])`` state — safe because a wrong generation only costs a
-        few extra cache misses, never a stale hit.
-        """
-        if not index_path.exists():
-            return 0, []
-        try:
-            data = json.loads(index_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return 0, []
-        if isinstance(data, dict):
-            generation = data.get("generation")
-            keys = data.get("keys")
-            if isinstance(generation, int) and isinstance(keys, list):
-                return generation, [str(item) for item in keys]
-        return 0, []
-
     def _load_index_state_or_none(self, index_path: Path) -> tuple[int, list[str]] | None:
         """Load ``(generation, keys)``, distinguishing "never written" from "corrupted".
 
-        Unlike :meth:`_load_index_state`, a missing file still resolves to a
-        safe ``(0, [])`` state, but a file that exists yet cannot be parsed
-        as a valid index resolves to ``None`` instead of silently discarding
-        its (unrecoverable) ``keys`` list. :meth:`_load_index_state`'s
-        degrade-to-empty behavior is safe for its own callers (``save``,
-        ``refresh``, ``path_generation``), which only need a consistent
-        generation number and tolerate a wrong one as an extra cache miss.
-        :meth:`invalidate_path` is different: it needs the actual ``keys``
-        list to know which entry files to delete, so silently treating
-        "corrupted" the same as "empty" there would leave stale entries on
-        disk, unpurged and unreachable through the index, forever.
+        A missing file resolves to a safe ``(0, [])`` state, but a file that
+        exists yet cannot be parsed as a valid index resolves to ``None``
+        instead of silently discarding its (unrecoverable) ``keys`` list —
+        callers must not treat "corrupted" the same as "empty", since doing
+        so anywhere would let this path's stale entry files go on being
+        served as fresh hits by ``load`` (which decides hits by entry-file
+        existence alone, never index membership) forever. Use
+        :meth:`_load_index_state_or_purge` rather than this method directly
+        unless the caller has its own reason to handle ``None`` differently.
         """
         if not index_path.exists():
             return 0, []
@@ -541,6 +503,34 @@ class HttpCacheStore:
             if isinstance(generation, int) and isinstance(keys, list):
                 return generation, [str(item) for item in keys]
         return None
+
+    def _load_index_state_or_purge(self, index_path: Path) -> tuple[int, list[str]]:
+        """Load ``(generation, keys)``, purging the whole store on corruption.
+
+        Shared by every method that reads a per-path index (``save``,
+        ``refresh``, ``path_generation``, and ``invalidate_path``). A
+        corrupted index's ``keys`` list is unrecoverable (see
+        :meth:`_load_index_state_or_none`), so any of these four call sites
+        finding one purges every cached entry across the whole store rather
+        than silently degrading to an empty index. Degrading to empty
+        instead — as an earlier version of this cache did in ``save`` and
+        ``refresh`` — let an ordinary write for a different key on the same
+        corrupted path "heal" the on-disk index with a fresh, valid-looking
+        one that permanently forgot every key the corrupted index still
+        registered: those keys' entry files were never purged and never
+        index-discoverable again, yet kept being served as fresh hits by
+        ``load`` forever, even past the next ``invalidate_path`` call for
+        that same path. Purging the whole store (not just this path) is the
+        same fail-safe trade-off :meth:`_purge_all_entries` documents, and
+        is safe under the same fencing invariant: a reset generation only
+        costs a few extra cache misses on unrelated paths, never a stale
+        hit.
+        """
+        state = self._load_index_state_or_none(index_path)
+        if state is None:
+            self._purge_all_entries()
+            return 0, []
+        return state
 
     def _write_index_state(self, index_path: Path, generation: int, keys: list[str]) -> None:
         payload = json.dumps({"generation": generation, "keys": keys})

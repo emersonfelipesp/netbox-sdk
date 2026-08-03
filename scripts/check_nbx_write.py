@@ -66,12 +66,12 @@ _ENV_ASSIGNMENT_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 # so any positional visible after `nbx` in the static text can never be
 # proven complete: more tokens, potentially including the write verb itself,
 # can always be silently appended beyond what appears here. Replace-string
-# mode (`-I repl` / `-i[repl]` / `--replace[=repl]`) is different: it
-# substitutes the placeholder in place and runs the command exactly as
-# written once per input line with no appending, so the existing per-token
-# `nbx` scan below (which finds `nbx` at whatever position it occurs) already
-# proves the full argument list from the static text alone.
-_XARGS_REPLACE_STRING_PATTERN = re.compile(r"^(-I|-i|--replace(=|$))")
+# mode (`-I repl` / `-i[repl]` / `--replace[=repl]`) does not fix this
+# either: the placeholder itself can occupy the verb/action position (e.g.
+# `printf delete | xargs -I {} nbx dcim devices {} --id 7`), and the value
+# substituted into it at runtime is never visible in the static text. Both
+# modes are therefore treated identically below: fail closed on any `xargs`
+# invocation of `nbx` that is not explicitly confirmed.
 # xargs options that consume the following token as a value, used to walk
 # past xargs' own flags to find the command token it will actually invoke.
 _XARGS_OPTIONS_WITH_VALUES = frozenset(
@@ -293,18 +293,23 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
                 if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
                     return True
         if name == "xargs":
-            following = tokens[index + 1 :]
-            replace_mode = any(_XARGS_REPLACE_STRING_PATTERN.match(t) for t in following)
-            if not replace_mode:
-                xargs_command_index = _xargs_command_index(tokens, index)
-                if xargs_command_index is not None:
-                    xargs_command_token = tokens[xargs_command_index]
-                    invoked_name = _command_name(xargs_command_token)
-                    if invoked_name == "nbx" or _SHELL_EXPANSION_PATTERN.search(
-                        xargs_command_token
-                    ):
-                        if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
-                            return True
+            # Applies in every xargs mode, including replace-string mode
+            # (`-I`/`-i`/`--replace`): a placeholder token can occupy the
+            # verb/action position itself (e.g. `printf delete | xargs -I {}
+            # nbx dcim devices {} --id 7`), so the static positionals never
+            # literally contain the write verb even though replace mode
+            # substitutes a value there at runtime. The per-token
+            # `_positionals_indicate_write` scan above (which fires on the
+            # `name == "nbx"` branch for this same "nbx dcim devices {} --id
+            # 7" text) cannot see that substituted value either, so it is
+            # not a substitute for this check in any xargs mode.
+            xargs_command_index = _xargs_command_index(tokens, index)
+            if xargs_command_index is not None:
+                xargs_command_token = tokens[xargs_command_index]
+                invoked_name = _command_name(xargs_command_token)
+                if invoked_name == "nbx" or _SHELL_EXPANSION_PATTERN.search(xargs_command_token):
+                    if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
+                        return True
         if name in _SHELLS and "-c" in tokens[index + 1 :]:
             option_index = tokens.index("-c", index + 1)
             if option_index + 1 < len(tokens) and command_has_unconfirmed_write(

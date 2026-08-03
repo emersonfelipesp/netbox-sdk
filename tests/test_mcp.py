@@ -21,6 +21,7 @@ import netbox_mcp
 from netbox_mcp.app import (
     AUTH_TOKEN_ENV_VAR,
     BearerTokenMiddleware,
+    build_sse_app,
     build_streamable_http_app,
     create_mcp_server,
     is_loopback_host,
@@ -668,6 +669,27 @@ def test_hook_blocks_unconfirmed_write_via_xargs_replace_string_mode() -> None:
     assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
+def test_hook_blocks_unconfirmed_write_via_xargs_replace_string_mode_hidden_verb() -> None:
+    """Regression: when the replace-string placeholder itself occupies the
+    verb/action position (rather than a value like `--id`), the static
+    text's positionals never literally contain the write verb — `{}` sits
+    where `delete` would — even though replace mode substitutes the real
+    value there at runtime. The pre-existing per-token `nbx` scan sees only
+    `dcim devices {} --id 7` and finds no known write action there, so this
+    case must be caught by the same xargs-invokes-nbx fail-closed check used
+    for default mode, not the per-token positional scan alone."""
+    blocked = _run_hook("printf '%s\\n' delete | xargs -I {} nbx dcim devices {} --id 7")
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_xargs_replace_string_mode() -> None:
+    allowed = _run_hook(
+        "printf '%s\\n' delete | NETBOX_SDK_CONFIRM_WRITE=1 xargs -I {} nbx dcim devices {} --id 7"
+    )
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
 def test_hook_does_not_false_positive_on_unrelated_xargs_invocation() -> None:
     """An `xargs` invocation that never invokes `nbx` at all — including one
     with unrelated shell expansion in its own arguments — must not trip the
@@ -743,6 +765,43 @@ def test_create_mcp_server_direct_run_streamable_http_requires_token() -> None:
 
     with pytest.raises(RuntimeError, match="auth_token"):
         server.run(transport="streamable-http")
+
+
+def test_build_sse_app_requires_auth_token() -> None:
+    server = create_mcp_server(host="127.0.0.1", port=8000)
+
+    with pytest.raises(RuntimeError, match="auth_token"):
+        build_sse_app(server, auth_token=None)
+
+    wrapped = build_sse_app(server, auth_token="secret")
+    assert isinstance(wrapped, BearerTokenMiddleware)
+
+
+def test_create_mcp_server_direct_sse_app_call_requires_token() -> None:
+    # Regression: round 9 shadowed only `streamable_http_app`, leaving
+    # `.sse_app()` (and the `run("sse")` / `run_sse_async()` paths that call
+    # it internally) completely unauthenticated on the same `FastMCP`
+    # instance. Calling `.sse_app()` directly, instead of going through
+    # `build_sse_app`, must not bypass the auth gate and start an
+    # unauthenticated app.
+    server = create_mcp_server(host="127.0.0.1", port=8000)
+
+    with pytest.raises(RuntimeError, match="auth_token"):
+        server.sse_app()
+
+    authed_server = create_mcp_server(host="127.0.0.1", port=8000, auth_token="secret")
+    assert isinstance(authed_server.sse_app(), BearerTokenMiddleware)
+
+
+def test_create_mcp_server_direct_run_sse_requires_token() -> None:
+    # Regression: `FastMCP.run("sse")` / `run_sse_async()` internally call
+    # `self.sse_app(mount_path)` with zero auth wrapping of their own; the
+    # instance-level shadow installed by `create_mcp_server` must still catch
+    # this path even when the caller never touches `build_sse_app`.
+    server = create_mcp_server(host="127.0.0.1", port=8000)
+
+    with pytest.raises(RuntimeError, match="auth_token"):
+        server.run(transport="sse")
 
 
 def test_run_streamable_http_fails_closed_without_auth_token(monkeypatch) -> None:

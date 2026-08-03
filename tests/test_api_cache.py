@@ -919,7 +919,7 @@ def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(
 
     assert refreshed.text == '{"old": true}'  # in-memory result still returned to the caller
     assert store.load(key) is None  # but never persisted — stays purged
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key not in keys
 
 
@@ -999,7 +999,7 @@ def test_locked_index_uses_portable_fallback_lock_when_fcntl_unavailable(
     thread_a.join(timeout=5)
     thread_b.join(timeout=5)
 
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert sorted(keys) == ["key-a", "key-b"]
 
 
@@ -1164,7 +1164,7 @@ def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> 
     thread_a.join(timeout=5)
     thread_b.join(timeout=5)
 
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert sorted(keys) == ["key-a", "key-b"]
 
 
@@ -1198,7 +1198,7 @@ def test_save_skips_persistence_when_generation_advanced_by_concurrent_write(tmp
 
     assert entry.text == '{"stale": true}'  # immediate caller still gets its response
     assert store.load(key) is None  # but nothing was persisted to disk
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key not in keys
 
 
@@ -1261,7 +1261,7 @@ def test_save_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> 
         )
 
     # The index may already reference the key (registered before the crash)...
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key in keys
     # ...but load() must never resurrect it, since no entry file exists.
     assert store.load(key) is None
@@ -1269,7 +1269,7 @@ def test_save_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> 
     # A subsequent invalidate_path() for the same path must not fail even
     # though it will try to unlink an entry file that was never created.
     store.invalidate_path(path)
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key not in keys
 
 
@@ -1305,7 +1305,7 @@ def test_invalidate_path_purges_stale_entry_when_index_is_corrupted(tmp_path) ->
     store.invalidate_path(path)
 
     assert store.load(key) is None
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert keys == []
 
 
@@ -1358,6 +1358,65 @@ def test_invalidate_path_corrupted_index_purges_entire_store(tmp_path) -> None:
     assert store.load(unrelated_key) is None
 
 
+def test_save_purges_stale_entry_when_racing_a_corrupted_index(tmp_path) -> None:
+    """Regression: the corruption-triggered purge must fire from save() and
+    refresh() and path_generation(), not only invalidate_path(). Before this
+    fix, only invalidate_path() used the corruption-safe loader — save() and
+    refresh() still degraded a corrupted index to an empty (0, []) state and
+    happily overwrote it with a fresh, valid-looking index containing only
+    their own key. That silently "healed" the index file while permanently
+    forgetting any key the corrupted index still registered: that key's
+    entry file was never purged and never index-discoverable again, yet kept
+    being served as a fresh hit by load() (which decides hits by entry-file
+    existence alone) forever — even past a later invalidate_path() call for
+    the same path, since the index no longer looked corrupted to it.
+
+    Reproduces the exact race: save key A for path P, corrupt P's index,
+    then save a different key B for the SAME path P via the ordinary
+    fencing flow an unrelated concurrent GET would use. A's entry must be
+    gone (purged as a side effect of B's save), proving the purge fired
+    inside save() itself."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key_a = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query={"a": "1"},
+        authorization=None,
+    )
+    key_b = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query={"b": "1"},
+        authorization=None,
+    )
+    store.save(
+        key_a,
+        ApiResponse(status=200, text='{"a": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=store.path_generation(path),
+    )
+    assert store.load(key_a) is not None
+
+    store._index_path_file(path).write_text("not valid json", encoding="utf-8")
+
+    store.save(
+        key_b,
+        ApiResponse(status=200, text='{"b": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=None,
+    )
+
+    assert store.load(key_a) is None
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
+    assert key_a not in (keys or [])
+
+
 def test_refresh_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> None:
     """Mirrors test_save_interrupted_after_index_write_leaves_safe_cache_miss
     for refresh(): an interruption between the index write and the entry
@@ -1402,10 +1461,10 @@ def test_refresh_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) 
             expected_generation=store.path_generation(path),
         )
 
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key in keys
     assert store.load(key) is None
 
     store.invalidate_path(path)
-    _generation, keys = store._load_index_state(store._index_path_file(path))
+    _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key not in keys
