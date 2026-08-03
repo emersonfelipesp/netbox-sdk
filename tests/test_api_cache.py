@@ -274,6 +274,69 @@ async def test_api_client_cache_key_treats_authorization_case_insensitively(
 
 
 @pytest.mark.asyncio
+async def test_api_client_per_call_authorization_wins_regardless_of_header_casing(
+    monkeypatch, tmp_path
+) -> None:
+    """Precedence among persistent < scoped < per-call Authorization headers
+    must hold regardless of which layer uses which case variant. A plain
+    dict's update() does not reorder a pre-existing key when a
+    same-named-but-differently-cased header from a higher-precedence layer
+    is applied -- it only appends genuinely new keys at the end -- so
+    merging persistent {"Authorization": ...} then scoped
+    {"authorization": ...} then per-call {"Authorization": ...} (same case
+    as persistent) would, if Authorization were extracted from the merged
+    dict by iteration order instead of resolved explicitly per layer,
+    incorrectly let the *scoped* value win over the intended highest-
+    precedence per-call value. This exercises every casing permutation
+    across all three layers."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(base_url="https://demo.netbox.dev")
+    client = NetBoxApiClient(cfg)
+    calls: list[dict[str, object]] = []
+
+    async def _fake_request_once(self, session, *, authorization, **kwargs):
+        calls.append({"authorization": authorization, **kwargs})
+        return ApiResponse(status=200, text="{}", headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    # Each iteration uses a distinct path so the response cache (keyed on
+    # path + effective authorization, which is identical across every
+    # permutation within a loop) never turns a later iteration into a
+    # cache HIT that skips _request_once and leaves `calls` empty.
+    casings = ["Authorization", "authorization", "AUTHORIZATION"]
+    permutations = [(a, b, c) for a in casings for b in casings for c in casings]
+    for index, (persistent_case, scoped_case, call_case) in enumerate(permutations):
+        calls.clear()
+        client.persistent_headers.clear()
+        client.persistent_headers[persistent_case] = "Bearer persistent-token"
+        with client.header_scope(**{scoped_case: "Bearer scoped-token"}):
+            response = await client.request(
+                "GET",
+                f"/api/dcim/devices/{index}/",
+                headers={call_case: "Bearer call-token"},
+            )
+        assert response.status == 200
+        assert calls[0]["authorization"] == "Bearer call-token", (
+            f"persistent={persistent_case!r} scoped={scoped_case!r} call={call_case!r}"
+        )
+
+    no_call_permutations = [(a, b) for a in casings for b in casings]
+    for index, (persistent_case, scoped_case) in enumerate(no_call_permutations):
+        calls.clear()
+        client.persistent_headers.clear()
+        client.persistent_headers[persistent_case] = "Bearer persistent-token"
+        with client.header_scope(**{scoped_case: "Bearer scoped-token"}):
+            response = await client.request("GET", f"/api/dcim/interfaces/{index}/")
+        assert response.status == 200
+        assert calls[0]["authorization"] == "Bearer scoped-token", (
+            f"persistent={persistent_case!r} scoped={scoped_case!r}"
+        )
+
+
+@pytest.mark.asyncio
 async def test_api_client_cache_key_scopes_per_branch_header(monkeypatch, tmp_path) -> None:
     """A same-token GET under two different NetBox Branching schemas
     (``X-NetBox-Branch``) must never collide on the same cached entry — a
@@ -463,6 +526,53 @@ async def test_api_client_bulk_write_invalidates_individual_detail_paths(
     detail_after = await client.request("GET", "/api/dcim/devices/7/")
     assert detail_after.headers["X-NBX-Cache"] == "MISS"
     assert json.loads(detail_after.text)["name"] == "new"
+
+
+@pytest.mark.asyncio
+async def test_api_client_available_ips_write_invalidates_ip_address_collection_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """POST /api/ipam/prefixes/{id}/available-ips/ creates IPAddress objects
+    that live under /api/ipam/ip-addresses/, not anything under
+    /api/ipam/prefixes/. The default invalidation derivation (exact action
+    path + its immediate parent detail path) never touches the
+    ip-addresses collection, so a list cached before the action would keep
+    serving pre-write data even though a new address now exists."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"count": 0, "results": []}', headers={}),
+            ApiResponse(status=201, text='{"id": 9, "address": "10.0.0.1/32"}', headers={}),
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 9, "address": "10.0.0.1/32"}]}',
+                headers={},
+            ),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    list_before = await client.request("GET", "/api/ipam/ip-addresses/")
+    assert list_before.headers["X-NBX-Cache"] == "MISS"
+
+    action_response = await client.request("POST", "/api/ipam/prefixes/5/available-ips/")
+    assert action_response.status == 201
+
+    list_after = await client.request("GET", "/api/ipam/ip-addresses/")
+    assert list_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(list_after.text)["count"] == 1
 
 
 @pytest.mark.asyncio
@@ -945,6 +1055,85 @@ async def test_api_client_write_through_repeated_slash_alias_invalidates_canonic
     assert patch_response.status == 200
 
     assert client._cache.load(key) is None
+
+
+@pytest.mark.asyncio
+async def test_api_client_write_through_percent_encoded_unreserved_alias_invalidates_canonical_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """A write issued through a percent-encoded-but-not-dot-segment alias
+    (e.g. "/api/%64cim/devices/5/", where "%64" decodes to the unreserved
+    character "d") must invalidate the same cache entry a canonical-path
+    read populated. aiohttp builds its outbound request via
+    yarl.URL(str, encoded=False), which percent-decodes every RFC 3986
+    "unreserved" character before the request hits the wire, so this alias
+    also lands on the canonical resource even though it contains no dot
+    segment at all -- the literal-dot-segment and percent-encoded-dot-segment
+    tests above do not exercise this path. If _normalize_request_path() only
+    resolved dot segments, the canonical cached entry would survive the
+    write and a verification read could still return stale pre-write data."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    canonical_path = "/api/dcim/devices/5/"
+    alias_path = "/api/%64cim/device%73/5/"
+
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", canonical_path)
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=canonical_path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is not None
+
+    patch_response = await client.request("PATCH", alias_path, payload={"name": "new"})
+    assert patch_response.status == 200
+
+    assert client._cache.load(key) is None
+
+
+@pytest.mark.asyncio
+async def test_api_client_percent_encoded_slash_within_segment_is_preserved(
+    monkeypatch, tmp_path
+) -> None:
+    """A percent-encoded "/" *inside* a single path segment (``%2F``) must
+    never be decoded into an extra path separator: doing so would silently
+    change the number of segments aiohttp actually sends on the wire versus
+    what the cache key, generation fence, and invalidate_path() operate on.
+    yarl.URL(...).path further decodes "%2F" into a literal "/" and must
+    never be used for this purpose; only yarl.URL(...).raw_path -- which
+    keeps "%2F" encoded, matching what aiohttp actually places on the wire
+    -- is correct here."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(base_url="https://demo.netbox.dev")
+    client = NetBoxApiClient(cfg)
+
+    normalized = client._normalize_request_path("/api/dcim/devices/a%2Fb/")
+    assert normalized == "/api/dcim/devices/a%2Fb/"
 
 
 def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:

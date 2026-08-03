@@ -21,7 +21,7 @@ from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, TypeAlias
-from urllib.parse import unquote, urljoin, urlsplit
+from urllib.parse import urljoin, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -69,13 +69,25 @@ def _extract_case_insensitive(
 ) -> tuple[str | None, dict[str, str]]:
     """Pop every case variant of header ``name`` from ``headers``.
 
-    Returns the value of the highest-precedence match (the last one
-    encountered in insertion order, since callers build ``headers`` by
-    layering lower-precedence sources first) and a new dict with all
-    matching keys removed. Plain dicts are case-sensitive, but HTTP header
-    names are not, so without this a caller-supplied "authorization" and a
-    configured "Authorization" would be treated as two independent headers
-    instead of one overriding the other.
+    Returns the value of the last matching key encountered in ``headers``'
+    own iteration order and a new dict with all matching keys removed.
+    Plain dicts are case-sensitive, but HTTP header names are not, so
+    without this a caller-supplied "authorization" and a configured
+    "Authorization" would be treated as two independent headers instead of
+    one overriding the other.
+
+    Callers that layer multiple precedence sources together (e.g.
+    persistent < scoped < per-call) must call this once per source *before*
+    merging the sources into a single dict, then resolve precedence
+    explicitly among the returned values — never by merging first and
+    extracting from the combined dict. A plain dict's ``update()`` does not
+    reorder an existing key when a same-named-but-differently-cased header
+    from a later, higher-precedence source is applied; it only appends
+    genuinely new keys at the end. So a combined dict built from persistent
+    ``{"Authorization": ...}`` then scoped ``{"authorization": ...}`` would
+    put the scoped key last in iteration order and make it win here even
+    over a same-cased per-call ``"Authorization"`` that was supposed to
+    take precedence over both.
     """
     target = name.lower()
     value: str | None = None
@@ -86,6 +98,26 @@ def _extract_case_insensitive(
         else:
             remaining[key] = header_value
     return value, remaining
+
+
+# NetBox "detail action" endpoints (see netbox_sdk.facade.DETAIL_ENDPOINT_SPECS)
+# whose writes create objects in an entirely different collection than the
+# endpoint's own path or its immediate parent detail path. For example,
+# POST /api/ipam/prefixes/{id}/available-ips/ creates IPAddress rows that
+# live under /api/ipam/ip-addresses/, not anything under
+# /api/ipam/prefixes/. The default _related_cache_paths() derivation (exact
+# path + immediate parent detail path) never touches the collection these
+# actions actually populate, so a cached list/filter read of that
+# collection would keep serving pre-write data until it naturally expired.
+# Keyed by the action's trailing path segment since that alone is enough to
+# disambiguate among the handful of mutating actions NetBox exposes today;
+# read-only actions (napalm, trace, units, elevation, paths) are omitted
+# since a GET never stales anything.
+_ACTION_CROSS_RESOURCE_CACHE_PATHS: dict[str, tuple[str, ...]] = {
+    "available-ips": ("/api/ipam/ip-addresses/",),
+    "available-prefixes": ("/api/ipam/prefixes/",),
+    "available-vlans": ("/api/ipam/vlans/",),
+}
 
 
 class ApiResponse(BaseModel):
@@ -280,52 +312,59 @@ class NetBoxApiClient:
         if parsed.query or parsed.fragment:
             raise ValueError("Request path must not include query parameters or fragments")
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
-        segments = normalized.split("/")
-        # aiohttp builds its outbound request from this string via
-        # yarl.URL(str, encoded=False), which percent-decodes each "/"
-        # -delimited segment before resolving "."/".." dot segments — so a
-        # percent-encoded alias such as "/api/dcim/%2e%2e/ipam/prefixes/5/"
-        # resolves to the canonical "/api/ipam/prefixes/5/" on the wire even
-        # though neither segment is a literal "." or "..". Decoding each
-        # segment here (without treating an encoded "%2f" as a separator,
-        # matching yarl) and substituting only the segments that decode to a
-        # literal dot keeps the path used for cache keys, the cache-
-        # generation fence, and invalidate_path() in lockstep with what is
-        # actually sent — otherwise such a write mutates the canonical
-        # resource while invalidating cache entries keyed to the literal
-        # encoded alias, leaving the canonical cached entries stale and
-        # servable by a verification read.
-        decoded_segments = [unquote(segment) for segment in segments]
-        if "." in decoded_segments or ".." in decoded_segments:
-            segments = [
-                decoded if decoded in (".", "..") else original
-                for original, decoded in zip(segments, decoded_segments)
-            ]
-            normalized = "/".join(segments)
-        # Resolve dot segments and collapse repeated "/" the same way the
-        # outbound request's own build_url() already does, so the path used
-        # for cache keys, cache-generation fencing, and invalidate_path() can
-        # never diverge from what is actually sent on the wire. build_url()
-        # always strips every leading "/" before merging the path onto the
-        # base URL via urljoin(), and that merge collapses internal "//"
-        # runs down to a single "/" even when neither segment is a literal
-        # "." or "..". This runs unconditionally, not only when a dot
-        # segment is present: left unresolved, a request through an
-        # equivalent-but-unnormalized alias (e.g. "/api/dcim/../ipam/" or
-        # "/api//dcim/devices/5/") mutated the canonical resource on the
-        # wire while invalidating cache entries keyed to the literal alias
-        # instead — the canonical cached entries stayed untouched and a
-        # verification read could still return stale pre-write data.
-        # urlsplit() above already rejects a leading "//" as a netloc, so
-        # `normalized` is always exactly one leading "/" here — posixpath's
-        # POSIX-mandated special case for exactly two leading slashes never
-        # applies.
+        # Collapse repeated "/" the same way the outbound request's own
+        # build_url() already does, so the path used for cache keys, the
+        # cache-generation fence, and invalidate_path() can never diverge
+        # from what is actually sent on the wire. build_url() always strips
+        # every leading "/" before merging the path onto the base URL via
+        # urljoin(), and that merge collapses internal "//" runs down to a
+        # single "/" even when neither segment is a literal "." or "..".
+        # This runs unconditionally, not only when a dot segment is present:
+        # left unresolved, a request through an equivalent-but-unnormalized
+        # alias (e.g. "/api//dcim/devices/5/") mutated the canonical
+        # resource on the wire while invalidating cache entries keyed to the
+        # literal alias instead — the canonical cached entries stayed
+        # untouched and a verification read could still return stale
+        # pre-write data. urlsplit() above already rejects a leading "//" as
+        # a netloc, so `normalized` is always exactly one leading "/" here —
+        # posixpath's POSIX-mandated special case for exactly two leading
+        # slashes never applies.
         had_trailing_slash = normalized.endswith("/") and normalized != "/"
         resolved = posixpath.normpath(normalized)
         if had_trailing_slash and not resolved.endswith("/"):
             resolved += "/"
         normalized = resolved
-        return normalized
+        # aiohttp builds its outbound request from the URL string this
+        # module hands it via yarl.URL(str), which fully canonicalizes the
+        # path exactly like a browser would: it resolves any remaining
+        # "."/".." segments AND percent-decodes every octet that encodes an
+        # RFC 3986 "unreserved" character (e.g. "%64cim" -> "dcim",
+        # "device%73" -> "devices"), while leaving encoded reserved
+        # delimiters such as "%2F" (a literal "/" *within* a segment) or
+        # "%3F"/"%23" (a literal "?"/"#") untouched. The dot-segment-only
+        # handling this function used to do did not decode non-dot aliases
+        # at all, so a write through e.g. "/api/%64cim/devices/5/" mutated
+        # the canonical "/api/dcim/devices/5/" resource on the wire while
+        # invalidating cache entries keyed to the literal encoded alias,
+        # leaving the canonical cached entries stale and servable by a
+        # verification read. Delegating to yarl's own ``raw_path`` (not
+        # ``path``, which further decodes "%2F" into an extra path
+        # separator and would silently change the number of segments)
+        # reproduces aiohttp's canonicalization exactly rather than
+        # re-implementing RFC 3986's unreserved-character set by hand — the
+        # host portion is a fixed placeholder because path canonicalization
+        # does not depend on it.
+        try:
+            from yarl import URL
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "aiohttp is required for HTTP requests. Install project dependencies first."
+            ) from exc
+        had_trailing_slash = normalized.endswith("/") and normalized != "/"
+        canonical = URL(f"http://netbox-sdk.invalid{normalized}").raw_path
+        if had_trailing_slash and not canonical.endswith("/"):
+            canonical += "/"
+        return canonical
 
     async def request(
         self,
@@ -378,16 +417,33 @@ class NetBoxApiClient:
             ) from exc
 
         authorization = authorization_header_value(self.config)
-        req_headers = dict(self.persistent_headers)
-        scoped = _scoped_headers.get() or {}
+        # Extract Authorization from each layer *before* merging the rest of
+        # the headers together, and resolve precedence explicitly rather
+        # than by relying on dict iteration order after the merge: a plain
+        # dict does not reorder a pre-existing key when update() applies a
+        # same-named-but-differently-cased header from a higher-precedence
+        # layer, it only appends genuinely new keys at the end. So merging
+        # persistent {"Authorization": ...} then scoped {"authorization":
+        # ...} would leave the scoped key last in iteration order and make
+        # it win even over a later same-cased per-call "Authorization" that
+        # was supposed to take precedence over both, letting a read or
+        # mutation intended for the explicit per-call token execute under a
+        # different caller's credential instead.
+        persistent = dict(self.persistent_headers)
+        persistent_authorization, persistent = _extract_case_insensitive(
+            persistent, "Authorization"
+        )
+        scoped = dict(_scoped_headers.get() or {})
+        scoped_authorization, scoped = _extract_case_insensitive(scoped, "Authorization")
+        call_headers = dict(headers or {})
+        call_authorization, call_headers = _extract_case_insensitive(call_headers, "Authorization")
+        req_headers = dict(persistent)
         req_headers.update(scoped)
-        req_headers.update(headers or {})
+        req_headers.update(call_headers)
         req_headers.setdefault("Accept", "text/event-stream")
-        # Strip every case variant before re-adding the canonical header, so a
-        # caller-supplied lower-case "authorization" cannot end up sent
-        # alongside a separately-cased "Authorization" as two distinct
-        # headers.
-        caller_authorization, req_headers = _extract_case_insensitive(req_headers, "Authorization")
+        caller_authorization = (
+            call_authorization or scoped_authorization or persistent_authorization
+        )
         effective_authorization = caller_authorization or authorization
         if effective_authorization:
             req_headers["Authorization"] = effective_authorization
@@ -500,23 +556,43 @@ class NetBoxApiClient:
         # e.g. SDK ``activate``/``activate_branch``) < per-call ``headers``. A
         # task-scoped branch therefore overrides a client-wide one for the
         # duration of its with-block, then falls back to the persistent value.
-        req_headers = dict(self.persistent_headers)
-        scoped = _scoped_headers.get() or {}
-        req_headers.update(scoped)
-        req_headers.update(headers or {})
+        #
         # HTTP header names are case-insensitive, but a plain dict is not: a
         # caller-supplied "authorization" or "AUTHORIZATION" header would
         # otherwise sit alongside "Authorization" as a distinct dict key,
-        # never be picked up by the exact-case lookup below, and so be sent
-        # to NetBox with the real credential while cached under the
+        # never be picked up by an exact-case lookup, and so be sent to
+        # NetBox with the real credential while cached under the
         # configured/anonymous identity instead — letting a later anonymous
-        # or differently-cased read hit that cache entry. Extract and strip
-        # every case variant up front so exactly one Authorization value (and
-        # header) survives.
-        caller_authorization, req_headers = _extract_case_insensitive(req_headers, "Authorization")
+        # or differently-cased read hit that cache entry. Extracting
+        # Authorization from each layer *before* merging (rather than
+        # merging first and extracting the "last" match from the combined
+        # dict) also matters for precedence, not just deduplication: a plain
+        # dict does not reorder a pre-existing key when update() applies a
+        # same-named-but-differently-cased header from a higher-precedence
+        # layer, it only appends genuinely new keys at the end. Merging
+        # persistent {"Authorization": ...} then scoped {"authorization":
+        # ...} would leave the scoped key last in iteration order and make
+        # it win even over a later same-cased per-call "Authorization" that
+        # was supposed to take precedence over both, letting a read or
+        # mutation intended for the explicit per-call token execute under a
+        # different caller's credential instead.
+        persistent = dict(self.persistent_headers)
+        persistent_authorization, persistent = _extract_case_insensitive(
+            persistent, "Authorization"
+        )
+        scoped = dict(_scoped_headers.get() or {})
+        scoped_authorization, scoped = _extract_case_insensitive(scoped, "Authorization")
+        call_headers = dict(headers or {})
+        call_authorization, call_headers = _extract_case_insensitive(call_headers, "Authorization")
+        req_headers = dict(persistent)
+        req_headers.update(scoped)
+        req_headers.update(call_headers)
         # A per-call bearer (e.g. MCP's persistent_headers override for a
         # forwarded caller token) must scope the cache key too, or requests
         # made under different tokens collide on the same cached response.
+        caller_authorization = (
+            call_authorization or scoped_authorization or persistent_authorization
+        )
         effective_authorization = caller_authorization or authorization
         # Any other header that can change the response representation (e.g.
         # X-NetBox-Branch) must scope the cache key too, or a same-token read
@@ -853,6 +929,20 @@ class NetBoxApiClient:
             return None
         return "/" + "/".join(parts[:-1]) + "/"
 
+    def _trailing_action_name(self, path: str) -> str | None:
+        """Return the action segment of a NetBox detail-action path, if any.
+
+        A detail-action path has exactly five non-empty segments —
+        ``api / app / resource / id / action`` (e.g.
+        ``/api/ipam/prefixes/5/available-ips/``) — with a numeric ``id`` in
+        the fourth position. Anything else (a plain collection or detail
+        path) returns ``None``.
+        """
+        parts = [part for part in path.split("/") if part]
+        if len(parts) != 5 or parts[0] != "api" or not parts[3].isdigit():
+            return None
+        return parts[4]
+
     def _related_cache_paths(
         self, path: str, payload: dict[str, Any] | list[Any] | None
     ) -> list[str]:
@@ -861,10 +951,12 @@ class NetBoxApiClient:
         A response cached before a write (e.g. the read-before-write step of
         an agent's documented operating sequence) must never be served again
         as if it reflected the write. This covers the exact path, its
-        containing collection path (list/filter reads), and — for bulk writes
-        whose payload is a list of objects carrying an ``id`` — each affected
-        object's own detail path, since bulk operations target the collection
-        path rather than individual detail paths.
+        containing collection path (list/filter reads), each affected
+        object's own detail path for bulk writes whose payload is a list of
+        objects carrying an ``id`` (since bulk operations target the
+        collection path rather than individual detail paths), and — for a
+        recognized "detail action" endpoint such as ``available-ips`` — the
+        unrelated collection(s) that action actually creates objects in.
         """
         paths = [path]
         collection_path = self._collection_path_for(path)
@@ -874,6 +966,9 @@ class NetBoxApiClient:
             for item in payload:
                 if isinstance(item, dict) and "id" in item:
                     paths.append(f"{path.rstrip('/')}/{item['id']}/")
+        action_name = self._trailing_action_name(path)
+        if action_name is not None:
+            paths.extend(_ACTION_CROSS_RESOURCE_CACHE_PATHS.get(action_name, ()))
         return paths
 
     def _invalidate_related_cache(
