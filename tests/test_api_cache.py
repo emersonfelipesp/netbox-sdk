@@ -10,6 +10,7 @@ import sys
 import threading
 import time
 from collections import deque
+from pathlib import Path
 
 import pytest
 
@@ -628,6 +629,61 @@ async def test_detail_action_write_invalidates_own_resource_collection_cache(
 
 
 @pytest.mark.asyncio
+async def test_plugin_detail_action_write_invalidates_own_resource_collection_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """A namespaced plugin detail action must invalidate its true collection.
+
+    Plugin routes have more leading segments than core API routes, but the
+    relevant shape is still ``.../resource/id/action/``. Detection based on
+    exactly five total segments misses these routes and leaves a cached plugin
+    collection looking fresh after its detail action mutates the resource.
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 5, "state": "old"}]}',
+                headers={},
+            ),
+            ApiResponse(status=200, text='{"id": 5, "state": "new"}', headers={}),
+            ApiResponse(
+                status=200,
+                text='{"count": 1, "results": [{"id": 5, "state": "new"}]}',
+                headers={},
+            ),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    collection_path = "/api/plugins/some-plugin/widgets/"
+    list_before = await client.request("GET", collection_path)
+    assert list_before.headers["X-NBX-Cache"] == "MISS"
+
+    action_response = await client.request(
+        "POST", "/api/plugins/some-plugin/widgets/5/some-action/", payload={}
+    )
+    assert action_response.status == 200
+
+    list_after = await client.request("GET", collection_path)
+    assert list_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(list_after.text)["results"][0]["state"] == "new"
+
+
+@pytest.mark.asyncio
 async def test_api_client_available_asns_write_invalidates_asn_collection_cache(
     monkeypatch, tmp_path
 ) -> None:
@@ -918,6 +974,62 @@ async def test_write_invalidation_failure_on_one_path_does_not_skip_the_rest(
     # the rest of the batch.
     assert invalidated == [collection_path]
     assert client._cache.load(collection_key) is None
+
+
+@pytest.mark.asyncio
+async def test_write_invalidation_lock_timeout_forces_live_verification_read(
+    monkeypatch, tmp_path
+) -> None:
+    """A committed write whose invalidation times out must not leave a HIT.
+
+    The pre-write entry remains fresh on disk when the first invalidation
+    attempt fails. The timeout marker must force the verification GET to
+    complete the deferred purge and fetch the post-write representation.
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+    before = await client.request("GET", path)
+    assert before.headers["X-NBX-Cache"] == "MISS"
+
+    real_invalidate_path = client._cache.invalidate_path
+    timed_out = False
+
+    def _timeout_once(target_path: str) -> None:
+        nonlocal timed_out
+        if target_path == path and not timed_out:
+            timed_out = True
+            raise TimeoutError("simulated cache lock timeout")
+        real_invalidate_path(target_path)
+
+    monkeypatch.setattr(client._cache, "invalidate_path", _timeout_once, raising=True)
+
+    write_response = await client.request("PATCH", path, payload={"name": "new"})
+    assert write_response.status == 200
+
+    verification = await client.request("GET", path)
+    assert verification.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(verification.text)["name"] == "new"
+    assert not client._cache._path_is_unavailable(path)  # noqa: SLF001
 
 
 @pytest.mark.asyncio
@@ -1494,6 +1606,82 @@ def test_portable_lock_reclaims_lock_left_by_dead_process(tmp_path) -> None:
     assert elapsed < 1.0  # reclaimed immediately, not after waiting out poll_interval/timeout
 
 
+def test_portable_lock_simultaneous_stale_reclaimers_never_overlap(monkeypatch, tmp_path) -> None:
+    """Two waiters that observe one stale lock must serialize reclamation.
+
+    The second waiter is held immediately after it checks the same dead PID
+    until the first has replaced that stale file. It must re-check the exact
+    owner record and leave the first waiter's live replacement untouched, so
+    their critical sections can never overlap.
+    """
+    import netbox_sdk.http_cache as http_cache_module
+
+    store = HttpCacheStore(tmp_path)
+    lock_path = tmp_path / "idx-test.json.lock"
+    dead_pid = 999_999
+    lock_path.write_text(str(dead_pid), encoding="ascii")
+
+    both_observed_stale = threading.Barrier(2)
+    replacement_created = threading.Event()
+    release_first = threading.Event()
+    first_entered = threading.Event()
+    overlap = threading.Event()
+    state_lock = threading.Lock()
+    active = 0
+    errors: list[BaseException] = []
+
+    real_pid_is_alive = http_cache_module._pid_is_alive
+    real_os_open = http_cache_module.os.open
+
+    def _coordinated_pid_is_alive(pid: int) -> bool:
+        if pid != dead_pid:
+            return real_pid_is_alive(pid)
+        both_observed_stale.wait(timeout=5)
+        if threading.current_thread().name == "reclaimer-b":
+            assert replacement_created.wait(timeout=5)
+        return False
+
+    def _observed_os_open(path, flags, mode=0o777):
+        fd = real_os_open(path, flags, mode)
+        if threading.current_thread().name == "reclaimer-a" and Path(path) == lock_path:
+            replacement_created.set()
+        return fd
+
+    monkeypatch.setattr(http_cache_module, "_pid_is_alive", _coordinated_pid_is_alive)
+    monkeypatch.setattr(http_cache_module.os, "open", _observed_os_open)
+
+    def _worker() -> None:
+        nonlocal active
+        try:
+            with store._portable_lock(lock_path, timeout=5.0, poll_interval=0.001):
+                with state_lock:
+                    active += 1
+                    if active > 1:
+                        overlap.set()
+                    first_entered.set()
+                release_first.wait(timeout=5)
+                with state_lock:
+                    active -= 1
+        except BaseException as exc:  # pragma: no cover - asserted below
+            errors.append(exc)
+
+    thread_a = threading.Thread(target=_worker, name="reclaimer-a")
+    thread_b = threading.Thread(target=_worker, name="reclaimer-b")
+    thread_a.start()
+    thread_b.start()
+
+    assert first_entered.wait(timeout=5)
+    assert not overlap.wait(timeout=0.1)
+    release_first.set()
+    thread_a.join(timeout=5)
+    thread_b.join(timeout=5)
+
+    assert not thread_a.is_alive()
+    assert not thread_b.is_alive()
+    assert errors == []
+    assert not overlap.is_set()
+
+
 def test_portable_lock_does_not_reclaim_lock_held_by_live_process(tmp_path) -> None:
     """A lock file recording the current (definitely alive) process's own PID
     must not be reclaimed out from under it — only a provably dead owner is
@@ -1527,6 +1715,59 @@ def test_path_generation_degrades_to_sentinel_when_lock_unavailable(monkeypatch,
     monkeypatch.setattr(HttpCacheStore, "_locked_index", _always_times_out)
 
     assert store.path_generation(path) == http_cache_module._LOCK_UNAVAILABLE_GENERATION
+
+
+@pytest.mark.asyncio
+async def test_api_client_bypasses_fresh_hit_when_generation_lock_is_unavailable(
+    monkeypatch, tmp_path
+) -> None:
+    """The lock-unavailable sentinel must disable both cache reads and writes."""
+    import netbox_sdk.http_cache as http_cache_module
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+    initial = await client.request("GET", path)
+    assert initial.headers["X-NBX-Cache"] == "MISS"
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    monkeypatch.setattr(
+        client._cache,
+        "path_generation",
+        lambda _path: http_cache_module._LOCK_UNAVAILABLE_GENERATION,
+        raising=True,
+    )
+
+    response = await client.request("GET", path)
+
+    assert json.loads(response.text)["name"] == "new"
+    assert response.headers.get("X-NBX-Cache") != "HIT"
+    cached = client._cache.load(key)
+    assert cached is not None
+    assert json.loads(cached.text)["name"] == "old"  # live response was not repopulated
 
 
 def test_save_and_refresh_degrade_gracefully_when_lock_unavailable(tmp_path) -> None:

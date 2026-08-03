@@ -663,14 +663,20 @@ class NetBoxApiClient:
             # detected at save time below, instead of this now-stale response
             # silently repopulating the cache after the write already purged it.
             cache_generation = self._cache.path_generation(path)
-            cache_entry = self._cache.load(cache_key)
-            if cache_entry is not None and cache_entry.is_fresh(self._now()):
-                return self._cached_response(cache_entry, cache_status="HIT")
-            if cache_entry is not None:
-                if cache_entry.etag:
-                    req_headers.setdefault("If-None-Match", cache_entry.etag)
-                if cache_entry.last_modified:
-                    req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
+            if self._cache.generation_is_available(cache_generation):
+                cache_entry = self._cache.load(cache_key)
+                if cache_entry is not None and cache_entry.is_fresh(self._now()):
+                    return self._cached_response(cache_entry, cache_status="HIT")
+                if cache_entry is not None:
+                    if cache_entry.etag:
+                        req_headers.setdefault("If-None-Match", cache_entry.etag)
+                    if cache_entry.last_modified:
+                        req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
+            else:
+                # Cache coordination failed. Existing entries may predate a
+                # committed mutation whose invalidation timed out, so neither
+                # read nor populate this path until coordination recovers.
+                cache_key = None
 
         session = await self._get_session()
         req_kwargs: dict[str, Any] = dict(
@@ -976,16 +982,17 @@ class NetBoxApiClient:
     def _trailing_action_name(self, path: str) -> str | None:
         """Return the action segment of a NetBox detail-action path, if any.
 
-        A detail-action path has exactly five non-empty segments —
-        ``api / app / resource / id / action`` (e.g.
-        ``/api/ipam/prefixes/5/available-ips/``) — with a numeric ``id`` in
-        the fourth position. Anything else (a plain collection or detail
-        path) returns ``None``.
+        A detail-action path ends in ``resource / id / action`` with a numeric
+        ``id`` and a non-numeric action, regardless of how many namespace
+        segments precede the resource. This covers both core paths such as
+        ``/api/ipam/prefixes/5/available-ips/`` and plugin paths such as
+        ``/api/plugins/example/widgets/5/some-action/``. Anything else (a
+        plain collection or detail path) returns ``None``.
         """
         parts = [part for part in path.split("/") if part]
-        if len(parts) != 5 or parts[0] != "api" or not parts[3].isdigit():
+        if len(parts) < 4 or parts[0] != "api" or not parts[-2].isdigit() or parts[-1].isdigit():
             return None
-        return parts[4]
+        return parts[-1]
 
     def _related_cache_paths(
         self, path: str, payload: dict[str, Any] | list[Any] | None
@@ -1014,9 +1021,10 @@ class NetBoxApiClient:
         action_name = self._trailing_action_name(path)
         if action_name is not None:
             # ``collection_path`` is the action's immediate parent detail
-            # path (e.g. ``/api/core/background-tasks/5/``). Preserve that
-            # invalidation and additionally step up once more to invalidate
-            # the resource's real collection/list caches.
+            # path (e.g. ``/api/core/background-tasks/5/`` or a namespaced
+            # plugin equivalent). Preserve that invalidation and additionally
+            # step up once more to invalidate the resource's real
+            # collection/list caches, independent of total segment count.
             if collection_path is not None:
                 resource_collection_path = self._collection_path_for(collection_path)
                 if resource_collection_path is not None and resource_collection_path not in paths:
@@ -1041,6 +1049,19 @@ class NetBoxApiClient:
         for target_path in self._related_cache_paths(path, payload):
             try:
                 self._cache.invalidate_path(target_path)
+            except TimeoutError:
+                # Keep the path unavailable even when a test double or an
+                # alternate cache implementation raises before
+                # invalidate_path() can publish its own marker.
+                self._cache._mark_path_unavailable(target_path)
+                logger.warning(
+                    "cache invalidation failed after write attempt; stale reads "
+                    "may be served until the affected entries expire",
+                    extra={
+                        "nbx_event": "http_cache_invalidate_failed",
+                        "request_path": target_path,
+                    },
+                )
             except OSError:
                 logger.warning(
                     "cache invalidation failed after write attempt; stale reads "

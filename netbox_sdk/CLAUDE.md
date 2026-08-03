@@ -55,13 +55,13 @@ netbox_sdk/
 
 - `netbox_sdk.config` — config model, profile persistence, auth headers
 - `netbox_sdk.branching` — NetBox Branching API client, branch-scoped header helpers, job polling helpers
-- `netbox_sdk.client` — async API client and connection probe; caller-supplied paths reject percent-encoded `/` and `\` separators before cache or network dispatch; normal and SSE request Authorization precedence is presence-based, so an explicitly empty per-call/scoped/persistent override remains anonymous and never falls through to the configured client credential
+- `netbox_sdk.client` — async API client and connection probe; caller-supplied paths reject percent-encoded `/` and `\` separators before cache or network dispatch; normal and SSE request Authorization precedence is presence-based, so an explicitly empty per-call/scoped/persistent override remains anonymous and never falls through to the configured client credential; cache-generation lock outages explicitly bypass existing entries and persistence, and detail-action invalidation supports namespaced plugin routes ending in `resource/id/action`
 - `netbox_sdk.decorators` — reusable decorator factories for SDK command/resource wrapper metadata
 - `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`, `PaginationError`)
 - `netbox_sdk.facade` — async convenience facade exposed via `api()`
 - `netbox_sdk.typed_api` — versioned typed client factory exposed via `typed_api()`
 - `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
-- `netbox_sdk.http_cache` — filesystem cache primitives
+- `netbox_sdk.http_cache` — filesystem cache primitives, including per-path unavailable markers for failed lock-timeout invalidations and ownership-safe portable stale-lock reclamation
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
 - `netbox_sdk.telemetry` — optional OpenTelemetry request tracing with lazy guarded imports
 - `netbox_sdk.schema` — OpenAPI loading and indexing; `load_openapi_schema()` / `build_schema_index()` default to the bundled NetBox 4.6 schema and accept supported release lines such as `version="4.5"`; `SchemaIndex.filter_params(group, resource)` returns a sorted `list[FilterParam]` of filterable query parameters for the list endpoint (excludes pagination params including `limit`, `offset`, `start`, `format`, plus lookup-suffix variants such as `__ic`, `__n`; puts `q` first); `FilterParam` is a frozen Pydantic model with `.name`, `.label`, `.type` (`string|integer|boolean|enum|array`), `.choices` (non-empty only for enum), and `.description`

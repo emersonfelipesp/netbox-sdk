@@ -7,9 +7,11 @@ import hashlib
 import json
 import logging
 import os
+import secrets
 import stat
 import sys
 import tempfile
+import threading
 import time
 from collections.abc import Iterator
 from pathlib import Path
@@ -152,6 +154,8 @@ class HttpCacheStore:
 
     def __init__(self, root: Path) -> None:
         self.root = root
+        self._unavailable_paths: set[str] = set()
+        self._unavailable_paths_lock = threading.Lock()
         self.root.mkdir(parents=True, exist_ok=True)
         self._set_private_permissions(self.root, stat.S_IRWXU)
         logger.debug(
@@ -267,18 +271,40 @@ class HttpCacheStore:
         propagating the failure. A lock outage must never block the GET this
         fence exists to protect from ever reaching NetBox.
         """
+        if self._path_is_unavailable(path):
+            try:
+                # A previous invalidation timed out after a mutation may have
+                # committed. Complete that purge before trusting any entry
+                # that survived the failed attempt. invalidate_path() clears
+                # only the unavailable markers that predated this successful
+                # purge, so a newer concurrent timeout cannot be lost.
+                self.invalidate_path(path)
+            except OSError:
+                logger.warning(
+                    "netbox_sdk cache index lock unavailable for %s; skipping cache for this request",
+                    path,
+                    extra={"nbx_event": "cache_lock_timeout", "request_path": path},
+                )
+                return _LOCK_UNAVAILABLE_GENERATION
+
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
                 generation, _keys = self._load_index_state_or_purge(index_path)
                 return generation
         except TimeoutError:
+            self._mark_path_unavailable(path)
             logger.warning(
                 "netbox_sdk cache index lock unavailable for %s; skipping cache for this request",
                 path,
                 extra={"nbx_event": "cache_lock_timeout", "request_path": path},
             )
             return _LOCK_UNAVAILABLE_GENERATION
+
+    @staticmethod
+    def generation_is_available(generation: int) -> bool:
+        """Return whether ``generation`` was captured under cache coordination."""
+        return generation != _LOCK_UNAVAILABLE_GENERATION
 
     def refresh(
         self,
@@ -357,13 +383,76 @@ class HttpCacheStore:
         index file outright would reset a fresh index back to generation 0,
         indistinguishable from one that was never invalidated.
         """
+        unavailable_markers = self._path_unavailable_markers(path)
         index_path = self._index_path_file(path)
-        with self._locked_index(index_path):
-            generation, keys = self._load_index_state_or_purge(index_path)
-            with self._locked_index(self._global_guard_path()):
-                for key in keys:
-                    self._entry_path(key).unlink(missing_ok=True)
-                self._write_index_state(index_path, generation + 1, [])
+        try:
+            with self._locked_index(index_path):
+                generation, keys = self._load_index_state_or_purge(index_path)
+                with self._locked_index(self._global_guard_path()):
+                    for key in keys:
+                        self._entry_path(key).unlink(missing_ok=True)
+                    self._write_index_state(index_path, generation + 1, [])
+        except TimeoutError:
+            # The mutation may already be committed, while the pre-write
+            # entry is still present. Make that uncertainty visible to every
+            # cache-store instance sharing this root so reads bypass the
+            # entry until a later path_generation() can complete the purge.
+            self._mark_path_unavailable(path)
+            raise
+        self._clear_path_unavailable(path, unavailable_markers)
+
+    def _unavailable_marker_prefix(self, path: str) -> str:
+        digest = hashlib.sha256(path.encode("utf-8")).hexdigest()
+        return f"unavailable-{digest}-"
+
+    def _path_unavailable_markers(self, path: str) -> tuple[Path, ...]:
+        prefix = self._unavailable_marker_prefix(path)
+        return tuple(self.root.glob(f"{prefix}*.marker"))
+
+    def _path_is_unavailable(self, path: str) -> bool:
+        with self._unavailable_paths_lock:
+            return path in self._unavailable_paths or bool(self._path_unavailable_markers(path))
+
+    def _mark_path_unavailable(self, path: str) -> None:
+        """Force cache reads for ``path`` to bypass entries after a lock timeout.
+
+        Each timeout gets a unique marker. A successful invalidation removes
+        only markers it observed before taking the path lock; if another
+        invalidation times out concurrently, its newer marker survives and
+        keeps the path unavailable until that uncertainty is purged too.
+        """
+        with self._unavailable_paths_lock:
+            self._unavailable_paths.add(path)
+            try:
+                with tempfile.NamedTemporaryFile(
+                    dir=self.root,
+                    prefix=self._unavailable_marker_prefix(path),
+                    suffix=".marker",
+                    delete=False,
+                ) as handle:
+                    marker_path = Path(handle.name)
+                self._set_private_permissions(marker_path, stat.S_IRUSR | stat.S_IWUSR)
+            except OSError:
+                # The process-local state still protects this client even if
+                # the filesystem is too unhealthy to publish the marker to
+                # other cache-store instances.
+                logger.warning(
+                    "netbox_sdk could not persist cache-unavailable marker for %s",
+                    path,
+                    extra={"nbx_event": "cache_marker_write_failed", "request_path": path},
+                )
+
+    def _clear_path_unavailable(self, path: str, markers: tuple[Path, ...]) -> None:
+        with self._unavailable_paths_lock:
+            for marker_path in markers:
+                try:
+                    marker_path.unlink(missing_ok=True)
+                except OSError:
+                    # A marker that cannot be removed safely keeps this path
+                    # in bypass mode; a later successful purge can retry it.
+                    pass
+            if not self._path_unavailable_markers(path):
+                self._unavailable_paths.discard(path)
 
     def _global_guard_path(self) -> Path:
         """Nominal path whose neighboring ``.lock`` file serializes purges against writes.
@@ -510,44 +599,98 @@ class HttpCacheStore:
         rather than deadlocking forever.
         """
         deadline = time.monotonic() + timeout
-        while True:
-            try:
-                fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            except FileExistsError:
-                if self._reclaim_stale_lock(lock_path):
-                    continue
-                if time.monotonic() >= deadline:
-                    raise TimeoutError(f"timed out waiting for cache index lock: {lock_path}")
-                time.sleep(poll_interval)
-                continue
-            try:
-                os.write(fd, str(os.getpid()).encode("ascii"))
-            finally:
-                os.close(fd)
-            break
+        owner_record: str | None = None
+        while owner_record is None:
+            owner_record = self._try_create_portable_lock(lock_path)
+            if owner_record is None:
+                owner_record = self._reclaim_stale_lock(lock_path)
+            if owner_record is not None:
+                break
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f"timed out waiting for cache index lock: {lock_path}")
+            time.sleep(poll_interval)
         try:
             yield
         finally:
+            self._release_portable_lock(lock_path, owner_record)
+
+    def _try_create_portable_lock(self, lock_path: Path) -> str | None:
+        """Atomically create ``lock_path`` and return its unique owner record."""
+        owner_record = f"{os.getpid()}:{secrets.token_hex(16)}"
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return None
+        try:
+            payload = owner_record.encode("ascii")
+            offset = 0
+            while offset < len(payload):
+                written = os.write(fd, payload[offset:])
+                if written <= 0:
+                    raise OSError("failed to write cache lock owner record")
+                offset += written
+        except BaseException:
+            os.close(fd)
             lock_path.unlink(missing_ok=True)
+            raise
+        os.close(fd)
+        return owner_record
 
-    def _reclaim_stale_lock(self, lock_path: Path) -> bool:
-        """Remove ``lock_path`` and return ``True`` if its recorded owner is dead.
-
-        Only a lock file whose contents are a plain PID written by
-        :meth:`_portable_lock` is ever eligible for reclaim; anything else
-        (empty, mid-write, or from before this check existed) is left for the
-        caller's own timeout to handle, so an ambiguous lock is never
-        force-cleared out from under a process that may still hold it.
-        """
+    def _read_portable_lock_record(self, lock_path: Path) -> tuple[int, str] | None:
         try:
             content = lock_path.read_text(encoding="ascii").strip()
-            pid = int(content)
+            pid_text, separator, token = content.partition(":")
+            if separator and not token:
+                return None
+            pid = int(pid_text)
         except (OSError, UnicodeDecodeError, ValueError):
-            return False
-        if _pid_is_alive(pid):
-            return False
+            return None
+        return pid, content
+
+    def _release_portable_lock(self, lock_path: Path, owner_record: str) -> None:
+        current = self._read_portable_lock_record(lock_path)
+        if current is None or current[1] != owner_record:
+            return
         lock_path.unlink(missing_ok=True)
-        return True
+
+    def _reclaim_stale_lock(self, lock_path: Path) -> str | None:
+        """Atomically replace a dead owner's lock and return our owner record.
+
+        Only a lock file whose contents are a plain PID written by
+        an older SDK or a PID plus unique token written by this version is
+        eligible. Reclaimers for the exact observed record serialize through
+        an exclusive claim file, re-read the owner record while holding that
+        claim, and create the replacement lock before releasing the claim.
+        A second waiter therefore cannot unlink the first waiter's newly
+        created live lock after both initially observed the same stale file.
+        """
+        observed = self._read_portable_lock_record(lock_path)
+        if observed is None:
+            return None
+        pid, owner_record = observed
+        if _pid_is_alive(pid):
+            return None
+
+        claim_digest = hashlib.sha256(owner_record.encode("ascii")).hexdigest()
+        claim_path = lock_path.with_name(f"{lock_path.name}.reclaim-{claim_digest}")
+        claim_record = self._try_create_portable_lock(claim_path)
+        if claim_record is None:
+            return None
+        try:
+            current = self._read_portable_lock_record(lock_path)
+            if current is None or current[1] != owner_record:
+                return None
+            try:
+                lock_path.unlink()
+            except FileNotFoundError:
+                return None
+            # Keep the record-specific claim until after this exclusive
+            # create. Ordinary contenders may win the unlink/create gap, but
+            # then this returns None and waits; no second stale reclaimer can
+            # remove whichever live replacement won.
+            return self._try_create_portable_lock(lock_path)
+        finally:
+            self._release_portable_lock(claim_path, claim_record)
 
     def _load_index_state_or_none(self, index_path: Path) -> tuple[int, list[str]] | None:
         """Load ``(generation, keys)``, distinguishing "never written" from "corrupted".
