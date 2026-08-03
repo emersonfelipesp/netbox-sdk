@@ -233,6 +233,20 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
                 inherited_confirmation=(inherited_confirmation or CONFIRMATION in tokens[:index]),
             ):
                 return True
+        if name == "eval":
+            # The shell builtin `eval` joins its remaining arguments with a
+            # space and re-parses the result as a command, e.g. `eval 'nbx
+            # dcim devices delete --id 7'`. Quoting collapses that argument
+            # into a single shlex token whose literal basename is never
+            # "nbx", so the checks above would silently miss it. Re-run the
+            # full detector against the reassembled argument text instead of
+            # trusting the pre-eval token shape.
+            remaining = tokens[index + 1 :]
+            if remaining and command_has_unconfirmed_write(
+                " ".join(remaining),
+                inherited_confirmation=(inherited_confirmation or CONFIRMATION in tokens[:index]),
+            ):
+                return True
     return False
 
 

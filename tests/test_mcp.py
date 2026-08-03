@@ -567,6 +567,39 @@ def test_hook_blocks_unconfirmed_nested_plugin_catalog_write() -> None:
     assert allowed.stdout == ""
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "eval 'nbx dcim devices delete --id 7'",
+        "eval nbx dcim devices delete --id 7",
+        "sudo eval 'nbx dcim devices delete --id 7'",
+        "eval 'nbx call DELETE /api/dcim/devices/1/'",
+        "eval 'nbx branching delete 7 --yes'",
+    ],
+)
+def test_hook_blocks_unconfirmed_write_via_eval(command: str) -> None:
+    """`eval 'nbx dcim devices delete --id 7'` quotes the whole invocation into
+    a single shlex token that is never literally ``nbx`` and never sits at the
+    command-name position, so neither the literal-token check nor the shell-
+    expanded-executable-name check above can see it. The shell still executes
+    the reassembled write, so the hook must re-parse `eval`'s argument text
+    rather than treating it as an opaque, unprovable positional."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_eval() -> None:
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 eval 'nbx dcim devices delete --id 7'")
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_eval_of_read_only_command() -> None:
+    result = _run_hook("eval 'nbx dcim devices list'")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
 def test_is_loopback_host() -> None:
     assert is_loopback_host("127.0.0.1")
     assert is_loopback_host("localhost")

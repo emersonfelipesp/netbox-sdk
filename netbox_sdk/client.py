@@ -21,7 +21,7 @@ from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, TypeAlias
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -281,6 +281,27 @@ class NetBoxApiClient:
             raise ValueError("Request path must not include query parameters or fragments")
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
         segments = normalized.split("/")
+        # aiohttp builds its outbound request from this string via
+        # yarl.URL(str, encoded=False), which percent-decodes each "/"
+        # -delimited segment before resolving "."/".." dot segments — so a
+        # percent-encoded alias such as "/api/dcim/%2e%2e/ipam/prefixes/5/"
+        # resolves to the canonical "/api/ipam/prefixes/5/" on the wire even
+        # though neither segment is a literal "." or "..". Decoding each
+        # segment here (without treating an encoded "%2f" as a separator,
+        # matching yarl) and substituting only the segments that decode to a
+        # literal dot keeps the path used for cache keys, the cache-
+        # generation fence, and invalidate_path() in lockstep with what is
+        # actually sent — otherwise such a write mutates the canonical
+        # resource while invalidating cache entries keyed to the literal
+        # encoded alias, leaving the canonical cached entries stale and
+        # servable by a verification read.
+        decoded_segments = [unquote(segment) for segment in segments]
+        if "." in decoded_segments or ".." in decoded_segments:
+            segments = [
+                decoded if decoded in (".", "..") else original
+                for original, decoded in zip(segments, decoded_segments)
+            ]
+            normalized = "/".join(segments)
         if "." in segments or ".." in segments:
             # Resolve dot segments the same way the outbound request's own
             # urljoin() in build_url() already does, so the path used for

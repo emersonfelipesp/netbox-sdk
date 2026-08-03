@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import stat
@@ -759,6 +760,61 @@ async def test_api_client_write_through_dot_segment_alias_invalidates_canonical_
     assert client._cache.load(key) is None
 
 
+@pytest.mark.asyncio
+async def test_api_client_write_through_percent_encoded_dot_segment_invalidates_canonical_cache(
+    monkeypatch, tmp_path
+) -> None:
+    """Same hazard as the literal-dot-segment alias test above, but for a
+    percent-encoded alias (e.g. "/api/dcim/%2e%2e/ipam/prefixes/5/"). aiohttp
+    builds its outbound request via yarl.URL(str, encoded=False), which
+    percent-decodes each path segment and resolves the resulting dot segments
+    before the request hits the wire — so this alias also lands on the
+    canonical resource, even though neither "%2e" nor "%2E" is a literal "."
+    that urljoin()/posixpath.normpath() alone would catch. If the cache key,
+    generation fence, and invalidate_path() used the literal encoded alias
+    instead, the canonical cached entry would survive the write."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    canonical_path = "/api/ipam/prefixes/5/"
+    alias_path = "/api/dcim/%2e%2e/ipam/prefixes/5/"
+
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "prefix": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "prefix": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", canonical_path)
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=canonical_path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(key) is not None
+
+    patch_response = await client.request("PATCH", alias_path, payload={"prefix": "new"})
+    assert patch_response.status == 200
+
+    assert client._cache.load(key) is None
+
+
 def test_refresh_skips_persistence_when_generation_advanced_by_concurrent_write(tmp_path) -> None:
     """Mirrors save()'s fencing: a 304 revalidation must not resurrect an
     entry that a concurrent write already purged via invalidate_path()."""
@@ -882,6 +938,114 @@ def test_portable_lock_raises_timeout_instead_of_silent_corruption(tmp_path) -> 
     with pytest.raises(TimeoutError):
         with store._portable_lock(lock_path, timeout=0.05, poll_interval=0.01):
             pass  # pragma: no cover - must not be reached
+
+
+def test_portable_lock_reclaims_lock_left_by_dead_process(tmp_path) -> None:
+    """A lock file recording a PID that no longer exists (the process crashed
+    while holding it) must be reclaimed near-instantly rather than blocking
+    every later cacheable request for the full timeout — left unreclaimed, a
+    single crash would permanently poison this cache path forever, since
+    nothing else ever removes the file."""
+    store = HttpCacheStore(tmp_path)
+    lock_path = tmp_path / "idx-test.json.lock"
+    # A PID vanishingly unlikely to be alive; os.kill(pid, 0) raises
+    # ProcessLookupError for it, which _pid_is_alive() treats as dead.
+    dead_pid = 999_999
+    lock_path.write_text(str(dead_pid), encoding="ascii")
+
+    started = time.monotonic()
+    with store._portable_lock(lock_path, timeout=5.0, poll_interval=0.5):
+        pass
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0  # reclaimed immediately, not after waiting out poll_interval/timeout
+
+
+def test_portable_lock_does_not_reclaim_lock_held_by_live_process(tmp_path) -> None:
+    """A lock file recording the current (definitely alive) process's own PID
+    must not be reclaimed out from under it — only a provably dead owner is
+    eligible, so this still raises the bounded timeout rather than silently
+    stealing a lock a live process holds."""
+    store = HttpCacheStore(tmp_path)
+    lock_path = tmp_path / "idx-test.json.lock"
+    lock_path.write_text(str(os.getpid()), encoding="ascii")
+
+    with pytest.raises(TimeoutError):
+        with store._portable_lock(lock_path, timeout=0.05, poll_interval=0.01):
+            pass  # pragma: no cover - must not be reached
+
+
+def test_path_generation_degrades_to_sentinel_when_lock_unavailable(monkeypatch, tmp_path) -> None:
+    """When the per-path lock cannot be acquired (e.g. an ambiguous lock file
+    that the timeout can never resolve), path_generation() must degrade to the
+    _LOCK_UNAVAILABLE_GENERATION sentinel instead of propagating TimeoutError
+    — a lock outage must never block the cacheable GET this fence exists to
+    protect from ever reaching NetBox."""
+    import netbox_sdk.http_cache as http_cache_module
+
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/"
+
+    @contextlib.contextmanager
+    def _always_times_out(self, index_path):
+        raise TimeoutError("simulated lock outage")
+        yield  # pragma: no cover - unreachable, satisfies generator shape
+
+    monkeypatch.setattr(HttpCacheStore, "_locked_index", _always_times_out)
+
+    assert store.path_generation(path) == http_cache_module._LOCK_UNAVAILABLE_GENERATION
+
+
+def test_save_and_refresh_degrade_gracefully_when_lock_unavailable(tmp_path) -> None:
+    """save() and refresh() must return the in-memory/refreshed entry rather
+    than raising when the per-path lock cannot be acquired — a response was
+    already received successfully from NetBox, so a caching failure must
+    never turn a successful request into a raised exception."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://demo.netbox.dev", method="GET", path=path, query=None, authorization=None
+    )
+
+    from netbox_sdk.http_cache import _LOCK_UNAVAILABLE_GENERATION
+
+    entry = store.save(
+        key,
+        ApiResponse(status=200, text='{"data": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=_LOCK_UNAVAILABLE_GENERATION,
+    )
+    assert entry.text == '{"data": true}'
+    # Not persisted: the sentinel short-circuits before any index/entry write.
+    assert store.load(key) is None
+
+    refreshed = store.refresh(
+        key, entry, policy, path=path, expected_generation=_LOCK_UNAVAILABLE_GENERATION
+    )
+    assert refreshed.text == entry.text
+    assert store.load(key) is None
+
+    @contextlib.contextmanager
+    def _always_times_out(self, index_path):
+        raise TimeoutError("simulated lock outage")
+        yield  # pragma: no cover - unreachable, satisfies generator shape
+
+    original_locked_index = HttpCacheStore._locked_index
+    HttpCacheStore._locked_index = _always_times_out  # type: ignore[method-assign]
+    try:
+        entry_no_fence = store.save(
+            key, ApiResponse(status=200, text='{"data": true}', headers={}), policy, path=path
+        )
+        assert entry_no_fence.text == '{"data": true}'
+        assert store.load(key) is None
+
+        refreshed_no_fence = store.refresh(key, entry_no_fence, policy, path=path)
+        assert refreshed_no_fence.text == entry_no_fence.text
+        assert store.load(key) is None
+    finally:
+        HttpCacheStore._locked_index = original_locked_index  # type: ignore[method-assign]
 
 
 def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> None:

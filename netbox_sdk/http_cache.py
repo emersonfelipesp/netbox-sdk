@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import stat
+import sys
 import tempfile
 import time
 from collections.abc import Iterator
@@ -32,6 +33,44 @@ QueryParams = dict[str, QueryParamValue]
 
 DEFAULT_FRESH_TTL_SECONDS = 60.0
 DEFAULT_STALE_IF_ERROR_SECONDS = 300.0
+
+# Real generations start at 0 and only ever increase, so this sentinel can
+# never collide with one. Returned by path_generation() when the per-path
+# lock could not be acquired, so callers treat "fencing was unavailable" the
+# same as "the generation moved on" (skip persisting) instead of the lock
+# outage blocking the request that fence exists to protect.
+_LOCK_UNAVAILABLE_GENERATION = -1
+
+
+def _pid_is_alive(pid: int) -> bool:
+    """Best-effort check for whether ``pid`` still names a running process.
+
+    Used only to decide whether a portable lock file (see ``_portable_lock``)
+    was left behind by a process that has since died, versus one still
+    legitimately holding it. Errors this function cannot interpret are
+    treated as "alive" so a lock is never reclaimed out from under a holder
+    this check simply failed to observe correctly.
+    """
+    if pid <= 0:
+        return False
+    if sys.platform == "win32":  # pragma: no cover - exercised only on Windows
+        import ctypes
+
+        process_query_limited_information = 0x1000
+        handle = ctypes.windll.kernel32.OpenProcess(  # type: ignore[attr-defined]
+            process_query_limited_information, False, pid
+        )
+        if not handle:
+            return False
+        ctypes.windll.kernel32.CloseHandle(handle)  # type: ignore[attr-defined]
+        return True
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except OSError:
+        return True
+    return True
 
 
 class CachePolicy(BaseModel):
@@ -187,15 +226,31 @@ class HttpCacheStore:
         if not path:
             self._write_entry(self._entry_path(key), entry)
             return entry
+        if expected_generation == _LOCK_UNAVAILABLE_GENERATION:
+            # path_generation() already found the lock unavailable and
+            # returned this sentinel; retrying the same lock here would only
+            # repeat that outage for no benefit, since the mismatch below
+            # would discard the write anyway.
+            return entry
         index_path = self._index_path_file(path)
-        with self._locked_index(index_path):
-            generation, keys = self._load_index_state(index_path)
-            if expected_generation is not None and generation != expected_generation:
-                return entry
-            if key not in keys:
-                keys.append(key)
-            self._write_index_state(index_path, generation, keys)
-            self._write_entry(self._entry_path(key), entry)
+        try:
+            with self._locked_index(index_path):
+                generation, keys = self._load_index_state(index_path)
+                if expected_generation is not None and generation != expected_generation:
+                    return entry
+                if key not in keys:
+                    keys.append(key)
+                self._write_index_state(index_path, generation, keys)
+                self._write_entry(self._entry_path(key), entry)
+        except TimeoutError:
+            # A response was already received; failing to persist it to the
+            # cache must never turn a successful request into a raised
+            # exception. Log and return the in-memory entry unpersisted.
+            logger.warning(
+                "netbox_sdk cache index lock unavailable while saving %s; response was not cached",
+                path,
+                extra={"nbx_event": "cache_lock_timeout", "request_path": path},
+            )
         return entry
 
     def path_generation(self, path: str) -> int:
@@ -204,11 +259,25 @@ class HttpCacheStore:
         Pass the returned value back to :meth:`save` as ``expected_generation``
         so a response that raced a concurrent write can detect the invalidation
         and skip persisting itself.
+
+        If the per-path lock cannot be acquired — a stale lock predating
+        PID-based reclamation, or genuine contention outliving the timeout —
+        this degrades to :data:`_LOCK_UNAVAILABLE_GENERATION` rather than
+        propagating the failure. A lock outage must never block the GET this
+        fence exists to protect from ever reaching NetBox.
         """
         index_path = self._index_path_file(path)
-        with self._locked_index(index_path):
-            generation, _keys = self._load_index_state(index_path)
-            return generation
+        try:
+            with self._locked_index(index_path):
+                generation, _keys = self._load_index_state(index_path)
+                return generation
+        except TimeoutError:
+            logger.warning(
+                "netbox_sdk cache index lock unavailable for %s; skipping cache for this request",
+                path,
+                extra={"nbx_event": "cache_lock_timeout", "request_path": path},
+            )
+            return _LOCK_UNAVAILABLE_GENERATION
 
     def refresh(
         self,
@@ -249,15 +318,24 @@ class HttpCacheStore:
         if not path:
             self._write_entry(self._entry_path(key), refreshed)
             return refreshed
+        if expected_generation == _LOCK_UNAVAILABLE_GENERATION:
+            return refreshed
         index_path = self._index_path_file(path)
-        with self._locked_index(index_path):
-            generation, keys = self._load_index_state(index_path)
-            if expected_generation is not None and generation != expected_generation:
-                return refreshed
-            if key not in keys:
-                keys.append(key)
-            self._write_index_state(index_path, generation, keys)
-            self._write_entry(self._entry_path(key), refreshed)
+        try:
+            with self._locked_index(index_path):
+                generation, keys = self._load_index_state(index_path)
+                if expected_generation is not None and generation != expected_generation:
+                    return refreshed
+                if key not in keys:
+                    keys.append(key)
+                self._write_index_state(index_path, generation, keys)
+                self._write_entry(self._entry_path(key), refreshed)
+        except TimeoutError:
+            logger.warning(
+                "netbox_sdk cache index lock unavailable while refreshing %s; entry was not persisted",
+                path,
+                extra={"nbx_event": "cache_lock_timeout", "request_path": path},
+            )
         return refreshed
 
     def invalidate_path(self, path: str) -> None:
@@ -333,26 +411,57 @@ class HttpCacheStore:
 
         ``O_CREAT | O_EXCL`` atomic exclusive-create is guaranteed by every
         supported filesystem, unlike ``fcntl.flock``. Unlike ``flock``, the
-        lock file is not released automatically if the holding process dies,
-        so a bounded ``timeout`` raises rather than deadlocking forever —
-        strictly safer than the previous no-op, which corrupted the index
-        silently instead of failing loudly.
+        lock file is not released automatically if the holding process dies.
+        The lock file records the creating process's PID so a waiter that
+        finds the file already present can tell a genuinely held lock apart
+        from one abandoned by a crashed process and reclaim the latter
+        immediately instead of waiting out the full ``timeout`` — left
+        unreclaimed, a crash here would poison every later cacheable request
+        through this path forever, since nothing else ever removes the file.
+        A lock file this check cannot attribute to a live or dead PID (e.g.
+        one left by an older SDK version, or read mid-write) is left alone
+        and only cleared by the bounded ``timeout`` below, which still raises
+        rather than deadlocking forever.
         """
         deadline = time.monotonic() + timeout
         while True:
             try:
                 fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             except FileExistsError:
+                if self._reclaim_stale_lock(lock_path):
+                    continue
                 if time.monotonic() >= deadline:
                     raise TimeoutError(f"timed out waiting for cache index lock: {lock_path}")
                 time.sleep(poll_interval)
                 continue
-            os.close(fd)
+            try:
+                os.write(fd, str(os.getpid()).encode("ascii"))
+            finally:
+                os.close(fd)
             break
         try:
             yield
         finally:
             lock_path.unlink(missing_ok=True)
+
+    def _reclaim_stale_lock(self, lock_path: Path) -> bool:
+        """Remove ``lock_path`` and return ``True`` if its recorded owner is dead.
+
+        Only a lock file whose contents are a plain PID written by
+        :meth:`_portable_lock` is ever eligible for reclaim; anything else
+        (empty, mid-write, or from before this check existed) is left for the
+        caller's own timeout to handle, so an ambiguous lock is never
+        force-cleared out from under a process that may still hold it.
+        """
+        try:
+            content = lock_path.read_text(encoding="ascii").strip()
+            pid = int(content)
+        except (OSError, UnicodeDecodeError, ValueError):
+            return False
+        if _pid_is_alive(pid):
+            return False
+        lock_path.unlink(missing_ok=True)
+        return True
 
     def _load_index_state(self, index_path: Path) -> tuple[int, list[str]]:
         """Load ``(generation, keys)`` for a per-path index file.
