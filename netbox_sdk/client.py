@@ -63,6 +63,30 @@ _scoped_headers: contextvars.ContextVar[dict[str, str] | None] = contextvars.Con
 )
 
 
+def _extract_case_insensitive(
+    headers: dict[str, str], name: str
+) -> tuple[str | None, dict[str, str]]:
+    """Pop every case variant of header ``name`` from ``headers``.
+
+    Returns the value of the highest-precedence match (the last one
+    encountered in insertion order, since callers build ``headers`` by
+    layering lower-precedence sources first) and a new dict with all
+    matching keys removed. Plain dicts are case-sensitive, but HTTP header
+    names are not, so without this a caller-supplied "authorization" and a
+    configured "Authorization" would be treated as two independent headers
+    instead of one overriding the other.
+    """
+    target = name.lower()
+    value: str | None = None
+    remaining: dict[str, str] = {}
+    for key, header_value in headers.items():
+        if key.lower() == target:
+            value = header_value
+        else:
+            remaining[key] = header_value
+    return value, remaining
+
+
 class ApiResponse(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -313,8 +337,14 @@ class NetBoxApiClient:
         req_headers.update(scoped)
         req_headers.update(headers or {})
         req_headers.setdefault("Accept", "text/event-stream")
-        if authorization:
-            req_headers["Authorization"] = authorization
+        # Strip every case variant before re-adding the canonical header, so a
+        # caller-supplied lower-case "authorization" cannot end up sent
+        # alongside a separately-cased "Authorization" as two distinct
+        # headers.
+        caller_authorization, req_headers = _extract_case_insensitive(req_headers, "Authorization")
+        effective_authorization = caller_authorization or authorization
+        if effective_authorization:
+            req_headers["Authorization"] = effective_authorization
 
         stream_timeout = 7200.0 if timeout is None else timeout
         request_timeout = aiohttp.ClientTimeout(total=stream_timeout, sock_read=None)
@@ -420,17 +450,31 @@ class NetBoxApiClient:
         scoped = _scoped_headers.get() or {}
         req_headers.update(scoped)
         req_headers.update(headers or {})
+        # HTTP header names are case-insensitive, but a plain dict is not: a
+        # caller-supplied "authorization" or "AUTHORIZATION" header would
+        # otherwise sit alongside "Authorization" as a distinct dict key,
+        # never be picked up by the exact-case lookup below, and so be sent
+        # to NetBox with the real credential while cached under the
+        # configured/anonymous identity instead — letting a later anonymous
+        # or differently-cased read hit that cache entry. Extract and strip
+        # every case variant up front so exactly one Authorization value (and
+        # header) survives.
+        caller_authorization, req_headers = _extract_case_insensitive(req_headers, "Authorization")
         # A per-call bearer (e.g. MCP's persistent_headers override for a
         # forwarded caller token) must scope the cache key too, or requests
         # made under different tokens collide on the same cached response.
-        effective_authorization = req_headers.get("Authorization") or authorization
+        effective_authorization = caller_authorization or authorization
         # Any other header that can change the response representation (e.g.
         # X-NetBox-Branch) must scope the cache key too, or a same-token read
         # in one NetBox Branching schema can serve a response cached from a
-        # different schema without ever contacting NetBox.
-        scope_headers = {
-            name: value for name, value in req_headers.items() if name.lower() != "authorization"
-        }
+        # different schema without ever contacting NetBox. req_headers no
+        # longer contains any Authorization variant, so it can be used as-is.
+        scope_headers = dict(req_headers)
+        # Restore exactly one canonically-cased Authorization header now that
+        # every case variant has been resolved, so req_headers stays a normal
+        # single-source-of-truth headers dict for downstream callers.
+        if effective_authorization:
+            req_headers["Authorization"] = effective_authorization
         if cache_policy is not None and self.config.base_url:
             cache_key = build_cache_key(
                 base_url=self.config.base_url,

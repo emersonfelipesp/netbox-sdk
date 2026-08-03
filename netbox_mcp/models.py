@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import posixpath
 from typing import Annotated, Any, Literal
+from urllib.parse import unquote
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
@@ -116,10 +118,24 @@ class CallInput(ToolInput):
     @classmethod
     def _validate_path(cls, value: str) -> str:
         path = value.strip()
-        if not path.startswith("/api/"):
-            raise ValueError("path must begin with /api/")
         if any(character in path for character in ("\r", "\n", "\x00", "?", "#")):
             raise ValueError("path must not contain controls, a query string, or a fragment")
-        if "://" in path:
-            raise ValueError("path must be relative to the configured NetBox instance")
+        if "://" in path or "\\" in path:
+            raise ValueError("path must be a relative /api/ path with no backslashes")
+        if not path.startswith("/api/"):
+            raise ValueError("path must begin with /api/")
+        # A reverse proxy or NetBox itself may percent-decode and resolve dot
+        # segments server-side even though this client never does, so a raw
+        # path passing the prefix check above (e.g. "/api/../admin/" or its
+        # percent-encoded form) can still land outside /api/ once decoded and
+        # normalized downstream. Reject anything that would escape /api/ after
+        # decoding, without changing what actually gets sent on the wire.
+        decoded = unquote(path)
+        if any(character in decoded for character in ("\r", "\n", "\x00")) or "\\" in decoded:
+            raise ValueError("path must not contain controls or backslashes once decoded")
+        if "://" in decoded:
+            raise ValueError("path must be a relative /api/ path once decoded")
+        normalized = posixpath.normpath(decoded)
+        if normalized != "/api" and not normalized.startswith("/api/"):
+            raise ValueError("path must stay within /api/ once decoded and normalized")
         return path

@@ -249,6 +249,37 @@ async def test_stream_sse_yields_blocks_split_across_chunks(monkeypatch) -> None
     assert session.request_kwargs["timeout"].total == 7200.0
 
 
+async def test_stream_sse_prefers_case_insensitive_caller_authorization(monkeypatch) -> None:
+    """A caller-supplied lower-case "authorization" header must override the
+    client's own configured credential, and must not be sent alongside a
+    separately-cased "Authorization" header."""
+    cfg = Config(
+        base_url="https://netbox.example.com",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    session = _FakeSession(_FakeStreamResponse(200, [b"data: {}\n\n"]))
+
+    async def _fake_get_session() -> _FakeSession:
+        return session
+
+    monkeypatch.setattr(client, "_get_session", _fake_get_session)
+
+    _ = [
+        block
+        async for block in client.stream_sse(
+            "GET",
+            "/plugins/proxbox/jobs/42/stream/",
+            headers={"authorization": "Bearer caller-token"},
+        )
+    ]
+
+    sent_headers = session.request_kwargs["headers"]
+    assert sent_headers["Authorization"] == "Bearer caller-token"
+    assert "authorization" not in sent_headers
+
+
 async def test_stream_sse_raises_request_error_with_body(monkeypatch) -> None:
     client = NetBoxApiClient(Config(base_url="https://netbox.example.com"))
     session = _FakeSession(_FakeStreamResponse(403, [], text="permission denied"))

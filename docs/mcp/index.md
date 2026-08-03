@@ -16,15 +16,19 @@ nbx-mcp
 stdio is the default transport. For Streamable HTTP:
 
 ```bash
-nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
+nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000 --auth-token "$NETBOX_MCP_AUTH_TOKEN"
 ```
 
-The MCP endpoint is `/mcp`. Binding to a non-loopback `--host` (anything other
-than `127.0.0.1`, `localhost`, or `::1`) requires a shared-secret bearer token
-via `--auth-token` or `NETBOX_MCP_AUTH_TOKEN`; the server raises `RuntimeError`
-and refuses to start without one. Loopback binds may omit the token. Put TLS
-termination in front of it when it is exposed beyond the local host — the
-bearer token authenticates the caller, it does not encrypt the transport.
+The MCP endpoint is `/mcp`. Every Streamable HTTP bind requires a
+shared-secret bearer token via `--auth-token` or `NETBOX_MCP_AUTH_TOKEN`; the
+server raises `RuntimeError` and refuses to start without one, including on
+loopback hosts (`127.0.0.1`, `localhost`, `::1`). Binding to loopback only
+restricts *reachability* to this machine — it does not *authenticate* other
+local processes or users, who could otherwise reach the server's loaded
+NetBox credential (and any active `--allow-mutations` window) unauthenticated
+on a shared dev or bastion host. Put TLS termination in front of it when it
+is exposed beyond the local host — the bearer token authenticates the
+caller, it does not encrypt the transport.
 
 ## Tool surface
 

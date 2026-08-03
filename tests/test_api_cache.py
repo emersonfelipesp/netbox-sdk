@@ -6,13 +6,15 @@ import json
 import os
 import stat
 import sys
+import threading
+import time
 from collections import deque
 
 import pytest
 
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
-from netbox_sdk.http_cache import CachePolicy, build_cache_key
+from netbox_sdk.http_cache import CachePolicy, HttpCacheStore, build_cache_key
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -229,6 +231,48 @@ async def test_api_client_cache_key_scopes_per_call_bearer_override(monkeypatch,
 
 
 @pytest.mark.asyncio
+async def test_api_client_cache_key_treats_authorization_case_insensitively(
+    monkeypatch, tmp_path
+) -> None:
+    """A caller-supplied lower-case "authorization" header must resolve to the
+    same identity as "Authorization" for both the outgoing request and the
+    cache key. Without case folding, a plain-dict header merge would treat
+    them as two independent headers: the wrong (or missing) credential could
+    be used for the cache key while the real one is sent on the wire, letting
+    an anonymous or differently-cased later request hit the first caller's
+    cached response."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(base_url="https://demo.netbox.dev")
+    client = NetBoxApiClient(cfg)
+    calls: list[dict[str, object]] = []
+
+    async def _fake_request_once(self, session, *, authorization, **kwargs):
+        calls.append({"authorization": authorization, **kwargs})
+        return ApiResponse(status=200, text='{"results": [1]}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    response_lower = await client.request(
+        "GET", "/api/dcim/devices/", headers={"authorization": "Bearer token-a"}
+    )
+    response_proper = await client.request(
+        "GET", "/api/dcim/devices/", headers={"Authorization": "Bearer token-a"}
+    )
+    response_anonymous = await client.request("GET", "/api/dcim/devices/")
+
+    assert response_lower.headers["X-NBX-Cache"] == "MISS"
+    assert response_proper.headers["X-NBX-Cache"] == "HIT"
+    assert response_anonymous.headers["X-NBX-Cache"] == "MISS"
+    assert len(calls) == 2
+    assert calls[0]["authorization"] == "Bearer token-a"
+    assert calls[0]["headers"]["Authorization"] == "Bearer token-a"
+    assert "authorization" not in calls[0]["headers"]
+    assert calls[1]["authorization"] is None
+
+
+@pytest.mark.asyncio
 async def test_api_client_cache_key_scopes_per_branch_header(monkeypatch, tmp_path) -> None:
     """A same-token GET under two different NetBox Branching schemas
     (``X-NetBox-Branch``) must never collide on the same cached entry — a
@@ -363,3 +407,38 @@ async def test_api_client_bulk_write_invalidates_individual_detail_paths(
     detail_after = await client.request("GET", "/api/dcim/devices/7/")
     assert detail_after.headers["X-NBX-Cache"] == "MISS"
     assert json.loads(detail_after.text)["name"] == "new"
+
+
+def test_record_path_index_survives_concurrent_writes_with_locking(tmp_path) -> None:
+    """Two concurrent saves for the same path (e.g. two tokens reading it) must
+    not lose either other's key from the on-disk index. Without locking, an
+    unlocked read-modify-write can drop one key: a later invalidate_path would
+    then never purge the dropped entry, leaving it servable as a stale hit."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/"
+    original_write = store._write_index
+    write_started = threading.Event()
+    release_write = threading.Event()
+
+    def _slow_write(index_path, keys):
+        write_started.set()
+        release_write.wait(timeout=5)
+        original_write(index_path, keys)
+
+    store._write_index = _slow_write  # type: ignore[method-assign]
+
+    thread_a = threading.Thread(target=lambda: store._record_path_index(path, "key-a"))
+    thread_a.start()
+    assert write_started.wait(timeout=5)
+
+    thread_b = threading.Thread(target=lambda: store._record_path_index(path, "key-b"))
+    thread_b.start()
+    time.sleep(0.05)
+    assert thread_b.is_alive()  # still blocked on the lock
+
+    release_write.set()
+    thread_a.join(timeout=5)
+    thread_b.join(timeout=5)
+
+    keys = store._load_index(store._index_path_file(path))
+    assert sorted(keys) == ["key-a", "key-b"]

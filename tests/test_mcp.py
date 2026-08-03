@@ -130,6 +130,38 @@ def test_tool_argument_models_reject_malformed_input() -> None:
         )
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/api/../admin/",
+        "/api/dcim/../../admin/",
+        "/api/%2e%2e/admin/",
+        "/api/%2e%2e%2fadmin/",
+        "/api/dcim/%2E%2E/%2E%2E/admin/",
+    ],
+)
+def test_call_input_rejects_path_traversal_outside_api(path: str) -> None:
+    """A raw path may pass the literal "/api/" prefix check yet still resolve
+    outside it once a reverse proxy or NetBox itself decodes percent-escapes
+    and normalizes dot segments server-side. Both literal and percent-encoded
+    traversal must be rejected even though this client never decodes/sends a
+    normalized path itself."""
+    with pytest.raises(ValidationError):
+        CallInput.model_validate({"method": "GET", "path": path})
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/api/dcim/devices/",
+        "/api/dcim/devices/7/",
+        "/api/plugins/proxbox/endpoints/proxmox/",
+    ],
+)
+def test_call_input_accepts_ordinary_api_paths(path: str) -> None:
+    assert CallInput.model_validate({"method": "GET", "path": path}).path == path
+
+
 async def test_fastmcp_generated_schema_rejects_invalid_id() -> None:
     server = create_mcp_server(_service(_MockClient()))
     with pytest.raises(Exception, match="greater than 0"):
@@ -415,7 +447,10 @@ def test_run_streamable_http_reads_auth_token_from_env(monkeypatch) -> None:
     assert captured["auth_token"] == "env-secret"
 
 
-def test_run_streamable_http_allows_loopback_without_token(monkeypatch) -> None:
+def test_run_streamable_http_fails_closed_on_loopback_without_token(monkeypatch) -> None:
+    # Binding to a loopback host only restricts *reachability* to this
+    # machine; it does not *authenticate* other local processes or users, so
+    # an auth token is required even here.
     monkeypatch.delenv(AUTH_TOKEN_ENV_VAR, raising=False)
     captured: dict[str, Any] = {}
 
@@ -424,6 +459,21 @@ def test_run_streamable_http_allows_loopback_without_token(monkeypatch) -> None:
 
     monkeypatch.setattr(netbox_mcp, "_run_streamable_http", _fake_run)
 
-    netbox_mcp.run(["--transport", "streamable-http"])
+    with pytest.raises(RuntimeError, match="loopback"):
+        netbox_mcp.run(["--transport", "streamable-http"])
 
-    assert captured == {"host": "127.0.0.1", "port": 8000, "auth_token": None}
+    assert captured == {}
+
+
+def test_run_streamable_http_allows_loopback_with_configured_token(monkeypatch) -> None:
+    monkeypatch.delenv(AUTH_TOKEN_ENV_VAR, raising=False)
+    captured: dict[str, Any] = {}
+
+    async def _fake_run(server: Any, *, host: str, port: int, auth_token: str | None) -> None:
+        captured.update(host=host, port=port, auth_token=auth_token)
+
+    monkeypatch.setattr(netbox_mcp, "_run_streamable_http", _fake_run)
+
+    netbox_mcp.run(["--transport", "streamable-http", "--auth-token", "secret"])
+
+    assert captured == {"host": "127.0.0.1", "port": 8000, "auth_token": "secret"}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import logging
@@ -9,11 +10,17 @@ import os
 import stat
 import tempfile
 import time
+from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - non-POSIX platforms (e.g. Windows)
+    fcntl = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from netbox_sdk.client import ApiResponse
@@ -178,10 +185,11 @@ class HttpCacheStore:
         path and, where applicable, its containing collection path.
         """
         index_path = self._index_path_file(path)
-        keys = self._load_index(index_path)
-        for key in keys:
-            self._entry_path(key).unlink(missing_ok=True)
-        index_path.unlink(missing_ok=True)
+        with self._locked_index(index_path):
+            keys = self._load_index(index_path)
+            for key in keys:
+                self._entry_path(key).unlink(missing_ok=True)
+            index_path.unlink(missing_ok=True)
 
     def _entry_path(self, key: str) -> Path:
         return self.root / f"{key}.json"
@@ -190,12 +198,39 @@ class HttpCacheStore:
         digest = hashlib.sha256(path.encode("utf-8")).hexdigest()
         return self.root / f"idx-{digest}.json"
 
+    @contextlib.contextmanager
+    def _locked_index(self, index_path: Path) -> Iterator[None]:
+        """Serialize read-modify-write access to ``index_path`` across processes.
+
+        ``_record_path_index`` and ``invalidate_path`` both do a
+        load-then-replace cycle on the same per-path index file. Without a
+        lock, two concurrent saves (e.g. the same path read under two
+        different tokens or branches) can each load the same old index and
+        overwrite it with only their own key, silently dropping the other
+        key from the index — a later write's ``invalidate_path`` would then
+        never purge the dropped entry, leaving it servable as a stale hit.
+        """
+        if fcntl is None:  # pragma: no cover - non-POSIX platforms
+            yield
+            return
+        lock_path = index_path.with_name(index_path.name + ".lock")
+        lock_handle = lock_path.open("a+")
+        try:
+            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            lock_handle.close()
+
     def _record_path_index(self, path: str, key: str) -> None:
         index_path = self._index_path_file(path)
-        keys = self._load_index(index_path)
-        if key not in keys:
-            keys.append(key)
-            self._write_index(index_path, keys)
+        with self._locked_index(index_path):
+            keys = self._load_index(index_path)
+            if key not in keys:
+                keys.append(key)
+                self._write_index(index_path, keys)
 
     def _load_index(self, index_path: Path) -> list[str]:
         if not index_path.exists():

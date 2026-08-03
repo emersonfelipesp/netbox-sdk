@@ -62,11 +62,14 @@ network-reachable rather than spawned as a local stdio subprocess.
 
 - Set the token via `--auth-token <value>` or `NETBOX_MCP_AUTH_TOKEN`
   (`--auth-token` wins if both are set).
-- Binding to a non-loopback `--host` (anything other than `127.0.0.1`,
-  `localhost`, or `::1`) without a configured token raises `RuntimeError`
-  and refuses to start — there is no unauthenticated non-loopback mode.
-- Loopback binds may omit the token; every request must still be behind
-  whatever forwards to `127.0.0.1`.
+- Every `--host` value, including loopback (`127.0.0.1`, `localhost`,
+  `::1`), requires a configured token — without one, `run()` raises
+  `RuntimeError` before the server binds. There is no unauthenticated mode
+  for this transport. Binding to loopback only restricts *reachability* to
+  the local machine; it does not *authenticate* other local processes or
+  users, who could otherwise reach the server's loaded NetBox credential
+  (and any active `--allow-mutations` window) on a shared dev or bastion
+  host.
 - Enforcement is a raw ASGI middleware (`netbox_mcp.app.BearerTokenMiddleware`)
   wrapping `FastMCP.streamable_http_app()`, not Starlette's
   `BaseHTTPMiddleware`, because `BaseHTTPMiddleware` buffers the full

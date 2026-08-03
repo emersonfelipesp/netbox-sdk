@@ -180,12 +180,16 @@ nbx-mcp
 Streamable HTTP is also available at `/mcp`:
 
 ```bash
-nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
+nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000 --auth-token "$NETBOX_MCP_AUTH_TOKEN"
 ```
 
-Binding to a non-loopback host requires a shared-secret bearer token via
+Every Streamable HTTP bind requires a shared-secret bearer token via
 `--auth-token` or `NETBOX_MCP_AUTH_TOKEN`; the server refuses to start
-without one. Loopback binds (`127.0.0.1`/`localhost`/`::1`) may omit it:
+without one, including on loopback hosts (`127.0.0.1`/`localhost`/`::1`).
+Binding to loopback only restricts *reachability* to this machine — it does
+not *authenticate* other local processes or users, who could otherwise reach
+the server's loaded NetBox credential (and any active `--allow-mutations`
+window) unauthenticated:
 
 ```bash
 nbx-mcp --transport streamable-http --host 0.0.0.0 --auth-token "$NETBOX_MCP_AUTH_TOKEN"

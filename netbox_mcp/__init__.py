@@ -10,7 +10,6 @@ from netbox_mcp.app import (
     AUTH_TOKEN_ENV_VAR,
     build_streamable_http_app,
     create_mcp_server,
-    is_loopback_host,
 )
 from netbox_mcp.service import MUTATION_ENV_VAR, NetBoxMCPService
 
@@ -46,8 +45,10 @@ def run(argv: list[str] | None = None) -> None:
         default=None,
         help=(
             "Shared-secret bearer token required of every Streamable HTTP caller "
-            f"(equivalent to {AUTH_TOKEN_ENV_VAR}). Required when --host is not "
-            "loopback."
+            f"(equivalent to {AUTH_TOKEN_ENV_VAR}). Required for every bind host, "
+            "including loopback: binding to 127.0.0.1 only restricts reachability "
+            "to this machine, it does not authenticate other local processes or "
+            "users."
         ),
     )
     parser.add_argument(
@@ -63,11 +64,16 @@ def run(argv: list[str] | None = None) -> None:
         import anyio
 
         auth_token = args.auth_token or os.environ.get(AUTH_TOKEN_ENV_VAR)
-        if not is_loopback_host(args.host) and not auth_token:
+        if not auth_token:
+            # Binding to a loopback host restricts *reachability* to this
+            # machine, but does not *authenticate* the caller: any other
+            # process or user on a shared dev/bastion host can still connect
+            # and act with this server's loaded NetBox credential (and any
+            # active --allow-mutations window). Require a token unconditionally.
             raise RuntimeError(
-                f"Refusing to bind Streamable HTTP to non-loopback host {args.host!r} "
-                f"without an auth token. Set --auth-token or {AUTH_TOKEN_ENV_VAR}, or "
-                "bind to 127.0.0.1/localhost/::1."
+                f"Refusing to bind Streamable HTTP to host {args.host!r} without "
+                f"an auth token. Set --auth-token or {AUTH_TOKEN_ENV_VAR} — this "
+                "is required even for loopback hosts."
             )
         anyio.run(
             lambda: _run_streamable_http(
