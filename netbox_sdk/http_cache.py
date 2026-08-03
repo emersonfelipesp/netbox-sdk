@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import os
 import stat
@@ -67,10 +68,26 @@ def build_cache_key(
     path: str,
     query: QueryParams | None,
     authorization: str | None,
+    scope_headers: dict[str, str] | None = None,
 ) -> str:
-    """Build a stable SHA-256 cache key from URL identity (no raw secrets in the key file name)."""
+    """Build a stable SHA-256 cache key from URL identity (no raw secrets in the key file name).
+
+    ``scope_headers`` must include every request header that can change the
+    server-side representation for an otherwise-identical method/path/query,
+    such as ``X-NetBox-Branch``. Two requests that differ only by such a
+    header (e.g. the same token reading two different NetBox Branching
+    schemas) must never collide on the same cached entry.
+    """
     encoded_query = urlencode(sorted((query or {}).items()), doseq=True)
     token_fingerprint = hashlib.sha256((authorization or "").encode("utf-8")).hexdigest()
+    normalized_scope = sorted(
+        (name.lower(), value)
+        for name, value in (scope_headers or {}).items()
+        if name.lower() != "authorization"
+    )
+    scope_fingerprint = hashlib.sha256(
+        "\n".join(f"{name}:{value}" for name, value in normalized_scope).encode("utf-8")
+    ).hexdigest()
     identity = "\n".join(
         [
             base_url.rstrip("/"),
@@ -78,6 +95,7 @@ def build_cache_key(
             path,
             encoded_query,
             token_fingerprint,
+            scope_fingerprint,
         ]
     )
     return hashlib.sha256(identity.encode("utf-8")).hexdigest()
@@ -115,7 +133,9 @@ class HttpCacheStore:
             )
             return None
 
-    def save(self, key: str, response: ApiResponse, policy: CachePolicy) -> CacheEntry:
+    def save(
+        self, key: str, response: ApiResponse, policy: CachePolicy, *, path: str | None = None
+    ) -> CacheEntry:
         now = time.time()
         headers = dict(response.headers)
         entry = CacheEntry(
@@ -129,6 +149,8 @@ class HttpCacheStore:
             last_modified=headers.get("Last-Modified"),
         )
         self._write_entry(self._entry_path(key), entry)
+        if path:
+            self._record_path_index(path, key)
         return entry
 
     def refresh(self, key: str, entry: CacheEntry, policy: CachePolicy) -> CacheEntry:
@@ -146,8 +168,62 @@ class HttpCacheStore:
         self._write_entry(self._entry_path(key), refreshed)
         return refreshed
 
+    def invalidate_path(self, path: str) -> None:
+        """Purge every cached entry ever saved for the literal request ``path``.
+
+        Entries are indexed by raw path (not the full cache key), so this
+        removes every cached response for ``path`` regardless of which query
+        string, scope headers, or bearer token produced it. Callers that know
+        a mutation may have changed a resource must invalidate both the exact
+        path and, where applicable, its containing collection path.
+        """
+        index_path = self._index_path_file(path)
+        keys = self._load_index(index_path)
+        for key in keys:
+            self._entry_path(key).unlink(missing_ok=True)
+        index_path.unlink(missing_ok=True)
+
     def _entry_path(self, key: str) -> Path:
         return self.root / f"{key}.json"
+
+    def _index_path_file(self, path: str) -> Path:
+        digest = hashlib.sha256(path.encode("utf-8")).hexdigest()
+        return self.root / f"idx-{digest}.json"
+
+    def _record_path_index(self, path: str, key: str) -> None:
+        index_path = self._index_path_file(path)
+        keys = self._load_index(index_path)
+        if key not in keys:
+            keys.append(key)
+            self._write_index(index_path, keys)
+
+    def _load_index(self, index_path: Path) -> list[str]:
+        if not index_path.exists():
+            return []
+        try:
+            data = json.loads(index_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        if not isinstance(data, list):
+            return []
+        return [str(item) for item in data]
+
+    def _write_index(self, index_path: Path, keys: list[str]) -> None:
+        payload = json.dumps(keys)
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=index_path.parent,
+            delete=False,
+        ) as handle:
+            handle.write(payload)
+            temp_path = Path(handle.name)
+        try:
+            temp_path.replace(index_path)
+        except OSError:
+            temp_path.unlink(missing_ok=True)
+            raise
+        self._set_private_permissions(index_path, stat.S_IRUSR | stat.S_IWUSR)
 
     def _write_entry(self, path: Path, entry: CacheEntry) -> None:
         payload = entry.model_dump_json()

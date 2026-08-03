@@ -248,6 +248,15 @@ async def run_dynamic_command(
     return await client.request(resolved.method, resolved.path, **request_kwargs)
 
 
+def _is_successful_page(response: ApiResponse, data: Any) -> bool:
+    """True if a pagination page is a real paginated envelope, not an error body.
+
+    A non-2xx status must never be treated as a valid page even if its body
+    happens to parse as JSON and contain a ``results`` key.
+    """
+    return 200 <= response.status < 300 and isinstance(data, dict) and "results" in data
+
+
 async def list_all_pages(
     client: NetBoxApiClient,
     index: SchemaIndex,
@@ -297,7 +306,7 @@ async def list_all_pages(
     except Exception:
         return response
 
-    if not isinstance(data, dict) or "results" not in data:
+    if not _is_successful_page(response, data):
         return response
 
     all_results: list[Any] = list(data.get("results", []))
@@ -325,9 +334,13 @@ async def list_all_pages(
         try:
             data = json.loads(response.text)
         except Exception:
-            break
-        if not isinstance(data, dict) or "results" not in data:
-            break
+            # A later page failed after earlier pages already succeeded. Do
+            # not synthesize a status-200 envelope from the partial results
+            # collected so far — that would tell the caller pagination
+            # completed when it did not. Propagate the raw failing response.
+            return response
+        if not _is_successful_page(response, data):
+            return response
         all_results.extend(data.get("results", []))
         next_url = data.get("next")
 

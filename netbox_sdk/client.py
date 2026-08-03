@@ -424,6 +424,13 @@ class NetBoxApiClient:
         # forwarded caller token) must scope the cache key too, or requests
         # made under different tokens collide on the same cached response.
         effective_authorization = req_headers.get("Authorization") or authorization
+        # Any other header that can change the response representation (e.g.
+        # X-NetBox-Branch) must scope the cache key too, or a same-token read
+        # in one NetBox Branching schema can serve a response cached from a
+        # different schema without ever contacting NetBox.
+        scope_headers = {
+            name: value for name, value in req_headers.items() if name.lower() != "authorization"
+        }
         if cache_policy is not None and self.config.base_url:
             cache_key = build_cache_key(
                 base_url=self.config.base_url,
@@ -431,6 +438,7 @@ class NetBoxApiClient:
                 path=path,
                 query=query,
                 authorization=effective_authorization,
+                scope_headers=scope_headers,
             )
             cache_entry = self._cache.load(cache_key)
             if cache_entry is not None and cache_entry.is_fresh(self._now()):
@@ -480,11 +488,14 @@ class NetBoxApiClient:
                 "status": response.status,
             },
         )
+        if method.upper() not in {"GET", "HEAD"} and 200 <= response.status < 300:
+            self._invalidate_related_cache(path, payload)
         return self._finalize_cached_response(
             response=response,
             cache_key=cache_key,
             cache_entry=cache_entry,
             cache_policy=cache_policy,
+            path=path,
         )
 
     async def _request_once(
@@ -668,6 +679,41 @@ class NetBoxApiClient:
             return False
         return parts[0] == "api"
 
+    def _collection_path_for(self, path: str) -> str | None:
+        """Derive the containing list path for a detail path, if any.
+
+        ``/api/dcim/devices/5/`` -> ``/api/dcim/devices/``. Used to purge the
+        collection's cached list/filter responses whenever a single object
+        underneath it is written.
+        """
+        parts = [part for part in path.split("/") if part]
+        if len(parts) < 2:
+            return None
+        return "/" + "/".join(parts[:-1]) + "/"
+
+    def _invalidate_related_cache(
+        self, path: str, payload: dict[str, Any] | list[Any] | None
+    ) -> None:
+        """Purge cached reads that a successful write to ``path`` may have staled.
+
+        A response cached before a write (e.g. the read-before-write step of
+        an agent's documented operating sequence) must never be served again
+        as if it reflected the write. This purges the exact path, its
+        containing collection path (list/filter reads), and — for bulk writes
+        whose payload is a list of objects carrying an ``id`` — each affected
+        object's own detail path, since bulk operations target the collection
+        path rather than individual detail paths.
+        """
+        self._cache.invalidate_path(path)
+        collection_path = self._collection_path_for(path)
+        if collection_path is not None and collection_path != path:
+            self._cache.invalidate_path(collection_path)
+        if isinstance(payload, list):
+            for item in payload:
+                if isinstance(item, dict) and "id" in item:
+                    detail_path = f"{path.rstrip('/')}/{item['id']}/"
+                    self._cache.invalidate_path(detail_path)
+
     def _cached_response(self, entry: CacheEntry, *, cache_status: str) -> ApiResponse:
         status, text, headers = entry.response_parts(cache_status=cache_status)
         return ApiResponse(status=status, text=text, headers=headers)
@@ -679,6 +725,7 @@ class NetBoxApiClient:
         cache_key: str | None,
         cache_entry: CacheEntry | None,
         cache_policy: CachePolicy | None,
+        path: str,
     ) -> ApiResponse:
         if cache_policy is None or cache_key is None:
             return response
@@ -686,7 +733,7 @@ class NetBoxApiClient:
             refreshed = self._cache.refresh(cache_key, cache_entry, cache_policy)
             return self._cached_response(refreshed, cache_status="REVALIDATED")
         if 200 <= response.status < 300:
-            stored = self._cache.save(cache_key, response, cache_policy)
+            stored = self._cache.save(cache_key, response, cache_policy, path=path)
             return self._cached_response(stored, cache_status="MISS")
         if (
             cache_entry is not None

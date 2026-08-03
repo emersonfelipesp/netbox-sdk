@@ -307,6 +307,57 @@ async def test_list_all_pages_respects_max_records():
     assert len(data["results"]) == 3
 
 
+async def test_list_all_pages_propagates_second_page_http_failure():
+    # A later page that comes back as an error must not be silently folded
+    # into a synthesized status=200 partial response — that would hide an
+    # outage or permission failure from callers requesting all=true.
+    page1 = {
+        "count": 3,
+        "next": "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2",
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=500, text='{"detail": "Internal Server Error"}'),
+        ]
+    )
+    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+    assert result.status == 500
+    assert json.loads(result.text) == {"detail": "Internal Server Error"}
+
+
+async def test_list_all_pages_propagates_second_page_non_json_failure():
+    # A non-JSON error body (e.g. an HTML error page from a proxy) on a later
+    # page must also propagate as a failure, not a partial 200.
+    page1 = {
+        "count": 3,
+        "next": "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2",
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=502, text="<html>Bad Gateway</html>"),
+        ]
+    )
+    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+    assert result.status == 502
+    assert result.text == "<html>Bad Gateway</html>"
+
+
+async def test_list_all_pages_first_page_error_status_not_treated_as_success():
+    # Even if an error body happens to parse as JSON with a "results" key,
+    # a non-2xx status on the very first page must propagate unchanged.
+    raw = json.dumps({"results": [], "detail": "forbidden"})
+    client = _MockClient([ApiResponse(status=403, text=raw)])
+    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+    assert result.status == 403
+    assert result.text == raw
+
+
 async def test_list_all_pages_non_paginated_response():
     # If response is not a NetBox paginated envelope, return it as-is.
     raw = json.dumps([{"id": 1}])

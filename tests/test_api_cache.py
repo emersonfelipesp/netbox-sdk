@@ -226,3 +226,140 @@ async def test_api_client_cache_key_scopes_per_call_bearer_override(monkeypatch,
     assert calls[1]["authorization"] == "Bearer token-b"
     assert calls[0]["headers"]["Authorization"] == "Bearer token-a"
     assert calls[1]["headers"]["Authorization"] == "Bearer token-b"
+
+
+@pytest.mark.asyncio
+async def test_api_client_cache_key_scopes_per_branch_header(monkeypatch, tmp_path) -> None:
+    """A same-token GET under two different NetBox Branching schemas
+    (``X-NetBox-Branch``) must never collide on the same cached entry — a
+    fresh read in branch B must not be served branch A's cached body."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    calls: list[dict[str, object]] = []
+
+    async def _fake_request_once(self, session, *, authorization, **kwargs):
+        calls.append({"authorization": authorization, **kwargs})
+        branch = kwargs["headers"].get("X-NetBox-Branch", "main")
+        return ApiResponse(status=200, text=json.dumps({"results": [branch]}), headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    response_a1 = await client.request(
+        "GET", "/api/dcim/devices/", headers={"X-NetBox-Branch": "branch-a"}
+    )
+    response_a2 = await client.request(
+        "GET", "/api/dcim/devices/", headers={"X-NetBox-Branch": "branch-a"}
+    )
+    response_b = await client.request(
+        "GET", "/api/dcim/devices/", headers={"X-NetBox-Branch": "branch-b"}
+    )
+
+    assert response_a1.headers["X-NBX-Cache"] == "MISS"
+    assert response_a2.headers["X-NBX-Cache"] == "HIT"
+    assert response_b.headers["X-NBX-Cache"] == "MISS"
+    assert len(calls) == 2
+    assert json.loads(response_a1.text)["results"] == ["branch-a"]
+    assert json.loads(response_a2.text)["results"] == ["branch-a"]
+    assert json.loads(response_b.text)["results"] == ["branch-b"]
+
+
+@pytest.mark.asyncio
+async def test_api_client_invalidates_cache_after_successful_write(monkeypatch, tmp_path) -> None:
+    """The documented agent read-write-verify sequence must never observe a
+    stale cached read after a successful write: a cached detail GET and its
+    containing collection GET must both miss immediately after a PATCH."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"results": [{"id": 5, "name": "old"}]}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+            ApiResponse(status=200, text='{"results": [{"id": 5, "name": "new"}]}', headers={}),
+        ]
+    )
+    calls: list[dict[str, object]] = []
+
+    async def _fake_request_once(self, session, **kwargs):
+        calls.append(kwargs)
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", "/api/dcim/devices/5/")
+    list_before = await client.request("GET", "/api/dcim/devices/")
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+    assert list_before.headers["X-NBX-Cache"] == "MISS"
+
+    patch_response = await client.request("PATCH", "/api/dcim/devices/5/", payload={"name": "new"})
+    assert patch_response.status == 200
+
+    detail_after = await client.request("GET", "/api/dcim/devices/5/")
+    list_after = await client.request("GET", "/api/dcim/devices/")
+
+    assert detail_after.headers["X-NBX-Cache"] == "MISS"
+    assert list_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(detail_after.text)["name"] == "new"
+    assert json.loads(list_after.text)["results"][0]["name"] == "new"
+    assert len(calls) == 5
+
+
+@pytest.mark.asyncio
+async def test_api_client_bulk_write_invalidates_individual_detail_paths(
+    monkeypatch, tmp_path
+) -> None:
+    """Bulk mutations target the list path, never a detail path. Invalidation
+    must still purge each affected object's own cached detail GET, derived
+    from the ``id`` fields in the bulk payload."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 7, "name": "old"}', headers={}),
+            ApiResponse(
+                status=200,
+                text='[{"id": 7, "name": "new"}]',
+                headers={},
+            ),
+            ApiResponse(status=200, text='{"id": 7, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    detail_before = await client.request("GET", "/api/dcim/devices/7/")
+    assert detail_before.headers["X-NBX-Cache"] == "MISS"
+
+    bulk_response = await client.request(
+        "PATCH", "/api/dcim/devices/", payload=[{"id": 7, "name": "new"}]
+    )
+    assert bulk_response.status == 200
+
+    detail_after = await client.request("GET", "/api/dcim/devices/7/")
+    assert detail_after.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(detail_after.text)["name"] == "new"

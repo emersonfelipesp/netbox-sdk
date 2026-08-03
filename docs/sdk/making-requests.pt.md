@@ -358,7 +358,21 @@ from netbox_sdk.config import cache_dir
 store = HttpCacheStore(cache_dir())
 ```
 
-Requisições POST/PUT/PATCH/DELETE **nunca** são cacheadas.
+Requisições POST/PUT/PATCH/DELETE **nunca** são cacheadas. Uma requisição de
+mutação bem-sucedida (2xx) também invalida as leituras cacheadas do caminho
+afetado: o caminho exato, seu caminho de coleção/lista, e — para operações em
+lote, que sempre têm como alvo o caminho de lista — o caminho de detalhe de
+cada objeto escrito (derivado dos campos `id` no payload em lote). Isso
+significa que uma sequência de leitura-antes-da-escrita, escrita e
+leitura-após-a-escrita nunca observa um corpo cacheado obsoleto para o objeto
+recém-escrito.
+
+A chave de cache incorpora todo cabeçalho de requisição que pode alterar a
+representação da resposta para um método/caminho/query por outro lado
+idêntico, não apenas o token de portador. Em particular, um cabeçalho
+`X-NetBox-Branch` do NetBox Branching faz parte da identidade do cache, de
+modo que o mesmo token lendo dois schemas de branch diferentes nunca colide
+na mesma entrada cacheada.
 
 ---
 
