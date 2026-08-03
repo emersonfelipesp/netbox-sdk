@@ -376,42 +376,77 @@ class HttpCacheStore:
         """
         return self.root / "__global_purge_guard__"
 
-    def _purge_all_entries(self) -> None:
-        """Delete every cached entry and per-path index file under ``root``.
+    def _purge_all_entries(self, corrupted_index_path: Path) -> None:
+        """Recover from ``corrupted_index_path`` without disturbing any healthy path.
 
         The fail-safe fallback used by :meth:`_load_index_state_or_purge`
         (and therefore by ``save``, ``refresh``, ``path_generation``, and
         ``invalidate_path`` alike) when a corrupted index makes it
-        impossible to enumerate which entries it registered. Resetting other
-        paths' generations back to 0 here is safe under the same fencing
-        invariant: an in-flight GET for an unrelated path that captured a
-        pre-purge generation will see a mismatch against the reset index and
-        be discarded as an extra cache miss, never a stale hit.
+        impossible to enumerate which entries it registered — its ``keys``
+        list is gone, so the only entry files known to be safe to keep are
+        the ones every *other*, still-parseable index file still lists.
+        Deleting every ``*.json`` file store-wide unconditionally (an
+        earlier version of this method) reset every other path's generation
+        back to 0 too, which reopened the very race this fencing scheme
+        exists to close: an in-flight GET for an unrelated, healthy path
+        could capture generation 0, lose a race against that path's own
+        concurrent write bumping it to 1, and then have this purge silently
+        rewind it back to 0 — indistinguishable from the pre-write value the
+        GET originally captured — letting its now-stale ``save`` pass the
+        fence and resurrect data the write had already invalidated.
 
-        The deletion pass runs under :meth:`_global_guard_path`'s lock, the
-        same lock ``save``/``refresh``/``invalidate_path`` take out around
-        their own index-then-entry write pair (never around their full
+        Only ``corrupted_index_path`` itself (plus any *other* index file
+        that independently fails to parse while this scan runs) is reset;
+        every entry file still listed by a healthy index, and that index's
+        own generation, is left completely untouched, so no unrelated path's
+        fencing can ever observe a rewound generation from this call. An
+        entry file not listed by any surviving index — including every entry
+        the corrupted index used to register — is deleted, since ``save``
+        and ``refresh`` always register a key in its index *before* writing
+        the entry file (see their docstrings), so under normal operation an
+        entry is never left unlisted by every valid index; the only way one
+        can be is if the index that used to list it is the corrupted one
+        being recovered from here.
+
+        The whole scan-and-delete pass runs under :meth:`_global_guard_path`'s
+        lock, the same lock ``save``/``refresh``/``invalidate_path`` take out
+        around their own index-then-entry write pair (never around their full
         critical section, which would self-deadlock against this very call —
         this method is only ever reached from inside one of those methods'
         *own* per-path lock, before that caller has acquired the guard
-        itself). Without this, this glob-and-unlink pass raced a concurrent
-        writer for a *different* path that had already written its per-path
-        index (registering a new key) but not yet its entry file: this purge
-        could delete that just-written index between the two writes, so the
-        writer's subsequent entry-file write landed on disk unindexed —
-        served by ``load`` (which only checks entry-file existence) as a
-        permanently fresh hit that no later ``invalidate_path`` call could
-        ever discover and purge, since the index that would have listed it
-        was gone. Serializing the purge against every writer's index+entry
-        pair makes the two operations strictly ordered instead: a writer
-        either finishes its whole pair before this purge starts (so the
-        purge deletes both files together, leaving no orphan) or starts
-        after this purge finishes (so it writes onto an already-clean
-        state) — never interleaved.
+        itself). Without this, this pass could race a concurrent writer for a
+        *different, healthy* path that had already written its per-path
+        index (registering a new key) but not yet its entry file: the scan
+        below would see that key already listed in a "healthy" index and
+        correctly spare it, but only because the write is serialized to
+        either fully precede or fully follow this call — interleaved, the
+        entry file could still be missing when this pass looks for it,
+        which is harmless (an absent file is simply not unlinked), while a
+        *reversed* interleaving (entry visible, index not yet updated) is
+        exactly what this lock rules out.
         """
         with self._locked_index(self._global_guard_path()):
+            known_keys: set[str] = set()
+            for index_path in self.root.glob("idx-*.json"):
+                if index_path == corrupted_index_path:
+                    continue
+                state = self._load_index_state_or_none(index_path)
+                if state is None:
+                    # A second, independently corrupted index found while
+                    # recovering from the first. Its keys are just as
+                    # unrecoverable — reset it too instead of leaving
+                    # corrupted bookkeeping behind for a later call to trip
+                    # over again.
+                    index_path.unlink(missing_ok=True)
+                    continue
+                _generation, keys = state
+                known_keys.update(keys)
+            corrupted_index_path.unlink(missing_ok=True)
             for cached_file in self.root.glob("*.json"):
-                cached_file.unlink(missing_ok=True)
+                if cached_file.name.startswith("idx-"):
+                    continue
+                if cached_file.stem not in known_keys:
+                    cached_file.unlink(missing_ok=True)
 
     def _entry_path(self, key: str) -> Path:
         return self.root / f"{key}.json"
@@ -541,30 +576,30 @@ class HttpCacheStore:
         return None
 
     def _load_index_state_or_purge(self, index_path: Path) -> tuple[int, list[str]]:
-        """Load ``(generation, keys)``, purging the whole store on corruption.
+        """Load ``(generation, keys)``, recovering ``index_path`` on corruption.
 
         Shared by every method that reads a per-path index (``save``,
         ``refresh``, ``path_generation``, and ``invalidate_path``). A
         corrupted index's ``keys`` list is unrecoverable (see
         :meth:`_load_index_state_or_none`), so any of these four call sites
-        finding one purges every cached entry across the whole store rather
-        than silently degrading to an empty index. Degrading to empty
-        instead — as an earlier version of this cache did in ``save`` and
-        ``refresh`` — let an ordinary write for a different key on the same
-        corrupted path "heal" the on-disk index with a fresh, valid-looking
-        one that permanently forgot every key the corrupted index still
-        registered: those keys' entry files were never purged and never
+        finding one recovers via :meth:`_purge_all_entries` rather than
+        silently degrading to an empty index. Degrading to empty instead —
+        as an earlier version of this cache did in ``save`` and ``refresh``
+        — let an ordinary write for a different key on the same corrupted
+        path "heal" the on-disk index with a fresh, valid-looking one that
+        permanently forgot every key the corrupted index still registered:
+        those keys' entry files were never purged and never
         index-discoverable again, yet kept being served as fresh hits by
         ``load`` forever, even past the next ``invalidate_path`` call for
-        that same path. Purging the whole store (not just this path) is the
-        same fail-safe trade-off :meth:`_purge_all_entries` documents, and
-        is safe under the same fencing invariant: a reset generation only
-        costs a few extra cache misses on unrelated paths, never a stale
-        hit.
+        that same path. :meth:`_purge_all_entries` only resets the entries
+        this specific corrupted index could no longer account for — every
+        other path's index and generation is left untouched, so this never
+        costs an unrelated path anything beyond what its own writes already
+        do.
         """
         state = self._load_index_state_or_none(index_path)
         if state is None:
-            self._purge_all_entries()
+            self._purge_all_entries(index_path)
             return 0, []
         return state
 

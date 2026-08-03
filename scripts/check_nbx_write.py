@@ -42,20 +42,39 @@ _DEV_HTTP_WRITE_VERBS = frozenset({"post", "put", "patch", "delete"})
 # shell quoting means positional structure can't be trusted.
 _ALL_WRITE_WORDS = WRITE_ACTIONS | _BRANCHING_WRITE_VERBS | _DEV_HTTP_WRITE_VERBS
 # A positional built from a shell variable or command substitution (e.g.
-# ``$method``, ``${action}``, `` `verb` ``) can resolve to any write verb at
-# runtime even though the literal token itself never matches WRITE_ACTIONS/
-# WRITE_HTTP_METHODS/etc. — shlex only tokenizes here, it never performs the
-# shell's own variable/command substitution, so the hook cannot know what the
-# token will actually expand to. Any positional that could name a write verb
-# is therefore treated as an unprovable, and thus mutating, invocation. The
-# same reasoning applies when the *executable name itself* is a shell
-# variable or command substitution (e.g. ``tool=nbx; $tool dcim devices
-# delete --id 7``): ``_command_name()`` can only compare the literal
-# pre-expansion token against ``"nbx"``, so such a token would otherwise
-# never be recognised as an nbx invocation at all and every check below
-# would be silently skipped. See ``_command_token_index`` and its use in
-# ``_segment_has_unconfirmed_write``.
-_SHELL_EXPANSION_PATTERN = re.compile(r"[$`]")
+# ``$method``, ``${action}``, `` `verb` ``), a pathname-expansion glob (e.g.
+# ``del?te``, ``de*e``, ``de[l]ete``), or a brace expansion (e.g.
+# ``del{e,e}te``) can resolve to any write verb at runtime even though the
+# literal token itself never matches WRITE_ACTIONS/WRITE_HTTP_METHODS/etc. —
+# shlex only tokenizes here, it never performs the shell's own variable/
+# command substitution, filename-globbing, or brace-expansion passes, so the
+# hook cannot know what the token will actually expand to. Any positional
+# that could name a write verb is therefore treated as an unprovable, and
+# thus mutating, invocation. The same reasoning applies when the *executable
+# name itself* is a shell variable/command substitution or glob/brace
+# expression (e.g. ``tool=nbx; $tool dcim devices delete --id 7`` or ``nb?
+# dcim devices delete --id 7``, which the shell resolves to the installed
+# ``nbx`` binary before exec): ``_command_name()`` can only compare the
+# literal pre-expansion token against ``"nbx"``, so such a token would
+# otherwise never be recognised as an nbx invocation at all and every check
+# below would be silently skipped. See ``_command_token_index`` and its use
+# in ``_segment_has_unconfirmed_write``.
+#
+# This pattern is only safe to apply where the inspected positional is a
+# short bare verb/action word (a "could this glob-resolve into a write
+# verb?" question). It must never be applied to a free-form payload
+# positional (a GraphQL query document, a JSON blob, a path search term)
+# that legitimately contains ``{``, ``}``, ``*``, ``?``, ``[``, or ``]`` as
+# ordinary content rather than an unresolved shell token — see the
+# ``root == "graphql"`` handling in ``_positionals_indicate_write``, which
+# uses the narrower ``_SHELL_SUBSTITUTION_PATTERN`` instead.
+_SHELL_EXPANSION_PATTERN = re.compile(r"[$`*?\[\]{}]")
+# ``$``/backtick alone: command/variable substitution the shell performs
+# even inside a double-quoted argument (unlike pathname/brace expansion,
+# which only fires on unquoted words). Used for positionals expected to
+# hold arbitrary payload text, where a full glob scan would false-positive
+# on ordinary content.
+_SHELL_SUBSTITUTION_PATTERN = re.compile(r"[$`]")
 _SEPARATORS = frozenset({";", "&&", "||", "|", "&", "(", ")"})
 _SHELLS = frozenset({"bash", "dash", "fish", "ksh", "sh", "zsh"})
 # Matches a leading inline environment assignment (``VAR=value cmd ...``) so
@@ -105,8 +124,10 @@ _OPTIONS_WITH_VALUES = frozenset(
         "--max-records",
         "--query",
         "--select",
+        "--variables",
         "-H",
         "-q",
+        "-v",
     }
 )
 
@@ -220,15 +241,28 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
       to leak into the positional list (as with an untracked ``--flag``)
       must never hide a real trailing action, so this checks membership
       rather than a fixed or trailing position.
+    - ``nbx graphql <query>`` is not a resource/action tree at all — its
+      sole positional is a free-form GraphQL query document that routinely
+      contains ``{``, ``}``, ``[``, and ``]`` as ordinary syntax (and
+      ``*``/``?`` inside string literals or comments). Scanning it with the
+      full glob pattern used for verb positions would deny virtually every
+      real query, so this only fails closed on ``$``/backtick — the one
+      construct the shell still expands inside a quoted argument.
 
-    Every branch above also fails closed the moment a positional it inspects
-    contains a ``$``/backtick shell-expansion marker: a command like
+    Every branch above that checks a verb/action position also fails closed
+    the moment that positional contains a ``$``/backtick shell-expansion
+    marker, or an unquoted filename-glob (``*``, ``?``, ``[...]``) or
+    brace-expansion (``{...}``) metacharacter: a command like
     ``method=POST; nbx call $method /api/...`` or ``action=delete; nbx dcim
     devices $action --id 7`` tokenizes to a literal ``$method``/``$action``
-    that never equals a known write verb, but the shell resolves it to one at
-    execution time. Since this hook only ever sees the pre-expansion text, it
-    cannot statically prove such a token is read-only, so it is treated as a
-    write.
+    that never equals a known write verb, and ``nbx dcim devices del?te
+    --id 7`` tokenizes to a literal ``del?te`` that never equals a known
+    write verb either — but the shell resolves either to ``delete`` at
+    execution time, the former via variable substitution and the latter via
+    pathname expansion against a file named ``delete`` in the working
+    directory. Since this hook only ever sees the pre-expansion text, it
+    cannot statically prove such a token is read-only, so it is treated as
+    a write.
     """
     if not positionals:
         return False
@@ -250,6 +284,8 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
     if root == "proxbox" and len(positionals) >= 2:
         if _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None or positionals[1] == "sync":
             return True
+    if root == "graphql":
+        return any(_SHELL_SUBSTITUTION_PATTERN.search(word) is not None for word in positionals[1:])
     for index in range(len(positionals) - 2):
         if positionals[index] == "dev" and positionals[index + 1] == "http":
             verb = positionals[index + 2]
@@ -274,7 +310,9 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
         elif index == command_index and _SHELL_EXPANSION_PATTERN.search(token) is not None:
             # The command name itself is a shell variable/command
             # substitution (e.g. `tool=nbx; $tool dcim devices delete --id
-            # 7`, or `` `resolve_cmd` dcim devices delete --id 7 ``). This
+            # 7`, or `` `resolve_cmd` dcim devices delete --id 7 ``), or a
+            # pathname-expansion glob such as `nb?` that the shell resolves
+            # against the installed `nbx` binary before exec. This
             # token can never be proven to be, or not be, `nbx` — treat the
             # tokens that follow it exactly like `nbx`'s own positionals and
             # fail closed if they look like a write, instead of silently

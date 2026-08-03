@@ -571,6 +571,152 @@ def test_hook_blocks_unconfirmed_nested_plugin_catalog_write() -> None:
 @pytest.mark.parametrize(
     "command",
     [
+        "nbx dcim devices del?te --id 7",
+        "nbx dcim devices de*e --id 7",
+        "nbx dcim devices de[l]ete --id 7",
+        "nbx dcim devices del{e,e}te --id 7",
+        "nbx branching del?te 7 --yes",
+        "nbx proxbox sy?c",
+        "nbx dev http del?te --path /api/dcim/devices/1/",
+    ],
+)
+def test_hook_blocks_write_verb_built_from_shell_glob_expansion(command: str) -> None:
+    """A method/action/verb token containing an unquoted filename-glob
+    (``?``, ``*``, ``[...]``) or brace-expansion (``{...}``) metacharacter
+    resolves to a write verb only once the shell expands it against a
+    matching file in the working directory — this hook only ever sees the
+    literal pre-expansion text (e.g. ``del?te``), which never equals a known
+    write verb, so it cannot statically prove the token is read-only and
+    must fail closed instead of comparing the unexpanded literal against the
+    known write-verb sets."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_verb_built_from_shell_glob_expansion() -> None:
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 nbx dcim devices del?te --id 7")
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "nb? dcim devices delete --id 7",
+        "nb* dcim devices delete --id 7",
+        "nb[x] dcim devices delete --id 7",
+    ],
+)
+def test_hook_blocks_write_via_glob_expanded_executable_name(command: str) -> None:
+    """The invoked executable name itself can be an unquoted glob (e.g.
+    ``nb?``) that the shell resolves against a file named ``nbx`` in the
+    working directory before exec. `_command_name` can only compare the
+    literal pre-expansion token against the string `"nbx"`, so without this
+    check the whole segment would never even be recognised as an nbx
+    invocation and every downstream write check would be silently skipped,
+    regardless of how plainly mutating the rest of the command looks."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_via_glob_expanded_executable_name() -> None:
+    allowed = _run_hook("NETBOX_SDK_CONFIRM_WRITE=1 nb? dcim devices delete --id 7")
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_glob_expanded_executable_reads() -> None:
+    """A glob-expanded executable name followed by a plainly read-only
+    invocation (no write verb anywhere in the resolved positionals) must not
+    trip the write gate — only the read-vs-write shape of what follows
+    matters, not that the executable name itself is unprovable."""
+    result = _run_hook("nb? dcim devices list")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_hook_does_not_false_positive_on_glob_metacharacters_inside_option_values() -> None:
+    """An option value (e.g. a ``--query`` filter with a wildcard) containing
+    glob metacharacters must not trip the write gate — only positionals that
+    could themselves name a verb are treated as unprovable, not arbitrary
+    option payloads."""
+    result = _run_hook("nbx dcim devices list --query 'name=web*'")
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'nbx graphql "{ device_list { id name } }"',
+        'nbx graphql "query { site_list(filters: {name: \\"*\\"}) { id } }"',
+        'nbx graphql "{ device_list(filters: {name: [\\"sw1\\", \\"sw2\\"]}) { id } }"'
+        " --variables '{\"unused\": true}'",
+    ],
+)
+def test_hook_does_not_false_positive_on_graphql_query_syntax(command: str) -> None:
+    """A GraphQL query document is free-form text that routinely contains
+    ``{``, ``}``, ``[``, ``]``, and ``*`` as ordinary syntax rather than an
+    unresolved shell glob/brace-expansion token — unlike a verb position
+    (e.g. ``nbx dcim devices <action>``), ``nbx graphql <query>`` has no
+    resource/action tree at all, so the full glob scan used for verb
+    positions must not apply here. ``--variables``/``-v`` values (which can
+    themselves be a JSON object containing braces) must also stay excluded
+    from the positional scan like every other value-taking option. (A query
+    that declares a GraphQL ``$variable`` is deliberately not covered here:
+    ``$`` still fails closed below, since shlex loses whether the original
+    argument was single- or double-quoted and a double-quoted ``$name``
+    would genuinely be shell-expanded — that is pre-existing, intentional
+    behavior, not something this fix changes.)"""
+    result = _run_hook(command)
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        'payload=$(cat malicious.graphql); nbx graphql "$payload"',
+        'nbx graphql "$(cat malicious.graphql)"',
+        "nbx graphql `cat malicious.graphql`",
+    ],
+)
+def test_hook_blocks_unconfirmed_graphql_query_built_from_shell_substitution(command: str) -> None:
+    """Unlike pathname/brace expansion, ``$``/backtick command or variable
+    substitution still resolves inside a quoted GraphQL query argument, so a
+    query text built this way can smuggle in an arbitrary (including
+    mutating) document the hook never sees literally. The narrower
+    substitution-only check applied to ``nbx graphql`` positionals must still
+    fail closed on this, even though it no longer scans for glob/brace
+    metacharacters."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_graphql_query_built_from_shell_substitution() -> None:
+    allowed = _run_hook('NETBOX_SDK_CONFIRM_WRITE=1 nbx graphql "$(cat malicious.graphql)"')
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
+def test_hook_blocks_unconfirmed_graphql_query_declaring_a_variable() -> None:
+    """A native GraphQL ``$name``-style variable declaration is textually
+    indistinguishable from an unsafe shell variable reference once shlex has
+    discarded whether the surrounding argument was single- or double-quoted,
+    so it still requires confirmation even though it is ordinary, read-only
+    GraphQL syntax. Callers should prefer single-quoting such queries in the
+    actual shell invocation (which this hook cannot verify) or pass
+    ``NETBOX_SDK_CONFIRM_WRITE=1`` after reviewing the query."""
+    blocked = _run_hook(
+        'nbx graphql "query($name: String) { device_list(filters: {name: $name}) { id } }"'
+        ' --variables \'{"name": "sw1"}\''
+    )
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
         "eval 'nbx dcim devices delete --id 7'",
         "eval nbx dcim devices delete --id 7",
         "sudo eval 'nbx dcim devices delete --id 7'",
