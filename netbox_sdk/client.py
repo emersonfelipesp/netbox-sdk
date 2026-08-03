@@ -846,28 +846,53 @@ class NetBoxApiClient:
             return None
         return "/" + "/".join(parts[:-1]) + "/"
 
-    def _invalidate_related_cache(
+    def _related_cache_paths(
         self, path: str, payload: dict[str, Any] | list[Any] | None
-    ) -> None:
-        """Purge cached reads that a successful write to ``path`` may have staled.
+    ) -> list[str]:
+        """Compute every cache path a successful write to ``path`` may have staled.
 
         A response cached before a write (e.g. the read-before-write step of
         an agent's documented operating sequence) must never be served again
-        as if it reflected the write. This purges the exact path, its
+        as if it reflected the write. This covers the exact path, its
         containing collection path (list/filter reads), and — for bulk writes
         whose payload is a list of objects carrying an ``id`` — each affected
         object's own detail path, since bulk operations target the collection
         path rather than individual detail paths.
         """
-        self._cache.invalidate_path(path)
+        paths = [path]
         collection_path = self._collection_path_for(path)
         if collection_path is not None and collection_path != path:
-            self._cache.invalidate_path(collection_path)
+            paths.append(collection_path)
         if isinstance(payload, list):
             for item in payload:
                 if isinstance(item, dict) and "id" in item:
-                    detail_path = f"{path.rstrip('/')}/{item['id']}/"
-                    self._cache.invalidate_path(detail_path)
+                    paths.append(f"{path.rstrip('/')}/{item['id']}/")
+        return paths
+
+    def _invalidate_related_cache(
+        self, path: str, payload: dict[str, Any] | list[Any] | None
+    ) -> None:
+        """Purge cached reads that a successful write to ``path`` may have staled.
+
+        Each affected path is purged independently: a failure purging one
+        path (e.g. a cache index lock timeout) must not prevent the remaining
+        paths from being attempted. Skipping the rest after one early failure
+        would leave paths such as the collection listing fully cached and
+        able to serve a fresh-looking pre-write hit immediately after the
+        write succeeds.
+        """
+        for target_path in self._related_cache_paths(path, payload):
+            try:
+                self._cache.invalidate_path(target_path)
+            except OSError:
+                logger.warning(
+                    "cache invalidation failed after write attempt; stale reads "
+                    "may be served until the affected entries expire",
+                    extra={
+                        "nbx_event": "http_cache_invalidate_failed",
+                        "request_path": target_path,
+                    },
+                )
 
     def _safe_invalidate_related_cache(
         self, path: str, payload: dict[str, Any] | list[Any] | None
@@ -879,7 +904,9 @@ class NetBoxApiClient:
         either way. A cache-maintenance failure (e.g. an index file write
         error) must never propagate in its place — that would either
         misreport a successful write as failed, or mask the real request
-        exception behind an unrelated filesystem error.
+        exception behind an unrelated filesystem error. `_invalidate_related_cache`
+        already isolates per-path failures; this outer guard is a last-resort
+        safety net for anything that still escapes it.
         """
         try:
             self._invalidate_related_cache(path, payload)

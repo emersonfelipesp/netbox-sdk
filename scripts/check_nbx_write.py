@@ -221,9 +221,17 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
             # tokens that follow it exactly like `nbx`'s own positionals and
             # fail closed if they look like a write, instead of silently
             # skipping the whole segment because its literal basename isn't
-            # the string "nbx".
+            # the string "nbx". When nothing follows it at all (e.g.
+            # `cmd='nbx dcim devices delete --id 7'; sh -c "$cmd"`, where the
+            # entire mutating command is collapsed into this one bare
+            # token), there are no positionals to inspect either way, so
+            # `_positionals_indicate_write` would otherwise return `False`
+            # by its own empty-list short-circuit — fail closed
+            # unconditionally instead, since an unprovable token hiding the
+            # whole command is strictly less safe than one hiding only part
+            # of it.
             positionals = _positionals_after_nbx(tokens, index)
-            if _positionals_indicate_write(positionals):
+            if not positionals or _positionals_indicate_write(positionals):
                 if not (inherited_confirmation or CONFIRMATION in tokens[:index]):
                     return True
         if name in _SHELLS and "-c" in tokens[index + 1 :]:

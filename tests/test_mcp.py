@@ -600,6 +600,34 @@ def test_hook_does_not_false_positive_on_eval_of_read_only_command() -> None:
     assert result.stdout == ""
 
 
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cmd='nbx dcim devices delete --id 7'; sh -c \"$cmd\"",
+        "cmd='nbx dcim devices delete --id 7'; eval \"$cmd\"",
+    ],
+)
+def test_hook_blocks_write_hidden_entirely_inside_a_shell_variable(command: str) -> None:
+    """A shell variable can carry the *entire* mutating invocation rather
+    than just its executable name, e.g. `cmd='nbx dcim devices delete --id
+    7'; sh -c "$cmd"`. The nested-shell/`eval` re-parse then sees only a
+    single bare `$cmd` token with nothing following it, so there are no
+    positionals to inspect at all — this must fail closed exactly like a
+    shell-expanded executable name with unprovable positionals, rather than
+    being treated as a no-op because the positional list happens to be
+    empty."""
+    blocked = _run_hook(command)
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_hook_allows_confirmed_write_hidden_entirely_inside_a_shell_variable() -> None:
+    allowed = _run_hook(
+        "cmd='nbx dcim devices delete --id 7'; NETBOX_SDK_CONFIRM_WRITE=1 sh -c \"$cmd\""
+    )
+    assert allowed.returncode == 0
+    assert allowed.stdout == ""
+
+
 def test_is_loopback_host() -> None:
     assert is_loopback_host("127.0.0.1")
     assert is_loopback_host("localhost")

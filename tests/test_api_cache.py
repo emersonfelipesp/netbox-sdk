@@ -538,6 +538,82 @@ async def test_api_client_write_succeeds_despite_cache_invalidation_failure(
 
 
 @pytest.mark.asyncio
+async def test_write_invalidation_failure_on_one_path_does_not_skip_the_rest(
+    monkeypatch, tmp_path
+) -> None:
+    """A cache-index failure purging one affected path (e.g. a lock timeout
+    on the exact detail path) must not prevent the remaining affected paths
+    from being attempted. Invalidating the whole batch inside a single
+    try/except means one early failure silently skips every path after it —
+    including the containing collection path — while the write is still
+    reported as successful, so an immediate list read right after a
+    confirmed write could still serve a fresh-looking pre-write cache hit."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    detail_path = "/api/dcim/devices/5/"
+    collection_path = "/api/dcim/devices/"
+
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"count": 1, "results": [{"id": 5}]}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    await client.request("GET", detail_path)
+    await client.request("GET", collection_path)
+
+    detail_key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=detail_path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    collection_key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=collection_path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    assert client._cache.load(detail_key) is not None
+    assert client._cache.load(collection_key) is not None
+
+    real_invalidate_path = client._cache.invalidate_path
+    invalidated: list[str] = []
+
+    def _flaky_invalidate_path(path: str) -> None:
+        if path == detail_path:
+            raise OSError("disk full")
+        invalidated.append(path)
+        real_invalidate_path(path)
+
+    monkeypatch.setattr(client._cache, "invalidate_path", _flaky_invalidate_path, raising=True)
+
+    response = await client.request("PATCH", detail_path, payload={"name": "new"})
+
+    assert response.status == 200
+    # The failing path was attempted (and logged), but must not have aborted
+    # the rest of the batch.
+    assert invalidated == [collection_path]
+    assert client._cache.load(collection_key) is None
+
+
+@pytest.mark.asyncio
 async def test_api_client_304_race_with_concurrent_write_refetches_unconditionally(
     monkeypatch, tmp_path
 ) -> None:
