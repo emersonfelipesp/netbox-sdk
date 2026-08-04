@@ -735,6 +735,14 @@ class NetBoxApiClient:
                 # a post-response generation that would make the now-stale
                 # replacement response pass the fence as if it were current.
                 cache_generation = self._cache.path_generation(path)
+                # The entry we conditionally requested against is already
+                # proven stale by the generation mismatch that triggered this
+                # refetch. Drop it now, before issuing the replacement
+                # request, so neither the exception handler below nor
+                # _finalize_cached_response() can resurrect it as a
+                # stale-serving fallback if this unconditional refetch itself
+                # raises or returns a 5xx.
+                cache_entry = None
                 response = await self._request_once(
                     session,
                     authorization=effective_authorization,
@@ -1049,20 +1057,16 @@ class NetBoxApiClient:
         for target_path in self._related_cache_paths(path, payload):
             try:
                 self._cache.invalidate_path(target_path)
-            except TimeoutError:
-                # Keep the path unavailable even when a test double or an
-                # alternate cache implementation raises before
-                # invalidate_path() can publish its own marker.
-                self._cache._mark_path_unavailable(target_path)
-                logger.warning(
-                    "cache invalidation failed after write attempt; stale reads "
-                    "may be served until the affected entries expire",
-                    extra={
-                        "nbx_event": "http_cache_invalidate_failed",
-                        "request_path": target_path,
-                    },
-                )
             except OSError:
+                # Keep the path unavailable on any invalidation failure, not
+                # only a lock timeout: a test double, an alternate cache
+                # implementation, or a plain filesystem error (failed
+                # unlink, read-only disk) can all raise here before
+                # invalidate_path() publishes its own marker, and a stale
+                # pre-write entry must not remain trustable in any of those
+                # cases. TimeoutError is an OSError subclass, so this one
+                # handler covers both.
+                self._cache._mark_path_unavailable(target_path)
                 logger.warning(
                     "cache invalidation failed after write attempt; stale reads "
                     "may be served until the affected entries expire",

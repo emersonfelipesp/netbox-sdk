@@ -212,7 +212,7 @@ the transport loss as a warning rather than a job error.
 - MCP code in `netbox_mcp/` may depend on `netbox_sdk` and `mcp`, never on `netbox_cli` or `netbox_tui`.
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`, `netbox_mcp.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
-- Filesystem-cache lock timeouts are a per-path bypass state: reads must not trust or populate existing entries until a failed invalidation has been completed, and portable stale-lock reclamation must preserve exclusive ownership across racing reclaimers.
+- Filesystem-cache invalidation failures (lock timeouts and other `OSError`s alike) are a per-path bypass state: reads must not trust or populate existing entries until a failed invalidation has been completed, and portable stale-lock reclamation must preserve exclusive ownership across racing reclaimers. A cache entry proven stale by a generation mismatch (the 304-concurrent-write race) must not be resurrected by a later stale-if-error fallback in the same request if the follow-up refetch itself fails.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
   all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works

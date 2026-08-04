@@ -1033,6 +1033,62 @@ async def test_write_invalidation_lock_timeout_forces_live_verification_read(
 
 
 @pytest.mark.asyncio
+async def test_write_invalidation_os_error_forces_live_verification_read(
+    monkeypatch, tmp_path
+) -> None:
+    """A plain (non-timeout) OSError from invalidation must also mark the
+    path unavailable. TimeoutError is an OSError subclass and previously had
+    its own handler that published the unavailable marker; a sibling
+    ``except OSError`` handler for a failed unlink, read-only filesystem, or
+    other disk error did not, which could leave a stale pre-write entry
+    trustable for a post-write verification read."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+    responses = deque(
+        [
+            ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+            ApiResponse(status=200, text='{"id": 5, "name": "new"}', headers={}),
+        ]
+    )
+
+    async def _fake_request_once(self, session, **kwargs):
+        return responses.popleft()
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+    before = await client.request("GET", path)
+    assert before.headers["X-NBX-Cache"] == "MISS"
+
+    real_invalidate_path = client._cache.invalidate_path
+    failed_once = False
+
+    def _os_error_once(target_path: str) -> None:
+        nonlocal failed_once
+        if target_path == path and not failed_once:
+            failed_once = True
+            raise OSError("simulated disk error, not a lock timeout")
+        real_invalidate_path(target_path)
+
+    monkeypatch.setattr(client._cache, "invalidate_path", _os_error_once, raising=True)
+
+    write_response = await client.request("PATCH", path, payload={"name": "new"})
+    assert write_response.status == 200
+
+    verification = await client.request("GET", path)
+    assert verification.headers["X-NBX-Cache"] == "MISS"
+    assert json.loads(verification.text)["name"] == "new"
+    assert not client._cache._path_is_unavailable(path)  # noqa: SLF001
+
+
+@pytest.mark.asyncio
 async def test_api_client_304_race_with_concurrent_write_refetches_unconditionally(
     monkeypatch, tmp_path
 ) -> None:
@@ -1092,6 +1148,113 @@ async def test_api_client_304_race_with_concurrent_write_refetches_unconditional
     loaded = client._cache.load(key)
     assert loaded is not None
     assert json.loads(loaded.text)["name"] == "new"
+
+
+@pytest.mark.asyncio
+async def test_api_client_304_race_exception_during_refetch_does_not_serve_stale(
+    monkeypatch, tmp_path
+) -> None:
+    """Once a generation mismatch proves the pre-write entry stale and
+    triggers the unconditional refetch, that proven-stale entry must not be
+    served even if the refetch itself then raises. The exception handler's
+    stale-if-error fallback must not resurrect an entry that was just
+    invalidated by a concurrent write."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+
+    async def _fake_initial(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={"ETag": '"abc"'})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_initial, raising=True)
+    await client.request("GET", path)
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    _expire_entry(client, key)
+
+    call_log: list[dict[str, object]] = []
+
+    async def _fake_304_races_write_then_raises(self, session, **kwargs):
+        call_log.append(kwargs)
+        if len(call_log) == 1:
+            client._cache.invalidate_path(path)
+            return ApiResponse(status=304, text="", headers={"ETag": '"abc"'})
+        raise RuntimeError("simulated failure of the unconditional refetch")
+
+    monkeypatch.setattr(
+        NetBoxApiClient, "_request_once", _fake_304_races_write_then_raises, raising=True
+    )
+
+    with pytest.raises(RuntimeError):
+        await client.request("GET", path)
+
+    assert len(call_log) == 2  # conditional attempt, then the failed unconditional refetch
+
+
+@pytest.mark.asyncio
+async def test_api_client_304_race_5xx_during_refetch_does_not_serve_stale(
+    monkeypatch, tmp_path
+) -> None:
+    """Same as above, but the unconditional refetch returns a 5xx instead of
+    raising. ``_finalize_cached_response()``'s stale-if-error-status fallback
+    must not resurrect the entry a concurrent write already proved stale."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    path = "/api/dcim/devices/5/"
+
+    async def _fake_initial(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 5, "name": "old"}', headers={"ETag": '"abc"'})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_initial, raising=True)
+    await client.request("GET", path)
+
+    key = build_cache_key(
+        base_url=cfg.base_url or "",
+        method="GET",
+        path=path,
+        query=None,
+        authorization="Token plain-token",
+    )
+    _expire_entry(client, key)
+
+    call_log: list[dict[str, object]] = []
+
+    async def _fake_304_races_write_then_5xx(self, session, **kwargs):
+        call_log.append(kwargs)
+        if len(call_log) == 1:
+            client._cache.invalidate_path(path)
+            return ApiResponse(status=304, text="", headers={"ETag": '"abc"'})
+        return ApiResponse(status=503, text="", headers={})
+
+    monkeypatch.setattr(
+        NetBoxApiClient, "_request_once", _fake_304_races_write_then_5xx, raising=True
+    )
+
+    response = await client.request("GET", path)
+
+    assert len(call_log) == 2  # conditional attempt, then the failing unconditional refetch
+    assert response.status == 503
+    assert response.headers.get("X-NBX-Cache") != "STALE"
 
 
 @pytest.mark.asyncio
