@@ -22,6 +22,7 @@ confirme com `nbx-mcp --help` antes de continuar.
 | Caminho | Finalidade | Cliente |
 |---|---|---|
 | `.mcp.json` | Registra `nbx-mcp` como servidor MCP stdio com escopo de projeto | Claude Code |
+| `.codex/config.toml` | Registra `nbx-mcp` como servidor MCP com escopo de projeto | Codex CLI |
 | `.claude/settings.json` | Hook `PreToolUse` que executa `scripts/check_nbx_write.py` antes do Bash | Claude Code |
 | `.codex/hooks.json` | Mesmo hook, espelhado para o formato de hooks do Codex | Codex CLI |
 | `.claude/skills/netbox-sdk-operations/` | O Skill `netbox-sdk-operations` (inspecionar → visualizar → executar → verificar) | Claude Code |
@@ -38,13 +39,20 @@ inspeciona o comando Bash prestes a rodar, sem tocar no NetBox.
 
 O Claude Code descobre automaticamente servidores MCP com escopo de projeto a
 partir de `.mcp.json` assim que o diretório de trabalho de uma sessão está
-dentro deste repositório (ou de um de seus worktrees) — nenhuma etapa extra é
-necessária além de deixar `nbx-mcp` no `PATH`. Para confirmar que está
-registrado e acessível:
+dentro deste repositório (ou de um de seus worktrees). Descoberta não é o
+mesmo que conexão: na primeira vez que uma sessão inicia neste projeto, o
+Claude Code pede uma aprovação única antes de efetivamente usar o
+`netbox-sdk`. Se esse prompt for dispensado ou rolar para fora da tela, rode
+`/mcp` dentro da sessão para aprová-lo explicitamente; se ele já foi
+rejeitado antes, rode `claude mcp reset-project-choices` para limpar essa
+decisão e fazer o prompt aparecer de novo. Depois de aprovado, confirme que
+está registrado e acessível:
 
 ```bash
 claude mcp list
 ```
+
+`netbox-sdk` deve aparecer como conectado, não como `⏸ Pending approval`.
 
 O `.mcp.json` foi gerado com `claude mcp add -s project netbox-sdk --
 nbx-mcp` e tem este conteúdo:
@@ -89,36 +97,73 @@ escopo.
 
 ## Codex CLI
 
-O Codex CLI não tem um arquivo de registro de MCP com escopo de projeto
-equivalente ao `.mcp.json`; servidores MCP são sempre registrados
-globalmente em `~/.codex/config.toml`:
+### Servidor MCP
+
+O Codex CLI suporta registro de MCP com escopo de projeto através do
+`.codex/config.toml`, espelhando o `.mcp.json` do Claude Code. Este
+repositório já traz um:
+
+```toml
+[mcp_servers.netbox-sdk]
+command = "nbx-mcp"
+default_tools_approval_mode = "writes"
+```
+
+O `.codex/config.toml`, como qualquer outro arquivo em `.codex/`, só é
+carregado quando o diretório do projeto está
+[confiável](#hooks-exigem-duas-etapas-de-confianca-separadas). Mantenha o
+servidor com escopo de projeto em vez de registrá-lo globalmente: o
+`nbx-mcp` lê o perfil do NetBox de quem o chama, e uma entrada global via
+`codex mcp add` em `~/.codex/config.toml` fica ativa em todos os projetos do
+Codex, inclusive nos não confiáveis, o que amplia desnecessariamente a
+exposição da ferramenta. Só recorra ao registro global se você
+deliberadamente quiser o `netbox-sdk` disponível fora deste repositório:
 
 ```bash
 codex mcp add netbox-sdk -- nbx-mcp
 codex mcp list
 ```
 
-### Hooks exigem confiança do projeto
+### Hooks exigem duas etapas de confiança separadas
 
-Diferente do Claude Code, o Codex CLI desabilita **configuração local do
-projeto, hooks e políticas de execução** para qualquer diretório que não
-esteja marcado como confiável — apenas os Skills continuam carregando em um
-projeto não confiável. Isso significa que `.codex/hooks.json` silenciosamente
-não faz nada até que o diretório do projeto seja marcado como confiável.
-Conceda confiança de forma interativa no primeiro uso dentro do repositório,
-ou de forma não interativa adicionando uma entrada em
-`~/.codex/config.toml`:
+O Codex CLI condiciona o `.codex/` à **confiança do projeto** e, separadamente,
+condiciona cada definição de hook a uma **revisão baseada em hash** — as duas
+etapas precisam passar antes que o `.codex/hooks.json` realmente rode.
 
-```toml
-[projects."/caminho/para/netbox-sdk"]
-trust_level = "trusted"
-```
+1. **Confiança do projeto.** O Codex desabilita configuração local do
+   projeto, hooks e políticas de execução para qualquer diretório que não
+   esteja marcado como confiável — apenas os Skills continuam carregando em
+   um projeto não confiável. A confiança é indexada pelo caminho exato do
+   diretório, então um worktree em um caminho diferente do seu clone
+   canônico precisa da própria entrada de confiança; confiar apenas no clone
+   canônico deixa a camada `.codex/` do worktree sem carregar. Conceda
+   confiança de forma interativa no primeiro uso dentro de cada checkout que
+   você usar, ou de forma não interativa adicionando uma entrada por caminho
+   em `~/.codex/config.toml`:
 
-Use o caminho do seu checkout real (o clone canônico, não um worktree
-descartável). Verifique se o hook está ativo executando um comando de mutação
-`nbx` reconhecível através do Codex sem `--confirm` — ele deve ser bloqueado
-pelo `check_nbx_write.py` com a mensagem de status
-`Checking nbx mutation confirmation`, em vez de rodar sem verificação.
+   ```toml
+   [projects."/caminho/para/netbox-sdk"]
+   trust_level = "trusted"
+
+   [projects."/caminho/para/netbox-sdk.worktrees/algum-branch"]
+   trust_level = "trusted"
+   ```
+
+2. **Revisão do hook.** Mesmo em um projeto confiável, o Codex exige que
+   você revise e confie no conteúdo exato de um hook de comando não
+   gerenciado antes que ele possa rodar, através do comando `/hooks` dentro
+   de uma sessão. A confiança é registrada com base no hash do conteúdo
+   atual da definição do hook, então qualquer edição futura em
+   `.codex/hooks.json` revoga a confiança até que você o revise novamente
+   com `/hooks`.
+
+Verifique se as duas etapas foram concluídas executando um comando de
+mutação `nbx` reconhecível através do Codex sem `--confirm` — ele deve ser
+bloqueado pelo `check_nbx_write.py` com a mensagem de status
+`Checking nbx mutation confirmation`, em vez de rodar sem verificação. Se ele
+rodar sem verificação, reconfira a confiança do projeto para o caminho exato
+em uso e rode `/hooks` para confirmar que o hook está listado como
+confiável.
 
 ### Skill
 
@@ -131,8 +176,10 @@ não tem equivalente no Codex e não precisa ter.
 ## Verificando a configuração completa
 
 1. `nbx-mcp --help` sai com código 0 — o extra `mcp` está instalado.
-2. `claude mcp list` (a partir de dentro deste repositório) e `codex mcp list`
-   mostram `netbox-sdk` como `enabled`.
+2. A partir de dentro deste repositório, `claude mcp list` mostra `netbox-sdk`
+   como conectado (aprove via `/mcp` primeiro se ainda aparecer pendente), e
+   `codex mcp list` mostra `netbox-sdk` assim que o diretório do projeto
+   estiver confiável.
 3. `nbx capabilities --json` (ou as ferramentas MCP `list_groups`/
    `list_resources`) retorna o contrato de ferramentas/recursos guiado por
    schema descrito em [Servidor MCP](index.md#ferramentas).

@@ -1,0 +1,7 @@
+# Project-scoped Codex CLI config. Loaded only when this project directory
+# is trusted (trust_level = "trusted" in ~/.codex/config.toml). See
+# docs/mcp/agent-setup.md for the full setup and trust walkthrough.
+
+[mcp_servers.netbox-sdk]
+command = "nbx-mcp"
+default_tools_approval_mode = "writes"
