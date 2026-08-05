@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import errno
 import hashlib
 import json
 import logging
@@ -163,12 +164,15 @@ class HttpCacheStore:
             extra={"nbx_event": "http_cache_init", "cache_root": str(self.root)},
         )
 
-    def load(self, key: str) -> CacheEntry | None:
-        path = self._entry_path(key)
-        if not path.exists():
+    def load(self, key: str, *, path: str | None = None) -> CacheEntry | None:
+        """Load ``key`` unless ``path`` is currently in durable bypass state."""
+        if path is not None and self._path_is_unavailable(path):
+            return None
+        entry_path = self._entry_path(key)
+        if not entry_path.exists():
             return None
         try:
-            return CacheEntry.model_validate_json(path.read_text(encoding="utf-8"))
+            return CacheEntry.model_validate_json(entry_path.read_text(encoding="utf-8"))
         except OSError:
             logger.debug(
                 "cache entry read failed",
@@ -236,6 +240,8 @@ class HttpCacheStore:
             # repeat that outage for no benefit, since the mismatch below
             # would discard the write anyway.
             return entry
+        if self._path_is_unavailable(path):
+            return entry
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
@@ -253,6 +259,8 @@ class HttpCacheStore:
                 if key not in keys:
                     keys.append(key)
                 with self._locked_index(self._global_guard_path()):
+                    if self._path_is_unavailable(path):
+                        return entry
                     self._write_index_state(index_path, generation, keys)
                     self._write_entry(self._entry_path(key), entry)
         except TimeoutError:
@@ -363,6 +371,8 @@ class HttpCacheStore:
             return refreshed
         if expected_generation == _LOCK_UNAVAILABLE_GENERATION:
             return refreshed
+        if self._path_is_unavailable(path):
+            return refreshed
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
@@ -380,6 +390,8 @@ class HttpCacheStore:
                 if key not in keys:
                     keys.append(key)
                 with self._locked_index(self._global_guard_path()):
+                    if self._path_is_unavailable(path):
+                        return refreshed
                     self._write_index_state(index_path, generation, keys)
                     self._write_entry(self._entry_path(key), refreshed)
         except TimeoutError:
@@ -434,6 +446,10 @@ class HttpCacheStore:
 
     def _unavailable_marker_prefix(self, path: str) -> str:
         digest = hashlib.sha256(path.encode("utf-8")).hexdigest()
+        return self._unavailable_marker_prefix_for_digest(digest)
+
+    @staticmethod
+    def _unavailable_marker_prefix_for_digest(digest: str) -> str:
         return f"unavailable-{digest}-"
 
     def _path_unavailable_markers(self, path: str) -> tuple[Path, ...]:
@@ -454,16 +470,7 @@ class HttpCacheStore:
         """
         with self._unavailable_paths_lock:
             self._unavailable_paths.add(path)
-            try:
-                with tempfile.NamedTemporaryFile(
-                    dir=self.root,
-                    prefix=self._unavailable_marker_prefix(path),
-                    suffix=".marker",
-                    delete=False,
-                ) as handle:
-                    marker_path = Path(handle.name)
-                self._set_private_permissions(marker_path, stat.S_IRUSR | stat.S_IWUSR)
-            except OSError:
+            if not self._write_unavailable_marker(self._unavailable_marker_prefix(path)):
                 # The process-local state still protects this client even if
                 # the filesystem is too unhealthy to publish the marker to
                 # other cache-store instances.
@@ -472,6 +479,34 @@ class HttpCacheStore:
                     path,
                     extra={"nbx_event": "cache_marker_write_failed", "request_path": path},
                 )
+
+    def _mark_index_digest_unavailable(self, digest: str) -> bool:
+        """Publish bypass state for an index whose plaintext path is unknown."""
+        with self._unavailable_paths_lock:
+            persisted = self._write_unavailable_marker(
+                self._unavailable_marker_prefix_for_digest(digest)
+            )
+        if not persisted:
+            logger.warning(
+                "netbox_sdk could not persist cache-unavailable marker for index %s",
+                digest[:16],
+                extra={"nbx_event": "cache_marker_write_failed"},
+            )
+        return persisted
+
+    def _write_unavailable_marker(self, prefix: str) -> bool:
+        try:
+            with tempfile.NamedTemporaryFile(
+                dir=self.root,
+                prefix=prefix,
+                suffix=".marker",
+                delete=False,
+            ) as handle:
+                marker_path = Path(handle.name)
+            self._set_private_permissions(marker_path, stat.S_IRUSR | stat.S_IWUSR)
+        except OSError:
+            return False
+        return True
 
     def _clear_path_unavailable(self, path: str, markers: tuple[Path, ...]) -> None:
         with self._unavailable_paths_lock:
@@ -515,10 +550,12 @@ class HttpCacheStore:
         GET originally captured — letting its now-stale ``save`` pass the
         fence and resurrect data the write had already invalidated.
 
-        Only ``corrupted_index_path`` itself (plus any *other* index file
-        that independently fails to parse while this scan runs) is reset;
-        every entry file still listed by a healthy index, and that index's
-        own generation, is left completely untouched, so no unrelated path's
+        Only ``corrupted_index_path`` itself is reset directly. Any *other*
+        index file that independently fails to parse while this scan runs is
+        replaced by a durable digest-keyed unavailable marker (or retained
+        as a corrupted sentinel if publishing that marker fails); every
+        entry file still listed by a healthy index, and that index's own
+        generation, is left completely untouched, so no unrelated path's
         fencing can ever observe a rewound generation from this call. An
         entry file not listed by any surviving index — including every entry
         the corrupted index used to register — is deleted, since ``save``
@@ -554,10 +591,17 @@ class HttpCacheStore:
                 if state is None:
                     # A second, independently corrupted index found while
                     # recovering from the first. Its keys are just as
-                    # unrecoverable — reset it too instead of leaving
-                    # corrupted bookkeeping behind for a later call to trip
-                    # over again.
-                    index_path.unlink(missing_ok=True)
+                    # unrecoverable. Publish bypass state using the digest
+                    # shared by its index name and unavailable-marker prefix
+                    # before removing it; otherwise a later missing index
+                    # would look like a trustworthy generation 0 and let a
+                    # stale save/refresh rewind its invalidation fence. If
+                    # marker persistence fails, retain the corrupted index
+                    # itself as the fail-safe sentinel until its plaintext
+                    # path is accessed and can mark process-local state too.
+                    digest = index_path.name.removeprefix("idx-").removesuffix(".json")
+                    if self._mark_index_digest_unavailable(digest):
+                        index_path.unlink(missing_ok=True)
                     continue
                 _generation, keys = state
                 known_keys.update(keys)
@@ -596,17 +640,13 @@ class HttpCacheStore:
         never a no-op, which previously left both hazards above fully
         exposed on those platforms.
 
-        ``timeout``/``poll_interval`` bound both branches identically: a
-        blocking ``flock(LOCK_EX)`` here would freeze the entire caller
-        (including the asyncio event loop when called from
-        ``NetBoxApiClient.request()``, which never runs this synchronously
-        off-thread) for as long as any other live, stopped, or wedged
-        process holds this lock — even after the write it guarded already
-        committed against NetBox, turning a successful mutation into an
-        apparently hung request. ``_acquire_flock`` polls non-blocking
-        instead, so both lock backends raise :class:`TimeoutError` on the
-        same bounded deadline and every existing caller's timeout handling
-        (cache bypass, unavailable-path marking) applies to both.
+        ``timeout``/``poll_interval`` bound both branches identically.
+        ``_acquire_flock`` polls non-blocking so both lock backends raise
+        :class:`TimeoutError` on the same bounded deadline and every
+        existing caller's timeout handling (cache bypass, unavailable-path
+        marking) applies to both. ``NetBoxApiClient`` runs these synchronous
+        cache operations in worker threads so the required wait-then-succeed
+        behavior never stalls its asyncio event loop.
         """
         lock_path = index_path.with_name(index_path.name + ".lock")
         if fcntl is None:  # pragma: no cover - exercised via a forced monkeypatch in tests
@@ -634,6 +674,11 @@ class HttpCacheStore:
         contract, so a lock held by another live, stopped, or wedged process
         surfaces as the same :class:`TimeoutError` every caller already
         handles instead of hanging the caller forever.
+
+        Only ``EAGAIN``/``EACCES`` report lock contention for this
+        nonblocking operation. Other ``OSError`` values are real lock or
+        filesystem failures and are propagated immediately rather than
+        hidden behind the contention timeout.
         """
         if fcntl is None:  # pragma: no cover - guarded by _locked_index's own check
             raise RuntimeError("_acquire_flock requires the fcntl module")
@@ -642,7 +687,9 @@ class HttpCacheStore:
             try:
                 fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                 return
-            except OSError:
+            except OSError as exc:
+                if exc.errno not in {errno.EACCES, errno.EAGAIN}:
+                    raise
                 if time.monotonic() >= deadline:
                     raise TimeoutError(
                         f"timed out waiting for cache index lock: {lock_handle.name}"

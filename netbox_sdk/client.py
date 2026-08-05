@@ -661,10 +661,13 @@ class NetBoxApiClient:
             # Captured before the request is issued so a concurrent write's
             # invalidate_path() that lands while this GET is in flight is
             # detected at save time below, instead of this now-stale response
-            # silently repopulating the cache after the write already purged it.
-            cache_generation = self._cache.path_generation(path)
+            # silently repopulating the cache after the write already purged
+            # it. Cache-store operations are synchronous because they use
+            # cross-process filesystem locks, so every potentially blocking
+            # call runs off the asyncio event-loop thread.
+            cache_generation = await asyncio.to_thread(self._cache.path_generation, path)
             if self._cache.generation_is_available(cache_generation):
-                cache_entry = self._cache.load(cache_key)
+                cache_entry = await asyncio.to_thread(self._cache.load, cache_key, path=path)
                 if cache_entry is not None and cache_entry.is_fresh(self._now()):
                     return self._cached_response(cache_entry, cache_status="HIT")
                 if cache_entry is not None:
@@ -712,11 +715,15 @@ class NetBoxApiClient:
                     response = await self._request_once(
                         session, authorization=authorization, **req_kwargs
                     )
+            if response.status == 304 and cache_entry is not None and cache_generation is not None:
+                current_generation = await asyncio.to_thread(self._cache.path_generation, path)
+            else:
+                current_generation = cache_generation
             if (
                 response.status == 304
                 and cache_entry is not None
                 and cache_generation is not None
-                and self._cache.path_generation(path) != cache_generation
+                and current_generation != cache_generation
             ):
                 # A concurrent write invalidated this path while our
                 # conditional request was in flight. The 304 only confirms
@@ -734,7 +741,7 @@ class NetBoxApiClient:
                 # below must see that mismatch and skip persisting, not adopt
                 # a post-response generation that would make the now-stale
                 # replacement response pass the fence as if it were current.
-                cache_generation = self._cache.path_generation(path)
+                cache_generation = await asyncio.to_thread(self._cache.path_generation, path)
                 # The entry we conditionally requested against is already
                 # proven stale by the generation mismatch that triggered this
                 # refetch. Drop it now, before issuing the replacement
@@ -764,7 +771,7 @@ class NetBoxApiClient:
                 # connection dropped mid-read). Purge related cache entries
                 # defensively so a verification read can't serve the stale
                 # pre-write data as if the write never happened.
-                self._safe_invalidate_related_cache(path, payload)
+                await self._safe_invalidate_related_cache(path, payload)
             if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
                 return self._cached_response(cache_entry, cache_status="STALE")
             raise
@@ -784,8 +791,8 @@ class NetBoxApiClient:
             # this to confirmed success left that committed write invisible
             # to the cache, so a verification read could still return the
             # stale pre-write entry and encourage an unsafe duplicate retry.
-            self._safe_invalidate_related_cache(path, payload)
-        return self._finalize_cached_response(
+            await self._safe_invalidate_related_cache(path, payload)
+        return await self._finalize_cached_response(
             response=response,
             cache_key=cache_key,
             cache_entry=cache_entry,
@@ -1042,7 +1049,7 @@ class NetBoxApiClient:
                     paths.append(cross_resource_path)
         return paths
 
-    def _invalidate_related_cache(
+    async def _invalidate_related_cache(
         self, path: str, payload: dict[str, Any] | list[Any] | None
     ) -> None:
         """Purge cached reads that a successful write to ``path`` may have staled.
@@ -1056,7 +1063,7 @@ class NetBoxApiClient:
         """
         for target_path in self._related_cache_paths(path, payload):
             try:
-                self._cache.invalidate_path(target_path)
+                await asyncio.to_thread(self._cache.invalidate_path, target_path)
             except OSError:
                 # Keep the path unavailable on any invalidation failure, not
                 # only a lock timeout: a test double, an alternate cache
@@ -1066,7 +1073,7 @@ class NetBoxApiClient:
                 # pre-write entry must not remain trustable in any of those
                 # cases. TimeoutError is an OSError subclass, so this one
                 # handler covers both.
-                self._cache._mark_path_unavailable(target_path)
+                await asyncio.to_thread(self._cache._mark_path_unavailable, target_path)
                 logger.warning(
                     "cache invalidation failed after write attempt; stale reads "
                     "may be served until the affected entries expire",
@@ -1076,7 +1083,7 @@ class NetBoxApiClient:
                     },
                 )
 
-    def _safe_invalidate_related_cache(
+    async def _safe_invalidate_related_cache(
         self, path: str, payload: dict[str, Any] | list[Any] | None
     ) -> None:
         """Best-effort cache purge that never overrides the underlying request outcome.
@@ -1091,7 +1098,7 @@ class NetBoxApiClient:
         safety net for anything that still escapes it.
         """
         try:
-            self._invalidate_related_cache(path, payload)
+            await self._invalidate_related_cache(path, payload)
         except OSError:
             logger.warning(
                 "cache invalidation failed after write attempt; stale reads "
@@ -1103,7 +1110,7 @@ class NetBoxApiClient:
         status, text, headers = entry.response_parts(cache_status=cache_status)
         return ApiResponse(status=status, text=text, headers=headers)
 
-    def _finalize_cached_response(
+    async def _finalize_cached_response(
         self,
         *,
         response: ApiResponse,
@@ -1116,7 +1123,8 @@ class NetBoxApiClient:
         if cache_policy is None or cache_key is None:
             return response
         if response.status == 304 and cache_entry is not None:
-            refreshed = self._cache.refresh(
+            refreshed = await asyncio.to_thread(
+                self._cache.refresh,
                 cache_key,
                 cache_entry,
                 cache_policy,
@@ -1125,7 +1133,8 @@ class NetBoxApiClient:
             )
             return self._cached_response(refreshed, cache_status="REVALIDATED")
         if 200 <= response.status < 300:
-            stored = self._cache.save(
+            stored = await asyncio.to_thread(
+                self._cache.save,
                 cache_key,
                 response,
                 cache_policy,

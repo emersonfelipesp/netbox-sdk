@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import contextlib
+import errno
 import json
 import os
 import stat
@@ -1738,14 +1740,13 @@ def test_locked_index_uses_portable_fallback_lock_when_fcntl_unavailable(
 def test_locked_index_fcntl_lock_raises_timeout_instead_of_blocking_forever(tmp_path) -> None:
     """Regression (Round 21 adversarial review): the fcntl branch of
     _locked_index() previously called blocking fcntl.flock(..., LOCK_EX)
-    with no deadline. Invoked synchronously from NetBoxApiClient.request()
-    (never wrapped in run_in_executor/to_thread), a lock held by another
-    live, stopped, or wedged process would freeze the entire caller --
-    including the asyncio event loop -- indefinitely, even after that other
-    process's own write had already committed against NetBox. Holding a
-    real flock via a second file handle on the same lock path reproduces
-    that contention; _acquire_flock's bounded LOCK_NB polling must now
-    raise TimeoutError instead of blocking past the deadline."""
+    with no deadline. A lock held by another live, stopped, or wedged
+    process could therefore freeze its caller indefinitely. The async client
+    now offloads this bounded wait separately, but the store itself must
+    still honor its timeout. Holding a real flock via a second file handle
+    on the same lock path reproduces that contention; _acquire_flock's
+    bounded LOCK_NB polling must raise TimeoutError instead of blocking past
+    the deadline."""
     fcntl = pytest.importorskip("fcntl")
 
     store = HttpCacheStore(tmp_path)
@@ -1765,6 +1766,86 @@ def test_locked_index_fcntl_lock_raises_timeout_instead_of_blocking_forever(tmp_
     finally:
         fcntl.flock(holder.fileno(), fcntl.LOCK_UN)
         holder.close()
+
+
+def test_acquire_flock_propagates_non_contention_oserror_immediately(monkeypatch, tmp_path) -> None:
+    """Only EAGAIN/EACCES mean a nonblocking flock is contended.
+
+    Retrying every OSError hides permanent filesystem/descriptor failures
+    behind the full lock timeout instead of surfacing the real error.
+    """
+    import netbox_sdk.http_cache as http_cache_module
+
+    real_fcntl = pytest.importorskip("fcntl")
+    store = HttpCacheStore(tmp_path)
+    lock_path = tmp_path / "idx-test.json.lock"
+
+    def _raise_io_error(fd, operation) -> None:
+        del fd, operation
+        raise OSError(errno.EIO, "simulated flock I/O failure")
+
+    monkeypatch.setattr(real_fcntl, "flock", _raise_io_error)
+    with lock_path.open("a+") as lock_handle:
+        with pytest.raises(OSError, match="simulated flock I/O failure"):
+            store._acquire_flock(lock_handle, timeout=0.05, poll_interval=0.01)
+
+    assert http_cache_module.fcntl is real_fcntl
+
+
+@pytest.mark.asyncio
+async def test_api_client_cache_lock_contention_keeps_event_loop_responsive(
+    monkeypatch, tmp_path
+) -> None:
+    """Cache-lock polling must wait off the asyncio event-loop thread."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+    client = NetBoxApiClient(Config(base_url="https://demo.netbox.dev"))
+    path = "/api/dcim/devices/5/"
+    index_path = client._cache._index_path_file(path)
+    lock_acquired = threading.Event()
+    lock_released = threading.Event()
+    holder_errors: list[BaseException] = []
+
+    def _hold_cache_lock() -> None:
+        try:
+            with client._cache._locked_index(index_path):
+                lock_acquired.set()
+                time.sleep(0.15)
+        except BaseException as exc:  # pragma: no cover - asserted below
+            holder_errors.append(exc)
+        finally:
+            lock_released.set()
+
+    holder = threading.Thread(target=_hold_cache_lock)
+    holder.start()
+    assert lock_acquired.wait(timeout=5)
+
+    async def _fake_request_once(self, session, **kwargs):
+        return ApiResponse(status=200, text='{"id": 5}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+    heartbeat_ticks = 0
+
+    async def _heartbeat() -> None:
+        nonlocal heartbeat_ticks
+        while not lock_released.is_set():
+            await asyncio.sleep(0.005)
+            if not lock_released.is_set():
+                heartbeat_ticks += 1
+
+    heartbeat = asyncio.create_task(_heartbeat())
+    await asyncio.sleep(0)
+    started = time.monotonic()
+    response = await client.request("GET", path)
+    elapsed = time.monotonic() - started
+    await heartbeat
+    holder.join(timeout=5)
+
+    assert not holder_errors
+    assert not holder.is_alive()
+    assert elapsed >= 0.1  # proves request() actually encountered the held lock
+    assert heartbeat_ticks >= 3
+    assert response.status == 200
 
 
 def test_portable_lock_raises_timeout_instead_of_silent_corruption(tmp_path) -> None:
@@ -2483,6 +2564,87 @@ def test_refresh_after_corrupted_index_never_trusts_reset_generation_as_fence(tm
     )
 
     assert store.load(key) is None
+
+
+def test_secondary_corrupted_index_save_cannot_rewind_generation_fence(tmp_path) -> None:
+    """Recovering corrupt path A must leave corrupt path B unavailable.
+
+    A stale B response captured at generation 0 cannot be persisted after B
+    was invalidated to generation 1 merely because A's recovery discovered
+    and removed B's independently corrupted index.
+    """
+    store = HttpCacheStore(tmp_path)
+    path_a = "/api/dcim/sites/9/"
+    path_b = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key_b = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path_b,
+        query=None,
+        authorization=None,
+    )
+    captured_generation = store.path_generation(path_b)
+    assert captured_generation == 0
+    store.save(
+        key_b,
+        ApiResponse(status=200, text='{"old": true}', headers={}),
+        policy,
+        path=path_b,
+        expected_generation=captured_generation,
+    )
+    store.invalidate_path(path_b)
+    store._index_path_file(path_a).write_text("corrupt A", encoding="utf-8")
+    store._index_path_file(path_b).write_text("corrupt B", encoding="utf-8")
+
+    store.path_generation(path_a)
+    store.save(
+        key_b,
+        ApiResponse(status=200, text='{"stale": true}', headers={}),
+        policy,
+        path=path_b,
+        expected_generation=captured_generation,
+    )
+
+    assert store.load(key_b) is None
+
+
+def test_secondary_corrupted_index_refresh_cannot_rewind_generation_fence(tmp_path) -> None:
+    """The secondary-corruption generation fence also rejects refresh()."""
+    store = HttpCacheStore(tmp_path)
+    path_a = "/api/dcim/sites/9/"
+    path_b = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key_b = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path_b,
+        query=None,
+        authorization=None,
+    )
+    captured_generation = store.path_generation(path_b)
+    assert captured_generation == 0
+    entry = store.save(
+        key_b,
+        ApiResponse(status=200, text='{"old": true}', headers={}),
+        policy,
+        path=path_b,
+        expected_generation=captured_generation,
+    )
+    store.invalidate_path(path_b)
+    store._index_path_file(path_a).write_text("corrupt A", encoding="utf-8")
+    store._index_path_file(path_b).write_text("corrupt B", encoding="utf-8")
+
+    store.path_generation(path_a)
+    store.refresh(
+        key_b,
+        entry,
+        policy,
+        path=path_b,
+        expected_generation=captured_generation,
+    )
+
+    assert store.load(key_b) is None
 
 
 def test_path_generation_after_corruption_marks_path_unavailable_until_self_healed(
