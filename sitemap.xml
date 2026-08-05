@@ -195,6 +195,13 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/mcp/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/mcp/agent-setup/</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/mcp/agent-setup/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/mcp/agent-setup/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/mock-api/</loc>
         <lastmod>2026-08-05</lastmod>
         <changefreq>daily</changefreq>
@@ -688,6 +695,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/getting-started/quickstart/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/getting-started/quickstart/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/mcp/agent-setup/</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/mcp/agent-setup/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/mcp/agent-setup/"/>
     </url>
     <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/mcp/</loc>
