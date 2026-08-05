@@ -6,6 +6,7 @@ import json
 import os
 import re
 from pathlib import Path
+from typing import Literal, TypedDict
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -45,7 +46,19 @@ def _rewrite_img_src_abs_assets(output: str, page, config) -> str:
 _RAW_DIR = _REPO_ROOT / "docs" / "generated" / "raw"
 _INDEX_FILE = _RAW_DIR / "index.json"
 
-_SURFACE_OUTPUTS = {
+
+class _LocalizedText(TypedDict):
+    en: str
+    pt: str
+
+
+class _SurfaceMetadata(TypedDict):
+    title: _LocalizedText
+    description: _LocalizedText
+    output_dir: Path
+
+
+_SURFACE_OUTPUTS: dict[str, _SurfaceMetadata] = {
     "cli": {
         "title": {
             "en": "CLI Command Output",
@@ -307,7 +320,7 @@ def _write_surface_index(
     meta: dict,
     sections: dict[str, list[dict]],
     section_slugs: list[tuple[str, str]],
-    lang: str,
+    lang: Literal["en", "pt"],
 ) -> None:
     surface_meta = _SURFACE_OUTPUTS[surface]
     ui = _UI[lang]

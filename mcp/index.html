@@ -10,35 +10,35 @@
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/cli/proxbox/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/mcp/">
       
       
-        <link rel="prev" href="../dynamic-commands/">
+        <link rel="prev" href="../generated/nbx-command-capture/">
       
       
-        <link rel="next" href="../graphql/">
+        <link rel="next" href="../tui/">
       
       
         
           <link rel="alternate" href="./" hreflang="en">
         
-          <link rel="alternate" href="../../pt/cli/proxbox/" hreflang="pt">
+          <link rel="alternate" href="../pt/mcp/" hreflang="pt">
         
       
       
-      <link rel="icon" href="../../assets/logo.svg">
+      <link rel="icon" href="../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Proxbox - NetBox SDK</title>
+        <title>MCP Server - NetBox SDK</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -57,9 +57,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../assets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#proxbox-cli" class="md-skip">
+        <a href="#mcp-server" class="md-skip">
           Skip to content
         </a>
       
@@ -100,9 +100,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="NetBox SDK" class="md-header__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
+    <a href=".." title="NetBox SDK" class="md-header__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Proxbox
+              MCP Server
             
           </span>
         </div>
@@ -172,7 +172,7 @@
           </li>
         
           <li class="md-select__item">
-            <a href="../../pt/cli/proxbox/" hreflang="pt" class="md-select__link">
+            <a href="../pt/mcp/" hreflang="pt" class="md-select__link">
               Português (Brasil)
             </a>
           </li>
@@ -252,7 +252,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -273,7 +273,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/" class="md-tabs__link">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -295,7 +295,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../sdk/" class="md-tabs__link">
+        <a href="../sdk/" class="md-tabs__link">
           
   
   
@@ -317,7 +317,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../mock-api/" class="md-tabs__link">
+        <a href="../mock-api/" class="md-tabs__link">
           
   
   
@@ -335,13 +335,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../cli/" class="md-tabs__link">
           
   
   
@@ -359,9 +357,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../../mcp/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -382,7 +382,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../tui/" class="md-tabs__link">
+        <a href="../tui/" class="md-tabs__link">
           
   
   
@@ -404,7 +404,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../developer/" class="md-tabs__link">
+        <a href="../developer/" class="md-tabs__link">
           
   
   
@@ -446,9 +446,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="NetBox SDK" class="md-nav__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
+    <a href=".." title="NetBox SDK" class="md-nav__button md-logo" aria-label="NetBox SDK" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     NetBox SDK
@@ -475,7 +475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../getting-started/" class="md-nav__link ">
+            <a href="../getting-started/" class="md-nav__link ">
               
   
   
@@ -577,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/installation/" class="md-nav__link">
+      <a href="../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -605,7 +605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/configuration/" class="md-nav__link">
+      <a href="../getting-started/configuration/" class="md-nav__link">
         
   
   
@@ -633,7 +633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/quickstart/" class="md-nav__link">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
         
   
   
@@ -707,7 +707,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../sdk/" class="md-nav__link ">
+            <a href="../sdk/" class="md-nav__link ">
               
   
   
@@ -751,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/authentication/" class="md-nav__link">
+      <a href="../sdk/authentication/" class="md-nav__link">
         
   
   
@@ -779,7 +779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/making-requests/" class="md-nav__link">
+      <a href="../sdk/making-requests/" class="md-nav__link">
         
   
   
@@ -807,7 +807,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/facade/" class="md-nav__link">
+      <a href="../sdk/facade/" class="md-nav__link">
         
   
   
@@ -835,7 +835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/typed/" class="md-nav__link">
+      <a href="../sdk/typed/" class="md-nav__link">
         
   
   
@@ -863,7 +863,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/schema/" class="md-nav__link">
+      <a href="../sdk/schema/" class="md-nav__link">
         
   
   
@@ -891,7 +891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/error-handling/" class="md-nav__link">
+      <a href="../sdk/error-handling/" class="md-nav__link">
         
   
   
@@ -919,7 +919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../sdk/branching/" class="md-nav__link">
+      <a href="../sdk/branching/" class="md-nav__link">
         
   
   
@@ -989,7 +989,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../mock-api/" class="md-nav__link ">
+            <a href="../mock-api/" class="md-nav__link ">
               
   
   
@@ -1033,7 +1033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mock-api/crud/" class="md-nav__link">
+      <a href="../mock-api/crud/" class="md-nav__link">
         
   
   
@@ -1061,7 +1061,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mock-api/bulk-operations/" class="md-nav__link">
+      <a href="../mock-api/bulk-operations/" class="md-nav__link">
         
   
   
@@ -1089,7 +1089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mock-api/pagination-filtering/" class="md-nav__link">
+      <a href="../mock-api/pagination-filtering/" class="md-nav__link">
         
   
   
@@ -1117,7 +1117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mock-api/pytest-integration/" class="md-nav__link">
+      <a href="../mock-api/pytest-integration/" class="md-nav__link">
         
   
   
@@ -1145,7 +1145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mock-api/standalone-server/" class="md-nav__link">
+      <a href="../mock-api/standalone-server/" class="md-nav__link">
         
   
   
@@ -1177,8 +1177,6 @@
       
   
   
-    
-  
   
   
     
@@ -1208,23 +1206,22 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../cli/" class="md-nav__link ">
               
   
   
@@ -1242,13 +1239,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1268,7 +1265,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/" class="md-nav__link">
+      <a href="../cli/commands/" class="md-nav__link">
         
   
   
@@ -1296,7 +1293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dynamic-commands/" class="md-nav__link">
+      <a href="../cli/dynamic-commands/" class="md-nav__link">
         
   
   
@@ -1321,37 +1318,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Proxbox
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../cli/proxbox/" class="md-nav__link">
         
   
   
@@ -1367,81 +1337,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#command-map" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Command Map
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#resource-families" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Resource Families
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tui" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TUI
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1454,7 +1349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../graphql/" class="md-nav__link">
+      <a href="../cli/graphql/" class="md-nav__link">
         
   
   
@@ -1482,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../demo-profile/" class="md-nav__link">
+      <a href="../cli/demo-profile/" class="md-nav__link">
         
   
   
@@ -1510,7 +1405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../branching/" class="md-nav__link">
+      <a href="../cli/branching/" class="md-nav__link">
         
   
   
@@ -1562,13 +1457,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -1578,7 +1470,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../reference/cli/command-examples/" class="md-nav__link ">
+            <a href="../reference/cli/command-examples/" class="md-nav__link ">
               
   
   
@@ -1596,7 +1488,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -1622,7 +1514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/core-commands/" class="md-nav__link">
+      <a href="../reference/cli/command-examples/core-commands/" class="md-nav__link">
         
   
   
@@ -1650,7 +1542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/schema-discovery/" class="md-nav__link">
+      <a href="../reference/cli/command-examples/schema-discovery/" class="md-nav__link">
         
   
   
@@ -1678,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/graphql-and-http/" class="md-nav__link">
+      <a href="../reference/cli/command-examples/graphql-and-http/" class="md-nav__link">
         
   
   
@@ -1706,7 +1598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/dynamic-commands/" class="md-nav__link">
+      <a href="../reference/cli/command-examples/dynamic-commands/" class="md-nav__link">
         
   
   
@@ -1734,7 +1626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/developer-tools/" class="md-nav__link">
+      <a href="../reference/cli/command-examples/developer-tools/" class="md-nav__link">
         
   
   
@@ -1762,7 +1654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/cli/command-examples/demo-profile/" class="md-nav__link">
+      <a href="../reference/cli/command-examples/demo-profile/" class="md-nav__link">
         
   
   
@@ -1798,7 +1690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../generated/nbx-command-capture/" class="md-nav__link">
+      <a href="../generated/nbx-command-capture/" class="md-nav__link">
         
   
   
@@ -1830,10 +1722,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../mcp/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1849,6 +1768,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-and-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install and run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tool-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tool surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mutation-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutation safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-operating-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent operating sequence
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1907,7 +1901,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../tui/" class="md-nav__link ">
+            <a href="../tui/" class="md-nav__link ">
               
   
   
@@ -1953,7 +1947,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/dev-workbench/" class="md-nav__link">
+      <a href="../tui/dev-workbench/" class="md-nav__link">
         
   
   
@@ -1981,7 +1975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/graphql/" class="md-nav__link">
+      <a href="../tui/graphql/" class="md-nav__link">
         
   
   
@@ -2009,7 +2003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/cli-builder/" class="md-nav__link">
+      <a href="../tui/cli-builder/" class="md-nav__link">
         
   
   
@@ -2037,7 +2031,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/logs/" class="md-nav__link">
+      <a href="../tui/logs/" class="md-nav__link">
         
   
   
@@ -2065,7 +2059,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/django-models/" class="md-nav__link">
+      <a href="../tui/django-models/" class="md-nav__link">
         
   
   
@@ -2130,7 +2124,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../reference/tui/launch-examples/" class="md-nav__link ">
+            <a href="../reference/tui/launch-examples/" class="md-nav__link ">
               
   
   
@@ -2174,7 +2168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/main-browser/" class="md-nav__link">
+      <a href="../reference/tui/launch-examples/main-browser/" class="md-nav__link">
         
   
   
@@ -2202,7 +2196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/logs-viewer/" class="md-nav__link">
+      <a href="../reference/tui/launch-examples/logs-viewer/" class="md-nav__link">
         
   
   
@@ -2230,7 +2224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/developer-workbench/" class="md-nav__link">
+      <a href="../reference/tui/launch-examples/developer-workbench/" class="md-nav__link">
         
   
   
@@ -2258,7 +2252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/graphql-tui/" class="md-nav__link">
+      <a href="../reference/tui/launch-examples/graphql-tui/" class="md-nav__link">
         
   
   
@@ -2286,7 +2280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/cli-builder/" class="md-nav__link">
+      <a href="../reference/tui/launch-examples/cli-builder/" class="md-nav__link">
         
   
   
@@ -2314,7 +2308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/tui/launch-examples/django-models-browser/" class="md-nav__link">
+      <a href="../reference/tui/launch-examples/django-models-browser/" class="md-nav__link">
         
   
   
@@ -2350,7 +2344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/themes/" class="md-nav__link">
+      <a href="../tui/themes/" class="md-nav__link">
         
   
   
@@ -2378,7 +2372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/keybindings/" class="md-nav__link">
+      <a href="../tui/keybindings/" class="md-nav__link">
         
   
   
@@ -2406,7 +2400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/branching/" class="md-nav__link">
+      <a href="../tui/branching/" class="md-nav__link">
         
   
   
@@ -2504,7 +2498,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots/" class="md-nav__link">
+      <a href="../tui/screenshots/" class="md-nav__link">
         
   
   
@@ -2532,7 +2526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots-default/" class="md-nav__link">
+      <a href="../tui/screenshots-default/" class="md-nav__link">
         
   
   
@@ -2560,7 +2554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots-dev/" class="md-nav__link">
+      <a href="../tui/screenshots-dev/" class="md-nav__link">
         
   
   
@@ -2588,7 +2582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots-graphql/" class="md-nav__link">
+      <a href="../tui/screenshots-graphql/" class="md-nav__link">
         
   
   
@@ -2616,7 +2610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots-logs/" class="md-nav__link">
+      <a href="../tui/screenshots-logs/" class="md-nav__link">
         
   
   
@@ -2644,7 +2638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots-cli/" class="md-nav__link">
+      <a href="../tui/screenshots-cli/" class="md-nav__link">
         
   
   
@@ -2672,7 +2666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tui/screenshots-django/" class="md-nav__link">
+      <a href="../tui/screenshots-django/" class="md-nav__link">
         
   
   
@@ -2762,7 +2756,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../developer/" class="md-nav__link ">
+            <a href="../developer/" class="md-nav__link ">
               
   
   
@@ -2806,7 +2800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/architecture/" class="md-nav__link">
+      <a href="../developer/architecture/" class="md-nav__link">
         
   
   
@@ -2834,7 +2828,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/sdk-internals/" class="md-nav__link">
+      <a href="../developer/sdk-internals/" class="md-nav__link">
         
   
   
@@ -2862,7 +2856,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/integration-with-proxbox-api/" class="md-nav__link">
+      <a href="../developer/integration-with-proxbox-api/" class="md-nav__link">
         
   
   
@@ -2890,7 +2884,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/package-integration/" class="md-nav__link">
+      <a href="../developer/package-integration/" class="md-nav__link">
         
   
   
@@ -2918,7 +2912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/design-principles/" class="md-nav__link">
+      <a href="../developer/design-principles/" class="md-nav__link">
         
   
   
@@ -2946,7 +2940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/textual-composition/" class="md-nav__link">
+      <a href="../developer/textual-composition/" class="md-nav__link">
         
   
   
@@ -2974,7 +2968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/docgen/" class="md-nav__link">
+      <a href="../developer/docgen/" class="md-nav__link">
         
   
   
@@ -3002,7 +2996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../certification/" class="md-nav__link">
+      <a href="../certification/" class="md-nav__link">
         
   
   
@@ -3030,7 +3024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/ide-support/" class="md-nav__link">
+      <a href="../developer/ide-support/" class="md-nav__link">
         
   
   
@@ -3058,7 +3052,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../command-capture-guide/" class="md-nav__link">
+      <a href="../command-capture-guide/" class="md-nav__link">
         
   
   
@@ -3086,7 +3080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../NETBOX_UI_TO_TEXTUAL_GUIDELINES/" class="md-nav__link">
+      <a href="../NETBOX_UI_TO_TEXTUAL_GUIDELINES/" class="md-nav__link">
         
   
   
@@ -3141,10 +3135,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#command-map" class="md-nav__link">
+  <a href="#install-and-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Command Map
+        Install and run
       
     </span>
   </a>
@@ -3152,10 +3146,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#tool-surface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Examples
+        Tool surface
       
     </span>
   </a>
@@ -3163,10 +3157,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resource-families" class="md-nav__link">
+  <a href="#authentication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resource Families
+        Authentication
       
     </span>
   </a>
@@ -3174,10 +3168,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#flow" class="md-nav__link">
+  <a href="#mutation-safety" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Flow
+        Mutation safety
       
     </span>
   </a>
@@ -3185,10 +3179,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tui" class="md-nav__link">
+  <a href="#agent-operating-sequence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TUI
+        Agent operating sequence
       
     </span>
   </a>
@@ -3213,46 +3207,6 @@
   
 
 
-  <nav class="md-path" aria-label="Navigation" >
-    <ol class="md-path__list">
-      
-        
-  
-  
-    <li class="md-path__item">
-      <a href="../.." class="md-path__link">
-        
-  <span class="md-ellipsis">
-    Home
-  </span>
-
-      </a>
-    </li>
-  
-
-      
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="../" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    CLI
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-    </ol>
-  </nav>
-
               
               <article class="md-content__inner md-typeset">
                 
@@ -3263,168 +3217,124 @@
   
 
 
-<h1 id="proxbox-cli">Proxbox CLI<a class="headerlink" href="#proxbox-cli" title="Permanent link">&para;</a></h1>
-<p><code>nbx proxbox</code> is the dedicated command surface for the <code>netbox-proxbox</code> plugin.
-It includes a stable catalog of Proxbox plugin endpoints, generated CRUD
-commands, the existing streaming sync workflow, and a Proxbox-focused Textual
-request workbench.</p>
-<p>Use this surface when you want Proxbox operations without remembering raw plugin
-paths such as <code>/api/plugins/proxbox/firewall/rules/{id}/</code>.</p>
-<h2 id="command-map">Command Map<a class="headerlink" href="#command-map" title="Permanent link">&para;</a></h2>
+<h1 id="mcp-server">MCP Server<a class="headerlink" href="#mcp-server" title="Permanent link">&para;</a></h1>
+<p><code>netbox_mcp</code> provides a deliberately small Model Context Protocol surface over
+the same <code>SchemaIndex</code>, request resolver, plugin discovery, pagination, client,
+and profile configuration used by the SDK and CLI. It does not generate one
+tool per OpenAPI operation, so its tool list stays stable when NetBox plugins
+change the reachable resources.</p>
+<h2 id="install-and-run">Install and run<a class="headerlink" href="#install-and-run" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;netbox-sdk[mcp]&#39;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx-mcp
+</span></code></pre></div>
+<p>stdio is the default transport. For Streamable HTTP:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">NETBOX_MCP_AUTH_TOKEN</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NETBOX_MCP_AUTH_TOKEN</span><span class="s2">&quot;</span><span class="w"> </span>nbx-mcp<span class="w"> </span>--transport<span class="w"> </span>streamable-http<span class="w"> </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
+</span></code></pre></div>
+<p>The MCP endpoint is <code>/mcp</code>. Every Streamable HTTP bind requires a
+shared-secret bearer token via <code>--auth-token</code> or <code>NETBOX_MCP_AUTH_TOKEN</code>; the
+server raises <code>RuntimeError</code> and refuses to start without one, including on
+loopback hosts (<code>127.0.0.1</code>, <code>localhost</code>, <code>::1</code>). Binding to loopback only
+restricts <em>reachability</em> to this machine — it does not <em>authenticate</em> other
+local processes or users, who could otherwise reach the server's loaded
+NetBox credential (and any active <code>--allow-mutations</code> window) unauthenticated
+on a shared dev or bastion host. Put TLS termination in front of it when it
+is exposed beyond the local host — the bearer token authenticates the
+caller, it does not encrypt the transport. Prefer <code>NETBOX_MCP_AUTH_TOKEN</code>
+over <code>--auth-token</code> on any shared host: a CLI argument's value is visible to
+other local users through <code>ps</code> and <code>/proc/&lt;pid&gt;/cmdline</code>, while the
+environment variable is not.</p>
+<p>This gate cannot be bypassed by calling the server object directly instead
+of going through <code>run()</code>: <code>create_mcp_server()</code> always shadows the returned
+server's <code>streamable_http_app</code> <strong>and</strong> <code>sse_app</code> with wrappers that enforce
+the same <code>auth_token</code>, including raising <code>RuntimeError</code> when no token was
+configured at all. There is no code path — <code>run("streamable-http")</code>,
+<code>streamable_http_app()</code>, <code>run("sse")</code>, <code>sse_app()</code>, or otherwise — that
+yields an unauthenticated network app from a <code>create_mcp_server()</code>-produced
+instance. The <code>--transport</code> CLI flag only exposes <code>stdio</code> and
+<code>streamable-http</code>, but any embedder holding the returned <code>FastMCP</code> instance
+directly (not just the <code>nbx-mcp</code> entrypoint) could otherwise reach the SSE
+transport unauthenticated, since it shares the same instance-attribute
+shadowing mechanism as Streamable HTTP.</p>
+<h2 id="tool-surface">Tool surface<a class="headerlink" href="#tool-surface" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Command</th>
-<th>Purpose</th>
+<th>Tool</th>
+<th>Behavior</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>nbx proxbox resources</code></td>
-<td>Show the catalog with Rich-colored command, category, action, and description columns</td>
+<td><code>list_groups</code>, <code>list_resources</code>, <code>describe_operation</code></td>
+<td>Stable JSON schema introspection; <code>live=true</code> includes runtime resources</td>
 </tr>
 <tr>
-<td><code>nbx proxbox ops RESOURCE</code></td>
-<td>Show the HTTP methods and paths behind one catalog resource</td>
+<td><code>list</code>, <code>get</code></td>
+<td>Schema-resolved reads; <code>list</code> supports pagination and repeated query keys; <code>live=true</code> dispatches against the same connected-instance schema <code>describe_operation(live=true)</code> reports, so a runtime-discovered resource can be listed or fetched, not just described</td>
 </tr>
 <tr>
-<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; list</code></td>
-<td>GET a Proxbox list endpoint</td>
+<td><code>filters</code></td>
+<td>Local filter introspection with no HTTP request</td>
 </tr>
 <tr>
-<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; get --id N</code></td>
-<td>GET a Proxbox detail endpoint</td>
+<td><code>create</code>, <code>update</code>, <code>patch</code>, <code>delete</code></td>
+<td>Detail mutations guarded off by default</td>
 </tr>
 <tr>
-<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; create --body-json ...</code></td>
-<td>POST to writable list endpoints</td>
+<td><code>bulk_update</code>, <code>bulk_patch</code>, <code>bulk_delete</code></td>
+<td>List-path mutations guarded off by default</td>
 </tr>
 <tr>
-<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; update --id N --body-json ...</code></td>
-<td>PUT to writable detail endpoints</td>
+<td><code>plugin_discover</code></td>
+<td>Enrich the active schema through live plugin discovery</td>
 </tr>
 <tr>
-<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; patch --id N --body-json ...</code></td>
-<td>PATCH writable detail endpoints</td>
-</tr>
-<tr>
-<td><code>nbx proxbox &lt;category&gt; &lt;resource&gt; delete --id N</code></td>
-<td>DELETE writable detail endpoints</td>
-</tr>
-<tr>
-<td><code>nbx proxbox sync</code></td>
-<td>Schedule a guided sync job and stream SSE progress</td>
-</tr>
-<tr>
-<td><code>nbx proxbox tui</code></td>
-<td>Open the Proxbox-only request workbench</td>
+<td><code>call</code></td>
+<td>Relative <code>/api/</code> escape hatch; GET/HEAD only while the mutation gate is closed</td>
 </tr>
 </tbody>
 </table>
-<p>Read-only Proxbox resources only register read commands. For example,
-<code>operations deletion-requests</code> and <code>operations apply-jobs</code> expose <code>list</code> and
-<code>get</code> only; write subcommands are not present.</p>
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Find supported resources and actions.</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>resources
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>resources<span class="w"> </span>--json
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Inspect one resource before writing automation around it.</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>ops<span class="w"> </span>firewall/rules
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>ops<span class="w"> </span>operations/deletion-requests<span class="w"> </span>--json
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Standard CRUD commands.</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>list<span class="w"> </span>-q<span class="w"> </span><span class="nv">name</span><span class="o">=</span>pve-prod
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>get<span class="w"> </span>--id<span class="w"> </span><span class="m">12</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>endpoints<span class="w"> </span>proxmox<span class="w"> </span>create<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;pve-prod&quot;,&quot;url&quot;:&quot;https://pve.example.com:8006&quot;}&#39;</span><span class="w"> </span>--confirm
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>firewall<span class="w"> </span>rules<span class="w"> </span>patch<span class="w"> </span>--id<span class="w"> </span><span class="m">7</span><span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span><span class="w"> </span>--confirm
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>sdn<span class="w"> </span>vnets<span class="w"> </span>delete<span class="w"> </span>--id<span class="w"> </span><span class="m">31</span><span class="w"> </span>--confirm
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># Dry-run write requests without sending them.</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>firewall<span class="w"> </span>rules<span class="w"> </span>patch<span class="w"> </span>--id<span class="w"> </span><span class="m">7</span><span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;enabled&quot;:false}&#39;</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># Low-level schedule endpoint. The guided command below is usually better.</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>schedule<span class="w"> </span>create<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;sync_types&quot;:[&quot;all&quot;]}&#39;</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># Guided sync with live progress bars.</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>sync<span class="w"> </span>pve-prod<span class="w"> </span>-t<span class="w"> </span>virtual-machines<span class="w"> </span>-t<span class="w"> </span>storage<span class="w"> </span>--confirm
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="c1"># Proxbox-only TUI.</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--confirm
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--theme<span class="w"> </span>dracula<span class="w"> </span>--confirm
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span>tui<span class="w"> </span>--theme
+<p>Every tool input is validated by an explicit Pydantic schema. Names, IDs,
+methods, relative API paths, list sizes, unknown fields, and credential control
+characters are rejected before dispatch. Raw <code>call</code> paths containing an encoded
+path separator (<code>%2F</code> or <code>%5C</code>, case-insensitive) are rejected before cache or
+network access because routers disagree on whether those octets split segments.</p>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>For stdio, the server loads the existing default profile from
+<code>netbox_sdk.config</code>; it does not create a second credential store. Each tool
+that contacts NetBox can instead receive a <code>token</code> bearer credential for that
+call. Avoid placing tokens in logs, model-visible transcripts, or checked-in
+server configuration.</p>
+<p>This per-call NetBox token is separate from the Streamable HTTP transport's
+own <code>--auth-token</code>/<code>NETBOX_MCP_AUTH_TOKEN</code> bearer gate described above: the
+transport token authenticates <em>the MCP caller</em> to <em>this server</em>, while the
+per-call <code>token</code> authenticates <em>this server</em> to <em>NetBox</em>.</p>
+<h2 id="mutation-safety">Mutation safety<a class="headerlink" href="#mutation-safety" title="Permanent link">&para;</a></h2>
+<p>Live writes are denied by default. Preview the request first with <code>dry_run=true</code>,
+then start a deliberately scoped execution window with either:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">NETBOX_MCP_ALLOW_MUTATIONS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>nbx-mcp
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>nbx-mcp<span class="w"> </span>--allow-mutations
 </span></code></pre></div>
-<p>Live Proxbox CRUD, sync scheduling, and TUI launch require <code>--confirm</code> or
-<code>NETBOX_SDK_CONFIRM_WRITE=1</code>; dry runs remain confirmation-free. Inside the
-request workbench, every POST, PUT, PATCH, or DELETE also requires its own
-confirmation dialog showing the method, path, and payload before dispatch. If a sync SSE
-stream fails after scheduling, the CLI fetches the authoritative NetBox job
-and polls that same job within the remaining timeout when needed. A completed
-job stays successful with the disconnect in <code>warnings</code>; a failed or still
-non-terminal job is reported from its authoritative status without implying
-the scheduled work never happened. If the authoritative fetch itself fails,
-JSON error output preserves the known <code>job_id</code>; automation must inspect that
-existing job before considering another sync rather than blindly rescheduling.</p>
-<h2 id="resource-families">Resource Families<a class="headerlink" href="#resource-families" title="Permanent link">&para;</a></h2>
-<p>The catalog groups plugin endpoints by operator workflow:</p>
-<table>
-<thead>
-<tr>
-<th>Family</th>
-<th>Examples</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Endpoints</td>
-<td><code>endpoints proxmox</code>, <code>endpoints netbox</code>, <code>endpoints pbs</code>, <code>endpoints pdm</code></td>
-</tr>
-<tr>
-<td>Inventory</td>
-<td><code>inventory clusters</code>, <code>inventory nodes</code>, <code>inventory storage</code></td>
-</tr>
-<tr>
-<td>Virtual machines</td>
-<td><code>virtual-machines templates</code>, <code>virtual-machines cloudinit</code></td>
-</tr>
-<tr>
-<td>Operations</td>
-<td><code>operations backups</code>, <code>operations snapshots</code>, <code>operations task-history</code></td>
-</tr>
-<tr>
-<td>Firecracker</td>
-<td><code>firecracker host-pools</code>, <code>firecracker hosts</code>, <code>firecracker microvms</code></td>
-</tr>
-<tr>
-<td>Firewall</td>
-<td><code>firewall security-groups</code>, <code>firewall rules</code>, <code>firewall ipsets</code></td>
-</tr>
-<tr>
-<td>SDN</td>
-<td><code>sdn fabrics</code>, <code>sdn controllers</code>, <code>sdn zones</code>, <code>sdn vnets</code>, <code>sdn subnets</code></td>
-</tr>
-<tr>
-<td>Views</td>
-<td><code>views home</code>, <code>views dashboard</code>, <code>resource-views virtual-machines</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="flow">Flow<a class="headerlink" href="#flow" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[nbx proxbox command] --&gt; B[Proxbox catalog]
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[SchemaIndex resource path]
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[Dynamic request resolver]
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    D --&gt; E[NetBoxApiClient]
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    E --&gt; F[netbox-proxbox plugin API]
-</span></code></pre></div>
-<h2 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h2>
-<p><code>nbx proxbox tui</code> launches the same request workbench used by <code>nbx dev tui</code>,
-but with a Proxbox-only schema index. The sidebar starts at the Proxbox catalog,
-the method/path/body/response panels work the same way as the developer
-workbench, and live plugin discovery is disabled so the catalog remains stable
-even when the connected NetBox instance does not expose OpenAPI metadata for the
-plugin. Launch requires <code>--confirm</code> (or <code>NETBOX_SDK_CONFIRM_WRITE=1</code>), and each
-mutating send requires a second, request-specific confirmation in the TUI.</p>
+<p><code>dry_run=true</code> resolves the method, path, query, and body locally without
+constructing a client. It is not server-side validation and does not prove that
+the live NetBox call will succeed.</p>
+<p>The <code>nbx</code> process independently refuses dynamic CRUD/bulk writes, Proxbox
+CRUD/sync or TUI launch, write-method raw/dev-HTTP calls, and mutating Branching
+verbs unless the reviewed command includes <code>--confirm</code> or its environment
+contains <code>NETBOX_SDK_CONFIRM_WRITE=1</code>.
+Repository-local Claude Code and Codex hooks add a defense-in-depth early denial
+for recognizable Bash source; decoded or generated shell input still reaches
+the authoritative CLI-process gate.</p>
+<h2 id="agent-operating-sequence">Agent operating sequence<a class="headerlink" href="#agent-operating-sequence" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Inspect <code>nbx capabilities --json</code>, or call <code>list_groups</code>, <code>list_resources</code>,
+   and <code>describe_operation</code>.</li>
+<li>Preview every write with <code>--dry-run</code> or <code>dry_run=true</code>.</li>
+<li>Explicitly enable/confirm only the reviewed operation and execute it.</li>
+<li>Verify the result with <code>get</code> or a filtered <code>list</code>.</li>
+</ol>
+<p>The repository ships this procedure as the mirrored
+<code>netbox-sdk-operations</code> Skill under <code>.claude/skills/</code> and <code>.codex/skills/</code>.</p>
 
 
 
@@ -3498,10 +3408,10 @@ mutating send requires a second, request-specific confirmation in the TUI.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.path", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.path", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
