@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "netbox-sdk": {
+      "type": "stdio",
+      "command": "nbx-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}

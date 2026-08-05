@@ -236,6 +236,10 @@ input is ultimately enforced by the CLI gate. The mirrored
 `.claude/skills/` and `.codex/skills/` documents introspect → preview → execute
 → verify.
 
+See [Agent Client Setup](https://emersonfelipesp.github.io/netbox-sdk/mcp/agent-setup/)
+for the step-by-step guide to wiring `nbx-mcp`, the hooks, and the Skill into
+Claude Code and Codex CLI.
+
 ## Architecture
 
 - `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, shared formatting, and demo helpers.
