@@ -239,7 +239,15 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, keys = self._load_index_state_or_purge(index_path)
+                generation, keys, purged = self._load_index_state_or_purge(index_path, path)
+                if purged:
+                    logger.warning(
+                        "netbox_sdk cache index for %s was corrupted and has been reset; "
+                        "response was not cached",
+                        path,
+                        extra={"nbx_event": "cache_index_corrupted", "request_path": path},
+                    )
+                    return entry
                 if expected_generation is not None and generation != expected_generation:
                     return entry
                 if key not in keys:
@@ -290,7 +298,15 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, _keys = self._load_index_state_or_purge(index_path)
+                generation, _keys, purged = self._load_index_state_or_purge(index_path, path)
+                if purged:
+                    logger.warning(
+                        "netbox_sdk cache index for %s was corrupted and has been reset; "
+                        "skipping cache for this request",
+                        path,
+                        extra={"nbx_event": "cache_index_corrupted", "request_path": path},
+                    )
+                    return _LOCK_UNAVAILABLE_GENERATION
                 return generation
         except TimeoutError:
             self._mark_path_unavailable(path)
@@ -350,7 +366,15 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, keys = self._load_index_state_or_purge(index_path)
+                generation, keys, purged = self._load_index_state_or_purge(index_path, path)
+                if purged:
+                    logger.warning(
+                        "netbox_sdk cache index for %s was corrupted and has been reset; "
+                        "entry was not persisted",
+                        path,
+                        extra={"nbx_event": "cache_index_corrupted", "request_path": path},
+                    )
+                    return refreshed
                 if expected_generation is not None and generation != expected_generation:
                     return refreshed
                 if key not in keys:
@@ -387,7 +411,14 @@ class HttpCacheStore:
         index_path = self._index_path_file(path)
         try:
             with self._locked_index(index_path):
-                generation, keys = self._load_index_state_or_purge(index_path)
+                # A `purged` result here is not special-cased: invalidate_path
+                # already writes a fresh, incremented generation below
+                # regardless, and the corruption-triggered unavailable marker
+                # _load_index_state_or_purge just set predates the
+                # `unavailable_markers` snapshot above, so it correctly
+                # survives this call's own _clear_path_unavailable and
+                # self-heals on the next path_generation() call for path.
+                generation, keys, _purged = self._load_index_state_or_purge(index_path, path)
                 with self._locked_index(self._global_guard_path()):
                     for key in keys:
                         self._entry_path(key).unlink(missing_ok=True)
@@ -545,7 +576,9 @@ class HttpCacheStore:
         return self.root / f"idx-{digest}.json"
 
     @contextlib.contextmanager
-    def _locked_index(self, index_path: Path) -> Iterator[None]:
+    def _locked_index(
+        self, index_path: Path, *, timeout: float = 30.0, poll_interval: float = 0.01
+    ) -> Iterator[None]:
         """Serialize read-modify-write access to ``index_path`` across processes.
 
         ``save``, ``refresh``, and ``invalidate_path`` all do a
@@ -562,21 +595,59 @@ class HttpCacheStore:
         exclusive-create spin lock is used instead of the ``fcntl`` flock —
         never a no-op, which previously left both hazards above fully
         exposed on those platforms.
+
+        ``timeout``/``poll_interval`` bound both branches identically: a
+        blocking ``flock(LOCK_EX)`` here would freeze the entire caller
+        (including the asyncio event loop when called from
+        ``NetBoxApiClient.request()``, which never runs this synchronously
+        off-thread) for as long as any other live, stopped, or wedged
+        process holds this lock — even after the write it guarded already
+        committed against NetBox, turning a successful mutation into an
+        apparently hung request. ``_acquire_flock`` polls non-blocking
+        instead, so both lock backends raise :class:`TimeoutError` on the
+        same bounded deadline and every existing caller's timeout handling
+        (cache bypass, unavailable-path marking) applies to both.
         """
         lock_path = index_path.with_name(index_path.name + ".lock")
         if fcntl is None:  # pragma: no cover - exercised via a forced monkeypatch in tests
-            with self._portable_lock(lock_path):
+            with self._portable_lock(lock_path, timeout=timeout, poll_interval=poll_interval):
                 yield
             return
         lock_handle = lock_path.open("a+")
         try:
-            fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
+            self._acquire_flock(lock_handle, timeout=timeout, poll_interval=poll_interval)
             try:
                 yield
             finally:
                 fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
         finally:
             lock_handle.close()
+
+    def _acquire_flock(
+        self, lock_handle, *, timeout: float = 30.0, poll_interval: float = 0.01
+    ) -> None:
+        """Acquire an exclusive ``flock`` without ever blocking indefinitely.
+
+        ``fcntl.flock(..., LOCK_EX)`` blocks until the lock is free with no
+        way to bound the wait. Polling ``LOCK_EX | LOCK_NB`` on a deadline
+        instead mirrors :meth:`_portable_lock`'s own bounded-timeout
+        contract, so a lock held by another live, stopped, or wedged process
+        surfaces as the same :class:`TimeoutError` every caller already
+        handles instead of hanging the caller forever.
+        """
+        if fcntl is None:  # pragma: no cover - guarded by _locked_index's own check
+            raise RuntimeError("_acquire_flock requires the fcntl module")
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return
+            except OSError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"timed out waiting for cache index lock: {lock_handle.name}"
+                    )
+                time.sleep(poll_interval)
 
     @contextlib.contextmanager
     def _portable_lock(
@@ -718,8 +789,10 @@ class HttpCacheStore:
                 return generation, [str(item) for item in keys]
         return None
 
-    def _load_index_state_or_purge(self, index_path: Path) -> tuple[int, list[str]]:
-        """Load ``(generation, keys)``, recovering ``index_path`` on corruption.
+    def _load_index_state_or_purge(
+        self, index_path: Path, path: str
+    ) -> tuple[int, list[str], bool]:
+        """Load ``(generation, keys, purged)``, recovering ``index_path`` on corruption.
 
         Shared by every method that reads a per-path index (``save``,
         ``refresh``, ``path_generation``, and ``invalidate_path``). A
@@ -739,12 +812,27 @@ class HttpCacheStore:
         other path's index and generation is left untouched, so this never
         costs an unrelated path anything beyond what its own writes already
         do.
+
+        ``purged`` is ``True`` when this call reset ``index_path`` after
+        finding it corrupted. The recovered generation is always ``0``, but
+        it must never be trusted as a real fence value: a GET could have
+        captured ``expected_generation=0`` on this same path *before* a
+        concurrent write advanced it to 1, and if the index then turns out
+        corrupted (for any unrelated reason) by the time that GET's
+        ``save``/``refresh`` runs, the naive reset would make its stale
+        ``expected_generation=0`` match the recovered ``0`` and persist the
+        stale response, hiding the committed mutation. ``_mark_path_unavailable``
+        is called here so every caller can treat a ``purged`` result exactly
+        like a lock-timeout outage — skip the affected persist/fence — and so
+        the next ``path_generation`` call self-heals it via the existing
+        ``invalidate_path`` bypass-and-clear flow used for lock timeouts.
         """
         state = self._load_index_state_or_none(index_path)
         if state is None:
             self._purge_all_entries(index_path)
-            return 0, []
-        return state
+            self._mark_path_unavailable(path)
+            return 0, [], True
+        return state[0], state[1], False
 
     def _write_index_state(self, index_path: Path, generation: int, keys: list[str]) -> None:
         payload = json.dumps({"generation": generation, "keys": keys})

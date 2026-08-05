@@ -1735,6 +1735,38 @@ def test_locked_index_uses_portable_fallback_lock_when_fcntl_unavailable(
     assert sorted(keys) == ["key-a", "key-b"]
 
 
+def test_locked_index_fcntl_lock_raises_timeout_instead_of_blocking_forever(tmp_path) -> None:
+    """Regression (Round 21 adversarial review): the fcntl branch of
+    _locked_index() previously called blocking fcntl.flock(..., LOCK_EX)
+    with no deadline. Invoked synchronously from NetBoxApiClient.request()
+    (never wrapped in run_in_executor/to_thread), a lock held by another
+    live, stopped, or wedged process would freeze the entire caller --
+    including the asyncio event loop -- indefinitely, even after that other
+    process's own write had already committed against NetBox. Holding a
+    real flock via a second file handle on the same lock path reproduces
+    that contention; _acquire_flock's bounded LOCK_NB polling must now
+    raise TimeoutError instead of blocking past the deadline."""
+    fcntl = pytest.importorskip("fcntl")
+
+    store = HttpCacheStore(tmp_path)
+    index_path = tmp_path / "idx-test.json"
+    lock_path = index_path.with_name(index_path.name + ".lock")
+    lock_path.touch()
+
+    holder = lock_path.open("a+")
+    fcntl.flock(holder.fileno(), fcntl.LOCK_EX)
+    try:
+        started = time.monotonic()
+        with pytest.raises(TimeoutError):
+            with store._locked_index(index_path, timeout=0.05, poll_interval=0.01):
+                pass  # pragma: no cover - must not be reached
+        elapsed = time.monotonic() - started
+        assert elapsed < 1.0  # bounded by timeout, never blocked indefinitely
+    finally:
+        fcntl.flock(holder.fileno(), fcntl.LOCK_UN)
+        holder.close()
+
+
 def test_portable_lock_raises_timeout_instead_of_silent_corruption(tmp_path) -> None:
     """A lock file left behind by a crashed process must not deadlock the
     portable fallback forever; a bounded timeout raising loudly is strictly
@@ -2368,6 +2400,118 @@ def test_save_purges_stale_entry_when_racing_a_corrupted_index(tmp_path) -> None
     assert store.load(key_a) is None
     _generation, keys = store._load_index_state_or_none(store._index_path_file(path))
     assert key_a not in (keys or [])
+
+
+def test_save_after_corrupted_index_never_trusts_reset_generation_as_fence(tmp_path) -> None:
+    """Regression (Round 21 adversarial review): corruption recovery must not
+    let a stale GET's captured generation match a freshly-reset index's
+    generation. Reproduces the exact race: a GET captures generation 0 on a
+    path that was never invalidated, a concurrent write invalidates the path
+    (bumping it to generation 1), and then the index is found corrupted by
+    the time the first GET's save() runs. Before this fix,
+    _load_index_state_or_purge() degraded the corrupted index back to
+    (0, []), so the stale GET's expected_generation=0 matched the reset
+    generation and its pre-write response was persisted with a fresh TTL --
+    silently resurrecting data the committed write had already invalidated.
+    Now the purge marks the path unavailable instead of resetting a
+    trustable-looking generation, so the stale save must be rejected."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+
+    captured_generation = store.path_generation(path)
+    assert captured_generation == 0
+
+    store.invalidate_path(path)  # simulates the concurrent write: generation -> 1
+
+    store._index_path_file(path).write_text("not valid json", encoding="utf-8")
+
+    store.save(
+        key,
+        ApiResponse(status=200, text='{"stale": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=captured_generation,
+    )
+
+    assert store.load(key) is None
+
+
+def test_refresh_after_corrupted_index_never_trusts_reset_generation_as_fence(tmp_path) -> None:
+    """Mirrors test_save_after_corrupted_index_never_trusts_reset_generation_as_fence
+    for refresh(): a 304-revalidated entry fenced by a stale captured
+    generation must not be persisted just because index corruption reset the
+    path back to the same generation value."""
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    policy = CachePolicy()
+    key = build_cache_key(
+        base_url="https://netbox.example.com",
+        method="GET",
+        path=path,
+        query=None,
+        authorization=None,
+    )
+    entry = store.save(
+        key,
+        ApiResponse(status=200, text='{"fresh": true}', headers={}),
+        policy,
+        path=path,
+        expected_generation=store.path_generation(path),
+    )
+    assert store.load(key) is not None
+
+    captured_generation = store.path_generation(path)
+
+    store.invalidate_path(path)  # simulates the concurrent write: generation advances
+
+    store._index_path_file(path).write_text("not valid json", encoding="utf-8")
+
+    store.refresh(
+        key,
+        entry,
+        policy,
+        path=path,
+        expected_generation=captured_generation,
+    )
+
+    assert store.load(key) is None
+
+
+def test_path_generation_after_corruption_marks_path_unavailable_until_self_healed(
+    tmp_path,
+) -> None:
+    """path_generation() must report a corruption-purged path as
+    _LOCK_UNAVAILABLE_GENERATION -- never a trustable 0 -- and mark it
+    unavailable, exactly like a lock-timeout outage (see
+    _load_index_state_or_purge's docstring). The very next path_generation()
+    call self-heals via invalidate_path()'s existing bypass-and-clear flow,
+    after which the path returns to a real, trustable generation."""
+    import netbox_sdk.http_cache as http_cache_module
+
+    store = HttpCacheStore(tmp_path)
+    path = "/api/dcim/devices/5/"
+    index_path = store._index_path_file(path)
+    index_path.write_text("not valid json", encoding="utf-8")
+
+    generation = store.path_generation(path)
+
+    assert generation == http_cache_module._LOCK_UNAVAILABLE_GENERATION
+    assert not store.generation_is_available(generation)
+    assert store._path_is_unavailable(path)
+
+    healed_generation = store.path_generation(path)
+
+    assert healed_generation != http_cache_module._LOCK_UNAVAILABLE_GENERATION
+    assert store.generation_is_available(healed_generation)
+    assert not store._path_is_unavailable(path)
 
 
 def test_refresh_interrupted_after_index_write_leaves_safe_cache_miss(tmp_path) -> None:
