@@ -1,0 +1,112 @@
+# Servidor MCP
+
+O `netbox_mcp` oferece uma superfície pequena do Model Context Protocol sobre o
+mesmo `SchemaIndex`, resolvedor de requisições, descoberta de plugins,
+paginação, cliente e configuração de perfis usados pelo SDK e pela CLI. Ele não
+gera uma ferramenta por operação OpenAPI, portanto a lista de ferramentas
+permanece estável quando plugins mudam os recursos disponíveis.
+
+## Instalação e execução
+
+```bash
+pip install 'netbox-sdk[mcp]'
+nbx-mcp
+```
+
+stdio é o transporte padrão. Para Streamable HTTP:
+
+```bash
+NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
+```
+
+O endpoint MCP é `/mcp`. Todo vínculo Streamable HTTP exige um token bearer
+compartilhado via `--auth-token` ou `NETBOX_MCP_AUTH_TOKEN`; o servidor
+levanta `RuntimeError` e recusa iniciar sem ele, inclusive em hosts loopback
+(`127.0.0.1`, `localhost`, `::1`). Vincular a loopback restringe apenas a
+*alcançabilidade* a esta máquina — não *autentica* outros processos ou
+usuários locais, que de outra forma poderiam acessar a credencial NetBox
+carregada pelo servidor (e qualquer janela `--allow-mutations` ativa) sem
+autenticação em um host de desenvolvimento ou bastion compartilhado. Aplique
+terminação TLS na frente do serviço quando ele for exposto além do host
+local — o token bearer autentica quem chama, não criptografa o transporte.
+Prefira `NETBOX_MCP_AUTH_TOKEN` a `--auth-token` em qualquer host
+compartilhado: o valor de um argumento de linha de comando é visível a
+outros usuários locais via `ps` e `/proc/<pid>/cmdline`, enquanto a variável
+de ambiente não é.
+
+Esse gate não pode ser contornado chamando o objeto do servidor diretamente
+em vez de passar por `run()`: `create_mcp_server()` sempre substitui o
+`streamable_http_app` **e** o `sse_app` do servidor retornado por wrappers
+que aplicam o mesmo `auth_token`, levantando `RuntimeError` inclusive quando
+nenhum token foi configurado. Não existe caminho de código —
+`run("streamable-http")`, `streamable_http_app()`, `run("sse")`,
+`sse_app()` ou qualquer outro — que produza um app de rede sem autenticação
+a partir de uma instância criada por `create_mcp_server()`. A flag de CLI
+`--transport` só expõe `stdio` e `streamable-http`, mas qualquer código que
+segure a instância `FastMCP` retornada diretamente (não apenas o entrypoint
+`nbx-mcp`) poderia, de outra forma, alcançar o transporte SSE sem
+autenticação, já que ele compartilha o mesmo mecanismo de substituição de
+atributo de instância usado pelo Streamable HTTP.
+
+## Ferramentas
+
+| Ferramenta | Comportamento |
+|---|---|
+| `list_groups`, `list_resources`, `describe_operation` | Introspecção JSON estável; `live=true` inclui recursos em runtime |
+| `list`, `get` | Leituras resolvidas pelo schema; `list` suporta paginação e filtros repetidos; `live=true` despacha contra o mesmo schema da instância conectada relatado por `describe_operation(live=true)`, permitindo listar ou buscar um recurso descoberto em runtime, não apenas descrevê-lo |
+| `filters` | Introspecção local sem requisição HTTP |
+| `create`, `update`, `patch`, `delete` | Mutações desabilitadas por padrão |
+| `bulk_update`, `bulk_patch`, `bulk_delete` | Mutações em lote desabilitadas por padrão |
+| `plugin_discover` | Enriquece o schema ativo com descoberta de plugins |
+| `call` | Escape hatch relativo a `/api/`; somente GET/HEAD com o gate fechado |
+
+Cada entrada é validada por um schema Pydantic explícito antes do despacho.
+Caminhos brutos de `call` com separador codificado (`%2F` ou `%5C`, sem
+diferenciar maiúsculas/minúsculas) são rejeitados antes do cache ou da rede,
+pois roteadores divergem sobre esses octetos dividirem ou não segmentos.
+
+## Autenticação
+
+No stdio, o servidor lê o perfil padrão existente de `netbox_sdk.config`; não
+há um segundo armazenamento de credenciais. Ferramentas que acessam o NetBox
+também aceitam um token bearer por chamada. Não coloque tokens em logs,
+transcrições visíveis ao modelo ou configurações versionadas.
+
+Esse token do NetBox por chamada é distinto do token bearer do próprio
+transporte Streamable HTTP (`--auth-token`/`NETBOX_MCP_AUTH_TOKEN`, descrito
+acima): o token de transporte autentica *quem chama o MCP* perante *este
+servidor*, enquanto o token por chamada autentica *este servidor* perante o
+*NetBox*.
+
+## Segurança de mutações
+
+Escritas reais são negadas por padrão. Primeiro visualize a requisição com
+`dry_run=true`; depois abra uma janela de execução explícita com:
+
+```bash
+NETBOX_MCP_ALLOW_MUTATIONS=1 nbx-mcp
+nbx-mcp --allow-mutations
+```
+
+`dry_run=true` resolve método, caminho, query e corpo localmente sem construir
+um cliente. Não é validação no servidor e não prova que a chamada real terá
+sucesso.
+
+O processo `nbx` recusa de forma independente CRUD dinâmico/em lote, CRUD/sync
+ou abertura da TUI Proxbox, chamadas brutas/dev-HTTP com método de escrita e
+verbos mutáveis de Branching, salvo quando o comando revisado inclui `--confirm`
+ou seu ambiente contém `NETBOX_SDK_CONFIRM_WRITE=1`. Hooks
+locais do Claude Code e do Codex acrescentam uma recusa antecipada de defesa em
+profundidade para fonte Bash reconhecível; entrada de shell decodificada ou
+gerada ainda chega ao gate autoritativo do processo CLI.
+
+## Sequência operacional para agentes
+
+1. Inspecione `nbx capabilities --json` ou chame `list_groups`,
+   `list_resources` e `describe_operation`.
+2. Visualize toda escrita com `--dry-run` ou `dry_run=true`.
+3. Habilite/confirme explicitamente apenas a operação revisada e execute-a.
+4. Verifique o resultado com `get` ou um `list` filtrado.
+
+O repositório fornece esse procedimento no Skill espelhado
+`netbox-sdk-operations`, em `.claude/skills/` e `.codex/skills/`.

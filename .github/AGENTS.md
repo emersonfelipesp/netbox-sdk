@@ -24,25 +24,26 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 Lint/local style check:
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo --locked
-uv run ty check netbox_sdk netbox_cli netbox_tui tests
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp --locked
+uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
 uv run pre-commit run --all-files --show-diff-on-failure --color=always
 ```
 
 Test suite:
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+uv sync --dev --extra cli --extra tui --extra demo --extra mock --extra mcp --locked
 uv run pytest -v --tb=short -p no:randomly
 uv run pytest -v --tb=short -p no:randomly -m suite_sdk
 uv run pytest -v --tb=short -p no:randomly -m suite_cli
 uv run pytest -v --tb=short -p no:randomly -m suite_tui
+uv run pytest -v --tb=short -p no:randomly -m suite_mcp
 ```
 
 Docs build:
 
 ```bash
-uv sync --group docs --group dev --extra cli --extra tui --extra demo --locked
+uv sync --group docs --group dev --extra cli --extra tui --extra demo --extra mcp --locked
 uv run mkdocs build --strict
 ```
 
@@ -68,12 +69,12 @@ require the head to be current with its base before merge.
   - runs the full locked offline, security, documentation, and package evidence gates
 
 - `workflows/lint.yml`
-  - installs dev dependencies plus `cli`, `tui`, and `demo` extras
+  - installs dev dependencies plus `cli`, `tui`, `demo`, and `mcp` extras
   - runs `ty check` as the type-check gate
   - runs pre-commit as the formatting/lint gate
 - `workflows/test.yml`
-  - detects whether a change affects `netbox_sdk`, `netbox_cli`, `netbox_tui`, or shared repo-wide validation inputs
-  - runs `suite_sdk`, `suite_cli`, or `suite_tui` on Python 3.11, 3.12, and 3.13 for branch/PR changes
+  - detects whether a change affects `netbox_sdk`, `netbox_cli`, `netbox_tui`, `netbox_mcp`, or shared repo-wide validation inputs
+  - runs `suite_sdk`, `suite_cli`, `suite_tui`, or `suite_mcp` on Python 3.11, 3.12, and 3.13 for branch/PR changes
   - escalates to a full `pytest` matrix when shared files change or when the push targets `main`
   - adds the `mock` extra for mock API coverage and runs live NetBox tests for SDK-affecting branch/PR changes and every `main` push against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`
 - `workflows/security.yml`

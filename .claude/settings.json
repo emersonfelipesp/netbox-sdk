@@ -1,3 +1,18 @@
 {
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/check_nbx_write.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking nbx mutation confirmation"
+          }
+        ]
+      }
+    ]
+  }
 }

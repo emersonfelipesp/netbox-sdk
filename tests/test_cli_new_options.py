@@ -131,6 +131,7 @@ def test_call_command_forwards_headers_and_repeated_query(monkeypatch):
 
 def test_dev_http_get_forwards_headers_and_repeated_query(monkeypatch):
     client = _CaptureClient()
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
     monkeypatch.setattr(cli_dev, "dev_http_api_client", lambda: client)
 
     result = runner.invoke(
@@ -154,6 +155,67 @@ def test_dev_http_get_forwards_headers_and_repeated_query(monkeypatch):
     assert result.exit_code == 0
     assert client.calls[0]["query"] == {"tag": ["prod", "edge"]}
     assert client.calls[0]["headers"] == {"If-Match": "etag"}
+
+
+@pytest.mark.parametrize(
+    ("verb", "arguments"),
+    [
+        ("post", ["--body-json", "{}"]),
+        ("put", ["--id", "7", "--body-json", "{}"]),
+        ("patch", ["--id", "7", "--body-json", "{}"]),
+        ("delete", ["--id", "7"]),
+    ],
+)
+def test_dev_http_writes_refuse_unconfirmed_execution_before_client_creation(
+    monkeypatch: pytest.MonkeyPatch,
+    verb: str,
+    arguments: list[str],
+) -> None:
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    monkeypatch.setattr(
+        cli_dev,
+        "dev_http_api_client",
+        lambda: pytest.fail("unconfirmed dev HTTP write constructed a client"),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        ["dev", "http", verb, "--path", "/api/dcim/devices/", *arguments],
+    )
+
+    assert result.exit_code == 2
+    assert "Live NetBox writes require explicit confirmation" in result.output
+
+
+@pytest.mark.parametrize(
+    ("verb", "arguments"),
+    [
+        ("post", ["--body-json", "{}"]),
+        ("put", ["--id", "7", "--body-json", "{}"]),
+        ("patch", ["--id", "7", "--body-json", "{}"]),
+        ("delete", ["--id", "7"]),
+    ],
+)
+@pytest.mark.parametrize("confirmation", ["flag", "environment"])
+def test_dev_http_writes_accept_explicit_confirmation(
+    monkeypatch: pytest.MonkeyPatch,
+    verb: str,
+    arguments: list[str],
+    confirmation: str,
+) -> None:
+    client = _CaptureClient()
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    monkeypatch.setattr(cli_dev, "dev_http_api_client", lambda: client)
+    invocation = ["dev", "http", verb, "--path", "/api/dcim/devices/", *arguments]
+    if confirmation == "flag":
+        invocation.append("--confirm")
+    else:
+        monkeypatch.setenv("NETBOX_SDK_CONFIRM_WRITE", "1")
+
+    result = runner.invoke(cli.app, invocation)
+
+    assert result.exit_code == 0, result.output
+    assert [call["method"] for call in client.calls] == [verb.upper()]
 
 
 class TestDevHttpInputValidation:

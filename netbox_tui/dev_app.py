@@ -16,6 +16,7 @@ from textual.containers import Horizontal, Vertical
 from textual.css.query import NoMatches
 from textual.message import Message
 from textual.reactive import reactive
+from textual.screen import ModalScreen
 from textual.timer import Timer
 from textual.widgets import (
     Button,
@@ -75,6 +76,7 @@ from netbox_tui.widgets import NbxButton, SupportModal
 _HTTP_METHOD_OPTIONS = tuple(
     (method, method) for method in ("GET", "POST", "PUT", "PATCH", "DELETE")
 )
+_WRITE_HTTP_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _VIEW_MODE_OPTIONS = (
     ("- TUI", "main"),
     ("- CLI", "cli"),
@@ -100,6 +102,111 @@ class DevResponseReceived(Message):
         super().__init__()
         self.response = response
         self.execution = execution
+
+
+class WriteConfirmationModal(ModalScreen[bool]):
+    """Require explicit approval for one mutating workbench request."""
+
+    BINDINGS = [Binding("escape", "cancel_write", "Cancel", show=False)]
+
+    def __init__(
+        self,
+        *,
+        method: str,
+        path: str,
+        payload: dict[str, Any] | list[Any] | None,
+    ) -> None:
+        super().__init__()
+        self.method = method.upper()
+        self.path = path
+        self.payload = payload
+
+    def compose(self) -> ComposeResult:
+        payload_text = (
+            json.dumps(self.payload, indent=2, sort_keys=True, default=str)
+            if self.payload is not None
+            else "(no request body)"
+        )
+        with Vertical(id="write_confirmation_dialog"):
+            yield Static("Confirm live NetBox write", id="write_confirmation_title")
+            yield Static(
+                "This request can change live NetBox data. Review the exact request before "
+                "continuing.",
+                id="write_confirmation_copy",
+            )
+            yield Static(
+                f"{self.method} {self.path}",
+                id="write_confirmation_request",
+                markup=False,
+            )
+            yield Static("Payload", id="write_confirmation_payload_label")
+            yield Static(
+                payload_text,
+                id="write_confirmation_payload",
+                markup=False,
+            )
+            with Horizontal(id="write_confirmation_actions"):
+                yield NbxButton(
+                    "Cancel",
+                    id="write_confirmation_cancel",
+                    size="small",
+                    tone="muted",
+                )
+                yield NbxButton(
+                    "Confirm write",
+                    id="write_confirmation_submit",
+                    size="small",
+                    tone="warning",
+                )
+
+    def on_mount(self) -> None:
+        theme_name = str(getattr(self.app, "theme_name", "") or getattr(self.app, "theme", ""))
+        if theme_name:
+            for class_name in tuple(self.classes):
+                if class_name.startswith("theme-"):
+                    self.remove_class(class_name)
+            self.add_class(f"theme-{theme_name}")
+        self._apply_runtime_theme_tokens()
+        self.query_one("#write_confirmation_submit", Button).focus()
+
+    def _apply_runtime_theme_tokens(self) -> None:
+        theme_catalog = getattr(self.app, "theme_catalog", None)
+        theme_name = str(getattr(self.app, "theme_name", "") or "")
+        if not theme_catalog or not theme_name:
+            return
+        theme = theme_catalog.theme_for(theme_name)
+        surface = theme.colors["surface"]
+        panel = theme.colors["panel"]
+        warning = theme.colors["warning"]
+        border = theme.variables["nb-border-subtle"]
+        muted = theme.variables["nb-muted-text"]
+
+        self.set_styles(f"background: {theme.colors['background']} 65%;")
+        self.query_one("#write_confirmation_dialog", Vertical).set_styles(
+            f"background: {surface}; border: tall {border};"
+        )
+        self.query_one("#write_confirmation_actions", Horizontal).set_styles(
+            "background: transparent; background-tint: transparent;"
+        )
+        self.query_one("#write_confirmation_submit", Button).set_styles(
+            f"background: {panel}; color: {warning}; border: round {warning}; "
+            "tint: transparent; background-tint: transparent;"
+        )
+        self.query_one("#write_confirmation_cancel", Button).set_styles(
+            f"background: transparent; color: {muted}; border: round {border}; "
+            "tint: transparent; background-tint: transparent;"
+        )
+
+    def action_cancel_write(self) -> None:
+        self.dismiss(False)
+
+    @on(Button.Pressed, "#write_confirmation_cancel")
+    def cancel_pressed(self) -> None:
+        self.dismiss(False)
+
+    @on(Button.Pressed, "#write_confirmation_submit")
+    def confirm_pressed(self) -> None:
+        self.dismiss(True)
 
 
 class NetBoxDevTuiApp(App[None]):
@@ -624,6 +731,34 @@ class NetBoxDevTuiApp(App[None]):
         except Exception as exc:  # noqa: BLE001
             self._set_request_error(str(exc).strip() or exc.__class__.__name__)
             return
+
+        if method.upper() in _WRITE_HTTP_METHODS:
+            confirmed = await self.push_screen_wait(
+                WriteConfirmationModal(method=method, path=path, payload=payload)
+            )
+            if not confirmed:
+                logger.info(
+                    "dev tui write request cancelled for %s %s",
+                    method,
+                    path,
+                    extra={
+                        "nbx_event": "tui_write_cancelled",
+                        "http_method": method,
+                        "request_path": path,
+                    },
+                )
+                self.notify("Write request cancelled.", severity="warning")
+                return
+            logger.warning(
+                "dev tui write request confirmed for %s %s",
+                method,
+                path,
+                extra={
+                    "nbx_event": "tui_write_confirmed",
+                    "http_method": method,
+                    "request_path": path,
+                },
+            )
 
         self._set_request_in_flight(method, path)
         logger.info("dev tui sending %s %s", method, path)

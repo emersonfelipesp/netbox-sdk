@@ -1,0 +1,18 @@
+{
+  "description": "Block unconfirmed NetBox CLI mutations.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/scripts/check_nbx_write.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking nbx mutation confirmation"
+          }
+        ]
+      }
+    ]
+  }
+}

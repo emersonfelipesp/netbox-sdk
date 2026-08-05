@@ -15,6 +15,8 @@ import asyncio
 import contextvars
 import json
 import logging
+import posixpath
+import re
 import time
 from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
@@ -48,6 +50,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_ENCODED_PATH_SEPARATOR_RE = re.compile(r"%(?:2f|5c)", re.IGNORECASE)
+
 JSONScalar: TypeAlias = str | int | float | bool | None
 JSONValue: TypeAlias = JSONScalar | list["JSONValue"] | dict[str, "JSONValue"]
 FileLike: TypeAlias = IO[bytes] | IO[str]
@@ -61,6 +65,87 @@ FileLike: TypeAlias = IO[bytes] | IO[str]
 _scoped_headers: contextvars.ContextVar[dict[str, str] | None] = contextvars.ContextVar(
     "netbox_sdk_scoped_headers", default=None
 )
+
+
+def _extract_case_insensitive(
+    headers: dict[str, str], name: str
+) -> tuple[bool, str | None, dict[str, str]]:
+    """Pop every case variant of header ``name`` from ``headers``.
+
+    Returns whether a matching key was present, the value of the last
+    matching key encountered in ``headers``' own iteration order, and a new
+    dict with all matching keys removed. Presence is tracked separately from
+    value so an explicitly empty Authorization header remains an intentional
+    anonymous override instead of falling through to a configured credential.
+    Plain dicts are case-sensitive, but HTTP header names are not, so
+    without this a caller-supplied "authorization" and a configured
+    "Authorization" would be treated as two independent headers instead of
+    one overriding the other.
+
+    Callers that layer multiple precedence sources together (e.g.
+    persistent < scoped < per-call) must call this once per source *before*
+    merging the sources into a single dict, then resolve precedence
+    explicitly among the returned values — never by merging first and
+    extracting from the combined dict. A plain dict's ``update()`` does not
+    reorder an existing key when a same-named-but-differently-cased header
+    from a later, higher-precedence source is applied; it only appends
+    genuinely new keys at the end. So a combined dict built from persistent
+    ``{"Authorization": ...}`` then scoped ``{"authorization": ...}`` would
+    put the scoped key last in iteration order and make it win here even
+    over a same-cased per-call ``"Authorization"`` that was supposed to
+    take precedence over both.
+    """
+    target = name.lower()
+    present = False
+    value: str | None = None
+    remaining: dict[str, str] = {}
+    for key, header_value in headers.items():
+        if key.lower() == target:
+            present = True
+            value = header_value
+        else:
+            remaining[key] = header_value
+    return present, value, remaining
+
+
+def _resolve_authorization_precedence(
+    *,
+    persistent: tuple[bool, str | None],
+    scoped: tuple[bool, str | None],
+    per_call: tuple[bool, str | None],
+    configured: str | None,
+) -> tuple[bool, str | None]:
+    """Resolve Authorization by header presence, not value truthiness."""
+    for present, value in (per_call, scoped, persistent):
+        if present:
+            return True, value
+    return False, configured
+
+
+# NetBox "detail action" endpoints (see netbox_sdk.facade.DETAIL_ENDPOINT_SPECS)
+# whose writes create objects in an entirely different collection than the
+# endpoint's own path or its immediate parent detail path. For example,
+# POST /api/ipam/prefixes/{id}/available-ips/ creates IPAddress rows that
+# live under /api/ipam/ip-addresses/, not anything under
+# /api/ipam/prefixes/. The default _related_cache_paths() derivation (exact
+# path + immediate parent detail path) never touches the collection these
+# actions actually populate, so a cached list/filter read of that
+# collection would keep serving pre-write data until it naturally expired.
+# Keyed by the action's trailing path segment since that alone is enough to
+# disambiguate among the handful of mutating actions NetBox exposes today;
+# read-only actions (napalm, trace, units, elevation, paths) are omitted
+# since a GET never stales anything.
+_ACTION_CROSS_RESOURCE_CACHE_PATHS: dict[str, tuple[str, ...]] = {
+    # ASNRange.asn_count changes with the allocated ASN as well.
+    "available-asns": ("/api/ipam/asns/", "/api/ipam/asn-ranges/"),
+    # Prefix/IPRange serializers expose no affected utilization/count field.
+    "available-ips": ("/api/ipam/ip-addresses/",),
+    # This collection is both the allocation target and the parent collection
+    # whose Prefix.children field changes.
+    "available-prefixes": ("/api/ipam/prefixes/",),
+    # VLANGroup.vlan_count/utilization change with the allocated VLAN as well.
+    "available-vlans": ("/api/ipam/vlans/", "/api/ipam/vlan-groups/"),
+}
 
 
 class ApiResponse(BaseModel):
@@ -254,8 +339,63 @@ class NetBoxApiClient:
             raise ValueError("Request path must be relative to the configured NetBox base URL")
         if parsed.query or parsed.fragment:
             raise ValueError("Request path must not include query parameters or fragments")
+        if _ENCODED_PATH_SEPARATOR_RE.search(parsed.path):
+            raise ValueError(
+                "Request path must not contain percent-encoded path separators (%2F or %5C)"
+            )
         normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
-        return normalized
+        # Collapse repeated "/" the same way the outbound request's own
+        # build_url() already does, so the path used for cache keys, the
+        # cache-generation fence, and invalidate_path() can never diverge
+        # from what is actually sent on the wire. build_url() always strips
+        # every leading "/" before merging the path onto the base URL via
+        # urljoin(), and that merge collapses internal "//" runs down to a
+        # single "/" even when neither segment is a literal "." or "..".
+        # This runs unconditionally, not only when a dot segment is present:
+        # left unresolved, a request through an equivalent-but-unnormalized
+        # alias (e.g. "/api//dcim/devices/5/") mutated the canonical
+        # resource on the wire while invalidating cache entries keyed to the
+        # literal alias instead — the canonical cached entries stayed
+        # untouched and a verification read could still return stale
+        # pre-write data. urlsplit() above already rejects a leading "//" as
+        # a netloc, so `normalized` is always exactly one leading "/" here —
+        # posixpath's POSIX-mandated special case for exactly two leading
+        # slashes never applies.
+        had_trailing_slash = normalized.endswith("/") and normalized != "/"
+        resolved = posixpath.normpath(normalized)
+        if had_trailing_slash and not resolved.endswith("/"):
+            resolved += "/"
+        normalized = resolved
+        # aiohttp builds its outbound request from the URL string this
+        # module hands it via yarl.URL(str), which fully canonicalizes the
+        # path exactly like a browser would: it resolves any remaining
+        # "."/".." segments AND percent-decodes every octet that encodes an
+        # RFC 3986 "unreserved" character (e.g. "%64cim" -> "dcim",
+        # "device%73" -> "devices"), while leaving encoded reserved
+        # delimiters such as "%3F"/"%23" untouched. Encoded path separators
+        # are rejected above because servers and proxies disagree on whether
+        # to decode them before route matching. The dot-segment-only
+        # handling this function used to do did not decode non-dot aliases
+        # at all, so a write through e.g. "/api/%64cim/devices/5/" mutated
+        # the canonical "/api/dcim/devices/5/" resource on the wire while
+        # invalidating cache entries keyed to the literal encoded alias,
+        # leaving the canonical cached entries stale and servable by a
+        # verification read. Delegating to yarl's own ``raw_path`` reproduces
+        # aiohttp's canonicalization exactly rather than
+        # re-implementing RFC 3986's unreserved-character set by hand — the
+        # host portion is a fixed placeholder because path canonicalization
+        # does not depend on it.
+        try:
+            from yarl import URL
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "aiohttp is required for HTTP requests. Install project dependencies first."
+            ) from exc
+        had_trailing_slash = normalized.endswith("/") and normalized != "/"
+        canonical = URL(f"http://netbox-sdk.invalid{normalized}").raw_path
+        if had_trailing_slash and not canonical.endswith("/"):
+            canonical += "/"
+        return canonical
 
     async def request(
         self,
@@ -300,6 +440,7 @@ class NetBoxApiClient:
         This intentionally bypasses the normal request stack: streamed responses
         cannot be cached or replayed for token fallback/retry behavior.
         """
+        path = self._normalize_request_path(path)
         try:
             import aiohttp
         except ModuleNotFoundError as exc:
@@ -308,13 +449,42 @@ class NetBoxApiClient:
             ) from exc
 
         authorization = authorization_header_value(self.config)
-        req_headers = dict(self.persistent_headers)
-        scoped = _scoped_headers.get() or {}
+        # Extract Authorization from each layer *before* merging the rest of
+        # the headers together, and resolve precedence explicitly rather
+        # than by relying on dict iteration order after the merge: a plain
+        # dict does not reorder a pre-existing key when update() applies a
+        # same-named-but-differently-cased header from a higher-precedence
+        # layer, it only appends genuinely new keys at the end. So merging
+        # persistent {"Authorization": ...} then scoped {"authorization":
+        # ...} would leave the scoped key last in iteration order and make
+        # it win even over a later same-cased per-call "Authorization" that
+        # was supposed to take precedence over both, letting a read or
+        # mutation intended for the explicit per-call token execute under a
+        # different caller's credential instead.
+        persistent = dict(self.persistent_headers)
+        persistent_authorization_present, persistent_authorization, persistent = (
+            _extract_case_insensitive(persistent, "Authorization")
+        )
+        scoped = dict(_scoped_headers.get() or {})
+        scoped_authorization_present, scoped_authorization, scoped = _extract_case_insensitive(
+            scoped, "Authorization"
+        )
+        call_headers = dict(headers or {})
+        call_authorization_present, call_authorization, call_headers = _extract_case_insensitive(
+            call_headers, "Authorization"
+        )
+        req_headers = dict(persistent)
         req_headers.update(scoped)
-        req_headers.update(headers or {})
+        req_headers.update(call_headers)
         req_headers.setdefault("Accept", "text/event-stream")
-        if authorization:
-            req_headers["Authorization"] = authorization
+        _, effective_authorization = _resolve_authorization_precedence(
+            persistent=(persistent_authorization_present, persistent_authorization),
+            scoped=(scoped_authorization_present, scoped_authorization),
+            per_call=(call_authorization_present, call_authorization),
+            configured=authorization,
+        )
+        if effective_authorization:
+            req_headers["Authorization"] = effective_authorization
 
         stream_timeout = 7200.0 if timeout is None else timeout
         request_timeout = aiohttp.ClientTimeout(total=stream_timeout, sock_read=None)
@@ -393,6 +563,13 @@ class NetBoxApiClient:
         headers: dict[str, str] | None = None,
         expect_json: bool = True,
     ) -> ApiResponse:
+        # Canonicalize once, up front, so the cache key, the cache-generation
+        # fence, invalidate_path(), and the outbound request all agree on the
+        # same path — build_url() below would otherwise silently resolve an
+        # unnormalized alias (e.g. "/api/dcim/../ipam/prefixes/") to its
+        # canonical form only for the wire request, leaving every
+        # cache-related lookup keyed to the literal, never-cached alias.
+        path = self._normalize_request_path(path)
         authorization = authorization_header_value(self.config)
         cache_policy = self._cache_policy(
             method=method,
@@ -411,31 +588,98 @@ class NetBoxApiClient:
         )
         cache_key: str | None = None
         cache_entry = None
+        cache_generation: int | None = None
         # Header precedence (lowest → highest): persistent_headers (client-wide,
         # e.g. the TUI's active branch) < _scoped_headers (per-task header_scope,
         # e.g. SDK ``activate``/``activate_branch``) < per-call ``headers``. A
         # task-scoped branch therefore overrides a client-wide one for the
         # duration of its with-block, then falls back to the persistent value.
-        req_headers = dict(self.persistent_headers)
-        scoped = _scoped_headers.get() or {}
+        #
+        # HTTP header names are case-insensitive, but a plain dict is not: a
+        # caller-supplied "authorization" or "AUTHORIZATION" header would
+        # otherwise sit alongside "Authorization" as a distinct dict key,
+        # never be picked up by an exact-case lookup, and so be sent to
+        # NetBox with the real credential while cached under the
+        # configured/anonymous identity instead — letting a later anonymous
+        # or differently-cased read hit that cache entry. Extracting
+        # Authorization from each layer *before* merging (rather than
+        # merging first and extracting the "last" match from the combined
+        # dict) also matters for precedence, not just deduplication: a plain
+        # dict does not reorder a pre-existing key when update() applies a
+        # same-named-but-differently-cased header from a higher-precedence
+        # layer, it only appends genuinely new keys at the end. Merging
+        # persistent {"Authorization": ...} then scoped {"authorization":
+        # ...} would leave the scoped key last in iteration order and make
+        # it win even over a later same-cased per-call "Authorization" that
+        # was supposed to take precedence over both, letting a read or
+        # mutation intended for the explicit per-call token execute under a
+        # different caller's credential instead.
+        persistent = dict(self.persistent_headers)
+        persistent_authorization_present, persistent_authorization, persistent = (
+            _extract_case_insensitive(persistent, "Authorization")
+        )
+        scoped = dict(_scoped_headers.get() or {})
+        scoped_authorization_present, scoped_authorization, scoped = _extract_case_insensitive(
+            scoped, "Authorization"
+        )
+        call_headers = dict(headers or {})
+        call_authorization_present, call_authorization, call_headers = _extract_case_insensitive(
+            call_headers, "Authorization"
+        )
+        req_headers = dict(persistent)
         req_headers.update(scoped)
-        req_headers.update(headers or {})
+        req_headers.update(call_headers)
+        # A per-call bearer (e.g. MCP's persistent_headers override for a
+        # forwarded caller token) must scope the cache key too, or requests
+        # made under different tokens collide on the same cached response.
+        caller_authorization_present, effective_authorization = _resolve_authorization_precedence(
+            persistent=(persistent_authorization_present, persistent_authorization),
+            scoped=(scoped_authorization_present, scoped_authorization),
+            per_call=(call_authorization_present, call_authorization),
+            configured=authorization,
+        )
+        # Any other header that can change the response representation (e.g.
+        # X-NetBox-Branch) must scope the cache key too, or a same-token read
+        # in one NetBox Branching schema can serve a response cached from a
+        # different schema without ever contacting NetBox. req_headers no
+        # longer contains any Authorization variant, so it can be used as-is.
+        scope_headers = dict(req_headers)
+        # Restore exactly one canonically-cased Authorization header now that
+        # every case variant has been resolved, so req_headers stays a normal
+        # single-source-of-truth headers dict for downstream callers.
+        if effective_authorization:
+            req_headers["Authorization"] = effective_authorization
         if cache_policy is not None and self.config.base_url:
             cache_key = build_cache_key(
                 base_url=self.config.base_url,
                 method=method,
                 path=path,
                 query=query,
-                authorization=authorization,
+                authorization=effective_authorization,
+                scope_headers=scope_headers,
             )
-            cache_entry = self._cache.load(cache_key)
-            if cache_entry is not None and cache_entry.is_fresh(self._now()):
-                return self._cached_response(cache_entry, cache_status="HIT")
-            if cache_entry is not None:
-                if cache_entry.etag:
-                    req_headers.setdefault("If-None-Match", cache_entry.etag)
-                if cache_entry.last_modified:
-                    req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
+            # Captured before the request is issued so a concurrent write's
+            # invalidate_path() that lands while this GET is in flight is
+            # detected at save time below, instead of this now-stale response
+            # silently repopulating the cache after the write already purged
+            # it. Cache-store operations are synchronous because they use
+            # cross-process filesystem locks, so every potentially blocking
+            # call runs off the asyncio event-loop thread.
+            cache_generation = await asyncio.to_thread(self._cache.path_generation, path)
+            if self._cache.generation_is_available(cache_generation):
+                cache_entry = await asyncio.to_thread(self._cache.load, cache_key, path=path)
+                if cache_entry is not None and cache_entry.is_fresh(self._now()):
+                    return self._cached_response(cache_entry, cache_status="HIT")
+                if cache_entry is not None:
+                    if cache_entry.etag:
+                        req_headers.setdefault("If-None-Match", cache_entry.etag)
+                    if cache_entry.last_modified:
+                        req_headers.setdefault("If-Modified-Since", cache_entry.last_modified)
+            else:
+                # Cache coordination failed. Existing entries may predate a
+                # committed mutation whose invalidation timed out, so neither
+                # read nor populate this path until coordination recovers.
+                cache_key = None
 
         session = await self._get_session()
         req_kwargs: dict[str, Any] = dict(
@@ -446,26 +690,91 @@ class NetBoxApiClient:
             headers=req_headers,
             expect_json=expect_json,
         )
+        is_write_method = method.upper() not in {"GET", "HEAD"}
         try:
-            response = await self._request_once(session, authorization=authorization, **req_kwargs)
+            response = await self._request_once(
+                session, authorization=effective_authorization, **req_kwargs
+            )
+            # These fallbacks retry using the client's own configured credential
+            # (or a refreshed one from the token-refresh callback), which is a
+            # different identity than a caller-supplied override. If a caller
+            # provided its own Authorization header, an invalid/foreign
+            # credential must never silently succeed by falling back to the
+            # SDK's configured account — that would both perform the request
+            # under the wrong identity and, for GET requests, cache the
+            # configured account's response under the cache key computed from
+            # the caller's (rejected) credential, serving it back to that
+            # caller or anyone else presenting the same override later.
+            if not caller_authorization_present and self._should_retry_with_v1(response):
+                response = await self._request_once(
+                    session, authorization=self._v1_fallback_header(), **req_kwargs
+                )
+            elif not caller_authorization_present and self._should_refresh_demo_v1_token(response):
+                authorization = self._refresh_demo_v1_authorization()
+                if authorization:
+                    response = await self._request_once(
+                        session, authorization=authorization, **req_kwargs
+                    )
+            if response.status == 304 and cache_entry is not None and cache_generation is not None:
+                current_generation = await asyncio.to_thread(self._cache.path_generation, path)
+            else:
+                current_generation = cache_generation
+            if (
+                response.status == 304
+                and cache_entry is not None
+                and cache_generation is not None
+                and current_generation != cache_generation
+            ):
+                # A concurrent write invalidated this path while our
+                # conditional request was in flight. The 304 only confirms
+                # the representation matched the ETag/Last-Modified we sent
+                # from the pre-write entry, which we can no longer trust —
+                # refetch unconditionally instead of letting the
+                # generation-fenced refresh() below resurrect stale data.
+                unconditional_headers = dict(req_headers)
+                unconditional_headers.pop("If-None-Match", None)
+                unconditional_headers.pop("If-Modified-Since", None)
+                # Captured before the replacement request is issued, exactly
+                # like the initial cache_generation capture above — if a
+                # second concurrent write invalidates the path while this
+                # unconditional request is in flight, the fenced save/refresh
+                # below must see that mismatch and skip persisting, not adopt
+                # a post-response generation that would make the now-stale
+                # replacement response pass the fence as if it were current.
+                cache_generation = await asyncio.to_thread(self._cache.path_generation, path)
+                # The entry we conditionally requested against is already
+                # proven stale by the generation mismatch that triggered this
+                # refetch. Drop it now, before issuing the replacement
+                # request, so neither the exception handler below nor
+                # _finalize_cached_response() can resurrect it as a
+                # stale-serving fallback if this unconditional refetch itself
+                # raises or returns a 5xx.
+                cache_entry = None
+                response = await self._request_once(
+                    session,
+                    authorization=effective_authorization,
+                    method=method,
+                    path=path,
+                    query=query,
+                    payload=payload,
+                    headers=unconditional_headers,
+                    expect_json=expect_json,
+                )
         except Exception:
             logger.exception(
                 "api request failed",
                 extra={"http_method": method.upper(), "request_path": path},
             )
+            if is_write_method:
+                # NetBox may have committed the write server-side even
+                # though we never received a definitive response (e.g. the
+                # connection dropped mid-read). Purge related cache entries
+                # defensively so a verification read can't serve the stale
+                # pre-write data as if the write never happened.
+                await self._safe_invalidate_related_cache(path, payload)
             if cache_entry is not None and cache_entry.can_serve_stale(self._now()):
                 return self._cached_response(cache_entry, cache_status="STALE")
             raise
-        if self._should_retry_with_v1(response):
-            response = await self._request_once(
-                session, authorization=self._v1_fallback_header(), **req_kwargs
-            )
-        elif self._should_refresh_demo_v1_token(response):
-            authorization = self._refresh_demo_v1_authorization()
-            if authorization:
-                response = await self._request_once(
-                    session, authorization=authorization, **req_kwargs
-                )
         logger.info(
             "api request completed",
             extra={
@@ -474,11 +783,22 @@ class NetBoxApiClient:
                 "status": response.status,
             },
         )
-        return self._finalize_cached_response(
+        if is_write_method:
+            # Invalidate regardless of response status, not only on 2xx: a
+            # plugin or raw endpoint can commit the mutation and then return
+            # a non-2xx status during post-commit processing (e.g. a 500 from
+            # signal/webhook handling after the row was written). Restricting
+            # this to confirmed success left that committed write invisible
+            # to the cache, so a verification read could still return the
+            # stale pre-write entry and encourage an unsafe duplicate retry.
+            await self._safe_invalidate_related_cache(path, payload)
+        return await self._finalize_cached_response(
             response=response,
             cache_key=cache_key,
             cache_entry=cache_entry,
             cache_policy=cache_policy,
+            path=path,
+            cache_generation=cache_generation,
         )
 
     async def _request_once(
@@ -662,25 +982,165 @@ class NetBoxApiClient:
             return False
         return parts[0] == "api"
 
+    def _collection_path_for(self, path: str) -> str | None:
+        """Derive the containing list path for a detail path, if any.
+
+        ``/api/dcim/devices/5/`` -> ``/api/dcim/devices/``. Used to purge the
+        collection's cached list/filter responses whenever a single object
+        underneath it is written.
+        """
+        parts = [part for part in path.split("/") if part]
+        if len(parts) < 2:
+            return None
+        return "/" + "/".join(parts[:-1]) + "/"
+
+    def _trailing_action_name(self, path: str) -> str | None:
+        """Return the action segment of a NetBox detail-action path, if any.
+
+        A detail-action path ends in ``resource / id / action`` with a numeric
+        ``id`` and a non-numeric action, regardless of how many namespace
+        segments precede the resource. This covers both core paths such as
+        ``/api/ipam/prefixes/5/available-ips/`` and plugin paths such as
+        ``/api/plugins/example/widgets/5/some-action/``. Anything else (a
+        plain collection or detail path) returns ``None``.
+        """
+        parts = [part for part in path.split("/") if part]
+        if len(parts) < 4 or parts[0] != "api" or not parts[-2].isdigit() or parts[-1].isdigit():
+            return None
+        return parts[-1]
+
+    def _related_cache_paths(
+        self, path: str, payload: dict[str, Any] | list[Any] | None
+    ) -> list[str]:
+        """Compute every cache path a successful write to ``path`` may have staled.
+
+        A response cached before a write (e.g. the read-before-write step of
+        an agent's documented operating sequence) must never be served again
+        as if it reflected the write. This covers the exact path, its
+        containing collection path (list/filter reads), each affected
+        object's own detail path for bulk writes whose payload is a list of
+        objects carrying an ``id`` (since bulk operations target the
+        collection path rather than individual detail paths), and — for a
+        recognized "detail action" endpoint such as ``requeue`` or
+        ``available-ips`` — the resource's true collection plus any unrelated
+        collection(s) that action creates objects in.
+        """
+        paths = [path]
+        collection_path = self._collection_path_for(path)
+        if collection_path is not None and collection_path != path:
+            paths.append(collection_path)
+        if isinstance(payload, list):
+            for item in payload:
+                if isinstance(item, dict) and "id" in item:
+                    paths.append(f"{path.rstrip('/')}/{item['id']}/")
+        action_name = self._trailing_action_name(path)
+        if action_name is not None:
+            # ``collection_path`` is the action's immediate parent detail
+            # path (e.g. ``/api/core/background-tasks/5/`` or a namespaced
+            # plugin equivalent). Preserve that invalidation and additionally
+            # step up once more to invalidate the resource's real
+            # collection/list caches, independent of total segment count.
+            if collection_path is not None:
+                resource_collection_path = self._collection_path_for(collection_path)
+                if resource_collection_path is not None and resource_collection_path not in paths:
+                    paths.append(resource_collection_path)
+            for cross_resource_path in _ACTION_CROSS_RESOURCE_CACHE_PATHS.get(action_name, ()):
+                if cross_resource_path not in paths:
+                    paths.append(cross_resource_path)
+        return paths
+
+    async def _invalidate_related_cache(
+        self, path: str, payload: dict[str, Any] | list[Any] | None
+    ) -> None:
+        """Purge cached reads that a successful write to ``path`` may have staled.
+
+        Each affected path is purged independently: a failure purging one
+        path (e.g. a cache index lock timeout) must not prevent the remaining
+        paths from being attempted. Skipping the rest after one early failure
+        would leave paths such as the collection listing fully cached and
+        able to serve a fresh-looking pre-write hit immediately after the
+        write succeeds.
+        """
+        for target_path in self._related_cache_paths(path, payload):
+            try:
+                await asyncio.to_thread(self._cache.invalidate_path, target_path)
+            except OSError:
+                # Keep the path unavailable on any invalidation failure, not
+                # only a lock timeout: a test double, an alternate cache
+                # implementation, or a plain filesystem error (failed
+                # unlink, read-only disk) can all raise here before
+                # invalidate_path() publishes its own marker, and a stale
+                # pre-write entry must not remain trustable in any of those
+                # cases. TimeoutError is an OSError subclass, so this one
+                # handler covers both.
+                await asyncio.to_thread(self._cache._mark_path_unavailable, target_path)
+                logger.warning(
+                    "cache invalidation failed after write attempt; stale reads "
+                    "may be served until the affected entries expire",
+                    extra={
+                        "nbx_event": "http_cache_invalidate_failed",
+                        "request_path": target_path,
+                    },
+                )
+
+    async def _safe_invalidate_related_cache(
+        self, path: str, payload: dict[str, Any] | list[Any] | None
+    ) -> None:
+        """Best-effort cache purge that never overrides the underlying request outcome.
+
+        Called both after a confirmed 2xx write and after an ambiguous
+        request exception, since the write may have committed server-side
+        either way. A cache-maintenance failure (e.g. an index file write
+        error) must never propagate in its place — that would either
+        misreport a successful write as failed, or mask the real request
+        exception behind an unrelated filesystem error. `_invalidate_related_cache`
+        already isolates per-path failures; this outer guard is a last-resort
+        safety net for anything that still escapes it.
+        """
+        try:
+            await self._invalidate_related_cache(path, payload)
+        except OSError:
+            logger.warning(
+                "cache invalidation failed after write attempt; stale reads "
+                "may be served until the affected entries expire",
+                extra={"nbx_event": "http_cache_invalidate_failed", "request_path": path},
+            )
+
     def _cached_response(self, entry: CacheEntry, *, cache_status: str) -> ApiResponse:
         status, text, headers = entry.response_parts(cache_status=cache_status)
         return ApiResponse(status=status, text=text, headers=headers)
 
-    def _finalize_cached_response(
+    async def _finalize_cached_response(
         self,
         *,
         response: ApiResponse,
         cache_key: str | None,
         cache_entry: CacheEntry | None,
         cache_policy: CachePolicy | None,
+        path: str,
+        cache_generation: int | None = None,
     ) -> ApiResponse:
         if cache_policy is None or cache_key is None:
             return response
         if response.status == 304 and cache_entry is not None:
-            refreshed = self._cache.refresh(cache_key, cache_entry, cache_policy)
+            refreshed = await asyncio.to_thread(
+                self._cache.refresh,
+                cache_key,
+                cache_entry,
+                cache_policy,
+                path=path,
+                expected_generation=cache_generation,
+            )
             return self._cached_response(refreshed, cache_status="REVALIDATED")
         if 200 <= response.status < 300:
-            stored = self._cache.save(cache_key, response, cache_policy)
+            stored = await asyncio.to_thread(
+                self._cache.save,
+                cache_key,
+                response,
+                cache_policy,
+                path=path,
+                expected_generation=cache_generation,
+            )
             return self._cached_response(stored, cache_status="MISS")
         if (
             cache_entry is not None
@@ -787,7 +1247,13 @@ class NetBoxApiClient:
         their own header set without races on shared state.
         """
         merged = dict(_scoped_headers.get() or {})
-        merged.update({k: v for k, v in headers.items() if v})
+        merged.update(
+            {
+                key: value
+                for key, value in headers.items()
+                if value or key.casefold() == "authorization"
+            }
+        )
         token = _scoped_headers.set(merged)
         try:
             yield self

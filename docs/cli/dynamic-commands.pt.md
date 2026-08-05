@@ -15,7 +15,7 @@ Por exemplo:
 ```bash
 nbx dcim devices list
 nbx dcim devices get --id 1
-nbx ipam prefixes create --body-json '{...}'
+nbx ipam prefixes create --body-json '{...}' --confirm
 ```
 
 ---
@@ -82,7 +82,8 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 | `--select TEXT` | Caminho JSON com ponto para extrair campo da resposta (ex.: `results.0.name`) |
 | `--columns TEXT` | Lista separada por vírgulas de colunas na saída tabular |
 | `--max-columns INTEGER` | Número máximo de colunas (padrão: 6) |
-| `--dry-run` | Pré-visualizar operação de escrita sem executar (só create/update/patch/delete) |
+| `--dry-run` | Pré-visualizar escrita create/update/patch/delete/em lote sem executar |
+| `--confirm` | Confirmar uma escrita real create/update/patch/delete/em lote |
 
 `--json`, `--yaml` e `--markdown` são mutuamente exclusivos.
 
@@ -130,8 +131,8 @@ Várias flags `-q` são combinadas com AND. Repetir a mesma chave preserva parâ
 Use `-H` / `--header` em comandos dinâmicos, `nbx call` e `nbx dev http` quando a interação com a API precisar de cabeçalhos condicionais como `If-Match` ou cabeçalhos customizados:
 
 ```bash
-nbx dcim devices patch --id 42 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
-nbx call PATCH /api/dcim/devices/42/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}'
+nbx dcim devices patch --id 42 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
+nbx call PATCH /api/dcim/devices/42/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
 nbx dev http get --path /api/dcim/devices/ -H 'Accept: application/json'
 ```
 
@@ -179,6 +180,9 @@ nbx dcim devices list --all -q status=active --json
 ```
 
 `--max-records` padrão é 10 000. Quando a contagem acumulada atingir o limite, a paginação para e o resultado parcial é retornado.
+Alvos de página repetidos, valores `results` malformados e páginas que fornecem
+outro link `next` sem adicionar registros falham com `PaginationError`, em vez
+de repetir indefinidamente.
 
 ---
 
@@ -188,13 +192,13 @@ Operações em lote apontam para o caminho de lista com corpo em array — `--id
 
 ```bash
 # Bulk-patch: atualização parcial de vários objetos
-nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]'
+nbx extras tags bulk-patch --body-json '[{"id":1,"color":"aa1409"},{"id":2,"color":"0c7a00"}]' --confirm
 
 # Bulk-update: substituição completa de vários objetos (todos os campos obrigatórios devem estar presentes)
-nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]'
+nbx extras tags bulk-update --body-json '[{"id":1,"name":"tag-a","slug":"tag-a","color":"ff0000"}]' --confirm
 
 # Bulk-delete: excluir vários objetos por id
-nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]'
+nbx extras tags bulk-delete --body-json '[{"id":1},{"id":2}]' --confirm
 ```
 
 Essas ações só são registradas para recursos onde o esquema OpenAPI expõe PUT/PATCH/DELETE no caminho de lista.
@@ -288,7 +292,19 @@ nbx dcim devices update --dry-run --id 1 --body-json '{"name":"updated-name"}'
 nbx dcim devices delete --dry-run --id 1
 ```
 
-A saída mostra método HTTP, caminho e corpo da requisição em uma tabela formatada. A flag `--dry-run` só é válida para operações de escrita (`create`, `update`, `patch`, `delete`).
+A saída mostra método HTTP, caminho e corpo da requisição em uma tabela
+formatada. A flag `--dry-run` só é válida para ações resolvidas como `POST`,
+`PUT`, `PATCH` ou `DELETE` (incluindo as ações CRUD/em lote nomeadas).
+
+Escritas reais são recusadas pela própria CLI em execução, salvo quando o
+comando inclui `--confirm` ou o ambiente do processo contém
+`NETBOX_SDK_CONFIRM_WRITE=1`. O gate vale para toda ação dinâmica resolvida
+como `POST`, `PUT`, `PATCH` ou `DELETE`, inclusive uma ação escrita diretamente
+como método HTTP, além de CRUD/sync Proxbox, `nbx call` e `nbx dev http` com
+método de escrita e verbos mutáveis de `nbx branching`/`nbx branch`,
+independentemente de `nbx` ser iniciado diretamente, por script ou
+subprocesso.
+`--dry-run` não requer confirmação porque não faz requisição HTTP.
 
 ---
 

@@ -91,6 +91,7 @@ plugins:
             pytest Integration: Integração com pytest
             Standalone Server: Servidor standalone
             CLI: CLI
+            MCP Server: Servidor MCP
             Commands: Comandos
             Dynamic Commands: Comandos dinâmicos
             Proxbox: Proxbox
@@ -207,6 +208,7 @@ nav:
       - Developer Tools: reference/cli/command-examples/developer-tools.md
       - Demo Profile: reference/cli/command-examples/demo-profile.md
     - Raw Capture Artifact: generated/nbx-command-capture.md
+  - MCP Server: mcp/index.md
   - TUI:
     - tui/index.md
     - Main Browser: tui/index.md

@@ -512,6 +512,84 @@ async def test_client_token_refresh_callback_invoked(monkeypatch, tmp_path) -> N
     assert client.config.token_secret == "fresh-token"
 
 
+@pytest.mark.asyncio
+async def test_client_caller_authorization_override_does_not_fall_back_to_demo_refresh(
+    monkeypatch, tmp_path
+) -> None:
+    """A caller-supplied Authorization override is a different identity than
+    the SDK's own configured/refreshed credential. If the override is
+    rejected, the client must return that rejection as-is rather than
+    silently retrying — and potentially succeeding and caching the
+    response — under the configured account."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+    cfg = Config(
+        base_url=DEMO_BASE_URL,
+        token_version="v1",
+        token_secret="expired",
+        demo_username="u",
+        demo_password="p",
+    )
+    calls: list[str | None] = []
+
+    async def _fake_request_once(self, session, **kwargs):
+        calls.append(kwargs["authorization"])
+        return ApiResponse(status=403, text='{"detail": "Invalid v1 token"}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once)
+
+    refresh_called = False
+
+    def _refresh_callback(config: Config) -> tuple[str | None, Config]:
+        nonlocal refresh_called
+        refresh_called = True
+        return "Token fresh-token", config
+
+    client = NetBoxApiClient(cfg, on_token_refresh=_refresh_callback)
+    response = await client.request(
+        "GET",
+        "/api/dcim/devices/",
+        headers={"Authorization": "Bearer delegated-token"},
+    )
+
+    assert response.status == 403
+    assert calls == ["Bearer delegated-token"]  # no retry with the configured/refreshed token
+    assert not refresh_called
+    assert client.config.token_secret == "expired"  # unchanged
+
+
+@pytest.mark.asyncio
+async def test_client_caller_authorization_override_does_not_fall_back_to_v1(
+    monkeypatch, tmp_path
+) -> None:
+    """Same identity-isolation guarantee for the v2-token-invalid → v1
+    fallback path."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+    cfg = Config(
+        base_url="https://netbox.example.com",
+        token_version="v2",
+        token_secret="configured-secret",
+    )
+    calls: list[str | None] = []
+
+    async def _fake_request_once(self, session, **kwargs):
+        calls.append(kwargs["authorization"])
+        return ApiResponse(status=401, text='{"detail": "Invalid v2 token"}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once)
+
+    client = NetBoxApiClient(cfg)
+    response = await client.request(
+        "GET",
+        "/api/dcim/devices/",
+        headers={"Authorization": "Bearer delegated-token"},
+    )
+
+    assert response.status == 401
+    assert calls == ["Bearer delegated-token"]  # no retry with "Token configured-secret"
+
+
 # ---------------------------------------------------------------------------
 # sdk.http_cache — build_cache_key, CacheEntry TTL, HttpCacheStore isolation
 # ---------------------------------------------------------------------------

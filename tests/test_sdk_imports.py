@@ -31,6 +31,7 @@ def test_sdk_top_level_imports() -> None:
         JsonPayloadError,
         NetBoxApiClient,
         Operation,
+        PaginationError,
         ParameterValidationError,
         PluginsApp,
         Record,

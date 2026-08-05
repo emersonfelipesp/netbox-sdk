@@ -25,6 +25,7 @@ from netbox_cli.support import (
     rethrow_theme_catalog_error,
     run_with_spinner,
 )
+from netbox_cli.write_confirmation import WRITE_HTTP_METHODS, require_write_confirmation
 from netbox_sdk.http_cache import QueryParams
 from netbox_sdk.schema import HTTP_METHODS
 from netbox_sdk.services import load_json_payload, parse_header_pairs, parse_key_value_pairs
@@ -274,6 +275,7 @@ _DEV_HTTP_RESERVED = frozenset(
         "a",
         "body-json",
         "body-file",
+        "confirm",
         "json",
         "yaml",
         "markdown",
@@ -328,8 +330,17 @@ def _parse_extra_args(args: list[str]) -> dict[str, Any]:
     return result
 
 
-def _run_http(method: str, inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpDeleteInput) -> None:
+def _run_http(
+    method: str,
+    inp: _DevHttpGetInput | _DevHttpBodyInput | _DevHttpDeleteInput,
+    *,
+    confirmed: bool = False,
+) -> None:
     """Execute a validated dev-http request and print the result."""
+    method = method.upper()
+    if method in WRITE_HTTP_METHODS:
+        require_write_confirmation(confirmed=confirmed)
+
     try:
         normalized = _normalize_api_path(inp.path, inp.object_id)
     except ValueError as exc:
@@ -458,6 +469,11 @@ def dev_http_post(
         "--markdown",
         help="Output Markdown (mutually exclusive with --json/--yaml)",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> None:
     """POST to create a new object.
 
@@ -477,7 +493,7 @@ def dev_http_post(
         output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
-    _run_http("POST", inp)
+    _run_http("POST", inp, confirmed=confirm)
 
 
 @dev_http_app.command("put", context_settings=_DEV_HTTP_CTX)
@@ -503,6 +519,11 @@ def dev_http_put(
         "--markdown",
         help="Output Markdown (mutually exclusive with --json/--yaml)",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> None:
     """PUT to fully replace an existing object. Requires --id.
 
@@ -522,7 +543,7 @@ def dev_http_put(
         output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
-    _run_http("PUT", inp)
+    _run_http("PUT", inp, confirmed=confirm)
 
 
 @dev_http_app.command("patch", context_settings=_DEV_HTTP_CTX)
@@ -548,6 +569,11 @@ def dev_http_patch(
         "--markdown",
         help="Output Markdown (mutually exclusive with --json/--yaml)",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> None:
     """PATCH to partially update an existing object. Requires --id.
 
@@ -567,7 +593,7 @@ def dev_http_patch(
         output_markdown=output_markdown,
         extra=_parse_extra_args(ctx.args),
     )
-    _run_http("PATCH", inp)
+    _run_http("PATCH", inp, confirmed=confirm)
 
 
 @dev_http_app.command("delete", context_settings=_DEV_HTTP_CTX)
@@ -587,6 +613,11 @@ def dev_http_delete(
         "--markdown",
         help="Output Markdown (mutually exclusive with --json/--yaml)",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution of a live NetBox write.",
+    ),
 ) -> None:
     """DELETE an object by ID. Requires --id."""
     inp = _validate_dev_input(
@@ -598,7 +629,7 @@ def dev_http_delete(
         output_yaml=output_yaml,
         output_markdown=output_markdown,
     )
-    _run_http("DELETE", inp)
+    _run_http("DELETE", inp, confirmed=confirm)
 
 
 @dev_http_app.command("paths")

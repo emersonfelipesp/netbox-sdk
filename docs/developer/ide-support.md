@@ -1,6 +1,6 @@
 # IDE support
 
-All three packages — `netbox_sdk`, `netbox_cli`, and `netbox_tui` — ship a
+All four packages — `netbox_sdk`, `netbox_cli`, `netbox_tui`, and `netbox_mcp` — ship a
 [PEP 561](https://peps.python.org/pep-0561/) `py.typed` marker and are included
 in the wheel's `package-data`. Editors that read PEP 561 (VS Code via Pylance,
 PyCharm, Pyright on the command line) resolve types from an installed
@@ -27,15 +27,15 @@ in your editor agree with the pre-commit gate.
 Two type checkers run from the same source tree, at the same `basic` level:
 
 - **`ty`** (Astral) — used by `ty-check` in pre-commit and CI; fast feedback
-  on the SDK plus the CLI/TUI packages.
+  on the SDK plus the CLI/TUI/MCP packages.
 - **`pyright`** (Pylance-compatible) — used by `pyright-check` in pre-commit
   so what Pylance shows in VS Code matches what fails in commit hooks.
 
 To run them manually:
 
 ```bash
-uv run ty check netbox_sdk netbox_cli netbox_tui tests
-uv run pyright netbox_sdk netbox_cli netbox_tui
+uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
+uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 ```
 
 Both gates must pass before commit. The `pyright-check` hook sits next to
@@ -77,6 +77,7 @@ consuming repository. The wheel includes:
 - `netbox_sdk/py.typed`
 - `netbox_cli/py.typed`
 - `netbox_tui/py.typed`
+- `netbox_mcp/py.typed`
 
 Hovering `NetBoxApiClient`, `api()`, or `typed_api()` in a consumer codebase
 resolves to the real types.

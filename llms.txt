@@ -1,17 +1,21 @@
 # netbox-sdk — LLM Project Guide
 
-API-first NetBox client for the terminal, featuring both a CLI and a full interactive TUI. Driven by OpenAPI schema discovery.
+API-first NetBox client with a Python SDK, CLI, typed MCP server, and interactive TUI. Driven by OpenAPI schema discovery.
 
 ## AI Search & Discovery Tools
-- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from the bundled NetBox OpenAPI schema (`netbox_sdk/reference/openapi/netbox-openapi.json`), alongside built-in static commands (`init`, `config`, `test`, `groups`, `resources`, `ops`, `call`, `cli`, `tui`, `logs`, `docs`, `demo`, `dev`, `branching`/`branch`).
+- **OpenAPI-Driven Commands**: Dynamic resource commands are generated from bundled NetBox OpenAPI schemas, alongside built-in static commands including `groups`, `resources`, `ops`, `capabilities`, and `call`.
 - **Schema Indexing**: `netbox_sdk/schema.py` indexes the OpenAPI bundle once to map groups, resources, and actions to API paths.
+- **JSON Capabilities**: `nbx groups --json`, `nbx resources ... --json`, `nbx ops ... --json`, and `nbx capabilities --json` expose the same stable contract used by MCP introspection tools.
 - **Dynamic Command Resolution**: `netbox_cli/dynamic.py` handles runtime command discovery and Typer subcommand generation.
 - **Plugin Discovery**: Automatically discovers and surfaces NetBox plugin endpoints under `/api/plugins/`.
+- **MCP Server**: `nbx-mcp` exposes validated schema-driven tools over stdio or Streamable HTTP. Writes and non-read raw calls are denied unless `NETBOX_MCP_ALLOW_MUTATIONS=1` or `--allow-mutations` is set; `dry_run` is local preview only.
 
 ## AI Agent Entry Points
 - **AGENTS.md**: Central index for AI agents. Provides a quick start guide, directory-specific `CLAUDE.md` map, and documentation index.
 - **CLAUDE.md**: The project-wide guide located in the root. Contains the architecture diagram, data flow, contributor workflow, prompting contract, and TUI design rules.
   - Sub-directories (e.g., `netbox_cli/`, `tests/`, `docs/`) have their own `CLAUDE.md` files with localized module maps and rules.
+- **Operational Skill**: `.claude/skills/netbox-sdk-operations/SKILL.md` and its `.codex/skills/` mirror require introspection, write preview, deliberate execution, verification, and explicit failure handling.
+- **Deterministic Hooks**: `.claude/settings.json` and `.codex/hooks.json` invoke `scripts/check_nbx_write.py` before Bash, blocking unconfirmed `nbx` writes unless `NETBOX_SDK_CONFIRM_WRITE=1` precedes the command.
 
 ## Documentation Index
 
@@ -24,6 +28,9 @@ API-first NetBox client for the terminal, featuring both a CLI and a full intera
 - `docs/cli/commands.md`: Reference for static (built-in) commands.
 - `docs/cli/dynamic-commands.md`: Explanation of the OpenAPI-driven dynamic command system.
 - `docs/cli/demo-profile.md`: Using the public `demo.netbox.dev` instance for zero-config testing.
+
+### MCP Reference
+- `docs/mcp/index.md`: Tools, transports, authentication, mutation safety, and the agent operating workflow.
 
 ### TUI Reference
 - `docs/tui/index.md`: Overview of the interactive Textual interface.
@@ -57,4 +64,4 @@ API-first NetBox client for the terminal, featuring both a CLI and a full intera
 ## Packaging Status
 - **Repository name**: `netbox-sdk`
 - **Current published package name**: `netbox-sdk` (PyPI `name = "netbox-sdk"` in `pyproject.toml`). `netbox-console` was a legacy alias published separately in earlier releases; it is not shipped from this project file.
-- **Current project version**: `0.0.9.post2`
+- **Current project version**: `0.0.10rc1`

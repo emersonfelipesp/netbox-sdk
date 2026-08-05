@@ -1,6 +1,7 @@
 # Suporte de IDE
 
-Todos os três pacotes — `netbox_sdk`, `netbox_cli` e `netbox_tui` — incluem um
+Todos os quatro pacotes — `netbox_sdk`, `netbox_cli`, `netbox_tui` e
+`netbox_mcp` — incluem um
 marcador `py.typed` ([PEP 561](https://peps.python.org/pep-0561/)) e estão
 listados em `package-data` da wheel. Editores que leem PEP 561 (VS Code via
 Pylance, PyCharm, Pyright na linha de comando) resolvem tipos a partir de uma
@@ -29,7 +30,7 @@ Dois type checkers rodam sobre a mesma árvore de código, no mesmo nível
 `basic`:
 
 - **`ty`** (Astral) — usado pelo hook `ty-check` no pre-commit e na CI;
-  feedback rápido sobre SDK e pacotes CLI/TUI.
+  feedback rápido sobre SDK e pacotes CLI/TUI/MCP.
 - **`pyright`** (compatível com Pylance) — usado pelo hook `pyright-check`
   no pre-commit, então o que o Pylance mostra no VS Code é o que falha nos
   hooks de commit.
@@ -37,8 +38,8 @@ Dois type checkers rodam sobre a mesma árvore de código, no mesmo nível
 Para rodar manualmente:
 
 ```bash
-uv run ty check netbox_sdk netbox_cli netbox_tui tests
-uv run pyright netbox_sdk netbox_cli netbox_tui
+uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
+uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 ```
 
 Ambos os gates precisam passar antes do commit. O hook `pyright-check` fica
@@ -81,6 +82,7 @@ repositório que consome. A wheel inclui:
 - `netbox_sdk/py.typed`
 - `netbox_cli/py.typed`
 - `netbox_tui/py.typed`
+- `netbox_mcp/py.typed`
 
 Passar o mouse em `NetBoxApiClient`, `api()` ou `typed_api()` em um código
 consumidor resolve para os tipos reais.

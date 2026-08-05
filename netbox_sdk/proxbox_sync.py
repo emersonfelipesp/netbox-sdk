@@ -72,7 +72,7 @@ class ScheduleResult(BaseModel):
 
 
 class ProxboxSyncError(RuntimeError):
-    """Raised when the netbox-proxbox API rejects a sync operation."""
+    """Raised for Proxbox sync failures, preserving a known scheduled job ID."""
 
     def __init__(
         self,
@@ -81,10 +81,12 @@ class ProxboxSyncError(RuntimeError):
         status: int | None = None,
         payload: Any = None,
         response: ApiResponse | None = None,
+        job_id: int | str | None = None,
     ) -> None:
         self.status = status
         self.payload = payload
         self.response = response
+        self.job_id = job_id
         super().__init__(message)
 
     @classmethod

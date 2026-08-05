@@ -22,10 +22,10 @@ nbx branching changes [--branch <schema_id>]
 ## Ciclo de vida
 
 ```bash
-nbx branching create --name feature-x [--description ...]
-nbx branching update <id|schema_id> [--name ...]
-nbx branching delete <id|schema_id> [--yes]
-nbx branching archive <id|schema_id>
+nbx branching create --name feature-x [--description ...] --confirm
+nbx branching update <id|schema_id> [--name ...] --confirm
+nbx branching delete <id|schema_id> [--yes] --confirm
+nbx branching archive <id|schema_id> --confirm
 ```
 
 ## Ações
@@ -34,10 +34,16 @@ nbx branching archive <id|schema_id>
 até o job terminar.
 
 ```bash
-nbx branching sync   <id|schema_id> [--wait] [--acknowledge-conflicts]
-nbx branching merge  <id|schema_id> [--wait] [--acknowledge-conflicts]
-nbx branching revert <id|schema_id> [--wait]
+nbx branching sync   <id|schema_id> [--wait] [--acknowledge-conflicts] --confirm
+nbx branching merge  <id|schema_id> [--wait] [--acknowledge-conflicts] --confirm
+nbx branching revert <id|schema_id> [--wait] --confirm
 ```
+
+Toda escrita de ciclo de vida/ação é recusada antes da construção do cliente,
+a menos que `--confirm` seja informado ou `NETBOX_SDK_CONFIRM_WRITE=1` esteja
+presente. O alias `branch` aplica o mesmo gate. Comandos somente leitura de
+status/listagem/exibição/eventos/alterações e modelos continuam sem exigir
+confirmação.
 
 Se o servidor retornar um corpo de conflitos, a CLI imprime uma tabela
 estruturada e termina com status diferente de zero.

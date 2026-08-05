@@ -96,13 +96,15 @@ def type_expr(schema: dict[str, Any] | None) -> str:
         if "null" in schema_type:
             expr = f"{expr} | None"
         return expr
-    mapping = {
+    mapping: dict[str, str] = {
         "integer": "int",
         "number": "float",
         "boolean": "bool",
         "string": "str",
         "object": "dict[str, Any]",
     }
+    if not isinstance(schema_type, str):
+        return "Any"
     return mapping.get(schema_type, "Any")
 
 

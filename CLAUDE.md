@@ -17,6 +17,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `netbox_tui/` | [→](netbox_tui/CLAUDE.md) | Textual TUI package: apps, chrome, widgets, navigation, state, TCSS, theme registry |
 | `netbox_tui/themes/` | [→](netbox_tui/themes/CLAUDE.md) | JSON theme files auto-discovered by the TUI |
 | `netbox_cli/` | [→](netbox_cli/CLAUDE.md) | Typer CLI package: root app, runtime, dynamic commands, demo/dev/docgen wiring |
+| `netbox_mcp/` | [→](netbox_mcp/CLAUDE.md) | Optional schema-driven MCP package: validated tools, stdio/HTTP transports, auth, mutation gate |
 | `netbox_cli/reference/` | [→](netbox_cli/reference/CLAUDE.md) | Bundled CLI-local OpenAPI reference copy (schema driving dynamic commands) |
 | `netbox_sdk/reference/` | [→](netbox_sdk/reference/CLAUDE.md) | Bundled SDK OpenAPI assets for supported NetBox release lines |
 | `tests/` | [→](tests/CLAUDE.md) | pytest suite |
@@ -80,19 +81,27 @@ netbox_cli/   optional Typer layer
     ├── django_model.py
     ├── markdown_output.py
     └── docgen*/ docgen/
+
+netbox_mcp/   optional Model Context Protocol layer
+    ├── __init__.py   entrypoint + transport selection
+    ├── app.py        explicit FastMCP tool registration
+    ├── models.py     strict tool argument schemas
+    └── service.py    SDK-backed dispatch + mutation gate
 ```
 
 Data flow:
 1. `netbox_sdk` owns API behavior and shared data transformation.
 2. `netbox_cli` imports `netbox_sdk` and lazy-loads `netbox_tui` where needed.
 3. `netbox_tui` imports `netbox_sdk` directly and only reaches into `netbox_cli` for CLI app/runtime callbacks where required.
+4. `netbox_mcp` imports only `netbox_sdk`; it shares introspection and request
+   resolution contracts with the CLI without importing the CLI package.
 
 ## Contributor Workflow
 
 Initial setup:
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
@@ -104,6 +113,7 @@ uv run pytest
 uv run pytest -m suite_sdk
 uv run pytest -m suite_cli
 uv run pytest -m suite_tui
+uv run pytest -m suite_mcp
 ```
 
 If you need a minimal install boundary check:
@@ -112,6 +122,7 @@ If you need a minimal install boundary check:
 pip install -e .
 pip install -e '.[cli]'
 pip install -e '.[tui]'
+pip install -e '.[mcp]'
 pip install -e '.[all]'
 ```
 
@@ -132,7 +143,15 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 | `bulk-delete` | DELETE | list path | Array body; no `--id` |
 | `filters` | — | local only | Prints available filter parameters from schema |
 
-**Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. `--max-records N` (default 10 000) is the hard ceiling on accumulated records.
+Every dynamic action that resolves to `POST`, `PUT`, `PATCH`, or `DELETE`
+(including a raw HTTP-method action spelling), write-method `nbx call` and
+`nbx dev http` requests, every mutating `nbx branching`/`nbx branch` verb,
+and Proxbox CRUD/sync scheduling or TUI launch require `--confirm` or
+`NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation;
+the shared dev/Proxbox request workbench also presents a separate confirmation
+dialog before every POST, PUT, PATCH, or DELETE dispatch.
+
+**Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. It raises `PaginationError` on malformed result arrays, repeated page targets, or a page that supplies another link without adding records. `--max-records N` (default 10 000) remains the hard ceiling on accumulated records.
 
 **Query/header forwarding**: `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.
 
@@ -172,21 +191,28 @@ scheduling `POST /api/plugins/proxbox/sync/schedule/`, resolving Proxmox
 endpoint names through `/api/plugins/proxbox/endpoints/proxmox/`, parsing SSE
 blocks into `SseFrame`, streaming `/plugins/proxbox/jobs/{job_id}/stream/`, and
 fetching `/api/core/jobs/{job_id}/` after the stream for authoritative status
-and error log entries.
+and error log entries. `ProxboxSyncError` preserves a known scheduled `job_id`
+when that authoritative fetch fails so automation can inspect the existing job
+instead of blindly scheduling a duplicate.
 
 `netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox resources`,
-`ops`, generated CRUD commands, the Proxbox TUI launcher, `sync`, and
-`sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
+`ops`, generated CRUD commands, the confirmation-gated Proxbox TUI launcher,
+`sync`, and `sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
 merge streamed errors with post-stream Job `error` and error-level `log_entries`
-because server-side SSE throttling can drop granular errors.
+because server-side SSE throttling can drop granular errors. After a stream
+failure, the fetched job status is authoritative: poll the same job within the
+remaining timeout when necessary, keep terminal success successful, and report
+the transport loss as a warning rather than a job error.
 
 ## Core Rules
 
 - SDK code in `netbox_sdk/` must not import `netbox_cli` or `netbox_tui`.
 - CLI code in `netbox_cli/` must lazy-import TUI entrypoints so `import netbox_cli` works without `textual`.
 - TUI code in `netbox_tui/` may depend on `netbox_sdk` and `textual`, not on old `netbox_cli/ui` paths.
-- Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`.
+- MCP code in `netbox_mcp/` may depend on `netbox_sdk` and `mcp`, never on `netbox_cli` or `netbox_tui`.
+- Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`, `netbox_mcp.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
+- Filesystem-cache invalidation failures (lock timeouts and other `OSError`s alike) are a per-path bypass state: reads must not trust or populate existing entries until a failed invalidation has been completed, and portable stale-lock reclamation must preserve exclusive ownership across racing reclaimers. A cache entry proven stale by a generation mismatch (the 304-concurrent-write race) must not be resurrected by a later stale-if-error fallback in the same request if the follow-up refetch itself fails. A corrupted per-path index recovers into the same per-path bypass state, not a trustable generation `0`: `_load_index_state_or_purge()` marks the path unavailable on corruption, and `_purge_all_entries()` publishes digest-keyed markers for every secondary corrupted index it discovers, so `load()`/`save()`/`refresh()`/`path_generation()` never let a stale captured `expected_generation=0` match a freshly reset index's `0`. On POSIX, `_locked_index()`'s `fcntl` branch polls `flock(LOCK_EX | LOCK_NB)` on the same bounded timeout `_portable_lock` uses (never a blocking `flock(LOCK_EX)`), retrying only `EAGAIN`/`EACCES`; `NetBoxApiClient` runs every synchronous cache-store operation through `asyncio.to_thread()` so the required wait-then-succeed locking semantics do not stall its event loop.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
   all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works
@@ -206,7 +232,7 @@ because server-side SSE throttling can drop granular errors.
 `.gitea/workflows/ci.yml` is the secret-free Gitea-first review gate. It runs
 the complete locked offline environment on the isolated
 `ci-untrusted-python312` label: workflow policy, ty, Pyright, all-files
-pre-commit, the full mocked suite, SDK/CLI/TUI security regressions, strict
+pre-commit, the full mocked suite, SDK/CLI/TUI/MCP security regressions, strict
 documentation, lifecycle/package evidence, distribution metadata, and an
 installed-wheel smoke check. Pull-request jobs have read-only repository
 permissions and must never receive credentials, publish, deploy, push, or
@@ -222,8 +248,9 @@ not a pass.
 ## Verification Before Done
 
 - Run `uv run pre-commit run --all-files`.
-- Run `uv run pyright netbox_sdk netbox_cli netbox_tui` alongside `ty check`.
-  Both gates must pass. All three packages ship `py.typed` PEP 561 markers.
+- Run `uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp` alongside
+  `ty check`. Both gates must pass. All four packages ship `py.typed` PEP 561
+  markers.
 - Run the package-specific marker suite for the package(s) you changed.
 - Run `uv run pytest` when shared files or release/main validation paths are involved.
 - For packaging changes, verify extras and import boundaries.

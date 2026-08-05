@@ -5,6 +5,7 @@ import json
 import pytest
 
 from netbox_sdk.client import ApiResponse
+from netbox_sdk.exceptions import PaginationError
 from netbox_sdk.schema import build_schema_index
 from netbox_sdk.services import (
     ACTION_METHOD_MAP,
@@ -256,6 +257,63 @@ async def test_list_all_pages_multi_page():
     assert [r["id"] for r in data["results"]] == [1, 2, 3]
 
 
+async def test_list_all_pages_rejects_empty_page_with_next_link():
+    repeated_next = "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2"
+    page1 = {
+        "count": 3,
+        "next": repeated_next,
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    page2 = {"count": 3, "next": repeated_next, "previous": None, "results": []}
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
+    )
+
+    with pytest.raises(PaginationError, match="no forward progress"):
+        await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+
+    assert len(client.calls) == 2
+
+
+async def test_list_all_pages_rejects_repeated_next_link_even_with_results():
+    repeated_next = "http://netbox.example.com/api/dcim/devices/?limit=1&offset=1"
+    page1 = {
+        "count": 3,
+        "next": repeated_next,
+        "previous": None,
+        "results": [{"id": 1}],
+    }
+    page2 = {
+        "count": 3,
+        "next": repeated_next,
+        "previous": None,
+        "results": [{"id": 2}],
+    }
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+        ]
+    )
+
+    with pytest.raises(PaginationError, match="repeated next link"):
+        await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+
+    assert len(client.calls) == 2
+
+
+async def test_list_all_pages_rejects_non_list_results():
+    malformed_page = {"count": 1, "next": None, "previous": None, "results": {"id": 1}}
+    client = _MockClient([ApiResponse(status=200, text=json.dumps(malformed_page))])
+
+    with pytest.raises(PaginationError, match="'results' to be a list"):
+        await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+
+
 async def test_list_all_pages_preserves_repeated_next_query_and_headers():
     page1 = {
         "count": 3,
@@ -305,6 +363,57 @@ async def test_list_all_pages_respects_max_records():
     )
     data = json.loads(result.text)
     assert len(data["results"]) == 3
+
+
+async def test_list_all_pages_propagates_second_page_http_failure():
+    # A later page that comes back as an error must not be silently folded
+    # into a synthesized status=200 partial response — that would hide an
+    # outage or permission failure from callers requesting all=true.
+    page1 = {
+        "count": 3,
+        "next": "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2",
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=500, text='{"detail": "Internal Server Error"}'),
+        ]
+    )
+    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+    assert result.status == 500
+    assert json.loads(result.text) == {"detail": "Internal Server Error"}
+
+
+async def test_list_all_pages_propagates_second_page_non_json_failure():
+    # A non-JSON error body (e.g. an HTML error page from a proxy) on a later
+    # page must also propagate as a failure, not a partial 200.
+    page1 = {
+        "count": 3,
+        "next": "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2",
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=502, text="<html>Bad Gateway</html>"),
+        ]
+    )
+    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+    assert result.status == 502
+    assert result.text == "<html>Bad Gateway</html>"
+
+
+async def test_list_all_pages_first_page_error_status_not_treated_as_success():
+    # Even if an error body happens to parse as JSON with a "results" key,
+    # a non-2xx status on the very first page must propagate unchanged.
+    raw = json.dumps({"results": [], "detail": "forbidden"})
+    client = _MockClient([ApiResponse(status=403, text=raw)])
+    result = await list_all_pages(client, _index(), "dcim", "devices", query_pairs=[])
+    assert result.status == 403
+    assert result.text == raw
 
 
 async def test_list_all_pages_non_paginated_response():

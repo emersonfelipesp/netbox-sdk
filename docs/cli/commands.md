@@ -100,8 +100,8 @@ Make an explicit HTTP request to any NetBox API path.
 nbx call GET /api/status/
 nbx call GET /api/dcim/sites/ --json
 nbx call GET /api/dcim/sites/ --markdown
-nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}'
-nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
+nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}' --confirm
+nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 ```
 
 **Options**
@@ -114,8 +114,14 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json
 | `--json` | Output raw JSON instead of a Rich table |
 | `--yaml` | Output as YAML |
 | `--markdown` | Output API responses as table-first Markdown |
+| `--confirm` | Confirm a `POST`, `PUT`, `PATCH`, or `DELETE` request |
 
 `--json`, `--yaml`, and `--markdown` are mutually exclusive.
+Write methods are refused unless `--confirm` is passed or
+`NETBOX_SDK_CONFIRM_WRITE=1` is present in the `nbx` process environment.
+Paths containing a percent-encoded path separator (`%2F` or `%5C`, in any
+letter case) are rejected before cache access or network dispatch; pass query
+values through `-q` instead of embedding them in `PATH`.
 
 ---
 
@@ -153,8 +159,8 @@ only register read actions. Write actions support `--dry-run` previews.
 
 ```bash
 nbx proxbox endpoints proxmox list -q name=pve-prod
-nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod"}'
-nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}'
+nbx proxbox endpoints proxmox create --body-json '{"name":"pve-prod"}' --confirm
+nbx proxbox firewall rules patch --id 7 --body-json '{"enabled":false}' --confirm
 nbx proxbox operations deletion-requests get --id 12
 nbx proxbox firewall rules patch --id 7 --dry-run --body-json '{"enabled":false}'
 ```
@@ -170,10 +176,14 @@ editor and response panes as `nbx dev tui`, but starts from the stable Proxbox
 catalog and disables live plugin discovery.
 
 ```bash
-nbx proxbox tui
-nbx proxbox tui --theme dracula
+nbx proxbox tui --confirm
+nbx proxbox tui --theme dracula --confirm
 nbx proxbox tui --theme
 ```
+
+Launching requires `--confirm` or `NETBOX_SDK_CONFIRM_WRITE=1`. Every POST,
+PUT, PATCH, or DELETE inside the workbench then requires a separate confirmation
+dialog for that exact request.
 
 ---
 
@@ -185,16 +195,24 @@ can be a Proxmox endpoint primary key or exact endpoint name. Omit it to sync
 all configured Proxmox endpoints.
 
 ```bash
-nbx proxbox sync
-nbx proxbox sync pve-prod -t virtual-machines -t storage
-nbx proxbox sync 12 -t all --job-name nightly-proxbox-sync
-nbx proxbox sync --json
+nbx proxbox sync --confirm
+nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
+nbx proxbox sync 12 -t all --job-name nightly-proxbox-sync --confirm
+nbx proxbox sync --json --confirm
 ```
 
 The live view shows the scheduled job, per-phase progress bars, recent stream
 events, and an authoritative final summary. After the stream ends, the CLI
 fetches `/api/core/jobs/{job_id}/` and merges job errors and error-level log
 entries with streamed errors so throttled server-side SSE messages are not lost.
+If the SSE stream times out, disconnects, or fails protocol validation after
+scheduling, the CLI fetches that job and, when it is still non-terminal, polls
+the same `job_id` within the remaining `--timeout` budget. A terminal-success
+job remains successful and reports the stream loss as a warning; a failed job
+still reports its authoritative errors, while an unconfirmed running job is
+identified explicitly so automation does not schedule an unsafe duplicate. If
+the authoritative fetch fails, JSON errors retain the known `job_id`; inspect
+that existing job before retrying or rescheduling.
 
 **Options**
 
@@ -202,8 +220,9 @@ entries with streamed errors so throttled server-side SSE messages are not lost.
 |------|-------------|
 | `-t` / `--type TEXT` | Proxbox sync type slug. Repeat for multiple types. Defaults to `all` |
 | `--job-name TEXT` | Optional NetBox job name |
-| `--timeout FLOAT` | Maximum seconds to keep the SSE stream open (default: `7200`) |
-| `--json` | Skip the live UI and emit `{job_id,status,ok,errors,summary}` JSON |
+| `--timeout FLOAT` | Maximum seconds for the SSE stream and any recovery polling (default: `7200`) |
+| `--json` | Skip the live UI and emit `{job_id,status,ok,errors,warnings,summary}` JSON |
+| `--confirm` | Confirm scheduling the live synchronization job |
 
 Valid sync types are: `virtual-machines`, `storage`, `vm-disks`, `vm-backups`,
 `vm-snapshots`, `devices`, `network-interfaces`, `vm-interfaces`,
@@ -356,7 +375,11 @@ Developer-oriented HTTP helpers for exploring arbitrary API paths and operations
 nbx dev http paths
 nbx dev http ops --path /api/dcim/devices/
 nbx dev http get --path /api/status/
+nbx dev http patch --path /api/dcim/devices/ --id 7 --body-json '{"status":"active"}' --confirm
 ```
+
+`post`, `put`, `patch`, and `delete` require `--confirm` or
+`NETBOX_SDK_CONFIRM_WRITE=1`; `get`, `paths`, and `ops` do not.
 
 Use `nbx dev http --help` and the subcommand helps for the full option matrix.
 

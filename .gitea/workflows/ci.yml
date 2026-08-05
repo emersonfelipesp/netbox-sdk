@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           uv lock --check
-          uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+          uv sync --dev --extra cli --extra tui --extra demo --extra mock --extra mcp --locked
 
       - name: Validate GitHub and Gitea workflow syntax
         env:
@@ -58,11 +58,11 @@ jobs:
 
       - name: Run ty type checks
         run: >-
-          uv run --locked ty check netbox_sdk netbox_cli netbox_tui tests
+          uv run --locked ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
           --output-format concise
 
       - name: Run Pyright package checks
-        run: uv run --locked pyright netbox_sdk netbox_cli netbox_tui
+        run: uv run --locked pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 
       - name: Run all repository pre-commit checks
         run: >-
@@ -88,7 +88,7 @@ jobs:
         run: |
           set -euo pipefail
           uv lock --check
-          uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+          uv sync --dev --extra cli --extra tui --extra demo --extra mock --extra mcp --locked
 
       - name: Run the complete offline mocked suite
         run: uv run --locked pytest -v --tb=short -p no:randomly
@@ -112,7 +112,7 @@ jobs:
         run: |
           set -euo pipefail
           uv lock --check
-          uv sync --dev --extra cli --extra tui --extra demo --extra mock --locked
+          uv sync --dev --extra cli --extra tui --extra demo --extra mock --extra mcp --locked
 
       - name: Run all package security regression modules
         run: >-
@@ -140,7 +140,7 @@ jobs:
         run: |
           set -euo pipefail
           uv lock --check
-          uv sync --group docs --group dev --extra cli --extra tui --extra demo --extra mock --locked
+          uv sync --group docs --group dev --extra cli --extra tui --extra demo --extra mock --extra mcp --locked
 
       - name: Build documentation strictly
         run: uv run --locked mkdocs build --strict
@@ -170,4 +170,22 @@ jobs:
           assert netbox_sdk.__version__
           assert importlib.resources.files("netbox_sdk").joinpath("py.typed").is_file()
           print("netbox-sdk wheel import ok:", netbox_sdk.__version__)
+          PY
+
+      - name: Smoke the installed MCP wheel extra
+        run: |
+          set -euo pipefail
+          smoke_dir="${RUNNER_TEMP}/netbox-mcp-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
+          uv venv "$smoke_dir"
+          wheel="$(find dist -maxdepth 1 -type f -name '*.whl' -print -quit)"
+          test -n "$wheel"
+          uv pip install --python "$smoke_dir/bin/python" "${wheel}[mcp]"
+          "$smoke_dir/bin/python" - <<'PY'
+          import importlib.resources
+
+          import netbox_mcp
+
+          assert importlib.resources.files("netbox_mcp").joinpath("py.typed").is_file()
+          assert netbox_mcp.create_mcp_server
+          print("netbox-mcp wheel import ok")
           PY

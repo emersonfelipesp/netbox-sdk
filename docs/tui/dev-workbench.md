@@ -28,6 +28,14 @@ nbx demo dev tui --theme dracula
 - `nbx cli tui` is the guided command builder
 - `nbx logs` is the structured log viewer
 
+## Write confirmation
+
+Every `POST`, `PUT`, `PATCH`, or `DELETE` send opens a confirmation dialog that
+shows the resolved method, path, and payload. The request is not dispatched
+until you explicitly choose **Confirm write**; cancelling or pressing Escape
+leaves NetBox unchanged. This per-request gate also applies when the shared
+workbench is launched through `nbx proxbox tui`.
+
 ## Screenshots
 
 - [Developer Workbench gallery](screenshots-dev.md)

@@ -4,8 +4,8 @@ import asyncio
 
 import pytest
 
-from netbox_sdk.client import NetBoxApiClient, _scoped_headers
-from netbox_sdk.config import Config
+from netbox_sdk.client import ApiResponse, NetBoxApiClient, _scoped_headers
+from netbox_sdk.config import Config, authorization_header_value
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -73,6 +73,54 @@ async def test_header_scope_drops_empty_values(config: Config) -> None:
             assert scoped == {"X-Real": "yes"}
     finally:
         await client.close()
+
+
+async def test_request_authorization_precedence_preserves_explicit_empty_override(
+    config: Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = config.model_copy(update={"token_version": "v1"})
+    captured: list[dict[str, object]] = []
+
+    async def fake_request_once(
+        self: NetBoxApiClient, session: object, **kwargs: object
+    ) -> ApiResponse:
+        del self, session
+        captured.append(dict(kwargs))
+        return ApiResponse(status=204, text="", headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", fake_request_once)
+    monkeypatch.setattr(NetBoxApiClient, "_cache_policy", lambda *args, **kwargs: None)
+
+    client = NetBoxApiClient(config)
+    try:
+        await client.request(
+            "POST",
+            "/api/dcim/devices/",
+            headers={"authorization": ""},
+        )
+        with client.header_scope(**{"AUTHORIZATION": ""}):
+            await client.request("POST", "/api/dcim/devices/")
+        await client.request(
+            "POST",
+            "/api/dcim/devices/",
+            headers={"authorization": "Bearer delegated-token"},
+        )
+        await client.request("POST", "/api/dcim/devices/")
+    finally:
+        await client.close()
+
+    assert [call["authorization"] for call in captured] == [
+        "",
+        "",
+        "Bearer delegated-token",
+        authorization_header_value(config),
+    ]
+    for call in captured[:2]:
+        sent_headers = call["headers"]
+        assert isinstance(sent_headers, dict)
+        assert not any(str(name).casefold() == "authorization" for name in sent_headers)
+    assert captured[2]["headers"] == {"Authorization": "Bearer delegated-token"}
+    assert captured[3]["headers"] == {"Authorization": authorization_header_value(config)}
 
 
 async def test_header_scope_merges_into_outgoing_request(

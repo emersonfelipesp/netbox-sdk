@@ -93,14 +93,11 @@ def test_path_traversal_stays_within_base_url(tmp_path, monkeypatch) -> None:
     assert "evil" not in url
 
 
-def test_encoded_path_traversal_preserved_as_literal(tmp_path, monkeypatch) -> None:
-    """Percent-encoded traversal must be treated as a literal path component.
-    urlsplit does not decode percent-encoding, so %2e%2e%2f is a valid path
-    string that build_url accepts. The resulting URL must remain under the base.
-    """
+def test_encoded_path_separator_in_traversal_rejected(tmp_path, monkeypatch) -> None:
+    """An encoded slash is ambiguous even when embedded in a traversal spelling."""
     client = _client(tmp_path, monkeypatch)
-    url = client.build_url("/api/%2e%2e%2fetc%2fpasswd")
-    assert "netbox.example.com" in url
+    with pytest.raises(ValueError, match="percent-encoded path separators"):
+        client.build_url("/api/%2e%2e%2fetc%2fpasswd")
 
 
 # ---------------------------------------------------------------------------

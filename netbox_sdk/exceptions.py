@@ -49,6 +49,10 @@ class JsonPayloadError(ValueError):
     """Raised when ``--body-json`` or ``--body-file`` content is invalid JSON or not an object/array."""
 
 
+class PaginationError(RuntimeError):
+    """Raised when automatic pagination receives malformed or cyclic page data."""
+
+
 class BranchingPluginUnavailableError(RuntimeError):
     """Raised when a branching operation is requested but the plugin is not installed on the server."""
 

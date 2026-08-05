@@ -78,6 +78,40 @@ class _NoopClient:
         return None
 
 
+class _RecordingBranchingClient:
+    def __init__(self) -> None:
+        self.calls: list[str] = []
+
+    async def create(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        self.calls.append("create")
+        return {"id": 7}
+
+    async def update(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        self.calls.append("update")
+        return {"id": 7}
+
+    async def delete(self, *args: Any, **kwargs: Any) -> None:
+        del args, kwargs
+        self.calls.append("delete")
+
+    async def sync(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        self.calls.append("sync")
+        return {"id": 7}
+
+    async def revert(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        self.calls.append("revert")
+        return {"id": 7}
+
+    async def archive(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        self.calls.append("archive")
+        return {"id": 7}
+
+
 @pytest.fixture
 def fake_client(monkeypatch):
     client = _NoopClient()
@@ -91,6 +125,21 @@ def fake_client(monkeypatch):
     import netbox_cli.branching as branching_mod
 
     monkeypatch.setattr(branching_mod, "_get_client", _get_client)
+    return client
+
+
+@pytest.fixture
+def recording_branching_client(monkeypatch: pytest.MonkeyPatch) -> _RecordingBranchingClient:
+    import netbox_cli.branching as branching_mod
+
+    client = _RecordingBranchingClient()
+    raw_client = _NoopClient()
+    monkeypatch.setattr(branching_mod, "_get_client", lambda: raw_client)
+    monkeypatch.setattr(
+        branching_mod.BranchingClient,
+        "from_client",
+        classmethod(lambda cls, raw: client),
+    )
     return client
 
 
@@ -168,6 +217,69 @@ def test_global_branch_option_sets_header(monkeypatch):
 def test_branching_list_renders_empty(fake_client):
     result = runner.invoke(nbx_app, ["branching", "list"])
     assert result.exit_code == 0
+
+
+@pytest.mark.parametrize(
+    ("verb", "arguments"),
+    [
+        ("create", ["--name", "feature-x"]),
+        ("update", ["7", "--name", "renamed"]),
+        ("delete", ["7", "--yes"]),
+        ("sync", ["7"]),
+        ("revert", ["7"]),
+        ("archive", ["7", "--yes"]),
+    ],
+)
+def test_branching_writes_refuse_unconfirmed_execution_before_client_creation(
+    monkeypatch: pytest.MonkeyPatch,
+    verb: str,
+    arguments: list[str],
+) -> None:
+    import netbox_cli.branching as branching_mod
+
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    monkeypatch.setattr(
+        branching_mod,
+        "_get_client",
+        lambda: pytest.fail("unconfirmed branching write constructed a client"),
+    )
+
+    result = runner.invoke(nbx_app, ["branching", verb, *arguments])
+
+    assert result.exit_code == 2
+    assert "Live NetBox writes require explicit confirmation" in result.output
+
+
+@pytest.mark.parametrize(
+    ("verb", "arguments"),
+    [
+        ("create", ["--name", "feature-x"]),
+        ("update", ["7", "--name", "renamed"]),
+        ("delete", ["7", "--yes"]),
+        ("sync", ["7"]),
+        ("revert", ["7"]),
+        ("archive", ["7", "--yes"]),
+    ],
+)
+@pytest.mark.parametrize("confirmation", ["flag", "environment"])
+def test_branching_writes_accept_explicit_confirmation(
+    monkeypatch: pytest.MonkeyPatch,
+    recording_branching_client: _RecordingBranchingClient,
+    verb: str,
+    arguments: list[str],
+    confirmation: str,
+) -> None:
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    invocation = ["branching", verb, *arguments]
+    if confirmation == "flag":
+        invocation.append("--confirm")
+    else:
+        monkeypatch.setenv("NETBOX_SDK_CONFIRM_WRITE", "1")
+
+    result = runner.invoke(nbx_app, invocation)
+
+    assert result.exit_code == 0, result.output
+    assert recording_branching_client.calls == [verb]
 
 
 def test_branching_status_when_plugin_missing(monkeypatch):

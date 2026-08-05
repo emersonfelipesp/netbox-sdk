@@ -50,6 +50,7 @@ from netbox_cli.runtime import (
     _verify_runtime_config as _verify_runtime_config,
 )
 from netbox_cli.support import (
+    OutputFormat,
     available_theme_names_or_error,
     console,
     emit_cli_error,
@@ -61,6 +62,7 @@ from netbox_cli.support import (
     rethrow_theme_catalog_error,
     run_with_spinner,
 )
+from netbox_cli.write_confirmation import WRITE_HTTP_METHODS, require_write_confirmation
 from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_PROFILE,
@@ -74,6 +76,12 @@ from netbox_sdk.config import (
 )
 from netbox_sdk.config import (
     save_profile_config as save_profile_config,
+)
+from netbox_sdk.introspection import (
+    serialize_capabilities,
+    serialize_groups,
+    serialize_resource_description,
+    serialize_resources,
 )
 from netbox_sdk.logging_runtime import (
     DEFAULT_LOG_TAIL_LIMIT,
@@ -175,6 +183,7 @@ def root_callback(
         "groups",
         "resources",
         "ops",
+        "capabilities",
         "call",
         "tui",
         "cli",
@@ -297,9 +306,14 @@ def groups_command(
         "--live",
         help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
     ),
+    output_json: bool = typer.Option(False, "--json", help="Output structured JSON"),
 ) -> None:
     """List all available OpenAPI app groups."""
+    output_format = resolve_output_format(as_json=output_json)
     index = _get_enriched_index() if live else _get_runtime_index()
+    if output_format is OutputFormat.JSON:
+        typer.echo(json.dumps(serialize_groups(index), indent=2, sort_keys=True))
+        return
     for group in index.groups():
         typer.echo(group)
 
@@ -312,12 +326,17 @@ def resources_command(
         "--live",
         help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
     ),
+    output_json: bool = typer.Option(False, "--json", help="Output structured JSON"),
 ) -> None:
     """List resources available within a group."""
+    output_format = resolve_output_format(as_json=output_json)
     index = _get_enriched_index() if live else _get_runtime_index()
     resources = index.resources(group)
     if not resources:
         raise typer.BadParameter(f"Group not found or has no resources: {group}")
+    if output_format is OutputFormat.JSON:
+        typer.echo(json.dumps(serialize_resources(index, group), indent=2, sort_keys=True))
+        return
     for resource in resources:
         typer.echo(resource)
 
@@ -331,12 +350,24 @@ def operations_command(
         "--live",
         help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
     ),
+    output_json: bool = typer.Option(False, "--json", help="Output structured JSON"),
 ) -> None:
     """Show available HTTP operations for a resource."""
+    output_format = resolve_output_format(as_json=output_json)
     index = _get_enriched_index() if live else _get_runtime_index()
     rows = index.operations_for(group, resource)
     if not rows:
         raise typer.BadParameter(f"No operations found for {group}/{resource}")
+
+    if output_format is OutputFormat.JSON:
+        typer.echo(
+            json.dumps(
+                serialize_resource_description(index, group, resource),
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
 
     table = Table(title=f"{group}/{resource}")
     table.add_column("Method", no_wrap=True)
@@ -345,6 +376,21 @@ def operations_command(
     for row in rows:
         table.add_row(row.method, row.path, row.operation_id or "-")
     console.print(table)
+
+
+@app.command("capabilities")
+def capabilities_command(
+    live: bool = typer.Option(
+        False,
+        "--live",
+        help="Include plugin/custom-object resources discovered from the configured NetBox instance.",
+    ),
+    output_json: bool = typer.Option(False, "--json", help="Output structured JSON"),
+) -> None:
+    """Emit the complete schema capability document as JSON."""
+    resolve_output_format(as_json=output_json)
+    index = _get_enriched_index() if live else _get_runtime_index()
+    typer.echo(json.dumps(serialize_capabilities(index), indent=2, sort_keys=True))
 
 
 def _graphql_variables_from_pairs(variables: list[str] | None) -> dict[str, Any] | None:
@@ -471,6 +517,11 @@ def call_command(
         "--markdown",
         help="Output Markdown (mutually exclusive with --json/--yaml)",
     ),
+    confirm: bool = typer.Option(
+        False,
+        "--confirm",
+        help="Confirm execution when METHOD can modify NetBox.",
+    ),
 ) -> None:
     """Call an arbitrary NetBox API path."""
     resolve_output_format(
@@ -485,6 +536,8 @@ def call_command(
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
     payload = load_json_payload(body_json, body_file)
+    if method.strip().upper() in WRITE_HTTP_METHODS:
+        require_write_confirmation(confirmed=confirm)
     client = _get_client()
     request_kwargs: dict[str, Any] = {"query": query_dict, "payload": payload}
     if headers:

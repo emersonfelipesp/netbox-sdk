@@ -359,7 +359,19 @@ from netbox_sdk.config import cache_dir
 store = HttpCacheStore(cache_dir())
 ```
 
-POST/PUT/PATCH/DELETE requests are **never cached**.
+POST/PUT/PATCH/DELETE requests are **never cached**. A successful (2xx)
+mutating request also invalidates cached reads for the affected path: the
+exact path, its containing collection/list path, and — for bulk operations,
+which always target the list path — each written object's own detail path
+(derived from the `id` fields in the bulk payload). This means a
+read-before-write, write, read-after-write sequence never observes a stale
+cached body for the object just written.
+
+The cache key incorporates every request header that can change the response
+representation for an otherwise-identical method/path/query, not just the
+bearer token. In particular, a NetBox Branching `X-NetBox-Branch` header is
+part of the cache identity, so the same token reading two different branch
+schemas never collides on the same cached entry.
 
 ---
 

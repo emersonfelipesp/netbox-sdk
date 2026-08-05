@@ -11,7 +11,7 @@ from urllib.parse import parse_qs, urlparse
 from pydantic import BaseModel
 
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
-from netbox_sdk.exceptions import JsonPayloadError
+from netbox_sdk.exceptions import JsonPayloadError, PaginationError
 from netbox_sdk.http_cache import QueryParams
 from netbox_sdk.schema import SchemaIndex
 
@@ -248,6 +248,46 @@ async def run_dynamic_command(
     return await client.request(resolved.method, resolved.path, **request_kwargs)
 
 
+def _is_successful_page(response: ApiResponse, data: Any) -> bool:
+    """True if a pagination page is a real paginated envelope, not an error body.
+
+    A non-2xx status must never be treated as a valid page even if its body
+    happens to parse as JSON and contain a ``results`` key.
+    """
+    return 200 <= response.status < 300 and isinstance(data, dict) and "results" in data
+
+
+def _pagination_page_key(
+    path: str, query: QueryParams
+) -> tuple[str, tuple[tuple[str, tuple[str, ...]], ...]]:
+    """Normalize a pagination target by path and parsed query parameters."""
+    normalized_query = tuple(
+        sorted(
+            (key, tuple(value) if isinstance(value, list) else (value,))
+            for key, value in query.items()
+        )
+    )
+    return path, normalized_query
+
+
+def _pagination_results(data: dict[str, Any], *, path: str) -> list[Any]:
+    """Return a page's result list or raise a typed malformed-page error."""
+    results = data.get("results")
+    if not isinstance(results, list):
+        raise PaginationError(f"Automatic pagination expected 'results' to be a list for {path}.")
+    return results
+
+
+def _pagination_next_url(data: dict[str, Any], *, path: str) -> str | None:
+    """Return a valid next URL or raise a typed malformed-page error."""
+    next_url = data.get("next")
+    if next_url is not None and (not isinstance(next_url, str) or not next_url):
+        raise PaginationError(
+            f"Automatic pagination expected 'next' to be a URL or null for {path}."
+        )
+    return next_url
+
+
 async def list_all_pages(
     client: NetBoxApiClient,
     index: SchemaIndex,
@@ -278,6 +318,11 @@ async def list_all_pages(
         JSON object ``{"count": N, "next": null, "previous": null, "results": [...]}``.
         If the first response is not a paginated envelope the raw response is
         returned unchanged.
+
+    Raises:
+        PaginationError: If a page has malformed ``results``/``next`` values,
+            repeats a previously visited path and query, or supplies a next
+            link without adding any records.
     """
     query = parse_key_value_pairs(query_pairs)
     headers = parse_header_pairs(header_pairs or [])
@@ -297,16 +342,33 @@ async def list_all_pages(
     except Exception:
         return response
 
-    if not isinstance(data, dict) or "results" not in data:
+    if not _is_successful_page(response, data):
         return response
 
-    all_results: list[Any] = list(data.get("results", []))
-    next_url: str | None = data.get("next")
+    initial_results = _pagination_results(data, path=resolved.path)
+    all_results: list[Any] = list(initial_results)
+    next_url = _pagination_next_url(data, path=resolved.path)
+    if not initial_results and next_url is not None:
+        raise PaginationError(
+            "Automatic pagination made no forward progress: "
+            f"{resolved.path} returned no results but supplied a next link."
+        )
+
+    visited_pages = {_pagination_page_key(resolved.path, resolved.query)}
 
     while next_url and len(all_results) < max_records:
         parsed = urlparse(next_url)
         next_path = parsed.path
-        next_query = {k: v if len(v) > 1 else v[0] for k, v in parse_qs(parsed.query).items()}
+        parsed_query = parse_qs(parsed.query)
+        next_query: QueryParams = {
+            key: values if len(values) > 1 else values[0] for key, values in parsed_query.items()
+        }
+        page_key = _pagination_page_key(next_path, next_query)
+        if page_key in visited_pages:
+            raise PaginationError(
+                f"Automatic pagination detected a repeated next link for {next_path}."
+            )
+        visited_pages.add(page_key)
         logger.debug(
             "following pagination next link",
             extra={
@@ -325,11 +387,21 @@ async def list_all_pages(
         try:
             data = json.loads(response.text)
         except Exception:
-            break
-        if not isinstance(data, dict) or "results" not in data:
-            break
-        all_results.extend(data.get("results", []))
-        next_url = data.get("next")
+            # A later page failed after earlier pages already succeeded. Do
+            # not synthesize a status-200 envelope from the partial results
+            # collected so far — that would tell the caller pagination
+            # completed when it did not. Propagate the raw failing response.
+            return response
+        if not _is_successful_page(response, data):
+            return response
+        page_results = _pagination_results(data, path=next_path)
+        next_url = _pagination_next_url(data, path=next_path)
+        if not page_results and next_url is not None:
+            raise PaginationError(
+                "Automatic pagination made no forward progress: "
+                f"{next_path} returned no results but supplied a next link."
+            )
+        all_results.extend(page_results)
 
     combined: dict[str, Any] = {
         "count": len(all_results),
