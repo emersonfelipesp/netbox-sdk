@@ -4,4 +4,4 @@
 
 [mcp_servers.netbox-sdk]
 command = "nbx-mcp"
-default_tools_approval_mode = "writes"
+default_tools_approval_mode = "prompt"

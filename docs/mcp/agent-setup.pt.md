@@ -106,8 +106,16 @@ repositório já traz um:
 ```toml
 [mcp_servers.netbox-sdk]
 command = "nbx-mcp"
-default_tools_approval_mode = "writes"
+default_tools_approval_mode = "prompt"
 ```
+
+`default_tools_approval_mode = "prompt"` faz o Codex pedir aprovação
+interativa antes de chamar qualquer ferramenta do `netbox-sdk` por padrão,
+além do próprio gate `--confirm` da CLI sobre mutações `nbx` (veja
+[Segurança de mutações](index.md#seguranca-de-mutacoes)). Os outros valores
+válidos são `"auto"` (nunca pergunta) e `"approve"` (trata como já aprovado
+sem perguntar); `"prompt"` é o padrão conservador para um servidor que pode
+escrever no NetBox.
 
 O `.codex/config.toml`, como qualquer outro arquivo em `.codex/`, só é
 carregado quando o diretório do projeto está

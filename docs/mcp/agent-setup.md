@@ -104,8 +104,16 @@ ships one:
 ```toml
 [mcp_servers.netbox-sdk]
 command = "nbx-mcp"
-default_tools_approval_mode = "writes"
+default_tools_approval_mode = "prompt"
 ```
+
+`default_tools_approval_mode = "prompt"` makes Codex ask for interactive
+approval before calling any `netbox-sdk` tool by default, on top of the
+CLI's own `--confirm` gate on `nbx` mutations (see
+[Mutation safety](index.md#mutation-safety)). The other valid values are
+`"auto"` (never prompt) and `"approve"` (treat as pre-approved without
+asking); `"prompt"` is the conservative default for a server that can write
+to NetBox.
 
 `.codex/config.toml`, like every other file under `.codex/`, only loads once
 the project directory is [trusted](#hooks-require-two-separate-trust-steps).
