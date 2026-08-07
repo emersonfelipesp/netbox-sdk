@@ -8,27 +8,31 @@ on:
       - netbox_sdk/typed_versions/**
       - scripts/build_metadata.py
       - .github/workflows/publish-metadata.yml
-    tags:
-      - "v*"
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: publish-metadata
   cancel-in-progress: false
 
 jobs:
-  publish-metadata:
+  generate-metadata:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
+    outputs:
+      metadata_b64: ${{ steps.capture.outputs.metadata_b64 }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout exact metadata source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python 3.13
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.13"
 
@@ -38,9 +42,33 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: python scripts/build_metadata.py
 
-      - name: Commit and push if changed
-        if: github.ref == 'refs/heads/main'
+      - name: Capture generated metadata
+        id: capture
         run: |
+          set -euo pipefail
+          metadata_b64="$(base64 -w 0 metadata.json)"
+          echo "metadata_b64=${metadata_b64}" >> "$GITHUB_OUTPUT"
+
+  publish-metadata:
+    needs: generate-metadata
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Commit and push if changed
+        env:
+          METADATA_B64: ${{ needs.generate-metadata.outputs.metadata_b64 }}
+          METADATA_WRITE_TOKEN: ${{ secrets.METADATA_WRITE_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$METADATA_WRITE_TOKEN"
+          git clone --no-tags --single-branch --branch main \
+            "https://github.com/${GITHUB_REPOSITORY}.git" writer
+          test "$(git -C writer rev-parse HEAD)" = "$SOURCE_SHA"
+          printf '%s' "$METADATA_B64" | base64 --decode > writer/metadata.json
+          cd writer
           if git diff --quiet -- metadata.json; then
             echo "metadata.json unchanged; nothing to commit."
             exit 0
@@ -49,4 +77,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add metadata.json
           git commit -m "chore: refresh metadata.json [skip ci]"
-          git push
+          git push "https://x-access-token:${METADATA_WRITE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main

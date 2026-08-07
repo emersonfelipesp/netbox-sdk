@@ -66,6 +66,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_docgen_paths.py` | `docgen_capture.py` output path resolution and stub config injection |
 | `test_docgen_specs.py` | Documentation capture spec inventory and rendering contracts |
 | `test_docs_alignment.py` | Package/docs version alignment and localized docs completeness |
+| `test_release_policy.py` | Canonical Gitea ancestry, immutable tag-object, PEP 440 routing, RC-push, and official-release event authorization |
+| `test_release_registry.py` | Exact local wheel/sdist identity/cardinality plus TestPyPI/PyPI filename-set, collision, host, manifest-bound approved-upload, partial-retry, and hash-bound wheel URL policy |
 | `test_graphql.py` | CLI GraphQL and raw HTTP command behavior |
 | `test_instance_isolation.py` | Per-process config and schema index isolation (no cross-test state leakage) |
 | `test_logging_runtime.py` | Structured JSON log writing, file rotation, log entry format |
