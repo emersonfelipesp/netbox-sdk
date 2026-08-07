@@ -3211,6 +3211,12 @@ Submodule layout and cross-repo links: <code>/root/personal-context/claude-refer
 </span></code></pre></div></p>
 <p>When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside <code>netbox_tui/themes/*.json</code>.
 Also keep the composition contract explicit: contributor guidance should treat Textual widgets as React-style composable building blocks, with composition preferred over inheritance for view structure.</p>
+<p>Release documentation has two version sources: <code>snippets/package-version.txt</code>
+tracks the in-tree source candidate used by MkDocs, while
+<code>snippets/published-package-version.txt</code> tracks the latest PEP 440 final or
+post-release package on the default PyPI index. Normal-index install snippets
+must use that published value; prerelease, development, and local versions
+remain source/TestPyPI-only.</p>
 <p><strong>Deploy (CI only):</strong>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkdocs<span class="w"> </span>gh-deploy<span class="w"> </span>--force<span class="w"> </span>--clean<span class="w"> </span>--verbose
 </span></code></pre></div></p>

@@ -3417,7 +3417,26 @@
 </tbody>
 </table>
 <p>Use <code>pip install 'netbox-sdk[all]'</code> para CLI + TUI + ferramentas demo.</p>
-<p>Para coincidir com a versão descrita pelo site de documentação publicado, fixe com <code>==</code> e a mesma versão que <code>docs/snippets/package-version.txt</code> (veja <a href="../../getting-started/installation/">Instalação</a>).</p>
+<p>Para uma instalação reproduzível pelo índice PyPI padrão, fixe com <code>==</code> e a
+versão final ou pós-lançamento compatível com PEP 440 em
+<code>docs/snippets/published-package-version.txt</code> (veja
+<a href="../../getting-started/installation/">Instalação</a>). O valor separado em
+<code>docs/snippets/package-version.txt</code> identifica o candidato no código-fonte e os
+artefatos do TestPyPI; versões de pré-lançamento, desenvolvimento e locais não
+são publicadas no índice padrão.</p>
+<p>Tags de candidatos são enviados diretamente com a versão exata <code>v*rc*</code> e
+publicam somente no TestPyPI. Versões finais e pós-lançamentos chegam ao PyPI
+somente por um GitHub Release publicado. O workflow aceita um conjunto local
+fechado com exatamente um wheel e um sdist correspondentes ao pacote/versão,
+captura esse conjunto antes de instalar dependências de rede para o smoke test
+e fornece a cada registro apenas um diretório novo aprovado pelo validador.
+Antes do upload de produção, ele valida o conjunto completo no TestPyPI e o
+conjunto exato atual de nomes/hashes no PyPI, preparando apenas arquivos
+ausentes para que uploads parciais possam continuar sem <code>--skip-existing</code>. A
+etapa do Twine revalida o manifesto aprovado de nomes/digests, e uma verificação
+final limitada exige que o PyPI exponha exatamente os nomes e hashes locais do
+wheel e do sdist. Os jobs de registro instalam somente o grupo de dependências
+<code>publish</code> auditado e bloqueado pelo lockfile.</p>
 <h2 id="superficie-publica-do-sdk">Superfície pública do SDK<a class="headerlink" href="#superficie-publica-do-sdk" title="Permanent link">&para;</a></h2>
 <p>Símbolos estáveis para uso em biblioteca são exportados de <code>netbox_sdk</code> (veja <code>netbox_sdk/__init__.py</code>), incluindo:</p>
 <ul>
