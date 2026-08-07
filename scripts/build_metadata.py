@@ -4,6 +4,7 @@ Reads pyproject.toml and netbox_sdk/typed_versions/ to derive:
 - release: project.version
 - python:  lower bound of project.requires-python, suffixed with "+"
 - netbox:  ascending list parsed from typed_versions/v*.py filenames
+- source:  repository plus a required full commit from the environment or Git
 
 Writes metadata.json at the repo root. Pure stdlib so it can run in any CI image.
 """
@@ -13,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import sys
 import tomllib
 from datetime import UTC, datetime
@@ -25,6 +27,7 @@ OUTPUT = ROOT / "metadata.json"
 
 VERSION_FILE_RE = re.compile(r"^v(\d+)_(\d+)\.py$")
 PYTHON_LOWER_BOUND_RE = re.compile(r">=\s*(\d+\.\d+)")
+COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 
 
 def python_lower_bound(requires_python: str) -> str:
@@ -46,9 +49,89 @@ def discover_netbox_versions(directory: Path) -> list[str]:
     return [f"{major}.{minor}" for major, minor in versions]
 
 
+def source_commit() -> str:
+    """Return an explicit, validated commit for metadata provenance."""
+    commit = os.environ.get("SOURCE_COMMIT") or os.environ.get("GITHUB_SHA")
+    if not commit:
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--verify", "HEAD^{commit}"],
+                cwd=ROOT,
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError(
+                "Metadata generation requires SOURCE_COMMIT, GITHUB_SHA, or Git history"
+            ) from exc
+        if result.returncode != 0:
+            raise RuntimeError(
+                "Metadata generation could not resolve source commit; set SOURCE_COMMIT"
+            )
+        commit = result.stdout.strip()
+
+    if not COMMIT_RE.fullmatch(commit):
+        raise ValueError("Metadata source commit must be a full 40-character Git SHA")
+    return commit.lower()
+
+
+def _git_output(*args: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("Metadata provenance validation requires Git history") from exc
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or "Git command failed"
+        raise RuntimeError(f"Metadata provenance validation failed: {detail}")
+    return result.stdout.strip()
+
+
+def validate_source_provenance(commit: str, project_version: str) -> None:
+    """Require provenance for the candidate tree or its metadata-only parent."""
+    object_type = _git_output("cat-file", "-t", commit)
+    if object_type != "commit":
+        raise RuntimeError(
+            f"Metadata source SHA must identify a commit object, got {object_type!r}"
+        )
+    _git_output("merge-base", "--is-ancestor", commit, "HEAD")
+    source_pyproject = tomllib.loads(_git_output("show", f"{commit}:pyproject.toml"))
+    source_version = str(source_pyproject["project"]["version"])
+    if source_version != project_version:
+        raise RuntimeError(
+            "Metadata source commit has project version "
+            f"{source_version!r}, expected {project_version!r}; commit the integration first, "
+            "then regenerate metadata in a follow-up commit"
+        )
+    changed_paths = _git_output(
+        "diff",
+        "--name-only",
+        commit,
+        "HEAD",
+        "--",
+        ".",
+        ":(exclude)metadata.json",
+    )
+    if changed_paths:
+        changed = ", ".join(changed_paths.splitlines()[:5])
+        raise RuntimeError(
+            "Metadata source commit does not match the candidate tree outside "
+            f"metadata.json: {changed}"
+        )
+
+
 def main() -> int:
     pyproject = tomllib.loads(PYPROJECT.read_text())
     project = pyproject["project"]
+
+    commit = source_commit()
+    validate_source_provenance(commit, str(project["version"]))
 
     metadata = {
         "release": project["version"],
@@ -57,7 +140,7 @@ def main() -> int:
         "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source": {
             "repo": os.environ.get("GITHUB_REPOSITORY", "emersonfelipesp/netbox-sdk"),
-            "commit": os.environ.get("GITHUB_SHA", ""),
+            "commit": commit,
         },
     }
 

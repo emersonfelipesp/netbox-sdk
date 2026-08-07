@@ -38,6 +38,13 @@ uv run ty check netbox_sdk netbox_cli netbox_tui netbox_mcp tests
 When updating TUI documentation, keep the theme contract explicit: all Textual components and their subcomponents must follow the active theme, and runtime styling must never be hardcoded outside `netbox_tui/themes/*.json`.
 Also keep the composition contract explicit: contributor guidance should treat Textual widgets as React-style composable building blocks, with composition preferred over inheritance for view structure.
 
+Release documentation has two version sources: `snippets/package-version.txt`
+tracks the in-tree source candidate used by MkDocs, while
+`snippets/published-package-version.txt` tracks the latest PEP 440 final or
+post-release package on the default PyPI index. Normal-index install snippets
+must use that published value; prerelease, development, and local versions
+remain source/TestPyPI-only.
+
 **Deploy (CI only):**
 ```bash
 mkdocs gh-deploy --force --clean --verbose

@@ -35,7 +35,17 @@ def test_public_version_and_docs_metadata_stay_aligned() -> None:
     assert version_match.group(1) == pyproject_version
     assert _read("docs/snippets/package-version.txt").strip() == pyproject_version
     assert f'package_version: "{pyproject_version}"' in _read("mkdocs.yml")
-    assert f"netbox-sdk** **{pyproject_version}" in _read("docs/snippets/documented-release-en.md")
+    documented_release = _read("docs/snippets/documented-release-en.md")
+    published_version = _read("docs/snippets/published-package-version.txt").strip()
+    assert f"netbox-sdk {pyproject_version} source candidate" in documented_release
+    assert f"default PyPI index is **{published_version}**" in documented_release
+
+
+def test_certification_release_checklist_separates_candidate_and_pypi_final() -> None:
+    checklist = _read("CERTIFICATION.md")
+    assert "source/TestPyPI release examples match the candidate" in checklist
+    assert "default-index pins match `docs/snippets/published-package-version.txt`" in checklist
+    assert "pinned install snippets" not in checklist
 
 
 def test_integration_certification_packet_is_present() -> None:

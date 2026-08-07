@@ -55,7 +55,11 @@ nbx demo dev tui
 
 ## Install
 
-Current release documented on the docs site matches **`docs/snippets/package-version.txt`** (aligned with `pyproject.toml`). For the latest PyPI build you can omit the pin; add `==<version>` to match that documentation snapshot.
+The source candidate documented on the site matches **`docs/snippets/package-version.txt`**
+(aligned with `pyproject.toml`). The latest final release available from the
+default PyPI index is tracked separately in
+**`docs/snippets/published-package-version.txt`**. Omit a pin for the latest
+published final, or use that published-version value for a reproducible install.
 
 Minimal SDK only:
 
@@ -93,10 +97,10 @@ Everything:
 pip install 'netbox-sdk[all]'
 ```
 
-Pinned (same version as the docs site / `package-version.txt`):
+Pinned to the latest final release on the default package index:
 
 ```bash
-pip install 'netbox-sdk[all]==0.0.9.post2'
+pip install 'netbox-sdk[all]==0.0.10'
 ```
 
 With `uv` as a user tool:
@@ -333,15 +337,69 @@ uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 
 ## Release Process
 
-Use a single GitHub release title pattern for every release:
-
-- `netbox-sdk vX.Y.Z`
-
-Example:
+Release candidates use a direct RC tag push and publish only to TestPyPI:
 
 ```bash
-gh release create v0.0.9.post2 \
-  --title "netbox-sdk v0.0.9.post2"
+git tag -a v0.0.11rc1 -m "Release v0.0.11rc1"
+git push origin v0.0.11rc1
 ```
 
-When cutting a release, bump **`pyproject.toml`** and **`netbox_sdk.__version__`**, then keep docs in sync: **`docs/snippets/package-version.txt`**, **`mkdocs.yml`** → **`extra.package_version`**, and the version strings in **`docs/snippets/documented-release-*.md`** and **`docs/snippets/pip-pinned-*.txt`** / **`uv-pinned-cli.txt`**. **`uv lock`** must reflect the new version. **`tests/test_docs_alignment.py`** asserts snippet and MkDocs metadata match **`pyproject.toml`**.
+Do not create a GitHub Release for an RC. Final and post releases must never be
+authorized by a direct tag push; publish them through the GitHub Release event
+with the title pattern `netbox-sdk vX.Y.Z`:
+
+```bash
+gh release create vX.Y.Z \
+  --title "netbox-sdk vX.Y.Z"
+```
+
+When cutting a source candidate, bump **`pyproject.toml`** and
+**`netbox_sdk.__version__`**, then keep the candidate surfaces in sync:
+**`docs/snippets/package-version.txt`**, **`mkdocs.yml`** →
+**`extra.package_version`**, **`metadata.json`**, and **`llms.txt`**. Keep
+normal-index install examples aligned separately with
+**`docs/snippets/published-package-version.txt`** and update that value only
+after a PEP 440 final or post-release package is verifiably available on PyPI.
+Prerelease, development, and local versions remain source/TestPyPI-only.
+**`uv lock`** must reflect the source candidate.
+**`scripts/release_policy.py`** and **`tests/test_docs_alignment.py`** guard both
+version contracts and registry routing.
+
+The published `v0.0.10` annotated tag object is immutable at
+`e104bdd554ac2becf7abd38b238d8fb5509651f4` and must peel to
+`3bcc86481f60f0f2d6fb1913c42d1561f5d5b77e`. Preserve its unique history with
+a merge with exactly two parents and the published commit as its second parent,
+then use a merge-commit (or fast-forward the already-created merge commit) when
+integrating the reviewed Gitea PR. Squash, rebase, and octopus merge methods are
+forbidden. Verify the exact object and commit, then confirm the release commit
+is already an ancestor of explicitly fetched canonical Gitea `main` before
+creating any candidate tag or publishing any registry artifact. The release
+workflow also fetches Gitea's `v0.0.10` ref into an isolated validation ref and
+requires its annotated tag-object SHA and peeled commit to match exactly.
+
+Both credentialed publishing workflows pin every action to a reviewed full
+commit SHA. The package workflow uses the `publish` dependency group from
+`uv.lock` for build and Twine execution, validates exactly one correctly named
+wheel plus one sdist, and captures that closed set before any network-installed
+smoke dependency can run. Smoke testing consumes a downstream artifact copy.
+Immediately before a final PyPI upload, the workflow re-fetches canonical
+Gitea, reruns the ancestry/tag policy, matches TestPyPI's exact filename and
+SHA-256 set, then compares PyPI's current exact filename/hash set and copies
+only verified-missing production files into a fresh directory. Twine receives
+only that approved directory after its filename/digest manifest is revalidated
+in the upload step, so a partial PyPI upload can resume without
+`--skip-existing`. A bounded post-upload check then requires PyPI to expose the
+exact wheel/sdist pair and hashes. Publisher jobs install only the audited,
+locked `publish` dependency group. Metadata generation runs in a read-only job;
+a separate minimal `main`-only writer receives the generated file through a job
+output while its automatic token stays read-only. Configure a fine-grained
+`METADATA_WRITE_TOKEN` repository secret with contents-write access; it is
+exposed only to the guarded clone/commit/push step.
+
+Release metadata is a deliberate follow-up commit: first commit the integration,
+then run `SOURCE_COMMIT=<integration-sha> python scripts/build_metadata.py` and
+commit the resulting `metadata.json` before pushing. Supply the integration
+commit SHA, never the annotated tag-object SHA. The generator rejects a
+non-commit object, a commit outside candidate ancestry, a commit whose
+`pyproject.toml` has a different project version, or a source tree that differs
+from the candidate anywhere except the deliberate `metadata.json` follow-up.

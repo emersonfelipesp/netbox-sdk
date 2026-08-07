@@ -14,7 +14,26 @@ The primary PyPI project is `netbox-sdk` (see `pyproject.toml`). The same distri
 
 Use `pip install 'netbox-sdk[all]'` for CLI + TUI + demo tooling.
 
-To match the version described by the published documentation site, pin with `==` and the same version as `docs/snippets/package-version.txt` (see [Installation](../getting-started/installation.md)).
+For a reproducible install from the default PyPI index, pin with `==` and the
+PEP 440 final or post-release version in
+`docs/snippets/published-package-version.txt` (see
+[Installation](../getting-started/installation.md)). The separate
+`docs/snippets/package-version.txt` value identifies the in-tree source
+candidate and TestPyPI artifacts; prerelease, development, and local versions
+do not publish to the default index.
+
+Release-candidate tags are pushed directly with the exact `v*rc*` version and
+publish only to TestPyPI. Final and post releases reach PyPI only from a
+published GitHub Release. The publishing workflow accepts a closed local set of
+exactly one package/version-matched wheel and one sdist, captures it before
+network-installed smoke dependencies run, and gives each registry only a fresh
+validator-approved upload directory. Before production upload it verifies both
+the complete TestPyPI set and PyPI's current exact filename/hash set, staging
+only missing PyPI files so partial uploads resume safely without
+`--skip-existing`. The Twine step revalidates the approved filename/digest
+manifest, and a bounded final check requires PyPI to expose exactly the local
+wheel/sdist filenames and hashes. Registry jobs install only the audited,
+locked `publish` dependency group.
 
 ## Public SDK surface
 

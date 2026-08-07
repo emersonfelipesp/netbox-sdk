@@ -95,7 +95,7 @@ __all__ = [
     "enrich_schema_index_with_runtime_resources",
 ]
 
-__version__ = "0.0.10rc1"
+__version__ = "0.0.11rc1"
 
 from netbox_sdk.branching import (
     BranchConflictError,

@@ -14,7 +14,27 @@ O projeto PyPI principal é `netbox-sdk` (veja `pyproject.toml`). A mesma distri
 
 Use `pip install 'netbox-sdk[all]'` para CLI + TUI + ferramentas demo.
 
-Para coincidir com a versão descrita pelo site de documentação publicado, fixe com `==` e a mesma versão que `docs/snippets/package-version.txt` (veja [Instalação](../getting-started/installation.pt.md)).
+Para uma instalação reproduzível pelo índice PyPI padrão, fixe com `==` e a
+versão final ou pós-lançamento compatível com PEP 440 em
+`docs/snippets/published-package-version.txt` (veja
+[Instalação](../getting-started/installation.pt.md)). O valor separado em
+`docs/snippets/package-version.txt` identifica o candidato no código-fonte e os
+artefatos do TestPyPI; versões de pré-lançamento, desenvolvimento e locais não
+são publicadas no índice padrão.
+
+Tags de candidatos são enviados diretamente com a versão exata `v*rc*` e
+publicam somente no TestPyPI. Versões finais e pós-lançamentos chegam ao PyPI
+somente por um GitHub Release publicado. O workflow aceita um conjunto local
+fechado com exatamente um wheel e um sdist correspondentes ao pacote/versão,
+captura esse conjunto antes de instalar dependências de rede para o smoke test
+e fornece a cada registro apenas um diretório novo aprovado pelo validador.
+Antes do upload de produção, ele valida o conjunto completo no TestPyPI e o
+conjunto exato atual de nomes/hashes no PyPI, preparando apenas arquivos
+ausentes para que uploads parciais possam continuar sem `--skip-existing`. A
+etapa do Twine revalida o manifesto aprovado de nomes/digests, e uma verificação
+final limitada exige que o PyPI exponha exatamente os nomes e hashes locais do
+wheel e do sdist. Os jobs de registro instalam somente o grupo de dependências
+`publish` auditado e bloqueado pelo lockfile.
 
 ## Superfície pública do SDK
 

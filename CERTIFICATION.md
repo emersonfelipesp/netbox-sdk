@@ -92,8 +92,32 @@ plugin-specific fields, use:
 Before applying with a release, confirm:
 
 - the GitHub release tag matches `pyproject.toml` and `netbox_sdk.__version__`;
-- `docs/snippets/package-version.txt`, pinned install snippets, and
-  `mkdocs.yml` `extra.package_version` match the release;
+- `docs/snippets/package-version.txt`, `mkdocs.yml` `extra.package_version`,
+  package metadata, and source/TestPyPI release examples match the candidate;
+- default-index pins match `docs/snippets/published-package-version.txt`, which
+  advances only after that PEP 440 final or post-release package is verified on
+  PyPI; prerelease, development, and local versions remain TestPyPI-only;
+- the exact release commit is already present on canonical Gitea `main`, Gitea
+  retains the immutable annotated release tag object, and any divergent
+  published lineage entered through the required two-parent merge;
+- every action in credentialed publishing workflows uses a full commit SHA and
+  the build/publisher toolchain is locked in `uv.lock`;
+- an RC is triggered only by an exact direct `v*rc*` tag push, while final and
+  post-release PyPI publication requires a published GitHub Release;
+- exactly one correctly identified wheel plus one sdist is captured before any
+  network-installed smoke dependency runs, and smoke testing uses a downstream
+  artifact copy;
+- TestPyPI wheel smoke installation is bound to the locally verified SHA-256,
+  canonical authorization plus the exact TestPyPI artifact set are rechecked,
+  and only verified-missing PyPI files enter a fresh approved-only directory
+  whose manifest is revalidated in the Twine step, allowing safe partial-upload
+  retries without `--skip-existing`; a bounded final check requires PyPI to
+  expose exactly the expected filenames and hashes;
+- metadata generation runs with read-only permissions; a separate minimal
+  `main`-only writer keeps its automatic token read-only and exposes the
+  fine-grained `METADATA_WRITE_TOKEN` secret only to its guarded
+  clone/commit/push operation;
+- registry jobs install only the audited, locked `publish` dependency group;
 - package build and `twine check` pass;
 - strict docs build passes;
 - all PR GitHub Actions checks are green;

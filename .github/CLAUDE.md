@@ -67,6 +67,8 @@ require the head to be current with its base before merge.
   - runs `suite_sdk`, `suite_cli`, `suite_tui`, or `suite_mcp` on Python 3.11, 3.12, and 3.13 for branch/PR changes
   - escalates to a full `pytest` matrix when shared files change or when the push targets `main`
   - adds the `mock` extra for mock API coverage and runs live NetBox tests for SDK-affecting branch/PR changes and every `main` push against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`
+  - fetches full Git history for every SDK/full-suite job because release-lineage tests resolve the immutable `v0.0.10` tag
+  - routes release policy, metadata generation, and metadata-workflow changes through the complete suite
 - `workflows/security.yml`
   - path-routes SDK, CLI, and TUI security tests
   - runs the relevant `tests/test_security_*.py` module on Python 3.11, 3.12, and 3.13
@@ -84,9 +86,18 @@ require the head to be current with its base before merge.
 - `workflows/django-model-builds.yml`
   - installs `netbox-sdk[cli]` from PyPI and rebuilds cached Django model graphs
 - `workflows/publish-metadata.yml`
-  - regenerates `metadata.json` from `scripts/build_metadata.py` on relevant `main` updates and tags
+  - regenerates `metadata.json` from `scripts/build_metadata.py` only on relevant `main` updates
+  - passes a full commit-object SHA; metadata generation rejects tag objects, empty or abbreviated provenance
+  - generates in a read-only job, then hands the file through a job output to a separate minimal `main`-only writer whose automatic token stays read-only; the fine-grained `METADATA_WRITE_TOKEN` secret is exposed only to the guarded clone/commit/push step, and every action is pinned
 - `workflows/publish-testpypi.yml`
-  - validates metadata and version tags
+  - authorizes direct pushes only for exact `v*rc*` candidates and authorizes final/post PyPI publication only from `release: published`
   - builds and uploads the single `netbox-sdk` distribution to TestPyPI and optionally PyPI
-  - runs `ty check` on Python 3.13 during release validation
-  - runs the full pytest matrix as release validation before publish
+  - runs full-history type, pre-commit, and complete pytest preflight before any registry upload
+  - retains the Python 3.11–3.13 full pytest matrix as post-TestPyPI validation
+  - validates exactly one correctly identified wheel plus one sdist and captures them immediately after the locked build/check; network-installed wheel smoke dependencies run only against a downstream copy
+  - compares the exact registry filename set and SHA-256 digests before upload, uploads only validator-approved files from fresh directories without `--skip-existing`, and rejects collisions or unexpected local/remote artifacts
+  - installs the exact TestPyPI-only wheel URL with its verified SHA-256 fragment and checks its distribution/import version on every supported Python
+  - pins every action to a reviewed full commit SHA and builds, verifies, and publishes with only the `publish` dependency group locked in `uv.lock`
+  - requires the release commit to already be in explicitly fetched canonical Gitea `main` and verifies Gitea retains the exact immutable `v0.0.10` annotated tag object
+  - re-fetches canonical Gitea, rechecks the exact TestPyPI artifact set, then validates PyPI and stages only verified-missing files so partial production uploads resume without `--skip-existing`; the Twine step revalidates the approved digest manifest and a bounded final check requires the exact PyPI set
+  - uses one PEP 440 policy for final and post-release publication; prerelease, development, and local versions remain TestPyPI-only
