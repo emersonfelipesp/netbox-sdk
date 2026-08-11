@@ -16,7 +16,7 @@
         <link rel="prev" href="../generated/nbx-command-capture/">
       
       
-        <link rel="next" href="agent-setup/">
+        <link rel="next" href="plugin-bridge/">
       
       
         
@@ -1738,6 +1738,8 @@
       
         
       
+        
+      
     
     
     
@@ -1793,6 +1795,34 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="plugin-bridge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugin Bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -3312,6 +3342,14 @@ shadowing mechanism as Streamable HTTP.</p>
 <td>Enrich the active schema through live plugin discovery</td>
 </tr>
 <tr>
+<td><code>plugin_list_tools</code></td>
+<td>Discover and validate semantic tools explicitly advertised by NetBox plugin API roots</td>
+</tr>
+<tr>
+<td><code>plugin_call_tool</code></td>
+<td>Invoke one advertised plugin operation through the configured SDK client; writes remain guarded off by default</td>
+</tr>
+<tr>
 <td><code>call</code></td>
 <td>Relative <code>/api/</code> escape hatch; GET/HEAD only while the mutation gate is closed</td>
 </tr>
@@ -3321,7 +3359,11 @@ shadowing mechanism as Streamable HTTP.</p>
 methods, relative API paths, list sizes, unknown fields, and credential control
 characters are rejected before dispatch. Raw <code>call</code> paths containing an encoded
 path separator (<code>%2F</code> or <code>%5C</code>, case-insensitive) are rejected before cache or
-network access because routers disagree on whether those octets split segments.</p>
+network access because routers disagree on whether those octets split segments.
+Plugin manifests are also treated as hostile input: origin, namespace, path,
+method/effect consistency, schemas, payloads, nesting, and sizes are checked
+before target dispatch. See <a href="plugin-bridge/">NetBox Plugin Bridge</a> for the
+wire contract and plugin-author checklist.</p>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
 <p>For stdio, the server loads the existing default profile from
 <code>netbox_sdk.config</code>; it does not create a second credential store. Each tool
@@ -3340,7 +3382,10 @@ then start a deliberately scoped execution window with either:</p>
 </span></code></pre></div>
 <p><code>dry_run=true</code> resolves the method, path, query, and body locally without
 constructing a client. It is not server-side validation and does not prove that
-the live NetBox call will succeed.</p>
+the live NetBox call will succeed. The one exception is
+<code>plugin_call_tool</code>: discovery of an advertised tool necessarily performs
+read-only GET requests for the live plugin root and manifest. Its dry-run still
+never dispatches the advertised target mutation.</p>
 <p>The <code>nbx</code> process independently refuses dynamic CRUD/bulk writes, Proxbox
 CRUD/sync or TUI launch, write-method raw/dev-HTTP calls, and mutating Branching
 verbs unless the reviewed command includes <code>--confirm</code> or its environment
@@ -3351,7 +3396,7 @@ the authoritative CLI-process gate.</p>
 <h2 id="agent-operating-sequence">Agent operating sequence<a class="headerlink" href="#agent-operating-sequence" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Inspect <code>nbx capabilities --json</code>, or call <code>list_groups</code>, <code>list_resources</code>,
-   and <code>describe_operation</code>.</li>
+   <code>describe_operation</code>, and <code>plugin_list_tools</code>.</li>
 <li>Preview every write with <code>--dry-run</code> or <code>dry_run=true</code>.</li>
 <li>Explicitly enable/confirm only the reviewed operation and execute it.</li>
 <li>Verify the result with <code>get</code> or a filtered <code>list</code>.</li>

@@ -10,17 +10,17 @@
       
       
       
-        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/pt/tui/cli-builder/">
+        <link rel="canonical" href="https://emersonfelipesp.github.io/netbox-sdk/pt/mcp/plugin-bridge/">
       
       
-        <link rel="prev" href="../graphql/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../logs/">
+        <link rel="next" href="../agent-setup/">
       
       
         
-          <link rel="alternate" href="../../../tui/cli-builder/" hreflang="en">
+          <link rel="alternate" href="../../../mcp/plugin-bridge/" hreflang="en">
         
           <link rel="alternate" href="./" hreflang="pt">
         
@@ -31,7 +31,7 @@
     
     
       
-        <title>Construtor de CLI - NetBox SDK</title>
+        <title>Ponte para plugins - NetBox SDK</title>
       
     
     
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#construtor-de-cli" class="md-skip">
+        <a href="#ponte-para-plugins-netbox" class="md-skip">
           Ir para o conteúdo
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Construtor de CLI
+              Ponte para plugins
             
           </span>
         </div>
@@ -166,7 +166,7 @@
       <ul class="md-select__list">
         
           <li class="md-select__item">
-            <a href="../../../tui/cli-builder/" hreflang="en" class="md-select__link">
+            <a href="../../../mcp/plugin-bridge/" hreflang="en" class="md-select__link">
               English
             </a>
           </li>
@@ -357,11 +357,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../mcp/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -379,13 +381,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../tui/" class="md-tabs__link">
           
   
   
@@ -1725,6 +1725,8 @@
       
   
   
+    
+  
   
   
     
@@ -1742,22 +1744,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../mcp/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1775,13 +1778,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1798,10 +1801,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../mcp/plugin-bridge/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponte para plugins
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1817,6 +1847,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#anuncio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anúncio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contrato-do-manifesto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrato do manifesto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uso-pelo-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uso pelo MCP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist-para-autores-de-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checklist para autores de plugins
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1829,7 +1923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../mcp/agent-setup/" class="md-nav__link">
+      <a href="../agent-setup/" class="md-nav__link">
         
   
   
@@ -1861,8 +1955,6 @@
       
   
   
-    
-  
   
   
     
@@ -1898,23 +1990,22 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../tui/" class="md-nav__link ">
               
   
   
@@ -1932,13 +2023,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1960,7 +2051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dev-workbench/" class="md-nav__link">
+      <a href="../../tui/dev-workbench/" class="md-nav__link">
         
   
   
@@ -1988,7 +2079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../graphql/" class="md-nav__link">
+      <a href="../../tui/graphql/" class="md-nav__link">
         
   
   
@@ -2013,37 +2104,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Construtor de CLI
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../tui/cli-builder/" class="md-nav__link">
         
   
   
@@ -2059,70 +2123,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Índice">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Índice
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#lancamento" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Lançamento
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#para-que-serve" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Para que serve
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Notas
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#capturas-de-tela" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Capturas de tela
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2135,7 +2135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../logs/" class="md-nav__link">
+      <a href="../../tui/logs/" class="md-nav__link">
         
   
   
@@ -2163,7 +2163,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../django-models/" class="md-nav__link">
+      <a href="../../tui/django-models/" class="md-nav__link">
         
   
   
@@ -2215,13 +2215,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -2249,7 +2246,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7_8" id="__nav_7_8_label" tabindex="">
+              <label class="md-nav__link " for="__nav_7_8" id="__nav_7_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -2451,7 +2448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../themes/" class="md-nav__link">
+      <a href="../../tui/themes/" class="md-nav__link">
         
   
   
@@ -2479,7 +2476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../keybindings/" class="md-nav__link">
+      <a href="../../tui/keybindings/" class="md-nav__link">
         
   
   
@@ -2507,7 +2504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../branching/" class="md-nav__link">
+      <a href="../../tui/branching/" class="md-nav__link">
         
   
   
@@ -2557,13 +2554,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -2572,7 +2566,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_12" >
         
           
-          <label class="md-nav__link" for="__nav_7_12" id="__nav_7_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_7_12" id="__nav_7_12_label" tabindex="0">
             
   
   
@@ -2608,7 +2602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots/" class="md-nav__link">
+      <a href="../../tui/screenshots/" class="md-nav__link">
         
   
   
@@ -2636,7 +2630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-default/" class="md-nav__link">
+      <a href="../../tui/screenshots-default/" class="md-nav__link">
         
   
   
@@ -2664,7 +2658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-dev/" class="md-nav__link">
+      <a href="../../tui/screenshots-dev/" class="md-nav__link">
         
   
   
@@ -2692,7 +2686,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-graphql/" class="md-nav__link">
+      <a href="../../tui/screenshots-graphql/" class="md-nav__link">
         
   
   
@@ -2720,7 +2714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-logs/" class="md-nav__link">
+      <a href="../../tui/screenshots-logs/" class="md-nav__link">
         
   
   
@@ -2748,7 +2742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-cli/" class="md-nav__link">
+      <a href="../../tui/screenshots-cli/" class="md-nav__link">
         
   
   
@@ -2776,7 +2770,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../screenshots-django/" class="md-nav__link">
+      <a href="../../tui/screenshots-django/" class="md-nav__link">
         
   
   
@@ -3245,10 +3239,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#lancamento" class="md-nav__link">
+  <a href="#anuncio" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lançamento
+        Anúncio
       
     </span>
   </a>
@@ -3256,10 +3250,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#para-que-serve" class="md-nav__link">
+  <a href="#contrato-do-manifesto" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Para que serve
+        Contrato do manifesto
       
     </span>
   </a>
@@ -3267,10 +3261,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#notas" class="md-nav__link">
+  <a href="#uso-pelo-mcp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Notas
+        Uso pelo MCP
       
     </span>
   </a>
@@ -3278,10 +3272,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#capturas-de-tela" class="md-nav__link">
+  <a href="#checklist-para-autores-de-plugins" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Capturas de tela
+        Checklist para autores de plugins
       
     </span>
   </a>
@@ -3334,7 +3328,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    TUI
+    Servidor MCP
   </span>
 
         </a>
@@ -3356,33 +3350,155 @@
   
 
 
-<h1 id="construtor-de-cli">Construtor de CLI<a class="headerlink" href="#construtor-de-cli" title="Permanent link">&para;</a></h1>
-<p>O <code>nbx cli tui</code> lança um construtor de comandos interativo que permite navegar a
-árvore da CLI visualmente, montar um comando, executá-lo e inspecionar o resultado
-sem sair do terminal.</p>
-<h2 id="lancamento">Lançamento<a class="headerlink" href="#lancamento" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nbx<span class="w"> </span>cli<span class="w"> </span>tui
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx<span class="w"> </span>demo<span class="w"> </span>cli<span class="w"> </span>tui
+<h1 id="ponte-para-plugins-netbox">Ponte para Plugins NetBox<a class="headerlink" href="#ponte-para-plugins-netbox" title="Permanent link">&para;</a></h1>
+<p>A ponte para plugins permite que qualquer plugin NetBox anuncie um conjunto
+pequeno de operações semânticas através da sua API REST existente. O
+<code>netbox-sdk</code> descobre e valida essas operações, e o <code>netbox_mcp</code> as expõe por
+duas ferramentas MCP estáveis: <code>plugin_list_tools</code> e <code>plugin_call_tool</code>.</p>
+<p>A ponte não cria um segundo servidor dentro do plugin. Autenticação,
+autorização, limitação, tratamento da requisição e a própria operação continuam
+nas views normais do Django REST Framework do plugin. O SDK permanece como o
+único cliente HTTP e reutiliza o perfil NetBox selecionado ou o token por
+chamada.</p>
+<h2 id="anuncio">Anúncio<a class="headerlink" href="#anuncio" title="Permanent link">&para;</a></h2>
+<p>Um plugin participante adiciona um membro <code>mcp</code> à resposta da raiz da sua API.
+Para um plugin chamado <code>example</code>, o único local aceito na versão 1 é:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;mcp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&quot;manifest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/plugins/example/mcp/&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="para-que-serve">Para que serve<a class="headerlink" href="#para-que-serve" title="Permanent link">&para;</a></h2>
+<p>O link do manifesto deve ter a mesma origem e permanecer dentro do namespace do
+plugin anunciante. Instalações NetBox sob um prefixo de URL podem anunciar a
+forma prefixada (por exemplo, <code>/netbox/api/plugins/example/mcp/</code>); o SDK a
+normaliza para a base configurada antes do envio. Um plugin que não anuncia esse
+membro é simplesmente ignorado.</p>
+<h2 id="contrato-do-manifesto">Contrato do manifesto<a class="headerlink" href="#contrato-do-manifesto" title="Permanent link">&para;</a></h2>
+<p><code>GET /api/plugins/example/mcp/</code> retorna um documento versionado:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;run_report&quot;</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Executar relatório de inventário&quot;</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Monta o relatório visível ao principal NetBox atual.&quot;</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">      </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reports/run/&quot;</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="nt">&quot;effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write&quot;</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="nt">&quot;inputSchema&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">          </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;enum&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="p">]}</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;scope&quot;</span><span class="p">],</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">        </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">      </span><span class="nt">&quot;outputSchema&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;minimum&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">],</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">        </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">      </span><span class="nt">&quot;annotations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">        </span><span class="nt">&quot;readOnlyHint&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">        </span><span class="nt">&quot;destructiveHint&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">        </span><span class="nt">&quot;idempotentHint&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">        </span><span class="nt">&quot;openWorldHint&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>A versão 1 tem regras intencionalmente restritas:</p>
 <ul>
-<li>aprender a árvore de comandos sem memorizar cada ramo</li>
-<li>montar comandos dinâmicos longos passo a passo</li>
-<li>testar invocações <code>nbx</code> antes de copiá-las para scripts ou histórico do shell</li>
-<li>explorar a mesma árvore contra seu perfil default ou demo</li>
+<li><code>plugin</code> e nomes de ferramentas usam identificadores estáveis em minúsculas.
+  Os nomes são únicos em um manifesto e aparecem como <code>plugin.tool</code> no catálogo.</li>
+<li><code>path</code> é um caminho relativo fixo abaixo de <code>/api/plugins/&lt;plugin&gt;/</code>.
+  Caminhos absolutos, URLs, query strings, fragmentos, codificação percentual,
+  barras invertidas, segmentos vazios e segmentos-ponto são rejeitados.</li>
+<li>Operações <code>GET</code> e <code>HEAD</code> declaram <code>effect: read</code>. Métodos de escrita declaram
+  <code>write</code> ou <code>destructive</code>; <code>DELETE</code> deve ser destrutivo. As anotações MCP devem
+  concordar com o efeito declarado.</li>
+<li><code>inputSchema</code> usa JSON Schema Draft 2020-12 estrito, com <code>type: object</code> e
+  <code>additionalProperties: false</code>. A versão 1 aceita apenas o subconjunto limitado
+  de palavras-chave documentado e exclui referências/definições, padrões regex,
+  formatos não suportados, schemas condicionais e combinadores. A versão 1 só
+  suporta o formato <code>date-time</code>, validado como RFC 3339, incluindo a sintaxe de
+  segundo intercalar. <code>uniqueItems</code> só é
+  aceito para arrays com um único domínio escalar de tipo explícito; tipos
+  escalares mistos são rejeitados. Essas restrições evitam buscas remotas,
+  contratos recursivos, formatos ignorados silenciosamente e amplificação
+  desnecessária.</li>
+<li>Propriedades de entrada de <code>GET</code>/<code>HEAD</code> devem ser escalares ou arrays de
+  escalares, os únicos valores codificados de modo determinístico na query.</li>
+<li>Todo corpo retornado pelo destino deve ser JSON estrito e finito e respeita
+  limites de tamanho, profundidade e nós mesmo sem <code>outputSchema</code>. <code>HEAD</code> e
+  respostas HTTP 204/205 são as exceções sem corpo e retornam <code>body: null</code>.
+  Quando presente, o schema também valida respostas bem-sucedidas com corpo
+  antes do retorno. Se uma escrita foi enviada, mas sua resposta não indicar
+  sucesso, for redirecionada, ilegível ou inválida, o MCP informa que o resultado
+  é desconhecido e alerta para não repetir a operação às cegas. Falhas locais de
+  argumentos e headers ocorrem antes desse limite de ambiguidade e podem ser
+  corrigidas com segurança.</li>
+<li>Manifestos, schemas, quantidade de ferramentas, tamanho de entrada/saída,
+  profundidade e quantidade de nós são limitados. Uma varredura aceita no
+  máximo 128 raízes de plugins, 512 ferramentas agregadas, 257 requisições, 2
+  MiB de corpos agregados e 30 segundos no total. O limite agregado restante é
+  aplicado durante o streaming de cada resposta pela quantidade descompactada
+  de bytes antes da decodificação, e corpos de respostas sem sucesso também são
+  contabilizados. Cada manifesto aceita 256 KiB e 64 ferramentas; cada corpo do
+  destino aceita 256 KiB.</li>
 </ul>
-<h2 id="notas">Notas<a class="headerlink" href="#notas" title="Permanent link">&para;</a></h2>
-<ul>
-<li>O construtor executa comandos <code>nbx</code> reais.</li>
-<li>Complementa, em vez de substituir, a documentação CLI padrão em
-  <a href="../../cli/">CLI</a>.</li>
-<li>O tratamento de tema segue o mesmo catálogo de temas TUI integrado das outras
-  aplicações Textual.</li>
-</ul>
-<h2 id="capturas-de-tela">Capturas de tela<a class="headerlink" href="#capturas-de-tela" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../screenshots-cli/">Galeria do construtor de CLI</a></li>
-</ul>
+<p>O schema anunciado é um contrato com quem chama, não um mecanismo de
+autorização. A view DRF de destino deve continuar aplicando as permissões NetBox
+normais e validar o mesmo corpo da requisição.</p>
+<h2 id="uso-pelo-mcp">Uso pelo MCP<a class="headerlink" href="#uso-pelo-mcp" title="Permanent link">&para;</a></h2>
+<p>Descubra um plugin ou todos os plugins participantes:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example&quot;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Passe esse objeto para <code>plugin_list_tools</code>. O resultado inclui o descritor
+validado, o nome qualificado e o caminho resolvido. Durante uma varredura de
+todos os plugins, um anúncio inválido aparece em <code>problems</code> sem ocultar plugins
+válidos. Selecionar diretamente o plugin inválido falha de forma segura.</p>
+<p>Invoque uma ferramenta listada com <code>plugin_call_tool</code>:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;example&quot;</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;tool&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;run_report&quot;</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">},</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;dry_run&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Leituras são enviadas logo após descoberta e validação. Operações de escrita e
+destrutivas continuam desabilitadas, salvo quando o servidor MCP foi iniciado
+com <code>NETBOX_MCP_ALLOW_MUTATIONS=1</code> ou <code>--allow-mutations</code>. O dry-run de uma
+ferramenta de plugin executa os GETs ao vivo necessários para descobrir e
+validar o manifesto atual, mas nunca envia a operação de destino anunciada.</p>
+<p>A descoberta e o envio usam o transporte limitado da ponte no SDK: redirects
+HTTP nunca são seguidos, respostas <code>3xx</code> falham de forma segura, a descoberta
+ignora o cache HTTP comum e seu stale-if-error, <code>Content-Length</code> é verificado
+antes da leitura e bytes descompactados/em chunks são contados durante o stream.
+Assim, um anúncio ou tool removido não continua autorizado por cache antigo e
+um redirect não encaminha uma mutação para fora do caminho fixo do plugin.</p>
+<h2 id="checklist-para-autores-de-plugins">Checklist para autores de plugins<a class="headerlink" href="#checklist-para-autores-de-plugins" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Reutilize um endpoint DRF existente com gate de permissões para a operação.</li>
+<li>Adicione uma view de manifesto somente leitura em
+   <code>/api/plugins/&lt;plugin&gt;/mcp/</code>.</li>
+<li>Anuncie esse caminho exato na raiz da API do plugin com versão de schema <code>1</code>.</li>
+<li>Mantenha todos os caminhos de destino fixos e locais ao plugin; modele
+   parâmetros no schema estrito de entrada, não em templates de caminho.</li>
+<li>Faça método, efeito, anotações e serializer do endpoint coincidirem.</li>
+<li>Adicione testes de contrato para anúncio, manifesto, permissões, schemas de
+   requisição/resposta e ausência de uma pilha MCP ou credencial paralela.</li>
+</ol>
+<p>O Proxbox é a implementação canônica de exemplo: ele anuncia
+<code>list_sync_jobs</code> e <code>schedule_sync</code>, ambos apoiados pela API existente
+<code>sync/schedule/</code>.</p>
 
 
 

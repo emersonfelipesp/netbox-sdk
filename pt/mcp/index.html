@@ -16,7 +16,7 @@
         <link rel="prev" href="../generated/nbx-command-capture/">
       
       
-        <link rel="next" href="agent-setup/">
+        <link rel="next" href="plugin-bridge/">
       
       
         
@@ -1738,6 +1738,8 @@
       
         
       
+        
+      
     
     
     
@@ -1793,6 +1795,34 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="plugin-bridge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponte para plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -3314,6 +3344,14 @@ atributo de instância usado pelo Streamable HTTP.</p>
 <td>Enriquece o schema ativo com descoberta de plugins</td>
 </tr>
 <tr>
+<td><code>plugin_list_tools</code></td>
+<td>Descobre e valida ferramentas semânticas anunciadas explicitamente nas raízes de API de plugins NetBox</td>
+</tr>
+<tr>
+<td><code>plugin_call_tool</code></td>
+<td>Invoca uma operação anunciada pelo cliente SDK configurado; escritas continuam desabilitadas por padrão</td>
+</tr>
+<tr>
 <td><code>call</code></td>
 <td>Escape hatch relativo a <code>/api/</code>; somente GET/HEAD com o gate fechado</td>
 </tr>
@@ -3322,7 +3360,12 @@ atributo de instância usado pelo Streamable HTTP.</p>
 <p>Cada entrada é validada por um schema Pydantic explícito antes do despacho.
 Caminhos brutos de <code>call</code> com separador codificado (<code>%2F</code> ou <code>%5C</code>, sem
 diferenciar maiúsculas/minúsculas) são rejeitados antes do cache ou da rede,
-pois roteadores divergem sobre esses octetos dividirem ou não segmentos.</p>
+pois roteadores divergem sobre esses octetos dividirem ou não segmentos.
+Manifestos de plugins também são tratados como entrada hostil: origem,
+namespace, caminho, consistência entre método e efeito, schemas, payloads,
+profundidade e tamanhos são verificados antes do despacho ao destino. Consulte
+<a href="plugin-bridge/">Ponte para Plugins NetBox</a> para o contrato e o checklist de
+autoria.</p>
 <h2 id="autenticacao">Autenticação<a class="headerlink" href="#autenticacao" title="Permanent link">&para;</a></h2>
 <p>No stdio, o servidor lê o perfil padrão existente de <code>netbox_sdk.config</code>; não
 há um segundo armazenamento de credenciais. Ferramentas que acessam o NetBox
@@ -3341,7 +3384,9 @@ servidor</em>, enquanto o token por chamada autentica <em>este servidor</em> per
 </span></code></pre></div>
 <p><code>dry_run=true</code> resolve método, caminho, query e corpo localmente sem construir
 um cliente. Não é validação no servidor e não prova que a chamada real terá
-sucesso.</p>
+sucesso. A única exceção é <code>plugin_call_tool</code>: descobrir uma ferramenta
+anunciada exige GETs somente leitura para a raiz e o manifesto ao vivo do
+plugin. Mesmo assim, seu dry-run nunca envia a mutação de destino anunciada.</p>
 <p>O processo <code>nbx</code> recusa de forma independente CRUD dinâmico/em lote, CRUD/sync
 ou abertura da TUI Proxbox, chamadas brutas/dev-HTTP com método de escrita e
 verbos mutáveis de Branching, salvo quando o comando revisado inclui <code>--confirm</code>
@@ -3352,7 +3397,7 @@ gerada ainda chega ao gate autoritativo do processo CLI.</p>
 <h2 id="sequencia-operacional-para-agentes">Sequência operacional para agentes<a class="headerlink" href="#sequencia-operacional-para-agentes" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Inspecione <code>nbx capabilities --json</code> ou chame <code>list_groups</code>,
-   <code>list_resources</code> e <code>describe_operation</code>.</li>
+   <code>list_resources</code>, <code>describe_operation</code> e <code>plugin_list_tools</code>.</li>
 <li>Visualize toda escrita com <code>--dry-run</code> ou <code>dry_run=true</code>.</li>
 <li>Habilite/confirme explicitamente apenas a operação revisada e execute-a.</li>
 <li>Verifique o resultado com <code>get</code> ou um <code>list</code> filtrado.</li>
