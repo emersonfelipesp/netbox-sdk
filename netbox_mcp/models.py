@@ -8,6 +8,8 @@ from urllib.parse import unquote
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
+from netbox_sdk.plugin_bridge import PluginName, ToolName
+
 Name = Annotated[
     str,
     StringConstraints(
@@ -100,6 +102,20 @@ class BulkMutationInput(ResourceInput):
 
 class PluginDiscoverInput(ToolInput):
     plugin: Name
+    token: Token | None = None
+
+
+class PluginListToolsInput(ToolInput):
+    plugin: PluginName | None = None
+    token: Token | None = None
+
+
+class PluginCallToolInput(ToolInput):
+    plugin: PluginName
+    tool: ToolName
+    arguments: dict[str, Any] = Field(default_factory=dict, max_length=500)
+    dry_run: bool = False
+    header: list[str] = Field(default_factory=list, max_length=100)
     token: Token | None = None
 
 

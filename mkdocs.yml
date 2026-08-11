@@ -92,6 +92,7 @@ plugins:
             Standalone Server: Servidor standalone
             CLI: CLI
             MCP Server: Servidor MCP
+            Plugin Bridge: Ponte para plugins
             Agent Client Setup: Configuração de clientes de agente
             Commands: Comandos
             Dynamic Commands: Comandos dinâmicos
@@ -211,6 +212,7 @@ nav:
     - Raw Capture Artifact: generated/nbx-command-capture.md
   - MCP Server:
     - mcp/index.md
+    - Plugin Bridge: mcp/plugin-bridge.md
     - Agent Client Setup: mcp/agent-setup.md
   - TUI:
     - tui/index.md

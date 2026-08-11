@@ -19,15 +19,29 @@ from netbox_mcp.models import (
     LiveInput,
     LiveResourceInput,
     MutationInput,
+    PluginCallToolInput,
     PluginDiscoverInput,
+    PluginListToolsInput,
     ResourceInput,
 )
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config, load_profile_config
+from netbox_sdk.exceptions import ResponseSizeLimitError
 from netbox_sdk.introspection import (
     serialize_groups,
     serialize_resource_description,
     serialize_resources,
+)
+from netbox_sdk.plugin_bridge import (
+    BRIDGE_SCHEMA_VERSION,
+    MAX_INSTANCE_BYTES,
+    PluginBridgeError,
+    discover_plugin_manifests,
+    parse_plugin_tool_response_document,
+    plugin_arguments_to_query,
+    plugin_tool_request_path,
+    validate_plugin_tool_arguments,
+    validate_plugin_tool_response,
 )
 from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
 from netbox_sdk.schema import SchemaIndex, build_schema_index, fetch_schema_for_client
@@ -573,6 +587,147 @@ class NetBoxMCPService:
             "group": "plugins",
             "resources": resources,
         }
+
+    async def plugin_list_tools(
+        self,
+        *,
+        plugin: str | None = None,
+        token: str | None = None,
+    ) -> dict[str, Any]:
+        """List validated semantic tools advertised by installed NetBox plugins."""
+        values = PluginListToolsInput.model_validate({"plugin": plugin, "token": token})
+        client = self._make_client(values.token)
+        try:
+            catalog = await discover_plugin_manifests(client, plugin=values.plugin)
+        finally:
+            await self._close_client(client)
+
+        tools: list[dict[str, Any]] = []
+        for manifest in catalog.manifests:
+            for descriptor in manifest.tools:
+                record = descriptor.model_dump(by_alias=True)
+                record.update(
+                    {
+                        "plugin": manifest.plugin,
+                        "qualified_name": f"{manifest.plugin}.{descriptor.name}",
+                        "request_path": plugin_tool_request_path(manifest.plugin, descriptor),
+                    }
+                )
+                tools.append(record)
+        tools.sort(key=lambda item: str(item["qualified_name"]))
+        return {
+            "schema_version": BRIDGE_SCHEMA_VERSION,
+            "tools": tools,
+            "problems": [
+                {"plugin": problem.plugin, "error": problem.error} for problem in catalog.problems
+            ],
+        }
+
+    async def plugin_call_tool(
+        self,
+        *,
+        plugin: str,
+        tool: str,
+        arguments: dict[str, Any] | None = None,
+        dry_run: bool = False,
+        header: StringList | None = None,
+        token: str | None = None,
+    ) -> dict[str, Any]:
+        """Validate and invoke one advertised semantic plugin operation."""
+        values = PluginCallToolInput.model_validate(
+            {
+                "plugin": plugin,
+                "tool": tool,
+                "arguments": arguments or {},
+                "dry_run": dry_run,
+                "header": header or [],
+                "token": token,
+            }
+        )
+        client = self._make_client(values.token)
+        try:
+            catalog = await discover_plugin_manifests(client, plugin=values.plugin)
+            descriptor = catalog.find_tool(values.plugin, values.tool)
+            validate_plugin_tool_arguments(descriptor, values.arguments)
+            path = plugin_tool_request_path(values.plugin, descriptor)
+            is_read = descriptor.effect == "read"
+            query = plugin_arguments_to_query(values.arguments) if is_read else {}
+            payload = None if is_read else values.arguments
+
+            if values.dry_run:
+                return {
+                    "dry_run": True,
+                    "plugin": values.plugin,
+                    "tool": values.tool,
+                    "effect": descriptor.effect,
+                    "method": descriptor.method,
+                    "path": path,
+                    "query": query,
+                    "body": payload,
+                    "notice": DRY_RUN_NOTICE,
+                }
+            if not is_read:
+                self._ensure_mutations_allowed()
+            request_headers = self._headers(values.header, values.token) or None
+
+            try:
+                response = await client.request_bounded(
+                    descriptor.method,
+                    path,
+                    max_response_bytes=MAX_INSTANCE_BYTES,
+                    query=query,
+                    payload=payload,
+                    headers=request_headers,
+                )
+            except ResponseSizeLimitError as exc:
+                detail = f"response exceeds the {MAX_INSTANCE_BYTES}-byte size limit"
+                if not is_read:
+                    raise PluginBridgeError(
+                        f"plugin write outcome unknown; do not retry blindly ({detail})"
+                    ) from exc
+                raise PluginBridgeError(f"plugin tool {detail}") from exc
+            except Exception as exc:
+                if not is_read:
+                    raise PluginBridgeError(
+                        "plugin write outcome unknown; do not retry blindly "
+                        f"(request failed: {type(exc).__name__})"
+                    ) from exc
+                raise PluginBridgeError(
+                    f"plugin tool request failed: {type(exc).__name__}"
+                ) from exc
+
+            try:
+                if 300 <= response.status < 400:
+                    raise PluginBridgeError(
+                        f"plugin tool redirects are not allowed (HTTP {response.status})"
+                    )
+                if not is_read and not 200 <= response.status < 300:
+                    raise PluginBridgeError(
+                        f"plugin tool returned HTTP {response.status} after dispatch"
+                    )
+                bodyless = descriptor.method == "HEAD" or response.status in {204, 205}
+                body = None if bodyless else parse_plugin_tool_response_document(response.text)
+                result = {
+                    "status": response.status,
+                    "headers": dict(response.headers),
+                    "body": body,
+                }
+                if 200 <= response.status < 300 and not bodyless:
+                    validate_plugin_tool_response(descriptor, body)
+            except PluginBridgeError as exc:
+                if not is_read:
+                    raise PluginBridgeError(
+                        f"plugin write outcome unknown; do not retry blindly ({exc})"
+                    ) from exc
+                raise
+            return {
+                "plugin": values.plugin,
+                "tool": values.tool,
+                "effect": descriptor.effect,
+                **result,
+            }
+        finally:
+            await self._close_client(client)
 
     async def call(
         self,

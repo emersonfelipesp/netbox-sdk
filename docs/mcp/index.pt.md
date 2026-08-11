@@ -58,12 +58,19 @@ atributo de instância usado pelo Streamable HTTP.
 | `create`, `update`, `patch`, `delete` | Mutações desabilitadas por padrão |
 | `bulk_update`, `bulk_patch`, `bulk_delete` | Mutações em lote desabilitadas por padrão |
 | `plugin_discover` | Enriquece o schema ativo com descoberta de plugins |
+| `plugin_list_tools` | Descobre e valida ferramentas semânticas anunciadas explicitamente nas raízes de API de plugins NetBox |
+| `plugin_call_tool` | Invoca uma operação anunciada pelo cliente SDK configurado; escritas continuam desabilitadas por padrão |
 | `call` | Escape hatch relativo a `/api/`; somente GET/HEAD com o gate fechado |
 
 Cada entrada é validada por um schema Pydantic explícito antes do despacho.
 Caminhos brutos de `call` com separador codificado (`%2F` ou `%5C`, sem
 diferenciar maiúsculas/minúsculas) são rejeitados antes do cache ou da rede,
 pois roteadores divergem sobre esses octetos dividirem ou não segmentos.
+Manifestos de plugins também são tratados como entrada hostil: origem,
+namespace, caminho, consistência entre método e efeito, schemas, payloads,
+profundidade e tamanhos são verificados antes do despacho ao destino. Consulte
+[Ponte para Plugins NetBox](plugin-bridge.md) para o contrato e o checklist de
+autoria.
 
 ## Autenticação
 
@@ -90,7 +97,9 @@ nbx-mcp --allow-mutations
 
 `dry_run=true` resolve método, caminho, query e corpo localmente sem construir
 um cliente. Não é validação no servidor e não prova que a chamada real terá
-sucesso.
+sucesso. A única exceção é `plugin_call_tool`: descobrir uma ferramenta
+anunciada exige GETs somente leitura para a raiz e o manifesto ao vivo do
+plugin. Mesmo assim, seu dry-run nunca envia a mutação de destino anunciada.
 
 O processo `nbx` recusa de forma independente CRUD dinâmico/em lote, CRUD/sync
 ou abertura da TUI Proxbox, chamadas brutas/dev-HTTP com método de escrita e
@@ -103,7 +112,7 @@ gerada ainda chega ao gate autoritativo do processo CLI.
 ## Sequência operacional para agentes
 
 1. Inspecione `nbx capabilities --json` ou chame `list_groups`,
-   `list_resources` e `describe_operation`.
+   `list_resources`, `describe_operation` e `plugin_list_tools`.
 2. Visualize toda escrita com `--dry-run` ou `dry_run=true`.
 3. Habilite/confirme explicitamente apenas a operação revisada e execute-a.
 4. Verifique o resultado com `get` ou um `list` filtrado.

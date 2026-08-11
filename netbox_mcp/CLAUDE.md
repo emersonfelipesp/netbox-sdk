@@ -20,8 +20,11 @@ OpenAPI operation.
 - Keep argument validation in strict Pydantic models before SDK dispatch.
 - Keep live mutations disabled unless `NETBOX_MCP_ALLOW_MUTATIONS=1` or
   `--allow-mutations` is set explicitly.
-- A mutation `dry_run` resolves the local request only. It must not construct a
-  client or be described as server-side validation.
+- Ordinary mutation `dry_run` resolves the local request only and must not
+  construct a client. `plugin_call_tool` is the explicit exception: its dry-run
+  uses a client for read-only plugin-root/manifest discovery, but must never
+  dispatch the advertised target mutation. Neither form is server-side
+  validation.
 - All NetBox traffic must use `netbox_sdk.client.NetBoxApiClient`.
 - Reuse `netbox_sdk.config` for static stdio credentials; do not add another
   credential store.
@@ -34,7 +37,7 @@ OpenAPI operation.
 | `__main__.py` | `python -m netbox_mcp` launcher |
 | `app.py` | Explicit FastMCP tool registration and transport adapter |
 | `models.py` | Strict Pydantic input schemas for every tool family |
-| `service.py` | Transport-independent schema introspection, reads, writes, plugin discovery, auth, and mutation gate |
+| `service.py` | Transport-independent schema introspection, reads, writes, plugin discovery, bounded/non-redirecting semantic plugin bridge dispatch, strict response parsing, auth, and mutation gate |
 | `py.typed` | PEP 561 marker |
 
 ## Import Rules
@@ -43,6 +46,8 @@ OpenAPI operation.
 - Use `netbox_sdk.services.resolve_dynamic_request` for every named operation.
 - Use `netbox_sdk.services.list_all_pages` for `list(all=true)`.
 - Use `netbox_sdk.plugin_discovery` for live plugin resources.
+- Use `netbox_sdk.plugin_bridge` for advertised semantic plugin tools; never
+  resolve their paths or JSON Schemas independently in the MCP package.
 - Keep MCP SDK imports in this optional package so `import netbox_sdk` remains
   valid without the `mcp` extra.
 

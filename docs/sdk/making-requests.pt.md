@@ -129,7 +129,9 @@ o pacote. A suíte live-NetBox de CI exercita `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4
 
 ## Uso do cliente de baixo nível
 
-Todas as chamadas HTTP passam por `NetBoxApiClient.request()`.
+Chamadas HTTP diretas comuns passam por `NetBoxApiClient.request()`. Protocolos
+sensíveis que não podem usar redirects nem respostas em cache/obsoletas podem
+usar `request_bounded()`.
 
 ## Uso básico
 
@@ -158,6 +160,25 @@ client = NetBoxApiClient(cfg)
 ```
 
 Para variáveis de ambiente, perfis salvos e recuperação interativa, veja [Configuração — HTTPS e verificação TLS](../getting-started/configuration.md#https-and-tls-verification).
+
+### Respostas atuais com limite
+
+```python
+response = await client.request_bounded(
+    "GET",
+    "/api/plugins/example/mcp/",
+    max_response_bytes=256 * 1024,
+)
+```
+
+`request_bounded()` preserva a credencial configurada e o timeout normal, mas
+ignora o cache em disco e stale-if-error, desativa redirects, rejeita um
+`Content-Length` declarado acima do limite e interrompe o stream se o corpo
+descompactado ultrapassá-lo. O método retorna `ApiResponse` para todo status
+HTTP; quem chama ainda deve rejeitar status inesperados como `3xx`.
+`response.body_size_bytes` preserva a quantidade de bytes descompactados do
+stream antes da decodificação de caracteres, impedindo que um charset escolhido
+pelo servidor reduza limites agregados do protocolo.
 
 ### GET — listar recursos
 

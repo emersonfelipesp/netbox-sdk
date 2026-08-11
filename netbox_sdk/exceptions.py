@@ -29,6 +29,14 @@ class ContentError(RuntimeError):
         super().__init__("The server returned invalid (non-json) data.")
 
 
+class ResponseSizeLimitError(RuntimeError):
+    """Raised while streaming a response that exceeds a caller-declared bound."""
+
+    def __init__(self, max_bytes: int) -> None:
+        self.max_bytes = max_bytes
+        super().__init__(f"Response body exceeds the {max_bytes}-byte size limit")
+
+
 class AllocationError(RuntimeError):
     """Raised when an available-IPs/prefixes style allocation endpoint cannot fulfill the request."""
 

@@ -1,10 +1,11 @@
 # Architecture
 
-The repository is organized as three sibling Python packages sharing one runtime:
+The repository is organized as four sibling Python packages sharing one runtime:
 
 - `netbox_sdk` — standalone API/SDK layer (no CLI or TUI dependencies)
 - `netbox_cli` — Typer CLI layer (requires `[cli]` extra)
 - `netbox_tui` — Textual TUI layer (requires `[tui]` extra)
+- `netbox_mcp` — stable Model Context Protocol adapter (requires `[mcp]` extra)
 
 ---
 
@@ -15,9 +16,11 @@ flowchart LR
     CLI["netbox_cli\nTyper CLI"]
     TUI["netbox_tui\nTextual TUI"]
     SDK["netbox_sdk\nCore SDK"]
+    MCP["netbox_mcp\nStable MCP tools"]
 
     CLI --> SDK
     TUI --> SDK
+    MCP --> SDK
     CLI -. "lazy import\n(TUI launch commands only)" .-> TUI
 ```
 
@@ -37,6 +40,7 @@ flowchart TB
     facade["facade.py\nApi → App → Endpoint\n→ Record / RecordSet"]
     typed["typed_api.py\ntyped_api()\nVersion-specific typed clients"]
     models["models/\nGenerated Pydantic models\nv4_3 · v4_4 · v4_5 · v4_6"]
+    bridge["plugin_bridge.py\nVersioned plugin manifests\nstrict schema + path validation"]
 
     config --> client
     cache --> client
@@ -46,6 +50,7 @@ flowchart TB
     schema --> facade
     facade --> typed
     models --> typed
+    client --> bridge
 ```
 
 | Module | Role |
@@ -55,6 +60,7 @@ flowchart TB
 | `http_cache.py` | `HttpCacheStore` — filesystem JSON cache with TTL, ETag/If-Modified-Since, stale-if-error |
 | `schema.py` | `SchemaIndex` — parses bundled OpenAPI JSON into groups, resources, operations, and filter params |
 | `services.py` | `resolve_dynamic_request()` / `run_dynamic_command()` — maps CLI actions to HTTP calls |
+| `plugin_bridge.py` | Discovers versioned semantic plugin manifests, validates hostile contracts and payloads, and resolves fixed plugin-local targets |
 | `facade.py` | `api()` — PyNetBox-style async facade: `Api → App → Endpoint → Record/RecordSet` |
 | `typed_api.py` | `typed_api()` — version-specific typed clients with Pydantic request/response models |
 | `models/` | Generated Pydantic models for NetBox 4.3, 4.4, 4.5, and 4.6 |
@@ -74,6 +80,7 @@ flowchart TB
       schema.py
       services.py
       plugin_discovery.py
+      plugin_bridge.py
       formatting.py
       logging_runtime.py
       output_safety.py
@@ -140,6 +147,14 @@ flowchart TB
       theme_registry.py
       *.tcss
       themes/*.json
+
+    netbox_mcp/
+      __init__.py
+      __main__.py
+      app.py
+      models.py
+      service.py
+      py.typed
     ```
 
 ---
@@ -185,6 +200,29 @@ flowchart TB
     4. Formatting (badges, labels, colors) comes from `netbox_sdk.formatting`
     5. UI layout is pure Textual: TCSS stylesheets + theme registry
 
+=== "MCP plugin bridge"
+
+    ```mermaid
+    flowchart LR
+        AGENT["MCP client"]
+        TOOLS["plugin_list_tools / plugin_call_tool"]
+        BRIDGE["netbox_sdk.plugin_bridge\ncontract validation"]
+        CLIENT3["NetBoxApiClient"]
+        PLUGIN["Existing plugin DRF view\npermissions + operation"]
+
+        AGENT --> TOOLS --> BRIDGE --> CLIENT3 --> PLUGIN
+    ```
+
+    1. The stable MCP tools discover an explicit version 1 advertisement from
+       the plugin API root.
+    2. `plugin_bridge` confines links and target paths, then validates the
+       manifest and invocation schemas.
+    3. `NetBoxApiClient.request_bounded()` performs fresh, uncached discovery
+       and target requests with the normal NetBox credential, redirects off,
+       and a streamed decompressed-body limit.
+    4. The existing DRF endpoint remains responsible for authorization and the
+       operation; write dispatch also requires the MCP mutation gate.
+
 ---
 
 ## Responsibilities
@@ -198,7 +236,7 @@ Owns:
 - HTTP response caching (filesystem-backed, ETag/If-Modified-Since)
 - OpenAPI schema indexing and resource resolution
 - Dynamic request resolution from `(group, resource, action)` tuples
-- Plugin discovery helpers
+- OpenAPI plugin discovery plus versioned semantic plugin-bridge contracts
 - Shared formatting and output safety utilities
 - Demo auth helpers and Django model parsing/cache helpers
 - All three public API layers: `NetBoxApiClient`, `api()`, `typed_api()`
@@ -225,6 +263,19 @@ Owns:
 
 Shared data transformations (`semantic_cell`, `humanize_value`, row parsing) live in `netbox_sdk.formatting`, not in the TUI package.
 
+### `netbox_mcp`
+
+Owns:
+
+- A stable, explicitly registered MCP tool inventory
+- Strict Pydantic validation at the transport boundary
+- `plugin_list_tools` and `plugin_call_tool` over `netbox_sdk.plugin_bridge`
+- Transport authentication and the disabled-by-default mutation gate
+
+Plugin tools never create a second credential or HTTP stack. Discovery and
+execution both use `NetBoxApiClient`; the existing plugin DRF endpoint remains
+the authorization and operation boundary.
+
 ---
 
 ## Packaging
@@ -234,6 +285,7 @@ Shared data transformations (`semantic_cell`, `humanize_value`, row parsing) liv
 | `pip install netbox-sdk` | `netbox_sdk` only — SDK, no CLI or TUI |
 | `pip install 'netbox-sdk[cli]'` | `netbox_sdk` + `netbox_cli` |
 | `pip install 'netbox-sdk[tui]'` | `netbox_sdk` + `netbox_tui` |
+| `pip install 'netbox-sdk[mcp]'` | `netbox_sdk` + `netbox_mcp` |
 | `pip install 'netbox-sdk[all]'` | Everything including demo tooling |
 
 ---
@@ -243,7 +295,7 @@ Shared data transformations (`semantic_cell`, `humanize_value`, row parsing) liv
 For architecture-affecting changes, run:
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run pre-commit run --all-files
 uv run pytest
 ```
