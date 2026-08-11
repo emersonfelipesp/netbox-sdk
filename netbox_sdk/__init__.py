@@ -37,6 +37,7 @@ __all__ = [
     "Record",
     "RecordSet",
     "ContentError",
+    "ResponseSizeLimitError",
     "AllocationError",
     "ParameterValidationError",
     "JsonPayloadError",
@@ -93,6 +94,22 @@ __all__ = [
     "discover_plugin_resources",
     "discover_runtime_resources",
     "enrich_schema_index_with_runtime_resources",
+    # plugin_bridge
+    "BRIDGE_SCHEMA_VERSION",
+    "PluginBridgeAdvertisement",
+    "PluginBridgeError",
+    "PluginManifest",
+    "PluginManifestCatalog",
+    "PluginManifestProblem",
+    "PluginTool",
+    "PluginToolAnnotations",
+    "discover_plugin_manifests",
+    "plugin_arguments_to_query",
+    "parse_plugin_tool_response_document",
+    "plugin_tool_request_path",
+    "validate_plugin_tool_arguments",
+    "validate_plugin_tool_response",
+    "validate_plugin_tool_response_document",
 ]
 
 __version__ = "0.0.11rc1"
@@ -128,6 +145,7 @@ from netbox_sdk.exceptions import (
     PaginationError,
     ParameterValidationError,
     RequestError,
+    ResponseSizeLimitError,
 )
 from netbox_sdk.facade import (
     Api,
@@ -150,6 +168,23 @@ from netbox_sdk.introspection import (
     serialize_operation,
     serialize_resource_description,
     serialize_resources,
+)
+from netbox_sdk.plugin_bridge import (
+    BRIDGE_SCHEMA_VERSION,
+    PluginBridgeAdvertisement,
+    PluginBridgeError,
+    PluginManifest,
+    PluginManifestCatalog,
+    PluginManifestProblem,
+    PluginTool,
+    PluginToolAnnotations,
+    discover_plugin_manifests,
+    parse_plugin_tool_response_document,
+    plugin_arguments_to_query,
+    plugin_tool_request_path,
+    validate_plugin_tool_arguments,
+    validate_plugin_tool_response,
+    validate_plugin_tool_response_document,
 )
 from netbox_sdk.plugin_discovery import (
     DiscoveredResource,

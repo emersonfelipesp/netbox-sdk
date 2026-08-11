@@ -56,6 +56,8 @@ shadowing mechanism as Streamable HTTP.
 | `create`, `update`, `patch`, `delete` | Detail mutations guarded off by default |
 | `bulk_update`, `bulk_patch`, `bulk_delete` | List-path mutations guarded off by default |
 | `plugin_discover` | Enrich the active schema through live plugin discovery |
+| `plugin_list_tools` | Discover and validate semantic tools explicitly advertised by NetBox plugin API roots |
+| `plugin_call_tool` | Invoke one advertised plugin operation through the configured SDK client; writes remain guarded off by default |
 | `call` | Relative `/api/` escape hatch; GET/HEAD only while the mutation gate is closed |
 
 Every tool input is validated by an explicit Pydantic schema. Names, IDs,
@@ -63,6 +65,10 @@ methods, relative API paths, list sizes, unknown fields, and credential control
 characters are rejected before dispatch. Raw `call` paths containing an encoded
 path separator (`%2F` or `%5C`, case-insensitive) are rejected before cache or
 network access because routers disagree on whether those octets split segments.
+Plugin manifests are also treated as hostile input: origin, namespace, path,
+method/effect consistency, schemas, payloads, nesting, and sizes are checked
+before target dispatch. See [NetBox Plugin Bridge](plugin-bridge.md) for the
+wire contract and plugin-author checklist.
 
 ## Authentication
 
@@ -89,7 +95,10 @@ nbx-mcp --allow-mutations
 
 `dry_run=true` resolves the method, path, query, and body locally without
 constructing a client. It is not server-side validation and does not prove that
-the live NetBox call will succeed.
+the live NetBox call will succeed. The one exception is
+`plugin_call_tool`: discovery of an advertised tool necessarily performs
+read-only GET requests for the live plugin root and manifest. Its dry-run still
+never dispatches the advertised target mutation.
 
 The `nbx` process independently refuses dynamic CRUD/bulk writes, Proxbox
 CRUD/sync or TUI launch, write-method raw/dev-HTTP calls, and mutating Branching
@@ -102,7 +111,7 @@ the authoritative CLI-process gate.
 ## Agent operating sequence
 
 1. Inspect `nbx capabilities --json`, or call `list_groups`, `list_resources`,
-   and `describe_operation`.
+   `describe_operation`, and `plugin_list_tools`.
 2. Preview every write with `--dry-run` or `dry_run=true`.
 3. Explicitly enable/confirm only the reviewed operation and execute it.
 4. Verify the result with `get` or a filtered `list`.

@@ -297,6 +297,33 @@ def create_mcp_server(
         return await active.plugin_discover(plugin=plugin, token=token)
 
     @server.tool()
+    async def plugin_list_tools(
+        plugin: str | None = None,
+        token: str | None = None,
+    ) -> dict[str, Any]:
+        """List validated semantic tools explicitly advertised by NetBox plugins."""
+        return await active.plugin_list_tools(plugin=plugin, token=token)
+
+    @server.tool()
+    async def plugin_call_tool(
+        plugin: str,
+        tool: str,
+        arguments: dict[str, Any] | None = None,
+        dry_run: bool = False,
+        header: list[str] | None = None,
+        token: str | None = None,
+    ) -> dict[str, Any]:
+        """Invoke an advertised plugin tool; preview writes with dry_run first."""
+        return await active.plugin_call_tool(
+            plugin=plugin,
+            tool=tool,
+            arguments=arguments,
+            dry_run=dry_run,
+            header=header,
+            token=token,
+        )
+
+    @server.tool()
     async def call(
         method: str,
         path: str,

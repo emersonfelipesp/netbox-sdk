@@ -218,6 +218,14 @@ for a reviewed execution window with `NETBOX_MCP_ALLOW_MUTATIONS=1` or
 `--allow-mutations`. A mutation `dry_run=true` only resolves the local request
 and does not validate it against NetBox.
 
+NetBox plugins can also advertise semantic operations through a versioned
+manifest under their existing REST API root. The stable `plugin_list_tools`
+and `plugin_call_tool` MCP tools discover and invoke those operations through
+the same `NetBoxApiClient`; plugin DRF permissions remain authoritative and no
+parallel credential or MCP server is created. Plugin-tool dry-runs perform only
+the live GETs required for manifest discovery and never dispatch the advertised
+write endpoint. See the [plugin bridge contract](https://emersonfelipesp.github.io/netbox-sdk/mcp/plugin-bridge/).
+
 Agents can inspect the same JSON capability contract through the CLI:
 
 ```bash
@@ -246,15 +254,16 @@ Claude Code and Codex CLI.
 
 ## Architecture
 
-- `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, shared formatting, and demo helpers.
+- `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, the versioned plugin bridge, shared formatting, and demo helpers.
 - `netbox_cli` owns the `nbx` command tree and lazy-loads `netbox_tui` where needed.
 - `netbox_tui` owns all Textual apps, themes, widgets, and TCSS.
-- `netbox_mcp` owns the validated MCP tools and imports only `netbox_sdk`.
+- `netbox_mcp` owns the stable validated MCP tools, including plugin bridge discovery/invocation, and imports only `netbox_sdk`.
 
 ## Runtime Dependencies
 
-Base SDK installs depend on `aiohttp`, `pydantic`, `email-validator`, `rich`, and
-`pyyaml`. Optional extras add the terminal surfaces and local test tools:
+Base SDK installs depend on `aiohttp`, `pydantic`, `jsonschema`,
+`email-validator`, `rich`, and `pyyaml`. Optional extras add the terminal
+surfaces and local test tools:
 
 - `cli`: Typer-powered `nbx` command tree
 - `tui`: Textual terminal applications

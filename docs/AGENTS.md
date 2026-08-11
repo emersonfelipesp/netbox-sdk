@@ -76,7 +76,8 @@ docs/
 │   ├── graphql.md                  # GraphQL and raw HTTP command docs
 │   └── demo-profile.md             # Demo profile setup
 ├── mcp/
-│   └── index.md                    # Tools, transports, auth, and mutation safety
+│   ├── index.md                    # Tools, transports, auth, and mutation safety
+│   └── plugin-bridge.md            # Versioned plugin manifest and author contract
 ├── sdk/
 │   ├── index.md
 │   ├── authentication.md
@@ -178,7 +179,7 @@ Home
 Getting Started → Installation, Configuration, Quick Start
 Certification   → Integration package evidence
 CLI Reference   → Commands, Dynamic Commands, GraphQL, Branching, Demo Profile
-MCP Server      → Tools, transports, authentication, and mutation safety
+MCP Server      → Tools, plugin bridge, transports, authentication, and mutation safety
 SDK             → Authentication, Facade API, Typed API, Branching, Making Requests, Schema Indexing, Error Handling
 TUI             → Themes, Keyboard Shortcuts, Branching, CLI Builder, GraphQL, Logs, Django Models, Screenshots
 Mock API        → CRUD, bulk operations, pagination/filtering, pytest integration, standalone server

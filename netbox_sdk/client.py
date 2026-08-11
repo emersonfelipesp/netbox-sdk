@@ -34,7 +34,7 @@ from netbox_sdk.config import (
     cache_dir,
     load_profile_config,
 )
-from netbox_sdk.exceptions import RequestError
+from netbox_sdk.exceptions import RequestError, ResponseSizeLimitError
 from netbox_sdk.http_cache import (
     CacheEntry,
     CachePolicy,
@@ -154,6 +154,7 @@ class ApiResponse(BaseModel):
     status: int
     text: str
     headers: dict[str, str] = Field(default_factory=dict)
+    body_size_bytes: int | None = Field(default=None, ge=0, exclude=True)
 
     def json(self) -> JSONValue:  # ty: ignore[invalid-method-override]
         """Parse the response body as JSON (scalar, object, or array)."""
@@ -425,6 +426,47 @@ class NetBoxApiClient:
             span.set_cache_status(response.headers.get("X-NBX-Cache"))
             return response
 
+    async def request_bounded(
+        self,
+        method: str,
+        path: str,
+        *,
+        max_response_bytes: int,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | list[Any] | None = None,
+        headers: dict[str, str] | None = None,
+        expect_json: bool = True,
+    ) -> ApiResponse:
+        """Make an uncached, non-redirecting request with a streamed body limit.
+
+        This path is intended for security-sensitive discovery and dispatch
+        protocols whose trust decision must use a current response from the
+        exact requested URL. ``Content-Length`` is checked before reading and
+        decompressed chunks are counted while streaming, so a compressed or
+        chunked response cannot bypass the bound.
+        """
+        if max_response_bytes <= 0:
+            raise ValueError("max_response_bytes must be positive")
+        with client_request_span(
+            self.config,
+            method,
+            path,
+            server_address_from_url(self.config.base_url),
+        ) as span:
+            response = await self._request_impl(
+                method=method,
+                path=path,
+                query=query,
+                payload=payload,
+                headers=headers,
+                expect_json=expect_json,
+                use_cache=False,
+                allow_redirects=False,
+                max_response_bytes=max_response_bytes,
+            )
+            span.set_response_status(response.status)
+            return response
+
     async def stream_sse(
         self,
         method: str,
@@ -562,6 +604,9 @@ class NetBoxApiClient:
         payload: dict[str, Any] | list[Any] | None = None,
         headers: dict[str, str] | None = None,
         expect_json: bool = True,
+        use_cache: bool = True,
+        allow_redirects: bool = True,
+        max_response_bytes: int | None = None,
     ) -> ApiResponse:
         # Canonicalize once, up front, so the cache key, the cache-generation
         # fence, invalidate_path(), and the outbound request all agree on the
@@ -571,11 +616,15 @@ class NetBoxApiClient:
         # cache-related lookup keyed to the literal, never-cached alias.
         path = self._normalize_request_path(path)
         authorization = authorization_header_value(self.config)
-        cache_policy = self._cache_policy(
-            method=method,
-            path=path,
-            query=query,
-            payload=payload,
+        cache_policy = (
+            self._cache_policy(
+                method=method,
+                path=path,
+                query=query,
+                payload=payload,
+            )
+            if use_cache
+            else None
         )
         logger.info(
             "api request starting",
@@ -690,6 +739,10 @@ class NetBoxApiClient:
             headers=req_headers,
             expect_json=expect_json,
         )
+        if not allow_redirects:
+            req_kwargs["allow_redirects"] = False
+        if max_response_bytes is not None:
+            req_kwargs["max_response_bytes"] = max_response_bytes
         is_write_method = method.upper() not in {"GET", "HEAD"}
         try:
             response = await self._request_once(
@@ -812,6 +865,8 @@ class NetBoxApiClient:
         headers: dict[str, str] | None,
         authorization: str | None,
         expect_json: bool,
+        allow_redirects: bool = True,
+        max_response_bytes: int | None = None,
     ) -> ApiResponse:
         files_payload = None
         json_payload = payload
@@ -822,6 +877,9 @@ class NetBoxApiClient:
         if isinstance(payload, dict):
             json_payload, files_payload = self._extract_files(payload)
 
+        request_options: dict[str, Any] = {}
+        if not allow_redirects:
+            request_options["allow_redirects"] = False
         async with session.request(
             method=method.upper(),
             url=self.build_url(path),
@@ -829,8 +887,30 @@ class NetBoxApiClient:
             json=json_payload if files_payload is None else None,
             data=files_payload if files_payload is not None else None,
             headers=req_headers,
+            **request_options,
         ) as response:
-            text = await response.text()
+            body_size_bytes: int | None = None
+            if max_response_bytes is None:
+                text = await response.text()
+            else:
+                declared_length = response.headers.get("Content-Length")
+                if method.upper() != "HEAD" and declared_length is not None:
+                    try:
+                        parsed_length = int(declared_length)
+                    except (TypeError, ValueError):
+                        parsed_length = -1
+                    if parsed_length > max_response_bytes:
+                        raise ResponseSizeLimitError(max_response_bytes)
+
+                body = bytearray()
+                chunk_size = min(64 * 1024, max_response_bytes + 1)
+                async for chunk in response.content.iter_chunked(chunk_size):
+                    if len(body) + len(chunk) > max_response_bytes:
+                        raise ResponseSizeLimitError(max_response_bytes)
+                    body.extend(chunk)
+                body_size_bytes = len(body)
+                encoding = response.charset or "utf-8"
+                text = bytes(body).decode(encoding)
             logger.debug(
                 "received raw api response",
                 extra={
@@ -839,7 +919,12 @@ class NetBoxApiClient:
                     "status": response.status,
                 },
             )
-            return ApiResponse(status=response.status, text=text, headers=dict(response.headers))
+            return ApiResponse(
+                status=response.status,
+                text=text,
+                headers=dict(response.headers),
+                body_size_bytes=body_size_bytes,
+            )
 
     def _extract_files(self, payload: dict[str, Any]) -> tuple[dict[str, Any], Any | None]:
         try:

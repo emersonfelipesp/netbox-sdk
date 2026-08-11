@@ -49,6 +49,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── schema.py
     ├── services.py
     ├── plugin_discovery.py
+    ├── plugin_bridge.py
     ├── proxbox.py
     ├── formatting.py
     ├── logging_runtime.py
@@ -144,6 +145,7 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 - MCP code in `netbox_mcp/` may depend on `netbox_sdk` and `mcp`, never on `netbox_cli` or `netbox_tui`.
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`, `netbox_mcp.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
+- Semantic plugin discovery and dispatch must use `NetBoxApiClient.request_bounded()` so contracts are current, uncached, non-redirecting, and body-bounded; never authorize a plugin tool from the ordinary stale-if-error cache.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
   all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works
