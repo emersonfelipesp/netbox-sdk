@@ -56,11 +56,11 @@ from scripts.release_policy import (
 pytestmark = pytest.mark.suite_sdk
 
 PACKAGE = "netbox-sdk"
-VERSION = "0.0.11rc2"
+VERSION = "0.0.11rc3"
 SOURCE_SHA = "a" * 40
 SOURCE_EPOCH = 1700000000
-WHEEL = "netbox_sdk-0.0.11rc2-py3-none-any.whl"
-SDIST = "netbox_sdk-0.0.11rc2.tar.gz"
+WHEEL = "netbox_sdk-0.0.11rc3-py3-none-any.whl"
+SDIST = "netbox_sdk-0.0.11rc3.tar.gz"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -82,7 +82,7 @@ def _source_repo(tmp_path: Path) -> tuple[Path, str]:
     (repo / "pyproject.toml").write_text(
         """[project]
 name = "netbox-sdk"
-version = "0.0.11rc2"
+version = "0.0.11rc3"
 description = "Fixture"
 readme = "README.md"
 license = "Apache-2.0"
@@ -133,7 +133,7 @@ def _metadata() -> bytes:
     return (
         b"Metadata-Version: 2.4\n"
         b"Name: netbox-sdk\n"
-        b"Version: 0.0.11rc2\n"
+        b"Version: 0.0.11rc3\n"
         b"Summary: Fixture\n"
         b"Author-email: Release Author <author@example.invalid>\n"
         b"Maintainer-email: Release Maintainer <maintainer@example.invalid>\n"
@@ -156,7 +156,7 @@ def _metadata() -> bytes:
 
 
 def _wheel_members(repo: Path) -> dict[str, bytes]:
-    dist_info = "netbox_sdk-0.0.11rc2.dist-info"
+    dist_info = "netbox_sdk-0.0.11rc3.dist-info"
     members = {
         "demo/__init__.py": (repo / "demo/__init__.py").read_bytes(),
         "demo/py.typed": b"",
@@ -228,7 +228,7 @@ def _write_sdist(
     *,
     directories: set[str] | None = None,
 ) -> None:
-    prefix = "netbox_sdk-0.0.11rc2"
+    prefix = "netbox_sdk-0.0.11rc3"
     with tarfile.open(path, "w:gz") as archive:
         root = tarfile.TarInfo(prefix)
         root.type = tarfile.DIRTYPE
@@ -457,7 +457,7 @@ def _mutate_archive_envelope(transfer: Path, repo: Path, mutation: str) -> None:
         sdist.write_bytes(sdist.read_bytes() + gzip.compress(b"", mtime=SOURCE_EPOCH))
         return
     if mutation in {"tar-metadata", "pax-metadata"}:
-        prefix = "netbox_sdk-0.0.11rc2"
+        prefix = "netbox_sdk-0.0.11rc3"
         members = _sdist_members(repo)
         with tarfile.open(sdist, "w:gz", format=tarfile.PAX_FORMAT) as archive:
             root = tarfile.TarInfo(prefix)
@@ -557,9 +557,9 @@ def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
         if target == "wheel-code":
             members["demo/__init__.py"] = b"raise SystemExit('hostile')\n"
         else:
-            name = "netbox_sdk-0.0.11rc2.dist-info/METADATA"
+            name = "netbox_sdk-0.0.11rc3.dist-info/METADATA"
             members[name] = members[name].replace(b"\n\n", b"\nRequires-Dist: hostile\n\n", 1)
-        record = "netbox_sdk-0.0.11rc2.dist-info/RECORD"
+        record = "netbox_sdk-0.0.11rc3.dist-info/RECORD"
         del members[record]
         output = io.StringIO()
         writer = csv.writer(output, lineterminator="\n")
@@ -601,7 +601,7 @@ def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
 
 
 def _rewrite_wheel_record(members: dict[str, bytes]) -> None:
-    record = "netbox_sdk-0.0.11rc2.dist-info/RECORD"
+    record = "netbox_sdk-0.0.11rc3.dist-info/RECORD"
     members.pop(record, None)
     output = io.StringIO()
     writer = csv.writer(output, lineterminator="\n")
@@ -644,7 +644,7 @@ def test_all_core_metadata_and_readme_copies_are_source_authoritative(
     transfer, manifest, repo = _transfer(tmp_path)
     if metadata_location == "wheel":
         members = _wheel_members(repo)
-        metadata_name = "netbox_sdk-0.0.11rc2.dist-info/METADATA"
+        metadata_name = "netbox_sdk-0.0.11rc3.dist-info/METADATA"
         members[metadata_name] = members[metadata_name].replace(original, replacement, 1)
         _rewrite_wheel_record(members)
         _write_wheel(transfer / WHEEL, members)
@@ -696,7 +696,7 @@ def test_complete_metadata_header_multimap_rejects_injected_and_duplicate_header
     transfer, manifest, repo = _transfer(tmp_path)
     if metadata_location == "wheel":
         members = _wheel_members(repo)
-        metadata_name = "netbox_sdk-0.0.11rc2.dist-info/METADATA"
+        metadata_name = "netbox_sdk-0.0.11rc3.dist-info/METADATA"
         members[metadata_name] = members[metadata_name].replace(
             b"\n\n", b"\n" + injected_header + b"\n", 1
         )
@@ -743,7 +743,7 @@ def test_exact_wheel_header_multimap_rejects_untrusted_generated_content(
 ) -> None:
     transfer, manifest, repo = _transfer(tmp_path)
     members = _wheel_members(repo)
-    wheel_metadata = "netbox_sdk-0.0.11rc2.dist-info/WHEEL"
+    wheel_metadata = "netbox_sdk-0.0.11rc3.dist-info/WHEEL"
     members[wheel_metadata] = members[wheel_metadata].replace(original, replacement, 1)
     _rewrite_wheel_record(members)
     _write_wheel(transfer / WHEEL, members)
@@ -1105,17 +1105,17 @@ def test_registry_uses_exact_gitea_routes_and_downloads_remote_content() -> None
     assert classify_remote_state(registry.inspect(manifest), manifest) == "exact"
     registry.link(manifest)
     assert client.paths == [
-        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11rc2"),
-        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11rc2/files"),
+        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11rc3"),
+        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11rc3/files"),
         (
             "GET",
-            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11rc2/"
-            "netbox_sdk-0.0.11rc2-py3-none-any.whl",
+            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11rc3/"
+            "netbox_sdk-0.0.11rc3-py3-none-any.whl",
         ),
         (
             "GET",
-            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11rc2/"
-            "netbox_sdk-0.0.11rc2.tar.gz",
+            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11rc3/"
+            "netbox_sdk-0.0.11rc3.tar.gz",
         ),
         ("POST", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/-/link/netbox-sdk"),
     ]
@@ -1270,7 +1270,7 @@ def test_gitea_tag_policy_and_validated_action_output(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     validate_gitea_candidate_tag(event_name="push", ref_name=f"v{VERSION}", version=VERSION)
-    for invalid in ("v0.0.11rc1", "0.0.11rc2", "v0.0.11"):
+    for invalid in ("v0.0.11rc1", "0.0.11rc3", "v0.0.11"):
         with pytest.raises(RuntimeError):
             validate_gitea_candidate_tag(event_name="push", ref_name=invalid, version=VERSION)
     with pytest.raises(RuntimeError, match="Unsupported"):
@@ -1406,7 +1406,7 @@ def _assert_workflow_policy(text: str) -> None:
         "packages: write",
         "--no-isolation",
         "uv sync --locked --only-group publish --no-install-project",
-        "uv 0.11.28",
+        "uv 0.11.28 (x86_64-unknown-linux-gnu)",
         "3.12.13",
         "for BUILD_ID in a b",
         'SOURCE_DATE_EPOCH="$SOURCE_EPOCH" PYTHONHASHSEED=0',
@@ -1427,7 +1427,8 @@ def _assert_workflow_policy(text: str) -> None:
     assert text.count("${{ github.token }}") == 1
     assert text.count("runs-on: ci-untrusted-python312") == 1
     assert text.count("runs-on: mirror-host") == 2
-    assert text.count("uv 0.11.28") == 3
+    exact_uv_guard = 'test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
+    assert sum(line.strip() == exact_uv_guard for line in text.splitlines()) == 3
     assert text.count("contents: read") == 4
     assert text.count("packages: write") == 1
     assert text.count("token: ''") == 2
@@ -1507,7 +1508,18 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
         ("runs-on: mirror-host", "runs-on: ci-untrusted-python312"),
         ("token: ''", "token: ${{ github.token }}"),
         ("--no-isolation", "--isolation"),
-        ("uv 0.11.28", "uv 0.11.29"),
+        (
+            "uv 0.11.28 (x86_64-unknown-linux-gnu)",
+            "uv 0.11.29 (x86_64-unknown-linux-gnu)",
+        ),
+        (
+            "uv 0.11.28 (x86_64-unknown-linux-gnu)",
+            "uv 0.11.28 (aarch64-unknown-linux-gnu)",
+        ),
+        (
+            "uv 0.11.28 (x86_64-unknown-linux-gnu)",
+            "uv 0.11.28 (x86_64-unknown-linux-gnu) compromised",
+        ),
         ("@ea165f8d65b6e75b540449e92b4886f43607fa02", "@v4"),
         (
             "group: private-package-${{ github.repository }}-netbox-sdk-${{ github.ref }}",
@@ -1538,6 +1550,41 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
     (validate_seal,)
 
 
+@pytest.mark.parametrize(
+    ("reported", "expected_status"),
+    (
+        ("uv 0.11.28 (x86_64-unknown-linux-gnu)", 0),
+        ("uv 0.11.28", 1),
+        ("uv 0.11.29 (x86_64-unknown-linux-gnu)", 1),
+        ("uv 0.11.28 (aarch64-unknown-linux-gnu)", 1),
+        ("uv 0.11.28 (x86_64-unknown-linux-gnu) compromised", 1),
+    ),
+)
+def test_private_registry_real_uv_guard_is_exact(
+    tmp_path: Path, reported: str, expected_status: int
+) -> None:
+    workflow = yaml.load(
+        Path(".gitea/workflows/publish-package.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    guard = next(
+        line.strip()
+        for line in workflow["jobs"]["build-candidate"]["steps"][2]["run"].splitlines()
+        if "uv --version" in line
+    )
+    executable = tmp_path / "uv"
+    executable.write_text(f"#!/bin/sh\nprintf '%s\\n' {reported!r}\n", encoding="utf-8")
+    executable.chmod(0o755)
+    completed = subprocess.run(  # noqa: S603 - fixed shell and audited workflow guard.
+        ["/bin/bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", guard],
+        check=False,
+        env={**os.environ, "PATH": f"{tmp_path}:{os.environ['PATH']}"},
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == expected_status
+
+
 def test_release_docs_require_external_tag_policy_preflight_and_terminal_recovery() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
     compact_readme = " ".join(readme.split())
@@ -1552,11 +1599,11 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.11rc2")
-    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.11rc2")
+    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.11rc3")
+    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.11rc3")
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert "git push gitea v0.0.11rc2" in readme
+    assert "git push gitea v0.0.11rc3" in readme
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {
