@@ -128,7 +128,7 @@ jobs:
             --source-epoch "$SOURCE_EPOCH"
 
       - name: Transfer only the bounded candidate set
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@c6a3b2bd78b3985e4b2f15397fec357f0fd808de # v3.2.2-node20
         with:
           name: netbox-sdk-private-release-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/netbox-sdk-build-${{ github.run_id }}-${{ github.run_attempt }}/transfer
@@ -180,7 +180,7 @@ jobs:
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
 
       - name: Download bounded candidate transfer
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@ad191675b41f6a5b46da9a048cb6893812da158b # v3.1.0-node20
         with:
           name: netbox-sdk-private-release-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/netbox-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}/transfer
@@ -238,7 +238,7 @@ jobs:
             --source-epoch "$SOURCE_EPOCH"
 
       - name: Transfer only the verified sealed set
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@c6a3b2bd78b3985e4b2f15397fec357f0fd808de # v3.2.2-node20
         with:
           name: netbox-sdk-private-seal-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/netbox-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}/sealed
@@ -301,7 +301,7 @@ jobs:
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
 
       - name: Download only the verified sealed set
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@ad191675b41f6a5b46da9a048cb6893812da158b # v3.1.0-node20
         with:
           name: netbox-sdk-private-seal-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}/sealed

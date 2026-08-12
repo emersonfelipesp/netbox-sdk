@@ -355,8 +355,9 @@ The repository-owned workflow publishes the immutable candidate to an
 access-controlled package registry; GitHub Actions remains the only authority
 that publishes to TestPyPI or the default PyPI index:
 
-The private Gitea workflow pins `actions/upload-artifact` v3.1.3 and
-`actions/download-artifact` v3.0.2 by full commit SHA. The installed Gitea
+The private Gitea workflow pins the maintained Node 20 backports
+`actions/upload-artifact` v3.2.2-node20 and
+`actions/download-artifact` v3.1.0-node20 by full commit SHA. The installed Gitea
 Actions runtime does not implement the artifact service required by v4+, so
 upgrading those actions requires an explicit runner-compatibility proof.
 
