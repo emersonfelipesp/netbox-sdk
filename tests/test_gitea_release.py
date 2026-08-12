@@ -1425,7 +1425,7 @@ def _assert_workflow_policy(text: str) -> None:
         "contents: read",
         "packages: write",
         "--no-isolation",
-        "uv sync --locked --only-group publish --no-install-project",
+        '"$UV_BIN" sync --locked --only-group publish --no-install-project',
         "uv 0.11.28 (x86_64-unknown-linux-gnu)",
         "3.12.13",
         "for BUILD_ID in a b",
@@ -1437,9 +1437,11 @@ def _assert_workflow_policy(text: str) -> None:
         "timeout-minutes: 5",
         "actions/upload-artifact@c6a3b2bd78b3985e4b2f15397fec357f0fd808de",
         "actions/download-artifact@ad191675b41f6a5b46da9a048cb6893812da158b",
-        "token: ''",
+        "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz",
         "e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224",
-        "RUNNER_TOOL_CACHE=%s",
+        "sha256sum --check --strict",
+        "uv-x86_64-unknown-linux-gnu/uv",
+        "UV_BIN=%s",
         "UV_PYTHON_INSTALL_DIR=%s",
         'case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in',
         "https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git",
@@ -1449,17 +1451,30 @@ def _assert_workflow_policy(text: str) -> None:
     )
     assert all(value in text for value in required)
     assert text.count('>> "$GITHUB_ENV"') == 6
+    assert (
+        text.count(
+            "https://github.com/astral-sh/uv/releases/download/0.11.28/"
+            "uv-x86_64-unknown-linux-gnu.tar.gz"
+        )
+        == 3
+    )
+    assert text.count("e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224") == 3
+    assert text.count("sha256sum --check --strict") == 3
+    assert text.count("uv-x86_64-unknown-linux-gnu/uv") == 3
+    assert text.count("UV_BIN=%s") == 3
     assert text.count("${{ github.token }}") == 0
     assert text.count("${{ secrets.PACKAGE_WRITE_TOKEN }}") == 1
     assert text.count('"$UV_PYTHON_INSTALL_DIR"/*) ;;') == 3
     assert "--depth=1" not in text
     assert text.count("runs-on: ci-untrusted-python312") == 1
     assert text.count("runs-on: mirror-host") == 2
-    exact_uv_guard = 'test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
+    exact_uv_guard = 'test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
     assert sum(line.strip() == exact_uv_guard for line in text.splitlines()) == 3
     assert text.count("contents: read") == 4
     assert text.count("packages: write") == 1
-    assert sum(line.strip() == "github-token: ''" for line in text.splitlines()) == 3
+    assert "astral-sh/setup-uv@" not in text
+    assert "RUNNER_TOOL_CACHE" not in text
+    assert "github-token:" not in text
     assert "workflow_dispatch:" not in text
     assert "pull_request:" not in text and "release:" not in text
     concurrency = next(line for line in text.splitlines() if line.lstrip().startswith("group:"))
@@ -1484,19 +1499,6 @@ def _assert_workflow_policy(text: str) -> None:
     assert "compression-level:" not in text
     assert "overwrite:" not in text
     parsed = yaml.load(text, Loader=yaml.BaseLoader)
-    setup_uv_steps = [
-        step
-        for job in parsed["jobs"].values()
-        for step in job.get("steps", [])
-        if str(step.get("uses", "")).startswith("astral-sh/setup-uv@")
-    ]
-    assert setup_uv_steps
-    assert all(step.get("with", {}).get("github-token") == "" for step in setup_uv_steps)
-    assert all(
-        step.get("with", {}).get("checksum")
-        == "e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224"
-        for step in setup_uv_steps
-    )
     assert parsed["on"] == {"push": {"tags": ["v*rc*"]}}
     jobs = parsed["jobs"]
     assert set(jobs) == {"build-candidate", "verify-and-seal", "publish-candidate"}
@@ -1522,7 +1524,10 @@ def _assert_workflow_policy(text: str) -> None:
         "EVENT_SOURCE_SHA": "${{ github.sha }}",
         "TOOL_ROOT": "${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}",
     }
-    assert 'git -C "$TOOL_ROOT" fetch --force --no-tags origin "$EVENT_SOURCE_SHA"' in publisher_checkout["run"]
+    assert (
+        'git -C "$TOOL_ROOT" fetch --force --no-tags origin "$EVENT_SOURCE_SHA"'
+        in publisher_checkout["run"]
+    )
     assert 'git -C "$TOOL_ROOT" checkout --detach FETCH_HEAD' in publisher_checkout["run"]
     authority = jobs["publish-candidate"]["steps"][1]
     assert authority["id"] == "authority"
@@ -1556,7 +1561,12 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
         ("  push:\n", "  workflow_dispatch:\n"),
         ("packages: write", "packages: read"),
         ("runs-on: mirror-host", "runs-on: ci-untrusted-python312"),
-        ("token: ''", "token: ${{ github.token }}"),
+        (
+            "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz",
+            "https://github.com/astral-sh/uv/releases/download/0.11.29/uv-x86_64-unknown-linux-gnu.tar.gz",
+        ),
+        ("sha256sum --check --strict", "sha256sum --check"),
+        ("UV_BIN=%s", "UV_UNTRUSTED_BIN=%s"),
         ("--no-isolation", "--isolation"),
         (
             "uv 0.11.28 (x86_64-unknown-linux-gnu)",
@@ -1579,7 +1589,7 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
         ("for BUILD_ID in a b", "for BUILD_ID in a"),
         ("compare-builds", "compare_artifacts"),
         ("timeout-minutes: 5", "timeout-minutes-disabled: 5"),
-        ('origin "$EVENT_SOURCE_SHA"', 'origin refs/heads/main'),
+        ('origin "$EVENT_SOURCE_SHA"', "origin refs/heads/main"),
         (
             'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
             'test -n "$VERIFIED_SOURCE_SHA"',
@@ -1620,9 +1630,7 @@ def test_private_registry_real_uv_guard_is_exact(
         step for step in build_steps if step.get("name") == "Prepare locked release tools"
     )
     guard = next(
-        line.strip()
-        for line in release_tools["run"].splitlines()
-        if "uv --version" in line
+        line.strip() for line in release_tools["run"].splitlines() if '"$UV_BIN" --version' in line
     )
     executable = tmp_path / "uv"
     executable.write_text(f"#!/bin/sh\nprintf '%s\\n' {reported!r}\n", encoding="utf-8")
@@ -1630,7 +1638,7 @@ def test_private_registry_real_uv_guard_is_exact(
     completed = subprocess.run(  # noqa: S603 - fixed shell and audited workflow guard.
         ["/bin/bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", guard],
         check=False,
-        env={**os.environ, "PATH": f"{tmp_path}:{os.environ['PATH']}"},
+        env={**os.environ, "UV_BIN": str(executable)},
         capture_output=True,
         text=True,
     )

@@ -32,26 +32,28 @@ jobs:
           persist-credentials: false
           ref: main
 
-      - name: Isolate uv and managed Python
+      - name: Install checksum-verified uv and managed Python
         env:
-          UV_ACTION_TOOL_CACHE: ${{ runner.temp }}/netbox-sdk-uv-build-${{ github.run_id }}-${{ github.run_attempt }}
+          UV_INSTALL_ROOT: ${{ runner.temp }}/netbox-sdk-uv-build-${{ github.run_id }}-${{ github.run_attempt }}
           UV_MANAGED_PYTHON: ${{ runner.temp }}/netbox-sdk-python-build-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          test ! -e "$UV_ACTION_TOOL_CACHE"
+          test ! -e "$UV_INSTALL_ROOT"
           test ! -e "$UV_MANAGED_PYTHON"
-          mkdir -p "$UV_ACTION_TOOL_CACHE"
-          printf 'RUNNER_TOOL_CACHE=%s\n' "$UV_ACTION_TOOL_CACHE" >> "$GITHUB_ENV"
+          mkdir -m 0700 "$UV_INSTALL_ROOT"
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output "$UV_INSTALL_ROOT/uv.tar.gz" \
+            https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz
+          printf '%s  %s\n' \
+            e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224 \
+            "$UV_INSTALL_ROOT/uv.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file "$UV_INSTALL_ROOT/uv.tar.gz" \
+            --directory "$UV_INSTALL_ROOT" --strip-components=1 \
+            uv-x86_64-unknown-linux-gnu/uv
+          chmod 0555 "$UV_INSTALL_ROOT/uv"
+          printf 'UV_BIN=%s\n' "$UV_INSTALL_ROOT/uv" >> "$GITHUB_ENV"
           printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$UV_MANAGED_PYTHON" >> "$GITHUB_ENV"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
-        with:
-          enable-cache: false
-          github-token: ''
-          checksum: e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224
-          version: "0.11.28"
-          python-version: "3.12.13"
+          "$UV_INSTALL_ROOT/uv" python install 3.12.13
 
       - name: Prepare locked release tools
         env:
@@ -63,8 +65,8 @@ jobs:
           mkdir -p "$BUILD_ROOT"
           UV_CACHE_DIR="$BUILD_ROOT/uv-cache" \
             UV_PROJECT_ENVIRONMENT="$BUILD_ROOT/venv" \
-            uv sync --locked --only-group publish --no-install-project
-          test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
+            "$UV_BIN" sync --locked --only-group publish --no-install-project
+          test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$BUILD_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
           case "$(readlink -f "$BUILD_ROOT/venv/bin/python")" in
             "$UV_PYTHON_INSTALL_DIR"/*) ;;
@@ -178,26 +180,28 @@ jobs:
           git -C "$SOURCE_ROOT" fetch --force --no-tags origin refs/heads/main
           git -C "$SOURCE_ROOT" checkout --detach FETCH_HEAD
 
-      - name: Isolate uv and managed Python
+      - name: Install checksum-verified uv and managed Python
         env:
-          UV_ACTION_TOOL_CACHE: ${{ runner.temp }}/netbox-sdk-uv-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          UV_INSTALL_ROOT: ${{ runner.temp }}/netbox-sdk-uv-verify-${{ github.run_id }}-${{ github.run_attempt }}
           UV_MANAGED_PYTHON: ${{ runner.temp }}/netbox-sdk-python-verify-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          test ! -e "$UV_ACTION_TOOL_CACHE"
+          test ! -e "$UV_INSTALL_ROOT"
           test ! -e "$UV_MANAGED_PYTHON"
-          mkdir -p "$UV_ACTION_TOOL_CACHE"
-          printf 'RUNNER_TOOL_CACHE=%s\n' "$UV_ACTION_TOOL_CACHE" >> "$GITHUB_ENV"
+          mkdir -m 0700 "$UV_INSTALL_ROOT"
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output "$UV_INSTALL_ROOT/uv.tar.gz" \
+            https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz
+          printf '%s  %s\n' \
+            e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224 \
+            "$UV_INSTALL_ROOT/uv.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file "$UV_INSTALL_ROOT/uv.tar.gz" \
+            --directory "$UV_INSTALL_ROOT" --strip-components=1 \
+            uv-x86_64-unknown-linux-gnu/uv
+          chmod 0555 "$UV_INSTALL_ROOT/uv"
+          printf 'UV_BIN=%s\n' "$UV_INSTALL_ROOT/uv" >> "$GITHUB_ENV"
           printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$UV_MANAGED_PYTHON" >> "$GITHUB_ENV"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
-        with:
-          enable-cache: false
-          github-token: ''
-          checksum: e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224
-          version: "0.11.28"
-          python-version: "3.12.13"
+          "$UV_INSTALL_ROOT/uv" python install 3.12.13
 
       - name: Prepare isolated locked publisher tools
         env:
@@ -210,8 +214,8 @@ jobs:
           mkdir -p "$PUBLISH_ROOT"
           UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
             UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
-            uv sync --directory "$SOURCE_ROOT" --locked --only-group publish --no-install-project
-          test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
+            "$UV_BIN" sync --directory "$SOURCE_ROOT" --locked --only-group publish --no-install-project
+          test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
           case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in
             "$UV_PYTHON_INSTALL_DIR"/*) ;;
@@ -322,26 +326,28 @@ jobs:
           esac
           printf 'source_epoch=%s\n' "$SOURCE_EPOCH" >> "$GITHUB_OUTPUT"
 
-      - name: Isolate uv and managed Python
+      - name: Install checksum-verified uv and managed Python
         env:
-          UV_ACTION_TOOL_CACHE: ${{ runner.temp }}/netbox-sdk-uv-publish-${{ github.run_id }}-${{ github.run_attempt }}
+          UV_INSTALL_ROOT: ${{ runner.temp }}/netbox-sdk-uv-publish-${{ github.run_id }}-${{ github.run_attempt }}
           UV_MANAGED_PYTHON: ${{ runner.temp }}/netbox-sdk-python-publish-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          test ! -e "$UV_ACTION_TOOL_CACHE"
+          test ! -e "$UV_INSTALL_ROOT"
           test ! -e "$UV_MANAGED_PYTHON"
-          mkdir -p "$UV_ACTION_TOOL_CACHE"
-          printf 'RUNNER_TOOL_CACHE=%s\n' "$UV_ACTION_TOOL_CACHE" >> "$GITHUB_ENV"
+          mkdir -m 0700 "$UV_INSTALL_ROOT"
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output "$UV_INSTALL_ROOT/uv.tar.gz" \
+            https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz
+          printf '%s  %s\n' \
+            e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224 \
+            "$UV_INSTALL_ROOT/uv.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file "$UV_INSTALL_ROOT/uv.tar.gz" \
+            --directory "$UV_INSTALL_ROOT" --strip-components=1 \
+            uv-x86_64-unknown-linux-gnu/uv
+          chmod 0555 "$UV_INSTALL_ROOT/uv"
+          printf 'UV_BIN=%s\n' "$UV_INSTALL_ROOT/uv" >> "$GITHUB_ENV"
           printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$UV_MANAGED_PYTHON" >> "$GITHUB_ENV"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
-        with:
-          enable-cache: false
-          github-token: ''
-          checksum: e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224
-          version: "0.11.28"
-          python-version: "3.12.13"
+          "$UV_INSTALL_ROOT/uv" python install 3.12.13
 
       - name: Prepare isolated locked publisher tool
         env:
@@ -354,8 +360,8 @@ jobs:
           mkdir -p "$PUBLISH_ROOT"
           UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
             UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
-            uv sync --directory "$TOOL_ROOT" --locked --only-group publish --no-install-project
-          test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
+            "$UV_BIN" sync --directory "$TOOL_ROOT" --locked --only-group publish --no-install-project
+          test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
           case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in
             "$UV_PYTHON_INSTALL_DIR"/*) ;;
