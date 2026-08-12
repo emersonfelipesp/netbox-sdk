@@ -7,9 +7,9 @@
     "4.5",
     "4.6"
   ],
-  "generated_at": "2026-08-12T17:53:23Z",
+  "generated_at": "2026-08-12T18:03:49Z",
   "source": {
     "repo": "emersonfelipesp/netbox-sdk",
-    "commit": "83e6f1cf2a3d341839cc2ccb656d171c61f605af"
+    "commit": "82652530594a8f7fecd13fd073d64c183dc62f03"
   }
 }
