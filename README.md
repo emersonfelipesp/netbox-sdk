@@ -360,6 +360,9 @@ The private Gitea workflow pins the maintained Node 20 backports
 `actions/download-artifact` v3.1.0-node20 by full commit SHA. The installed Gitea
 Actions runtime does not implement the artifact service required by v4+, so
 upgrading those actions requires an explicit runner-compatibility proof.
+Every private `setup-uv` step explicitly disables its implicit `github-token`
+input; the package-write credential is introduced only in the final sealed
+publish step.
 
 ```bash
 # Static, operator-reviewed release oracle: do not derive this tag from event input.

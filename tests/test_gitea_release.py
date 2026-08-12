@@ -1431,7 +1431,7 @@ def _assert_workflow_policy(text: str) -> None:
     assert sum(line.strip() == exact_uv_guard for line in text.splitlines()) == 3
     assert text.count("contents: read") == 4
     assert text.count("packages: write") == 1
-    assert text.count("token: ''") == 2
+    assert sum(line.strip() == "token: ''" for line in text.splitlines()) == 2
     assert "workflow_dispatch:" not in text
     assert "pull_request:" not in text and "release:" not in text
     concurrency = next(line for line in text.splitlines() if line.lstrip().startswith("group:"))
@@ -1456,6 +1456,14 @@ def _assert_workflow_policy(text: str) -> None:
     assert "compression-level:" not in text
     assert "overwrite:" not in text
     parsed = yaml.load(text, Loader=yaml.BaseLoader)
+    setup_uv_steps = [
+        step
+        for job in parsed["jobs"].values()
+        for step in job.get("steps", [])
+        if str(step.get("uses", "")).startswith("astral-sh/setup-uv@")
+    ]
+    assert setup_uv_steps
+    assert all(step.get("with", {}).get("github-token") == "" for step in setup_uv_steps)
     assert parsed["on"] == {"push": {"tags": ["v*rc*"]}}
     jobs = parsed["jobs"]
     assert set(jobs) == {"build-candidate", "verify-and-seal", "publish-candidate"}
