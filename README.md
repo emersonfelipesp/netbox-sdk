@@ -355,6 +355,11 @@ The repository-owned workflow publishes the immutable candidate to an
 access-controlled package registry; GitHub Actions remains the only authority
 that publishes to TestPyPI or the default PyPI index:
 
+The private Gitea workflow pins `actions/upload-artifact` v3.1.3 and
+`actions/download-artifact` v3.0.2 by full commit SHA. The installed Gitea
+Actions runtime does not implement the artifact service required by v4+, so
+upgrading those actions requires an explicit runner-compatibility proof.
+
 ```bash
 # Static, operator-reviewed release oracle: do not derive this tag from event input.
 nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
@@ -362,8 +367,8 @@ nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
 python -m scripts.gitea_release validate-tag-protection \
   --policy-file .gitea/release-tag-policy.json \
   --evidence-file /tmp/netbox-sdk-tag-protections.json
-git tag -a v0.0.11rc3 -m "Release v0.0.11rc3"
-git push gitea v0.0.11rc3
+git tag -a v0.0.11rc4 -m "Release v0.0.11rc4"
+git push gitea v0.0.11rc4
 ```
 
 The evidence command and validator are a mandatory preflight before creating
