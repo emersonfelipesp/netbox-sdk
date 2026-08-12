@@ -350,12 +350,27 @@ uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 
 ## Release Process
 
-Release candidates use a direct RC tag push and publish only to TestPyPI:
+Release candidates use an annotated RC tag on the canonical source repository.
+The repository-owned workflow publishes the immutable candidate to an
+access-controlled package registry; GitHub Actions remains the only authority
+that publishes to TestPyPI or the default PyPI index:
 
 ```bash
-git tag -a v0.0.11rc1 -m "Release v0.0.11rc1"
-git push origin v0.0.11rc1
+# Static, operator-reviewed release oracle: do not derive this tag from event input.
+nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
+  --output /tmp/netbox-sdk-tag-protections.json
+python -m scripts.gitea_release validate-tag-protection \
+  --policy-file .gitea/release-tag-policy.json \
+  --evidence-file /tmp/netbox-sdk-tag-protections.json
+git tag -a v0.0.11rc2 -m "Release v0.0.11rc2"
+git push gitea v0.0.11rc2
 ```
+
+The evidence command and validator are a mandatory preflight before creating
+any release tag. The repository contract requires one server-side protection
+for every `v*` tag, with only `emersonfelipesp` allowlisted and no teams. This
+is external repository state: the tag-triggered workflow cannot and does not
+self-verify the protection that authorized its own trigger.
 
 Do not create a GitHub Release for an RC. Final and post releases must never be
 authorized by a direct tag push; publish them through the GitHub Release event
@@ -390,8 +405,17 @@ creating any candidate tag or publishing any registry artifact. The release
 workflow also fetches Gitea's `v0.0.10` ref into an isolated validation ref and
 requires its annotated tag-object SHA and peeled commit to match exactly.
 
-Both credentialed publishing workflows pin every action to a reviewed full
-commit SHA. The package workflow uses the `publish` dependency group from
+All credentialed publishing workflows pin every action to a reviewed full
+commit SHA. The private-registry workflow builds twice in independent,
+credential-free source worktrees, derives canonical archive metadata from the
+validated source-commit timestamp, and requires both wheel/sdist pairs to be
+byte-identical. A separate credential-free job binds the archives and complete
+distribution metadata to the exact canonical Git source, then emits only a
+private, read-only seal and its two exact files. The package-write job checks out
+the helper at the immutable tag-event SHA, rejects any upstream source-SHA
+mismatch, parses only the small seal,
+re-hashes the two regular files, and accepts only an absent or already-exact
+remote set associated with this repository. The public package workflow uses the `publish` dependency group from
 `uv.lock` for build and Twine execution, validates exactly one correctly named
 wheel plus one sdist, and captures that closed set before any network-installed
 smoke dependency can run. Smoke testing consumes a downstream artifact copy.
@@ -408,6 +432,12 @@ a separate minimal `main`-only writer receives the generated file through a job
 output while its automatic token stays read-only. Configure a fine-grained
 `METADATA_WRITE_TOKEN` repository secret with contents-write access; it is
 exposed only to the guarded clone/commit/push step.
+
+Private-registry versions are immutable. A partial remote version is a terminal
+collision for that version: never delete files, overwrite them, or retry the
+same version. Diagnose and fix the release source or workflow, advance every
+candidate-version surface to the next unused `rcN`, repeat the external
+release-tag protection preflight, and publish only the new candidate tag.
 
 Release metadata is a deliberate follow-up commit: first commit the integration,
 then run `SOURCE_COMMIT=<integration-sha> python scripts/build_metadata.py` and

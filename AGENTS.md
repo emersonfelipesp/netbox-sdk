@@ -178,6 +178,21 @@ and a PR branch current with its base. Gitea evaluates `refs/pull/<N>/head`, not
 a synthetic merge commit; a queued job with `runner_id: 0` is missing evidence,
 not a pass.
 
+`.gitea/workflows/publish-package.yml` is the private package-registry release
+path. It accepts only an exact annotated RC tag at explicitly fetched canonical
+`main`; manual dispatch is forbidden. Candidate code builds twice without
+credentials on `ci-untrusted-python312`, canonicalizes archive metadata from the
+validated commit epoch, and must produce byte-identical wheel/sdist pairs. A
+credential-free `mirror-host` job performs all Git/archive/metadata parsing and
+independently canonicalizes private copies, requires byte equality with the
+untouched incoming artifacts, and emits a private exact seal. A separate
+package-write job checks out its helper at `${{ github.sha }}`, rejects any
+verify-job source-SHA mismatch, changes to that exact tool root, and only
+validates the bounded seal, re-hashes the two files, and performs bounded
+registry/Twine operations. Only its final step
+receives the ephemeral job token. GitHub Actions remains the sole TestPyPI and
+PyPI publisher.
+
 ## Verification Before Done
 
 - Run `uv run pre-commit run --all-files`.
@@ -202,5 +217,8 @@ When updating a release or topic branch from `main`, **`main` has priority on me
 - Generate **`metadata.json`** only with a full SHA that identifies a commit object in candidate ancestry whose `pyproject.toml` contains the same project version and whose tree matches the candidate outside the deliberate `metadata.json` follow-up; annotated tag-object SHAs are invalid provenance. `scripts/build_metadata.py` accepts `SOURCE_COMMIT` or `GITHUB_SHA`, falls back to the checked-out `HEAD`, and fails on missing, unrelated, wrong-object, version-mismatched, or materially different provenance. Because a commit cannot contain its own SHA, first commit the two-parent release-lineage integration, then immediately regenerate metadata with that integration commit SHA and create a follow-up metadata commit before pushing or opening review.
 - The immutable `v0.0.10` annotated tag object must remain **`e104bdd554ac2becf7abd38b238d8fb5509651f4`** and peel to commit **`3bcc86481f60f0f2d6fb1913c42d1561f5d5b77e`**. If it is on a divergent lineage, integrate that exact commit through a reviewed merge with exactly two parents and the published commit as the second parent. The final Gitea integration must preserve that merge commit (merge-commit or fast-forward of the already-two-parent commit); squash, rebase, and octopus merges are forbidden. Before any release, fetch Gitea's tag into an isolated validation ref, verify the exact tag object and commit are present there, and require the release commit to be an ancestor of explicitly fetched canonical Gitea `main`. Never move the tag, discard its unique commits, force-push a default branch, or rebase published history.
 - Credentialed release workflows must pin every action to a reviewed full commit SHA. Build and publish with only the `publish` dependency group locked in `uv.lock`; validate and capture exactly one correctly identified wheel plus one sdist before any network-installed smoke dependency runs; smoke only a downstream artifact copy; and upload only fresh directories populated by the artifact validator. Immediately re-fetch/revalidate canonical Gitea plus the exact TestPyPI filename/hash set, then stage only verified-missing PyPI files so partial uploads resume without `--skip-existing`; revalidate the approved filename/digest manifest in the Twine step and require a bounded final exact-set/hash check on PyPI. Metadata generation is read-only; a separate minimal `main`-only writer keeps its automatic token read-only and exposes the fine-grained `METADATA_WRITE_TOKEN` secret only to the guarded clone/commit/push step.
+- The private-registry publisher builds twice from independent source worktrees, canonicalizes wheel/sdist archive metadata from the validated source-commit epoch, and requires byte equality. All Git/archive/core-metadata/README validation happens in a separate credential-free job that emits only a private exact seal; the package-write job checks out the trusted helper at that same immutable source SHA, uses `token: ''` for checkout, and exposes `${{ github.token }}` only to the final timeout-bounded seal-rehash/registry/Twine step. It accepts only an absent version or the exact two-file set with matching bytes and repository association. Partial, extra, mismatched, redirected, oversized, timed-out, or wrongly associated states fail closed; ambiguous upload/link responses recover only after an independent exact-state GET.
+- Before creating any release tag, capture `GET /repos/emersonfelipesp/netbox-sdk/tag_protections` with `nms git api --output`, then run `python -m scripts.gitea_release validate-tag-protection --policy-file .gitea/release-tag-policy.json --evidence-file <file>`. The server must expose exactly the repository-owned `v*` rule with only `emersonfelipesp` allowlisted and no teams. This external authorization is not self-verified by the tag-triggered workflow.
+- Treat a partial private-registry version as terminal and immutable: never delete, overwrite, or retry that version; fix the cause and advance to the next unused `rcN` through the complete release preflight.
 - Direct Git tag pushes are authorized only for exact `v*rc*` candidates and publish to TestPyPI. Final and post-release PyPI publication is authorized only by a published GitHub Release whose tag exactly matches the project version; never create a GitHub Release for an RC or directly push a final/post tag as the publishing trigger.
 - `scripts/release_policy.py` is the single PEP 440 authority for registry routing. Final and post-release versions may reach the default PyPI index; prerelease, development, and local versions remain TestPyPI/source-only.

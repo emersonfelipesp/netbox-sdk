@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "netbox-sdk"
-version = "0.0.11rc1"
+version = "0.0.11rc2"
 description = "SDK-first NetBox toolkit with Python SDK, CLI, MCP server, and Textual TUIs"
 readme = "README.md"
 license = "Apache-2.0"

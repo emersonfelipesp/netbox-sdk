@@ -111,3 +111,26 @@ require the head to be current with its base before merge.
   - requires the release commit to already be in explicitly fetched canonical Gitea `main` and verifies Gitea retains the exact immutable `v0.0.10` annotated tag object
   - re-fetches canonical Gitea, rechecks the exact TestPyPI artifact set, then validates PyPI and stages only verified-missing files so partial production uploads resume without `--skip-existing`; the Twine step revalidates the approved digest manifest and a bounded final check requires the exact PyPI set
   - uses one PEP 440 policy for final and post-release publication; prerelease, development, and local versions remain TestPyPI-only
+
+The repository also owns `.gitea/workflows/publish-package.yml` for an
+access-controlled package registry. It is tag-push RC-only and builds the exact
+source twice in a credential-free untrusted job, canonicalizing from the commit
+epoch and requiring byte equality. A second credential-free job performs all
+Git/archive/metadata validation, independently re-canonicalizes private copies,
+requires them to equal the untouched transfer bytes, and transfers only a
+private exact seal. The package-write job checks out its helper at the immutable
+tag-event SHA, rejects any verify-job source mismatch, runs from that exact tool
+root, parses only the bounded seal, re-hashes its files, and confines the ephemeral token to the final
+bounded publish step. This does not change GitHub Actions' sole authority over
+TestPyPI and PyPI. The final job retains the repository's explicit
+`contents: read, packages: write` contract, but its exact-SHA checkout sets
+`token: ''`; no pre-publish action or step consumes `${{ github.token }}`.
+
+Release-tag authorization is external state, not a workflow assertion. Before
+creating a tag, capture the exact tag-protection list with `nms git api GET
+/repos/emersonfelipesp/netbox-sdk/tag_protections --output <file>` and
+validate it against `.gitea/release-tag-policy.json`; every `v*` tag must be
+protected with only `emersonfelipesp` allowlisted and no teams. This policy is
+not self-verified by the tag-triggered workflow. A partial
+private-registry version is terminal: never delete, overwrite, or retry it;
+advance to the next unused `rcN` after fixing the cause.

@@ -275,7 +275,7 @@ def test_all_release_version_surfaces_match_pyproject() -> None:
 
     readme = _read("README.md")
     assert f"netbox-sdk[all]=={published}" in readme
-    assert f"git push origin v{version}" in readme
+    assert f"git push gitea v{version}" in readme
     assert "gh release create vX.Y.Z" in readme
     assert '--title "netbox-sdk vX.Y.Z"' in readme
 

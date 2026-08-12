@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "owner": "emersonfelipesp",
+  "repository": "netbox-sdk",
+  "api_path": "/repos/emersonfelipesp/netbox-sdk/tag_protections",
+  "required_rule": {
+    "name_pattern": "v*",
+    "whitelist_usernames": [
+      "emersonfelipesp"
+    ],
+    "whitelist_teams": []
+  }
+}

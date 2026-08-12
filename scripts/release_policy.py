@@ -14,6 +14,8 @@ from packaging.version import InvalidVersion, Version
 
 ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = ROOT / "pyproject.toml"
+MIN_REPRODUCIBLE_EPOCH = 315532800  # 1980-01-01, the earliest ZIP timestamp.
+MAX_REPRODUCIBLE_EPOCH = 4294967295  # Latest unsigned gzip header timestamp.
 
 
 @dataclass(frozen=True)
@@ -126,6 +128,53 @@ def validate_event_tag(*, event_name: str, ref_name: str, version: str) -> None:
         raise RuntimeError(
             "GitHub Release publication is authorized only for final or post-release versions"
         )
+
+
+def validate_gitea_candidate_tag(*, event_name: str, ref_name: str, version: str) -> None:
+    """Authorize an exact release-candidate tag for the private package registry."""
+    if event_name != "push":
+        raise RuntimeError(f"Unsupported Gitea release workflow event: {event_name!r}")
+    if ref_name != f"v{version}":
+        raise RuntimeError(f"Tag/version mismatch: tag={ref_name!r}, version={version!r}")
+    parsed = Version(version)
+    if (
+        parsed.pre is None
+        or parsed.pre[0] != "rc"
+        or parsed.is_devrelease
+        or parsed.local is not None
+    ):
+        raise RuntimeError("The private registry tag workflow accepts only public RC versions")
+
+
+def validate_exact_canonical_source(
+    *,
+    candidate_ref: str,
+    canonical_main_ref: str,
+    repo: Path = ROOT,
+) -> str:
+    """Require the candidate tag and explicitly fetched canonical main to be identical."""
+    candidate, canonical_main = validate_canonical_main_ancestry(
+        candidate_ref=candidate_ref,
+        canonical_main_ref=canonical_main_ref,
+        repo=repo,
+    )
+    if candidate != canonical_main:
+        raise RuntimeError(
+            "Release tag commit must equal the explicitly fetched canonical main commit"
+        )
+    return candidate
+
+
+def validated_commit_epoch(*, commit_ref: str, repo: Path = ROOT) -> int:
+    """Return the exact commit timestamp when it is safe for archive normalization."""
+    resolved = _git_output(repo, "rev-parse", "--verify", f"{commit_ref}^{{commit}}")
+    raw_epoch = _git_output(repo, "show", "-s", "--format=%ct", resolved)
+    if not raw_epoch.isascii() or not raw_epoch.isdecimal():
+        raise RuntimeError("Release source commit timestamp is malformed")
+    epoch = int(raw_epoch)
+    if not MIN_REPRODUCIBLE_EPOCH <= epoch <= MAX_REPRODUCIBLE_EPOCH:
+        raise RuntimeError("Release source commit timestamp is outside archive bounds")
+    return epoch
 
 
 def _write_actions_outputs(context: ReleaseContext) -> None:

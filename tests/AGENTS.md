@@ -79,6 +79,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_docgen_paths.py` | `docgen_capture.py` output path resolution and stub config injection |
 | `test_docgen_specs.py` | Documentation capture spec inventory and rendering contracts |
 | `test_docs_alignment.py` | Package/docs version alignment and localized docs completeness |
+| `test_gitea_release.py` | Private-registry three-job/token mutation policy, exact-tool-root import layout, deterministic A/B and trusted re-canonicalization, complete metadata-header/archive-to-Git binding, external tag-protection evidence, private seals, bounded HTTP, exact-state resumability, association recovery, and secret-silent failure behavior |
 | `test_release_policy.py` | Canonical Gitea ancestry, immutable tag-object, PEP 440 routing, RC-push, and official-release event authorization |
 | `test_release_registry.py` | Exact local wheel/sdist identity/cardinality plus TestPyPI/PyPI filename-set, collision, host, manifest-bound approved-upload, partial-retry, and hash-bound wheel URL policy |
 | `test_graphql.py` | CLI GraphQL and raw HTTP command behavior |
@@ -128,6 +129,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 - SDK-affecting branch/PR changes and every direct push to `main` run live NetBox SDK integration tests against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 - Security CI path-routes `test_security_sdk.py`, `test_security_cli.py`, and `test_security_tui.py`.
 - Release validation always runs the full `uv run pytest` matrix before publish.
+- Private-registry changes must run `tests/test_gitea_release.py`; archive-envelope, metadata-header, workflow-layout, token-boundary, and external tag-policy checks are fail-closed and must never be skipped when they cannot evaluate.
 
 When you add a new test module, assign it to one owning package and add the matching `pytestmark = pytest.mark.suite_*` at module scope.
 
