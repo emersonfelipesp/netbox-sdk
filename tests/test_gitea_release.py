@@ -1625,7 +1625,7 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
     (validate_seal,)
 
 
-def test_gitea_artifact_v3_compatibility_workflow_is_cross_runner_and_bounded() -> None:
+def test_gitea_artifact_v3_compatibility_workflow_is_cross_job_and_bounded() -> None:
     workflow_path = Path(".gitea/workflows/artifact-v3-compatibility.yml")
     text = workflow_path.read_text(encoding="utf-8")
     parsed = yaml.load(text, Loader=yaml.BaseLoader)
@@ -1636,7 +1636,7 @@ def test_gitea_artifact_v3_compatibility_workflow_is_cross_runner_and_bounded() 
     upload = parsed["jobs"]["upload-probe"]
     download = parsed["jobs"]["download-probe"]
     assert upload["runs-on"] == "ci-untrusted-python312"
-    assert download["runs-on"] == "mirror-host"
+    assert download["runs-on"] == "ci-untrusted-python312"
     assert download["needs"] == "upload-probe"
     assert upload["permissions"] == download["permissions"] == {"contents": "read"}
     assert text.count("3387a007582374f2082629398f99c08770801fbe56fc803c47454f3d163cc15f") == 2
@@ -1648,6 +1648,18 @@ def test_gitea_artifact_v3_compatibility_workflow_is_cross_runner_and_bounded() 
     for line in text.splitlines():
         if "uses:" in line:
             assert "@" in line and len(line.split("@", 1)[1].split()[0]) == 40
+
+
+def test_pull_request_workflows_never_target_credential_bearing_runner() -> None:
+    for workflow_path in Path(".gitea/workflows").glob("*.yml"):
+        parsed = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+        triggers = parsed.get("on", {})
+        if not isinstance(triggers, dict) or "pull_request" not in triggers:
+            continue
+        for job_name, job in parsed.get("jobs", {}).items():
+            assert job.get("runs-on") != "mirror-host", (
+                f"{workflow_path}:{job_name} exposes the credential-bearing runner to PR code"
+            )
 
 
 @pytest.mark.parametrize(

@@ -361,8 +361,9 @@ The private Gitea workflow pins the maintained Node 20 backports
 Actions runtime does not implement the artifact service required by v4+, so
 upgrading those actions requires an explicit runner-compatibility proof.
 `.gitea/workflows/artifact-v3-compatibility.yml` exercises the exact pinned
-upload/download pair across the untrusted and trusted runner labels on every
-pull request; that check must pass before any candidate tag is created.
+upload/download pair across separate isolated untrusted jobs on every pull
+request; that check must pass before any candidate tag is created. PR code must
+never target the credential-bearing `mirror-host` label.
 Trusted jobs fetch public canonical source anonymously at exact refs. Every
 private publisher downloads the pinned uv 0.11.28 archive directly, verifies
 its reviewed SHA-256 before extraction, and uses only that absolute executable

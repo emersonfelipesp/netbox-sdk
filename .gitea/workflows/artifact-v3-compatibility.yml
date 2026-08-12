@@ -41,7 +41,7 @@ jobs:
   download-probe:
     name: Download and verify bounded compatibility probe
     needs: upload-probe
-    runs-on: mirror-host
+    runs-on: ci-untrusted-python312
     permissions:
       contents: read
     steps:
