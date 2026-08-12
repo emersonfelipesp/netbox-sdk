@@ -182,7 +182,7 @@ jobs:
   verify-and-seal:
     name: Verify source and seal without package credentials
     needs: build-candidate
-    runs-on: mirror-host
+    runs-on: ci-untrusted-python312
     permissions:
       contents: read
     outputs:
@@ -340,10 +340,10 @@ jobs:
   publish-candidate:
     name: Publish only the verified sealed candidate
     needs: verify-and-seal
-    runs-on: mirror-host
+    runs-on: ci-untrusted-python312
     permissions:
       contents: read
-      packages: write
+      packages: read
     steps:
       - name: Fetch trusted publisher tool anonymously
         env:

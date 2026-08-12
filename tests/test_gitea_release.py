@@ -1421,9 +1421,8 @@ def _assert_workflow_policy(text: str) -> None:
         '      - "v*rc*"',
         "group: private-package-${{ github.repository }}-netbox-sdk-${{ github.ref }}",
         "runs-on: ci-untrusted-python312",
-        "runs-on: mirror-host",
         "contents: read",
-        "packages: write",
+        "packages: read",
         "--no-isolation",
         "--locked --only-group publish --no-install-project",
         "uv 0.11.28 (x86_64-unknown-linux-gnu)",
@@ -1476,12 +1475,13 @@ def _assert_workflow_policy(text: str) -> None:
     assert text.count('"$MANAGED_PYTHON_ROOT"/*) ;;') == 3
     assert "UV_MANAGED_PYTHON" not in text
     assert "--depth=1" not in text
-    assert text.count("runs-on: ci-untrusted-python312") == 1
-    assert text.count("runs-on: mirror-host") == 2
+    assert text.count("runs-on: ci-untrusted-python312") == 3
+    assert "runs-on: mirror-host" not in text
     exact_uv_guard = 'test "$("$PUBLISHER_UV" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
     assert sum(line.strip() == exact_uv_guard for line in text.splitlines()) == 3
     assert text.count("contents: read") == 4
-    assert text.count("packages: write") == 1
+    assert text.count("packages: write") == 0
+    assert text.count("packages: read") == 1
     assert "astral-sh/setup-uv@" not in text
     assert "RUNNER_TOOL_CACHE" not in text
     assert "github-token:" not in text
@@ -1518,7 +1518,7 @@ def _assert_workflow_policy(text: str) -> None:
     assert jobs["publish-candidate"]["needs"] == "verify-and-seal"
     assert jobs["publish-candidate"]["permissions"] == {
         "contents": "read",
-        "packages": "write",
+        "packages": "read",
     }
     verify_job = str(jobs["verify-and-seal"])
     publisher_job = str(jobs["publish-candidate"])
@@ -1569,8 +1569,8 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
     _assert_workflow_policy(workflow)
     mutations = (
         ("  push:\n", "  workflow_dispatch:\n"),
-        ("packages: write", "packages: read"),
-        ("runs-on: mirror-host", "runs-on: ci-untrusted-python312"),
+        ("packages: read", "packages: write"),
+        ("runs-on: ci-untrusted-python312", "runs-on: mirror-host"),
         (
             "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz",
             "https://github.com/astral-sh/uv/releases/download/0.11.29/uv-x86_64-unknown-linux-gnu.tar.gz",
@@ -1651,13 +1651,24 @@ def test_gitea_artifact_v3_compatibility_workflow_is_cross_job_and_bounded() -> 
 
 
 def test_pull_request_workflows_never_target_credential_bearing_runner() -> None:
-    for workflow_path in Path(".gitea/workflows").glob("*.yml"):
+    workflow_paths = tuple(Path(".gitea/workflows").glob("*.yml")) + tuple(
+        Path(".gitea/workflows").glob("*.yaml")
+    )
+    for workflow_path in workflow_paths:
         parsed = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
         triggers = parsed.get("on", {})
-        if not isinstance(triggers, dict) or "pull_request" not in triggers:
+        has_pull_request = (
+            triggers == "pull_request"
+            or isinstance(triggers, list)
+            and "pull_request" in triggers
+            or isinstance(triggers, dict)
+            and "pull_request" in triggers
+        )
+        if not has_pull_request:
             continue
         for job_name, job in parsed.get("jobs", {}).items():
-            assert job.get("runs-on") != "mirror-host", (
+            runner_selection = yaml.safe_dump(job.get("runs-on", ""))
+            assert "mirror-host" not in runner_selection, (
                 f"{workflow_path}:{job_name} exposes the credential-bearing runner to PR code"
             )
 

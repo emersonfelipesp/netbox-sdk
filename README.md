@@ -373,6 +373,10 @@ and passes the managed-Python, install, and cache choices explicitly. The
 package-write credential comes from the repository `PACKAGE_WRITE_TOKEN` secret
 and is introduced only in the final sealed publish step; the upstream Gitea
 Actions job token is not a supported package-registry credential.
+All three release stages run as separate disposable `ci-untrusted-python312`
+jobs. The built-in job token stays package-read-only throughout; package write
+authority exists only in the repository secret mapped into the final publish
+step. Neither release nor PR code may target persistent `mirror-host`.
 
 ```bash
 # Static, operator-reviewed release oracle: do not derive this tag from event input.
