@@ -3412,7 +3412,10 @@ membro é simplesmente ignorado.</p>
 </span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">  </span><span class="p">]</span>
 </span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>A versão 1 tem regras intencionalmente restritas:</p>
+<p>A versão 1 é o protocolo genérico de descritor, não uma cópia congelada do
+payload de ferramentas de um plugin específico. Cada plugin é responsável por
+versionar as operações do seu manifesto enquanto preserva estas regras do
+descritor. A versão 1 tem regras intencionalmente restritas:</p>
 <ul>
 <li><code>plugin</code> e nomes de ferramentas usam identificadores estáveis em minúsculas.
   Os nomes são únicos em um manifesto e aparecem como <code>plugin.tool</code> no catálogo.</li>
@@ -3427,7 +3430,14 @@ membro é simplesmente ignorado.</p>
   de palavras-chave documentado e exclui referências/definições, padrões regex,
   formatos não suportados, schemas condicionais e combinadores. A versão 1 só
   suporta o formato <code>date-time</code>, validado como RFC 3339, incluindo a sintaxe de
-  segundo intercalar. <code>uniqueItems</code> só é
+  segundo intercalar. Um valor <code>:60</code> só é aceito quando seu instante normalizado
+  em UTC cruza o limite de um mês; segundos intercalares em minutos arbitrários
+  e datas cujo ajuste de segundo intercalar ou fuso horário ultrapassaria o
+  calendário suportado são rejeitados. Tokens JSON inteiros
+  permanecem exatos e obedecem aos limites do schema. Valores JSON de ponto
+  flutuante matematicamente inteiros são aceitos somente até o limite
+  interoperável <code>9007199254740991</code>; valores maiores são rejeitados para impedir
+  que arredondamento selecione outro identificador. <code>uniqueItems</code> só é
   aceito para arrays com um único domínio escalar de tipo explícito; tipos
   escalares mistos são rejeitados. Essas restrições evitam buscas remotas,
   contratos recursivos, formatos ignorados silenciosamente e amplificação
@@ -3496,9 +3506,10 @@ um redirect não encaminha uma mutação para fora do caminho fixo do plugin.</p
 <li>Adicione testes de contrato para anúncio, manifesto, permissões, schemas de
    requisição/resposta e ausência de uma pilha MCP ou credencial paralela.</li>
 </ol>
-<p>O Proxbox é a implementação canônica de exemplo: ele anuncia
-<code>list_sync_jobs</code> e <code>schedule_sync</code>, ambos apoiados pela API existente
-<code>sync/schedule/</code>.</p>
+<p>Manifestos pertencem ao repositório do plugin produtor e devem ser validados
+contra a versão publicada do SDK. O fixture do SDK é deliberadamente um
+descritor genérico; ele não é o snapshot canônico de payload do Proxbox nem de
+qualquer outro plugin.</p>
 
 
 

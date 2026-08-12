@@ -3411,7 +3411,10 @@ member is simply ignored.</p>
 </span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">  </span><span class="p">]</span>
 </span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>Version 1 has intentionally narrow rules:</p>
+<p>Version 1 is the generic descriptor protocol, not a frozen copy of any one
+plugin's tool payload. Each plugin owns and versions the operations inside its
+manifest while preserving these descriptor rules. Version 1 has intentionally
+narrow rules:</p>
 <ul>
 <li><code>plugin</code> and tool names use lowercase stable identifiers. Tool names are
   unique within one manifest and are presented as <code>plugin.tool</code> in catalogs.</li>
@@ -3426,7 +3429,14 @@ member is simply ignored.</p>
   keyword subset and excludes references/definitions, regex patterns and the
   unsupported formats, conditional schemas, and combinators. Version 1 supports
   only the <code>date-time</code> format and validates it as RFC 3339, including its
-  leap-second syntax. <code>uniqueItems</code> is
+  leap-second syntax. A <code>:60</code> value is accepted only when its normalized UTC
+  instant crosses a month boundary; arbitrary-minute leap seconds and
+  date-times whose leap-second or timezone normalization would overflow the
+  supported calendar are rejected. JSON integer tokens are
+  lossless and remain subject to the schema's own bounds. Mathematically
+  integral JSON floating-point values are accepted only through the
+  interoperable safe-integer limit <code>9007199254740991</code>; larger floats are
+  rejected so rounding can never select a different object ID. <code>uniqueItems</code> is
   allowed only for arrays with one explicitly typed scalar item domain; mixed
   scalar types are rejected. These restrictions prevent remote fetches,
   recursive contracts, silently ignored formats, and avoidable validation
@@ -3494,9 +3504,10 @@ plugin path.</p>
 <li>Add contract tests for the advertisement, manifest, permissions, request
    schema, response schema, and absence of a parallel credential or MCP stack.</li>
 </ol>
-<p>Proxbox is the canonical implementation example: it advertises
-<code>list_sync_jobs</code> and <code>schedule_sync</code>, both backed by its existing
-<code>sync/schedule/</code> API view.</p>
+<p>Plugin-owned manifests must be tested in the producing plugin repository and
+validated against the released SDK. The SDK test fixture is deliberately a
+generic descriptor sample; it is not the canonical payload snapshot for
+Proxbox or any other plugin.</p>
 
 
 
