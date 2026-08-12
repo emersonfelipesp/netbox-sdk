@@ -116,10 +116,21 @@ The repository also owns `.gitea/workflows/publish-package.yml` for an
 access-controlled package registry. It is tag-push RC-only and builds the exact
 source twice in a credential-free untrusted job, canonicalizing from the commit
 epoch and requiring byte equality. A second credential-free job performs all
-Git/archive/metadata validation and transfers only a private exact seal. The
-package-write job checks out its helper at the same source SHA, parses only the
-bounded seal, re-hashes its files, and confines the ephemeral token to the final
+Git/archive/metadata validation, independently re-canonicalizes private copies,
+requires them to equal the untouched transfer bytes, and transfers only a
+private exact seal. The package-write job checks out its helper at the immutable
+tag-event SHA, rejects any verify-job source mismatch, runs from that exact tool
+root, parses only the bounded seal, re-hashes its files, and confines the ephemeral token to the final
 bounded publish step. This does not change GitHub Actions' sole authority over
 TestPyPI and PyPI. The final job retains the repository's explicit
 `contents: read, packages: write` contract, but its exact-SHA checkout sets
 `token: ''`; no pre-publish action or step consumes `${{ github.token }}`.
+
+Release-tag authorization is external state, not a workflow assertion. Before
+creating a tag, capture the exact tag-protection list with `nms git api GET
+/repos/emersonfelipesp/netbox-sdk/tag_protections --output <file>` and
+validate it against `.gitea/release-tag-policy.json`; every `v*` tag must be
+protected with only `emersonfelipesp` allowlisted and no teams. This policy is
+not self-verified by the tag-triggered workflow. A partial
+private-registry version is terminal: never delete, overwrite, or retry it;
+advance to the next unused `rcN` after fixing the cause.

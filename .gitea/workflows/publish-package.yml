@@ -265,8 +265,24 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
           token: ''
-          ref: ${{ needs.verify-and-seal.outputs.source_sha }}
+          ref: ${{ github.sha }}
           path: publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Bind trusted publisher authority to the immutable event source
+        id: authority
+        env:
+          EVENT_SOURCE_SHA: ${{ github.sha }}
+          TOOL_ROOT: ${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
+          VERIFIED_SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"
+          test "$(git -C "$TOOL_ROOT" rev-parse HEAD)" = "$EVENT_SOURCE_SHA"
+          SOURCE_EPOCH="$(git -C "$TOOL_ROOT" show -s --format=%ct "$EVENT_SOURCE_SHA")"
+          case "$SOURCE_EPOCH" in
+            ''|*[!0-9]*) exit 1 ;;
+          esac
+          printf 'source_epoch=%s\n' "$SOURCE_EPOCH" >> "$GITHUB_OUTPUT"
 
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
@@ -301,11 +317,13 @@ jobs:
           PACKAGE_NAME: ${{ needs.verify-and-seal.outputs.package_name }}
           PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}
           RELEASE_VERSION: ${{ needs.verify-and-seal.outputs.version }}
-          SOURCE_EPOCH: ${{ needs.verify-and-seal.outputs.source_epoch }}
-          SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}
+          SOURCE_EPOCH: ${{ steps.authority.outputs.source_epoch }}
+          SOURCE_SHA: ${{ github.sha }}
+          TOOL_ROOT: ${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
           umask 077
+          cd "$TOOL_ROOT"
           "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release harden-seal \
             --sealed-dir "$PUBLISH_ROOT/sealed" \
             --package "$PACKAGE_NAME" \
@@ -320,10 +338,12 @@ jobs:
           PACKAGE_NAME: ${{ needs.verify-and-seal.outputs.package_name }}
           PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}
           RELEASE_VERSION: ${{ needs.verify-and-seal.outputs.version }}
-          SOURCE_EPOCH: ${{ needs.verify-and-seal.outputs.source_epoch }}
-          SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}
+          SOURCE_EPOCH: ${{ steps.authority.outputs.source_epoch }}
+          SOURCE_SHA: ${{ github.sha }}
+          TOOL_ROOT: ${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
+          cd "$TOOL_ROOT"
           "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release publish \
             --sealed-dir "$PUBLISH_ROOT/sealed" \
             --package "$PACKAGE_NAME" \

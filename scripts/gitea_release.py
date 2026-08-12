@@ -57,6 +57,8 @@ SEAL_NAME = "release-seal.json"
 SEAL_SCHEMA = 1
 MAX_MANIFEST_BYTES = 64 * 1024
 MAX_SEAL_BYTES = 16 * 1024
+MAX_TAG_POLICY_BYTES = 16 * 1024
+MAX_TAG_POLICY_EVIDENCE_BYTES = 64 * 1024
 MAX_JSON_BYTES = 1024 * 1024
 MAX_ARTIFACT_BYTES = 128 * 1024 * 1024
 MAX_ARCHIVE_MEMBERS = 4096
@@ -118,6 +120,105 @@ def _load_json_bytes(payload: bytes, *, description: str) -> Any:
         )
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ReleaseError(f"{description} is not valid bounded JSON") from exc
+
+
+def _load_bounded_json_file(path: Path, *, maximum: int, description: str) -> Any:
+    descriptor = -1
+    try:
+        file_stat = path.lstat()
+        if path.is_symlink() or not stat.S_ISREG(file_stat.st_mode):
+            raise ReleaseError(f"{description} must be a regular non-symlink file")
+        if file_stat.st_size > maximum:
+            raise ReleaseError(f"{description} exceeds the allowed size")
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        opened_stat = os.fstat(descriptor)
+        identity = lambda value: (  # noqa: E731 - compact immutable file identity tuple.
+            value.st_dev,
+            value.st_ino,
+            value.st_mode,
+            value.st_size,
+            value.st_mtime_ns,
+            value.st_ctime_ns,
+        )
+        if identity(opened_stat) != identity(file_stat):
+            raise ReleaseError(f"{description} changed before it was opened")
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            payload = stream.read(maximum + 1)
+        if len(payload) > maximum or identity(os.fstat(descriptor)) != identity(file_stat):
+            raise ReleaseError(f"{description} changed or exceeded its bound")
+    except OSError as exc:
+        raise ReleaseError(f"{description} is unavailable") from exc
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+    return _load_json_bytes(payload, description=description)
+
+
+def validate_release_tag_protection(*, policy_file: Path, evidence_file: Path) -> None:
+    """Validate separately captured server-side release-tag protection evidence."""
+    policy = _load_bounded_json_file(
+        policy_file,
+        maximum=MAX_TAG_POLICY_BYTES,
+        description="Release-tag policy",
+    )
+    expected_path = "/repos/emersonfelipesp/netbox-sdk/tag_protections"
+    if not isinstance(policy, dict) or set(policy) != {
+        "schema",
+        "owner",
+        "repository",
+        "api_path",
+        "required_rule",
+    }:
+        raise ReleaseError("Release-tag policy schema is not exact")
+    if (
+        type(policy["schema"]) is not int
+        or policy["schema"] != 1
+        or policy["owner"] != "emersonfelipesp"
+        or policy["repository"] != "netbox-sdk"
+        or policy["api_path"] != expected_path
+    ):
+        raise ReleaseError("Release-tag policy identity is not exact")
+    expected_rule = policy["required_rule"]
+    if not isinstance(expected_rule, dict) or set(expected_rule) != {
+        "name_pattern",
+        "whitelist_usernames",
+        "whitelist_teams",
+    }:
+        raise ReleaseError("Release-tag protection rule schema is not exact")
+    if expected_rule != {
+        "name_pattern": "v*",
+        "whitelist_usernames": ["emersonfelipesp"],
+        "whitelist_teams": [],
+    }:
+        raise ReleaseError("Release-tag protection rule is not the required closed policy")
+
+    evidence = _load_bounded_json_file(
+        evidence_file,
+        maximum=MAX_TAG_POLICY_EVIDENCE_BYTES,
+        description="Release-tag protection evidence",
+    )
+    if not isinstance(evidence, list) or len(evidence) != 1:
+        raise ReleaseError("Release-tag protection evidence must contain the exact single rule")
+    actual = evidence[0]
+    if not isinstance(actual, dict) or set(actual) != {
+        "id",
+        "name_pattern",
+        "whitelist_usernames",
+        "whitelist_teams",
+        "created_at",
+        "updated_at",
+    }:
+        raise ReleaseError("Release-tag protection evidence schema is not exact")
+    if (
+        type(actual["id"]) is not int
+        or actual["id"] <= 0
+        or not isinstance(actual["created_at"], str)
+        or not actual["created_at"]
+        or not isinstance(actual["updated_at"], str)
+        or not actual["updated_at"]
+        or {key: actual[key] for key in expected_rule} != expected_rule
+    ):
+        raise ReleaseError("Server-side release-tag protection does not match policy")
 
 
 def _artifact_names(package: str, version: str) -> tuple[str, str]:
@@ -640,6 +741,51 @@ def _expected_requirements(project: Mapping[str, Any]) -> tuple[set[Requirement]
     return requirements, {canonicalize_name(value) for value in extras}
 
 
+def _normalized_metadata_values(field: str, values: list[str]) -> list[str]:
+    try:
+        if field == "Requires-Dist":
+            return sorted(str(Requirement(value)) for value in values)
+        if field == "Provides-Extra":
+            return sorted(canonicalize_name(value) for value in values)
+        if field == "Requires-Python":
+            return [str(SpecifierSet(value)) for value in values]
+    except Exception as exc:
+        raise ReleaseError("Distribution metadata is malformed") from exc
+    return values
+
+
+def _expected_core_metadata(
+    project: Mapping[str, Any], manifest: TransferManifest
+) -> dict[str, list[str]]:
+    expected_requirements, expected_extras = _expected_requirements(project)
+    expected_license_files = project["project"].get("license-files", [])
+    if not isinstance(expected_license_files, list) or not all(
+        isinstance(value, str) for value in expected_license_files
+    ):
+        raise ReleaseError("Trusted project license-file metadata is malformed")
+    expected: dict[str, list[str]] = {
+        "Metadata-Version": ["2.4"],
+        "Name": [str(project["project"]["name"])],
+        "Version": [manifest.version],
+        "Summary": [str(project["project"]["description"])],
+        "Author-email": _expected_people(project, "authors"),
+        "Maintainer-email": _expected_people(project, "maintainers"),
+        "License-Expression": [str(project["project"]["license"])],
+        "Project-URL": [
+            f"{name}, {url}" for name, url in project["project"].get("urls", {}).items()
+        ],
+        "Keywords": [",".join(project["project"].get("keywords", []))],
+        "Classifier": list(project["project"].get("classifiers", [])),
+        "Requires-Python": [str(SpecifierSet(project["project"]["requires-python"]))],
+        "Description-Content-Type": ["text/markdown"],
+        "License-File": expected_license_files,
+        "Requires-Dist": sorted(str(requirement) for requirement in expected_requirements),
+        "Provides-Extra": sorted(expected_extras),
+        "Dynamic": ["license-file"],
+    }
+    return {field: values for field, values in expected.items() if values}
+
+
 def _expected_people(project: Mapping[str, Any], field: str) -> list[str]:
     people = project["project"].get(field, [])
     if not isinstance(people, list):
@@ -675,49 +821,23 @@ def _validate_core_metadata(
 ) -> None:
     if len(payload) > MAX_JSON_BYTES:
         raise ReleaseError("Distribution metadata exceeds the allowed size")
-    metadata = BytesParser().parsebytes(payload, headersonly=True)
-    expected_requirements, expected_extras = _expected_requirements(project)
     try:
-        actual_requirements = {
-            Requirement(value) for value in metadata.get_all("Requires-Dist", [])
+        metadata = BytesParser().parsebytes(payload, headersonly=True)
+        actual: dict[str, list[str]] = {}
+        for field, value in metadata.raw_items():
+            actual.setdefault(field, []).append(value)
+        actual = {
+            field: _normalized_metadata_values(field, values) for field, values in actual.items()
         }
     except Exception as exc:
-        raise ReleaseError("Distribution dependency metadata is malformed") from exc
-    actual_extras = {canonicalize_name(value) for value in metadata.get_all("Provides-Extra", [])}
+        if isinstance(exc, ReleaseError):
+            raise
+        raise ReleaseError("Distribution metadata is malformed") from exc
+    expected = _expected_core_metadata(project, manifest)
     expected_scripts = project["project"]["scripts"]
-    expected_urls = [f"{name}, {url}" for name, url in project["project"].get("urls", {}).items()]
-    expected_keywords = ",".join(project["project"].get("keywords", []))
-    expected_license_files = project["project"].get("license-files", [])
-    if not isinstance(expected_license_files, list) or not all(
-        isinstance(value, str) for value in expected_license_files
-    ):
-        raise ReleaseError("Trusted project license-file metadata is malformed")
-    singleton_fields = {
-        "Metadata-Version": "2.4",
-        "Name": project["project"]["name"],
-        "Version": manifest.version,
-        "Summary": project["project"]["description"],
-        "Author-email": _expected_people(project, "authors"),
-        "Maintainer-email": _expected_people(project, "maintainers"),
-        "License-Expression": project["project"]["license"],
-        "Keywords": expected_keywords,
-        "Description-Content-Type": "text/markdown",
-        "License-File": expected_license_files,
-    }
-    for field, expected in singleton_fields.items():
-        expected_values = expected if isinstance(expected, list) else [expected]
-        if metadata.get_all(field, []) != expected_values:
-            raise ReleaseError("Distribution metadata does not match trusted release configuration")
     if (
-        canonicalize_name(metadata.get("Name", "")) != manifest.package
-        or SpecifierSet(metadata.get("Requires-Python", ""))
-        != SpecifierSet(project["project"]["requires-python"])
-        or metadata.get_all("Requires-Python", []) != [metadata.get("Requires-Python", "")]
-        or actual_requirements != expected_requirements
-        or actual_extras != expected_extras
-        or metadata.get_all("Classifier", []) != project["project"].get("classifiers", [])
-        or metadata.get_all("Project-URL", []) != expected_urls
-        or metadata.get_all("Dynamic", []) != ["license-file"]
+        actual != expected
+        or canonicalize_name(actual.get("Name", [""])[0]) != manifest.package
         or project["project"].get("readme") != "README.md"
         or _metadata_body(payload) != readme
         or set(expected_scripts) != {"nbx", "nbx-mock", "nbx-mcp"}
@@ -1096,11 +1216,34 @@ def seal_transfer(
     )
     if sealed_dir.exists() or sealed_dir.is_symlink():
         raise ReleaseError("Sealed directory must not already exist")
+    canonical_dir: Path | None = None
     try:
+        canonical_dir = Path(tempfile.mkdtemp(prefix=".release-canonical-", dir=sealed_dir.parent))
+        canonical_dir.chmod(0o700)
+        for expected in manifest.artifacts:
+            shutil.copyfile(
+                transfer_dir / expected.name,
+                canonical_dir / expected.name,
+                follow_symlinks=False,
+            )
+        normalize_build(
+            dist_dir=canonical_dir,
+            package=manifest.package,
+            version=manifest.version,
+            source_epoch=manifest.source_epoch,
+        )
+        for expected in manifest.artifacts:
+            incoming = transfer_dir / expected.name
+            canonical = canonical_dir / expected.name
+            if _safe_file_record(canonical) != expected or not _files_are_equal(
+                incoming, canonical
+            ):
+                raise ReleaseError("Release archive bytes are not exact canonical output")
+
         sealed_dir.mkdir(parents=True, mode=0o700)
         for expected in manifest.artifacts:
             destination = sealed_dir / expected.name
-            shutil.copyfile(transfer_dir / expected.name, destination, follow_symlinks=False)
+            shutil.copyfile(canonical_dir / expected.name, destination, follow_symlinks=False)
             if _safe_file_record(destination) != expected:
                 raise ReleaseError("Sealed artifact differs from the validated transfer")
             destination.chmod(0o400)
@@ -1126,6 +1269,9 @@ def seal_transfer(
             sealed_dir.chmod(0o700)
         shutil.rmtree(sealed_dir, ignore_errors=True)
         raise
+    finally:
+        if canonical_dir is not None:
+            shutil.rmtree(canonical_dir, ignore_errors=True)
 
 
 def harden_downloaded_seal(
@@ -1731,6 +1877,15 @@ def _main_validate_tag(args: argparse.Namespace) -> int:
     return 0
 
 
+def _main_validate_tag_protection(args: argparse.Namespace) -> int:
+    validate_release_tag_protection(
+        policy_file=args.policy_file,
+        evidence_file=args.evidence_file,
+    )
+    print("server-side release-tag protection evidence matches repository policy")
+    return 0
+
+
 def _main_prepare(args: argparse.Namespace) -> int:
     manifest = prepare_transfer(
         dist_dir=args.dist_dir,
@@ -1855,6 +2010,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     validate_tag.add_argument("--event-name", required=True)
     validate_tag.add_argument("--tag", required=True)
     validate_tag.set_defaults(handler=_main_validate_tag)
+
+    validate_tag_protection = commands.add_parser("validate-tag-protection")
+    validate_tag_protection.add_argument("--policy-file", type=Path, required=True)
+    validate_tag_protection.add_argument("--evidence-file", type=Path, required=True)
+    validate_tag_protection.set_defaults(handler=_main_validate_tag_protection)
 
     policy = commands.add_parser("policy")
     _add_policy_arguments(policy)

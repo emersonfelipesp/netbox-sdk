@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import base64
 import csv
+import gzip
 import hashlib
 import io
 import json
+import os
+import shutil
 import stat
 import subprocess
+import sys
 import tarfile
 import zipfile
 from collections.abc import Callable
@@ -38,6 +42,7 @@ from scripts.gitea_release import (
     reconcile_publication,
     seal_transfer,
     validate_archive_source_binding,
+    validate_release_tag_protection,
     validate_seal,
     validate_transfer,
     validate_trusted_source_checkout,
@@ -220,6 +225,13 @@ def _transfer(tmp_path: Path) -> tuple[Path, TransferManifest, Path]:
     transfer.mkdir()
     _write_wheel(transfer / WHEEL, _wheel_members(repo))
     _write_sdist(transfer / SDIST, _sdist_members(repo))
+    source_epoch = validated_commit_epoch(commit_ref=source_sha, repo=repo)
+    normalize_build(
+        dist_dir=transfer,
+        package=PACKAGE,
+        version=VERSION,
+        source_epoch=source_epoch,
+    )
     artifacts = tuple(
         ArtifactRecord(
             path.name, path.stat().st_size, hashlib.sha256(path.read_bytes()).hexdigest()
@@ -231,12 +243,38 @@ def _transfer(tmp_path: Path) -> tuple[Path, TransferManifest, Path]:
         VERSION,
         source_sha,
         artifacts,
-        validated_commit_epoch(commit_ref=source_sha, repo=repo),
+        source_epoch,
     )
     (transfer / MANIFEST_NAME).write_text(
         json.dumps(_manifest_payload(manifest), sort_keys=True), encoding="utf-8"
     )
     return transfer, manifest, repo
+
+
+def _rewrite_transfer_manifest(
+    transfer: Path,
+    manifest: TransferManifest,
+) -> TransferManifest:
+    artifacts = tuple(
+        ArtifactRecord(
+            path.name,
+            path.stat().st_size,
+            hashlib.sha256(path.read_bytes()).hexdigest(),
+        )
+        for path in (transfer / WHEEL, transfer / SDIST)
+    )
+    rewritten = TransferManifest(
+        manifest.package,
+        manifest.version,
+        manifest.source_sha,
+        artifacts,
+        manifest.source_epoch,
+    )
+    (transfer / MANIFEST_NAME).write_text(
+        json.dumps(_manifest_payload(rewritten), sort_keys=True),
+        encoding="utf-8",
+    )
+    return rewritten
 
 
 def test_transfer_and_archives_bind_to_independent_git_objects(tmp_path: Path) -> None:
@@ -354,6 +392,93 @@ def test_archive_normalization_makes_independent_builds_byte_identical(
     (second / SDIST).write_bytes((second / SDIST).read_bytes() + b"mutation")
     with pytest.raises(ReleaseError, match="byte-identical"):
         compare_builds(first_dir=first, second_dir=second, package=PACKAGE, version=VERSION)
+
+
+def _mutate_archive_envelope(transfer: Path, repo: Path, mutation: str) -> None:
+    wheel = transfer / WHEEL
+    sdist = transfer / SDIST
+    if mutation == "zip-comment":
+        with zipfile.ZipFile(wheel, "a") as archive:
+            archive.comment = b"untrusted builder comment"
+        return
+    if mutation == "zip-preamble":
+        wheel.write_bytes(b"untrusted-preamble" + wheel.read_bytes())
+        return
+    if mutation == "zip-trailer":
+        wheel.write_bytes(wheel.read_bytes() + b"untrusted-trailer")
+        return
+    if mutation == "zip-local-central-extra":
+        with zipfile.ZipFile(wheel, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for index, (name, payload) in enumerate(_wheel_members(repo).items()):
+                info = zipfile.ZipInfo(name)
+                if index == 0:
+                    info.extra = b"\x01\x00\x00\x00"
+                archive.writestr(info, payload)
+        raw = bytearray(wheel.read_bytes())
+        assert raw[:4] == b"PK\x03\x04"
+        filename_size = int.from_bytes(raw[26:28], "little")
+        extra_size = int.from_bytes(raw[28:30], "little")
+        assert extra_size == 4
+        raw[30 + filename_size : 32 + filename_size] = b"\x02\x00"
+        wheel.write_bytes(raw)
+        return
+    if mutation == "gzip-header":
+        raw = bytearray(sdist.read_bytes())
+        raw[9] = 3 if raw[9] != 3 else 255
+        sdist.write_bytes(raw)
+        return
+    if mutation == "gzip-concatenated-member":
+        sdist.write_bytes(sdist.read_bytes() + gzip.compress(b"", mtime=SOURCE_EPOCH))
+        return
+    if mutation in {"tar-metadata", "pax-metadata"}:
+        prefix = "netbox_sdk-0.0.11rc2"
+        with tarfile.open(sdist, "w:gz", format=tarfile.PAX_FORMAT) as archive:
+            for index, (name, payload) in enumerate(_sdist_members(repo).items()):
+                info = tarfile.TarInfo(f"{prefix}/{name}")
+                info.size = len(payload)
+                if mutation == "tar-metadata" and index == 0:
+                    info.uid = 42
+                    info.uname = "untrusted"
+                if mutation == "pax-metadata" and index == 0:
+                    info.pax_headers = {"comment": "untrusted"}
+                archive.addfile(info, io.BytesIO(payload))
+        return
+    raise AssertionError(f"unknown mutation: {mutation}")
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "zip-comment",
+        "zip-preamble",
+        "zip-trailer",
+        "zip-local-central-extra",
+        "gzip-header",
+        "gzip-concatenated-member",
+        "tar-metadata",
+        "pax-metadata",
+    ],
+)
+def test_trusted_seal_rejects_noncanonical_archive_envelopes_without_mutating_input(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    _mutate_archive_envelope(transfer, repo, mutation)
+    manifest = _rewrite_transfer_manifest(transfer, manifest)
+    before = {name: (transfer / name).read_bytes() for name in (WHEEL, SDIST, MANIFEST_NAME)}
+    with pytest.raises(ReleaseError, match="canonical"):
+        seal_transfer(
+            transfer_dir=transfer,
+            sealed_dir=tmp_path / "sealed",
+            source_root=repo,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=manifest.source_sha,
+            expected_source_epoch=manifest.source_epoch,
+        )
+    assert {name: (transfer / name).read_bytes() for name in before} == before
+    assert not (tmp_path / "sealed").exists()
 
 
 def test_source_epoch_is_exact_commit_authority(tmp_path: Path) -> None:
@@ -519,6 +644,48 @@ def test_all_core_metadata_and_readme_copies_are_source_authoritative(
         )
 
 
+@pytest.mark.parametrize(
+    "injected_header",
+    [
+        b"Author: Hostile Builder\n",
+        b"License: permissive-ish\n",
+        b"X-Builder-Directive: run-this\n",
+        b"Summary: Duplicate summary\n",
+    ],
+)
+@pytest.mark.parametrize("metadata_location", ["wheel", "sdist-root", "sdist-egg"])
+def test_complete_metadata_header_multimap_rejects_injected_and_duplicate_headers(
+    tmp_path: Path,
+    metadata_location: str,
+    injected_header: bytes,
+) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    if metadata_location == "wheel":
+        members = _wheel_members(repo)
+        metadata_name = "netbox_sdk-0.0.11rc2.dist-info/METADATA"
+        members[metadata_name] = members[metadata_name].replace(
+            b"\n\n", b"\n" + injected_header + b"\n", 1
+        )
+        _rewrite_wheel_record(members)
+        _write_wheel(transfer / WHEEL, members)
+    else:
+        members = _sdist_members(repo)
+        metadata_name = (
+            "PKG-INFO" if metadata_location == "sdist-root" else "netbox_sdk.egg-info/PKG-INFO"
+        )
+        members[metadata_name] = members[metadata_name].replace(
+            b"\n\n", b"\n" + injected_header + b"\n", 1
+        )
+        _write_sdist(transfer / SDIST, members)
+    mutated = _rewrite_transfer_manifest(transfer, manifest)
+    with pytest.raises(ReleaseError, match="metadata"):
+        validate_archive_source_binding(
+            transfer_dir=transfer,
+            manifest=mutated,
+            source_root=repo,
+        )
+
+
 def test_wheel_record_rejects_unbound_or_mismatched_members() -> None:
     with pytest.raises(ReleaseError, match="exact member set"):
         _validate_wheel_record(
@@ -541,6 +708,7 @@ def _manifest() -> TransferManifest:
 def test_credential_free_validation_creates_a_private_exact_seal(tmp_path: Path) -> None:
     transfer, manifest, repo = _transfer(tmp_path)
     sealed = tmp_path / "sealed"
+    incoming = {name: (transfer / name).read_bytes() for name in (WHEEL, SDIST, MANIFEST_NAME)}
     assert (
         seal_transfer(
             transfer_dir=transfer,
@@ -553,6 +721,7 @@ def test_credential_free_validation_creates_a_private_exact_seal(tmp_path: Path)
         )
         == manifest
     )
+    assert {name: (transfer / name).read_bytes() for name in incoming} == incoming
     assert {path.name for path in sealed.iterdir()} == {SEAL_NAME, WHEEL, SDIST}
     assert stat.S_IMODE(sealed.stat().st_mode) == 0o500
     assert all(stat.S_IMODE(path.stat().st_mode) == 0o400 for path in sealed.iterdir())
@@ -998,6 +1167,101 @@ def test_gitea_tag_policy_and_validated_action_output(
     assert output.read_text() == f"tag=v{VERSION}\n"
 
 
+def _tag_protection_evidence() -> list[dict[str, object]]:
+    return [
+        {
+            "id": 7,
+            "name_pattern": "v*",
+            "whitelist_usernames": ["emersonfelipesp"],
+            "whitelist_teams": [],
+            "created_at": "2026-08-12T00:00:00Z",
+            "updated_at": "2026-08-12T00:00:00Z",
+        }
+    ]
+
+
+def test_repository_release_tag_policy_requires_exact_server_evidence(tmp_path: Path) -> None:
+    policy = Path(".gitea/release-tag-policy.json")
+    evidence_file = tmp_path / "tag-protections.json"
+    evidence_file.write_text(json.dumps(_tag_protection_evidence()), encoding="utf-8")
+    validate_release_tag_protection(policy_file=policy, evidence_file=evidence_file)
+    command = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.gitea_release",
+            "validate-tag-protection",
+            "--policy-file",
+            str(policy),
+            "--evidence-file",
+            str(evidence_file),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert command.returncode == 0, command.stderr
+    assert "matches repository policy" in command.stdout
+
+    mutations: tuple[Callable[[list[dict[str, object]]], None], ...] = (
+        lambda rows: rows[0].__setitem__("name_pattern", "v*rc*"),
+        lambda rows: rows[0].__setitem__("whitelist_usernames", []),
+        lambda rows: rows[0].__setitem__(
+            "whitelist_usernames", ["emersonfelipesp", "another-user"]
+        ),
+        lambda rows: rows[0].__setitem__("whitelist_teams", ["release-team"]),
+        lambda rows: rows.append(dict(rows[0], id=8, name_pattern="v0.*")),
+        lambda rows: rows[0].__setitem__("unexpected", True),
+    )
+    for mutate in mutations:
+        evidence = _tag_protection_evidence()
+        mutate(evidence)
+        evidence_file.write_text(json.dumps(evidence), encoding="utf-8")
+        with pytest.raises(ReleaseError, match="release-tag|Release-tag|Server-side"):
+            validate_release_tag_protection(policy_file=policy, evidence_file=evidence_file)
+
+    policy_data = json.loads(policy.read_text(encoding="utf-8"))
+    policy_data["required_rule"]["name_pattern"] = "v*rc*"
+    altered_policy = tmp_path / "policy.json"
+    altered_policy.write_text(json.dumps(policy_data), encoding="utf-8")
+    evidence_file.write_text(json.dumps(_tag_protection_evidence()), encoding="utf-8")
+    with pytest.raises(ReleaseError, match="policy"):
+        validate_release_tag_protection(
+            policy_file=altered_policy,
+            evidence_file=evidence_file,
+        )
+
+
+def test_publisher_helper_import_depends_on_exact_tool_root_layout(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    tool_root = workspace / "publisher-tool"
+    workspace.mkdir()
+    shutil.copytree(Path("scripts"), tool_root / "scripts")
+    environment = {
+        key: value for key, value in os.environ.items() if key not in {"PYTHONPATH", "PYTHONHOME"}
+    }
+    command = [sys.executable, "-m", "scripts.gitea_release", "--help"]
+    outside = subprocess.run(
+        command,
+        cwd=workspace,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert outside.returncode != 0
+    assert "No module named 'scripts'" in outside.stderr
+    inside = subprocess.run(
+        command,
+        cwd=tool_root,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert inside.returncode == 0, inside.stderr
+
+
 def test_release_source_must_equal_canonical_main(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -1039,6 +1303,8 @@ def _assert_workflow_policy(text: str) -> None:
         "actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16",
         "token: ''",
         "GITEA_TOKEN: ${{ github.token }}",
+        'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
+        'cd "$TOOL_ROOT"',
     )
     assert all(value in text for value in required)
     assert "GITHUB_ENV" not in text
@@ -1089,8 +1355,31 @@ def _assert_workflow_policy(text: str) -> None:
     assert "--source-root" not in publisher_job and "--transfer-dir" not in publisher_job
     assert publisher_job.count("${{ github.token }}") == 1
     publisher_checkout = jobs["publish-candidate"]["steps"][0]
-    assert publisher_checkout["with"]["ref"] == "${{ needs.verify-and-seal.outputs.source_sha }}"
+    assert publisher_checkout["with"]["ref"] == "${{ github.sha }}"
     assert publisher_checkout["with"]["token"] == ""
+    authority = jobs["publish-candidate"]["steps"][1]
+    assert authority["id"] == "authority"
+    assert authority["env"] == {
+        "EVENT_SOURCE_SHA": "${{ github.sha }}",
+        "TOOL_ROOT": "${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}",
+        "VERIFIED_SOURCE_SHA": "${{ needs.verify-and-seal.outputs.source_sha }}",
+    }
+    assert 'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"' in authority["run"]
+    assert 'git -C "$TOOL_ROOT" rev-parse HEAD' in authority["run"]
+    assert 'git -C "$TOOL_ROOT" show -s --format=%ct "$EVENT_SOURCE_SHA"' in authority["run"]
+    final_steps = {
+        step["name"]: step for step in jobs["publish-candidate"]["steps"] if "run" in step
+    }
+    for name in (
+        "Restore and validate private seal permissions",
+        "Publish the sealed exact package",
+    ):
+        step = final_steps[name]
+        assert step["env"]["TOOL_ROOT"] == authority["env"]["TOOL_ROOT"]
+        assert step["env"]["SOURCE_SHA"] == "${{ github.sha }}"
+        assert step["env"]["SOURCE_EPOCH"] == "${{ steps.authority.outputs.source_epoch }}"
+        assert 'cd "$TOOL_ROOT"' in step["run"]
+        assert step["run"].index('cd "$TOOL_ROOT"') < step["run"].index("-m scripts.gitea_release")
 
 
 def test_private_registry_workflow_security_contract_and_mutations() -> None:
@@ -1112,8 +1401,17 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
         ("compare-builds", "compare_artifacts"),
         ("timeout-minutes: 5", "timeout-minutes-disabled: 5"),
         (
-            "ref: ${{ needs.verify-and-seal.outputs.source_sha }}",
+            "ref: ${{ github.sha }}",
             "ref: main",
+        ),
+        (
+            'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
+            'test -n "$VERIFIED_SOURCE_SHA"',
+        ),
+        ('cd "$TOOL_ROOT"', 'cd "$PUBLISH_ROOT"'),
+        (
+            "SOURCE_SHA: ${{ github.sha }}",
+            "SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}",
         ),
     )
     for old, new in mutations:
@@ -1122,3 +1420,47 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
             _assert_workflow_policy(mutated)
     (seal_transfer,)
     (validate_seal,)
+
+
+def test_release_docs_require_external_tag_policy_preflight_and_terminal_recovery() -> None:
+    readme = Path("README.md").read_text(encoding="utf-8")
+    compact_readme = " ".join(readme.split())
+    api_command = (
+        "nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections "
+        "\\ --output /tmp/netbox-sdk-tag-protections.json"
+    )
+    validator = (
+        "python -m scripts.gitea_release validate-tag-protection "
+        "\\ --policy-file .gitea/release-tag-policy.json "
+        "\\ --evidence-file /tmp/netbox-sdk-tag-protections.json"
+    )
+    assert api_command in compact_readme
+    assert validator in compact_readme
+    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.11rc2")
+    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.11rc2")
+    assert "workflow cannot and does not self-verify" in compact_readme
+    assert "never delete files, overwrite them, or retry the same version" in compact_readme
+    assert "git push gitea v0.0.11rc2" in readme
+
+    policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
+    assert policy == {
+        "schema": 1,
+        "owner": "emersonfelipesp",
+        "repository": "netbox-sdk",
+        "api_path": "/repos/emersonfelipesp/netbox-sdk/tag_protections",
+        "required_rule": {
+            "name_pattern": "v*",
+            "whitelist_usernames": ["emersonfelipesp"],
+            "whitelist_teams": [],
+        },
+    }
+    for guide in (
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".github/CLAUDE.md",
+        ".github/AGENTS.md",
+    ):
+        text = " ".join(Path(guide).read_text(encoding="utf-8").split())
+        assert "/repos/emersonfelipesp/netbox-sdk/tag_protections" in text
+        assert "not self-verified" in text
+        assert "next unused `rcN`" in text
