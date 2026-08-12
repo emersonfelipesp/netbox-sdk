@@ -1,5 +1,5 @@
 {
-  "release": "0.0.11rc1",
+  "release": "0.0.11rc2",
   "python": "3.11+",
   "netbox": [
     "4.3",

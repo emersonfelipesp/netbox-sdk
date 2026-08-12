@@ -128,6 +128,41 @@ def validate_event_tag(*, event_name: str, ref_name: str, version: str) -> None:
         )
 
 
+def validate_gitea_candidate_tag(*, event_name: str, ref_name: str, version: str) -> None:
+    """Authorize an exact release-candidate tag for the private package registry."""
+    if event_name not in {"push", "workflow_dispatch"}:
+        raise RuntimeError(f"Unsupported Gitea release workflow event: {event_name!r}")
+    if ref_name != f"v{version}":
+        raise RuntimeError(f"Tag/version mismatch: tag={ref_name!r}, version={version!r}")
+    parsed = Version(version)
+    if (
+        parsed.pre is None
+        or parsed.pre[0] != "rc"
+        or parsed.is_devrelease
+        or parsed.local is not None
+    ):
+        raise RuntimeError("The private registry tag workflow accepts only public RC versions")
+
+
+def validate_exact_canonical_source(
+    *,
+    candidate_ref: str,
+    canonical_main_ref: str,
+    repo: Path = ROOT,
+) -> str:
+    """Require the candidate tag and explicitly fetched canonical main to be identical."""
+    candidate, canonical_main = validate_canonical_main_ancestry(
+        candidate_ref=candidate_ref,
+        canonical_main_ref=canonical_main_ref,
+        repo=repo,
+    )
+    if candidate != canonical_main:
+        raise RuntimeError(
+            "Release tag commit must equal the explicitly fetched canonical main commit"
+        )
+    return candidate
+
+
 def _write_actions_outputs(context: ReleaseContext) -> None:
     output_path = os.environ.get("GITHUB_OUTPUT")
     if not output_path:

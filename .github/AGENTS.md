@@ -111,3 +111,11 @@ require the head to be current with its base before merge.
   - requires the release commit to already be in explicitly fetched canonical Gitea `main` and verifies Gitea retains the exact immutable `v0.0.10` annotated tag object
   - re-fetches canonical Gitea, rechecks the exact TestPyPI artifact set, then validates PyPI and stages only verified-missing files so partial production uploads resume without `--skip-existing`; the Twine step revalidates the approved digest manifest and a bounded final check requires the exact PyPI set
   - uses one PEP 440 policy for final and post-release publication; prerelease, development, and local versions remain TestPyPI-only
+
+The repository also owns `.gitea/workflows/publish-package.yml` for an
+access-controlled package registry. It is tag/manual RC-only, keeps PEP 517 in
+a credential-free untrusted job, and confines the ephemeral package-write token
+to the final publisher step on `mirror-host`. The publisher independently binds
+the exact wheel and sdist to canonical Git object bytes, never imports/extracts
+candidate code, and accepts only absent or already-exact remote state. This does
+not change GitHub Actions' sole authority over TestPyPI and PyPI.

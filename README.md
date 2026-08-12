@@ -350,11 +350,14 @@ uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 
 ## Release Process
 
-Release candidates use a direct RC tag push and publish only to TestPyPI:
+Release candidates use an annotated RC tag on the canonical source repository.
+The repository-owned workflow publishes the immutable candidate to an
+access-controlled package registry; GitHub Actions remains the only authority
+that publishes to TestPyPI or the default PyPI index:
 
 ```bash
-git tag -a v0.0.11rc1 -m "Release v0.0.11rc1"
-git push origin v0.0.11rc1
+git tag -a v0.0.11rc2 -m "Release v0.0.11rc2"
+git push origin v0.0.11rc2
 ```
 
 Do not create a GitHub Release for an RC. Final and post releases must never be
@@ -390,8 +393,13 @@ creating any candidate tag or publishing any registry artifact. The release
 workflow also fetches Gitea's `v0.0.10` ref into an isolated validation ref and
 requires its annotated tag-object SHA and peeled commit to match exactly.
 
-Both credentialed publishing workflows pin every action to a reviewed full
-commit SHA. The package workflow uses the `publish` dependency group from
+All credentialed publishing workflows pin every action to a reviewed full
+commit SHA. The private-registry workflow builds in a credential-free,
+read-only job and sends only a bounded wheel/sdist/manifest set to its separate
+publisher. The publisher independently compares both archives with a clean
+checkout of the exact canonical tag/main source without importing or extracting
+candidate package code, and accepts only an absent or already-exact remote file
+set associated with this repository. The public package workflow uses the `publish` dependency group from
 `uv.lock` for build and Twine execution, validates exactly one correctly named
 wheel plus one sdist, and captures that closed set before any network-installed
 smoke dependency can run. Smoke testing consumes a downstream artifact copy.
