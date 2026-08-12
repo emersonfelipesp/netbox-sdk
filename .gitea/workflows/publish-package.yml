@@ -32,11 +32,21 @@ jobs:
           persist-credentials: false
           ref: main
 
+      - name: Isolate the uv action tool cache
+        env:
+          UV_ACTION_TOOL_CACHE: ${{ runner.temp }}/netbox-sdk-uv-build-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$UV_ACTION_TOOL_CACHE"
+          mkdir -p "$UV_ACTION_TOOL_CACHE"
+          printf 'RUNNER_TOOL_CACHE=%s\n' "$UV_ACTION_TOOL_CACHE" >> "$GITHUB_ENV"
+
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: false
           github-token: ''
+          checksum: e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224
           version: "0.11.28"
           python-version: "3.12.13"
 
@@ -149,20 +159,33 @@ jobs:
       tag: ${{ needs.build-candidate.outputs.tag }}
       version: ${{ steps.policy.outputs.version }}
     steps:
-      - name: Check out trusted canonical policy source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          token: ''
-          ref: main
-          path: trusted-source-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Fetch trusted canonical policy source anonymously
+        env:
+          SOURCE_ROOT: ${{ github.workspace }}/trusted-source-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$SOURCE_ROOT"
+          git init "$SOURCE_ROOT"
+          git -C "$SOURCE_ROOT" remote add origin \
+            https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git
+          git -C "$SOURCE_ROOT" fetch --force --no-tags --depth=1 origin refs/heads/main
+          git -C "$SOURCE_ROOT" checkout --detach FETCH_HEAD
+
+      - name: Isolate the uv action tool cache
+        env:
+          UV_ACTION_TOOL_CACHE: ${{ runner.temp }}/netbox-sdk-uv-verify-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$UV_ACTION_TOOL_CACHE"
+          mkdir -p "$UV_ACTION_TOOL_CACHE"
+          printf 'RUNNER_TOOL_CACHE=%s\n' "$UV_ACTION_TOOL_CACHE" >> "$GITHUB_ENV"
 
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: false
           github-token: ''
+          checksum: e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224
           version: "0.11.28"
           python-version: "3.12.13"
 
@@ -255,14 +278,19 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Check out trusted publisher tool
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-          token: ''
-          ref: ${{ github.sha }}
-          path: publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Fetch trusted publisher tool anonymously
+        env:
+          EVENT_SOURCE_SHA: ${{ github.sha }}
+          TOOL_ROOT: ${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$TOOL_ROOT"
+          git init "$TOOL_ROOT"
+          git -C "$TOOL_ROOT" remote add origin \
+            https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git
+          git -C "$TOOL_ROOT" fetch --force --no-tags --depth=1 origin "$EVENT_SOURCE_SHA"
+          git -C "$TOOL_ROOT" checkout --detach FETCH_HEAD
+          test "$(git -C "$TOOL_ROOT" rev-parse HEAD)" = "$EVENT_SOURCE_SHA"
 
       - name: Bind trusted publisher authority to the immutable event source
         id: authority
@@ -280,11 +308,21 @@ jobs:
           esac
           printf 'source_epoch=%s\n' "$SOURCE_EPOCH" >> "$GITHUB_OUTPUT"
 
+      - name: Isolate the uv action tool cache
+        env:
+          UV_ACTION_TOOL_CACHE: ${{ runner.temp }}/netbox-sdk-uv-publish-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$UV_ACTION_TOOL_CACHE"
+          mkdir -p "$UV_ACTION_TOOL_CACHE"
+          printf 'RUNNER_TOOL_CACHE=%s\n' "$UV_ACTION_TOOL_CACHE" >> "$GITHUB_ENV"
+
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: false
           github-token: ''
+          checksum: e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224
           version: "0.11.28"
           python-version: "3.12.13"
 

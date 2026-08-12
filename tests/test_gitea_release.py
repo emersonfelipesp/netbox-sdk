@@ -1418,12 +1418,15 @@ def _assert_workflow_policy(text: str) -> None:
         "actions/upload-artifact@c6a3b2bd78b3985e4b2f15397fec357f0fd808de",
         "actions/download-artifact@ad191675b41f6a5b46da9a048cb6893812da158b",
         "token: ''",
+        "e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224",
+        "RUNNER_TOOL_CACHE=%s",
+        "https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git",
         "GITEA_TOKEN: ${{ github.token }}",
         'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
         'cd "$TOOL_ROOT"',
     )
     assert all(value in text for value in required)
-    assert "GITHUB_ENV" not in text
+    assert text.count('>> "$GITHUB_ENV"') == 3
     assert text.count("${{ github.token }}") == 1
     assert text.count("runs-on: ci-untrusted-python312") == 1
     assert text.count("runs-on: mirror-host") == 2
@@ -1431,7 +1434,7 @@ def _assert_workflow_policy(text: str) -> None:
     assert sum(line.strip() == exact_uv_guard for line in text.splitlines()) == 3
     assert text.count("contents: read") == 4
     assert text.count("packages: write") == 1
-    assert sum(line.strip() == "token: ''" for line in text.splitlines()) == 2
+    assert sum(line.strip() == "github-token: ''" for line in text.splitlines()) == 3
     assert "workflow_dispatch:" not in text
     assert "pull_request:" not in text and "release:" not in text
     concurrency = next(line for line in text.splitlines() if line.lstrip().startswith("group:"))
@@ -1464,6 +1467,11 @@ def _assert_workflow_policy(text: str) -> None:
     ]
     assert setup_uv_steps
     assert all(step.get("with", {}).get("github-token") == "" for step in setup_uv_steps)
+    assert all(
+        step.get("with", {}).get("checksum")
+        == "e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224"
+        for step in setup_uv_steps
+    )
     assert parsed["on"] == {"push": {"tags": ["v*rc*"]}}
     jobs = parsed["jobs"]
     assert set(jobs) == {"build-candidate", "verify-and-seal", "publish-candidate"}
@@ -1485,8 +1493,12 @@ def _assert_workflow_policy(text: str) -> None:
     assert "--source-root" not in publisher_job and "--transfer-dir" not in publisher_job
     assert publisher_job.count("${{ github.token }}") == 1
     publisher_checkout = jobs["publish-candidate"]["steps"][0]
-    assert publisher_checkout["with"]["ref"] == "${{ github.sha }}"
-    assert publisher_checkout["with"]["token"] == ""
+    assert publisher_checkout["env"] == {
+        "EVENT_SOURCE_SHA": "${{ github.sha }}",
+        "TOOL_ROOT": "${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}",
+    }
+    assert 'git -C "$TOOL_ROOT" fetch --force --no-tags --depth=1 origin "$EVENT_SOURCE_SHA"' in publisher_checkout["run"]
+    assert 'git -C "$TOOL_ROOT" checkout --detach FETCH_HEAD' in publisher_checkout["run"]
     authority = jobs["publish-candidate"]["steps"][1]
     assert authority["id"] == "authority"
     assert authority["env"] == {
@@ -1542,10 +1554,7 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
         ("for BUILD_ID in a b", "for BUILD_ID in a"),
         ("compare-builds", "compare_artifacts"),
         ("timeout-minutes: 5", "timeout-minutes-disabled: 5"),
-        (
-            "ref: ${{ github.sha }}",
-            "ref: main",
-        ),
+        ('origin "$EVENT_SOURCE_SHA"', 'origin refs/heads/main'),
         (
             'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
             'test -n "$VERIFIED_SOURCE_SHA"',
@@ -1581,9 +1590,13 @@ def test_private_registry_real_uv_guard_is_exact(
         Path(".gitea/workflows/publish-package.yml").read_text(encoding="utf-8"),
         Loader=yaml.BaseLoader,
     )
+    build_steps = workflow["jobs"]["build-candidate"]["steps"]
+    release_tools = next(
+        step for step in build_steps if step.get("name") == "Prepare locked release tools"
+    )
     guard = next(
         line.strip()
-        for line in workflow["jobs"]["build-candidate"]["steps"][2]["run"].splitlines()
+        for line in release_tools["run"].splitlines()
         if "uv --version" in line
     )
     executable = tmp_path / "uv"
