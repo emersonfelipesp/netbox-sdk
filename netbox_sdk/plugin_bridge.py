@@ -14,11 +14,11 @@ import json
 import posixpath
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any, Literal, cast
 from urllib.parse import unquote, urlsplit
 
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft202012Validator, FormatChecker, validators
 from jsonschema.exceptions import SchemaError
 from pydantic import (
     BaseModel,
@@ -54,6 +54,7 @@ MAX_DISCOVERY_SECONDS = 30.0
 MAX_DOCUMENT_DEPTH = 24
 MAX_DOCUMENT_NODES = 12_000
 MAX_PROBLEM_MESSAGE_LENGTH = 2_000
+MAX_SAFE_JSON_INTEGER = (2**53) - 1
 
 _PLUGIN_NAME_PATTERN = r"^[a-z0-9][a-z0-9_-]{0,63}$"
 _TOOL_NAME_PATTERN = r"^[a-z][a-z0-9_]{0,63}$"
@@ -793,16 +794,39 @@ def _is_rfc3339_date_time(value: object) -> bool:
     if _RFC3339_DATE_TIME_RE.fullmatch(value) is None:
         return False
     normalized = value.replace("t", "T").replace("z", "Z")
+    leap_second = re.search(r":60(?=(?:\.\d+)?(?:Z|[+-]))", normalized) is not None
     normalized = re.sub(r":60(?=(?:\.\d+)?(?:Z|[+-]))", ":59", normalized)
     try:
-        datetime.fromisoformat(normalized)
-    except ValueError:
+        parsed = datetime.fromisoformat(normalized).astimezone(UTC)
+        if leap_second:
+            parsed += timedelta(seconds=1)
+            if not (
+                parsed.day == 1 and parsed.hour == 0 and parsed.minute == 0 and parsed.second == 0
+            ):
+                return False
+    except (OverflowError, ValueError):
         return False
     return True
 
 
 _BRIDGE_FORMAT_CHECKER = FormatChecker()
 _BRIDGE_FORMAT_CHECKER.checks("date-time")(_is_rfc3339_date_time)
+
+
+def _is_bridge_integer(_checker: object, value: object) -> bool:
+    """Apply lossless JSON-number semantics to bridge integer schemas."""
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, int):
+        return True
+    return isinstance(value, float) and value.is_integer() and abs(value) <= MAX_SAFE_JSON_INTEGER
+
+
+_BRIDGE_TYPE_CHECKER = Draft202012Validator.TYPE_CHECKER.redefine("integer", _is_bridge_integer)
+_BridgeDraft202012Validator = validators.extend(
+    Draft202012Validator,
+    type_checker=_BRIDGE_TYPE_CHECKER,
+)
 
 
 def _validate_instance(instance: object, schema: JsonSchema, *, label: str) -> None:
@@ -817,7 +841,10 @@ def _validate_instance(instance: object, schema: JsonSchema, *, label: str) -> N
     except ValueError as exc:
         raise PluginBridgeError(str(exc)) from exc
     try:
-        validator = Draft202012Validator(schema, format_checker=_BRIDGE_FORMAT_CHECKER)
+        validator = _BridgeDraft202012Validator(
+            schema,
+            format_checker=_BRIDGE_FORMAT_CHECKER,
+        )
         errors = list(validator.iter_errors(cast(Any, instance)))
     except Exception as exc:
         raise PluginBridgeError(f"{label} validation failed safely: {type(exc).__name__}") from exc

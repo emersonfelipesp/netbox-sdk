@@ -71,7 +71,10 @@ member is simply ignored.
 }
 ```
 
-Version 1 has intentionally narrow rules:
+Version 1 is the generic descriptor protocol, not a frozen copy of any one
+plugin's tool payload. Each plugin owns and versions the operations inside its
+manifest while preserving these descriptor rules. Version 1 has intentionally
+narrow rules:
 
 - `plugin` and tool names use lowercase stable identifiers. Tool names are
   unique within one manifest and are presented as `plugin.tool` in catalogs.
@@ -86,7 +89,14 @@ Version 1 has intentionally narrow rules:
   keyword subset and excludes references/definitions, regex patterns and the
   unsupported formats, conditional schemas, and combinators. Version 1 supports
   only the `date-time` format and validates it as RFC 3339, including its
-  leap-second syntax. `uniqueItems` is
+  leap-second syntax. A `:60` value is accepted only when its normalized UTC
+  instant crosses a month boundary; arbitrary-minute leap seconds and
+  date-times whose leap-second or timezone normalization would overflow the
+  supported calendar are rejected. JSON integer tokens are
+  lossless and remain subject to the schema's own bounds. Mathematically
+  integral JSON floating-point values are accepted only through the
+  interoperable safe-integer limit `9007199254740991`; larger floats are
+  rejected so rounding can never select a different object ID. `uniqueItems` is
   allowed only for arrays with one explicitly typed scalar item domain; mixed
   scalar types are rejected. These restrictions prevent remote fetches,
   recursive contracts, silently ignored formats, and avoidable validation
@@ -165,6 +175,7 @@ plugin path.
 6. Add contract tests for the advertisement, manifest, permissions, request
    schema, response schema, and absence of a parallel credential or MCP stack.
 
-Proxbox is the canonical implementation example: it advertises
-`list_sync_jobs` and `schedule_sync`, both backed by its existing
-`sync/schedule/` API view.
+Plugin-owned manifests must be tested in the producing plugin repository and
+validated against the released SDK. The SDK test fixture is deliberately a
+generic descriptor sample; it is not the canonical payload snapshot for
+Proxbox or any other plugin.

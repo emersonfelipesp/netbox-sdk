@@ -72,7 +72,10 @@ membro é simplesmente ignorado.
 }
 ```
 
-A versão 1 tem regras intencionalmente restritas:
+A versão 1 é o protocolo genérico de descritor, não uma cópia congelada do
+payload de ferramentas de um plugin específico. Cada plugin é responsável por
+versionar as operações do seu manifesto enquanto preserva estas regras do
+descritor. A versão 1 tem regras intencionalmente restritas:
 
 - `plugin` e nomes de ferramentas usam identificadores estáveis em minúsculas.
   Os nomes são únicos em um manifesto e aparecem como `plugin.tool` no catálogo.
@@ -87,7 +90,14 @@ A versão 1 tem regras intencionalmente restritas:
   de palavras-chave documentado e exclui referências/definições, padrões regex,
   formatos não suportados, schemas condicionais e combinadores. A versão 1 só
   suporta o formato `date-time`, validado como RFC 3339, incluindo a sintaxe de
-  segundo intercalar. `uniqueItems` só é
+  segundo intercalar. Um valor `:60` só é aceito quando seu instante normalizado
+  em UTC cruza o limite de um mês; segundos intercalares em minutos arbitrários
+  e datas cujo ajuste de segundo intercalar ou fuso horário ultrapassaria o
+  calendário suportado são rejeitados. Tokens JSON inteiros
+  permanecem exatos e obedecem aos limites do schema. Valores JSON de ponto
+  flutuante matematicamente inteiros são aceitos somente até o limite
+  interoperável `9007199254740991`; valores maiores são rejeitados para impedir
+  que arredondamento selecione outro identificador. `uniqueItems` só é
   aceito para arrays com um único domínio escalar de tipo explícito; tipos
   escalares mistos são rejeitados. Essas restrições evitam buscas remotas,
   contratos recursivos, formatos ignorados silenciosamente e amplificação
@@ -167,6 +177,7 @@ um redirect não encaminha uma mutação para fora do caminho fixo do plugin.
 6. Adicione testes de contrato para anúncio, manifesto, permissões, schemas de
    requisição/resposta e ausência de uma pilha MCP ou credencial paralela.
 
-O Proxbox é a implementação canônica de exemplo: ele anuncia
-`list_sync_jobs` e `schedule_sync`, ambos apoiados pela API existente
-`sync/schedule/`.
+Manifestos pertencem ao repositório do plugin produtor e devem ser validados
+contra a versão publicada do SDK. O fixture do SDK é deliberadamente um
+descritor genérico; ele não é o snapshot canônico de payload do Proxbox nem de
+qualquer outro plugin.

@@ -22,6 +22,7 @@ from netbox_sdk.plugin_bridge import (
     discover_plugin_manifests,
     plugin_tool_request_path,
     validate_plugin_tool_arguments,
+    validate_plugin_tool_response,
 )
 
 pytestmark = pytest.mark.suite_sdk
@@ -618,3 +619,178 @@ def test_tool_arguments_are_validated_against_advertised_schema() -> None:
         validate_plugin_tool_arguments(tool, {})
     with pytest.raises(PluginBridgeError, match="unexpected"):
         validate_plugin_tool_arguments(tool, {"sync_types": ["all"], "unexpected": True})
+
+
+def test_integer_schema_preserves_lossless_json_number_identity() -> None:
+    payload = _tool(name="select_endpoint", method="POST", effect="write")
+    payload["inputSchema"] = {
+        "type": "object",
+        "properties": {
+            "endpoint_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807,
+            }
+        },
+        "required": ["endpoint_id"],
+        "additionalProperties": False,
+    }
+    tool = PluginTool.model_validate(payload)
+
+    validate_plugin_tool_arguments(tool, {"endpoint_id": 1})
+    validate_plugin_tool_arguments(tool, {"endpoint_id": 9223372036854775807})
+    validate_plugin_tool_arguments(tool, {"endpoint_id": 9007199254740991.0})
+
+    for unsafe in (
+        0,
+        9223372036854775808,
+        True,
+        "7",
+        7.5,
+        9007199254740992.0,
+        float("inf"),
+        float("nan"),
+    ):
+        with pytest.raises(PluginBridgeError):
+            validate_plugin_tool_arguments(tool, {"endpoint_id": unsafe})
+
+
+def test_integer_response_preserves_the_same_lossless_bounded_identity() -> None:
+    payload = _tool(name="selected_endpoint", method="GET", effect="read")
+    payload["outputSchema"] = {
+        "type": "object",
+        "properties": {
+            "endpoint_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807,
+            }
+        },
+        "required": ["endpoint_id"],
+        "additionalProperties": False,
+    }
+    tool = PluginTool.model_validate(payload)
+
+    for accepted in (1, 9007199254740991.0, 9223372036854775807):
+        validate_plugin_tool_response(tool, {"endpoint_id": accepted})
+    for rejected in (
+        0,
+        9223372036854775808,
+        True,
+        "7",
+        7.5,
+        9007199254740992.0,
+        float("inf"),
+        float("nan"),
+    ):
+        with pytest.raises(PluginBridgeError):
+            validate_plugin_tool_response(tool, {"endpoint_id": rejected})
+
+
+def test_integer_unique_items_use_json_numeric_identity_in_both_directions() -> None:
+    array_schema = {
+        "type": "array",
+        "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+        },
+        "minItems": 1,
+        "uniqueItems": True,
+    }
+    payload = _tool(name="endpoint_set", method="POST", effect="write")
+    payload["inputSchema"] = {
+        "type": "object",
+        "properties": {"endpoint_ids": array_schema},
+        "required": ["endpoint_ids"],
+        "additionalProperties": False,
+    }
+    payload["outputSchema"] = {
+        "type": "object",
+        "properties": {"endpoint_ids": array_schema},
+        "required": ["endpoint_ids"],
+        "additionalProperties": False,
+    }
+    tool = PluginTool.model_validate(payload)
+
+    validate_plugin_tool_arguments(tool, {"endpoint_ids": [7, 8.0]})
+    validate_plugin_tool_response(tool, {"endpoint_ids": [7, 8.0]})
+    with pytest.raises(PluginBridgeError, match="non-unique"):
+        validate_plugin_tool_arguments(tool, {"endpoint_ids": [7, 7.0]})
+    with pytest.raises(PluginBridgeError, match="non-unique"):
+        validate_plugin_tool_response(tool, {"endpoint_ids": [7, 7.0]})
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "9999-12-31T23:59:60Z",
+        "9999-12-31T23:59:60+23:59",
+        "9999-12-31T23:59:59-23:59",
+        "0001-01-01T00:00:00+23:59",
+        "2026-08-12T12:34:60Z",
+        "1990-12-31T23:59:60+01:00",
+    ],
+)
+def test_date_time_schema_rejects_invalid_or_overflowing_normalization(value: str) -> None:
+    payload = _tool(name="schedule", method="POST", effect="write")
+    payload["inputSchema"] = {
+        "type": "object",
+        "properties": {"schedule_at": {"type": "string", "format": "date-time"}},
+        "required": ["schedule_at"],
+        "additionalProperties": False,
+    }
+    tool = PluginTool.model_validate(payload)
+
+    with pytest.raises(PluginBridgeError, match="date-time"):
+        validate_plugin_tool_arguments(tool, {"schedule_at": value})
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "1990-12-31T23:59:60Z",
+        "1991-01-01T00:59:60+01:00",
+        "1990-12-31T18:59:60-05:00",
+        "2099-01-01T00:00:00+00:00",
+        "2026-08-12t12:34:56.123-03:00",
+    ],
+)
+def test_date_time_schema_accepts_bounded_rfc3339_values(value: str) -> None:
+    payload = _tool(name="schedule", method="POST", effect="write")
+    payload["inputSchema"] = {
+        "type": "object",
+        "properties": {"schedule_at": {"type": "string", "format": "date-time"}},
+        "required": ["schedule_at"],
+        "additionalProperties": False,
+    }
+    tool = PluginTool.model_validate(payload)
+
+    validate_plugin_tool_arguments(tool, {"schedule_at": value})
+
+
+def test_date_time_response_uses_the_same_normalized_utc_leap_contract() -> None:
+    payload = _tool(name="history", method="GET", effect="read")
+    payload["outputSchema"] = {
+        "type": "object",
+        "properties": {
+            "completed_at": {"type": "string", "format": "date-time"},
+        },
+        "required": ["completed_at"],
+        "additionalProperties": False,
+    }
+    tool = PluginTool.model_validate(payload)
+
+    for accepted in (
+        "1990-12-31T23:59:60Z",
+        "1991-01-01T00:59:60+01:00",
+        "1990-12-31T18:59:60-05:00",
+    ):
+        validate_plugin_tool_response(tool, {"completed_at": accepted})
+    for rejected in (
+        "2026-08-12T12:34:60Z",
+        "1990-12-31T23:59:60+01:00",
+        "9999-12-31T23:59:60Z",
+    ):
+        with pytest.raises(PluginBridgeError, match="date-time"):
+            validate_plugin_tool_response(tool, {"completed_at": rejected})
