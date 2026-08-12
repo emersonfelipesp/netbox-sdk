@@ -107,6 +107,9 @@ nbx = "demo:main"
 nbx-mcp = "demo:mcp"
 nbx-mock = "demo:mock"
 
+[dependency-groups]
+publish = ["setuptools==80.9.0"]
+
 [tool.setuptools.packages.find]
 include = ["demo*"]
 
@@ -210,9 +213,32 @@ def _sdist_members(repo: Path) -> dict[str, bytes]:
     return members
 
 
-def _write_sdist(path: Path, members: dict[str, bytes]) -> None:
+def _sdist_directories(members: dict[str, bytes]) -> set[str]:
+    directories: set[str] = set()
+    for name in members:
+        parts = name.split("/")
+        for length in range(1, len(parts)):
+            directories.add("/".join(parts[:length]))
+    return directories
+
+
+def _write_sdist(
+    path: Path,
+    members: dict[str, bytes],
+    *,
+    directories: set[str] | None = None,
+) -> None:
     prefix = "netbox_sdk-0.0.11rc2"
     with tarfile.open(path, "w:gz") as archive:
+        root = tarfile.TarInfo(prefix)
+        root.type = tarfile.DIRTYPE
+        archive.addfile(root)
+        for directory in sorted(
+            _sdist_directories(members) if directories is None else directories
+        ):
+            info = tarfile.TarInfo(f"{prefix}/{directory}")
+            info.type = tarfile.DIRTYPE
+            archive.addfile(info)
         for name, payload in members.items():
             info = tarfile.TarInfo(f"{prefix}/{name}")
             info.size = len(payload)
@@ -432,8 +458,16 @@ def _mutate_archive_envelope(transfer: Path, repo: Path, mutation: str) -> None:
         return
     if mutation in {"tar-metadata", "pax-metadata"}:
         prefix = "netbox_sdk-0.0.11rc2"
+        members = _sdist_members(repo)
         with tarfile.open(sdist, "w:gz", format=tarfile.PAX_FORMAT) as archive:
-            for index, (name, payload) in enumerate(_sdist_members(repo).items()):
+            root = tarfile.TarInfo(prefix)
+            root.type = tarfile.DIRTYPE
+            archive.addfile(root)
+            for directory in sorted(_sdist_directories(members)):
+                info = tarfile.TarInfo(f"{prefix}/{directory}")
+                info.type = tarfile.DIRTYPE
+                archive.addfile(info)
+            for index, (name, payload) in enumerate(members.items()):
                 info = tarfile.TarInfo(f"{prefix}/{name}")
                 info.size = len(payload)
                 if mutation == "tar-metadata" and index == 0:
@@ -684,6 +718,88 @@ def test_complete_metadata_header_multimap_rejects_injected_and_duplicate_header
             manifest=mutated,
             source_root=repo,
         )
+
+
+@pytest.mark.parametrize(
+    ("original", "replacement"),
+    [
+        (b"Wheel-Version: 1.0\n", b"Wheel-Version: 99.0\n"),
+        (
+            b"Wheel-Version: 1.0\n",
+            b"Wheel-Version: 1.0\nX-Builder-Directive: untrusted\n",
+        ),
+        (
+            b"Generator: setuptools (80.9.0)\n",
+            b"Generator: setuptools (80.9.0)\nGenerator: setuptools (80.9.0)\n",
+        ),
+        (b"Generator: setuptools (80.9.0)\n", b"Generator: setuptools (81.0.0)\n"),
+        (b"\n\n", b"\n\nuntrusted-wheel-body\n"),
+    ],
+)
+def test_exact_wheel_header_multimap_rejects_untrusted_generated_content(
+    tmp_path: Path,
+    original: bytes,
+    replacement: bytes,
+) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    members = _wheel_members(repo)
+    wheel_metadata = "netbox_sdk-0.0.11rc2.dist-info/WHEEL"
+    members[wheel_metadata] = members[wheel_metadata].replace(original, replacement, 1)
+    _rewrite_wheel_record(members)
+    _write_wheel(transfer / WHEEL, members)
+    (transfer / MANIFEST_NAME).unlink()
+    normalize_build(
+        dist_dir=transfer,
+        package=PACKAGE,
+        version=VERSION,
+        source_epoch=manifest.source_epoch,
+    )
+    mutated = _rewrite_transfer_manifest(transfer, manifest)
+    with pytest.raises(ReleaseError, match="exact trusted header set"):
+        seal_transfer(
+            transfer_dir=transfer,
+            sealed_dir=tmp_path / "sealed",
+            source_root=repo,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=mutated.source_sha,
+            expected_source_epoch=mutated.source_epoch,
+        )
+    assert not (tmp_path / "sealed").exists()
+
+
+@pytest.mark.parametrize("directory_mutation", ["extra", "missing"])
+def test_exact_sdist_directory_set_rejects_untrusted_or_missing_members(
+    tmp_path: Path,
+    directory_mutation: str,
+) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    members = _sdist_members(repo)
+    directories = _sdist_directories(members)
+    if directory_mutation == "extra":
+        directories.add("untrusted-empty-directory")
+    else:
+        directories.remove("demo")
+    _write_sdist(transfer / SDIST, members, directories=directories)
+    (transfer / MANIFEST_NAME).unlink()
+    normalize_build(
+        dist_dir=transfer,
+        package=PACKAGE,
+        version=VERSION,
+        source_epoch=manifest.source_epoch,
+    )
+    mutated = _rewrite_transfer_manifest(transfer, manifest)
+    with pytest.raises(ReleaseError, match="exact trusted-source member set"):
+        seal_transfer(
+            transfer_dir=transfer,
+            sealed_dir=tmp_path / "sealed",
+            source_root=repo,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=mutated.source_sha,
+            expected_source_epoch=mutated.source_epoch,
+        )
+    assert not (tmp_path / "sealed").exists()
 
 
 def test_wheel_record_rejects_unbound_or_mismatched_members() -> None:

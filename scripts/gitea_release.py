@@ -885,6 +885,56 @@ def _validate_wheel_record(
             raise ReleaseError("Wheel RECORD member digest or size mismatch")
 
 
+def _pinned_publish_tool_version(project: Mapping[str, Any], tool: str) -> str:
+    try:
+        publish_group = project["dependency-groups"]["publish"]
+        if not isinstance(publish_group, list) or not all(
+            isinstance(value, str) for value in publish_group
+        ):
+            raise ReleaseError("Trusted publish-tool configuration is malformed")
+        matches = [
+            Requirement(value)
+            for value in publish_group
+            if canonicalize_name(Requirement(value).name) == canonicalize_name(tool)
+        ]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ReleaseError("Trusted publish-tool configuration is malformed") from exc
+    if len(matches) != 1:
+        raise ReleaseError("Trusted publish tool must have exactly one closed pin")
+    requirement = matches[0]
+    specifiers = list(requirement.specifier)
+    if (
+        requirement.extras
+        or requirement.marker is not None
+        or requirement.url is not None
+        or len(specifiers) != 1
+        or specifiers[0].operator != "=="
+        or "*" in specifiers[0].version
+    ):
+        raise ReleaseError("Trusted publish tool must have exactly one closed pin")
+    return str(Version(specifiers[0].version))
+
+
+def _validate_wheel_headers(payload: bytes, project: Mapping[str, Any]) -> None:
+    if len(payload) > MAX_JSON_BYTES:
+        raise ReleaseError("Wheel compatibility metadata exceeds the allowed size")
+    try:
+        parsed = BytesParser().parsebytes(payload, headersonly=True)
+        actual: dict[str, list[str]] = {}
+        for field, value in parsed.raw_items():
+            actual.setdefault(field, []).append(value)
+    except Exception as exc:
+        raise ReleaseError("Wheel compatibility metadata is malformed") from exc
+    expected = {
+        "Wheel-Version": ["1.0"],
+        "Generator": [f"setuptools ({_pinned_publish_tool_version(project, 'setuptools')})"],
+        "Root-Is-Purelib": ["true"],
+        "Tag": ["py3-none-any"],
+    }
+    if parsed.defects or actual != expected or _metadata_body(payload):
+        raise ReleaseError("Wheel compatibility metadata is not the exact trusted header set")
+
+
 def _validate_wheel_source(
     *,
     wheel_path: Path,
@@ -935,11 +985,7 @@ def _validate_wheel_source(
         project,
         source_blobs["README.md"],
     )
-    wheel_headers = BytesParser().parsebytes(member_bytes[f"{dist_info}/WHEEL"], headersonly=True)
-    if wheel_headers.get("Root-Is-Purelib") != "true" or wheel_headers.get_all("Tag") != [
-        "py3-none-any"
-    ]:
-        raise ReleaseError("Wheel compatibility metadata is not the required universal tag")
+    _validate_wheel_headers(member_bytes[f"{dist_info}/WHEEL"], project)
     expected_entries = "[console_scripts]\n" + "".join(
         f"{name} = {target}\n" for name, target in sorted(project["project"]["scripts"].items())
     )
@@ -971,6 +1017,15 @@ def _read_tar_member(archive: tarfile.TarFile, member: tarfile.TarInfo) -> bytes
     return payload
 
 
+def _archive_parent_directories(files: set[str]) -> set[str]:
+    directories: set[str] = set()
+    for name in files:
+        parts = name.split("/")
+        for length in range(1, len(parts)):
+            directories.add("/".join(parts[:length]))
+    return directories
+
+
 def _validate_sdist_source(
     *,
     sdist_path: Path,
@@ -994,7 +1049,10 @@ def _validate_sdist_source(
     }
     trusted_root_files = dict(source_blobs)
     expected_files = set(source_files) | set(test_files) | set(trusted_root_files) | generated
+    expected_directories = _archive_parent_directories(expected_files)
     payloads: dict[str, bytes] = {}
+    directories: set[str] = set()
+    root_seen = False
     try:
         with tarfile.open(sdist_path, mode="r:gz") as archive:
             members = archive.getmembers()
@@ -1005,6 +1063,9 @@ def _validate_sdist_source(
             for member in members:
                 name = _safe_archive_path(member.name)
                 if name == prefix and member.isdir():
+                    if root_seen:
+                        raise ReleaseError("Source distribution contains duplicate members")
+                    root_seen = True
                     continue
                 if not name.startswith(f"{prefix}/"):
                     raise ReleaseError("Source distribution has an unexpected archive root")
@@ -1013,6 +1074,7 @@ def _validate_sdist_source(
                     raise ReleaseError("Source distribution contains duplicate members")
                 seen.add(relative)
                 if member.isdir():
+                    directories.add(relative)
                     continue
                 if not member.isfile():
                     raise ReleaseError("Source distribution contains a link or special member")
@@ -1025,8 +1087,8 @@ def _validate_sdist_source(
             raise
         raise ReleaseError("Source distribution is not a valid bounded archive") from exc
 
-    if set(payloads) != expected_files:
-        raise ReleaseError("Source distribution is not the exact trusted-source file set")
+    if not root_seen or set(payloads) != expected_files or directories != expected_directories:
+        raise ReleaseError("Source distribution is not the exact trusted-source member set")
     for relative, source in {**source_files, **test_files, **trusted_root_files}.items():
         if payloads[relative] != source:
             raise ReleaseError("Source-distribution payload differs from trusted canonical source")
