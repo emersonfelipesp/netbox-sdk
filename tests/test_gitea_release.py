@@ -1425,7 +1425,7 @@ def _assert_workflow_policy(text: str) -> None:
         "contents: read",
         "packages: write",
         "--no-isolation",
-        '"$UV_BIN" sync --locked --only-group publish --no-install-project',
+        "--locked --only-group publish --no-install-project",
         "uv 0.11.28 (x86_64-unknown-linux-gnu)",
         "3.12.13",
         "for BUILD_ID in a b",
@@ -1462,13 +1462,23 @@ def _assert_workflow_policy(text: str) -> None:
     assert text.count("sha256sum --check --strict") == 3
     assert text.count("uv-x86_64-unknown-linux-gnu/uv") == 3
     assert text.count("UV_BIN=%s") == 3
+    assert text.count("while IFS='=' read -r VARIABLE _; do") == 6
+    assert text.count('case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac') == 6
+    assert text.count("--no-config") == 6
+    assert text.count("--cache-dir") == 6
+    assert text.count("--managed-python") == 6
+    assert text.count("--no-bin") == 3
+    assert text.count("--no-python-downloads") == 3
+    assert text.count('--install-dir "$BOOTSTRAP_PYTHON_ROOT"') == 3
+    assert text.count('UV_PYTHON_INSTALL_DIR="$MANAGED_PYTHON_ROOT"') == 3
     assert text.count("${{ github.token }}") == 0
     assert text.count("${{ secrets.PACKAGE_WRITE_TOKEN }}") == 1
-    assert text.count('"$UV_PYTHON_INSTALL_DIR"/*) ;;') == 3
+    assert text.count('"$MANAGED_PYTHON_ROOT"/*) ;;') == 3
+    assert "UV_MANAGED_PYTHON" not in text
     assert "--depth=1" not in text
     assert text.count("runs-on: ci-untrusted-python312") == 1
     assert text.count("runs-on: mirror-host") == 2
-    exact_uv_guard = 'test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
+    exact_uv_guard = 'test "$("$PUBLISHER_UV" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
     assert sum(line.strip() == exact_uv_guard for line in text.splitlines()) == 3
     assert text.count("contents: read") == 4
     assert text.count("packages: write") == 1
@@ -1567,6 +1577,13 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
         ),
         ("sha256sum --check --strict", "sha256sum --check"),
         ("UV_BIN=%s", "UV_UNTRUSTED_BIN=%s"),
+        ("--no-config", "--config-file /tmp/poisoned.toml"),
+        ("--managed-python", "--no-managed-python"),
+        ("--no-python-downloads", "--python-downloads automatic"),
+        (
+            'case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac',
+            'case "$VARIABLE" in UV_SAFE_*) unset "$VARIABLE" ;; esac',
+        ),
         ("--no-isolation", "--isolation"),
         (
             "uv 0.11.28 (x86_64-unknown-linux-gnu)",
@@ -1608,6 +1625,31 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
     (validate_seal,)
 
 
+def test_gitea_artifact_v3_compatibility_workflow_is_cross_runner_and_bounded() -> None:
+    workflow_path = Path(".gitea/workflows/artifact-v3-compatibility.yml")
+    text = workflow_path.read_text(encoding="utf-8")
+    parsed = yaml.load(text, Loader=yaml.BaseLoader)
+
+    assert parsed["on"] == {"pull_request": "", "workflow_dispatch": ""}
+    assert parsed["permissions"] == {"contents": "read"}
+    assert set(parsed["jobs"]) == {"upload-probe", "download-probe"}
+    upload = parsed["jobs"]["upload-probe"]
+    download = parsed["jobs"]["download-probe"]
+    assert upload["runs-on"] == "ci-untrusted-python312"
+    assert download["runs-on"] == "mirror-host"
+    assert download["needs"] == "upload-probe"
+    assert upload["permissions"] == download["permissions"] == {"contents": "read"}
+    assert text.count("3387a007582374f2082629398f99c08770801fbe56fc803c47454f3d163cc15f") == 2
+    assert "actions/upload-artifact@c6a3b2bd78b3985e4b2f15397fec357f0fd808de" in text
+    assert "actions/download-artifact@ad191675b41f6a5b46da9a048cb6893812da158b" in text
+    assert "if-no-files-found: error" in text
+    assert "retention-days: 1" in text
+    assert "actions/checkout@" not in text
+    for line in text.splitlines():
+        if "uses:" in line:
+            assert "@" in line and len(line.split("@", 1)[1].split()[0]) == 40
+
+
 @pytest.mark.parametrize(
     ("reported", "expected_status"),
     (
@@ -1630,7 +1672,9 @@ def test_private_registry_real_uv_guard_is_exact(
         step for step in build_steps if step.get("name") == "Prepare locked release tools"
     )
     guard = next(
-        line.strip() for line in release_tools["run"].splitlines() if '"$UV_BIN" --version' in line
+        line.strip()
+        for line in release_tools["run"].splitlines()
+        if '"$PUBLISHER_UV" --version' in line
     )
     executable = tmp_path / "uv"
     executable.write_text(f"#!/bin/sh\nprintf '%s\\n' {reported!r}\n", encoding="utf-8")
@@ -1638,11 +1682,79 @@ def test_private_registry_real_uv_guard_is_exact(
     completed = subprocess.run(  # noqa: S603 - fixed shell and audited workflow guard.
         ["/bin/bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", guard],
         check=False,
-        env={**os.environ, "UV_BIN": str(executable)},
+        env={**os.environ, "PUBLISHER_UV": str(executable)},
         capture_output=True,
         text=True,
     )
     assert completed.returncode == expected_status
+
+
+def test_private_registry_bootstrap_clears_poisoned_uv_environment(tmp_path: Path) -> None:
+    workflow = yaml.load(
+        Path(".gitea/workflows/publish-package.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    install_step = next(
+        step
+        for step in workflow["jobs"]["build-candidate"]["steps"]
+        if step.get("name") == "Install checksum-verified uv and managed Python"
+    )
+    lines = install_step["run"].splitlines()
+    start = next(index for index, line in enumerate(lines) if line.startswith("while IFS="))
+    end = next(
+        index for index, line in enumerate(lines[start:], start=start) if line.strip() == "3.12.13"
+    )
+    command = "\n".join(lines[start : end + 1])
+
+    uv_root = tmp_path / "uv-root"
+    python_root = tmp_path / "python-root"
+    cache_root = tmp_path / "cache-root"
+    trace = tmp_path / "args.txt"
+    uv_root.mkdir()
+    python_root.mkdir()
+    cache_root.mkdir()
+    executable = uv_root / "uv"
+    executable.write_text(
+        "#!/bin/sh\n"
+        "set -eu\n"
+        'test -z "${UV_MANAGED_PYTHON+x}"\n'
+        'test -z "${UV_PYTHON_INSTALL_DIR+x}"\n'
+        'test -z "${UV_PYTHON_DOWNLOADS_JSON_URL+x}"\n'
+        'test -z "${UV_POISONED_DEFAULT+x}"\n'
+        'printf \'%s\\n\' "$@" > "$TRACE"\n',
+        encoding="utf-8",
+    )
+    executable.chmod(0o755)
+    completed = subprocess.run(  # noqa: S603 - fixed shell and audited workflow fragment.
+        ["/bin/bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", command],
+        check=False,
+        env={
+            **os.environ,
+            "BOOTSTRAP_UV_ROOT": str(uv_root),
+            "BOOTSTRAP_PYTHON_ROOT": str(python_root),
+            "BOOTSTRAP_CACHE_ROOT": str(cache_root),
+            "TRACE": str(trace),
+            "UV_MANAGED_PYTHON": "not-a-boolean",
+            "UV_PYTHON_INSTALL_DIR": str(tmp_path / "poisoned-python"),
+            "UV_PYTHON_DOWNLOADS_JSON_URL": "https://example.invalid/poison.json",
+            "UV_POISONED_DEFAULT": "present",
+        },
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert trace.read_text(encoding="utf-8").splitlines() == [
+        "python",
+        "install",
+        "--no-config",
+        "--cache-dir",
+        str(cache_root),
+        "--install-dir",
+        str(python_root),
+        "--managed-python",
+        "--no-bin",
+        "3.12.13",
+    ]
 
 
 def test_release_docs_require_external_tag_policy_preflight_and_terminal_recovery() -> None:

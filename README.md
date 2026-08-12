@@ -360,13 +360,18 @@ The private Gitea workflow pins the maintained Node 20 backports
 `actions/download-artifact` v3.1.0-node20 by full commit SHA. The installed Gitea
 Actions runtime does not implement the artifact service required by v4+, so
 upgrading those actions requires an explicit runner-compatibility proof.
+`.gitea/workflows/artifact-v3-compatibility.yml` exercises the exact pinned
+upload/download pair across the untrusted and trusted runner labels on every
+pull request; that check must pass before any candidate tag is created.
 Trusted jobs fetch public canonical source anonymously at exact refs. Every
 private publisher downloads the pinned uv 0.11.28 archive directly, verifies
 its reviewed SHA-256 before extraction, and uses only that absolute executable
-with an empty per-run managed-Python directory. The package-write credential
-comes from the repository `PACKAGE_WRITE_TOKEN` secret and is introduced only
-in the final sealed publish step; the upstream Gitea Actions job token is not a
-supported package-registry credential.
+with empty per-run managed-Python and cache directories. Before both install and
+sync it clears inherited `UV_*` state, disables discovered uv configuration,
+and passes the managed-Python, install, and cache choices explicitly. The
+package-write credential comes from the repository `PACKAGE_WRITE_TOKEN` secret
+and is introduced only in the final sealed publish step; the upstream Gitea
+Actions job token is not a supported package-registry credential.
 
 ```bash
 # Static, operator-reviewed release oracle: do not derive this tag from event input.

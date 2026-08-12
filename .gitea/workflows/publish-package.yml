@@ -34,26 +34,39 @@ jobs:
 
       - name: Install checksum-verified uv and managed Python
         env:
-          UV_INSTALL_ROOT: ${{ runner.temp }}/netbox-sdk-uv-build-${{ github.run_id }}-${{ github.run_attempt }}
-          UV_MANAGED_PYTHON: ${{ runner.temp }}/netbox-sdk-python-build-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_UV_ROOT: ${{ runner.temp }}/netbox-sdk-uv-build-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_PYTHON_ROOT: ${{ runner.temp }}/netbox-sdk-python-build-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_CACHE_ROOT: ${{ runner.temp }}/netbox-sdk-uv-cache-build-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          test ! -e "$UV_INSTALL_ROOT"
-          test ! -e "$UV_MANAGED_PYTHON"
-          mkdir -m 0700 "$UV_INSTALL_ROOT"
+          test ! -e "$BOOTSTRAP_UV_ROOT"
+          test ! -e "$BOOTSTRAP_PYTHON_ROOT"
+          test ! -e "$BOOTSTRAP_CACHE_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_UV_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_PYTHON_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_CACHE_ROOT"
           curl --fail --location --proto '=https' --tlsv1.2 \
-            --output "$UV_INSTALL_ROOT/uv.tar.gz" \
+            --output "$BOOTSTRAP_UV_ROOT/uv.tar.gz" \
             https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz
           printf '%s  %s\n' \
             e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224 \
-            "$UV_INSTALL_ROOT/uv.tar.gz" | sha256sum --check --strict
-          tar --extract --gzip --file "$UV_INSTALL_ROOT/uv.tar.gz" \
-            --directory "$UV_INSTALL_ROOT" --strip-components=1 \
+            "$BOOTSTRAP_UV_ROOT/uv.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file "$BOOTSTRAP_UV_ROOT/uv.tar.gz" \
+            --directory "$BOOTSTRAP_UV_ROOT" --strip-components=1 \
             uv-x86_64-unknown-linux-gnu/uv
-          chmod 0555 "$UV_INSTALL_ROOT/uv"
-          printf 'UV_BIN=%s\n' "$UV_INSTALL_ROOT/uv" >> "$GITHUB_ENV"
-          printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$UV_MANAGED_PYTHON" >> "$GITHUB_ENV"
-          "$UV_INSTALL_ROOT/uv" python install 3.12.13
+          chmod 0555 "$BOOTSTRAP_UV_ROOT/uv"
+          printf 'UV_BIN=%s\n' "$BOOTSTRAP_UV_ROOT/uv" >> "$GITHUB_ENV"
+          printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$BOOTSTRAP_PYTHON_ROOT" >> "$GITHUB_ENV"
+          while IFS='=' read -r VARIABLE _; do
+            case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac
+          done < <(env)
+          "$BOOTSTRAP_UV_ROOT/uv" python install \
+            --no-config \
+            --cache-dir "$BOOTSTRAP_CACHE_ROOT" \
+            --install-dir "$BOOTSTRAP_PYTHON_ROOT" \
+            --managed-python \
+            --no-bin \
+            3.12.13
 
       - name: Prepare locked release tools
         env:
@@ -61,15 +74,26 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
+          PUBLISHER_UV="$UV_BIN"
+          MANAGED_PYTHON_ROOT="$UV_PYTHON_INSTALL_DIR"
+          while IFS='=' read -r VARIABLE _; do
+            case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac
+          done < <(env)
           test ! -e "$BUILD_ROOT"
           mkdir -p "$BUILD_ROOT"
-          UV_CACHE_DIR="$BUILD_ROOT/uv-cache" \
+          UV_PYTHON_INSTALL_DIR="$MANAGED_PYTHON_ROOT" \
             UV_PROJECT_ENVIRONMENT="$BUILD_ROOT/venv" \
-            "$UV_BIN" sync --locked --only-group publish --no-install-project
-          test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
+            "$PUBLISHER_UV" sync \
+            --no-config \
+            --cache-dir "$BUILD_ROOT/uv-cache" \
+            --managed-python \
+            --no-python-downloads \
+            --python 3.12.13 \
+            --locked --only-group publish --no-install-project
+          test "$("$PUBLISHER_UV" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$BUILD_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
           case "$(readlink -f "$BUILD_ROOT/venv/bin/python")" in
-            "$UV_PYTHON_INSTALL_DIR"/*) ;;
+            "$MANAGED_PYTHON_ROOT"/*) ;;
             *) exit 1 ;;
           esac
 
@@ -182,26 +206,39 @@ jobs:
 
       - name: Install checksum-verified uv and managed Python
         env:
-          UV_INSTALL_ROOT: ${{ runner.temp }}/netbox-sdk-uv-verify-${{ github.run_id }}-${{ github.run_attempt }}
-          UV_MANAGED_PYTHON: ${{ runner.temp }}/netbox-sdk-python-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_UV_ROOT: ${{ runner.temp }}/netbox-sdk-uv-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_PYTHON_ROOT: ${{ runner.temp }}/netbox-sdk-python-verify-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_CACHE_ROOT: ${{ runner.temp }}/netbox-sdk-uv-cache-verify-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          test ! -e "$UV_INSTALL_ROOT"
-          test ! -e "$UV_MANAGED_PYTHON"
-          mkdir -m 0700 "$UV_INSTALL_ROOT"
+          test ! -e "$BOOTSTRAP_UV_ROOT"
+          test ! -e "$BOOTSTRAP_PYTHON_ROOT"
+          test ! -e "$BOOTSTRAP_CACHE_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_UV_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_PYTHON_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_CACHE_ROOT"
           curl --fail --location --proto '=https' --tlsv1.2 \
-            --output "$UV_INSTALL_ROOT/uv.tar.gz" \
+            --output "$BOOTSTRAP_UV_ROOT/uv.tar.gz" \
             https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz
           printf '%s  %s\n' \
             e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224 \
-            "$UV_INSTALL_ROOT/uv.tar.gz" | sha256sum --check --strict
-          tar --extract --gzip --file "$UV_INSTALL_ROOT/uv.tar.gz" \
-            --directory "$UV_INSTALL_ROOT" --strip-components=1 \
+            "$BOOTSTRAP_UV_ROOT/uv.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file "$BOOTSTRAP_UV_ROOT/uv.tar.gz" \
+            --directory "$BOOTSTRAP_UV_ROOT" --strip-components=1 \
             uv-x86_64-unknown-linux-gnu/uv
-          chmod 0555 "$UV_INSTALL_ROOT/uv"
-          printf 'UV_BIN=%s\n' "$UV_INSTALL_ROOT/uv" >> "$GITHUB_ENV"
-          printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$UV_MANAGED_PYTHON" >> "$GITHUB_ENV"
-          "$UV_INSTALL_ROOT/uv" python install 3.12.13
+          chmod 0555 "$BOOTSTRAP_UV_ROOT/uv"
+          printf 'UV_BIN=%s\n' "$BOOTSTRAP_UV_ROOT/uv" >> "$GITHUB_ENV"
+          printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$BOOTSTRAP_PYTHON_ROOT" >> "$GITHUB_ENV"
+          while IFS='=' read -r VARIABLE _; do
+            case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac
+          done < <(env)
+          "$BOOTSTRAP_UV_ROOT/uv" python install \
+            --no-config \
+            --cache-dir "$BOOTSTRAP_CACHE_ROOT" \
+            --install-dir "$BOOTSTRAP_PYTHON_ROOT" \
+            --managed-python \
+            --no-bin \
+            3.12.13
 
       - name: Prepare isolated locked publisher tools
         env:
@@ -210,15 +247,27 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
+          PUBLISHER_UV="$UV_BIN"
+          MANAGED_PYTHON_ROOT="$UV_PYTHON_INSTALL_DIR"
+          while IFS='=' read -r VARIABLE _; do
+            case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac
+          done < <(env)
           test ! -e "$PUBLISH_ROOT"
           mkdir -p "$PUBLISH_ROOT"
-          UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
+          UV_PYTHON_INSTALL_DIR="$MANAGED_PYTHON_ROOT" \
             UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
-            "$UV_BIN" sync --directory "$SOURCE_ROOT" --locked --only-group publish --no-install-project
-          test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
+            "$PUBLISHER_UV" sync \
+            --directory "$SOURCE_ROOT" \
+            --no-config \
+            --cache-dir "$PUBLISH_ROOT/uv-cache" \
+            --managed-python \
+            --no-python-downloads \
+            --python 3.12.13 \
+            --locked --only-group publish --no-install-project
+          test "$("$PUBLISHER_UV" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
           case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in
-            "$UV_PYTHON_INSTALL_DIR"/*) ;;
+            "$MANAGED_PYTHON_ROOT"/*) ;;
             *) exit 1 ;;
           esac
 
@@ -328,26 +377,39 @@ jobs:
 
       - name: Install checksum-verified uv and managed Python
         env:
-          UV_INSTALL_ROOT: ${{ runner.temp }}/netbox-sdk-uv-publish-${{ github.run_id }}-${{ github.run_attempt }}
-          UV_MANAGED_PYTHON: ${{ runner.temp }}/netbox-sdk-python-publish-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_UV_ROOT: ${{ runner.temp }}/netbox-sdk-uv-publish-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_PYTHON_ROOT: ${{ runner.temp }}/netbox-sdk-python-publish-${{ github.run_id }}-${{ github.run_attempt }}
+          BOOTSTRAP_CACHE_ROOT: ${{ runner.temp }}/netbox-sdk-uv-cache-publish-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          test ! -e "$UV_INSTALL_ROOT"
-          test ! -e "$UV_MANAGED_PYTHON"
-          mkdir -m 0700 "$UV_INSTALL_ROOT"
+          test ! -e "$BOOTSTRAP_UV_ROOT"
+          test ! -e "$BOOTSTRAP_PYTHON_ROOT"
+          test ! -e "$BOOTSTRAP_CACHE_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_UV_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_PYTHON_ROOT"
+          mkdir -m 0700 "$BOOTSTRAP_CACHE_ROOT"
           curl --fail --location --proto '=https' --tlsv1.2 \
-            --output "$UV_INSTALL_ROOT/uv.tar.gz" \
+            --output "$BOOTSTRAP_UV_ROOT/uv.tar.gz" \
             https://github.com/astral-sh/uv/releases/download/0.11.28/uv-x86_64-unknown-linux-gnu.tar.gz
           printf '%s  %s\n' \
             e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224 \
-            "$UV_INSTALL_ROOT/uv.tar.gz" | sha256sum --check --strict
-          tar --extract --gzip --file "$UV_INSTALL_ROOT/uv.tar.gz" \
-            --directory "$UV_INSTALL_ROOT" --strip-components=1 \
+            "$BOOTSTRAP_UV_ROOT/uv.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file "$BOOTSTRAP_UV_ROOT/uv.tar.gz" \
+            --directory "$BOOTSTRAP_UV_ROOT" --strip-components=1 \
             uv-x86_64-unknown-linux-gnu/uv
-          chmod 0555 "$UV_INSTALL_ROOT/uv"
-          printf 'UV_BIN=%s\n' "$UV_INSTALL_ROOT/uv" >> "$GITHUB_ENV"
-          printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$UV_MANAGED_PYTHON" >> "$GITHUB_ENV"
-          "$UV_INSTALL_ROOT/uv" python install 3.12.13
+          chmod 0555 "$BOOTSTRAP_UV_ROOT/uv"
+          printf 'UV_BIN=%s\n' "$BOOTSTRAP_UV_ROOT/uv" >> "$GITHUB_ENV"
+          printf 'UV_PYTHON_INSTALL_DIR=%s\n' "$BOOTSTRAP_PYTHON_ROOT" >> "$GITHUB_ENV"
+          while IFS='=' read -r VARIABLE _; do
+            case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac
+          done < <(env)
+          "$BOOTSTRAP_UV_ROOT/uv" python install \
+            --no-config \
+            --cache-dir "$BOOTSTRAP_CACHE_ROOT" \
+            --install-dir "$BOOTSTRAP_PYTHON_ROOT" \
+            --managed-python \
+            --no-bin \
+            3.12.13
 
       - name: Prepare isolated locked publisher tool
         env:
@@ -356,15 +418,27 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
+          PUBLISHER_UV="$UV_BIN"
+          MANAGED_PYTHON_ROOT="$UV_PYTHON_INSTALL_DIR"
+          while IFS='=' read -r VARIABLE _; do
+            case "$VARIABLE" in UV_*) unset "$VARIABLE" ;; esac
+          done < <(env)
           test ! -e "$PUBLISH_ROOT"
           mkdir -p "$PUBLISH_ROOT"
-          UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
+          UV_PYTHON_INSTALL_DIR="$MANAGED_PYTHON_ROOT" \
             UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
-            "$UV_BIN" sync --directory "$TOOL_ROOT" --locked --only-group publish --no-install-project
-          test "$("$UV_BIN" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
+            "$PUBLISHER_UV" sync \
+            --directory "$TOOL_ROOT" \
+            --no-config \
+            --cache-dir "$PUBLISH_ROOT/uv-cache" \
+            --managed-python \
+            --no-python-downloads \
+            --python 3.12.13 \
+            --locked --only-group publish --no-install-project
+          test "$("$PUBLISHER_UV" --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
           case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in
-            "$UV_PYTHON_INSTALL_DIR"/*) ;;
+            "$MANAGED_PYTHON_ROOT"/*) ;;
             *) exit 1 ;;
           esac
 
