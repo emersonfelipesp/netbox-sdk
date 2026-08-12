@@ -224,7 +224,11 @@ and `plugin_call_tool` MCP tools discover and invoke those operations through
 the same `NetBoxApiClient`; plugin DRF permissions remain authoritative and no
 parallel credential or MCP server is created. Plugin-tool dry-runs perform only
 the live GETs required for manifest discovery and never dispatch the advertised
-write endpoint. See the [plugin bridge contract](https://emersonfelipesp.github.io/netbox-sdk/mcp/plugin-bridge/).
+write endpoint. Bridge version 1 is a generic descriptor protocol; each plugin
+owns its tool-payload snapshot. Validation rejects date-time normalization
+overflow and floating-point integers above the lossless JSON safe range so a
+rounded number cannot select another object identity. See the [plugin bridge
+contract](https://emersonfelipesp.github.io/netbox-sdk/mcp/plugin-bridge/).
 
 Agents can inspect the same JSON capability contract through the CLI:
 

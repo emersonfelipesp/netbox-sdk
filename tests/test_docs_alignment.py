@@ -103,6 +103,46 @@ def test_claude_guidance_mentions_versioned_typed_sdk() -> None:
     assert "netbox-openapi-4.6.json" in reference_claude
 
 
+def test_agent_guidance_keeps_generic_bridge_contract_mirrored() -> None:
+    sdk_guides = (_read("netbox_sdk/CLAUDE.md"), _read("netbox_sdk/AGENTS.md"))
+    test_guides = (_read("tests/CLAUDE.md"), _read("tests/AGENTS.md"))
+
+    for guide in sdk_guides:
+        assert "Descriptor version 1 is generic" in guide
+        assert "lossless integer semantics" in guide
+        assert "normalized UTC month boundaries" in guide
+        assert "plugin repositories own their operation payload snapshots" in guide
+    for guide in test_guides:
+        assert "test_plugin_bridge.py" in guide
+        assert "test_mcp_plugin_bridge.py" in guide
+        assert "neutral descriptor-v1 sample" in guide
+        assert "canonical plugin payload snapshots remain producer-owned" in guide
+
+
+def test_sdk_bridge_sample_remains_neutral_and_producer_independent() -> None:
+    fixture_path = REPO_ROOT / "tests/fixtures/plugin_bridge_v1_sample.json"
+    payload = json.loads(fixture_path.read_text(encoding="utf-8"))
+
+    assert payload["plugin"] == "example"
+    assert [tool["name"] for tool in payload["tools"]] == [
+        "list_tasks",
+        "create_task",
+    ]
+    assert {tool["path"] for tool in payload["tools"]} == {"tasks/"}
+    encoded = json.dumps(payload, sort_keys=True).casefold()
+    for producer_contract in (
+        "proxbox",
+        "proxmox",
+        "sync/schedule",
+        "sync_stages",
+        "sync_types",
+        "netbox_endpoint_ids",
+        "proxmox_endpoint_ids",
+    ):
+        assert producer_contract not in encoded
+    assert not (REPO_ROOT / "tests/fixtures/proxbox_bridge_v1.json").exists()
+
+
 def test_repo_docs_branding_uses_netbox_sdk_urls() -> None:
     files = [
         "README.md",

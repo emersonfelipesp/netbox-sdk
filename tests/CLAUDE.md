@@ -42,8 +42,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_api_auth.py` | Authorization header generation, config completeness, URL validation, v2→v1 token fallback |
 | `test_api_cache.py` | Cache TTL policies, stale-if-error, ETag/Last-Modified conditional requests |
 | `test_client_bounded_response.py` | Uncached/non-redirecting bounded transport, `Content-Length` preflight, and streamed decompressed-byte enforcement |
-| `test_plugin_bridge.py` | Bridge-v1 manifest validation, same-origin/plugin-local discovery, URL-prefix support, strict JSON/schema/query contracts, and aggregate discovery budgets |
-| `test_mcp_plugin_bridge.py` | Stable MCP semantic-tool catalog/call behavior, canonical Proxbox fixture compatibility, mutation gate, dry-run, redirect refusal, strict response parsing, and output validation |
+| `test_plugin_bridge.py` | Bridge-v1 manifest validation, same-origin/plugin-local discovery, URL-prefix support, strict JSON/schema/query contracts, lossless integer and normalized-UTC leap-second semantics, and aggregate discovery budgets |
+| `test_mcp_plugin_bridge.py` | Stable MCP semantic-tool catalog/call behavior using a neutral descriptor-v1 sample, mutation gate, dry-run, redirect refusal, strict response parsing, numeric/date-time boundaries, and output validation; canonical plugin payload snapshots remain producer-owned |
 | `test_branching_cli.py` | Branching CLI commands, aliases, scoped headers, and help output |
 | `test_branching_client.py` | Branching API client, job polling, and scoped header helpers |
 | `test_branching_live.py` | Live NetBox Branching smoke paths; skips when a live Branching plugin is unavailable |
