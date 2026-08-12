@@ -1563,6 +1563,15 @@ def _assert_workflow_policy(text: str) -> None:
         assert 'cd "$TOOL_ROOT"' in step["run"]
         assert step["run"].index('cd "$TOOL_ROOT"') < step["run"].index("-m scripts.gitea_release")
 
+    for guide in ("CLAUDE.md", "AGENTS.md"):
+        guide_text = Path(guide).read_text(encoding="utf-8")
+        assert "separate disposable, credential-free job" in guide_text
+        assert "A third disposable job" in guide_text
+        assert "built-in token remains\npackage-read-only" in guide_text
+        assert "`PACKAGE_WRITE_TOKEN` secret" in guide_text
+        assert "credential-free `mirror-host`" not in guide_text
+        assert "receives the ephemeral job token" not in guide_text
+
 
 def test_private_registry_workflow_security_contract_and_mutations() -> None:
     workflow = Path(".gitea/workflows/publish-package.yml").read_text(encoding="utf-8")

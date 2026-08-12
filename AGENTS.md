@@ -181,17 +181,18 @@ not a pass.
 `.gitea/workflows/publish-package.yml` is the private package-registry release
 path. It accepts only an exact annotated RC tag at explicitly fetched canonical
 `main`; manual dispatch is forbidden. Candidate code builds twice without
-credentials on `ci-untrusted-python312`, canonicalizes archive metadata from the
-validated commit epoch, and must produce byte-identical wheel/sdist pairs. A
-credential-free `mirror-host` job performs all Git/archive/metadata parsing and
-independently canonicalizes private copies, requires byte equality with the
-untouched incoming artifacts, and emits a private exact seal. A separate
-package-write job checks out its helper at `${{ github.sha }}`, rejects any
-verify-job source-SHA mismatch, changes to that exact tool root, and only
-validates the bounded seal, re-hashes the two files, and performs bounded
-registry/Twine operations. Only its final step
-receives the ephemeral job token. GitHub Actions remains the sole TestPyPI and
-PyPI publisher.
+credentials on a disposable `ci-untrusted-python312` job, canonicalizes archive
+metadata from the validated commit epoch, and must produce byte-identical
+wheel/sdist pairs. A separate disposable, credential-free job on the same label
+performs all Git/archive/metadata parsing, independently canonicalizes private
+copies, requires byte equality with the untouched incoming artifacts, and emits
+a private exact seal. A third disposable job checks out its helper at
+`${{ github.sha }}`, rejects any verify-job source-SHA mismatch, changes to that
+exact tool root, and only validates the bounded seal, re-hashes the two files,
+and performs bounded registry/Twine operations. Its built-in token remains
+package-read-only; only its final step receives the repository-scoped
+`PACKAGE_WRITE_TOKEN` secret. GitHub Actions remains the sole TestPyPI and PyPI
+publisher.
 
 ## Verification Before Done
 
