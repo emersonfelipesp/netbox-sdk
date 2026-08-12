@@ -4,28 +4,23 @@ on:
   push:
     tags:
       - "v*rc*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Exact annotated candidate tag (v<project-version>)
-        required: true
-        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: private-package-${{ github.run_id }}-${{ github.run_attempt }}
+  group: private-package-${{ github.repository }}-netbox-sdk-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build-candidate:
-    name: Build credential-free candidate
+    name: Build credential-free candidate twice
     runs-on: ci-untrusted-python312
     permissions:
       contents: read
     outputs:
       package_name: ${{ steps.policy.outputs.package_name }}
+      source_epoch: ${{ steps.policy.outputs.source_epoch }}
       source_sha: ${{ steps.policy.outputs.source_sha }}
       tag: ${{ steps.tag.outputs.tag }}
       version: ${{ steps.policy.outputs.version }}
@@ -58,12 +53,12 @@ jobs:
           test "$(uv --version)" = "uv 0.11.28"
           test "$("$BUILD_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
 
-      - name: Validate explicit tag input
+      - name: Validate exact pushed tag
         id: tag
         env:
           BUILD_ROOT: ${{ runner.temp }}/netbox-sdk-build-${{ github.run_id }}-${{ github.run_attempt }}
           RELEASE_EVENT: ${{ github.event_name }}
-          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           "$BUILD_ROOT/venv/bin/python" -m scripts.gitea_release validate-tag \
@@ -90,27 +85,47 @@ jobs:
             --immutable-tag-ref refs/release-policy/gitea-v0.0.10 \
             --immutable-tag-object e104bdd554ac2becf7abd38b238d8fb5509651f4 \
             --immutable-tag-commit 3bcc86481f60f0f2d6fb1913c42d1561f5d5b77e
-          git checkout --detach refs/release-policy/candidate
 
-      - name: Build and bind exact transfer set
+      - name: Build twice and bind byte-identical canonical artifacts
         env:
           BUILD_ROOT: ${{ runner.temp }}/netbox-sdk-build-${{ github.run_id }}-${{ github.run_attempt }}
           PACKAGE_NAME: ${{ steps.policy.outputs.package_name }}
           RELEASE_VERSION: ${{ steps.policy.outputs.version }}
+          SOURCE_EPOCH: ${{ steps.policy.outputs.source_epoch }}
           SOURCE_SHA: ${{ steps.policy.outputs.source_sha }}
         run: |
           set -euo pipefail
-          mkdir "$BUILD_ROOT/dist"
-          "$BUILD_ROOT/venv/bin/python" -m build --no-isolation --outdir "$BUILD_ROOT/dist"
-          "$BUILD_ROOT/venv/bin/python" -m twine check \
-            "$BUILD_ROOT/dist/netbox_sdk-${RELEASE_VERSION}-py3-none-any.whl" \
-            "$BUILD_ROOT/dist/netbox_sdk-${RELEASE_VERSION}.tar.gz"
+          for BUILD_ID in a b; do
+            SOURCE_ROOT="$BUILD_ROOT/source-$BUILD_ID"
+            DIST_ROOT="$BUILD_ROOT/dist-$BUILD_ID"
+            git worktree add --detach "$SOURCE_ROOT" "$SOURCE_SHA"
+            mkdir "$DIST_ROOT"
+            (
+              cd "$SOURCE_ROOT"
+              SOURCE_DATE_EPOCH="$SOURCE_EPOCH" PYTHONHASHSEED=0 \
+                "$BUILD_ROOT/venv/bin/python" -m build --no-isolation --outdir "$DIST_ROOT"
+            )
+            "$BUILD_ROOT/venv/bin/python" -m scripts.gitea_release normalize-build \
+              --dist-dir "$DIST_ROOT" \
+              --package "$PACKAGE_NAME" \
+              --version "$RELEASE_VERSION" \
+              --source-epoch "$SOURCE_EPOCH"
+            "$BUILD_ROOT/venv/bin/python" -m twine check \
+              "$DIST_ROOT/netbox_sdk-${RELEASE_VERSION}-py3-none-any.whl" \
+              "$DIST_ROOT/netbox_sdk-${RELEASE_VERSION}.tar.gz"
+          done
+          "$BUILD_ROOT/venv/bin/python" -m scripts.gitea_release compare-builds \
+            --first-dir "$BUILD_ROOT/dist-a" \
+            --second-dir "$BUILD_ROOT/dist-b" \
+            --package "$PACKAGE_NAME" \
+            --version "$RELEASE_VERSION"
           "$BUILD_ROOT/venv/bin/python" -m scripts.gitea_release prepare-transfer \
-            --dist-dir "$BUILD_ROOT/dist" \
+            --dist-dir "$BUILD_ROOT/dist-a" \
             --transfer-dir "$BUILD_ROOT/transfer" \
             --package "$PACKAGE_NAME" \
             --version "$RELEASE_VERSION" \
-            --source-sha "$SOURCE_SHA"
+            --source-sha "$SOURCE_SHA" \
+            --source-epoch "$SOURCE_EPOCH"
 
       - name: Transfer only the bounded candidate set
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -123,13 +138,18 @@ jobs:
           retention-days: 1
           overwrite: false
 
-  publish-candidate:
-    name: Publish independently verified candidate
+  verify-and-seal:
+    name: Verify source and seal without package credentials
     needs: build-candidate
     runs-on: mirror-host
     permissions:
       contents: read
-      packages: write
+    outputs:
+      package_name: ${{ steps.policy.outputs.package_name }}
+      source_epoch: ${{ steps.policy.outputs.source_epoch }}
+      source_sha: ${{ steps.policy.outputs.source_sha }}
+      tag: ${{ needs.build-candidate.outputs.tag }}
+      version: ${{ steps.policy.outputs.version }}
     steps:
       - name: Check out trusted canonical policy source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -169,11 +189,13 @@ jobs:
           path: ${{ runner.temp }}/netbox-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}/transfer
 
       - name: Re-fetch and revalidate canonical release state
+        id: policy
         env:
           PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}
           RELEASE_EVENT: ${{ github.event_name }}
           RELEASE_TAG: ${{ needs.build-candidate.outputs.tag }}
           RELEASE_VERSION: ${{ needs.build-candidate.outputs.version }}
+          SOURCE_EPOCH: ${{ needs.build-candidate.outputs.source_epoch }}
           SOURCE_ROOT: ${{ github.workspace }}/trusted-source-${{ github.run_id }}-${{ github.run_attempt }}
           SOURCE_SHA: ${{ needs.build-candidate.outputs.source_sha }}
         run: |
@@ -194,25 +216,120 @@ jobs:
             --immutable-tag-ref refs/release-policy/gitea-v0.0.10 \
             --immutable-tag-object e104bdd554ac2becf7abd38b238d8fb5509651f4 \
             --immutable-tag-commit 3bcc86481f60f0f2d6fb1913c42d1561f5d5b77e
+          test "$SOURCE_SHA" = "$(git rev-parse refs/release-policy/candidate^{commit})"
+          test "$SOURCE_EPOCH" = "$(git show -s --format=%ct "$SOURCE_SHA")"
           git checkout --detach refs/release-policy/candidate
 
-      - name: Publish independently verified exact package
+      - name: Validate source and create private publication seal without credentials
         env:
-          GITEA_TOKEN: ${{ github.token }}
-          PACKAGE_NAME: ${{ needs.build-candidate.outputs.package_name }}
+          PACKAGE_NAME: ${{ steps.policy.outputs.package_name }}
           PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}
-          RELEASE_VERSION: ${{ needs.build-candidate.outputs.version }}
+          RELEASE_VERSION: ${{ steps.policy.outputs.version }}
+          SOURCE_EPOCH: ${{ steps.policy.outputs.source_epoch }}
           SOURCE_ROOT: ${{ github.workspace }}/trusted-source-${{ github.run_id }}-${{ github.run_attempt }}
-          SOURCE_SHA: ${{ needs.build-candidate.outputs.source_sha }}
+          SOURCE_SHA: ${{ steps.policy.outputs.source_sha }}
         run: |
           set -euo pipefail
           cd "$SOURCE_ROOT"
-          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release publish \
+          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release seal-transfer \
             --transfer-dir "$PUBLISH_ROOT/transfer" \
+            --sealed-dir "$PUBLISH_ROOT/sealed" \
             --source-root "$SOURCE_ROOT" \
             --package "$PACKAGE_NAME" \
             --version "$RELEASE_VERSION" \
             --source-sha "$SOURCE_SHA" \
+            --source-epoch "$SOURCE_EPOCH"
+
+      - name: Transfer only the verified sealed set
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: netbox-sdk-private-seal-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/netbox-sdk-publish-${{ github.run_id }}-${{ github.run_attempt }}/sealed
+          if-no-files-found: error
+          include-hidden-files: false
+          compression-level: 0
+          retention-days: 1
+          overwrite: false
+
+  publish-candidate:
+    name: Publish only the verified sealed candidate
+    needs: verify-and-seal
+    runs-on: mirror-host
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out trusted publisher tool
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          token: ''
+          ref: ${{ needs.verify-and-seal.outputs.source_sha }}
+          path: publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          enable-cache: false
+          version: "0.11.28"
+          python-version: "3.12.13"
+
+      - name: Prepare isolated locked publisher tool
+        env:
+          PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}
+          TOOL_ROOT: ${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test ! -e "$PUBLISH_ROOT"
+          mkdir -p "$PUBLISH_ROOT"
+          UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
+            UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
+            uv sync --directory "$TOOL_ROOT" --locked --only-group publish --no-install-project
+          test "$(uv --version)" = "uv 0.11.28"
+          test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
+
+      - name: Download only the verified sealed set
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: netbox-sdk-private-seal-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}/sealed
+
+      - name: Restore and validate private seal permissions
+        env:
+          PACKAGE_NAME: ${{ needs.verify-and-seal.outputs.package_name }}
+          PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}
+          RELEASE_VERSION: ${{ needs.verify-and-seal.outputs.version }}
+          SOURCE_EPOCH: ${{ needs.verify-and-seal.outputs.source_epoch }}
+          SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          umask 077
+          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release harden-seal \
+            --sealed-dir "$PUBLISH_ROOT/sealed" \
+            --package "$PACKAGE_NAME" \
+            --version "$RELEASE_VERSION" \
+            --source-sha "$SOURCE_SHA" \
+            --source-epoch "$SOURCE_EPOCH"
+
+      - name: Publish the sealed exact package
+        timeout-minutes: 5
+        env:
+          GITEA_TOKEN: ${{ github.token }}
+          PACKAGE_NAME: ${{ needs.verify-and-seal.outputs.package_name }}
+          PUBLISH_ROOT: ${{ runner.temp }}/netbox-sdk-final-${{ github.run_id }}-${{ github.run_attempt }}
+          RELEASE_VERSION: ${{ needs.verify-and-seal.outputs.version }}
+          SOURCE_EPOCH: ${{ needs.verify-and-seal.outputs.source_epoch }}
+          SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release publish \
+            --sealed-dir "$PUBLISH_ROOT/sealed" \
+            --package "$PACKAGE_NAME" \
+            --version "$RELEASE_VERSION" \
+            --source-sha "$SOURCE_SHA" \
+            --source-epoch "$SOURCE_EPOCH" \
             --server-url "${{ github.server_url }}" \
             --owner emersonfelipesp \
             --repository netbox-sdk \

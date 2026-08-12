@@ -103,9 +103,13 @@ require the head to be current with its base before merge.
   - uses one PEP 440 policy for final and post-release publication; prerelease, development, and local versions remain TestPyPI-only
 
 The repository also owns `.gitea/workflows/publish-package.yml` for an
-access-controlled package registry. It is tag/manual RC-only, keeps PEP 517 in
-a credential-free untrusted job, and confines the ephemeral package-write token
-to the final publisher step on `mirror-host`. The publisher independently binds
-the exact wheel and sdist to canonical Git object bytes, never imports/extracts
-candidate code, and accepts only absent or already-exact remote state. This does
-not change GitHub Actions' sole authority over TestPyPI and PyPI.
+access-controlled package registry. It is tag-push RC-only and builds the exact
+source twice in a credential-free untrusted job, canonicalizing from the commit
+epoch and requiring byte equality. A second credential-free job performs all
+Git/archive/metadata validation and transfers only a private exact seal. The
+package-write job checks out its helper at the same source SHA, parses only the
+bounded seal, re-hashes its files, and confines the ephemeral token to the final
+bounded publish step. This does not change GitHub Actions' sole authority over
+TestPyPI and PyPI. The final job retains the repository's explicit
+`contents: read, packages: write` contract, but its exact-SHA checkout sets
+`token: ''`; no pre-publish action or step consumes `${{ github.token }}`.

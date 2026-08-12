@@ -14,28 +14,38 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import yaml
 
 from scripts.gitea_release import (
     MANIFEST_NAME,
+    SEAL_NAME,
     ArtifactRecord,
     BoundedHttpClient,
     GiteaRegistry,
     ReleaseError,
     RemoteState,
     TransferManifest,
+    _main_publish,
     _main_validate_tag,
     _manifest_payload,
+    _run_twine_upload,
     _validate_wheel_record,
     classify_remote_state,
+    compare_builds,
+    harden_downloaded_seal,
+    normalize_build,
     prepare_transfer,
     reconcile_publication,
+    seal_transfer,
     validate_archive_source_binding,
+    validate_seal,
     validate_transfer,
     validate_trusted_source_checkout,
 )
 from scripts.release_policy import (
     validate_exact_canonical_source,
     validate_gitea_candidate_tag,
+    validated_commit_epoch,
 )
 
 pytestmark = pytest.mark.suite_sdk
@@ -43,6 +53,7 @@ pytestmark = pytest.mark.suite_sdk
 PACKAGE = "netbox-sdk"
 VERSION = "0.0.11rc2"
 SOURCE_SHA = "a" * 40
+SOURCE_EPOCH = 1700000000
 WHEEL = "netbox_sdk-0.0.11rc2-py3-none-any.whl"
 SDIST = "netbox_sdk-0.0.11rc2.tar.gz"
 
@@ -68,10 +79,19 @@ def _source_repo(tmp_path: Path) -> tuple[Path, str]:
 name = "netbox-sdk"
 version = "0.0.11rc2"
 description = "Fixture"
+readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE.txt"]
 requires-python = ">=3.11,<3.14"
+authors = [{name = "Release Author", email = "author@example.invalid"}]
+maintainers = [{name = "Release Maintainer", email = "maintainer@example.invalid"}]
+keywords = ["fixture", "release"]
+classifiers = ["Development Status :: 3 - Alpha", "Typing :: Typed"]
 dependencies = ["demo-dependency>=1"]
+
+[project.urls]
+Homepage = "https://example.invalid/project"
+Documentation = "https://example.invalid/docs"
 
 [project.optional-dependencies]
 all = ["extra-dependency>=2"]
@@ -107,13 +127,23 @@ def _metadata() -> bytes:
         b"Name: netbox-sdk\n"
         b"Version: 0.0.11rc2\n"
         b"Summary: Fixture\n"
+        b"Author-email: Release Author <author@example.invalid>\n"
+        b"Maintainer-email: Release Maintainer <maintainer@example.invalid>\n"
         b"License-Expression: Apache-2.0\n"
+        b"Project-URL: Homepage, https://example.invalid/project\n"
+        b"Project-URL: Documentation, https://example.invalid/docs\n"
+        b"Keywords: fixture,release\n"
+        b"Classifier: Development Status :: 3 - Alpha\n"
+        b"Classifier: Typing :: Typed\n"
         b"Requires-Python: <3.14,>=3.11\n"
+        b"Description-Content-Type: text/markdown\n"
+        b"License-File: LICENSE.txt\n"
         b"Requires-Dist: demo-dependency>=1\n"
         b'Requires-Dist: extra-dependency>=2; extra == "all"\n'
         b"Provides-Extra: all\n"
         b"Provides-Extra: empty\n"
         b"Dynamic: license-file\n\n"
+        b"fixture\n"
     )
 
 
@@ -196,7 +226,13 @@ def _transfer(tmp_path: Path) -> tuple[Path, TransferManifest, Path]:
         )
         for path in (transfer / WHEEL, transfer / SDIST)
     )
-    manifest = TransferManifest(PACKAGE, VERSION, source_sha, artifacts)
+    manifest = TransferManifest(
+        PACKAGE,
+        VERSION,
+        source_sha,
+        artifacts,
+        validated_commit_epoch(commit_ref=source_sha, repo=repo),
+    )
     (transfer / MANIFEST_NAME).write_text(
         json.dumps(_manifest_payload(manifest), sort_keys=True), encoding="utf-8"
     )
@@ -263,8 +299,81 @@ def test_prepare_transfer_cleans_partial_destination_on_copy_failure(
             package=PACKAGE,
             version=VERSION,
             source_sha=SOURCE_SHA,
+            source_epoch=SOURCE_EPOCH,
         )
     assert not transfer.exists()
+
+
+def test_archive_normalization_makes_independent_builds_byte_identical(
+    tmp_path: Path,
+) -> None:
+    repo, _source_sha = _source_repo(tmp_path)
+    first = tmp_path / "dist-a"
+    second = tmp_path / "dist-b"
+    first.mkdir()
+    second.mkdir()
+    wheel_members = _wheel_members(repo)
+    sdist_members = _sdist_members(repo)
+    _write_wheel(first / WHEEL, wheel_members)
+    _write_sdist(first / SDIST, sdist_members)
+    _write_wheel(second / WHEEL, dict(reversed(tuple(wheel_members.items()))))
+    _write_sdist(second / SDIST, dict(reversed(tuple(sdist_members.items()))))
+    assert (first / WHEEL).read_bytes() != (second / WHEEL).read_bytes()
+    assert (first / SDIST).read_bytes() != (second / SDIST).read_bytes()
+
+    normalize_build(
+        dist_dir=first,
+        package=PACKAGE,
+        version=VERSION,
+        source_epoch=SOURCE_EPOCH,
+    )
+    normalize_build(
+        dist_dir=second,
+        package=PACKAGE,
+        version=VERSION,
+        source_epoch=SOURCE_EPOCH,
+    )
+    compare_builds(first_dir=first, second_dir=second, package=PACKAGE, version=VERSION)
+    assert (first / WHEEL).read_bytes() == (second / WHEEL).read_bytes()
+    assert (first / SDIST).read_bytes() == (second / SDIST).read_bytes()
+    with zipfile.ZipFile(first / WHEEL) as archive:
+        infos = archive.infolist()
+        assert [info.filename for info in infos] == sorted(info.filename for info in infos)
+        assert {info.date_time for info in infos} == {(2023, 11, 14, 22, 13, 20)}
+        assert {info.external_attr >> 16 for info in infos} == {stat.S_IFREG | 0o644}
+    assert int.from_bytes((first / SDIST).read_bytes()[4:8], "little") == SOURCE_EPOCH
+    with tarfile.open(first / SDIST) as archive:
+        members = archive.getmembers()
+        assert [member.name for member in members] == sorted(member.name for member in members)
+        assert {member.mtime for member in members} == {SOURCE_EPOCH}
+        assert {(member.uid, member.gid, member.uname, member.gname) for member in members} == {
+            (0, 0, "", "")
+        }
+        assert all(member.mode == (0o755 if member.isdir() else 0o644) for member in members)
+
+    (second / SDIST).write_bytes((second / SDIST).read_bytes() + b"mutation")
+    with pytest.raises(ReleaseError, match="byte-identical"):
+        compare_builds(first_dir=first, second_dir=second, package=PACKAGE, version=VERSION)
+
+
+def test_source_epoch_is_exact_commit_authority(tmp_path: Path) -> None:
+    repo, source_sha = _source_repo(tmp_path)
+    epoch = validated_commit_epoch(commit_ref=source_sha, repo=repo)
+    assert epoch == int(_git(repo, "show", "-s", "--format=%ct", source_sha))
+    transfer, manifest, source_repo = _transfer(tmp_path / "second")
+    altered = TransferManifest(
+        manifest.package,
+        manifest.version,
+        manifest.source_sha,
+        manifest.artifacts,
+        manifest.source_epoch - 1,
+    )
+    with pytest.raises(ReleaseError, match="epoch"):
+        validate_archive_source_binding(
+            transfer_dir=transfer,
+            manifest=altered,
+            source_root=source_repo,
+        )
 
 
 def test_corrupt_reachable_git_object_fails_without_lazy_fetch(tmp_path: Path) -> None:
@@ -314,7 +423,13 @@ def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
         )
         for path in (transfer / WHEEL, transfer / SDIST)
     )
-    hostile = TransferManifest(PACKAGE, VERSION, manifest.source_sha, records)
+    hostile = TransferManifest(
+        PACKAGE,
+        VERSION,
+        manifest.source_sha,
+        records,
+        manifest.source_epoch,
+    )
     (transfer / MANIFEST_NAME).write_text(json.dumps(_manifest_payload(hostile)), encoding="utf-8")
     validate_transfer(
         transfer_dir=transfer,
@@ -324,6 +439,84 @@ def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
     )
     with pytest.raises(ReleaseError, match="trusted|differs"):
         validate_archive_source_binding(transfer_dir=transfer, manifest=hostile, source_root=repo)
+
+
+def _rewrite_wheel_record(members: dict[str, bytes]) -> None:
+    record = "netbox_sdk-0.0.11rc2.dist-info/RECORD"
+    members.pop(record, None)
+    output = io.StringIO()
+    writer = csv.writer(output, lineterminator="\n")
+    for name, payload in members.items():
+        digest = base64.urlsafe_b64encode(hashlib.sha256(payload).digest()).rstrip(b"=").decode()
+        writer.writerow((name, f"sha256={digest}", len(payload)))
+    writer.writerow((record, "", ""))
+    members[record] = output.getvalue().encode()
+
+
+@pytest.mark.parametrize(
+    ("original", "replacement"),
+    [
+        (b"Metadata-Version: 2.4", b"Metadata-Version: 2.3"),
+        (
+            b"Author-email: Release Author <author@example.invalid>",
+            b"Author-email: Hostile <hostile@example.invalid>",
+        ),
+        (
+            b"Maintainer-email: Release Maintainer <maintainer@example.invalid>",
+            b"Maintainer-email: Hostile <hostile@example.invalid>",
+        ),
+        (b"Keywords: fixture,release", b"Keywords: hostile"),
+        (b"Classifier: Typing :: Typed", b"Classifier: Private :: Hostile"),
+        (
+            b"Project-URL: Homepage, https://example.invalid/project",
+            b"Project-URL: Homepage, https://hostile.invalid/project",
+        ),
+        (b"Description-Content-Type: text/markdown", b"Description-Content-Type: text/html"),
+        (b"\n\nfixture\n", b"\n\nhostile\n"),
+    ],
+)
+@pytest.mark.parametrize("metadata_location", ["wheel", "sdist-root", "sdist-egg"])
+def test_all_core_metadata_and_readme_copies_are_source_authoritative(
+    tmp_path: Path,
+    metadata_location: str,
+    original: bytes,
+    replacement: bytes,
+) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    if metadata_location == "wheel":
+        members = _wheel_members(repo)
+        metadata_name = "netbox_sdk-0.0.11rc2.dist-info/METADATA"
+        members[metadata_name] = members[metadata_name].replace(original, replacement, 1)
+        _rewrite_wheel_record(members)
+        _write_wheel(transfer / WHEEL, members)
+    else:
+        members = _sdist_members(repo)
+        metadata_name = (
+            "PKG-INFO" if metadata_location == "sdist-root" else "netbox_sdk.egg-info/PKG-INFO"
+        )
+        members[metadata_name] = members[metadata_name].replace(original, replacement, 1)
+        _write_sdist(transfer / SDIST, members)
+    records = tuple(
+        ArtifactRecord(
+            path.name,
+            path.stat().st_size,
+            hashlib.sha256(path.read_bytes()).hexdigest(),
+        )
+        for path in (transfer / WHEEL, transfer / SDIST)
+    )
+    mutated = TransferManifest(
+        PACKAGE,
+        VERSION,
+        manifest.source_sha,
+        records,
+        manifest.source_epoch,
+    )
+    with pytest.raises(ReleaseError, match="metadata"):
+        validate_archive_source_binding(
+            transfer_dir=transfer,
+            manifest=mutated,
+            source_root=repo,
+        )
 
 
 def test_wheel_record_rejects_unbound_or_mismatched_members() -> None:
@@ -341,7 +534,167 @@ def _manifest() -> TransferManifest:
         VERSION,
         SOURCE_SHA,
         (ArtifactRecord(WHEEL, 5, "1" * 64), ArtifactRecord(SDIST, 5, "2" * 64)),
+        SOURCE_EPOCH,
     )
+
+
+def test_credential_free_validation_creates_a_private_exact_seal(tmp_path: Path) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    sealed = tmp_path / "sealed"
+    assert (
+        seal_transfer(
+            transfer_dir=transfer,
+            sealed_dir=sealed,
+            source_root=repo,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=manifest.source_sha,
+            expected_source_epoch=manifest.source_epoch,
+        )
+        == manifest
+    )
+    assert {path.name for path in sealed.iterdir()} == {SEAL_NAME, WHEEL, SDIST}
+    assert stat.S_IMODE(sealed.stat().st_mode) == 0o500
+    assert all(stat.S_IMODE(path.stat().st_mode) == 0o400 for path in sealed.iterdir())
+    assert (
+        validate_seal(
+            sealed_dir=sealed,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=manifest.source_sha,
+            expected_source_epoch=manifest.source_epoch,
+        )
+        == manifest
+    )
+
+    sealed.chmod(0o700)
+    for path in sealed.iterdir():
+        path.chmod(0o600)
+    assert (
+        harden_downloaded_seal(
+            sealed_dir=sealed,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=manifest.source_sha,
+            expected_source_epoch=manifest.source_epoch,
+        )
+        == manifest
+    )
+
+    artifact = sealed / WHEEL
+    artifact.chmod(0o600)
+    artifact.write_bytes(artifact.read_bytes() + b"hostile")
+    artifact.chmod(0o400)
+    with pytest.raises(ReleaseError, match="does not match"):
+        validate_seal(
+            sealed_dir=sealed,
+            expected_package=PACKAGE,
+            expected_version=VERSION,
+            expected_source_sha=manifest.source_sha,
+            expected_source_epoch=manifest.source_epoch,
+        )
+
+
+def test_token_command_uses_only_small_seal_validation_and_registry_operations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    transfer, manifest, repo = _transfer(tmp_path)
+    sealed = tmp_path / "sealed"
+    seal_transfer(
+        transfer_dir=transfer,
+        sealed_dir=sealed,
+        source_root=repo,
+        expected_package=PACKAGE,
+        expected_version=VERSION,
+        expected_source_sha=manifest.source_sha,
+        expected_source_epoch=manifest.source_epoch,
+    )
+
+    def forbidden(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        pytest.fail("complex source/archive parser ran while the package token was live")
+
+    monkeypatch.setattr("scripts.gitea_release.validate_transfer", forbidden)
+    monkeypatch.setattr("scripts.gitea_release.validate_trusted_source_checkout", forbidden)
+    monkeypatch.setattr("scripts.gitea_release.validate_archive_source_binding", forbidden)
+
+    class FakeClient:
+        origin = "https://packages.example.invalid"
+
+        def __init__(self, **kwargs: object) -> None:
+            assert kwargs["token"] == "ephemeral-secret"
+
+        def remaining(self) -> float:
+            return 10.0
+
+    class FakeRegistry:
+        def __init__(self, **kwargs: object) -> None:
+            assert isinstance(kwargs["client"], FakeClient)
+
+    validations: list[bool] = []
+
+    def fake_reconcile(**kwargs: object) -> str:
+        assert kwargs["manifest"] == manifest
+        callback = kwargs["revalidate_seal"]
+        assert callable(callback)
+        callback()
+        validations.append(True)
+        return "already exact"
+
+    monkeypatch.setattr("scripts.gitea_release.BoundedHttpClient", FakeClient)
+    monkeypatch.setattr("scripts.gitea_release.GiteaRegistry", FakeRegistry)
+    monkeypatch.setattr("scripts.gitea_release.reconcile_publication", fake_reconcile)
+    monkeypatch.setenv("GITEA_TOKEN", "ephemeral-secret")
+    args = SimpleNamespace(
+        token_env="GITEA_TOKEN",
+        sealed_dir=sealed,
+        package=PACKAGE,
+        version=VERSION,
+        source_sha=manifest.source_sha,
+        source_epoch=manifest.source_epoch,
+        server_url="https://packages.example.invalid",
+        deadline_seconds=180.0,
+        request_timeout=15.0,
+        owner="emersonfelipesp",
+        repository="netbox-sdk",
+        username="emersonfelipesp",
+        python=Path("/trusted/python"),
+    )
+    assert _main_publish(args) == 0
+    assert validations == [True]
+
+
+def test_twine_receives_only_the_minimal_allowlisted_environment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_run(command: list[str], **kwargs: object) -> SimpleNamespace:
+        captured["command"] = command
+        captured.update(kwargs)
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setenv("HOSTILE_PARENT_VALUE", "must-not-flow")
+    monkeypatch.setattr("scripts.gitea_release.subprocess.run", fake_run)
+    _run_twine_upload(
+        python=Path("/trusted/python"),
+        server_url="https://packages.example.invalid",
+        owner="emersonfelipesp",
+        username="emersonfelipesp",
+        token="ephemeral-secret",
+        artifact_paths=(tmp_path / WHEEL, tmp_path / SDIST),
+        timeout=10,
+    )
+    assert captured["env"] == {
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONUTF8": "1",
+        "TWINE_NON_INTERACTIVE": "1",
+        "TWINE_PASSWORD": "ephemeral-secret",
+        "TWINE_USERNAME": "emersonfelipesp",
+    }
+    assert "ephemeral-secret" not in " ".join(captured["command"])
 
 
 @pytest.mark.parametrize(
@@ -401,7 +754,7 @@ def test_existing_exact_associated_state_is_idempotent() -> None:
         manifest=_manifest(),
         registry=registry,
         upload=lambda: uploads.append(True),
-        revalidate_transfer=lambda: None,
+        revalidate_seal=lambda: None,
     )
     assert result == "already exact"
     assert uploads == []
@@ -415,7 +768,7 @@ def test_wrong_repository_association_fails_before_upload() -> None:
             manifest=_manifest(),
             registry=_Registry([_state(repository="other/repository")]),
             upload=lambda: uploads.append(True),
-            revalidate_transfer=lambda: None,
+            revalidate_seal=lambda: None,
         )
     assert uploads == []
 
@@ -460,6 +813,7 @@ def test_registry_uses_exact_gitea_routes_and_downloads_remote_content() -> None
             ArtifactRecord(name, len(payload), hashlib.sha256(payload).hexdigest())
             for name, payload in ((WHEEL, b"wheel"), (SDIST, b"sdist"))
         ),
+        SOURCE_EPOCH,
     )
     client = _RouteClient(manifest)
     registry = GiteaRegistry(client=client, owner="emersonfelipesp", repository="netbox-sdk")
@@ -500,7 +854,7 @@ def test_absent_upload_recovers_only_to_exact_state_and_revalidates(
             manifest=_manifest(),
             registry=registry,
             upload=upload,
-            revalidate_transfer=lambda: validations.append(True),
+            revalidate_seal=lambda: validations.append(True),
         )
         == "published exact"
     )
@@ -522,7 +876,7 @@ def test_ambiguous_association_post_recovers_with_get_first_exact_state() -> Non
             manifest=_manifest(),
             registry=registry,
             upload=lambda: pytest.fail("must not upload"),
-            revalidate_transfer=lambda: None,
+            revalidate_seal=lambda: None,
         )
         == "already exact"
     )
@@ -631,14 +985,13 @@ def test_gitea_tag_policy_and_validated_action_output(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     validate_gitea_candidate_tag(event_name="push", ref_name=f"v{VERSION}", version=VERSION)
-    validate_gitea_candidate_tag(
-        event_name="workflow_dispatch", ref_name=f"v{VERSION}", version=VERSION
-    )
     for invalid in ("v0.0.11rc1", "0.0.11rc2", "v0.0.11"):
         with pytest.raises(RuntimeError):
-            validate_gitea_candidate_tag(
-                event_name="workflow_dispatch", ref_name=invalid, version=VERSION
-            )
+            validate_gitea_candidate_tag(event_name="push", ref_name=invalid, version=VERSION)
+    with pytest.raises(RuntimeError, match="Unsupported"):
+        validate_gitea_candidate_tag(
+            event_name="workflow_dispatch", ref_name=f"v{VERSION}", version=VERSION
+        )
     output = tmp_path / "output"
     monkeypatch.setenv("GITHUB_OUTPUT", str(output))
     assert _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{VERSION}")) == 0
@@ -665,8 +1018,8 @@ def test_release_source_must_equal_canonical_main(tmp_path: Path) -> None:
 
 def _assert_workflow_policy(text: str) -> None:
     required = (
-        "workflow_dispatch:",
         '      - "v*rc*"',
+        "group: private-package-${{ github.repository }}-netbox-sdk-${{ github.ref }}",
         "runs-on: ci-untrusted-python312",
         "runs-on: mirror-host",
         "contents: read",
@@ -675,6 +1028,13 @@ def _assert_workflow_policy(text: str) -> None:
         "uv sync --locked --only-group publish --no-install-project",
         "uv 0.11.28",
         "3.12.13",
+        "for BUILD_ID in a b",
+        'SOURCE_DATE_EPOCH="$SOURCE_EPOCH" PYTHONHASHSEED=0',
+        "normalize-build",
+        "compare-builds",
+        "seal-transfer",
+        '--sealed-dir "$PUBLISH_ROOT/sealed"',
+        "timeout-minutes: 5",
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
         "actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16",
         "token: ''",
@@ -684,33 +1044,81 @@ def _assert_workflow_policy(text: str) -> None:
     assert "GITHUB_ENV" not in text
     assert text.count("${{ github.token }}") == 1
     assert text.count("runs-on: ci-untrusted-python312") == 1
-    assert text.count("uv 0.11.28") == 2
-    assert text.count("contents: read") == 3
+    assert text.count("runs-on: mirror-host") == 2
+    assert text.count("uv 0.11.28") == 3
+    assert text.count("contents: read") == 4
     assert text.count("packages: write") == 1
+    assert text.count("token: ''") == 2
+    assert "workflow_dispatch:" not in text
     assert "pull_request:" not in text and "release:" not in text
-    publish_step = text.index("- name: Publish independently verified exact package")
+    concurrency = next(line for line in text.splitlines() if line.lstrip().startswith("group:"))
+    assert "run_id" not in concurrency and "run_attempt" not in concurrency
+    publish_step = text.index("- name: Publish the sealed exact package")
+    seal_step = text.index(
+        "- name: Validate source and create private publication seal without credentials"
+    )
+    assert publish_step > seal_step
     assert text.index("${{ github.token }}") > publish_step
+    assert "${{ github.token }}" not in text[:publish_step]
+    token_block = text[publish_step:]
+    assert "--source-root" not in token_block
+    assert "--transfer-dir" not in token_block
     for line in text.splitlines():
         if "uses:" in line:
             assert "@" in line and len(line.split("@", 1)[1].split()[0]) == 40
-    run_blocks = "\n".join(
-        line for line in text.splitlines() if not line.lstrip().startswith(("env:", "RELEASE_TAG:"))
-    )
-    assert "${{ inputs." not in run_blocks
+    assert "${{ inputs." not in text
+    parsed = yaml.load(text, Loader=yaml.BaseLoader)
+    assert parsed["on"] == {"push": {"tags": ["v*rc*"]}}
+    jobs = parsed["jobs"]
+    assert set(jobs) == {"build-candidate", "verify-and-seal", "publish-candidate"}
+    assert jobs["build-candidate"]["permissions"] == {"contents": "read"}
+    assert jobs["verify-and-seal"]["needs"] == "build-candidate"
+    assert jobs["verify-and-seal"]["permissions"] == {"contents": "read"}
+    assert jobs["publish-candidate"]["needs"] == "verify-and-seal"
+    assert jobs["publish-candidate"]["permissions"] == {
+        "contents": "read",
+        "packages": "write",
+    }
+    verify_job = str(jobs["verify-and-seal"])
+    publisher_job = str(jobs["publish-candidate"])
+    assert "seal-transfer" in verify_job and "GITEA_TOKEN" not in verify_job
+    assert "netbox-sdk-private-seal" in verify_job
+    assert "netbox-sdk-private-seal" in publisher_job
+    assert "seal-transfer" not in publisher_job
+    assert "validate_archive_source_binding" not in publisher_job
+    assert "--source-root" not in publisher_job and "--transfer-dir" not in publisher_job
+    assert publisher_job.count("${{ github.token }}") == 1
+    publisher_checkout = jobs["publish-candidate"]["steps"][0]
+    assert publisher_checkout["with"]["ref"] == "${{ needs.verify-and-seal.outputs.source_sha }}"
+    assert publisher_checkout["with"]["token"] == ""
 
 
 def test_private_registry_workflow_security_contract_and_mutations() -> None:
     workflow = Path(".gitea/workflows/publish-package.yml").read_text(encoding="utf-8")
     _assert_workflow_policy(workflow)
     mutations = (
+        ("  push:\n", "  workflow_dispatch:\n"),
         ("packages: write", "packages: read"),
         ("runs-on: mirror-host", "runs-on: ci-untrusted-python312"),
         ("token: ''", "token: ${{ github.token }}"),
         ("--no-isolation", "--isolation"),
         ("uv 0.11.28", "uv 0.11.29"),
         ("@ea165f8d65b6e75b540449e92b4886f43607fa02", "@v4"),
+        (
+            "group: private-package-${{ github.repository }}-netbox-sdk-${{ github.ref }}",
+            "group: private-package-${{ github.run_id }}",
+        ),
+        ("for BUILD_ID in a b", "for BUILD_ID in a"),
+        ("compare-builds", "compare_artifacts"),
+        ("timeout-minutes: 5", "timeout-minutes-disabled: 5"),
+        (
+            "ref: ${{ needs.verify-and-seal.outputs.source_sha }}",
+            "ref: main",
+        ),
     )
     for old, new in mutations:
         mutated = workflow.replace(old, new, 1)
         with pytest.raises(AssertionError):
             _assert_workflow_policy(mutated)
+    (seal_transfer,)
+    (validate_seal,)

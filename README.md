@@ -356,8 +356,9 @@ access-controlled package registry; GitHub Actions remains the only authority
 that publishes to TestPyPI or the default PyPI index:
 
 ```bash
+# Static, operator-reviewed release oracle: do not derive this tag from event input.
 git tag -a v0.0.11rc2 -m "Release v0.0.11rc2"
-git push origin v0.0.11rc2
+git push gitea v0.0.11rc2
 ```
 
 Do not create a GitHub Release for an RC. Final and post releases must never be
@@ -394,12 +395,15 @@ workflow also fetches Gitea's `v0.0.10` ref into an isolated validation ref and
 requires its annotated tag-object SHA and peeled commit to match exactly.
 
 All credentialed publishing workflows pin every action to a reviewed full
-commit SHA. The private-registry workflow builds in a credential-free,
-read-only job and sends only a bounded wheel/sdist/manifest set to its separate
-publisher. The publisher independently compares both archives with a clean
-checkout of the exact canonical tag/main source without importing or extracting
-candidate package code, and accepts only an absent or already-exact remote file
-set associated with this repository. The public package workflow uses the `publish` dependency group from
+commit SHA. The private-registry workflow builds twice in independent,
+credential-free source worktrees, derives canonical archive metadata from the
+validated source-commit timestamp, and requires both wheel/sdist pairs to be
+byte-identical. A separate credential-free job binds the archives and complete
+distribution metadata to the exact canonical Git source, then emits only a
+private, read-only seal and its two exact files. The package-write job checks out
+the helper at that same immutable source SHA, parses only the small seal,
+re-hashes the two regular files, and accepts only an absent or already-exact
+remote set associated with this repository. The public package workflow uses the `publish` dependency group from
 `uv.lock` for build and Twine execution, validates exactly one correctly named
 wheel plus one sdist, and captures that closed set before any network-installed
 smoke dependency can run. Smoke testing consumes a downstream artifact copy.

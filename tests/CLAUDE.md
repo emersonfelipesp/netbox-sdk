@@ -69,7 +69,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_docgen_paths.py` | `docgen_capture.py` output path resolution and stub config injection |
 | `test_docgen_specs.py` | Documentation capture spec inventory and rendering contracts |
 | `test_docs_alignment.py` | Package/docs version alignment and localized docs completeness |
-| `test_gitea_release.py` | Private-registry workflow mutation policy, exact tag/source identity, archive-to-Git binding, bounded HTTP, exact-state resumability, association recovery, and secret-silent failure behavior |
+| `test_gitea_release.py` | Private-registry three-job/token mutation policy, deterministic A/B archive bytes, exact tag/source identity, complete metadata/archive-to-Git binding, private seals, bounded HTTP, exact-state resumability, association recovery, and secret-silent failure behavior |
 | `test_release_policy.py` | Canonical Gitea ancestry, immutable tag-object, PEP 440 routing, RC-push, and official-release event authorization |
 | `test_release_registry.py` | Exact local wheel/sdist identity/cardinality plus TestPyPI/PyPI filename-set, collision, host, manifest-bound approved-upload, partial-retry, and hash-bound wheel URL policy |
 | `test_graphql.py` | CLI GraphQL and raw HTTP command behavior |

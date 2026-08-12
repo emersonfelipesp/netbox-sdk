@@ -14,6 +14,8 @@ from packaging.version import InvalidVersion, Version
 
 ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = ROOT / "pyproject.toml"
+MIN_REPRODUCIBLE_EPOCH = 315532800  # 1980-01-01, the earliest ZIP timestamp.
+MAX_REPRODUCIBLE_EPOCH = 4294967295  # Latest unsigned gzip header timestamp.
 
 
 @dataclass(frozen=True)
@@ -130,7 +132,7 @@ def validate_event_tag(*, event_name: str, ref_name: str, version: str) -> None:
 
 def validate_gitea_candidate_tag(*, event_name: str, ref_name: str, version: str) -> None:
     """Authorize an exact release-candidate tag for the private package registry."""
-    if event_name not in {"push", "workflow_dispatch"}:
+    if event_name != "push":
         raise RuntimeError(f"Unsupported Gitea release workflow event: {event_name!r}")
     if ref_name != f"v{version}":
         raise RuntimeError(f"Tag/version mismatch: tag={ref_name!r}, version={version!r}")
@@ -161,6 +163,18 @@ def validate_exact_canonical_source(
             "Release tag commit must equal the explicitly fetched canonical main commit"
         )
     return candidate
+
+
+def validated_commit_epoch(*, commit_ref: str, repo: Path = ROOT) -> int:
+    """Return the exact commit timestamp when it is safe for archive normalization."""
+    resolved = _git_output(repo, "rev-parse", "--verify", f"{commit_ref}^{{commit}}")
+    raw_epoch = _git_output(repo, "show", "-s", "--format=%ct", resolved)
+    if not raw_epoch.isascii() or not raw_epoch.isdecimal():
+        raise RuntimeError("Release source commit timestamp is malformed")
+    epoch = int(raw_epoch)
+    if not MIN_REPRODUCIBLE_EPOCH <= epoch <= MAX_REPRODUCIBLE_EPOCH:
+        raise RuntimeError("Release source commit timestamp is outside archive bounds")
+    return epoch
 
 
 def _write_actions_outputs(context: ReleaseContext) -> None:

@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import base64
 import csv
+import gzip
 import hashlib
 import http.client
 import json
@@ -24,6 +25,7 @@ import stat
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import tomllib
 import urllib.parse
@@ -46,11 +48,15 @@ from scripts.release_policy import (
     validate_exact_canonical_source,
     validate_gitea_candidate_tag,
     validate_immutable_tag,
+    validated_commit_epoch,
 )
 
 MANIFEST_NAME = "release-manifest.json"
-MANIFEST_SCHEMA = 1
+MANIFEST_SCHEMA = 2
+SEAL_NAME = "release-seal.json"
+SEAL_SCHEMA = 1
 MAX_MANIFEST_BYTES = 64 * 1024
+MAX_SEAL_BYTES = 16 * 1024
 MAX_JSON_BYTES = 1024 * 1024
 MAX_ARTIFACT_BYTES = 128 * 1024 * 1024
 MAX_ARCHIVE_MEMBERS = 4096
@@ -77,6 +83,7 @@ class TransferManifest:
     version: str
     source_sha: str
     artifacts: tuple[ArtifactRecord, ...]
+    source_epoch: int
 
     def artifact_map(self) -> dict[str, ArtifactRecord]:
         """Return manifest artifacts keyed by their exact filename."""
@@ -161,6 +168,7 @@ def _manifest_payload(manifest: TransferManifest) -> dict[str, Any]:
         "package": manifest.package,
         "version": manifest.version,
         "source_sha": manifest.source_sha,
+        "source_epoch": manifest.source_epoch,
         "artifacts": [
             {"name": row.name, "size": row.size, "sha256": row.sha256} for row in manifest.artifacts
         ],
@@ -173,6 +181,7 @@ def _validate_manifest_value(payload: Any) -> TransferManifest:
         "package",
         "version",
         "source_sha",
+        "source_epoch",
         "artifacts",
     }:
         raise ReleaseError("Transfer manifest has an unexpected shape")
@@ -183,6 +192,13 @@ def _validate_manifest_value(payload: Any) -> TransferManifest:
     source_sha = str(payload["source_sha"])
     if FULL_SHA_RE.fullmatch(source_sha) is None:
         raise ReleaseError("Transfer manifest source SHA must be a full commit SHA")
+    source_epoch = payload["source_epoch"]
+    if (
+        isinstance(source_epoch, bool)
+        or not isinstance(source_epoch, int)
+        or not 315532800 <= source_epoch <= 4294967295
+    ):
+        raise ReleaseError("Transfer manifest source epoch is outside archive bounds")
     rows = payload["artifacts"]
     if not isinstance(rows, list) or len(rows) != 2:
         raise ReleaseError("Transfer manifest must bind exactly two artifacts")
@@ -211,6 +227,7 @@ def _validate_manifest_value(payload: Any) -> TransferManifest:
         version=version,
         source_sha=source_sha,
         artifacts=tuple(sorted(artifacts, key=lambda row: row.name)),
+        source_epoch=source_epoch,
     )
 
 
@@ -221,12 +238,15 @@ def prepare_transfer(
     package: str,
     version: str,
     source_sha: str,
+    source_epoch: int,
 ) -> TransferManifest:
     """Copy an exact build result into a new manifest-bound transfer directory."""
     normalized_package = canonicalize_name(package)
     normalized_version = str(Version(version))
     if FULL_SHA_RE.fullmatch(source_sha) is None:
         raise ReleaseError("Source SHA must be a full commit SHA")
+    if not 315532800 <= source_epoch <= 4294967295:
+        raise ReleaseError("Source epoch is outside archive bounds")
     wheel, sdist = validate_local_artifacts(
         dist_dir,
         package=normalized_package,
@@ -253,6 +273,7 @@ def prepare_transfer(
             version=normalized_version,
             source_sha=source_sha,
             artifacts=tuple(sorted(records, key=lambda row: row.name)),
+            source_epoch=source_epoch,
         )
         manifest_bytes = (
             json.dumps(_manifest_payload(manifest), sort_keys=True, separators=(",", ":")) + "\n"
@@ -267,6 +288,7 @@ def prepare_transfer(
             expected_package=normalized_package,
             expected_version=normalized_version,
             expected_source_sha=source_sha,
+            expected_source_epoch=source_epoch,
         )
     except Exception:
         shutil.rmtree(transfer_dir, ignore_errors=True)
@@ -279,6 +301,7 @@ def validate_transfer(
     expected_package: str,
     expected_version: str,
     expected_source_sha: str,
+    expected_source_epoch: int | None = None,
 ) -> TransferManifest:
     """Validate a downloaded transfer without importing or extracting candidate code."""
     if transfer_dir.is_symlink() or not transfer_dir.is_dir():
@@ -304,11 +327,183 @@ def validate_transfer(
     )
     if (manifest.package, manifest.version, manifest.source_sha) != expected_identity:
         raise ReleaseError("Transfer manifest project, version, or source identity mismatch")
+    if expected_source_epoch is not None and manifest.source_epoch != expected_source_epoch:
+        raise ReleaseError("Transfer manifest source epoch mismatch")
     for expected in manifest.artifacts:
         actual = _safe_file_record(transfer_dir / expected.name)
         if actual != expected:
             raise ReleaseError("Transferred artifact does not match its manifest")
     return manifest
+
+
+def _temporary_archive_path(path: Path) -> Path:
+    try:
+        descriptor, value = tempfile.mkstemp(
+            prefix=f".{path.name}.canonical-",
+            suffix=".tmp",
+            dir=path.parent,
+        )
+        os.close(descriptor)
+    except OSError as exc:
+        raise ReleaseError("Canonical archive temporary file could not be created") from exc
+    return Path(value)
+
+
+def _zip_timestamp(source_epoch: int) -> tuple[int, int, int, int, int, int]:
+    timestamp = time.gmtime(source_epoch)
+    return (
+        timestamp.tm_year,
+        timestamp.tm_mon,
+        timestamp.tm_mday,
+        timestamp.tm_hour,
+        timestamp.tm_min,
+        timestamp.tm_sec,
+    )
+
+
+def _canonicalize_wheel(path: Path, *, source_epoch: int) -> None:
+    temporary = _temporary_archive_path(path)
+    try:
+        with zipfile.ZipFile(path, "r") as source:
+            infos = source.infolist()
+            if not 0 < len(infos) <= MAX_ARCHIVE_MEMBERS:
+                raise ReleaseError("Wheel member count is outside the allowed bound")
+            names = [_safe_archive_path(info.filename) for info in infos]
+            if len(names) != len(set(names)) or any(info.is_dir() for info in infos):
+                raise ReleaseError("Wheel contains duplicate or directory members")
+            if sum(info.file_size for info in infos) > MAX_UNPACKED_BYTES:
+                raise ReleaseError("Wheel unpacked content exceeds the allowed size")
+            by_name = dict(zip(names, infos, strict=True))
+            with zipfile.ZipFile(
+                temporary,
+                "w",
+                compression=zipfile.ZIP_DEFLATED,
+                compresslevel=9,
+                allowZip64=True,
+            ) as target:
+                for name in sorted(by_name):
+                    payload = _read_zip_member(source, by_name[name])
+                    canonical = zipfile.ZipInfo(name, date_time=_zip_timestamp(source_epoch))
+                    canonical.compress_type = zipfile.ZIP_DEFLATED
+                    canonical.create_system = 3
+                    canonical.external_attr = (stat.S_IFREG | 0o644) << 16
+                    canonical.flag_bits = 0
+                    target.writestr(canonical, payload, compress_type=zipfile.ZIP_DEFLATED)
+        if temporary.lstat().st_size > MAX_ARTIFACT_BYTES:
+            raise ReleaseError("Canonical wheel exceeds the allowed size")
+        os.replace(temporary, path)
+    except (OSError, RuntimeError, zipfile.BadZipFile) as exc:
+        if isinstance(exc, ReleaseError):
+            raise
+        raise ReleaseError("Wheel canonicalization failed") from exc
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _canonicalize_sdist(path: Path, *, source_epoch: int) -> None:
+    temporary = _temporary_archive_path(path)
+    try:
+        with tarfile.open(path, mode="r:gz") as source:
+            members = source.getmembers()
+            if not 0 < len(members) <= MAX_ARCHIVE_MEMBERS:
+                raise ReleaseError("Source-distribution member count is outside the allowed bound")
+            names = [_safe_archive_path(member.name) for member in members]
+            if len(names) != len(set(names)):
+                raise ReleaseError("Source distribution contains duplicate members")
+            total = 0
+            for member in members:
+                if not (member.isdir() or member.isfile()):
+                    raise ReleaseError("Source distribution contains a link or special member")
+                total += member.size
+                if member.size < 0 or total > MAX_UNPACKED_BYTES:
+                    raise ReleaseError("Source-distribution content exceeds the allowed size")
+            by_name = dict(zip(names, members, strict=True))
+            with temporary.open("wb") as raw_target:
+                with gzip.GzipFile(
+                    filename="",
+                    mode="wb",
+                    compresslevel=9,
+                    fileobj=raw_target,
+                    mtime=source_epoch,
+                ) as compressed:
+                    with tarfile.open(
+                        fileobj=compressed,
+                        mode="w",
+                        format=tarfile.PAX_FORMAT,
+                    ) as target:
+                        for name in sorted(by_name):
+                            member = by_name[name]
+                            canonical = tarfile.TarInfo(name)
+                            canonical.uid = 0
+                            canonical.gid = 0
+                            canonical.uname = ""
+                            canonical.gname = ""
+                            canonical.mtime = source_epoch
+                            canonical.mode = 0o755 if member.isdir() else 0o644
+                            if member.isdir():
+                                canonical.type = tarfile.DIRTYPE
+                                target.addfile(canonical)
+                                continue
+                            canonical.size = member.size
+                            stream = source.extractfile(member)
+                            if stream is None:
+                                raise ReleaseError("Source-distribution member is unreadable")
+                            with stream:
+                                target.addfile(canonical, stream)
+        if temporary.lstat().st_size > MAX_ARTIFACT_BYTES:
+            raise ReleaseError("Canonical source distribution exceeds the allowed size")
+        os.replace(temporary, path)
+    except (OSError, tarfile.TarError) as exc:
+        if isinstance(exc, ReleaseError):
+            raise
+        raise ReleaseError("Source-distribution canonicalization failed") from exc
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def normalize_build(
+    *,
+    dist_dir: Path,
+    package: str,
+    version: str,
+    source_epoch: int,
+) -> tuple[ArtifactRecord, ArtifactRecord]:
+    """Normalize one exact wheel/sdist pair to deterministic archive bytes."""
+    if not 315532800 <= source_epoch <= 4294967295:
+        raise ReleaseError("Source epoch is outside archive bounds")
+    wheel, sdist = validate_local_artifacts(dist_dir, package=package, version=version)
+    _canonicalize_wheel(wheel, source_epoch=source_epoch)
+    _canonicalize_sdist(sdist, source_epoch=source_epoch)
+    validated_wheel, validated_sdist = validate_local_artifacts(
+        dist_dir,
+        package=package,
+        version=version,
+    )
+    return _safe_file_record(validated_wheel), _safe_file_record(validated_sdist)
+
+
+def _files_are_equal(first: Path, second: Path) -> bool:
+    first_record = _safe_file_record(first)
+    second_record = _safe_file_record(second)
+    if first_record != second_record:
+        return False
+    with first.open("rb") as first_stream, second.open("rb") as second_stream:
+        while True:
+            first_chunk = first_stream.read(1024 * 1024)
+            second_chunk = second_stream.read(1024 * 1024)
+            if first_chunk != second_chunk:
+                return False
+            if not first_chunk:
+                return True
+
+
+def compare_builds(*, first_dir: Path, second_dir: Path, package: str, version: str) -> None:
+    """Require two independently built exact artifact pairs to be byte-identical."""
+    first = validate_local_artifacts(first_dir, package=package, version=version)
+    second = validate_local_artifacts(second_dir, package=package, version=version)
+    for first_path, second_path in zip(first, second, strict=True):
+        if first_path.name != second_path.name or not _files_are_equal(first_path, second_path):
+            raise ReleaseError("Independent release builds are not byte-identical")
 
 
 def _safe_archive_path(value: str) -> str:
@@ -445,10 +640,38 @@ def _expected_requirements(project: Mapping[str, Any]) -> tuple[set[Requirement]
     return requirements, {canonicalize_name(value) for value in extras}
 
 
+def _expected_people(project: Mapping[str, Any], field: str) -> list[str]:
+    people = project["project"].get(field, [])
+    if not isinstance(people, list):
+        raise ReleaseError("Trusted project people metadata is malformed")
+    rendered: list[str] = []
+    for person in people:
+        if not isinstance(person, dict) or set(person) != {"name", "email"}:
+            raise ReleaseError("Trusted project people metadata is unsupported")
+        name = person["name"]
+        email = person["email"]
+        if not isinstance(name, str) or not isinstance(email, str) or not name or not email:
+            raise ReleaseError("Trusted project people metadata is invalid")
+        rendered.append(f"{name} <{email}>")
+    return [", ".join(rendered)] if rendered else []
+
+
+def _metadata_body(payload: bytes) -> bytes:
+    separators = [
+        position for value in (b"\n\n", b"\r\n\r\n") if (position := payload.find(value)) >= 0
+    ]
+    if not separators:
+        raise ReleaseError("Distribution metadata has no description separator")
+    position = min(separators)
+    separator_length = 4 if payload[position : position + 4] == b"\r\n\r\n" else 2
+    return payload[position + separator_length :]
+
+
 def _validate_core_metadata(
     payload: bytes,
     manifest: TransferManifest,
     project: Mapping[str, Any],
+    readme: bytes,
 ) -> None:
     if len(payload) > MAX_JSON_BYTES:
         raise ReleaseError("Distribution metadata exceeds the allowed size")
@@ -462,16 +685,41 @@ def _validate_core_metadata(
         raise ReleaseError("Distribution dependency metadata is malformed") from exc
     actual_extras = {canonicalize_name(value) for value in metadata.get_all("Provides-Extra", [])}
     expected_scripts = project["project"]["scripts"]
+    expected_urls = [f"{name}, {url}" for name, url in project["project"].get("urls", {}).items()]
+    expected_keywords = ",".join(project["project"].get("keywords", []))
+    expected_license_files = project["project"].get("license-files", [])
+    if not isinstance(expected_license_files, list) or not all(
+        isinstance(value, str) for value in expected_license_files
+    ):
+        raise ReleaseError("Trusted project license-file metadata is malformed")
+    singleton_fields = {
+        "Metadata-Version": "2.4",
+        "Name": project["project"]["name"],
+        "Version": manifest.version,
+        "Summary": project["project"]["description"],
+        "Author-email": _expected_people(project, "authors"),
+        "Maintainer-email": _expected_people(project, "maintainers"),
+        "License-Expression": project["project"]["license"],
+        "Keywords": expected_keywords,
+        "Description-Content-Type": "text/markdown",
+        "License-File": expected_license_files,
+    }
+    for field, expected in singleton_fields.items():
+        expected_values = expected if isinstance(expected, list) else [expected]
+        if metadata.get_all(field, []) != expected_values:
+            raise ReleaseError("Distribution metadata does not match trusted release configuration")
     if (
         canonicalize_name(metadata.get("Name", "")) != manifest.package
-        or str(Version(metadata.get("Version", ""))) != manifest.version
-        or metadata.get("Summary") != project["project"]["description"]
         or SpecifierSet(metadata.get("Requires-Python", ""))
         != SpecifierSet(project["project"]["requires-python"])
-        or metadata.get("License-Expression") != project["project"]["license"]
+        or metadata.get_all("Requires-Python", []) != [metadata.get("Requires-Python", "")]
         or actual_requirements != expected_requirements
         or actual_extras != expected_extras
+        or metadata.get_all("Classifier", []) != project["project"].get("classifiers", [])
+        or metadata.get_all("Project-URL", []) != expected_urls
         or metadata.get_all("Dynamic", []) != ["license-file"]
+        or project["project"].get("readme") != "README.md"
+        or _metadata_body(payload) != readme
         or set(expected_scripts) != {"nbx", "nbx-mock", "nbx-mcp"}
     ):
         raise ReleaseError("Distribution metadata does not match trusted release configuration")
@@ -561,7 +809,12 @@ def _validate_wheel_source(
             raise ReleaseError("Wheel package payload differs from trusted canonical source")
     if member_bytes[f"{dist_info}/licenses/LICENSE.txt"] != source_blobs["LICENSE.txt"]:
         raise ReleaseError("Wheel license differs from trusted canonical source")
-    _validate_core_metadata(member_bytes[f"{dist_info}/METADATA"], manifest, project)
+    _validate_core_metadata(
+        member_bytes[f"{dist_info}/METADATA"],
+        manifest,
+        project,
+        source_blobs["README.md"],
+    )
     wheel_headers = BytesParser().parsebytes(member_bytes[f"{dist_info}/WHEEL"], headersonly=True)
     if wheel_headers.get("Root-Is-Purelib") != "true" or wheel_headers.get_all("Tag") != [
         "py3-none-any"
@@ -657,8 +910,13 @@ def _validate_sdist_source(
     for relative, source in {**source_files, **test_files, **trusted_root_files}.items():
         if payloads[relative] != source:
             raise ReleaseError("Source-distribution payload differs from trusted canonical source")
-    _validate_core_metadata(payloads["PKG-INFO"], manifest, project)
-    _validate_core_metadata(payloads[f"{egg_info}/PKG-INFO"], manifest, project)
+    _validate_core_metadata(payloads["PKG-INFO"], manifest, project, source_blobs["README.md"])
+    _validate_core_metadata(
+        payloads[f"{egg_info}/PKG-INFO"],
+        manifest,
+        project,
+        source_blobs["README.md"],
+    )
     expected_entries = "[console_scripts]\n" + "".join(
         f"{name} = {target}\n" for name, target in sorted(project["project"]["scripts"].items())
     )
@@ -705,6 +963,11 @@ def validate_archive_source_binding(
     source_root: Path,
 ) -> None:
     """Bind both archives to canonical source without importing or extracting them."""
+    if (
+        validated_commit_epoch(commit_ref=manifest.source_sha, repo=source_root)
+        != manifest.source_epoch
+    ):
+        raise ReleaseError("Transfer source epoch differs from the trusted source commit")
     source_files, project = _source_distribution_files(source_root, manifest.source_sha)
     project_identity = (
         canonicalize_name(str(project["project"]["name"])),
@@ -799,6 +1062,176 @@ def validate_trusted_source_checkout(*, source_root: Path, source_sha: str) -> N
         or any(key.startswith(forbidden_config_prefixes) for key in config_keys)
     ):
         raise ReleaseError("Trusted source checkout is not clean at the exact source commit")
+
+
+def _seal_payload(manifest: TransferManifest) -> dict[str, Any]:
+    payload = _manifest_payload(manifest)
+    payload["schema"] = SEAL_SCHEMA
+    return payload
+
+
+def seal_transfer(
+    *,
+    transfer_dir: Path,
+    sealed_dir: Path,
+    source_root: Path,
+    expected_package: str,
+    expected_version: str,
+    expected_source_sha: str,
+    expected_source_epoch: int,
+) -> TransferManifest:
+    """Perform complex credential-free validation and create a private exact seal."""
+    manifest = validate_transfer(
+        transfer_dir=transfer_dir,
+        expected_package=expected_package,
+        expected_version=expected_version,
+        expected_source_sha=expected_source_sha,
+        expected_source_epoch=expected_source_epoch,
+    )
+    validate_trusted_source_checkout(source_root=source_root, source_sha=expected_source_sha)
+    validate_archive_source_binding(
+        transfer_dir=transfer_dir,
+        manifest=manifest,
+        source_root=source_root,
+    )
+    if sealed_dir.exists() or sealed_dir.is_symlink():
+        raise ReleaseError("Sealed directory must not already exist")
+    try:
+        sealed_dir.mkdir(parents=True, mode=0o700)
+        for expected in manifest.artifacts:
+            destination = sealed_dir / expected.name
+            shutil.copyfile(transfer_dir / expected.name, destination, follow_symlinks=False)
+            if _safe_file_record(destination) != expected:
+                raise ReleaseError("Sealed artifact differs from the validated transfer")
+            destination.chmod(0o400)
+        seal_bytes = (
+            json.dumps(_seal_payload(manifest), sort_keys=True, separators=(",", ":")) + "\n"
+        ).encode("utf-8")
+        if len(seal_bytes) > MAX_SEAL_BYTES:
+            raise ReleaseError("Release seal exceeds the allowed size")
+        seal_path = sealed_dir / SEAL_NAME
+        with seal_path.open("xb") as stream:
+            stream.write(seal_bytes)
+        seal_path.chmod(0o400)
+        sealed_dir.chmod(0o500)
+        return validate_seal(
+            sealed_dir=sealed_dir,
+            expected_package=expected_package,
+            expected_version=expected_version,
+            expected_source_sha=expected_source_sha,
+            expected_source_epoch=expected_source_epoch,
+        )
+    except Exception:
+        if sealed_dir.exists():
+            sealed_dir.chmod(0o700)
+        shutil.rmtree(sealed_dir, ignore_errors=True)
+        raise
+
+
+def harden_downloaded_seal(
+    *,
+    sealed_dir: Path,
+    expected_package: str,
+    expected_version: str,
+    expected_source_sha: str,
+    expected_source_epoch: int,
+) -> TransferManifest:
+    """Restore private modes lost by artifact transport, then validate the seal."""
+    try:
+        directory_stat = sealed_dir.lstat()
+        entries = sorted(sealed_dir.iterdir(), key=lambda path: path.name)
+    except OSError as exc:
+        raise ReleaseError("Downloaded sealed directory is unavailable") from exc
+    expected_entries = {SEAL_NAME, *_artifact_names(expected_package, expected_version)}
+    if (
+        sealed_dir.is_symlink()
+        or not stat.S_ISDIR(directory_stat.st_mode)
+        or directory_stat.st_uid != os.geteuid()
+        or {path.name for path in entries} != expected_entries
+    ):
+        raise ReleaseError("Downloaded sealed directory has an unsafe shape")
+    for path in entries:
+        file_stat = path.lstat()
+        if (
+            path.is_symlink()
+            or not stat.S_ISREG(file_stat.st_mode)
+            or file_stat.st_uid != os.geteuid()
+            or stat.S_IMODE(file_stat.st_mode) & 0o022
+        ):
+            raise ReleaseError("Downloaded sealed file is unsafe")
+        path.chmod(0o400)
+    sealed_dir.chmod(0o500)
+    return validate_seal(
+        sealed_dir=sealed_dir,
+        expected_package=expected_package,
+        expected_version=expected_version,
+        expected_source_sha=expected_source_sha,
+        expected_source_epoch=expected_source_epoch,
+    )
+
+
+def validate_seal(
+    *,
+    sealed_dir: Path,
+    expected_package: str,
+    expected_version: str,
+    expected_source_sha: str,
+    expected_source_epoch: int,
+) -> TransferManifest:
+    """Validate only a bounded private seal and re-hash its exact regular files."""
+    try:
+        directory_stat = sealed_dir.lstat()
+    except OSError as exc:
+        raise ReleaseError("Sealed directory is unavailable") from exc
+    if (
+        sealed_dir.is_symlink()
+        or not stat.S_ISDIR(directory_stat.st_mode)
+        or directory_stat.st_uid != os.geteuid()
+        or stat.S_IMODE(directory_stat.st_mode) != 0o500
+    ):
+        raise ReleaseError("Sealed directory is not private")
+    entries = sorted(sealed_dir.iterdir(), key=lambda path: path.name)
+    expected_entries = {SEAL_NAME, *_artifact_names(expected_package, expected_version)}
+    if {path.name for path in entries} != expected_entries:
+        raise ReleaseError("Sealed directory does not contain the exact file set")
+    for path in entries:
+        file_stat = path.lstat()
+        if (
+            path.is_symlink()
+            or not stat.S_ISREG(file_stat.st_mode)
+            or file_stat.st_uid != os.geteuid()
+            or stat.S_IMODE(file_stat.st_mode) != 0o400
+        ):
+            raise ReleaseError("Sealed directory contains a non-private file")
+    seal_path = sealed_dir / SEAL_NAME
+    try:
+        if seal_path.stat().st_size > MAX_SEAL_BYTES:
+            raise ReleaseError("Release seal exceeds the allowed size")
+        payload = _load_json_bytes(seal_path.read_bytes(), description="Release seal")
+    except OSError as exc:
+        raise ReleaseError("Release seal is unreadable") from exc
+    if not isinstance(payload, dict) or payload.get("schema") != SEAL_SCHEMA:
+        raise ReleaseError("Release seal schema is unsupported")
+    manifest_payload = dict(payload)
+    manifest_payload["schema"] = MANIFEST_SCHEMA
+    manifest = _validate_manifest_value(manifest_payload)
+    expected_identity = (
+        canonicalize_name(expected_package),
+        str(Version(expected_version)),
+        expected_source_sha,
+        expected_source_epoch,
+    )
+    if (
+        manifest.package,
+        manifest.version,
+        manifest.source_sha,
+        manifest.source_epoch,
+    ) != expected_identity:
+        raise ReleaseError("Release seal identity mismatch")
+    for expected in manifest.artifacts:
+        if _safe_file_record(sealed_dir / expected.name) != expected:
+            raise ReleaseError("Sealed artifact does not match its seal")
+    return manifest
 
 
 class _HttpConnection(Protocol):
@@ -1120,10 +1553,10 @@ def reconcile_publication(
     manifest: TransferManifest,
     registry: GiteaRegistry,
     upload: Callable[[], None],
-    revalidate_transfer: Callable[[], None],
+    revalidate_seal: Callable[[], None],
 ) -> str:
     """Publish from absent state or accept an independently verified exact state."""
-    revalidate_transfer()
+    revalidate_seal()
     state = registry.inspect(manifest)
     _require_allowed_association(state, registry.expected_repository)
     classification = classify_remote_state(state, manifest)
@@ -1131,7 +1564,7 @@ def reconcile_publication(
         try:
             upload()
         except Exception:
-            revalidate_transfer()
+            revalidate_seal()
             recovered = registry.inspect(manifest)
             _require_allowed_association(recovered, registry.expected_repository)
             if classify_remote_state(recovered, manifest) != "exact":
@@ -1140,7 +1573,7 @@ def reconcile_publication(
                 ) from None
             state = recovered
         else:
-            revalidate_transfer()
+            revalidate_seal()
             state = registry.inspect(manifest)
             _require_allowed_association(state, registry.expected_repository)
             if classify_remote_state(state, manifest) != "exact":
@@ -1155,7 +1588,7 @@ def reconcile_publication(
             if recovered.repository != registry.expected_repository:
                 raise ReleaseError("Repository association did not reach an exact state") from None
 
-    revalidate_transfer()
+    revalidate_seal()
     final_state = registry.inspect(manifest)
     _require_allowed_association(final_state, registry.expected_repository)
     if final_state.repository != registry.expected_repository:
@@ -1178,14 +1611,13 @@ def _run_twine_upload(
     if not username or not token:
         raise ReleaseError("Publisher identity or ephemeral token is unavailable")
     repository_url = f"{server_url}/api/packages/{urllib.parse.quote(owner, safe='')}/pypi"
-    env = os.environ.copy()
-    env.update(
-        {
-            "TWINE_USERNAME": username,
-            "TWINE_PASSWORD": token,
-            "TWINE_NON_INTERACTIVE": "1",
-        }
-    )
+    env = {
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONUTF8": "1",
+        "TWINE_NON_INTERACTIVE": "1",
+        "TWINE_PASSWORD": token,
+        "TWINE_USERNAME": username,
+    }
     command = [
         str(python),
         "-m",
@@ -1233,7 +1665,7 @@ def validate_release_policy(
     immutable_tag_object: str,
     immutable_tag_commit: str,
     repo: Path = ROOT,
-) -> tuple[str, str, str]:
+) -> tuple[str, str, str, int]:
     """Validate exact tag/version/source and the immutable release lineage."""
     context = release_context(expected_package="netbox-sdk", pyproject=repo / "pyproject.toml")
     validate_gitea_candidate_tag(event_name=event_name, ref_name=tag, version=context.version)
@@ -1248,7 +1680,8 @@ def validate_release_policy(
         expected_commit=immutable_tag_commit,
         repo=repo,
     )
-    return context.package_name, context.version, source_sha
+    source_epoch = validated_commit_epoch(commit_ref=source_sha, repo=repo)
+    return context.package_name, context.version, source_sha, source_epoch
 
 
 def _add_policy_arguments(parser: argparse.ArgumentParser) -> None:
@@ -1262,7 +1695,7 @@ def _add_policy_arguments(parser: argparse.ArgumentParser) -> None:
 
 
 def _main_policy(args: argparse.Namespace) -> int:
-    package, version, source_sha = validate_release_policy(
+    package, version, source_sha, source_epoch = validate_release_policy(
         event_name=args.event_name,
         tag=args.tag,
         tag_ref=args.tag_ref,
@@ -1271,8 +1704,18 @@ def _main_policy(args: argparse.Namespace) -> int:
         immutable_tag_object=args.immutable_tag_object,
         immutable_tag_commit=args.immutable_tag_commit,
     )
-    _write_actions_outputs({"package_name": package, "version": version, "source_sha": source_sha})
-    print(f"private release policy passed: version={version}, source={source_sha}")
+    _write_actions_outputs(
+        {
+            "package_name": package,
+            "version": version,
+            "source_sha": source_sha,
+            "source_epoch": str(source_epoch),
+        }
+    )
+    print(
+        f"private release policy passed: version={version}, "
+        f"source={source_sha}, epoch={source_epoch}"
+    )
     return 0
 
 
@@ -1295,6 +1738,7 @@ def _main_prepare(args: argparse.Namespace) -> int:
         package=args.package,
         version=args.version,
         source_sha=args.source_sha,
+        source_epoch=args.source_epoch,
     )
     print(
         "release transfer passed: "
@@ -1303,32 +1747,75 @@ def _main_prepare(args: argparse.Namespace) -> int:
     return 0
 
 
+def _main_normalize(args: argparse.Namespace) -> int:
+    records = normalize_build(
+        dist_dir=args.dist_dir,
+        package=args.package,
+        version=args.version,
+        source_epoch=args.source_epoch,
+    )
+    print("canonical build passed: " + ", ".join(row.sha256 for row in records))
+    return 0
+
+
+def _main_compare(args: argparse.Namespace) -> int:
+    compare_builds(
+        first_dir=args.first_dir,
+        second_dir=args.second_dir,
+        package=args.package,
+        version=args.version,
+    )
+    print("independent release builds are byte-identical")
+    return 0
+
+
+def _main_seal(args: argparse.Namespace) -> int:
+    manifest = seal_transfer(
+        transfer_dir=args.transfer_dir,
+        sealed_dir=args.sealed_dir,
+        source_root=args.source_root,
+        expected_package=args.package,
+        expected_version=args.version,
+        expected_source_sha=args.source_sha,
+        expected_source_epoch=args.source_epoch,
+    )
+    print(
+        "credential-free source seal passed: "
+        + ", ".join(f"{row.name}:{row.sha256}" for row in manifest.artifacts)
+    )
+    return 0
+
+
+def _main_harden_seal(args: argparse.Namespace) -> int:
+    harden_downloaded_seal(
+        sealed_dir=args.sealed_dir,
+        expected_package=args.package,
+        expected_version=args.version,
+        expected_source_sha=args.source_sha,
+        expected_source_epoch=args.source_epoch,
+    )
+    print("downloaded release seal is private and exact")
+    return 0
+
+
 def _main_publish(args: argparse.Namespace) -> int:
     token = os.environ.get(args.token_env, "")
 
     def revalidate() -> None:
-        validated = validate_transfer(
-            transfer_dir=args.transfer_dir,
+        validate_seal(
+            sealed_dir=args.sealed_dir,
             expected_package=args.package,
             expected_version=args.version,
             expected_source_sha=args.source_sha,
-        )
-        validate_trusted_source_checkout(
-            source_root=args.source_root,
-            source_sha=args.source_sha,
-        )
-        validate_archive_source_binding(
-            transfer_dir=args.transfer_dir,
-            manifest=validated,
-            source_root=args.source_root,
+            expected_source_epoch=args.source_epoch,
         )
 
-    revalidate()
-    manifest = validate_transfer(
-        transfer_dir=args.transfer_dir,
+    manifest = validate_seal(
+        sealed_dir=args.sealed_dir,
         expected_package=args.package,
         expected_version=args.version,
         expected_source_sha=args.source_sha,
+        expected_source_epoch=args.source_epoch,
     )
     client = BoundedHttpClient(
         server_url=args.server_url,
@@ -1341,7 +1828,7 @@ def _main_publish(args: argparse.Namespace) -> int:
         owner=args.owner,
         repository=args.repository,
     )
-    artifact_paths = tuple(args.transfer_dir / row.name for row in manifest.artifacts)
+    artifact_paths = tuple(args.sealed_dir / row.name for row in manifest.artifacts)
     result = reconcile_publication(
         manifest=manifest,
         registry=registry,
@@ -1354,7 +1841,7 @@ def _main_publish(args: argparse.Namespace) -> int:
             artifact_paths=artifact_paths,
             timeout=client.remaining(),
         ),
-        revalidate_transfer=revalidate,
+        revalidate_seal=revalidate,
     )
     print(f"private registry publication passed: {result}")
     return 0
@@ -1379,14 +1866,47 @@ def main(argv: Sequence[str] | None = None) -> int:
     prepare.add_argument("--package", required=True)
     prepare.add_argument("--version", required=True)
     prepare.add_argument("--source-sha", required=True)
+    prepare.add_argument("--source-epoch", type=int, required=True)
     prepare.set_defaults(handler=_main_prepare)
 
+    normalize = commands.add_parser("normalize-build")
+    normalize.add_argument("--dist-dir", type=Path, required=True)
+    normalize.add_argument("--package", required=True)
+    normalize.add_argument("--version", required=True)
+    normalize.add_argument("--source-epoch", type=int, required=True)
+    normalize.set_defaults(handler=_main_normalize)
+
+    compare = commands.add_parser("compare-builds")
+    compare.add_argument("--first-dir", type=Path, required=True)
+    compare.add_argument("--second-dir", type=Path, required=True)
+    compare.add_argument("--package", required=True)
+    compare.add_argument("--version", required=True)
+    compare.set_defaults(handler=_main_compare)
+
+    seal = commands.add_parser("seal-transfer")
+    seal.add_argument("--transfer-dir", type=Path, required=True)
+    seal.add_argument("--sealed-dir", type=Path, required=True)
+    seal.add_argument("--source-root", type=Path, required=True)
+    seal.add_argument("--package", required=True)
+    seal.add_argument("--version", required=True)
+    seal.add_argument("--source-sha", required=True)
+    seal.add_argument("--source-epoch", type=int, required=True)
+    seal.set_defaults(handler=_main_seal)
+
+    harden_seal = commands.add_parser("harden-seal")
+    harden_seal.add_argument("--sealed-dir", type=Path, required=True)
+    harden_seal.add_argument("--package", required=True)
+    harden_seal.add_argument("--version", required=True)
+    harden_seal.add_argument("--source-sha", required=True)
+    harden_seal.add_argument("--source-epoch", type=int, required=True)
+    harden_seal.set_defaults(handler=_main_harden_seal)
+
     publish = commands.add_parser("publish")
-    publish.add_argument("--transfer-dir", type=Path, required=True)
-    publish.add_argument("--source-root", type=Path, required=True)
+    publish.add_argument("--sealed-dir", type=Path, required=True)
     publish.add_argument("--package", required=True)
     publish.add_argument("--version", required=True)
     publish.add_argument("--source-sha", required=True)
+    publish.add_argument("--source-epoch", type=int, required=True)
     publish.add_argument("--server-url", required=True)
     publish.add_argument("--owner", required=True)
     publish.add_argument("--repository", required=True)
