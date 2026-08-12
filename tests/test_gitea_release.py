@@ -546,6 +546,26 @@ def test_corrupt_reachable_git_object_fails_without_lazy_fetch(tmp_path: Path) -
         validate_trusted_source_checkout(source_root=repo, source_sha=source_sha)
 
 
+def test_full_anonymous_fetch_can_seal_transfer(tmp_path: Path) -> None:
+    transfer, manifest, source_repo = _transfer(tmp_path / "candidate")
+    trusted = tmp_path / "trusted"
+    _git(tmp_path, "init", str(trusted))
+    _git(trusted, "remote", "add", "origin", str(source_repo))
+    _git(trusted, "fetch", "--force", "--no-tags", "origin", "refs/heads/main")
+    _git(trusted, "checkout", "--detach", "FETCH_HEAD")
+
+    assert not (trusted / ".git" / "shallow").exists()
+    seal_transfer(
+        transfer_dir=transfer,
+        sealed_dir=tmp_path / "sealed",
+        source_root=trusted,
+        expected_package=PACKAGE,
+        expected_version=VERSION,
+        expected_source_sha=manifest.source_sha,
+        expected_source_epoch=manifest.source_epoch,
+    )
+
+
 @pytest.mark.parametrize("target", ["wheel-code", "wheel-metadata", "sdist-code"])
 def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
     tmp_path: Path,
@@ -1420,14 +1440,19 @@ def _assert_workflow_policy(text: str) -> None:
         "token: ''",
         "e490a6464492183c5d4534a5527fb4440f7f2bb2f228162ad7e4afe076dc0224",
         "RUNNER_TOOL_CACHE=%s",
+        "UV_PYTHON_INSTALL_DIR=%s",
+        'case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in',
         "https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git",
-        "GITEA_TOKEN: ${{ github.token }}",
+        "GITEA_TOKEN: ${{ secrets.PACKAGE_WRITE_TOKEN }}",
         'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
         'cd "$TOOL_ROOT"',
     )
     assert all(value in text for value in required)
-    assert text.count('>> "$GITHUB_ENV"') == 3
-    assert text.count("${{ github.token }}") == 1
+    assert text.count('>> "$GITHUB_ENV"') == 6
+    assert text.count("${{ github.token }}") == 0
+    assert text.count("${{ secrets.PACKAGE_WRITE_TOKEN }}") == 1
+    assert text.count('"$UV_PYTHON_INSTALL_DIR"/*) ;;') == 3
+    assert "--depth=1" not in text
     assert text.count("runs-on: ci-untrusted-python312") == 1
     assert text.count("runs-on: mirror-host") == 2
     exact_uv_guard = 'test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"'
@@ -1444,8 +1469,8 @@ def _assert_workflow_policy(text: str) -> None:
         "- name: Validate source and create private publication seal without credentials"
     )
     assert publish_step > seal_step
-    assert text.index("${{ github.token }}") > publish_step
-    assert "${{ github.token }}" not in text[:publish_step]
+    assert text.index("${{ secrets.PACKAGE_WRITE_TOKEN }}") > publish_step
+    assert "${{ secrets.PACKAGE_WRITE_TOKEN }}" not in text[:publish_step]
     token_block = text[publish_step:]
     assert "--source-root" not in token_block
     assert "--transfer-dir" not in token_block
@@ -1491,13 +1516,13 @@ def _assert_workflow_policy(text: str) -> None:
     assert "seal-transfer" not in publisher_job
     assert "validate_archive_source_binding" not in publisher_job
     assert "--source-root" not in publisher_job and "--transfer-dir" not in publisher_job
-    assert publisher_job.count("${{ github.token }}") == 1
+    assert publisher_job.count("${{ secrets.PACKAGE_WRITE_TOKEN }}") == 1
     publisher_checkout = jobs["publish-candidate"]["steps"][0]
     assert publisher_checkout["env"] == {
         "EVENT_SOURCE_SHA": "${{ github.sha }}",
         "TOOL_ROOT": "${{ github.workspace }}/publisher-tool-${{ github.run_id }}-${{ github.run_attempt }}",
     }
-    assert 'git -C "$TOOL_ROOT" fetch --force --no-tags --depth=1 origin "$EVENT_SOURCE_SHA"' in publisher_checkout["run"]
+    assert 'git -C "$TOOL_ROOT" fetch --force --no-tags origin "$EVENT_SOURCE_SHA"' in publisher_checkout["run"]
     assert 'git -C "$TOOL_ROOT" checkout --detach FETCH_HEAD' in publisher_checkout["run"]
     authority = jobs["publish-candidate"]["steps"][1]
     assert authority["id"] == "authority"

@@ -362,9 +362,11 @@ Actions runtime does not implement the artifact service required by v4+, so
 upgrading those actions requires an explicit runner-compatibility proof.
 Trusted jobs fetch public canonical source anonymously at exact refs. Every
 private `setup-uv` step explicitly disables its implicit `github-token` input,
-checks the reviewed uv 0.11.28 archive SHA-256, and uses an empty per-run tool
-cache; the package-write credential is introduced only in the final sealed
-publish step.
+checks the reviewed uv 0.11.28 archive SHA-256, and uses empty per-run tool-cache
+and managed-Python directories. The package-write credential comes from the
+repository `PACKAGE_WRITE_TOKEN` secret and is introduced only in the final
+sealed publish step; the upstream Gitea Actions job token is not a supported
+package-registry credential.
 
 ```bash
 # Static, operator-reviewed release oracle: do not derive this tag from event input.
