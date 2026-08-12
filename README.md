@@ -148,6 +148,7 @@ nbx dcim devices filters
 
 # HTTP headers for ETag / conditional update workflows
 nbx dcim devices patch --id 1 -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
+nbx call PATCH /api/dcim/devices/1/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --dry-run
 nbx call PATCH /api/dcim/devices/1/ -H 'If-Match: "etag-value"' --body-json '{"status":"active"}' --confirm
 nbx dev http patch --path /api/dcim/devices/ --id 1 --body-json '{"status":"active"}' --confirm
 

@@ -27,6 +27,19 @@ the bundled schema.
 Run the exact create, update, patch, delete, or bulk operation with `--dry-run`
 or `dry_run=true`. Inspect the resolved method, path, query, and body.
 
+For an explicit plugin or custom path that is not available in the bundled
+schema, preview the guarded raw request through the same CLI:
+
+```bash
+nbx call POST /api/plugins/example/widgets/ --body-json '{"name":"widget-a"}' --dry-run
+```
+
+Raw-call previews normalize the path and show parsed request query, headers,
+and body; credential-shaped fields, including compound API/private-key names,
+are redacted recursively, and explicit empty objects/arrays remain distinct
+from an absent body. Literal backslashes and encoded path separators fail
+before preview or dispatch.
+
 A dry-run is only a local request preview. It does not contact NetBox, perform
 server-side validation, or prove that the live write will succeed.
 
@@ -40,6 +53,7 @@ For CLI writes run through agent Bash tools, prefix the reviewed invocation with
 
 ```bash
 NETBOX_SDK_CONFIRM_WRITE=1 nbx <group> <resource> <write-action> ...
+NETBOX_SDK_CONFIRM_WRITE=1 nbx call <METHOD> <path> ...
 ```
 
 Never place credentials in commands, output, or logs. Use the existing

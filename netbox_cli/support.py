@@ -6,6 +6,7 @@ import asyncio
 import inspect
 import json
 import logging
+import re
 from collections.abc import Callable, Iterable
 from enum import StrEnum
 from importlib import import_module
@@ -81,6 +82,51 @@ _LIST_COLUMNS = {
 OUTPUT_FORMAT_CONFLICT_MESSAGE = (
     "Options --json, --yaml, and --markdown are mutually exclusive; pick one"
 )
+_SENSITIVE_PREVIEW_NAMES = frozenset(
+    {
+        "api-key",
+        "apikey",
+        "authorization",
+        "cookie",
+        "key",
+        "password",
+        "proxy-authorization",
+        "set-cookie",
+    }
+)
+_SENSITIVE_PREVIEW_PARTS = frozenset(
+    {
+        "auth",
+        "apikey",
+        "credential",
+        "credentials",
+        "key",
+        "passwd",
+        "password",
+        "secret",
+        "token",
+    }
+)
+_SENSITIVE_PREVIEW_COMPACT_SUFFIXES = (
+    "accesskey",
+    "apikey",
+    "authentication",
+    "authorization",
+    "authkey",
+    "cookie",
+    "credential",
+    "credentials",
+    "encryptionkey",
+    "passphrase",
+    "passwd",
+    "password",
+    "privatekey",
+    "secret",
+    "secretkey",
+    "signingkey",
+    "token",
+)
+_PREVIEW_NAME_PART_RE = re.compile(r"[^A-Za-z0-9]+|(?<=[a-z0-9])(?=[A-Z])")
 
 
 class OutputFormat(StrEnum):
@@ -88,6 +134,30 @@ class OutputFormat(StrEnum):
     JSON = "json"
     YAML = "yaml"
     MARKDOWN = "markdown"
+
+
+def _redact_dry_run_value(value: Any) -> Any:
+    """Recursively redact credential-shaped fields from a request preview."""
+    if isinstance(value, dict):
+        redacted: dict[Any, Any] = {}
+        for key, item in value.items():
+            name_parts = tuple(
+                part.casefold() for part in _PREVIEW_NAME_PART_RE.split(str(key)) if part
+            )
+            normalized = "-".join(name_parts)
+            compact = "".join(name_parts)
+            if (
+                normalized in _SENSITIVE_PREVIEW_NAMES
+                or frozenset(name_parts) & _SENSITIVE_PREVIEW_PARTS
+                or compact.endswith(_SENSITIVE_PREVIEW_COMPACT_SUFFIXES)
+            ):
+                redacted[key] = "[redacted]"
+            else:
+                redacted[key] = _redact_dry_run_value(item)
+        return redacted
+    if isinstance(value, list):
+        return [_redact_dry_run_value(item) for item in value]
+    return value
 
 
 def resolve_output_format(
@@ -422,22 +492,31 @@ def print_dry_run(
     method: str,
     path: str,
     body: dict[str, Any] | list[Any] | None,
+    query: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> None:
     """Print a dry-run preview of a write operation."""
     from rich.console import Console
     from rich.table import Table
+    from rich.text import Text
 
     console = Console()
     table = Table(title="[bold]Dry Run Preview[/bold]", show_header=True, header_style="bold")
     table.add_column("Field", style="bold", no_wrap=True)
     table.add_column("Value", overflow="fold")
 
-    table.add_row("Method", method)
-    table.add_row("Path", path)
-    if body:
-        body_str = json.dumps(body, indent=2)
-        table.add_row("Body", body_str)
+    table.add_row("Method", safe_text(method))
+    table.add_row("Path", safe_text(path))
+    if query is not None:
+        safe_query = _redact_dry_run_value(query)
+        table.add_row("Query", safe_text(json.dumps(safe_query, indent=2)))
+    if headers is not None:
+        safe_headers = _redact_dry_run_value(headers)
+        table.add_row("Headers", safe_text(json.dumps(safe_headers, indent=2)))
+    if body is not None:
+        body_str = json.dumps(_redact_dry_run_value(body), indent=2)
+        table.add_row("Body", safe_text(body_str))
     else:
-        table.add_row("Body", "[dim](none)[/dim]")
+        table.add_row("Body", Text("(none)", style="dim"))
 
     console.print(table)

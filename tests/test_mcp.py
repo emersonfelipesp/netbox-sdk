@@ -652,7 +652,7 @@ def test_raw_call_cli_gate_blocks_request_until_confirmed(
     assert "Live NetBox writes require explicit confirmation" in blocked.output
     assert client.calls == [
         {
-            "method": method,
+            "method": method.upper(),
             "path": "/api/dcim/devices/",
             "query": {},
             "payload": {"name": "leaf01"},
@@ -697,6 +697,52 @@ def test_hook_blocks_unconfirmed_raw_call_write(method: str) -> None:
     assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
     assert allowed.returncode == 0
     assert allowed.stdout == ""
+
+
+def test_hook_handles_whitespace_padded_raw_call_write_method() -> None:
+    command = "nbx call ' POST ' /api/dcim/devices/ --body-json '{}'"
+    blocked = _run_hook(command)
+    confirmed = _run_hook(f"NETBOX_SDK_CONFIRM_WRITE=1 {command}")
+    dry_run = _run_hook(f"{command} --dry-run")
+
+    assert json.loads(blocked.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert confirmed.returncode == 0
+    assert confirmed.stdout == ""
+    assert dry_run.returncode == 0
+    assert dry_run.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "nbx call POST /api/dcim/devices/ --body-json '{}' --dry-run",
+        "nbx dcim devices delete --id 7 --dry-run",
+        "nbx proxbox endpoints proxmox create --body-json '{}' --dry-run",
+    ],
+)
+def test_hook_allows_literal_dry_run_without_confirmation(command: str) -> None:
+    result = _run_hook(command)
+
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "nbx branching delete 7 --dry-run",
+        "nbx dev http delete --path /api/dcim/devices/1/ --dry-run",
+        "nbx proxbox sync --dry-run",
+        "nbx proxbox tui --dry-run",
+        "nbx call $method /api/dcim/devices/1/ --dry-run",
+        "nbx dcim devices $action --id 7 --dry-run",
+    ],
+)
+def test_hook_rejects_dry_run_for_unsupported_or_unresolved_write_grammar(command: str) -> None:
+    result = _run_hook(command)
+
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
 @pytest.mark.parametrize("method", ["POST", "put", "PATCH", "delete"])

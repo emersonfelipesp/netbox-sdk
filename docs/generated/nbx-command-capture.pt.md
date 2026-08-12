@@ -512,7 +512,7 @@ nbx graphql --help
 nbx call --help
 ```
 
-**Código de saída:** `0`  ·  **Tempo de parede (s):** `4.014`
+**Código de saída:** `0`  ·  **Tempo de parede (s):** `6.869`
 
 **Saída:**
 
@@ -528,12 +528,17 @@ nbx call --help
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
 │ --query      -q      TEXT  Query parameter key=value                         │
+│ --header     -H      TEXT  HTTP header as Header=Value or 'Header: Value'    │
+│                            (repeatable)                                      │
 │ --body-json          TEXT  Inline JSON request body                          │
 │ --body-file          TEXT  Path to JSON request body file                    │
 │ --json                     Output raw JSON                                   │
 │ --yaml                     Output YAML                                       │
 │ --markdown                 Output Markdown (mutually exclusive with          │
 │                            --json/--yaml)                                    │
+│ --confirm                  Confirm execution when METHOD can modify NetBox.  │
+│ --dry-run                  Preview a write request without constructing a    │
+│                            client or executing it.                           │
 │ --help                     Show this message and exit.                       │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```

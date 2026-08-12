@@ -290,11 +290,16 @@ nbx dcim devices update --dry-run --id 1 --body-json '{"name":"updated-name"}'
 
 # Preview a delete operation
 nbx dcim devices delete --dry-run --id 1
+
+# Preview an explicit plugin request when the route is not in the bundled schema
+nbx call POST /api/plugins/custom/widgets/ --dry-run --body-json '{"name":"widget-a"}'
 ```
 
-Output shows the HTTP method, path, and request body in a formatted table. The
-`--dry-run` flag is only valid for actions that resolve to `POST`, `PUT`,
-`PATCH`, or `DELETE` (including the named CRUD/bulk actions).
+Output shows the HTTP method, path, and request body in a formatted table. Raw
+`nbx call` previews also show parsed query parameters and non-sensitive headers.
+The `--dry-run` flag is only valid for actions that resolve to `POST`, `PUT`,
+`PATCH`, or `DELETE` (including the named CRUD/bulk actions and write-method
+`nbx call` requests).
 
 Live writes are refused by the executing CLI unless the command includes
 `--confirm` or the process environment contains
