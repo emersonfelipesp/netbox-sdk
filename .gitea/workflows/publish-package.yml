@@ -50,7 +50,7 @@ jobs:
           UV_CACHE_DIR="$BUILD_ROOT/uv-cache" \
             UV_PROJECT_ENVIRONMENT="$BUILD_ROOT/venv" \
             uv sync --locked --only-group publish --no-install-project
-          test "$(uv --version)" = "uv 0.11.28"
+          test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$BUILD_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
 
       - name: Validate exact pushed tag
@@ -179,7 +179,7 @@ jobs:
           UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
             UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
             uv sync --directory "$SOURCE_ROOT" --locked --only-group publish --no-install-project
-          test "$(uv --version)" = "uv 0.11.28"
+          test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
 
       - name: Download bounded candidate transfer
@@ -303,7 +303,7 @@ jobs:
           UV_CACHE_DIR="$PUBLISH_ROOT/uv-cache" \
             UV_PROJECT_ENVIRONMENT="$PUBLISH_ROOT/venv" \
             uv sync --directory "$TOOL_ROOT" --locked --only-group publish --no-install-project
-          test "$(uv --version)" = "uv 0.11.28"
+          test "$(uv --version)" = "uv 0.11.28 (x86_64-unknown-linux-gnu)"
           test "$("$PUBLISH_ROOT/venv/bin/python" -c 'import platform; print(platform.python_version())')" = "3.12.13"
 
       - name: Download only the verified sealed set

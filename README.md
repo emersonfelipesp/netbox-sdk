@@ -362,8 +362,8 @@ nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
 python -m scripts.gitea_release validate-tag-protection \
   --policy-file .gitea/release-tag-policy.json \
   --evidence-file /tmp/netbox-sdk-tag-protections.json
-git tag -a v0.0.11rc2 -m "Release v0.0.11rc2"
-git push gitea v0.0.11rc2
+git tag -a v0.0.11rc3 -m "Release v0.0.11rc3"
+git push gitea v0.0.11rc3
 ```
 
 The evidence command and validator are a mandatory preflight before creating
@@ -406,7 +406,10 @@ workflow also fetches Gitea's `v0.0.10` ref into an isolated validation ref and
 requires its annotated tag-object SHA and peeled commit to match exactly.
 
 All credentialed publishing workflows pin every action to a reviewed full
-commit SHA. The private-registry workflow builds twice in independent,
+commit SHA. Every private-publisher stage also requires the complete pinned uv
+identity, including the Linux x86-64 target triple; a shortened, suffixed,
+wrong-version, or wrong-platform rendering fails before candidate processing.
+The private-registry workflow builds twice in independent,
 credential-free source worktrees, derives canonical archive metadata from the
 validated source-commit timestamp, and requires both wheel/sdist pairs to be
 byte-identical. A separate credential-free job binds the archives and complete
