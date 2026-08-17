@@ -3756,7 +3756,7 @@
 <tbody>
 <tr>
 <td><code>--netbox-version</code> / <code>--api-version</code></td>
-<td>Global option to force a supported bundled schema release line (<code>4.3</code> through <code>4.6</code>)</td>
+<td>Global option to force a supported bundled schema release line (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, <code>4.7</code> preview)</td>
 </tr>
 <tr>
 <td><code>--id INTEGER</code></td>
@@ -3827,7 +3827,7 @@
 <p><code>--json</code>, <code>--yaml</code>, and <code>--markdown</code> are mutually exclusive.</p>
 <hr />
 <h2 id="netbox-version-selection">NetBox version selection<a class="headerlink" href="#netbox-version-selection" title="Permanent link">&para;</a></h2>
-<p><code>nbx</code> supports NetBox 4.5 and 4.6 command surfaces in parallel:</p>
+<p><code>nbx</code> supports every bundled NetBox command surface in parallel (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, and the <code>4.7</code> preview line):</p>
 <ul>
 <li>By default, the static command tree uses the bundled NetBox 4.6 schema so 4.6 resources such as <code>dcim/cable-bundles</code> are available.</li>
 <li>During command execution, discovery helpers, and TUI launch, <code>nbx</code> checks the configured instance version and uses the matching bundled schema for supported release lines.</li>

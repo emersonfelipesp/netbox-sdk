@@ -3517,7 +3517,7 @@
 
 
 <h1 id="schema-indexing">Schema Indexing<a class="headerlink" href="#schema-indexing" title="Permanent link">&para;</a></h1>
-<p>The SDK ships bundled NetBox OpenAPI schemas under <code>netbox_sdk/reference/openapi/</code> for the supported release lines. <code>build_schema_index()</code> defaults to NetBox 4.6, while <code>version="4.5"</code> selects the 4.5 schema. <code>SchemaIndex</code> parses a schema once and exposes fast query helpers for groups, resources, paths, and filter parameters.</p>
+<p>The SDK ships bundled NetBox OpenAPI schemas under <code>netbox_sdk/reference/openapi/</code> for the supported release lines. <code>build_schema_index()</code> defaults to NetBox 4.6 (the newest <strong>stable</strong> line), while <code>version="4.5"</code> selects the 4.5 schema and <code>version="4.7"</code> selects the 4.7 preview line. <code>SchemaIndex</code> parses a schema once and exposes fast query helpers for groups, resources, paths, and filter parameters.</p>
 <hr />
 <h2 id="building-the-index">Building the index<a class="headerlink" href="#building-the-index" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_schema_index</span>

@@ -3517,7 +3517,7 @@
 
 
 <h1 id="indexacao-de-esquema">Indexação de esquema<a class="headerlink" href="#indexacao-de-esquema" title="Permanent link">&para;</a></h1>
-<p>O SDK inclui esquemas OpenAPI integrados do NetBox em <code>netbox_sdk/reference/openapi/</code> para as linhas de release suportadas. <code>build_schema_index()</code> usa NetBox 4.6 por padrão, enquanto <code>version="4.5"</code> seleciona o esquema 4.5. <code>SchemaIndex</code> analisa um esquema uma vez e expõe auxiliares rápidos de consulta para grupos, recursos, caminhos e parâmetros de filtro.</p>
+<p>O SDK inclui esquemas OpenAPI integrados do NetBox em <code>netbox_sdk/reference/openapi/</code> para as linhas de release suportadas. <code>build_schema_index()</code> usa NetBox 4.6 por padrão (a linha <strong>estável</strong> mais recente), enquanto <code>version="4.5"</code> seleciona o esquema 4.5 e <code>version="4.7"</code> seleciona a linha preview 4.7. <code>SchemaIndex</code> analisa um esquema uma vez e expõe auxiliares rápidos de consulta para grupos, recursos, caminhos e parâmetros de filtro.</p>
 <hr />
 <h2 id="construir-o-indice">Construir o índice<a class="headerlink" href="#construir-o-indice" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_schema_index</span>
