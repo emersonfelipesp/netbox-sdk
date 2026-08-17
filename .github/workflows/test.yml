@@ -50,7 +50,11 @@ jobs:
               - 'tests/test_mock_api.py'
               - 'tests/test_output_safety.py'
               - 'tests/test_plugin_discovery.py'
+              - 'tests/test_branching_typed.py'
+              - 'tests/test_release_line_coverage.py'
               - 'tests/test_release_registry.py'
+              - 'tests/test_schema_resolution.py'
+              - 'tests/test_schema_version_detection.py'
               - 'tests/test_schema_index.py'
               - 'tests/test_docs_alignment.py'
               - 'tests/test_return_annotations.py'
@@ -290,6 +294,7 @@ jobs:
             tests/test_typed_sdk.py \
             tests/test_typed_generation.py \
             tests/test_branching_typed.py \
+            tests/test_mock_api.py \
             tests/test_schema_resolution.py \
             tests/test_schema_version_detection.py \
             tests/test_docs_alignment.py

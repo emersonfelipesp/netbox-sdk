@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import importlib
 import json
+import re
 from pathlib import Path
+from typing import Literal, NamedTuple
 
 import pytest
 import yaml
@@ -36,28 +38,54 @@ pytestmark = pytest.mark.suite_sdk
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
 # Release lines with no live-instance CI job, each with its reason. Two distinct
 # causes are recorded separately on purpose: a line with no published upstream
 # image *cannot* be live-tested, while a line excluded for CI cost *could* be.
 # Conflating them would hide the second kind forever. The guard below fails once
 # a line gains a live job, so each exception retires itself rather than quietly
 # becoming permanent.
-LINES_WITHOUT_LIVE_CI: dict[str, str] = {
-    "4.7": (
-        "no upstream image exists: ghcr.io/netbox-community/netbox publishes no "
-        "tag for v4.7.0-beta1 (verified against the GHCR tag list). Nothing can "
-        "be run until upstream publishes one; re-check at 4.7 GA."
+class LiveCiExemption(NamedTuple):
+    """Why a registered line has no live-instance CI job."""
+
+    cause: Literal["no-upstream-image", "ci-cost"]
+    reason: str
+
+
+# Lines with no live-instance CI job. The two causes are represented
+# STRUCTURALLY, not just described in prose, because they expire differently:
+#
+#   no-upstream-image — nothing can be run; valid only while the line is still a
+#       preview. Once it goes stable an image exists (or should), so the
+#       exemption must be reconsidered rather than silently inherited.
+#   ci-cost — an image exists and the line *could* be live-tested; excluded as a
+#       deliberate trade-off. This one never expires on its own.
+#
+# Either way, a line that gains a live job fails its own exemption below, so no
+# entry can outlive its reason unnoticed.
+LINES_WITHOUT_LIVE_CI: dict[str, LiveCiExemption] = {
+    "4.7": LiveCiExemption(
+        cause="no-upstream-image",
+        reason=(
+            "ghcr.io/netbox-community/netbox publishes no tag for v4.7.0-beta1 "
+            "(verified against the GHCR tag list). Re-check at 4.7 GA."
+        ),
     ),
-    "4.3": (
-        "an image exists (ghcr.io/netbox-community/netbox:v4.3.7) but the live "
-        "matrix is deliberately limited to the newest stable lines for CI cost. "
-        "Tracked for expansion; unlike 4.7 this gap is a choice, not a limit."
+    "4.3": LiveCiExemption(
+        cause="ci-cost",
+        reason=(
+            "an image exists (ghcr.io/netbox-community/netbox:v4.3.7) but the "
+            "live matrix is deliberately limited to the newest stable lines. "
+            "Unlike 4.7 this gap is a choice, not a limit."
+        ),
     ),
-    "4.4": (
-        "an image exists (ghcr.io/netbox-community/netbox:v4.4.0) but the live "
-        "matrix is deliberately limited to the newest stable lines for CI cost. "
-        "Tracked for expansion; unlike 4.7 this gap is a choice, not a limit. "
-        "Note v4.4.10 is NOT published — pick a tag that exists when adding it."
+    "4.4": LiveCiExemption(
+        cause="ci-cost",
+        reason=(
+            "an image exists (ghcr.io/netbox-community/netbox:v4.4.0) but the "
+            "live matrix is deliberately limited to the newest stable lines. "
+            "Note v4.4.10 is NOT published — pick a tag that exists when adding it."
+        ),
     ),
 }
 
@@ -139,6 +167,52 @@ def test_every_registered_line_has_a_readable_bundled_asset(line: str) -> None:
     assert path.stat().st_size > 0
 
 
+@pytest.mark.parametrize("line", SUPPORTED_NETBOX_VERSIONS)
+def test_every_registered_line_builds_a_mock_app(line: str) -> None:
+    """The mock server must actually serve each registered line.
+
+    The per-line CI matrix exports ``NETBOX_MOCK_VERSION``, but nothing read it
+    until this test existed, so every matrix job could pass without the mock
+    server ever being built for its named line.
+    """
+    fastapi = pytest.importorskip(
+        "fastapi", reason="the mock server requires the optional `mock` extra"
+    )
+    assert fastapi is not None
+
+    from netbox_sdk.mock.app import create_mock_app
+
+    app = create_mock_app(version=line)  # type: ignore[arg-type]
+    routes = {getattr(route, "path", "") for route in app.routes}
+    assert "/api/dcim/devices/" in routes, f"mock app for {line} has no device routes"
+
+
+def test_mock_app_honours_the_environment_pin(monkeypatch: pytest.MonkeyPatch) -> None:
+    """``NETBOX_MOCK_VERSION`` must select the served line.
+
+    This is what makes the matrix job's env pin meaningful rather than decorative.
+    """
+    pytest.importorskip("fastapi", reason="the mock server requires the optional `mock` extra")
+
+    from netbox_sdk.mock.app import create_mock_app
+
+    preview = next(
+        (line for line in SUPPORTED_NETBOX_VERSIONS if release_line(line).status == "preview"),
+        None,
+    )
+    target = preview or SUPPORTED_NETBOX_VERSIONS[0]
+    monkeypatch.setenv("NETBOX_MOCK_VERSION", target)
+
+    app = create_mock_app()
+
+    assert app is not None
+    # Building with the env pin must match building with the explicit argument.
+    explicit = create_mock_app(version=target)  # type: ignore[arg-type]
+    assert {getattr(r, "path", "") for r in app.routes} == {
+        getattr(r, "path", "") for r in explicit.routes
+    }
+
+
 def test_preview_lines_are_never_the_default() -> None:
     """A preview line must never become the resolved default."""
     assert release_line(DEFAULT_NETBOX_VERSION).status == "stable"
@@ -182,7 +256,17 @@ def test_live_netbox_matrix_covers_every_line_without_a_documented_exception() -
             f"release line {line} has neither a live CI job nor a documented "
             "exception in LINES_WITHOUT_LIVE_CI"
         )
-        assert LINES_WITHOUT_LIVE_CI[line].strip(), f"{line} exception has no reason"
+        exemption = LINES_WITHOUT_LIVE_CI[line]
+        assert exemption.reason.strip(), f"{line} exemption has no reason"
+        if exemption.cause == "no-upstream-image":
+            # This cause is only credible while the line is a pre-release. When it
+            # goes stable, an upstream image exists (or the claim is wrong either
+            # way), so force an explicit decision instead of inheriting the note.
+            assert release_line(line).status == "preview", (
+                f"{line} is no longer a preview line, so its 'no-upstream-image' "
+                "exemption is stale: either add a live CI job or re-classify the "
+                "exemption with the real current reason"
+            )
 
 
 def test_documented_live_ci_exceptions_are_all_registered_lines() -> None:
@@ -196,4 +280,38 @@ def test_metadata_publishes_every_registered_line() -> None:
     metadata = json.loads(_read("metadata.json"))
     assert set(metadata["netbox"]) == set(SUPPORTED_NETBOX_VERSIONS), (
         f"metadata.json netbox={metadata['netbox']} registry={sorted(SUPPORTED_NETBOX_VERSIONS)}"
+    )
+
+
+def test_every_matrix_test_input_is_routed_by_change_detection() -> None:
+    """A change to a matrix-owned test must trigger the matrix that runs it.
+
+    The ``sdk`` path filter is an explicit allowlist. The new coverage module was
+    not in it, so a pull request touching only that file left both ``sdk`` and
+    ``run_all`` false and skipped the very job that guards it — the guard could
+    have been weakened without CI ever running it.
+    """
+    workflow_text = _read(".github/workflows/test.yml")
+    workflow = yaml.safe_load(workflow_text)
+
+    step = next(
+        s
+        for s in workflow["jobs"]["test-bundled-release-lines"]["steps"]
+        if "pytest" in str(s.get("run", ""))
+    )
+    matrix_inputs = set(re.findall(r"(tests/test_[a-z0-9_]+\.py)", str(step["run"])))
+    assert matrix_inputs, "could not parse the matrix job's test inputs"
+
+    detect = next(
+        s
+        for s in workflow["jobs"]["changes"]["steps"]
+        if "filters" in str((s.get("with") or {}).keys())
+    )
+    filters = yaml.safe_load(detect["with"]["filters"])
+    routed = set(filters.get("sdk") or []) | set(filters.get("run_all") or [])
+
+    missing = sorted(path for path in matrix_inputs if path not in routed)
+    assert not missing, (
+        "these matrix-owned tests are not routed by the sdk/run_all path filters, "
+        f"so editing them would skip the job that runs them: {missing}"
     )
