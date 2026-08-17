@@ -1,6 +1,6 @@
 # Indexação de esquema
 
-O SDK inclui esquemas OpenAPI integrados do NetBox em `netbox_sdk/reference/openapi/` para as linhas de release suportadas. `build_schema_index()` usa NetBox 4.6 por padrão, enquanto `version="4.5"` seleciona o esquema 4.5. `SchemaIndex` analisa um esquema uma vez e expõe auxiliares rápidos de consulta para grupos, recursos, caminhos e parâmetros de filtro.
+O SDK inclui esquemas OpenAPI integrados do NetBox em `netbox_sdk/reference/openapi/` para as linhas de release suportadas. `build_schema_index()` usa NetBox 4.6 por padrão (a linha **estável** mais recente), enquanto `version="4.5"` seleciona o esquema 4.5 e `version="4.7"` seleciona a linha preview 4.7. `SchemaIndex` analisa um esquema uma vez e expõe auxiliares rápidos de consulta para grupos, recursos, caminhos e parâmetros de filtro.
 
 ---
 

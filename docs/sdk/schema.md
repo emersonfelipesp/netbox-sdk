@@ -1,6 +1,6 @@
 # Schema Indexing
 
-The SDK ships bundled NetBox OpenAPI schemas under `netbox_sdk/reference/openapi/` for the supported release lines. `build_schema_index()` defaults to NetBox 4.6, while `version="4.5"` selects the 4.5 schema. `SchemaIndex` parses a schema once and exposes fast query helpers for groups, resources, paths, and filter parameters.
+The SDK ships bundled NetBox OpenAPI schemas under `netbox_sdk/reference/openapi/` for the supported release lines. `build_schema_index()` defaults to NetBox 4.6 (the newest **stable** line), while `version="4.5"` selects the 4.5 schema and `version="4.7"` selects the 4.7 preview line. `SchemaIndex` parses a schema once and exposes fast query helpers for groups, resources, paths, and filter parameters.
 
 ---
 

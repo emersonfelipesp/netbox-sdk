@@ -67,7 +67,7 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 
 | Flag | Description |
 |------|-------------|
-| `--netbox-version` / `--api-version` | Global option to force a supported bundled schema release line (`4.3` through `4.6`) |
+| `--netbox-version` / `--api-version` | Global option to force a supported bundled schema release line (`4.3`, `4.4`, `4.5`, `4.6`, `4.7` preview) |
 | `--id INTEGER` | Object ID for detail operations (`get`, `update`, `patch`, `delete`) |
 | `-q` / `--query KEY=VALUE` | Query string filter (repeatable) |
 | `-H` / `--header HEADER=VALUE` | HTTP header for the request; `Header: Value` is also accepted (repeatable) |

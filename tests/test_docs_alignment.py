@@ -91,7 +91,14 @@ def test_sdk_docs_cover_typed_api_and_supported_versions() -> None:
 
 
 def test_localized_support_inventories_cover_every_registered_line() -> None:
-    """Both locales must advertise every registered line, preview included."""
+    """Both locales must advertise every registered line, preview included.
+
+    Granularity is deliberately "the line is named somewhere on the page": it
+    catches a page that never mentions a line at all — the failure that let the
+    4.7 inventories go stale — but it cannot tell a support claim from a passing
+    reference. Keep illustrative pages out of the list rather than trying to make
+    this assertion smarter.
+    """
     pages = (
         "docs/index.md",
         "docs/index.pt.md",
@@ -103,6 +110,18 @@ def test_localized_support_inventories_cover_every_registered_line() -> None:
         "docs/getting-started/installation.pt.md",
         "docs/getting-started/quickstart.md",
         "docs/getting-started/quickstart.pt.md",
+        # Support/compatibility inventories. These make an explicit claim about
+        # which lines are supported, so every registered line must appear.
+        # Pages that merely *illustrate* a version (docs/sdk/schema.md picks one
+        # line as an example) are deliberately excluded — forcing them to name
+        # every line would make the guard noise rather than signal.
+        "CERTIFICATION.md",
+        "docs/certification.md",
+        "docs/certification.pt.md",
+        "docs/cli/dynamic-commands.md",
+        "docs/cli/dynamic-commands.pt.md",
+        "docs/mock-api/index.md",
+        "docs/mock-api/index.pt.md",
     )
     for page in pages:
         text = _read(page)
