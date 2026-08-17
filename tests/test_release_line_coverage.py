@@ -18,10 +18,10 @@ from __future__ import annotations
 
 import importlib
 import json
-import re
 from pathlib import Path
 
 import pytest
+import yaml
 
 from netbox_sdk.schema import SchemaIndex, load_openapi_schema
 from netbox_sdk.typed_api import typed_api
@@ -60,6 +60,29 @@ LINES_WITHOUT_LIVE_CI: dict[str, str] = {
         "Note v4.4.10 is NOT published — pick a tag that exists when adding it."
     ),
 }
+
+
+def _matrix_values(job: str, key: str) -> list[str]:
+    """Return one matrix axis from the tests workflow, parsed as YAML.
+
+    Parsed rather than regexed on purpose. ``bundled-netbox-version`` contains
+    ``netbox-version`` as a substring, so a pattern for one silently matched the
+    other during development; and any regex over YAML also breaks on a reformat
+    (indentation, block vs flow style, quoting). Reading the actual document
+    removes both failure modes.
+
+    Raises:
+        AssertionError: If the job or axis is absent, so a renamed job fails
+            loudly instead of skipping the check.
+    """
+    workflow = yaml.safe_load(_read(".github/workflows/test.yml"))
+    jobs = workflow.get("jobs") or {}
+    assert job in jobs, f".github/workflows/test.yml has no job {job!r}"
+    matrix = ((jobs[job].get("strategy") or {}).get("matrix")) or {}
+    assert key in matrix, f"job {job!r} has no matrix axis {key!r}"
+    values = matrix[key]
+    assert isinstance(values, list) and values, f"{job}.{key} is not a non-empty list"
+    return [str(value) for value in values]
 
 
 def _read(path: str) -> str:
@@ -128,11 +151,7 @@ def test_ci_runs_the_version_sensitive_suite_for_every_registered_line() -> None
     nothing in CI *named* 4.7, so a regression that removed its coverage would
     not have shown up in any job title or report.
     """
-    workflow = _read(".github/workflows/test.yml")
-
-    match = re.search(r"^\s*bundled-netbox-version:\s*(\[[^\]]*\])", workflow, re.M)
-    assert match, "test.yml has no bundled-netbox-version matrix"
-    declared = set(re.findall(r'"([0-9.]+)"', match.group(1)))
+    declared = set(_matrix_values("test-bundled-release-lines", "bundled-netbox-version"))
 
     assert declared == set(SUPPORTED_NETBOX_VERSIONS), (
         "the bundled release-line CI matrix and the registry disagree; "
@@ -147,14 +166,9 @@ def test_live_netbox_matrix_covers_every_line_without_a_documented_exception() -
     upstream publishes an image and the matrix gains a 4.7 entry, the stale
     exception below fails this test and must be removed.
     """
-    workflow = _read(".github/workflows/test.yml")
-    # Anchored so it cannot accidentally match `bundled-netbox-version`, which
-    # contains this key as a substring and lists bare lines rather than tags.
-    match = re.search(r"^\s*netbox-version:\s*(\[[^\]]*\])", workflow, re.M)
-    assert match, "test.yml has no live netbox-version matrix"
     live_lines = {
-        ".".join(version.lstrip("v").split(".")[:2])
-        for version in re.findall(r'"(v[0-9.]+)"', match.group(1))
+        ".".join(str(version).lstrip("v").split(".")[:2])
+        for version in _matrix_values("test-live-netbox", "netbox-version")
     }
 
     for line in SUPPORTED_NETBOX_VERSIONS:
