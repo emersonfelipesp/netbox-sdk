@@ -90,6 +90,27 @@ LINES_WITHOUT_LIVE_CI: dict[str, LiveCiExemption] = {
 }
 
 
+def _assert_status_reports_line(app: object, line: str) -> None:
+    """Assert the mock server reports ``line`` from ``/api/status/``.
+
+    This is the only assertion that separates every release line from every
+    other. Route-shape checks can only distinguish lines whose surfaces differ,
+    so a mock that silently served one stable line for all of them would pass
+    them.
+    """
+    from fastapi.testclient import TestClient
+
+    # Deliberately not used as a context manager: that runs the app lifespan,
+    # which this assertion does not need and which makes the check slow.
+    client = TestClient(app)  # type: ignore[arg-type]
+    response = client.get("/api/status/")
+    assert response.status_code == 200, f"{line}: /api/status/ returned {response.status_code}"
+    reported = response.json().get("netbox-version", "")
+    assert reported.startswith(line), (
+        f"mock asked for NetBox {line} reports netbox-version={reported!r}"
+    )
+
+
 def _matrix_values(job: str, key: str) -> list[str]:
     """Return one matrix axis from the tests workflow, parsed as YAML.
 
@@ -201,31 +222,39 @@ def test_every_registered_line_builds_a_mock_app(line: str) -> None:
     else:
         assert cooling not in routes, f"{line} does not bundle {cooling} but the mock serves it"
 
+    # The cooling route only separates the preview line from the stable ones. If
+    # the mock mapped every stable request to a single line, the assertions above
+    # would still pass. Ask the server which line it believes it is serving.
+    _assert_status_reports_line(app, line)
 
-def test_mock_app_honours_the_environment_pin(monkeypatch: pytest.MonkeyPatch) -> None:
+
+@pytest.mark.parametrize("line", SUPPORTED_NETBOX_VERSIONS)
+def test_mock_app_honours_the_environment_pin(monkeypatch: pytest.MonkeyPatch, line: str) -> None:
     """``NETBOX_MOCK_VERSION`` must select the served line.
 
-    This is what makes the matrix job's env pin meaningful rather than decorative.
+    This is what makes the matrix job's env pin meaningful rather than
+    decorative: in CI each job inherits its own line, and locally the
+    parametrization sweeps all of them.
+
+    Parametrized rather than looping inside one test — building a mock app is
+    expensive (hundreds of routes through FastAPI model creation), and a single
+    test constructing one per line exceeded the suite's 60s per-test timeout.
     """
     pytest.importorskip("fastapi", reason="the mock server requires the optional `mock` extra")
 
     from netbox_sdk.mock.app import create_mock_app
 
-    preview = next(
-        (line for line in SUPPORTED_NETBOX_VERSIONS if release_line(line).status == "preview"),
-        None,
-    )
-    target = preview or SUPPORTED_NETBOX_VERSIONS[0]
-    monkeypatch.setenv("NETBOX_MOCK_VERSION", target)
+    monkeypatch.setenv("NETBOX_MOCK_VERSION", line)
 
     app = create_mock_app()
 
-    assert app is not None
-    # Building with the env pin must match building with the explicit argument.
-    explicit = create_mock_app(version=target)  # type: ignore[arg-type]
+    # The env pin must select the same server as the explicit argument...
+    explicit = create_mock_app(version=line)  # type: ignore[arg-type]
     assert {getattr(r, "path", "") for r in app.routes} == {
         getattr(r, "path", "") for r in explicit.routes
-    }
+    }, f"env pin {line} built a different route set than the explicit argument"
+    # ...and the server must report that exact line.
+    _assert_status_reports_line(app, line)
 
 
 def test_preview_lines_are_never_the_default() -> None:
@@ -330,3 +359,41 @@ def test_every_matrix_test_input_is_routed_by_change_detection() -> None:
         "these matrix-owned tests are not routed by the sdk/run_all path filters, "
         f"so editing them would skip the job that runs them: {missing}"
     )
+
+
+def test_matrix_job_is_triggered_by_every_package_its_checks_import() -> None:
+    """The matrix must re-run when any package it exercises changes.
+
+    Its parity step imports ``netbox_cli.runtime`` and ``netbox_mcp.service``, so
+    gating the job on the SDK filter alone meant a CLI-only or MCP-only pull
+    request skipped all five jobs. The routing guard above cannot see this: it
+    reads the pytest file list, not the heredoc's imports or the job's condition.
+    """
+    workflow = yaml.safe_load(_read(".github/workflows/test.yml"))
+    job = workflow["jobs"]["test-bundled-release-lines"]
+    condition = str(job.get("if", ""))
+
+    parity = next(
+        (
+            s
+            for s in job["steps"]
+            if "import" in str(s.get("run", "")) and "netbox_" in str(s.get("run", ""))
+        ),
+        None,
+    )
+    assert parity is not None, "the matrix job has no parity step to check"
+
+    # Map an imported package to the change-detection output that must gate it.
+    package_outputs = {
+        "netbox_cli": "cli",
+        "netbox_mcp": "mcp",
+        "netbox_sdk": "sdk",
+    }
+    run = str(parity["run"])
+    for package, output in package_outputs.items():
+        if package not in run:
+            continue
+        assert f"needs.changes.outputs.{output}" in condition, (
+            f"the matrix job imports {package} but is not gated on "
+            f"needs.changes.outputs.{output}, so a {output}-only change skips it"
+        )

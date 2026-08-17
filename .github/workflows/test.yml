@@ -260,7 +260,9 @@ jobs:
   test-bundled-release-lines:
     name: bundled NetBox ${{ matrix.bundled-netbox-version }} / Python 3.11
     needs: changes
-    if: ${{ (github.event_name == 'push' && github.ref_name == 'main') || needs.changes.outputs.run_all == 'true' || needs.changes.outputs.sdk == 'true' }}
+    # Also gated on cli/mcp: the parity step imports netbox_cli.runtime and
+    # netbox_mcp.service, so a change to either consumer must re-run it.
+    if: ${{ (github.event_name == 'push' && github.ref_name == 'main') || needs.changes.outputs.run_all == 'true' || needs.changes.outputs.sdk == 'true' || needs.changes.outputs.cli == 'true' || needs.changes.outputs.mcp == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

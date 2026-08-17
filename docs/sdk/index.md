@@ -85,6 +85,7 @@ nb = typed_api(
 
 Supported release lines:
 
+- `4.7` (preview, opt-in)
 - `4.6`
 - `4.5`
 - `4.4`

@@ -122,6 +122,12 @@ def test_localized_support_inventories_cover_every_registered_line() -> None:
         "docs/cli/dynamic-commands.pt.md",
         "docs/mock-api/index.md",
         "docs/mock-api/index.pt.md",
+        "docs/sdk/index.md",
+        "docs/sdk/index.pt.md",
+        "docs/sdk/branching.md",
+        "docs/sdk/branching.pt.md",
+        "docs/mock-api/pytest-integration.md",
+        "docs/mock-api/pytest-integration.pt.md",
     )
     for page in pages:
         text = _read(page)
