@@ -91,7 +91,7 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 
 ## Seleção de versão do NetBox
 
-`nbx` suporta as superfícies de comando do NetBox 4.5 e 4.6 em paralelo:
+`nbx` suporta em paralelo todas as superfícies de comando integradas (`4.3`, `4.4`, `4.5`, `4.6` e a linha preview `4.7`):
 
 - Por padrão, a árvore estática de comandos usa o esquema integrado do NetBox 4.6, então recursos 4.6 como `dcim/cable-bundles` ficam disponíveis.
 - Durante a execução de comandos, auxiliares de descoberta e abertura de TUI, `nbx` verifica a versão da instância configurada e usa o esquema integrado correspondente quando a linha é suportada.

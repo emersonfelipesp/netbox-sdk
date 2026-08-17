@@ -81,6 +81,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_docs_alignment.py` | Package/docs version alignment and localized docs completeness |
 | `test_gitea_release.py` | Private-registry three-job/token mutation policy, exact-tool-root import layout, deterministic A/B and trusted re-canonicalization, complete metadata-header/archive-to-Git binding, external tag-protection evidence, private seals, bounded HTTP, exact-state resumability, association recovery, and secret-silent failure behavior |
 | `test_release_policy.py` | Canonical Gitea ancestry, immutable tag-object, PEP 440 routing, RC-push, and official-release event authorization |
+| `test_release_line_coverage.py` | **Executable** per-line coverage: every registered line loads and indexes its bundled schema, builds its typed client, and imports its generated modules; plus the CI-coverage contract (the bundled release-line matrix must match the registry, and every line is either live-tested or carries a documented, self-retiring `LINES_WITHOUT_LIVE_CI` exception) |
 | `test_release_registry.py` | Bidirectional NetBox release registry/artifact completeness plus exact local wheel/sdist identity/cardinality and TestPyPI/PyPI filename-set, collision, host, manifest-bound approved-upload, partial-retry, and hash-bound wheel URL policy |
 | `test_graphql.py` | CLI GraphQL and raw HTTP command behavior |
 | `test_instance_isolation.py` | Per-process config and schema index isolation (no cross-test state leakage) |
@@ -128,6 +129,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 - Shared files such as `pyproject.toml`, `uv.lock`, `tests/conftest.py`, and test workflow definitions trigger the full suite instead of package-selective runs.
 - Direct pushes to `main` always run the full `uv run pytest` matrix.
 - SDK-affecting branch/PR changes and every direct push to `main` run live NetBox SDK integration tests against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+- The same trigger runs the **bundled release-line matrix** (`test-bundled-release-lines`): one job per registered line — including `4.7`, which has no live job — pinning `NETBOX_SDK_NETBOX_VERSION`/`NETBOX_MOCK_VERSION` and running the version-sensitive suites plus a CLI-vs-MCP resolution parity check. Keep the workflow matrix in sync with `SUPPORTED_NETBOX_VERSIONS`; `test_release_line_coverage.py` fails if it drifts.
 - Security CI path-routes `test_security_sdk.py`, `test_security_cli.py`, and `test_security_tui.py`.
 - Release validation always runs the full `uv run pytest` matrix before publish.
 - Private-registry changes must run `tests/test_gitea_release.py`; archive-envelope, metadata-header, workflow-layout, token-boundary, and external tag-policy checks are fail-closed and must never be skipped when they cannot evaluate.

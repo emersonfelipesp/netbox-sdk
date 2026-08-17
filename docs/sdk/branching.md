@@ -97,4 +97,4 @@ nb = typed_api("https://netbox.example.com", token="…", netbox_version="4.6")
 branches = await nb.plugins.branching.branches.list()
 ```
 
-`PluginsApp.branching` is wired for NetBox 4.4, 4.5, and 4.6.
+`PluginsApp.branching` is wired for every bundled release line — 4.3, 4.4, 4.5, 4.6, and the 4.7 preview line. Only 4.4 ships the fully typed wrapper; the other lines expose the dict-based `RawBranchingApp`.

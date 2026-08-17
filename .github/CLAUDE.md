@@ -67,6 +67,7 @@ require the head to be current with its base before merge.
   - runs `suite_sdk`, `suite_cli`, `suite_tui`, or `suite_mcp` on Python 3.11, 3.12, and 3.13 for branch/PR changes
   - escalates to a full `pytest` matrix when shared files change or when the push targets `main`
   - adds the `mock` extra for mock API coverage and runs live NetBox tests for SDK-affecting branch/PR changes and every `main` push against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`
+  - runs the **bundled release-line matrix** (`test-bundled-release-lines`) on the same trigger: one job per registered NetBox line, pinning `NETBOX_SDK_NETBOX_VERSION`/`NETBOX_MOCK_VERSION` and running the version-sensitive suites plus a CLI-vs-MCP resolution parity check. It needs no live NetBox, so it covers lines that cannot be live-tested — `4.7` has no upstream container image for `v4.7.0-beta1`. The matrix must match `netbox_sdk.versioning.SUPPORTED_NETBOX_VERSIONS`; `tests/test_release_line_coverage.py` fails if it drifts, and also fails if a line has neither a live job nor a documented self-retiring exception
   - fetches full Git history for every SDK/full-suite job because release-lineage tests resolve the immutable `v0.0.10` tag
   - routes release policy, metadata generation, and metadata-workflow changes through the complete suite
 - `workflows/security.yml`

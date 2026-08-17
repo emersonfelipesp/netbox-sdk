@@ -160,8 +160,10 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
   is registered with `status="preview"`: reachable by explicit pin
   (`--netbox-version 4.7` / `NETBOX_SDK_NETBOX_VERSION=4.7`) or by live detection
   when the instance reports `4.7.x`, but never selected by default. There is no
-  live-CI job for it because upstream publishes no container image for the beta. The CI live-NetBox suite exercises `v4.6.6`, `v4.6.3`,
-  `v4.6.2`, and `v4.5.10`.
+  live-CI job for it because upstream publishes no container image for the beta;
+  it is covered instead by the **bundled release-line matrix**, which runs one
+  CI job per registered line against the bundled schema. The CI live-NetBox
+  suite exercises `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 

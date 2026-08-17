@@ -4,6 +4,8 @@ import re
 import tomllib
 from pathlib import Path
 
+from netbox_sdk.versioning import SUPPORTED_NETBOX_VERSIONS
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -66,7 +68,13 @@ def test_integration_certification_packet_is_present() -> None:
 
 
 def test_supported_netbox_release_lines_have_committed_artifacts() -> None:
-    for line in ("4.3", "4.4", "4.5", "4.6"):
+    """Certification evidence must cover every *registered* line.
+
+    Hardcoding the list meant a newly registered line contributed no certification
+    evidence at all, which is how 4.7 shipped outside this gate.
+    """
+    assert SUPPORTED_NETBOX_VERSIONS, "no release lines registered"
+    for line in SUPPORTED_NETBOX_VERSIONS:
         suffix = line.replace(".", "_")
         assert (ROOT / f"netbox_sdk/models/v{suffix}.py").is_file()
         assert (ROOT / f"netbox_sdk/typed_versions/v{suffix}.py").is_file()
