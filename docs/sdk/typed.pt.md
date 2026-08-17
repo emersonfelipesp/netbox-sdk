@@ -85,25 +85,33 @@ Módulos relevantes:
 - Use `api()` para a fachada assíncrona ergonômica
 - Use `typed_api()` para E/S validada por Pydantic versionada
 
-### NetBox 4.7 (preview) — migração de escrita de serviços
+### NetBox 4.7 (preview) — mapeamentos de porta de serviços
 
-O NetBox 4.7 substitui o par `protocol` + `ports` de um serviço por
-`port_mappings`. Os modelos **graváveis** do upstream removem `protocol` (o
-schema o marca como "Deprecated; use port_mappings. Reported only for
-single-protocol services"), enquanto os modelos de **leitura** continuam a
-reportá-lo. Os bindings 4.7 gerados pelo `netbox-sdk` espelham isso exatamente.
-
-Consequência prática ao migrar um chamador de 4.6 para 4.7:
+O NetBox 4.7 adiciona `port_mappings`, permitindo que um serviço exponha vários
+protocolos ao mesmo tempo (DNS em `tcp/53` e `udp/53`). O par legado
+`protocol` + `ports` continua válido na escrita: o serializer compartilhado do
+upstream documenta que *"either format is accepted"*, traduzindo o par legado
+para `port_mappings` quando `port_mappings` não é informado. Informar ambos só é
+aceito quando concordam; um conflito real é rejeitado como ambíguo.
 
 ```python
-# 4.6 — aceito na escrita
+# Ainda aceito no 4.7 — traduzido no servidor para port_mappings
 api.ipam.services.create({"name": "ssh", "protocol": "tcp", "ports": [22], ...})
 
-# 4.7 — `protocol` NÃO faz parte do contrato de escrita e é ignorado
-# silenciosamente. Use port_mappings:
+# Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos
 api.ipam.services.create({"name": "dns", "port_mappings": ["tcp/53", "udp/53"], ...})
 ```
 
-Como os modelos gerados usam o padrão `extra="ignore"` do Pydantic, passar
-`protocol` numa escrita 4.7 **não** levanta erro — o campo é descartado antes do
-envio. Audite as escritas de serviço ao fixar a linha 4.7.
+Na leitura, um serviço de protocolo único reporta `port_mappings` **e** os campos
+legados `protocol`/`ports`; um serviço multiprotocolo reporta `null` para ambos,
+pois não pode ser expresso no formato antigo.
+
+> **Nota de geração.** O `drf-spectacular` omite `protocol` do bloco
+> `properties` dos modelos *graváveis* de serviço, embora o contrato de escrita
+> documentado o aceite. O `netbox-sdk` o restaura com um overlay determinístico
+> de geração (`scripts/generate_typed_sdk.py::apply_write_compat_overlay`)
+> aplicado apenas em memória — o bundle OpenAPI versionado permanece fiel byte a
+> byte ao artefato upstream fixado. Sem ele, um PATCH de
+> `{"protocol": "udp", "ports": [53]}` seria enviado como `{"ports": [53]}` e o
+> NetBox repreencheria o protocolo armazenado, ignorando silenciosamente a
+> alteração.

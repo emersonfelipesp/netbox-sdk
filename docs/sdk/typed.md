@@ -86,26 +86,32 @@ Relevant modules:
 - Use `api()` for the async ergonomic facade
 - Use `typed_api()` for versioned Pydantic-validated I/O
 
-### NetBox 4.7 (preview) — service write migration
+### NetBox 4.7 (preview) — service port mappings
 
-NetBox 4.7 replaces a service's single `protocol` + `ports` pair with
-`port_mappings`. Upstream's **writable** service models drop `protocol`
-accordingly (the schema marks it "Deprecated; use port_mappings. Reported only
-for single-protocol services"), while the **read** models still report it.
-`netbox-sdk`'s generated 4.7 bindings mirror that exactly.
-
-The practical consequence when moving a caller from 4.6 to 4.7:
+NetBox 4.7 adds `port_mappings`, letting a service expose several protocols at
+once (DNS on both `tcp/53` and `udp/53`). The legacy single-protocol
+`protocol` + `ports` pair still works on write: upstream's shared serializer
+documents that *"either format is accepted"*, translating the legacy pair into
+`port_mappings` when `port_mappings` is not supplied. Supplying both is accepted
+only when they agree; a genuine conflict is rejected as ambiguous.
 
 ```python
-# 4.6 — accepted on write
+# Still accepted on 4.7 — translated server-side into port_mappings
 api.ipam.services.create({"name": "ssh", "protocol": "tcp", "ports": [22], ...})
 
-# 4.7 — `protocol` is NOT part of the write contract and is silently ignored.
-# Use port_mappings instead:
+# 4.7-native, and the only way to express multiple protocols
 api.ipam.services.create({"name": "dns", "port_mappings": ["tcp/53", "udp/53"], ...})
 ```
 
-Because the generated models use Pydantic's default `extra="ignore"`, passing
-`protocol` to a 4.7 write does **not** raise — the field is dropped before the
-request is sent. Audit service writes when pinning 4.7. This behaviour is pinned
-by `tests/test_typed_sdk.py::test_v47_service_write_contract_matches_upstream_and_v46_migration_is_pinned`.
+On read, a single-protocol service reports `port_mappings` **and** the legacy
+`protocol`/`ports`; a multi-protocol service reports `null` for both, because it
+cannot be expressed in the old format.
+
+> **Generation note.** `drf-spectacular` omits `protocol` from the *writable*
+> service models' `properties` block even though the documented write contract
+> accepts it. `netbox-sdk` restores it with a deterministic generation overlay
+> (`scripts/generate_typed_sdk.py::apply_write_compat_overlay`) applied in memory
+> only — the committed OpenAPI bundle stays byte-faithful to the pinned upstream
+> artifact. Without it, a PATCH of `{"protocol": "udp", "ports": [53]}` would be
+> sent as `{"ports": [53]}` and NetBox would backfill the stored protocol,
+> silently ignoring the change.

@@ -246,60 +246,110 @@ async def test_typed_action_endpoint_supports_other_versions(monkeypatch) -> Non
     assert result[0].address == "10.0.0.1/24"
 
 
-def test_v47_service_write_contract_matches_upstream_and_v46_migration_is_pinned() -> None:
-    """Pin NetBox 4.7's service write contract and the 4.6 -> 4.7 migration hazard.
+def test_v47_service_write_contract_preserves_the_legacy_protocol_pair() -> None:
+    """NetBox 4.7 accepts BOTH service write formats; the bindings must send both.
 
-    NetBox 4.7 replaces the single ``protocol``/``ports`` pair with
-    ``port_mappings``. Upstream's *writable* service models deliberately drop
-    ``protocol`` (the bundled schema documents it as "Deprecated; use
-    port_mappings. Reported only for single-protocol services", and
-    ``POST /api/ipam/services/`` references ``WritableServiceRequest``), while the
-    read models keep it. The generated bindings mirror that faithfully.
+    The pinned upstream schema documents the write contract in the shared
+    serializer's description: *"Write: either format is accepted. When the legacy
+    ``protocol``/``ports`` pair is supplied (and ``port_mappings`` is not), it is
+    translated into ``port_mappings``."* drf-spectacular nonetheless omits
+    ``protocol`` from the writable models' ``properties`` block while emitting
+    ``ports``.
 
-    Do NOT "fix" this by overlaying ``protocol`` back onto the writable models:
-    that would make the SDK send a field 4.7's write contract does not accept and
-    would break provenance fidelity to the pinned upstream artifact.
+    Generating straight from ``properties`` produced writable models that dropped
+    ``protocol`` silently. That is a data-corruption bug, not a cosmetic gap: a
+    PATCH of ``{"protocol": "udp", "ports": [53]}`` went out as ``{"ports": [53]}``
+    and NetBox backfilled the stored protocol, turning an intended tcp->udp change
+    into ``tcp/53``.
 
-    The real migration hazard is that 4.6's writable model *did* accept
-    ``protocol``, and Pydantic's default ``extra='ignore'`` silently discards it
-    on 4.7. This test pins that behaviour so a future regeneration cannot change
-    it unnoticed, and so the documented migration note stays true.
+    ``scripts.generate_typed_sdk.apply_write_compat_overlay`` restores the field
+    for model generation only; the committed OpenAPI bundle stays byte-faithful to
+    upstream. This test asserts the *outgoing payload*, so it cannot pass while the
+    field is being dropped.
     """
     from netbox_sdk.models.v4_6 import WritableServiceRequest as WritableV46
-    from netbox_sdk.models.v4_7 import Service as ServiceV47
-    from netbox_sdk.models.v4_7 import ServiceRequest as ServiceRequestV47
-    from netbox_sdk.models.v4_7 import WritableServiceRequest as WritableV47
+    from netbox_sdk.models.v4_7 import (
+        PatchedWritableServiceRequest,
+        PatchedWritableServiceTemplateRequest,
+        Service,
+        WritableServiceRequest,
+        WritableServiceTemplateRequest,
+    )
 
-    # 4.6 accepted the legacy pair on write.
-    assert "protocol" in WritableV46.model_fields
-    assert "ports" in WritableV46.model_fields
+    # Every writable service model accepts the legacy pair AND the new spelling.
+    for model in (
+        WritableServiceRequest,
+        PatchedWritableServiceRequest,
+        WritableServiceTemplateRequest,
+        PatchedWritableServiceTemplateRequest,
+    ):
+        assert "protocol" in model.model_fields, model.__name__
+        assert "ports" in model.model_fields, model.__name__
+        assert "port_mappings" in model.model_fields, model.__name__
 
-    # 4.7 writable: protocol gone, ports retained, port_mappings added.
-    assert "protocol" not in WritableV47.model_fields
-    assert "ports" in WritableV47.model_fields
-    assert "port_mappings" in WritableV47.model_fields
+    # Read models still report the deprecated fields.
+    assert "protocol" in Service.model_fields
 
-    # 4.7 read side still reports the deprecated fields.
-    assert "protocol" in ServiceV47.model_fields
-    assert "protocol" in ServiceRequestV47.model_fields
-
-    # The migration hazard, pinned: a 4.6-shaped payload loses `protocol`.
-    migrated = WritableV47(
+    # Create: the legacy pair survives into the outgoing payload.
+    created = WritableServiceRequest(
         name="ssh",
         parent_object_id=1,
         parent_object_type="dcim.device",
         protocol="tcp",
         ports=[22],
-    )
-    dumped = migrated.model_dump(exclude_unset=True)
-    assert "protocol" not in dumped
-    assert dumped["ports"] == [22]
+    ).model_dump(exclude_unset=True)
+    assert created["protocol"] == "tcp"
+    assert created["ports"] == [22]
 
-    # The 4.7-native spelling round-trips intact.
-    native = WritableV47(
+    # PATCH: the regression that motivated the overlay. Dropping `protocol` here
+    # lets NetBox backfill the stored value and silently ignore the change.
+    patched = PatchedWritableServiceRequest(protocol="udp", ports=[53]).model_dump(
+        exclude_unset=True
+    )
+    assert patched == {"protocol": "udp", "ports": [53]}
+
+    # The 4.7-native multi-protocol spelling round-trips intact.
+    native = WritableServiceRequest(
         name="dns",
         parent_object_id=1,
         parent_object_type="dcim.device",
         port_mappings=["tcp/53", "udp/53"],
+    ).model_dump(exclude_unset=True)
+    assert native["port_mappings"] == ["tcp/53", "udp/53"]
+    assert "protocol" not in native
+
+    # 4.6 parity: the same legacy payload was accepted before, so a caller moving
+    # from 4.6 to 4.7 keeps working.
+    assert "protocol" in WritableV46.model_fields
+
+
+def test_write_compat_overlay_is_deterministic_and_leaves_the_bundle_untouched() -> None:
+    """The overlay must not mutate the pinned upstream document."""
+    import json as _json
+    from pathlib import Path as _Path
+
+    from scripts.generate_typed_sdk import apply_write_compat_overlay
+
+    bundle_path = (
+        _Path(__file__).resolve().parents[1]
+        / "netbox_sdk"
+        / "reference"
+        / "openapi"
+        / "netbox-openapi-4.7.json"
     )
-    assert native.model_dump(exclude_unset=True)["port_mappings"] == ["tcp/53", "udp/53"]
+    original = _json.loads(bundle_path.read_text(encoding="utf-8"))
+    before = _json.dumps(original, sort_keys=True)
+
+    first = apply_write_compat_overlay("4.7", original)
+    second = apply_write_compat_overlay("4.7", original)
+
+    # Input untouched, output deterministic, field actually added.
+    assert _json.dumps(original, sort_keys=True) == before
+    assert _json.dumps(first, sort_keys=True) == _json.dumps(second, sort_keys=True)
+    assert "protocol" in first["components"]["schemas"]["WritableServiceRequest"]["properties"]
+    assert (
+        "protocol" not in original["components"]["schemas"]["WritableServiceRequest"]["properties"]
+    )
+
+    # A line with no overlay is returned unchanged, by identity.
+    assert apply_write_compat_overlay("4.6", original) is original
