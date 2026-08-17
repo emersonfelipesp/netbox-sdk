@@ -19,8 +19,13 @@ stdio is the default transport. For Streamable HTTP:
 NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-Set `NETBOX_SDK_NETBOX_VERSION` to pin the same bundled release line used by
-`nbx`. The pin is read **once, by the `nbx-mcp` entrypoint**, and handed to the
+Pin the bundled release line with `--netbox-version` (alias `--api-version`) or
+`NETBOX_SDK_NETBOX_VERSION`. Those are treated as operator instructions: an
+unsupported value refuses to start rather than silently serving a different
+line. The broader `NETBOX_API_VERSION` and `NETBOX_VERSION` variables are still
+honoured when usable, but an unsupported value in them is ignored with a warning
+— they are generic enough that a deployment may already set them for something
+else. The pin is read **once, by the `nbx-mcp` entrypoint**, and handed to the
 server; the server itself never re-reads process arguments or environment, so an
 embedded host's own `--api-version` flag cannot repoint this server's schema.
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from netbox_mcp.app import (
@@ -13,12 +14,52 @@ from netbox_mcp.app import (
 )
 from netbox_mcp.service import MUTATION_ENV_VAR, NetBoxMCPService
 from netbox_sdk.schema_resolution import requested_netbox_version
-from netbox_sdk.versioning import describe_supported_versions
+from netbox_sdk.versioning import describe_supported_versions, normalize_netbox_version
 
 if TYPE_CHECKING:
     from mcp.server.fastmcp import FastMCP
 
 __all__ = ["MUTATION_ENV_VAR", "NetBoxMCPService", "create_mcp_server", "run"]
+
+
+DEDICATED_VERSION_ENV_VAR = "NETBOX_SDK_NETBOX_VERSION"
+# Broader, historically-accepted aliases. These names are generic enough that an
+# unrelated deployment may already define them for its own purposes, so they are
+# read leniently: an unusable value is ignored with a warning rather than being
+# treated as an operator instruction.
+LEGACY_VERSION_ENV_VARS = ("NETBOX_API_VERSION", "NETBOX_VERSION")
+
+
+def _resolve_startup_pin(flag_value: str | None, env: Mapping[str, str]) -> str | None:
+    """Resolve the release-line pin for a server start.
+
+    The entrypoint is the only place that reads the documented pin sources; the
+    service never touches process globals. When ``run(argv=...)`` supplied an
+    argument list, ambient ``sys.argv`` is not consulted either, so an embedding
+    host's own flags cannot repoint this server.
+
+    Strictness is deliberately split:
+
+    * an explicit ``--netbox-version``/``--api-version`` flag and the dedicated
+      ``NETBOX_SDK_NETBOX_VERSION`` variable are **operator instructions**, so an
+      unusable value fails startup - quietly serving a different release line
+      than the operator asked for is worse than refusing to start;
+    * ``NETBOX_API_VERSION`` and ``NETBOX_VERSION`` are generic names an
+      unrelated environment may already define (a compose file pinning the NetBox
+      *server* version, say), so an unusable value there is ignored with a
+      warning instead of blocking startup.
+
+    Raises:
+        UnsupportedNetBoxVersionError: If an explicit flag or the dedicated
+            environment variable names an unsupported release line.
+    """
+    if flag_value is not None:
+        return normalize_netbox_version(flag_value)
+    dedicated = env.get(DEDICATED_VERSION_ENV_VAR)
+    if dedicated:
+        return normalize_netbox_version(dedicated)
+    legacy = {name: env[name] for name in LEGACY_VERSION_ENV_VARS if env.get(name)}
+    return requested_netbox_version([], legacy, strict=False)
 
 
 async def _run_streamable_http(
@@ -70,14 +111,7 @@ def run(argv: list[str] | None = None) -> None:
         help=f"Enable write tools (equivalent to {MUTATION_ENV_VAR}=1)",
     )
     args = parser.parse_args(argv)
-    # The entrypoint is the one place allowed to read the documented pin sources.
-    # An explicit --netbox-version/--api-version wins; otherwise fall back to the
-    # documented environment variables. When run(argv=...) supplied an argument
-    # list, ambient sys.argv is NOT consulted - an embedding host's own flags must
-    # never repoint this server. An invalid pin is rejected loudly rather than
-    # leniently ignored, because a server silently serving a different contract
-    # than the operator asked for is worse than refusing to start.
-    pinned_line = args.netbox_version or requested_netbox_version([], os.environ, strict=True)
+    pinned_line = _resolve_startup_pin(args.netbox_version, os.environ)
     service = NetBoxMCPService(
         allow_mutations=args.allow_mutations,
         pinned_line=pinned_line,

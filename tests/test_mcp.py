@@ -1612,18 +1612,61 @@ def test_mcp_entrypoint_ignores_ambient_argv_when_argv_is_supplied(
     assert captured["kwargs"]["pinned_line"] is None
 
 
-def test_mcp_entrypoint_rejects_an_invalid_environment_pin(
-    monkeypatch: pytest.MonkeyPatch,
+@pytest.mark.parametrize("source", ["flag", "dedicated-env"])
+def test_mcp_entrypoint_rejects_an_invalid_operator_pin(
+    monkeypatch: pytest.MonkeyPatch, source: str
 ) -> None:
-    """An unusable pin must fail loudly, not be leniently ignored.
+    """An unusable *operator instruction* must fail loudly.
 
     A server that quietly serves a different release line than the operator
     asked for is worse than one that refuses to start.
     """
     _clear_bundled_index_cache()
-    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "3.9")
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
 
     import netbox_mcp
 
+    argv: list[str] = []
+    if source == "flag":
+        argv = ["--netbox-version", "3.9"]
+    else:
+        monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "3.9")
+
     with pytest.raises(UnsupportedNetBoxVersionError):
-        netbox_mcp.run([])
+        netbox_mcp.run(argv)
+
+
+@pytest.mark.parametrize("alias", ["NETBOX_API_VERSION", "NETBOX_VERSION"])
+def test_generic_version_aliases_never_block_startup(
+    monkeypatch: pytest.MonkeyPatch, alias: str
+) -> None:
+    """A generic alias set for some *other* purpose must not stop the server.
+
+    ``NETBOX_VERSION`` is exactly the name a deployment might already use to pin
+    the NetBox *server* image. Treating it as a strict SDK pin turned an
+    unrelated environment variable into a startup failure. It stays a lenient
+    hint: unusable values are warned about and ignored.
+    """
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv(alias, "5.0")
+
+    captured = _run_capturing_service(monkeypatch, [])
+
+    assert captured["kwargs"]["pinned_line"] is None
+
+
+@pytest.mark.parametrize("alias", ["NETBOX_API_VERSION", "NETBOX_VERSION"])
+def test_generic_version_aliases_still_pin_when_usable(
+    monkeypatch: pytest.MonkeyPatch, alias: str
+) -> None:
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv(alias, "4.4")
+
+    captured = _run_capturing_service(monkeypatch, [])
+
+    assert captured["kwargs"]["pinned_line"] == "4.4"

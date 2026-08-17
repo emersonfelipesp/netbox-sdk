@@ -19,8 +19,13 @@ stdio é o transporte padrão. Para Streamable HTTP:
 NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-Defina `NETBOX_SDK_NETBOX_VERSION` para fixar a mesma linha de release
-empacotada usada pelo `nbx`. O pin é lido **uma única vez, pelo entrypoint
+Fixe a linha de release empacotada com `--netbox-version` (alias
+`--api-version`) ou `NETBOX_SDK_NETBOX_VERSION`. Essas fontes são tratadas como
+instrução do operador: um valor não suportado impede a inicialização em vez de
+servir silenciosamente outra linha. As variáveis mais genéricas
+`NETBOX_API_VERSION` e `NETBOX_VERSION` continuam sendo respeitadas quando
+utilizáveis, mas um valor não suportado nelas é ignorado com um aviso — são
+genéricas o bastante para que uma implantação já as defina para outra coisa. O pin é lido **uma única vez, pelo entrypoint
 `nbx-mcp`**, e repassado ao servidor; o próprio servidor nunca relê argumentos
 ou variáveis de ambiente do processo, portanto uma flag `--api-version` do host
 que o incorpora não consegue redirecionar o schema deste servidor.

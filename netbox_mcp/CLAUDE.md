@@ -35,9 +35,17 @@ OpenAPI operation.
   `NetBoxMCPService(pinned_line=...)` takes it as an explicit argument, resolves
   it once in `__init__`, and reuses it for both the default index and
   `_live_index`. Only the `nbx-mcp` entrypoint reads the documented pin sources
-  (`--netbox-version`/`--api-version`, `NETBOX_SDK_NETBOX_VERSION` and friends)
   and injects the result. An embedded host carrying its own `--api-version` flag
-  or `NETBOX_VERSION` variable must never repoint this server's schema.
+  must never repoint this server's schema.
+- **Startup pin strictness is deliberately split** (`_resolve_startup_pin`).
+  `--netbox-version`/`--api-version` and the dedicated
+  `NETBOX_SDK_NETBOX_VERSION` are *operator instructions*: an unsupported value
+  raises `UnsupportedNetBoxVersionError` and the server refuses to start, because
+  quietly serving a different release line than the operator asked for is worse.
+  `NETBOX_API_VERSION` and `NETBOX_VERSION` are generic names an unrelated
+  deployment may already define (e.g. pinning the NetBox *server* image), so an
+  unsupported value there is warned about and ignored rather than blocking
+  startup.
 - **Live resolution failures are raised, not swallowed.** `_live_index` calls
   `resolve_index` with `fall_back_on_error` left off, so an unreachable or
   misbehaving instance surfaces the error instead of quietly serving the default
