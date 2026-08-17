@@ -1248,6 +1248,7 @@ def test_sdk_modules_do_not_import_netbox_cli() -> None:
         "netbox_sdk.client",
         "netbox_sdk.http_cache",
         "netbox_sdk.schema",
+        "netbox_sdk.schema_resolution",
         "netbox_sdk.services",
         "netbox_sdk.plugin_discovery",
     ]

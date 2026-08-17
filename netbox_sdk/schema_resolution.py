@@ -1,0 +1,200 @@
+"""Shared NetBox release-line override and OpenAPI index resolution policy."""
+
+from __future__ import annotations
+
+import logging
+import os
+import sys
+from collections.abc import Awaitable, Mapping
+from typing import Any, cast
+
+import netbox_sdk.schema as schema_module
+from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.versioning import (
+    DEFAULT_NETBOX_VERSION,
+    SupportedNetBoxVersion,
+    UnsupportedNetBoxVersionError,
+    normalize_netbox_version,
+)
+
+logger = logging.getLogger(__name__)
+
+_NETBOX_VERSION_FLAGS = ("--netbox-version", "--api-version")
+_NETBOX_VERSION_ENV_VARS = (
+    "NETBOX_SDK_NETBOX_VERSION",
+    "NETBOX_API_VERSION",
+    "NETBOX_VERSION",
+)
+_BUNDLED_INDEXES: dict[SupportedNetBoxVersion, SchemaIndex] = {}
+
+
+def _raw_requested_netbox_version(
+    argv: list[str] | None = None,
+    env: Mapping[str, str] | None = None,
+) -> str | None:
+    """Return the first CLI or environment release-line override."""
+    args = list(sys.argv[1:] if argv is None else argv)
+    for index, token in enumerate(args):
+        for flag in _NETBOX_VERSION_FLAGS:
+            if token == flag and index + 1 < len(args):
+                return args[index + 1]
+            if token.startswith(f"{flag}="):
+                return token.split("=", 1)[1]
+    environment = os.environ if env is None else env
+    for name in _NETBOX_VERSION_ENV_VARS:
+        value = environment.get(name)
+        if value:
+            return value
+    return None
+
+
+def requested_netbox_version(
+    argv: list[str] | None = None,
+    env: Mapping[str, str] | None = None,
+    *,
+    strict: bool = False,
+) -> SupportedNetBoxVersion | None:
+    """Resolve a CLI/environment override, warning on invalid lenient input."""
+    raw = _raw_requested_netbox_version(argv, env)
+    if not raw:
+        return None
+    try:
+        return normalize_netbox_version(raw)
+    except UnsupportedNetBoxVersionError:
+        if strict:
+            raise
+        logger.warning(
+            "ignoring unsupported requested NetBox version %r",
+            raw,
+            extra={"nbx_event": "schema_version_override_invalid", "version": raw},
+        )
+        return None
+
+
+def bundled_index(
+    line: SupportedNetBoxVersion | str | None = None,
+) -> SchemaIndex:
+    """Return an isolated clone of a process-cached bundled schema index."""
+    selected = normalize_netbox_version(line)
+    cached = _BUNDLED_INDEXES.get(selected)
+    if cached is None:
+        cached = SchemaIndex(schema_module.load_openapi_schema(version=selected))
+        _BUNDLED_INDEXES[selected] = cached
+    return cached.clone()
+
+
+def _clear_bundled_index_cache() -> None:
+    """Clear process-cached bundled indexes for test/process reset adapters."""
+    _BUNDLED_INDEXES.clear()
+
+
+async def _detected_release_line(
+    client: Any,
+) -> tuple[str, SupportedNetBoxVersion | None]:
+    status_fn = getattr(client, "status", None)
+    version: str | None = None
+    if callable(status_fn):
+        status = await cast(Awaitable[Any], status_fn())
+        if isinstance(status, dict):
+            reported = status.get("netbox-version")
+            if isinstance(reported, str) and reported:
+                version = reported
+    detected_version = version if version is not None else cast(str, await client.get_version())
+    try:
+        return detected_version, normalize_netbox_version(detected_version)
+    except UnsupportedNetBoxVersionError:
+        return detected_version, None
+
+
+async def detect_release_line(client: Any) -> SupportedNetBoxVersion | None:
+    """Detect and map a connected NetBox version to a bundled release line."""
+    _, detected = await _detected_release_line(client)
+    return detected
+
+
+async def _resolve_connected_index(client: Any) -> SchemaIndex | None:
+    """Resolve a connected instance's index, or ``None`` to use the default bundle."""
+    version, detected = await _detected_release_line(client)
+    if detected is not None:
+        logger.info(
+            "loading bundled schema for NetBox %s",
+            detected,
+            extra={"nbx_event": "schema_version_bundled", "version": detected},
+        )
+        return bundled_index(detected)
+
+    logger.info(
+        "NetBox %s is not a bundled release line; fetching schema dynamically",
+        version,
+        extra={"nbx_event": "schema_version_dynamic_fetch", "version": version},
+    )
+    schema = await client.openapi()
+    if not isinstance(schema.get("paths"), dict):
+        logger.debug(
+            "connected schema response did not contain OpenAPI paths; using default bundled schema",
+            extra={"nbx_event": "schema_runtime_invalid_document"},
+        )
+        return None
+    return SchemaIndex(schema)
+
+
+async def resolve_index(
+    client: Any | None = None,
+    *,
+    prefer_live: bool = True,
+    line: SupportedNetBoxVersion | str | None = None,
+    argv: list[str] | None = None,
+    env: Mapping[str, str] | None = None,
+    use_ambient_pin: bool = False,
+    fall_back_on_error: bool = False,
+) -> SchemaIndex:
+    """Resolve one isolated index using the shared release-line precedence ladder.
+
+    Precedence: an explicit ``line`` wins; then, when pin lookup is enabled, a
+    CLI/environment pin; then a connected supported instance's bundled line;
+    then an unsupported instance's live OpenAPI document; then the default
+    bundled line.
+
+    Args:
+        client: Connected client used for release detection and live fetches.
+        prefer_live: Whether to consult ``client`` at all.
+        line: Explicit release line, bypassing detection entirely.
+        argv: Argument list for pin lookup. Supplying it is its own opt-in.
+        env: Environment mapping for pin lookup. Supplying it is its own opt-in.
+        use_ambient_pin: Consult process-global ``sys.argv`` / ``os.environ`` for
+            a pin. **Off by default.** Reading ambient argv is right for the
+            ``nbx`` entrypoint, but for a library call or a long-lived MCP server
+            it is a hidden global dependency: an unrelated host-application
+            ``--api-version`` flag must never silently repoint the schema.
+        fall_back_on_error: Swallow detection/fetch failures and return the
+            default bundled index. **Off by default.** A caller that cannot reach
+            its instance must see the error rather than silently receive a
+            bundled contract that does not describe the server it is talking to.
+
+    Raises:
+        Exception: Whatever ``client`` raises during detection or the live
+            OpenAPI fetch, unless ``fall_back_on_error`` is set.
+    """
+    if line is not None:
+        return bundled_index(normalize_netbox_version(line))
+    if use_ambient_pin or argv is not None or env is not None:
+        requested = requested_netbox_version(argv, env)
+        if requested is not None:
+            return bundled_index(requested)
+    if client is None or not prefer_live:
+        return bundled_index(DEFAULT_NETBOX_VERSION)
+
+    if not fall_back_on_error:
+        resolved = await _resolve_connected_index(client)
+        return bundled_index(DEFAULT_NETBOX_VERSION) if resolved is None else resolved
+
+    try:
+        resolved = await _resolve_connected_index(client)
+        return bundled_index(DEFAULT_NETBOX_VERSION) if resolved is None else resolved
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(
+            "schema version detection failed (%s); using default bundled schema",
+            exc,
+            extra={"nbx_event": "schema_version_detection_failed"},
+        )
+        return bundled_index(DEFAULT_NETBOX_VERSION)

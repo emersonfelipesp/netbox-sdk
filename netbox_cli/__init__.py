@@ -100,7 +100,7 @@ from netbox_sdk.services import (
 from netbox_sdk.services import (
     run_dynamic_command as run_dynamic_command,
 )
-from netbox_sdk.versioning import UnsupportedNetBoxVersionError
+from netbox_sdk.versioning import UnsupportedNetBoxVersionError, describe_supported_versions
 
 _initialize_demo_profile = demo._initialize_demo_profile
 cli = sys.modules[__name__]
@@ -150,7 +150,10 @@ def root_callback(
         "--netbox-version",
         "--api-version",
         envvar="NETBOX_SDK_NETBOX_VERSION",
-        help="Force bundled NetBox schema version for CLI discovery/execution (4.3 through 4.6).",
+        help=(
+            "Force bundled NetBox schema version for CLI discovery/execution "
+            f"({describe_supported_versions()})."
+        ),
     ),
 ) -> None:
     setup_logging()

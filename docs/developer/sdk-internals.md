@@ -209,6 +209,29 @@ Versioned OpenAPI schemas ship with the package under `netbox_sdk/reference/open
 | `netbox-openapi-4.4.json` | NetBox 4.4 |
 | `netbox-openapi-4.3.json` | NetBox 4.3 |
 
+### Release Registry and Shared Resolution
+
+`netbox_sdk/versioning.py` is the single owner of release-line metadata. Each
+frozen `ReleaseLine` record binds a line to its lifecycle status, bundled
+OpenAPI filename, generated-model module, and typed-client module. Existing
+constants such as `SUPPORTED_NETBOX_VERSIONS` and `DEFAULT_NETBOX_VERSION` are
+views over this registry; the default is the value returned by
+`latest_stable_line()`.
+
+`netbox_sdk/schema_resolution.py` is the single selection policy used by the
+SDK, CLI, TUI, and MCP surfaces. `requested_netbox_version()` reads CLI aliases
+before the supported environment variables. `resolve_index()` then applies one
+precedence ladder:
+
+1. An explicit argument or CLI/environment pin selects that bundled line.
+2. A connected supported instance selects its matching bundled line.
+3. A connected unsupported instance supplies `/api/schema/` dynamically.
+4. Detection, fetch, or document failures use the default bundled line.
+
+`bundled_index()` caches the parsed base index per process, but every call
+returns `SchemaIndex.clone()`. Runtime plugin discoveries therefore remain
+local to one CLI, TUI, facade, or MCP session.
+
 ---
 
 ## Facade Object Hierarchy
@@ -303,10 +326,9 @@ The `netbox_version` argument maps to a dynamically imported module:
 
 ```python title="netbox_sdk/typed_api.py (simplified)"
 def typed_api(url, token, *, netbox_version):
-    normalized = normalize_netbox_version(netbox_version)  # "4.6" / "4.5" / "4.4" / "4.3"
-    suffix = version_module_suffix(normalized)             # "v4_6" / "v4_5" / "v4_4" / "v4_3"
-    module = import_module(f"netbox_sdk.typed_versions.{suffix}")
-    return module.build_typed_api(url=url, token=token)
+    normalized = normalize_netbox_version(netbox_version)
+    module = import_module(release_line(normalized).typed_module)
+    return module.build_api(url, token)
 ```
 
 Overloaded return types provide IDE completion per version:

@@ -197,6 +197,29 @@ Esquemas OpenAPI versionados são fornecidos com o pacote em `netbox_sdk/referen
 | `netbox-openapi-4.4.json` | NetBox 4.4 |
 | `netbox-openapi-4.3.json` | NetBox 4.3 |
 
+### Registro de releases e resolução compartilhada
+
+`netbox_sdk/versioning.py` é o único proprietário dos metadados das linhas de
+release. Cada registro congelado `ReleaseLine` vincula uma linha ao status do
+ciclo de vida, arquivo OpenAPI embutido, módulo de modelos gerados e módulo do
+cliente tipado. Constantes existentes como `SUPPORTED_NETBOX_VERSIONS` e
+`DEFAULT_NETBOX_VERSION` são visões desse registro; o padrão é retornado por
+`latest_stable_line()`.
+
+`netbox_sdk/schema_resolution.py` contém a única política de seleção usada por
+SDK, CLI, TUI e MCP. `requested_netbox_version()` lê primeiro os aliases da CLI
+e depois as variáveis de ambiente suportadas. `resolve_index()` aplica uma
+única ordem de precedência:
+
+1. Um argumento explícito ou pin da CLI/ambiente seleciona a linha embutida.
+2. Uma instância conectada e suportada seleciona o bundle correspondente.
+3. Uma instância conectada e não suportada fornece `/api/schema/` dinamicamente.
+4. Falhas de detecção, busca ou documento usam a linha embutida padrão.
+
+`bundled_index()` mantém em cache o índice-base analisado por processo, mas
+cada chamada retorna `SchemaIndex.clone()`. Descobertas de plugins em runtime
+permanecem, assim, locais a uma sessão de CLI, TUI, fachada ou MCP.
+
 ---
 
 ## Hierarquia de objetos da fachada

@@ -20,6 +20,8 @@ from typer.testing import CliRunner
 
 import netbox_cli as cli
 import netbox_mcp
+from netbox_cli import runtime
+from netbox_mcp import service as mcp_service_module
 from netbox_mcp.app import (
     AUTH_TOKEN_ENV_VAR,
     BearerTokenMiddleware,
@@ -33,11 +35,31 @@ from netbox_mcp.service import MutationDeniedError, NetBoxMCPService
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
 from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema_resolution import _clear_bundled_index_cache
 
 pytestmark = pytest.mark.suite_mcp
 
 ROOT = Path(__file__).resolve().parents[1]
 runner = CliRunner()
+
+
+def test_cli_and_mcp_use_the_same_pinned_release_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx"])
+    _clear_bundled_index_cache()
+    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
+
+    cli_index = runtime._get_registration_index()
+    mcp_service = NetBoxMCPService(allow_mutations=False)
+
+    assert cli_index.schema["info"]["version"].startswith("4.5")
+    assert mcp_service.index.schema["info"]["version"].startswith("4.5")
+    assert set(cli_index.schema["paths"]) == set(mcp_service.index.schema["paths"])
+    assert cli_index is not mcp_service.index
 
 
 def _index() -> SchemaIndex:
@@ -120,6 +142,39 @@ def _service(client: _MockClient, *, allow_mutations: bool = False) -> NetBoxMCP
         config_loader=lambda: Config(base_url="https://netbox.example.com"),
         allow_mutations=allow_mutations,
     )
+
+
+async def test_mcp_live_index_honors_the_shared_version_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _PinnedClient(_MockClient):
+        async def get_version(self) -> str:
+            pytest.fail("an explicit pin must skip connected version detection")
+
+        async def openapi(self) -> dict[str, Any]:
+            pytest.fail("an explicit pin must skip live OpenAPI fetching")
+
+    async def _no_discovery(_index: SchemaIndex, _client: Any) -> bool:
+        return False
+
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(
+        mcp_service_module,
+        "enrich_schema_index_with_runtime_resources",
+        _no_discovery,
+    )
+    _clear_bundled_index_cache()
+    client = _PinnedClient()
+    service = NetBoxMCPService(
+        client_factory=lambda _config: client,  # type: ignore[arg-type, return-value]
+        config_loader=lambda: Config(base_url="https://netbox.example.com"),
+        allow_mutations=False,
+    )
+
+    index = await service._live_index(None)
+
+    assert index.schema["info"]["version"].startswith("4.5")
+    assert client.closed is True
 
 
 def test_tool_argument_models_reject_malformed_input() -> None:

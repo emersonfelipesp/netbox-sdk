@@ -19,6 +19,11 @@ stdio is the default transport. For Streamable HTTP:
 NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
+Set `NETBOX_SDK_NETBOX_VERSION` to pin the same bundled release line used by
+`nbx`. Without a pin, `live=true` uses the shared SDK policy: a supported
+connected line selects its bundle, an unsupported line fetches the live
+OpenAPI document, and failures fall back to the default bundle.
+
 The MCP endpoint is `/mcp`. Every Streamable HTTP bind requires a
 shared-secret bearer token via `--auth-token` or `NETBOX_MCP_AUTH_TOKEN`; the
 server raises `RuntimeError` and refuses to start without one, including on

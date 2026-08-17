@@ -30,6 +30,7 @@ netbox_sdk/
 ├── http_ssl.py
 ├── telemetry.py
 ├── schema.py
+├── schema_resolution.py
 ├── services.py
 ├── plugin_discovery.py
 ├── plugin_bridge.py
@@ -66,6 +67,8 @@ netbox_sdk/
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
 - `netbox_sdk.telemetry` — optional OpenTelemetry request tracing with lazy guarded imports
 - `netbox_sdk.schema` — OpenAPI loading and indexing; `load_openapi_schema()` / `build_schema_index()` default to the bundled NetBox 4.6 schema and accept supported release lines such as `version="4.5"`; `SchemaIndex.filter_params(group, resource)` returns a sorted `list[FilterParam]` of filterable query parameters for the list endpoint (excludes pagination params including `limit`, `offset`, `start`, `format`, plus lookup-suffix variants such as `__ic`, `__n`; puts `q` first); `FilterParam` is a frozen Pydantic model with `.name`, `.label`, `.type` (`string|integer|boolean|enum|array`), `.choices` (non-empty only for enum), and `.description`
+- `netbox_sdk.versioning` — frozen release-line registry records owning bundled OpenAPI, generated-model, and typed-module artifacts; compatibility constants and helpers are views over this registry
+- `netbox_sdk.schema_resolution` — shared CLI/environment pin parsing, clone-isolated bundled-index cache, connected release detection, and bundled/live/default precedence used by every surface
 - `netbox_sdk.services` — dynamic request resolution; `parse_key_value_pairs()` preserves repeated query keys as list values; `parse_header_pairs()` accepts `Header=Value` and `Header: Value` forms; `ACTION_METHOD_MAP` includes bulk ops (`bulk-update`, `bulk-patch`, `bulk-delete`); `list_all_pages` follows NetBox pagination `next` links and returns a synthesised single-page response while preserving repeated `next` query params; a non-2xx status or unparseable body on any page (including a later page after earlier ones succeeded) returns that raw failing response instead of folding partial results into a synthesised `status=200` envelope, while malformed result arrays, repeated page targets, and non-progressing pages raise `PaginationError`
 - `netbox_sdk.plugin_discovery` — runtime plugin API discovery
 - `netbox_sdk.plugin_bridge` — versioned semantic plugin-manifest discovery and strict contract/input/output validation; discovery uses fresh bounded non-redirecting responses, accepts configured NetBox URL prefixes, enforces aggregate root/request/body/tool/time budgets, keeps advertised links and fixed tool targets same-origin/plugin-local, requires strict finite JSON, applies lossless integer semantics (large floats never round into another identity), accepts leap seconds only at normalized UTC month boundaries, rejects date-time normalization overflow, restricts reads to query-encodable schemas, and rejects unbounded schema features. Descriptor version 1 is generic; plugin repositories own their operation payload snapshots.
@@ -77,7 +80,7 @@ netbox_sdk/
 ## Validation Expectations
 
 - `python -c 'import netbox_sdk'` must work without CLI or TUI extras.
-- `typed_api()` and bundled OpenAPI helpers currently support NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; the CLI defaults to 4.6 and can be pinned to 4.5/4.6 via `--netbox-version` or `NETBOX_SDK_NETBOX_VERSION`.
+- `typed_api()` and bundled OpenAPI helpers currently support NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; the registry-derived default is 4.6. CLI, TUI, and MCP consume the same `schema_resolution` policy and honor the same version pin.
 - SDK tests should import from `netbox_sdk`, not `sdk`.
 - Consult [`reference/PYNETBOX.md`](../reference/PYNETBOX.md) when comparing SDK ergonomics to historical NetBox Python client behavior or prior-art feature patterns.
 

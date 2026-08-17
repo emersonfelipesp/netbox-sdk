@@ -216,7 +216,9 @@ mutations, plugin discovery, and guarded raw calls. It reads the existing
 per-call bearer token. Live mutations are denied by default; enable them only
 for a reviewed execution window with `NETBOX_MCP_ALLOW_MUTATIONS=1` or
 `--allow-mutations`. A mutation `dry_run=true` only resolves the local request
-and does not validate it against NetBox.
+and does not validate it against NetBox. `NETBOX_SDK_NETBOX_VERSION` pins the
+same bundled release line for `nbx-mcp` that it pins for `nbx`; without a pin,
+live MCP discovery uses the shared connected-instance resolution policy.
 
 NetBox plugins can also advertise semantic operations through a versioned
 manifest under their existing REST API root. The stable `plugin_list_tools`
@@ -258,7 +260,7 @@ Claude Code and Codex CLI.
 
 ## Architecture
 
-- `netbox_sdk` owns config, auth, caching, schema parsing, request resolution, the versioned plugin bridge, shared formatting, and demo helpers.
+- `netbox_sdk` owns config, auth, caching, the release-line registry, shared bundled/live schema resolution, request resolution, the versioned plugin bridge, shared formatting, and demo helpers.
 - `netbox_cli` owns the `nbx` command tree and lazy-loads `netbox_tui` where needed.
 - `netbox_tui` owns all Textual apps, themes, widgets, and TCSS.
 - `netbox_mcp` owns the stable validated MCP tools, including plugin bridge discovery/invocation, and imports only `netbox_sdk`.

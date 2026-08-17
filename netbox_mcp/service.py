@@ -44,7 +44,12 @@ from netbox_sdk.plugin_bridge import (
     validate_plugin_tool_response,
 )
 from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
-from netbox_sdk.schema import SchemaIndex, build_schema_index, fetch_schema_for_client
+from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema_resolution import (
+    bundled_index,
+    requested_netbox_version,
+    resolve_index,
+)
 from netbox_sdk.services import (
     ResolvedRequest,
     list_all_pages,
@@ -88,7 +93,12 @@ class NetBoxMCPService:
         config_loader: ConfigLoader = load_profile_config,
         allow_mutations: bool | None = None,
     ) -> None:
-        self.index = index or build_schema_index()
+        # Resolve the operator's release-line pin once, at construction. A
+        # long-lived server must not re-read process-global argv/env on every
+        # tool call, but the pin it was started with has to reach the live index
+        # too, so it is captured here and passed explicitly below.
+        self._pinned_line = requested_netbox_version()
+        self.index = index if index is not None else bundled_index(self._pinned_line)
         self._client_factory = client_factory
         self._config_loader = config_loader
         self.allow_mutations = (
@@ -121,8 +131,7 @@ class NetBoxMCPService:
     async def _live_index(self, token: str | None) -> SchemaIndex:
         client = self._make_client(token)
         try:
-            schema = await fetch_schema_for_client(client)
-            index = SchemaIndex(schema)
+            index = await resolve_index(client, prefer_live=True, line=self._pinned_line)
             await enrich_schema_index_with_runtime_resources(index, client)
             return index
         finally:

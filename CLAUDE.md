@@ -42,6 +42,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── telemetry.py
     ├── mock_main.py
     ├── schema.py
+    ├── schema_resolution.py
     ├── services.py
     ├── plugin_discovery.py
     ├── plugin_bridge.py
@@ -91,7 +92,8 @@ netbox_mcp/   optional Model Context Protocol layer
 ```
 
 Data flow:
-1. `netbox_sdk` owns API behavior and shared data transformation.
+1. `netbox_sdk` owns API behavior, the release-line registry, schema resolution,
+   and shared data transformation.
 2. `netbox_cli` imports `netbox_sdk` and lazy-loads `netbox_tui` where needed.
 3. `netbox_tui` imports `netbox_sdk` directly and only reaches into `netbox_cli` for CLI app/runtime callbacks where required.
 4. `netbox_mcp` imports only `netbox_sdk`; it shares introspection and request
@@ -129,7 +131,7 @@ pip install -e '.[all]'
 
 ## CLI Dynamic Command Surface
 
-The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.6 schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line.
+The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.6 schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` as a thin adapter over `netbox_sdk.schema_resolution` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line.
 
 | Action | HTTP | Path | Notes |
 |---|---|---|---|
@@ -219,7 +221,12 @@ the transport loss as a warning rather than a job error.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
   all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works
   without the `otel` extra.
-- Bundled typed and OpenAPI support currently targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; CLI defaults to 4.6 and can be pinned to 4.5/4.6 via `--netbox-version` or `NETBOX_SDK_NETBOX_VERSION`. The CI live-NetBox suite exercises `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+- `netbox_sdk.versioning` is the single release-line registry, and
+  `netbox_sdk.schema_resolution` is the single bundled/live resolution policy
+  used by SDK, CLI, TUI, and MCP. Bundled typed and OpenAPI support currently
+  targets NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; the default
+  remains 4.6. The CI live-NetBox suite exercises `v4.6.6`, `v4.6.3`,
+  `v4.6.2`, and `v4.5.10`.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 
