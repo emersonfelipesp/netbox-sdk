@@ -186,6 +186,21 @@ def test_every_registered_line_builds_a_mock_app(line: str) -> None:
     routes = {getattr(route, "path", "") for route in app.routes}
     assert "/api/dcim/devices/" in routes, f"mock app for {line} has no device routes"
 
+    # Asserting only a route every line shares would be trivially true. The mock
+    # builds a genuinely different surface per line, so pin a route that exists on
+    # exactly one line and require the mock to track the schema on it.
+    #
+    # The mock deliberately serves a few routes the core OpenAPI document does not
+    # describe — the netbox-branching plugin surface and the job-polling endpoint —
+    # so this is not a subset assertion.
+    schema_paths = set(load_openapi_schema(version=line)["paths"])  # type: ignore[arg-type]
+
+    cooling = "/api/dcim/cooling-sources/"
+    if cooling in schema_paths:
+        assert cooling in routes, f"{line} bundles {cooling} but the mock does not serve it"
+    else:
+        assert cooling not in routes, f"{line} does not bundle {cooling} but the mock serves it"
+
 
 def test_mock_app_honours_the_environment_pin(monkeypatch: pytest.MonkeyPatch) -> None:
     """``NETBOX_MOCK_VERSION`` must select the served line.
