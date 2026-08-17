@@ -953,6 +953,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Choosing between SDK layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#netbox-47-preview-service-port-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NetBox 4.7 (preview) — service port mappings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3302,6 +3319,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Choosing between SDK layers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#netbox-47-preview-service-port-mappings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NetBox 4.7 (preview) — service port mappings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3434,10 +3468,12 @@ need to run code generation locally.</p>
 <p>Relevant modules:</p>
 <ul>
 <li><code>netbox_sdk.models.v4_6</code></li>
+<li><code>netbox_sdk.models.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.models.v4_5</code></li>
 <li><code>netbox_sdk.models.v4_4</code></li>
 <li><code>netbox_sdk.models.v4_3</code></li>
 <li><code>netbox_sdk.typed_versions.v4_6</code></li>
+<li><code>netbox_sdk.typed_versions.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.typed_versions.v4_5</code></li>
 <li><code>netbox_sdk.typed_versions.v4_4</code></li>
 <li><code>netbox_sdk.typed_versions.v4_3</code></li>
@@ -3448,6 +3484,32 @@ need to run code generation locally.</p>
 <li>Use <code>api()</code> for the async ergonomic facade</li>
 <li>Use <code>typed_api()</code> for versioned Pydantic-validated I/O</li>
 </ul>
+<h3 id="netbox-47-preview-service-port-mappings">NetBox 4.7 (preview) — service port mappings<a class="headerlink" href="#netbox-47-preview-service-port-mappings" title="Permanent link">&para;</a></h3>
+<p>NetBox 4.7 adds <code>port_mappings</code>, letting a service expose several protocols at
+once (DNS on both <code>tcp/53</code> and <code>udp/53</code>). The legacy single-protocol
+<code>protocol</code> + <code>ports</code> pair still works on write: upstream's shared serializer
+documents that <em>"either format is accepted"</em>, translating the legacy pair into
+<code>port_mappings</code> when <code>port_mappings</code> is not supplied. Supplying both is accepted
+only when they agree; a genuine conflict is rejected as ambiguous.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Still accepted on 4.7 — translated server-side into port_mappings</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 4.7-native, and the only way to express multiple protocols</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span></code></pre></div>
+<p>On read, a single-protocol service reports <code>port_mappings</code> <strong>and</strong> the legacy
+<code>protocol</code>/<code>ports</code>; a multi-protocol service reports <code>null</code> for both, because it
+cannot be expressed in the old format.</p>
+<blockquote>
+<p><strong>Generation note.</strong> <code>drf-spectacular</code> omits <code>protocol</code> from the <em>writable</em>
+service models' <code>properties</code> block even though the documented write contract
+accepts it. <code>netbox-sdk</code> restores it with a deterministic generation overlay
+(<code>scripts/generate_typed_sdk.py::apply_write_compat_overlay</code>) applied in memory
+only — the committed OpenAPI bundle stays byte-faithful to the pinned upstream
+artifact. Without it, a PATCH of <code>{"protocol": "udp", "ports": [53]}</code> would be
+sent as <code>{"ports": [53]}</code> and NetBox would backfill the stored protocol,
+silently ignoring the change.</p>
+</blockquote>
 
 
 

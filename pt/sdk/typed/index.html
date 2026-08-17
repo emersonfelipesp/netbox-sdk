@@ -953,6 +953,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Escolhendo entre camadas do SDK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#netbox-47-preview-mapeamentos-de-porta-de-servicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NetBox 4.7 (preview) — mapeamentos de porta de serviços
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3302,6 +3319,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Escolhendo entre camadas do SDK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#netbox-47-preview-mapeamentos-de-porta-de-servicos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NetBox 4.7 (preview) — mapeamentos de porta de serviços
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -3433,10 +3467,12 @@ necessário executar geração de código localmente.</p>
 <p>Módulos relevantes:</p>
 <ul>
 <li><code>netbox_sdk.models.v4_6</code></li>
+<li><code>netbox_sdk.models.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.models.v4_5</code></li>
 <li><code>netbox_sdk.models.v4_4</code></li>
 <li><code>netbox_sdk.models.v4_3</code></li>
 <li><code>netbox_sdk.typed_versions.v4_6</code></li>
+<li><code>netbox_sdk.typed_versions.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.typed_versions.v4_5</code></li>
 <li><code>netbox_sdk.typed_versions.v4_4</code></li>
 <li><code>netbox_sdk.typed_versions.v4_3</code></li>
@@ -3447,6 +3483,33 @@ necessário executar geração de código localmente.</p>
 <li>Use <code>api()</code> para a fachada assíncrona ergonômica</li>
 <li>Use <code>typed_api()</code> para E/S validada por Pydantic versionada</li>
 </ul>
+<h3 id="netbox-47-preview-mapeamentos-de-porta-de-servicos">NetBox 4.7 (preview) — mapeamentos de porta de serviços<a class="headerlink" href="#netbox-47-preview-mapeamentos-de-porta-de-servicos" title="Permanent link">&para;</a></h3>
+<p>O NetBox 4.7 adiciona <code>port_mappings</code>, permitindo que um serviço exponha vários
+protocolos ao mesmo tempo (DNS em <code>tcp/53</code> e <code>udp/53</code>). O par legado
+<code>protocol</code> + <code>ports</code> continua válido na escrita: o serializer compartilhado do
+upstream documenta que <em>"either format is accepted"</em>, traduzindo o par legado
+para <code>port_mappings</code> quando <code>port_mappings</code> não é informado. Informar ambos só é
+aceito quando concordam; um conflito real é rejeitado como ambíguo.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Ainda aceito no 4.7 — traduzido no servidor para port_mappings</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span></code></pre></div>
+<p>Na leitura, um serviço de protocolo único reporta <code>port_mappings</code> <strong>e</strong> os campos
+legados <code>protocol</code>/<code>ports</code>; um serviço multiprotocolo reporta <code>null</code> para ambos,
+pois não pode ser expresso no formato antigo.</p>
+<blockquote>
+<p><strong>Nota de geração.</strong> O <code>drf-spectacular</code> omite <code>protocol</code> do bloco
+<code>properties</code> dos modelos <em>graváveis</em> de serviço, embora o contrato de escrita
+documentado o aceite. O <code>netbox-sdk</code> o restaura com um overlay determinístico
+de geração (<code>scripts/generate_typed_sdk.py::apply_write_compat_overlay</code>)
+aplicado apenas em memória — o bundle OpenAPI versionado permanece fiel byte a
+byte ao artefato upstream fixado. Sem ele, um PATCH de
+<code>{"protocol": "udp", "ports": [53]}</code> seria enviado como <code>{"ports": [53]}</code> e o
+NetBox repreencheria o protocolo armazenado, ignorando silenciosamente a
+alteração.</p>
+</blockquote>
 
 
 
