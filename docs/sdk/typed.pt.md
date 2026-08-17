@@ -84,3 +84,26 @@ Módulos relevantes:
 - Use `NetBoxApiClient` para controle bruto de requisições
 - Use `api()` para a fachada assíncrona ergonômica
 - Use `typed_api()` para E/S validada por Pydantic versionada
+
+### NetBox 4.7 (preview) — migração de escrita de serviços
+
+O NetBox 4.7 substitui o par `protocol` + `ports` de um serviço por
+`port_mappings`. Os modelos **graváveis** do upstream removem `protocol` (o
+schema o marca como "Deprecated; use port_mappings. Reported only for
+single-protocol services"), enquanto os modelos de **leitura** continuam a
+reportá-lo. Os bindings 4.7 gerados pelo `netbox-sdk` espelham isso exatamente.
+
+Consequência prática ao migrar um chamador de 4.6 para 4.7:
+
+```python
+# 4.6 — aceito na escrita
+api.ipam.services.create({"name": "ssh", "protocol": "tcp", "ports": [22], ...})
+
+# 4.7 — `protocol` NÃO faz parte do contrato de escrita e é ignorado
+# silenciosamente. Use port_mappings:
+api.ipam.services.create({"name": "dns", "port_mappings": ["tcp/53", "udp/53"], ...})
+```
+
+Como os modelos gerados usam o padrão `extra="ignore"` do Pydantic, passar
+`protocol` numa escrita 4.7 **não** levanta erro — o campo é descartado antes do
+envio. Audite as escritas de serviço ao fixar a linha 4.7.

@@ -244,3 +244,62 @@ async def test_typed_action_endpoint_supports_other_versions(monkeypatch) -> Non
 
     result = await api.ipam.prefixes.available_ips.list(5)
     assert result[0].address == "10.0.0.1/24"
+
+
+def test_v47_service_write_contract_matches_upstream_and_v46_migration_is_pinned() -> None:
+    """Pin NetBox 4.7's service write contract and the 4.6 -> 4.7 migration hazard.
+
+    NetBox 4.7 replaces the single ``protocol``/``ports`` pair with
+    ``port_mappings``. Upstream's *writable* service models deliberately drop
+    ``protocol`` (the bundled schema documents it as "Deprecated; use
+    port_mappings. Reported only for single-protocol services", and
+    ``POST /api/ipam/services/`` references ``WritableServiceRequest``), while the
+    read models keep it. The generated bindings mirror that faithfully.
+
+    Do NOT "fix" this by overlaying ``protocol`` back onto the writable models:
+    that would make the SDK send a field 4.7's write contract does not accept and
+    would break provenance fidelity to the pinned upstream artifact.
+
+    The real migration hazard is that 4.6's writable model *did* accept
+    ``protocol``, and Pydantic's default ``extra='ignore'`` silently discards it
+    on 4.7. This test pins that behaviour so a future regeneration cannot change
+    it unnoticed, and so the documented migration note stays true.
+    """
+    from netbox_sdk.models.v4_6 import WritableServiceRequest as WritableV46
+    from netbox_sdk.models.v4_7 import Service as ServiceV47
+    from netbox_sdk.models.v4_7 import ServiceRequest as ServiceRequestV47
+    from netbox_sdk.models.v4_7 import WritableServiceRequest as WritableV47
+
+    # 4.6 accepted the legacy pair on write.
+    assert "protocol" in WritableV46.model_fields
+    assert "ports" in WritableV46.model_fields
+
+    # 4.7 writable: protocol gone, ports retained, port_mappings added.
+    assert "protocol" not in WritableV47.model_fields
+    assert "ports" in WritableV47.model_fields
+    assert "port_mappings" in WritableV47.model_fields
+
+    # 4.7 read side still reports the deprecated fields.
+    assert "protocol" in ServiceV47.model_fields
+    assert "protocol" in ServiceRequestV47.model_fields
+
+    # The migration hazard, pinned: a 4.6-shaped payload loses `protocol`.
+    migrated = WritableV47(
+        name="ssh",
+        parent_object_id=1,
+        parent_object_type="dcim.device",
+        protocol="tcp",
+        ports=[22],
+    )
+    dumped = migrated.model_dump(exclude_unset=True)
+    assert "protocol" not in dumped
+    assert dumped["ports"] == [22]
+
+    # The 4.7-native spelling round-trips intact.
+    native = WritableV47(
+        name="dns",
+        parent_object_id=1,
+        parent_object_type="dcim.device",
+        port_mappings=["tcp/53", "udp/53"],
+    )
+    assert native.model_dump(exclude_unset=True)["port_mappings"] == ["tcp/53", "udp/53"]
