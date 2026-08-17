@@ -28,6 +28,28 @@ OpenAPI operation.
 - All NetBox traffic must use `netbox_sdk.client.NetBoxApiClient`.
 - Reuse `netbox_sdk.config` for static stdio credentials; do not add another
   credential store.
+- Resolve the default and live schema indexes through
+  `netbox_sdk.schema_resolution`; MCP version pins must select the same bundled
+  line a CLI pin would.
+- **The service never reads process globals for the version pin.**
+  `NetBoxMCPService(pinned_line=...)` takes it as an explicit argument, resolves
+  it once in `__init__`, and reuses it for both the default index and
+  `_live_index`. Only the `nbx-mcp` entrypoint reads the documented pin sources
+  and injects the result. An embedded host carrying its own `--api-version` flag
+  must never repoint this server's schema.
+- **Startup pin strictness is deliberately split** (`_resolve_startup_pin`).
+  `--netbox-version`/`--api-version` and the dedicated
+  `NETBOX_SDK_NETBOX_VERSION` are *operator instructions*: an unsupported value
+  raises `UnsupportedNetBoxVersionError` and the server refuses to start, because
+  quietly serving a different release line than the operator asked for is worse.
+  `NETBOX_API_VERSION` and `NETBOX_VERSION` are generic names an unrelated
+  deployment may already define (e.g. pinning the NetBox *server* image), so an
+  unsupported value there is warned about and ignored rather than blocking
+  startup.
+- **Live resolution failures are raised, not swallowed.** `_live_index` calls
+  `resolve_index` with `fall_back_on_error` left off, so an unreachable or
+  misbehaving instance surfaces the error instead of quietly serving the default
+  bundled contract for a server it cannot actually describe.
 
 ## Module Map
 
@@ -37,7 +59,7 @@ OpenAPI operation.
 | `__main__.py` | `python -m netbox_mcp` launcher |
 | `app.py` | Explicit FastMCP tool registration and transport adapter |
 | `models.py` | Strict Pydantic input schemas for every tool family |
-| `service.py` | Transport-independent schema introspection, reads, writes, plugin discovery, bounded/non-redirecting semantic plugin bridge dispatch, strict response parsing, auth, and mutation gate |
+| `service.py` | Transport-independent schema introspection through the shared SDK resolver, reads, writes, plugin discovery, bounded/non-redirecting semantic plugin bridge dispatch, strict response parsing, auth, and mutation gate |
 | `py.typed` | PEP 561 marker |
 
 ## Import Rules
@@ -46,6 +68,9 @@ OpenAPI operation.
 - Use `netbox_sdk.services.resolve_dynamic_request` for every named operation.
 - Use `netbox_sdk.services.list_all_pages` for `list(all=true)`.
 - Use `netbox_sdk.plugin_discovery` for live plugin resources.
+- Use `netbox_sdk.schema_resolution` for version overrides and bundled/live
+  index selection; do not parse version environment variables or detect release
+  lines locally.
 - Use `netbox_sdk.plugin_bridge` for advertised semantic plugin tools; never
   resolve their paths or JSON Schemas independently in the MCP package.
 - Keep MCP SDK imports in this optional package so `import netbox_sdk` remains

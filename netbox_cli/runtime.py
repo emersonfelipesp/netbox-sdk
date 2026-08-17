@@ -35,12 +35,24 @@ from netbox_sdk.http_ssl import (
     is_certificate_verify_failure_text,
 )
 from netbox_sdk.logging_runtime import get_logger
-from netbox_sdk.schema import SchemaIndex, load_openapi_schema
+from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema_resolution import (
+    _NETBOX_VERSION_ENV_VARS as _NETBOX_VERSION_ENV_VARS,
+)
+from netbox_sdk.schema_resolution import (
+    _NETBOX_VERSION_FLAGS as _NETBOX_VERSION_FLAGS,
+)
+from netbox_sdk.schema_resolution import (
+    _raw_requested_netbox_version as _sdk_raw_requested_netbox_version,
+)
+from netbox_sdk.schema_resolution import (
+    bundled_index,
+    requested_netbox_version,
+    resolve_index,
+)
 from netbox_sdk.versioning import (
     DEFAULT_NETBOX_VERSION,
     SupportedNetBoxVersion,
-    UnsupportedNetBoxVersionError,
-    normalize_netbox_version,
 )
 
 try:
@@ -58,13 +70,6 @@ _SCHEMA_VERSION: SupportedNetBoxVersion | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
 
-_NETBOX_VERSION_FLAGS = ("--netbox-version", "--api-version")
-_NETBOX_VERSION_ENV_VARS = (
-    "NETBOX_SDK_NETBOX_VERSION",
-    "NETBOX_API_VERSION",
-    "NETBOX_VERSION",
-)
-
 
 def _raw_requested_netbox_version(argv: list[str] | None = None) -> str | None:
     """Return a CLI/env requested NetBox release line, if one is present.
@@ -73,17 +78,7 @@ def _raw_requested_netbox_version(argv: list[str] | None = None) -> str | None:
     happens before callback option values are available.
     """
     args = list(sys.argv[1:] if argv is None else argv)
-    for index, token in enumerate(args):
-        for flag in _NETBOX_VERSION_FLAGS:
-            if token == flag and index + 1 < len(args):
-                return args[index + 1]
-            if token.startswith(f"{flag}="):
-                return token.split("=", 1)[1]
-    for name in _NETBOX_VERSION_ENV_VARS:
-        value = os.environ.get(name)
-        if value:
-            return value
-    return None
+    return _sdk_raw_requested_netbox_version(args, os.environ)
 
 
 def _requested_netbox_version(
@@ -91,28 +86,14 @@ def _requested_netbox_version(
     *,
     strict: bool = False,
 ) -> SupportedNetBoxVersion | None:
-    raw = _raw_requested_netbox_version(argv)
-    if not raw:
-        return None
-    try:
-        return normalize_netbox_version(raw)
-    except UnsupportedNetBoxVersionError:
-        if strict:
-            raise
-        logger.warning(
-            "ignoring unsupported requested NetBox version %r",
-            raw,
-            extra={"nbx_event": "schema_version_override_invalid", "version": raw},
-        )
-        return None
+    args = list(sys.argv[1:] if argv is None else argv)
+    return requested_netbox_version(args, os.environ, strict=strict)
 
 
 async def _detect_and_fetch_schema(cfg: Config) -> dict:
-    from netbox_sdk.schema import fetch_schema_for_client  # noqa: PLC0415
-
     client = _get_client_for_config(cfg)
     try:
-        return await fetch_schema_for_client(client)
+        return (await resolve_index(client, prefer_live=True, argv=[], env={})).schema
     finally:
         close_fn = getattr(client, "close", None)
         if callable(close_fn):
@@ -135,14 +116,14 @@ def _load_schema_for_connected_instance(
         cfg = cfg or load_profile_config(profile)
         if not cfg.base_url:
             logger.debug("no base_url configured; using default bundled schema")
-            return load_openapi_schema()
+            return bundled_index(DEFAULT_NETBOX_VERSION).schema
         schema = run_with_spinner(_detect_and_fetch_schema(cfg))
         if not isinstance(schema.get("paths"), dict):
             logger.debug(
                 "connected schema response did not contain OpenAPI paths; using default bundled schema",
                 extra={"nbx_event": "schema_runtime_invalid_document"},
             )
-            return load_openapi_schema()
+            return bundled_index(DEFAULT_NETBOX_VERSION).schema
         return schema
     except Exception as exc:  # noqa: BLE001
         logger.debug(
@@ -150,7 +131,7 @@ def _load_schema_for_connected_instance(
             exc,
             extra={"nbx_event": "schema_version_detection_failed"},
         )
-        return load_openapi_schema()
+        return bundled_index(DEFAULT_NETBOX_VERSION).schema
 
 
 def _get_index() -> SchemaIndex:
@@ -163,13 +144,11 @@ def _get_static_index(version: SupportedNetBoxVersion | None = None) -> SchemaIn
     selected_version = version or _requested_netbox_version() or DEFAULT_NETBOX_VERSION
     if _SCHEMA_DOCUMENT is None or _SCHEMA_VERSION != selected_version:
         logger.info("loading bundled openapi schema for NetBox %s", selected_version)
-        _SCHEMA_DOCUMENT = load_openapi_schema(version=selected_version)
-        _SCHEMA_INDEX = SchemaIndex(_SCHEMA_DOCUMENT)
+        _SCHEMA_INDEX = bundled_index(selected_version)
+        _SCHEMA_DOCUMENT = _SCHEMA_INDEX.schema
         _SCHEMA_VERSION = selected_version
     if _SCHEMA_INDEX is None:
         _SCHEMA_INDEX = SchemaIndex(_SCHEMA_DOCUMENT)
-    # Return a fresh mutable index for each caller so runtime discoveries from one
-    # NetBox instance can't leak into another app session.
     return _SCHEMA_INDEX.clone()
 
 
@@ -223,7 +202,12 @@ def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
     )
 
     active_client = client or _get_client()
-    index = _get_connected_index(DEFAULT_PROFILE, active_client.config)
+    # Start from the same precedence ladder every other execution path uses, so
+    # an explicit --netbox-version pin is not silently discarded just because the
+    # caller asked for live plugin enrichment. Previously this always resolved
+    # the connected instance's line, so `nbx --netbox-version 4.5 ... --live`
+    # could describe a 4.6 server while the unenriched path stayed on 4.5.
+    index = _get_runtime_index(DEFAULT_PROFILE, active_client.config)
     run_with_spinner(enrich_schema_index_with_runtime_resources(index, active_client))
     return index
 

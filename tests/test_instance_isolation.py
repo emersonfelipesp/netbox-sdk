@@ -3,6 +3,10 @@ from __future__ import annotations
 import pytest
 
 from netbox_cli import runtime
+from netbox_sdk import schema_resolution
+from netbox_sdk.client import NetBoxApiClient
+from netbox_sdk.config import Config
+from netbox_tui.app import NetBoxTuiApp
 from netbox_tui.dev_state import (
     DevTuiState,
     DevViewState,
@@ -13,6 +17,13 @@ from netbox_tui.dev_state import (
 from netbox_tui.state import TuiState, ViewState, load_tui_state, save_tui_state, tui_state_path
 
 pytestmark = pytest.mark.suite_cli
+
+
+def _reset_runtime_schema(monkeypatch: pytest.MonkeyPatch) -> None:
+    schema_resolution._clear_bundled_index_cache()
+    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
 
 
 def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> None:
@@ -26,10 +37,12 @@ def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> Non
             },
         }
     }
-    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kwargs: schema)
-    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
-
+    _reset_runtime_schema(monkeypatch)
+    monkeypatch.setattr(
+        schema_resolution.schema_module,
+        "load_openapi_schema",
+        lambda **kwargs: schema,
+    )
     first = runtime._get_index()
     assert "plugins" not in first.groups()
 
@@ -45,6 +58,26 @@ def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> Non
     second = runtime._get_index()
     assert "plugins" not in second.groups()
     assert second.schema is first.schema
+
+
+def test_tui_consumes_the_cli_resolved_pinned_index(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx"])
+    _reset_runtime_schema(monkeypatch)
+
+    cli_index = runtime._get_registration_index()
+    app = NetBoxTuiApp(
+        client=NetBoxApiClient(Config(base_url="https://netbox.example.com")),
+        index=cli_index,
+    )
+
+    assert app.index is cli_index
+    assert app.index.schema["info"]["version"].startswith("4.5")
+    assert set(app.index.schema["paths"]) == set(cli_index.schema["paths"])
 
 
 def test_tui_state_is_scoped_per_instance(monkeypatch, tmp_path) -> None:

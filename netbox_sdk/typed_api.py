@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Literal, TypeAlias, overload
 from netbox_sdk.versioning import (
     SupportedNetBoxVersion,
     normalize_netbox_version,
-    version_module_suffix,
+    release_line,
 )
 
 if TYPE_CHECKING:
@@ -66,6 +66,6 @@ def typed_api(
         UnsupportedNetBoxVersionError: If ``netbox_version`` is not a supported line.
     """
     version = normalize_netbox_version(netbox_version)
-    module_name = f"netbox_sdk.typed_versions.v{version_module_suffix(version)}"
+    module_name = release_line(version).typed_module
     module = import_module(module_name)
     return module.build_api(url, token)

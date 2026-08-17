@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import inspect
+import re
+
 import pytest
 import typer
 from typer.testing import CliRunner
 
+import netbox_cli as cli
 from netbox_cli import runtime
 from netbox_cli.dynamic import _register_openapi_subcommands
+from netbox_sdk import schema_resolution
 from netbox_sdk.config import Config
 from netbox_sdk.schema import fetch_schema_for_client
 
@@ -32,12 +37,27 @@ def minimal_schema() -> dict:
 
 
 def _reset_runtime_schema(monkeypatch: pytest.MonkeyPatch) -> None:
+    schema_resolution._clear_bundled_index_cache()
     monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
     monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
     monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
     for name in runtime._NETBOX_VERSION_ENV_VARS:
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setattr(runtime.sys, "argv", ["nbx"])
+
+
+def test_netbox_version_help_uses_the_shared_registry_description() -> None:
+    callback_source = inspect.getsource(cli.root_callback)
+
+    assert "describe_supported_versions()" in callback_source
+    assert "4.3 through 4.6" not in callback_source
+
+    result = runner.invoke(cli.app, ["--help"])
+    plain_output = re.sub(r"\x1b\[[0-9;]*m", "", result.output).replace("│", " ")
+    normalized_output = " ".join(plain_output.replace("│", " ").split())
+
+    assert result.exit_code == 0
+    assert "4.3, 4.4, 4.5, 4.6" in normalized_output
 
 
 class _FakeClient:
@@ -63,6 +83,7 @@ class _FakeClient:
 async def test_bundled_version_uses_bundled_schema(monkeypatch) -> None:
     import netbox_sdk.schema as schema_mod
 
+    schema_resolution._clear_bundled_index_cache()
     loaded: list[dict] = []
 
     def _mock_load(openapi_path=None, *, version=None):
@@ -111,7 +132,12 @@ def test_load_schema_falls_back_when_no_base_url(monkeypatch) -> None:
 
     fallback_doc = {"paths": {}, "_source": "fallback"}
 
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: fallback_doc)
+    schema_resolution._clear_bundled_index_cache()
+    monkeypatch.setattr(
+        schema_resolution.schema_module,
+        "load_openapi_schema",
+        lambda **kw: fallback_doc,
+    )
     monkeypatch.setattr(
         runtime,
         "load_profile_config",
@@ -127,7 +153,12 @@ def test_load_schema_falls_back_on_connection_error(monkeypatch) -> None:
 
     fallback_doc = {"paths": {}, "_source": "fallback"}
 
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: fallback_doc)
+    schema_resolution._clear_bundled_index_cache()
+    monkeypatch.setattr(
+        schema_resolution.schema_module,
+        "load_openapi_schema",
+        lambda **kw: fallback_doc,
+    )
     monkeypatch.setattr(
         runtime,
         "load_profile_config",
@@ -149,7 +180,12 @@ def test_load_schema_falls_back_on_non_openapi_response(monkeypatch) -> None:
 
     fallback_doc = {"paths": {}, "_source": "fallback"}
 
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: fallback_doc)
+    schema_resolution._clear_bundled_index_cache()
+    monkeypatch.setattr(
+        schema_resolution.schema_module,
+        "load_openapi_schema",
+        lambda **kw: fallback_doc,
+    )
     monkeypatch.setattr(
         runtime,
         "load_profile_config",
@@ -172,7 +208,12 @@ def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> N
     monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
     monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
     monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
-    monkeypatch.setattr(runtime, "load_openapi_schema", lambda **kw: bundled_doc)
+    schema_resolution._clear_bundled_index_cache()
+    monkeypatch.setattr(
+        schema_resolution.schema_module,
+        "load_openapi_schema",
+        lambda **kw: bundled_doc,
+    )
     monkeypatch.setattr(
         runtime,
         "_load_schema_for_connected_instance",
@@ -192,7 +233,7 @@ def test_registration_index_defaults_to_netbox_46(monkeypatch, minimal_schema) -
         versions.append(version)
         return minimal_schema
 
-    monkeypatch.setattr(runtime, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(schema_resolution.schema_module, "load_openapi_schema", _mock_load)
 
     result = runtime._get_registration_index()
 
@@ -208,7 +249,7 @@ def test_registration_index_honors_cli_netbox_version_override(monkeypatch, mini
         versions.append(version)
         return minimal_schema
 
-    monkeypatch.setattr(runtime, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(schema_resolution.schema_module, "load_openapi_schema", _mock_load)
     monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--netbox-version", "4.5"])
 
     runtime._get_registration_index()
@@ -237,7 +278,7 @@ def test_runtime_index_detects_configured_instance(monkeypatch) -> None:
     monkeypatch.setattr(runtime, "load_profile_config", lambda profile: cfg)
     monkeypatch.setattr(runtime, "_get_connected_index", _connected)
     monkeypatch.setattr(
-        runtime,
+        schema_resolution.schema_module,
         "load_openapi_schema",
         lambda **kw: pytest.fail("configured instances should use connected schema detection"),
     )
@@ -257,7 +298,7 @@ def test_runtime_index_override_skips_connected_detection(monkeypatch, minimal_s
         return minimal_schema
 
     monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--api-version=4.5"])
-    monkeypatch.setattr(runtime, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(schema_resolution.schema_module, "load_openapi_schema", _mock_load)
     monkeypatch.setattr(
         runtime,
         "_get_connected_index",
@@ -292,3 +333,66 @@ def test_registered_command_tree_can_be_pinned_to_netbox_45(monkeypatch) -> None
 
     assert result.exit_code != 0
     assert "No such command" in result.output
+
+
+def test_enriched_index_honors_the_explicit_pin(monkeypatch, minimal_schema) -> None:
+    """`--live` enrichment must not discard an explicit --netbox-version pin.
+
+    `_get_enriched_index()` previously always started from the *connected*
+    instance's line, so `nbx --netbox-version 4.5 ... --live` could describe a 4.6
+    server while every non-live path stayed on 4.5.
+    """
+    from netbox_sdk.config import Config as _Config
+
+    _reset_runtime_schema(monkeypatch)
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--netbox-version", "4.5"])
+
+    requested: list[str | None] = []
+
+    def _mock_load(openapi_path=None, *, version=None):
+        requested.append(version)
+        return minimal_schema
+
+    monkeypatch.setattr(schema_resolution.schema_module, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(
+        runtime,
+        "_get_connected_index",
+        lambda *a, **k: pytest.fail("an explicit pin must skip connected detection"),
+    )
+
+    async def _no_discovery(_index, _client):
+        return False
+
+    import netbox_sdk.plugin_discovery as discovery_mod
+
+    monkeypatch.setattr(discovery_mod, "enrich_schema_index_with_runtime_resources", _no_discovery)
+
+    class _Client:
+        config = _Config(base_url="https://netbox.example.com")
+
+        async def close(self) -> None:
+            return None
+
+    runtime._get_enriched_index(_Client())  # type: ignore[arg-type]
+
+    assert requested == ["4.5"]
+
+
+def test_tui_launch_passes_the_pin_and_reload_keeps_it(monkeypatch) -> None:
+    """The TUI must rebuild against its launch line after an interactive login.
+
+    Without the pin, logging in swaps contracts: a 4.5-pinned TUI connected to a
+    4.6 instance came back describing 4.6 while CLI and MCP stayed on 4.5.
+    """
+    import inspect
+
+    from netbox_tui.app import NetBoxTuiApp, run_tui
+
+    assert "pinned_line" in inspect.signature(run_tui).parameters
+    assert "pinned_line" in inspect.signature(NetBoxTuiApp.__init__).parameters
+
+    reload_src = inspect.getsource(NetBoxTuiApp._reload_schema_for_authenticated_client)
+    assert "self._pinned_line" in reload_src, (
+        "the post-login reload must resolve against the launch pin"
+    )
+    assert "fetch_schema_for_client" not in reload_src

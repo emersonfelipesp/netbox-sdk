@@ -42,7 +42,7 @@ def test_tui_theme_dracula(monkeypatch) -> None:
 
     called: dict[str, object] = {}
 
-    def _fake_run_tui(*, client, index, theme_name: str, demo_mode: bool) -> None:
+    def _fake_run_tui(*, client, index, theme_name: str, demo_mode: bool, pinned_line=None) -> None:
         called["theme_name"] = theme_name
         called["demo_mode"] = demo_mode
 
@@ -127,7 +127,9 @@ def test_tui_theme_alias_netbox_dark(monkeypatch) -> None:
 
     called: dict[str, object] = {}
 
-    def _fake_run_tui(*, client, index, theme_name: str | None, demo_mode: bool) -> None:
+    def _fake_run_tui(
+        *, client, index, theme_name: str | None, demo_mode: bool, pinned_line=None
+    ) -> None:
         called["theme_name"] = str(theme_name)
         called["demo_mode"] = demo_mode
 
@@ -149,7 +151,9 @@ def test_tui_theme_alias_netbox(monkeypatch) -> None:
 
     called: dict[str, object] = {}
 
-    def _fake_run_tui(*, client, index, theme_name: str | None, demo_mode: bool) -> None:
+    def _fake_run_tui(
+        *, client, index, theme_name: str | None, demo_mode: bool, pinned_line=None
+    ) -> None:
         called["theme_name"] = str(theme_name)
         called["demo_mode"] = demo_mode
 
@@ -192,7 +196,9 @@ def test_demo_tui_sets_demo_mode(monkeypatch) -> None:
 
     called: dict[str, object] = {}
 
-    def _fake_run_tui(*, client, index, theme_name: str | None, demo_mode: bool) -> None:
+    def _fake_run_tui(
+        *, client, index, theme_name: str | None, demo_mode: bool, pinned_line=None
+    ) -> None:
         called["theme_name"] = str(theme_name)
         called["demo_mode"] = demo_mode
 

@@ -20,6 +20,8 @@ from typer.testing import CliRunner
 
 import netbox_cli as cli
 import netbox_mcp
+from netbox_cli import runtime
+from netbox_mcp import service as mcp_service_module
 from netbox_mcp.app import (
     AUTH_TOKEN_ENV_VAR,
     BearerTokenMiddleware,
@@ -33,11 +35,57 @@ from netbox_mcp.service import MutationDeniedError, NetBoxMCPService
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
 from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema_resolution import (
+    _clear_bundled_index_cache,
+    requested_netbox_version,
+)
+from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION, UnsupportedNetBoxVersionError
 
 pytestmark = pytest.mark.suite_mcp
 
 ROOT = Path(__file__).resolve().parents[1]
 runner = CliRunner()
+
+
+def test_cli_and_mcp_use_the_same_pinned_release_index(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx"])
+    _clear_bundled_index_cache()
+    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
+    monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
+
+    cli_index = runtime._get_registration_index()
+    # Constructed the way the nbx-mcp entrypoint does: the entrypoint is the one
+    # place that reads the documented pin sources, and it injects the result.
+    mcp_service = NetBoxMCPService(allow_mutations=False, pinned_line=requested_netbox_version())
+
+    assert cli_index.schema["info"]["version"].startswith("4.5")
+    assert mcp_service.index.schema["info"]["version"].startswith("4.5")
+    assert set(cli_index.schema["paths"]) == set(mcp_service.index.schema["paths"])
+    assert cli_index is not mcp_service.index
+
+
+def test_bare_mcp_service_does_not_absorb_an_embedded_host_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An embedded host's own flags/env must not repoint this server's schema.
+
+    ``NetBoxMCPService`` is a public class that other programs can construct. If
+    it read ``sys.argv``/``os.environ`` itself, a host application that happens to
+    define ``--api-version`` or ``NETBOX_VERSION`` for its own purposes would
+    silently change which NetBox contract the MCP server serves.
+    """
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(runtime.sys, "argv", ["embedding-host", "--api-version", "4.4"])
+    _clear_bundled_index_cache()
+
+    service = NetBoxMCPService(allow_mutations=False)
+
+    assert service._pinned_line is None
+    assert service.index.schema["info"]["version"].startswith(DEFAULT_NETBOX_VERSION)
 
 
 def _index() -> SchemaIndex:
@@ -120,6 +168,40 @@ def _service(client: _MockClient, *, allow_mutations: bool = False) -> NetBoxMCP
         config_loader=lambda: Config(base_url="https://netbox.example.com"),
         allow_mutations=allow_mutations,
     )
+
+
+async def test_mcp_live_index_honors_the_shared_version_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _PinnedClient(_MockClient):
+        async def get_version(self) -> str:
+            pytest.fail("an explicit pin must skip connected version detection")
+
+        async def openapi(self) -> dict[str, Any]:
+            pytest.fail("an explicit pin must skip live OpenAPI fetching")
+
+    async def _no_discovery(_index: SchemaIndex, _client: Any) -> bool:
+        return False
+
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(
+        mcp_service_module,
+        "enrich_schema_index_with_runtime_resources",
+        _no_discovery,
+    )
+    _clear_bundled_index_cache()
+    client = _PinnedClient()
+    service = NetBoxMCPService(
+        client_factory=lambda _config: client,  # type: ignore[arg-type, return-value]
+        config_loader=lambda: Config(base_url="https://netbox.example.com"),
+        allow_mutations=False,
+        pinned_line=requested_netbox_version(),
+    )
+
+    index = await service._live_index(None)
+
+    assert index.schema["info"]["version"].startswith("4.5")
+    assert client.closed is True
 
 
 def test_tool_argument_models_reject_malformed_input() -> None:
@@ -1471,3 +1553,120 @@ def test_run_streamable_http_allows_loopback_with_configured_token(monkeypatch) 
     netbox_mcp.run(["--transport", "streamable-http", "--auth-token", "secret"])
 
     assert captured == {"host": "127.0.0.1", "port": 8000, "auth_token": "secret"}
+
+
+def _run_capturing_service(monkeypatch: pytest.MonkeyPatch, argv: list[str]):
+    """Invoke ``netbox_mcp.run`` far enough to capture the constructed service."""
+    import netbox_mcp
+
+    captured: dict[str, Any] = {}
+    real_service = netbox_mcp.NetBoxMCPService
+
+    def _capture(**kwargs: Any):
+        captured["kwargs"] = kwargs
+        service = real_service(**kwargs)
+        captured["service"] = service
+        raise _StopRun
+
+    monkeypatch.setattr(netbox_mcp, "NetBoxMCPService", _capture)
+    with pytest.raises(_StopRun):
+        netbox_mcp.run(argv)
+    return captured
+
+
+class _StopRun(Exception):
+    """Abort ``run()`` right after the service is constructed."""
+
+
+@pytest.mark.parametrize("flag", ["--netbox-version", "--api-version"])
+def test_mcp_entrypoint_accepts_both_documented_pin_flags(
+    monkeypatch: pytest.MonkeyPatch, flag: str
+) -> None:
+    """Both documented aliases must actually be registered on the parser.
+
+    The docs advertise ``--netbox-version``/``--api-version``; if argparse does
+    not register them, ``nbx-mcp --netbox-version 4.5`` exits with a usage error
+    instead of pinning anything.
+    """
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+
+    captured = _run_capturing_service(monkeypatch, [flag, "4.5"])
+
+    assert captured["kwargs"]["pinned_line"] == "4.5"
+    assert captured["service"]._pinned_line == "4.5"
+
+
+def test_mcp_entrypoint_ignores_ambient_argv_when_argv_is_supplied(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """``run([])`` must not absorb the embedding host's real ``sys.argv``."""
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(sys, "argv", ["embedding-host", "--api-version", "4.4"])
+
+    captured = _run_capturing_service(monkeypatch, [])
+
+    assert captured["kwargs"]["pinned_line"] is None
+
+
+@pytest.mark.parametrize("source", ["flag", "dedicated-env"])
+def test_mcp_entrypoint_rejects_an_invalid_operator_pin(
+    monkeypatch: pytest.MonkeyPatch, source: str
+) -> None:
+    """An unusable *operator instruction* must fail loudly.
+
+    A server that quietly serves a different release line than the operator
+    asked for is worse than one that refuses to start.
+    """
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+
+    import netbox_mcp
+
+    argv: list[str] = []
+    if source == "flag":
+        argv = ["--netbox-version", "3.9"]
+    else:
+        monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "3.9")
+
+    with pytest.raises(UnsupportedNetBoxVersionError):
+        netbox_mcp.run(argv)
+
+
+@pytest.mark.parametrize("alias", ["NETBOX_API_VERSION", "NETBOX_VERSION"])
+def test_generic_version_aliases_never_block_startup(
+    monkeypatch: pytest.MonkeyPatch, alias: str
+) -> None:
+    """A generic alias set for some *other* purpose must not stop the server.
+
+    ``NETBOX_VERSION`` is exactly the name a deployment might already use to pin
+    the NetBox *server* image. Treating it as a strict SDK pin turned an
+    unrelated environment variable into a startup failure. It stays a lenient
+    hint: unusable values are warned about and ignored.
+    """
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv(alias, "5.0")
+
+    captured = _run_capturing_service(monkeypatch, [])
+
+    assert captured["kwargs"]["pinned_line"] is None
+
+
+@pytest.mark.parametrize("alias", ["NETBOX_API_VERSION", "NETBOX_VERSION"])
+def test_generic_version_aliases_still_pin_when_usable(
+    monkeypatch: pytest.MonkeyPatch, alias: str
+) -> None:
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv(alias, "4.4")
+
+    captured = _run_capturing_service(monkeypatch, [])
+
+    assert captured["kwargs"]["pinned_line"] == "4.4"

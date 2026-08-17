@@ -26,5 +26,7 @@ This directory contains reference material packaged with or directly relevant to
 
 - Runtime code should prefer the versioned bundled schemas for typed and schema-loading workflows; default CLI/static SDK schema selection is NetBox 4.6 unless overridden.
 - The 4.6 schema is pinned to the NetBox v4.6.6 release and its provenance file records the upstream commit/blob plus artifact hashes.
-- `netbox_sdk.versioning` defines the supported release lines: `4.6`, `4.5`, `4.4`, and `4.3`.
+- `netbox_sdk.versioning` owns the release-line registry and artifact mapping;
+  `netbox_sdk.schema_resolution` owns bundled/live/default selection for every
+  runtime surface.
 - Broader design and prior-art references live in the repo-level [`reference/`](../../reference/) directory, including [`reference/PYNETBOX.md`](../../reference/PYNETBOX.md).

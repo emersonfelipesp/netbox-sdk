@@ -36,6 +36,8 @@ flowchart TB
     cache["http_cache.py\nFilesystem JSON cache\nTTL · ETag · stale-if-error"]
     client["client.py\nNetBoxApiClient\nasync aiohttp · auth · SSRF protection"]
     schema["schema.py\nSchemaIndex\nOpenAPI parsing · resource resolution"]
+    versions["versioning.py\nRelease-line registry\nartifacts · lifecycle status"]
+    resolution["schema_resolution.py\nPin + connected resolution\nbundled · live · fallback"]
     services["services.py\nresolve_dynamic_request()\nrun_dynamic_command()"]
     facade["facade.py\nApi → App → Endpoint\n→ Record / RecordSet"]
     typed["typed_api.py\ntyped_api()\nVersion-specific typed clients"]
@@ -44,6 +46,8 @@ flowchart TB
 
     config --> client
     cache --> client
+    versions --> resolution
+    schema --> resolution
     schema --> services
     client --> services
     client --> facade
@@ -59,6 +63,8 @@ flowchart TB
 | `client.py` | `NetBoxApiClient` — async aiohttp HTTP client, auth injection, HTTP cache integration, SSRF protection |
 | `http_cache.py` | `HttpCacheStore` — filesystem JSON cache with TTL, ETag/If-Modified-Since, stale-if-error |
 | `schema.py` | `SchemaIndex` — parses bundled OpenAPI JSON into groups, resources, operations, and filter params |
+| `versioning.py` | Frozen release-line registry owning the OpenAPI asset, generated-model module, typed module, and lifecycle status for each supported line |
+| `schema_resolution.py` | Shared override parsing, process-cached clone-isolated bundled indexes, connected detection, live-schema fetch, and default fallback |
 | `services.py` | `resolve_dynamic_request()` / `run_dynamic_command()` — maps CLI actions to HTTP calls |
 | `plugin_bridge.py` | Discovers versioned semantic plugin manifests, validates hostile contracts and payloads, and resolves fixed plugin-local targets |
 | `facade.py` | `api()` — PyNetBox-style async facade: `Api → App → Endpoint → Record/RecordSet` |
@@ -78,6 +84,7 @@ flowchart TB
       config.py
       http_cache.py
       schema.py
+      schema_resolution.py
       services.py
       plugin_discovery.py
       plugin_bridge.py
@@ -235,6 +242,8 @@ Owns:
 - Profile and config loading from disk and environment variables
 - HTTP response caching (filesystem-backed, ETag/If-Modified-Since)
 - OpenAPI schema indexing and resource resolution
+- Release-line metadata and the shared explicit-pin → detected bundle → live
+  schema → default-bundle resolution policy
 - Dynamic request resolution from `(group, resource, action)` tuples
 - OpenAPI plugin discovery plus versioned semantic plugin-bridge contracts
 - Shared formatting and output safety utilities

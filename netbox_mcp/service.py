@@ -44,7 +44,11 @@ from netbox_sdk.plugin_bridge import (
     validate_plugin_tool_response,
 )
 from netbox_sdk.plugin_discovery import enrich_schema_index_with_runtime_resources
-from netbox_sdk.schema import SchemaIndex, build_schema_index, fetch_schema_for_client
+from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema_resolution import (
+    bundled_index,
+    resolve_index,
+)
 from netbox_sdk.services import (
     ResolvedRequest,
     list_all_pages,
@@ -52,6 +56,7 @@ from netbox_sdk.services import (
     parse_key_value_pairs,
     resolve_dynamic_request,
 )
+from netbox_sdk.versioning import SupportedNetBoxVersion, normalize_netbox_version
 
 MUTATION_ENV_VAR = "NETBOX_MCP_ALLOW_MUTATIONS"
 DRY_RUN_NOTICE = (
@@ -87,8 +92,18 @@ class NetBoxMCPService:
         client_factory: ClientFactory = NetBoxApiClient,
         config_loader: ConfigLoader = load_profile_config,
         allow_mutations: bool | None = None,
+        pinned_line: SupportedNetBoxVersion | str | None = None,
     ) -> None:
-        self.index = index or build_schema_index()
+        # The release-line pin is resolved ONCE, and only from an explicit
+        # argument. It is never read from process globals here: an embedded host
+        # that happens to carry its own --api-version flag or NETBOX_VERSION
+        # variable must not silently repoint this server's schema. The nbx-mcp
+        # entrypoint is the only caller that reads the documented pin sources and
+        # passes the result in.
+        self._pinned_line = (
+            normalize_netbox_version(pinned_line) if pinned_line is not None else None
+        )
+        self.index = index if index is not None else bundled_index(self._pinned_line)
         self._client_factory = client_factory
         self._config_loader = config_loader
         self.allow_mutations = (
@@ -121,8 +136,7 @@ class NetBoxMCPService:
     async def _live_index(self, token: str | None) -> SchemaIndex:
         client = self._make_client(token)
         try:
-            schema = await fetch_schema_for_client(client)
-            index = SchemaIndex(schema)
+            index = await resolve_index(client, prefer_live=True, line=self._pinned_line)
             await enrich_schema_index_with_runtime_resources(index, client)
             return index
         finally:

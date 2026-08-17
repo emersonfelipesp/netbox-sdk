@@ -36,6 +36,8 @@ flowchart TB
     cache["http_cache.py\nCache JSON no sistema de arquivos\nTTL · ETag · stale-if-error"]
     client["client.py\nNetBoxApiClient\nasync aiohttp · auth · proteção SSRF"]
     schema["schema.py\nSchemaIndex\nParsing OpenAPI · resolução de recursos"]
+    versions["versioning.py\nRegistro de linhas de release\nartefatos · status do ciclo de vida"]
+    resolution["schema_resolution.py\nResolução de pin + instância\nembutido · ao vivo · fallback"]
     services["services.py\nresolve_dynamic_request()\nrun_dynamic_command()"]
     facade["facade.py\nApi → App → Endpoint\n→ Record / RecordSet"]
     typed["typed_api.py\ntyped_api()\nClientes tipados por versão"]
@@ -44,6 +46,8 @@ flowchart TB
 
     config --> client
     cache --> client
+    versions --> resolution
+    schema --> resolution
     schema --> services
     client --> services
     client --> facade
@@ -59,6 +63,8 @@ flowchart TB
 | `client.py` | `NetBoxApiClient` — cliente HTTP async aiohttp, injeção de auth, integração com cache HTTP, proteção SSRF |
 | `http_cache.py` | `HttpCacheStore` — cache JSON em disco com TTL, ETag/If-Modified-Since, stale-if-error |
 | `schema.py` | `SchemaIndex` — analisa JSON OpenAPI em grupos, recursos, operações e parâmetros de filtro |
+| `versioning.py` | Registro congelado que possui o artefato OpenAPI, o módulo de modelos gerados, o módulo tipado e o status do ciclo de vida de cada linha suportada |
+| `schema_resolution.py` | Parsing compartilhado de overrides, índices embutidos cacheados e isolados por clone, detecção da instância, busca de schema ao vivo e fallback padrão |
 | `services.py` | `resolve_dynamic_request()` / `run_dynamic_command()` — mapeia ações CLI para chamadas HTTP |
 | `plugin_bridge.py` | Descobre manifestos semânticos versionados, valida contratos e payloads hostis e resolve destinos fixos locais ao plugin |
 | `facade.py` | `api()` — fachada async estilo PyNetBox: `Api → App → Endpoint → Record/RecordSet` |
@@ -78,6 +84,7 @@ flowchart TB
       config.py
       http_cache.py
       schema.py
+      schema_resolution.py
       services.py
       plugin_discovery.py
       plugin_bridge.py
@@ -235,6 +242,8 @@ Responsável por:
 - Carregamento de perfil e config do disco e variáveis de ambiente
 - Cache de resposta HTTP (no sistema de arquivos, ETag/If-Modified-Since)
 - Indexação do esquema OpenAPI e resolução de recursos
+- Metadados de linhas de release e a política compartilhada pin explícito →
+  bundle detectado → schema ao vivo → bundle padrão
 - Resolução dinâmica de requisições a partir de tuplas `(grupo, recurso, ação)`
 - Descoberta OpenAPI de plugins e contratos semânticos versionados da ponte
 - Utilitários de formatação e segurança de saída compartilhados

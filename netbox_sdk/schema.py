@@ -409,24 +409,6 @@ async def fetch_schema_for_client(client: Any) -> dict[str, Any]:
     Uses the bundled schema when the connected version is a supported release line;
     fetches dynamically via ``/api/schema/`` otherwise.
     """
-    from netbox_sdk.versioning import (  # noqa: PLC0415
-        UnsupportedNetBoxVersionError,
-        normalize_netbox_version,
-    )
+    from netbox_sdk.schema_resolution import resolve_index  # noqa: PLC0415
 
-    version = await client.get_version()
-    try:
-        supported = normalize_netbox_version(version)
-        logger.info(
-            "loading bundled schema for NetBox %s",
-            supported,
-            extra={"nbx_event": "schema_version_bundled", "version": supported},
-        )
-        return load_openapi_schema(version=supported)
-    except UnsupportedNetBoxVersionError:
-        logger.info(
-            "NetBox %s is not a bundled release line; fetching schema dynamically",
-            version,
-            extra={"nbx_event": "schema_version_dynamic_fetch", "version": version},
-        )
-        return await client.openapi()
+    return (await resolve_index(client, prefer_live=True)).schema

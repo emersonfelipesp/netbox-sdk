@@ -433,7 +433,7 @@ def test_run_tui_can_switch_into_dev_mode(mock_client, real_index) -> None:
     launches: list[tuple[str, str | None, bool | None]] = []
 
     class FakeMainApp:
-        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+        def __init__(self, *, client, index, theme_name, demo_mode, pinned_line=None):  # noqa: ANN001
             self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 
@@ -465,7 +465,7 @@ def test_run_tui_can_switch_back_from_dev_in_demo_mode(mock_client, real_index) 
     dev_runs = 0
 
     class FakeMainApp:
-        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+        def __init__(self, *, client, index, theme_name, demo_mode, pinned_line=None):  # noqa: ANN001
             self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 
@@ -505,7 +505,7 @@ def test_run_tui_preserves_runtime_changed_theme_across_view_switch(
     launches: list[tuple[str, str | None, bool | None]] = []
 
     class FakeMainApp:
-        def __init__(self, *, client, index, theme_name, demo_mode):  # noqa: ANN001
+        def __init__(self, *, client, index, theme_name, demo_mode, pinned_line=None):  # noqa: ANN001
             self.theme_name = theme_name
             launches.append(("main", theme_name, demo_mode))
 

@@ -53,10 +53,15 @@ __all__ = [
     "SyncType",
     "validate_sync_types",
     "typed_api",
+    "ReleaseLine",
     "SupportedNetBoxVersion",
     "SUPPORTED_NETBOX_VERSIONS",
     "DEFAULT_NETBOX_VERSION",
     "UnsupportedNetBoxVersionError",
+    "release_lines",
+    "release_line",
+    "describe_supported_versions",
+    "latest_stable_line",
     "TypedRequestValidationError",
     "TypedResponseValidationError",
     # http_cache
@@ -73,6 +78,11 @@ __all__ = [
     "load_openapi_schema",
     "build_schema_index",
     "fetch_schema_for_client",
+    "InvalidLiveSchemaError",
+    "requested_netbox_version",
+    "bundled_index",
+    "detect_release_line",
+    "resolve_index",
     "serialize_capabilities",
     "serialize_filter",
     "serialize_groups",
@@ -212,13 +222,25 @@ from netbox_sdk.schema import (
     load_openapi_schema,
     parse_group_resource,
 )
+from netbox_sdk.schema_resolution import (
+    InvalidLiveSchemaError,
+    bundled_index,
+    detect_release_line,
+    requested_netbox_version,
+    resolve_index,
+)
 from netbox_sdk.typed_api import typed_api
 from netbox_sdk.typed_runtime import TypedRequestValidationError, TypedResponseValidationError
 from netbox_sdk.versioning import (
     DEFAULT_NETBOX_VERSION,
     SUPPORTED_NETBOX_VERSIONS,
+    ReleaseLine,
     SupportedNetBoxVersion,
     UnsupportedNetBoxVersionError,
+    describe_supported_versions,
+    latest_stable_line,
+    release_line,
+    release_lines,
 )
 
 from netbox_sdk.services import (  # isort: skip

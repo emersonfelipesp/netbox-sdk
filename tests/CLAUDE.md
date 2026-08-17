@@ -71,7 +71,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_docs_alignment.py` | Package/docs version alignment and localized docs completeness |
 | `test_gitea_release.py` | Private-registry three-job/token mutation policy, exact-tool-root import layout, deterministic A/B and trusted re-canonicalization, complete metadata-header/archive-to-Git binding, external tag-protection evidence, private seals, bounded HTTP, exact-state resumability, association recovery, and secret-silent failure behavior |
 | `test_release_policy.py` | Canonical Gitea ancestry, immutable tag-object, PEP 440 routing, RC-push, and official-release event authorization |
-| `test_release_registry.py` | Exact local wheel/sdist identity/cardinality plus TestPyPI/PyPI filename-set, collision, host, manifest-bound approved-upload, partial-retry, and hash-bound wheel URL policy |
+| `test_release_registry.py` | Bidirectional NetBox release registry/artifact completeness plus exact local wheel/sdist identity/cardinality and TestPyPI/PyPI filename-set, collision, host, manifest-bound approved-upload, partial-retry, and hash-bound wheel URL policy |
 | `test_graphql.py` | CLI GraphQL and raw HTTP command behavior |
 | `test_instance_isolation.py` | Per-process config and schema index isolation (no cross-test state leakage) |
 | `test_logging_runtime.py` | Structured JSON log writing, file rotation, log entry format |
@@ -91,6 +91,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_proxbox_tui.py` | Proxbox-only request workbench catalog and resource activation behavior |
 | `test_return_annotations.py` | Repo-wide non-test return annotation regression guard |
 | `test_schema_index.py` | Group/resource extraction, list/detail path identification, trace path support |
+| `test_schema_resolution.py` | Shared override precedence, connected bundled/live/default selection, failure fallback, and clone-isolated bundled-index caching |
 | `test_schema_version_detection.py` | Schema version detection and release-line selection |
 | `test_sdk_completeness.py` | Generated SDK/model completeness against bundled schemas |
 | `test_sdk_decorators.py` | SDK decorator factories and reusable metadata behavior |
