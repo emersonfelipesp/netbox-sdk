@@ -11,7 +11,12 @@ import pytest
 
 from netbox_sdk import schema_resolution
 from netbox_sdk.schema import SchemaIndex
-from netbox_sdk.versioning import SUPPORTED_NETBOX_VERSIONS, UnsupportedNetBoxVersionError
+from netbox_sdk.versioning import (
+    SUPPORTED_NETBOX_VERSIONS,
+    UnsupportedNetBoxVersionError,
+    bundled_openapi_path,
+    version_module_suffix,
+)
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -94,13 +99,24 @@ class _FakeClient:
         openapi_schema: dict[str, Any] | None = None,
         version_error: Exception | None = None,
         openapi_error: Exception | None = None,
+        status_document: Any = None,
+        status_error: Exception | None = None,
     ) -> None:
+        self.status_document = status_document
+        self.status_error = status_error
+        self.status_calls = 0
         self.version = version
         self.openapi_schema = openapi_schema
         self.version_error = version_error
         self.openapi_error = openapi_error
         self.version_calls = 0
         self.openapi_calls = 0
+
+    async def status(self) -> Any:
+        self.status_calls += 1
+        if self.status_error is not None:
+            raise self.status_error
+        return self.status_document
 
     async def get_version(self) -> str:
         self.version_calls += 1
@@ -366,6 +382,102 @@ async def test_connected_resolution_errors_propagate_by_default(
         await schema_resolution.resolve_index(client)
 
     assert bundled_loader == []
+
+
+@pytest.mark.parametrize(
+    ("status_document", "status_error"),
+    [
+        (None, RuntimeError("status endpoint blocked")),
+        (None, ValueError("not JSON")),
+        ("<html>not a status document</html>", None),
+        ({"no-version-key": True}, None),
+        ({"netbox-version": ""}, None),
+    ],
+)
+async def test_status_probe_is_best_effort_and_falls_back_to_get_version(
+    status_document: Any,
+    status_error: Exception | None,
+    bundled_loader: list[str],
+) -> None:
+    """A blocked or malformed /api/status/ must not break release detection.
+
+    Reading the status document is an enrichment over the root API-Version
+    probe. If it escapes as an error, an instance with a restricted status
+    endpoint either fails resolution outright or is silently handed the default
+    bundled contract while actually running another line.
+    """
+    client = _FakeClient("4.5.10", status_document=status_document, status_error=status_error)
+
+    index = await schema_resolution.resolve_index(client)
+
+    assert index.schema["_release_line"] == "4.5"
+    assert client.status_calls == 1
+    assert client.version_calls == 1
+    assert bundled_loader == ["4.5"]
+
+
+async def test_status_document_is_preferred_when_usable(bundled_loader: list[str]) -> None:
+    client = _FakeClient(
+        "4.6.6",  # the header would say 4.6; the status document is authoritative
+        status_document={"netbox-version": "4.4.12"},
+    )
+
+    index = await schema_resolution.resolve_index(client)
+
+    assert index.schema["_release_line"] == "4.4"
+    assert client.status_calls == 1
+    assert client.version_calls == 0
+    assert bundled_loader == ["4.4"]
+
+
+async def test_partial_pin_sources_do_not_leak_the_other_process_global(
+    monkeypatch: pytest.MonkeyPatch,
+    bundled_loader: list[str],
+) -> None:
+    """Supplying one pin source must not implicitly consult the other.
+
+    resolve_index(client, argv=[]) previously still read os.environ, and the
+    symmetric env-only call still read sys.argv, so a caller that explicitly
+    passed an empty source could be repointed by the other one anyway.
+    """
+    monkeypatch.setenv("NETBOX_API_VERSION", "4.3")
+    monkeypatch.setattr(schema_resolution.sys, "argv", ["host-app", "--api-version", "4.4"])
+    detected = "4.5"
+
+    argv_only = await schema_resolution.resolve_index(_FakeClient("4.5.10"), argv=[])
+    assert argv_only.schema["_release_line"] == detected
+
+    env_only = await schema_resolution.resolve_index(_FakeClient("4.5.10"), env={})
+    assert env_only.schema["_release_line"] == detected
+
+    # ...while an explicitly supplied source is still honoured.
+    explicit = await schema_resolution.resolve_index(
+        _FakeClient("4.5.10"), argv=["--netbox-version", "4.3"], env={}
+    )
+    assert explicit.schema["_release_line"] == "4.3"
+
+
+def test_public_version_helpers_stay_permissive_for_unregistered_strings() -> None:
+    """``bundled_openapi_path``/``version_module_suffix`` must not start raising.
+
+    Before the registry existed both helpers computed their result from the
+    string for any input. Indexing the registry instead raises ``KeyError`` for an
+    unregistered runtime value - a silent backward-compatibility break for public
+    helpers, including callers preparing paths for a line that is not bundled yet.
+    """
+    unregistered = "9.9"
+    assert unregistered not in SUPPORTED_NETBOX_VERSIONS
+
+    assert version_module_suffix(unregistered) == "9_9"  # type: ignore[arg-type]
+    assert (
+        bundled_openapi_path(unregistered).name  # type: ignore[arg-type]
+        == "netbox-openapi-9.9.json"
+    )
+
+    # Registered lines still resolve through their registry record.
+    assert version_module_suffix("4.5") == "4_5"
+    assert bundled_openapi_path("4.5").name == "netbox-openapi-4.5.json"
+    assert bundled_openapi_path("4.5").is_file()
 
 
 async def test_prefer_live_false_uses_default_without_detection(bundled_loader: list[str]) -> None:

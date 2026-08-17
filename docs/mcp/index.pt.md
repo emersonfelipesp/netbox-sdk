@@ -19,10 +19,19 @@ stdio é o transporte padrão. Para Streamable HTTP:
 NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-http --host 127.0.0.1 --port 8000
 ```
 
-Defina `NETBOX_SDK_NETBOX_VERSION` para fixar a mesma linha de release embutida
-usada por `nbx`. Sem um pin, `live=true` usa a política compartilhada do SDK:
-uma linha conectada e suportada seleciona seu bundle, uma linha não suportada
-busca o documento OpenAPI ao vivo e falhas usam o bundle padrão.
+Defina `NETBOX_SDK_NETBOX_VERSION` para fixar a mesma linha de release
+empacotada usada pelo `nbx`. O pin é lido **uma única vez, pelo entrypoint
+`nbx-mcp`**, e repassado ao servidor; o próprio servidor nunca relê argumentos
+ou variáveis de ambiente do processo, portanto uma flag `--api-version` do host
+que o incorpora não consegue redirecionar o schema deste servidor.
+
+Sem um pin, `live=true` usa a política compartilhada do SDK: uma linha conectada
+suportada seleciona seu bundle e uma linha não suportada busca o documento
+OpenAPI ao vivo. Diferentemente do `nbx`, uma falha de detecção ou de busca é
+**propagada, não silenciada** — o servidor não pode responder a partir de um
+contrato empacotado que não descreve a instância com a qual está falando. A
+leitura de `/api/status/` é best-effort: se esse endpoint estiver bloqueado ou
+malformado, a detecção recai sobre o header `API-Version` da raiz.
 
 O endpoint MCP é `/mcp`. Todo vínculo Streamable HTTP exige um token bearer
 compartilhado via `--auth-token` ou `NETBOX_MCP_AUTH_TOKEN`; o servidor

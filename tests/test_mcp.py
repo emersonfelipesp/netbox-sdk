@@ -35,7 +35,11 @@ from netbox_mcp.service import MutationDeniedError, NetBoxMCPService
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
 from netbox_sdk.schema import SchemaIndex
-from netbox_sdk.schema_resolution import _clear_bundled_index_cache
+from netbox_sdk.schema_resolution import (
+    _clear_bundled_index_cache,
+    requested_netbox_version,
+)
+from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION
 
 pytestmark = pytest.mark.suite_mcp
 
@@ -54,12 +58,34 @@ def test_cli_and_mcp_use_the_same_pinned_release_index(
     monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
 
     cli_index = runtime._get_registration_index()
-    mcp_service = NetBoxMCPService(allow_mutations=False)
+    # Constructed the way the nbx-mcp entrypoint does: the entrypoint is the one
+    # place that reads the documented pin sources, and it injects the result.
+    mcp_service = NetBoxMCPService(allow_mutations=False, pinned_line=requested_netbox_version())
 
     assert cli_index.schema["info"]["version"].startswith("4.5")
     assert mcp_service.index.schema["info"]["version"].startswith("4.5")
     assert set(cli_index.schema["paths"]) == set(mcp_service.index.schema["paths"])
     assert cli_index is not mcp_service.index
+
+
+def test_bare_mcp_service_does_not_absorb_an_embedded_host_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An embedded host's own flags/env must not repoint this server's schema.
+
+    ``NetBoxMCPService`` is a public class that other programs can construct. If
+    it read ``sys.argv``/``os.environ`` itself, a host application that happens to
+    define ``--api-version`` or ``NETBOX_VERSION`` for its own purposes would
+    silently change which NetBox contract the MCP server serves.
+    """
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "4.5")
+    monkeypatch.setattr(runtime.sys, "argv", ["embedding-host", "--api-version", "4.4"])
+    _clear_bundled_index_cache()
+
+    service = NetBoxMCPService(allow_mutations=False)
+
+    assert service._pinned_line is None
+    assert service.index.schema["info"]["version"].startswith(DEFAULT_NETBOX_VERSION)
 
 
 def _index() -> SchemaIndex:
@@ -169,6 +195,7 @@ async def test_mcp_live_index_honors_the_shared_version_pin(
         client_factory=lambda _config: client,  # type: ignore[arg-type, return-value]
         config_loader=lambda: Config(base_url="https://netbox.example.com"),
         allow_mutations=False,
+        pinned_line=requested_netbox_version(),
     )
 
     index = await service._live_index(None)

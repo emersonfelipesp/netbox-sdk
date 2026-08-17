@@ -118,9 +118,24 @@ def normalize_netbox_version(version: str | None) -> SupportedNetBoxVersion:
 
 
 def bundled_openapi_path(version: SupportedNetBoxVersion) -> Path:
-    asset = _RELEASE_LINE_REGISTRY[version].openapi_asset
+    """Return the bundled OpenAPI path for ``version``.
+
+    Registered lines resolve through the registry. An unregistered runtime string
+    still falls back to the historical name computation rather than raising, so
+    this public helper keeps the permissive behaviour callers had before the
+    registry existed.
+    """
+    record = _RELEASE_LINE_REGISTRY.get(version)
+    asset = record.openapi_asset if record is not None else f"netbox-openapi-{version}.json"
     return Path(__file__).resolve().parent / "reference" / "openapi" / asset
 
 
 def version_module_suffix(version: SupportedNetBoxVersion) -> str:
-    return _RELEASE_LINE_REGISTRY[version].module_suffix
+    """Return the ``<major>_<minor>`` module suffix for ``version``.
+
+    Permissive for the same reason as :func:`bundled_openapi_path`: an
+    unregistered runtime string computes the historical suffix instead of
+    raising ``KeyError``.
+    """
+    record = _RELEASE_LINE_REGISTRY.get(version)
+    return record.module_suffix if record is not None else version.replace(".", "_")

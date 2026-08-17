@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 from pathlib import Path
 from typing import get_args
@@ -89,6 +90,53 @@ def test_netbox_release_registry_preserves_public_contract() -> None:
         expected = EXPECTED_RELEASE_RECORDS[line]
         assert bundled_openapi_path(line).name == expected["openapi_asset"]
         assert version_module_suffix(line) == expected["models_module"].rsplit(".v", 1)[1]
+
+
+def test_typed_api_typing_surface_covers_every_registered_line() -> None:
+    """Every registered line must be reachable through the *static* typing surface.
+
+    ``SupportedNetBoxVersion`` is a ``Literal`` and ``typed_api`` is a set of
+    ``@overload`` stubs, so neither can be computed from the registry. That makes
+    it possible to register a line, have it work at runtime, and still have the
+    public typing surface reject or mis-type it. This guard turns that silent
+    half-addition into a hard failure by parsing the source of ``typed_api`` and
+    requiring an overload plus a union member for each registered line.
+    """
+    source = (Path(__file__).resolve().parents[1] / "netbox_sdk" / "typed_api.py").read_text(
+        encoding="utf-8"
+    )
+    tree = ast.parse(source)
+
+    overloaded: set[str] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.FunctionDef) or node.name != "typed_api":
+            continue
+        if not any(isinstance(d, ast.Name) and d.id == "overload" for d in node.decorator_list):
+            continue
+        annotation = next(
+            (a.annotation for a in node.args.kwonlyargs if a.arg == "netbox_version"), None
+        )
+        # Literal["4.6"] -> "4.6"
+        if isinstance(annotation, ast.Subscript):
+            literal = annotation.slice
+            if isinstance(literal, ast.Constant) and isinstance(literal.value, str):
+                overloaded.add(literal.value)
+
+    # Compared against the LIVE registry, not the transcribed matrix: the point of
+    # this guard is that two independently hand-maintained surfaces agree, so
+    # registering a line without adding its overload must fail here even before
+    # anyone updates EXPECTED_NETBOX_RELEASE_LINES.
+    registered = set(SUPPORTED_NETBOX_VERSIONS)
+    assert overloaded == registered, (
+        "typed_api overloads and the release registry disagree; "
+        f"overloads={sorted(overloaded)} registry={sorted(registered)}"
+    )
+    assert registered == set(EXPECTED_NETBOX_RELEASE_LINES)
+
+    # And each line's generated typed class must be named in the client union.
+    union_members = {f"TypedApiV{line.replace('.', '_')}" for line in SUPPORTED_NETBOX_VERSIONS}
+    missing = sorted(name for name in union_members if name not in source)
+    assert not missing, f"TypedApiClient union is missing: {missing}"
 
 
 def test_netbox_release_registry_and_artifacts_are_bidirectionally_complete() -> None:

@@ -88,17 +88,38 @@ def _clear_bundled_index_cache() -> None:
     _BUNDLED_INDEXES.clear()
 
 
+async def _version_from_status(client: Any) -> str | None:
+    """Return the version reported by ``/api/status/``, or ``None``.
+
+    Reading the status document is strictly best-effort: it is an enrichment over
+    the root ``API-Version`` probe, not a replacement for it. A blocked,
+    malformed, or non-JSON status endpoint must fall through to
+    ``client.get_version()`` exactly as before this detection existed — otherwise
+    an instance whose status endpoint is restricted would fail resolution
+    outright, or be silently served the default bundled contract.
+    """
+    status_fn = getattr(client, "status", None)
+    if not callable(status_fn):
+        return None
+    try:
+        status = await cast(Awaitable[Any], status_fn())
+    except Exception as exc:  # noqa: BLE001 - best-effort enrichment only
+        logger.debug(
+            "status probe failed (%s); falling back to the API-Version header",
+            exc,
+            extra={"nbx_event": "schema_version_status_probe_failed"},
+        )
+        return None
+    if not isinstance(status, dict):
+        return None
+    reported = status.get("netbox-version")
+    return reported if isinstance(reported, str) and reported else None
+
+
 async def _detected_release_line(
     client: Any,
 ) -> tuple[str, SupportedNetBoxVersion | None]:
-    status_fn = getattr(client, "status", None)
-    version: str | None = None
-    if callable(status_fn):
-        status = await cast(Awaitable[Any], status_fn())
-        if isinstance(status, dict):
-            reported = status.get("netbox-version")
-            if isinstance(reported, str) and reported:
-                version = reported
+    version = await _version_from_status(client)
     detected_version = version if version is not None else cast(str, await client.get_version())
     try:
         return detected_version, normalize_netbox_version(detected_version)
@@ -178,7 +199,15 @@ async def resolve_index(
     if line is not None:
         return bundled_index(normalize_netbox_version(line))
     if use_ambient_pin or argv is not None or env is not None:
-        requested = requested_netbox_version(argv, env)
+        # Only the sources the caller actually opted into are consulted. Without
+        # use_ambient_pin, an omitted source defaults to EMPTY rather than to the
+        # process globals, so resolve_index(client, argv=[]) cannot still absorb
+        # os.environ (nor the symmetric env-only call absorb sys.argv).
+        pin_argv = argv if argv is not None else (None if use_ambient_pin else [])
+        pin_env: Mapping[str, str] | None = (
+            env if env is not None else (None if use_ambient_pin else {})
+        )
+        requested = requested_netbox_version(pin_argv, pin_env)
         if requested is not None:
             return bundled_index(requested)
     if client is None or not prefer_live:

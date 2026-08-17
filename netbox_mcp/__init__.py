@@ -12,6 +12,7 @@ from netbox_mcp.app import (
     create_mcp_server,
 )
 from netbox_mcp.service import MUTATION_ENV_VAR, NetBoxMCPService
+from netbox_sdk.schema_resolution import requested_netbox_version
 
 if TYPE_CHECKING:
     from mcp.server.fastmcp import FastMCP
@@ -58,7 +59,13 @@ def run(argv: list[str] | None = None) -> None:
         help=f"Enable write tools (equivalent to {MUTATION_ENV_VAR}=1)",
     )
     args = parser.parse_args(argv)
-    service = NetBoxMCPService(allow_mutations=args.allow_mutations)
+    # The entrypoint is the one place allowed to read the documented pin
+    # sources (--netbox-version / --api-version, NETBOX_SDK_NETBOX_VERSION and
+    # friends); the service itself never touches process globals.
+    service = NetBoxMCPService(
+        allow_mutations=args.allow_mutations,
+        pinned_line=requested_netbox_version(),
+    )
     if args.transport == "streamable-http":
         import anyio
 

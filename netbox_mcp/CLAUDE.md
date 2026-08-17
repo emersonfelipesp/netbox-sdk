@@ -29,8 +29,19 @@ OpenAPI operation.
 - Reuse `netbox_sdk.config` for static stdio credentials; do not add another
   credential store.
 - Resolve the default and live schema indexes through
-  `netbox_sdk.schema_resolution`; MCP version pins must behave exactly like CLI
-  pins.
+  `netbox_sdk.schema_resolution`; MCP version pins must select the same bundled
+  line a CLI pin would.
+- **The service never reads process globals for the version pin.**
+  `NetBoxMCPService(pinned_line=...)` takes it as an explicit argument, resolves
+  it once in `__init__`, and reuses it for both the default index and
+  `_live_index`. Only the `nbx-mcp` entrypoint reads the documented pin sources
+  (`--netbox-version`/`--api-version`, `NETBOX_SDK_NETBOX_VERSION` and friends)
+  and injects the result. An embedded host carrying its own `--api-version` flag
+  or `NETBOX_VERSION` variable must never repoint this server's schema.
+- **Live resolution failures are raised, not swallowed.** `_live_index` calls
+  `resolve_index` with `fall_back_on_error` left off, so an unreachable or
+  misbehaving instance surfaces the error instead of quietly serving the default
+  bundled contract for a server it cannot actually describe.
 
 ## Module Map
 

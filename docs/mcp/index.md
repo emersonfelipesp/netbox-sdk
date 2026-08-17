@@ -20,9 +20,17 @@ NETBOX_MCP_AUTH_TOKEN="$NETBOX_MCP_AUTH_TOKEN" nbx-mcp --transport streamable-ht
 ```
 
 Set `NETBOX_SDK_NETBOX_VERSION` to pin the same bundled release line used by
-`nbx`. Without a pin, `live=true` uses the shared SDK policy: a supported
-connected line selects its bundle, an unsupported line fetches the live
-OpenAPI document, and failures fall back to the default bundle.
+`nbx`. The pin is read **once, by the `nbx-mcp` entrypoint**, and handed to the
+server; the server itself never re-reads process arguments or environment, so an
+embedded host's own `--api-version` flag cannot repoint this server's schema.
+
+Without a pin, `live=true` uses the shared SDK policy: a supported connected line
+selects its bundle and an unsupported line fetches the live OpenAPI document.
+Unlike `nbx`, a **detection or fetch failure is raised, not swallowed** — the
+server must not silently answer from a bundled contract that does not describe
+the instance it is talking to. Reading `/api/status/` is best-effort: if that
+endpoint is blocked or malformed, detection falls back to the root
+`API-Version` header.
 
 The MCP endpoint is `/mcp`. Every Streamable HTTP bind requires a
 shared-secret bearer token via `--auth-token` or `NETBOX_MCP_AUTH_TOKEN`; the
