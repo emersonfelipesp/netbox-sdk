@@ -611,6 +611,7 @@ def tui_command(
             index=_get_runtime_index(),
             theme_name=selected_theme,
             demo_mode=False,
+            pinned_line=_requested_netbox_version(),
         )
     except Exception as exc:
         rethrow_theme_catalog_error(exc)

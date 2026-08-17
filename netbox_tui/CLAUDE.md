@@ -11,6 +11,22 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 
 `netbox_tui` is the Textual layer. It depends on `netbox_sdk` and `textual`.
 
+## Release-line pin
+
+`NetBoxTuiApp` and `run_tui()` take a `pinned_line` argument, passed down by
+`netbox_cli` from `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`. The TUI does
+not resolve release lines itself; it receives a `SchemaIndex` the CLI already
+resolved.
+
+The pin exists because of the **post-login reload**:
+`_reload_schema_for_authenticated_client()` rebuilds the schema after an
+interactive login, and must rebuild it against the line the TUI was launched
+with. Resolving unpinned there would silently swap contracts — a 4.5-pinned TUI
+connected to a 4.6 instance would come back describing 4.6 while the CLI and MCP
+surfaces stayed on 4.5. Use `netbox_sdk.schema_resolution.resolve_index(client,
+line=self._pinned_line)`, never a bare `fetch_schema_for_client()`.
+
+
 ## Package Contract
 
 - `netbox_tui` owns all Textual apps, widgets, TCSS, themes, and the theme registry.

@@ -78,6 +78,7 @@ __all__ = [
     "load_openapi_schema",
     "build_schema_index",
     "fetch_schema_for_client",
+    "InvalidLiveSchemaError",
     "requested_netbox_version",
     "bundled_index",
     "detect_release_line",
@@ -222,6 +223,7 @@ from netbox_sdk.schema import (
     parse_group_resource,
 )
 from netbox_sdk.schema_resolution import (
+    InvalidLiveSchemaError,
     bundled_index,
     detect_release_line,
     requested_netbox_version,

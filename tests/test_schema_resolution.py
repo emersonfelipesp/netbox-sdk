@@ -500,6 +500,34 @@ def test_public_version_helpers_stay_permissive_for_unregistered_strings() -> No
     assert bundled_openapi_path("4.5").is_file()
 
 
+async def test_invalid_live_document_raises_by_default(bundled_loader: list[str]) -> None:
+    """A successful HTTP response carrying a non-OpenAPI body must not fail open.
+
+    A 403 envelope, an HTML interstitial, or an error JSON from ``/api/schema/``
+    is a 200-with-garbage, not a transport failure. Substituting the default
+    bundled contract would make a surface answer confidently for a server it
+    cannot describe - exactly what ``fall_back_on_error=False`` promises not to do.
+    """
+    client = _FakeClient("5.0.1", openapi_schema={"detail": "Authentication credentials..."})
+
+    with pytest.raises(schema_resolution.InvalidLiveSchemaError):
+        await schema_resolution.resolve_index(client)
+
+    assert client.openapi_calls == 1
+    assert bundled_loader == []
+
+
+async def test_invalid_live_document_falls_back_only_when_requested(
+    bundled_loader: list[str],
+) -> None:
+    client = _FakeClient("5.0.1", openapi_schema={"detail": "not openapi"})
+
+    index = await schema_resolution.resolve_index(client, fall_back_on_error=True)
+
+    assert index.schema["_release_line"] == "4.6"
+    assert bundled_loader == ["4.6"]
+
+
 async def test_prefer_live_false_uses_default_without_detection(bundled_loader: list[str]) -> None:
     client = _FakeClient("4.5.10")
 

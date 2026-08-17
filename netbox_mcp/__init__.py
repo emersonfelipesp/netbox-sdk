@@ -13,6 +13,7 @@ from netbox_mcp.app import (
 )
 from netbox_mcp.service import MUTATION_ENV_VAR, NetBoxMCPService
 from netbox_sdk.schema_resolution import requested_netbox_version
+from netbox_sdk.versioning import describe_supported_versions
 
 if TYPE_CHECKING:
     from mcp.server.fastmcp import FastMCP
@@ -39,6 +40,16 @@ def run(argv: list[str] | None = None) -> None:
         default="stdio",
         help="MCP transport (default: stdio)",
     )
+    parser.add_argument(
+        "--netbox-version",
+        "--api-version",
+        dest="netbox_version",
+        default=None,
+        help=(
+            "Pin the bundled NetBox release line used for schema resolution "
+            f"({describe_supported_versions()})."
+        ),
+    )
     parser.add_argument("--host", default="127.0.0.1", help="Streamable HTTP bind host")
     parser.add_argument("--port", type=int, default=8000, help="Streamable HTTP bind port")
     parser.add_argument(
@@ -59,12 +70,17 @@ def run(argv: list[str] | None = None) -> None:
         help=f"Enable write tools (equivalent to {MUTATION_ENV_VAR}=1)",
     )
     args = parser.parse_args(argv)
-    # The entrypoint is the one place allowed to read the documented pin
-    # sources (--netbox-version / --api-version, NETBOX_SDK_NETBOX_VERSION and
-    # friends); the service itself never touches process globals.
+    # The entrypoint is the one place allowed to read the documented pin sources.
+    # An explicit --netbox-version/--api-version wins; otherwise fall back to the
+    # documented environment variables. When run(argv=...) supplied an argument
+    # list, ambient sys.argv is NOT consulted - an embedding host's own flags must
+    # never repoint this server. An invalid pin is rejected loudly rather than
+    # leniently ignored, because a server silently serving a different contract
+    # than the operator asked for is worse than refusing to start.
+    pinned_line = args.netbox_version or requested_netbox_version([], os.environ, strict=True)
     service = NetBoxMCPService(
         allow_mutations=args.allow_mutations,
-        pinned_line=requested_netbox_version(),
+        pinned_line=pinned_line,
     )
     if args.transport == "streamable-http":
         import anyio

@@ -202,7 +202,12 @@ def _get_enriched_index(client: NetBoxApiClient | None = None) -> SchemaIndex:
     )
 
     active_client = client or _get_client()
-    index = _get_connected_index(DEFAULT_PROFILE, active_client.config)
+    # Start from the same precedence ladder every other execution path uses, so
+    # an explicit --netbox-version pin is not silently discarded just because the
+    # caller asked for live plugin enrichment. Previously this always resolved
+    # the connected instance's line, so `nbx --netbox-version 4.5 ... --live`
+    # could describe a 4.6 server while the unenriched path stayed on 4.5.
+    index = _get_runtime_index(DEFAULT_PROFILE, active_client.config)
     run_with_spinner(enrich_schema_index_with_runtime_resources(index, active_client))
     return index
 

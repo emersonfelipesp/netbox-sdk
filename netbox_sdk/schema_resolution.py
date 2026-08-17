@@ -88,6 +88,17 @@ def _clear_bundled_index_cache() -> None:
     _BUNDLED_INDEXES.clear()
 
 
+class InvalidLiveSchemaError(RuntimeError):
+    """Raised when a connected instance returns a document that is not OpenAPI.
+
+    A 403 body, an HTML interstitial, or an error envelope from ``/api/schema/``
+    is a *successful* HTTP response carrying an unusable document. Silently
+    substituting the default bundled contract would let a surface answer for a
+    server it cannot actually describe, so this is raised and only converted to
+    the default bundle when the caller passed ``fall_back_on_error=True``.
+    """
+
+
 async def _version_from_status(client: Any) -> str | None:
     """Return the version reported by ``/api/status/``, or ``None``.
 
@@ -133,8 +144,12 @@ async def detect_release_line(client: Any) -> SupportedNetBoxVersion | None:
     return detected
 
 
-async def _resolve_connected_index(client: Any) -> SchemaIndex | None:
-    """Resolve a connected instance's index, or ``None`` to use the default bundle."""
+async def _resolve_connected_index(client: Any) -> SchemaIndex:
+    """Resolve a connected instance's index.
+
+    Raises:
+        InvalidLiveSchemaError: If the live document is not an OpenAPI document.
+    """
     version, detected = await _detected_release_line(client)
     if detected is not None:
         logger.info(
@@ -155,7 +170,9 @@ async def _resolve_connected_index(client: Any) -> SchemaIndex | None:
             "connected schema response did not contain OpenAPI paths; using default bundled schema",
             extra={"nbx_event": "schema_runtime_invalid_document"},
         )
-        return None
+        raise InvalidLiveSchemaError(
+            "The connected instance returned a document without an OpenAPI 'paths' object."
+        )
     return SchemaIndex(schema)
 
 
@@ -187,14 +204,17 @@ async def resolve_index(
             ``nbx`` entrypoint, but for a library call or a long-lived MCP server
             it is a hidden global dependency: an unrelated host-application
             ``--api-version`` flag must never silently repoint the schema.
-        fall_back_on_error: Swallow detection/fetch failures and return the
-            default bundled index. **Off by default.** A caller that cannot reach
-            its instance must see the error rather than silently receive a
-            bundled contract that does not describe the server it is talking to.
+        fall_back_on_error: Swallow detection/fetch failures - including a live
+            document that is not OpenAPI - and return the default bundled index.
+            **Off by default.** A caller that cannot reach or cannot parse its
+            instance must see the error rather than silently receive a bundled
+            contract that does not describe the server it is talking to.
 
     Raises:
+        InvalidLiveSchemaError: If the live document is not an OpenAPI document.
         Exception: Whatever ``client`` raises during detection or the live
-            OpenAPI fetch, unless ``fall_back_on_error`` is set.
+            OpenAPI fetch. Both are suppressed only when ``fall_back_on_error``
+            is set.
     """
     if line is not None:
         return bundled_index(normalize_netbox_version(line))
@@ -214,12 +234,10 @@ async def resolve_index(
         return bundled_index(DEFAULT_NETBOX_VERSION)
 
     if not fall_back_on_error:
-        resolved = await _resolve_connected_index(client)
-        return bundled_index(DEFAULT_NETBOX_VERSION) if resolved is None else resolved
+        return await _resolve_connected_index(client)
 
     try:
-        resolved = await _resolve_connected_index(client)
-        return bundled_index(DEFAULT_NETBOX_VERSION) if resolved is None else resolved
+        return await _resolve_connected_index(client)
     except Exception as exc:  # noqa: BLE001
         logger.debug(
             "schema version detection failed (%s); using default bundled schema",

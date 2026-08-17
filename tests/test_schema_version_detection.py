@@ -333,3 +333,66 @@ def test_registered_command_tree_can_be_pinned_to_netbox_45(monkeypatch) -> None
 
     assert result.exit_code != 0
     assert "No such command" in result.output
+
+
+def test_enriched_index_honors_the_explicit_pin(monkeypatch, minimal_schema) -> None:
+    """`--live` enrichment must not discard an explicit --netbox-version pin.
+
+    `_get_enriched_index()` previously always started from the *connected*
+    instance's line, so `nbx --netbox-version 4.5 ... --live` could describe a 4.6
+    server while every non-live path stayed on 4.5.
+    """
+    from netbox_sdk.config import Config as _Config
+
+    _reset_runtime_schema(monkeypatch)
+    monkeypatch.setattr(runtime.sys, "argv", ["nbx", "--netbox-version", "4.5"])
+
+    requested: list[str | None] = []
+
+    def _mock_load(openapi_path=None, *, version=None):
+        requested.append(version)
+        return minimal_schema
+
+    monkeypatch.setattr(schema_resolution.schema_module, "load_openapi_schema", _mock_load)
+    monkeypatch.setattr(
+        runtime,
+        "_get_connected_index",
+        lambda *a, **k: pytest.fail("an explicit pin must skip connected detection"),
+    )
+
+    async def _no_discovery(_index, _client):
+        return False
+
+    import netbox_sdk.plugin_discovery as discovery_mod
+
+    monkeypatch.setattr(discovery_mod, "enrich_schema_index_with_runtime_resources", _no_discovery)
+
+    class _Client:
+        config = _Config(base_url="https://netbox.example.com")
+
+        async def close(self) -> None:
+            return None
+
+    runtime._get_enriched_index(_Client())  # type: ignore[arg-type]
+
+    assert requested == ["4.5"]
+
+
+def test_tui_launch_passes_the_pin_and_reload_keeps_it(monkeypatch) -> None:
+    """The TUI must rebuild against its launch line after an interactive login.
+
+    Without the pin, logging in swaps contracts: a 4.5-pinned TUI connected to a
+    4.6 instance came back describing 4.6 while CLI and MCP stayed on 4.5.
+    """
+    import inspect
+
+    from netbox_tui.app import NetBoxTuiApp, run_tui
+
+    assert "pinned_line" in inspect.signature(run_tui).parameters
+    assert "pinned_line" in inspect.signature(NetBoxTuiApp.__init__).parameters
+
+    reload_src = inspect.getsource(NetBoxTuiApp._reload_schema_for_authenticated_client)
+    assert "self._pinned_line" in reload_src, (
+        "the post-login reload must resolve against the launch pin"
+    )
+    assert "fetch_schema_for_client" not in reload_src

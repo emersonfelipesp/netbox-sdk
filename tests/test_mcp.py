@@ -39,7 +39,7 @@ from netbox_sdk.schema_resolution import (
     _clear_bundled_index_cache,
     requested_netbox_version,
 )
-from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION
+from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION, UnsupportedNetBoxVersionError
 
 pytestmark = pytest.mark.suite_mcp
 
@@ -1553,3 +1553,77 @@ def test_run_streamable_http_allows_loopback_with_configured_token(monkeypatch) 
     netbox_mcp.run(["--transport", "streamable-http", "--auth-token", "secret"])
 
     assert captured == {"host": "127.0.0.1", "port": 8000, "auth_token": "secret"}
+
+
+def _run_capturing_service(monkeypatch: pytest.MonkeyPatch, argv: list[str]):
+    """Invoke ``netbox_mcp.run`` far enough to capture the constructed service."""
+    import netbox_mcp
+
+    captured: dict[str, Any] = {}
+    real_service = netbox_mcp.NetBoxMCPService
+
+    def _capture(**kwargs: Any):
+        captured["kwargs"] = kwargs
+        service = real_service(**kwargs)
+        captured["service"] = service
+        raise _StopRun
+
+    monkeypatch.setattr(netbox_mcp, "NetBoxMCPService", _capture)
+    with pytest.raises(_StopRun):
+        netbox_mcp.run(argv)
+    return captured
+
+
+class _StopRun(Exception):
+    """Abort ``run()`` right after the service is constructed."""
+
+
+@pytest.mark.parametrize("flag", ["--netbox-version", "--api-version"])
+def test_mcp_entrypoint_accepts_both_documented_pin_flags(
+    monkeypatch: pytest.MonkeyPatch, flag: str
+) -> None:
+    """Both documented aliases must actually be registered on the parser.
+
+    The docs advertise ``--netbox-version``/``--api-version``; if argparse does
+    not register them, ``nbx-mcp --netbox-version 4.5`` exits with a usage error
+    instead of pinning anything.
+    """
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+
+    captured = _run_capturing_service(monkeypatch, [flag, "4.5"])
+
+    assert captured["kwargs"]["pinned_line"] == "4.5"
+    assert captured["service"]._pinned_line == "4.5"
+
+
+def test_mcp_entrypoint_ignores_ambient_argv_when_argv_is_supplied(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """``run([])`` must not absorb the embedding host's real ``sys.argv``."""
+    _clear_bundled_index_cache()
+    for name in ("NETBOX_SDK_NETBOX_VERSION", "NETBOX_API_VERSION", "NETBOX_VERSION"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(sys, "argv", ["embedding-host", "--api-version", "4.4"])
+
+    captured = _run_capturing_service(monkeypatch, [])
+
+    assert captured["kwargs"]["pinned_line"] is None
+
+
+def test_mcp_entrypoint_rejects_an_invalid_environment_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An unusable pin must fail loudly, not be leniently ignored.
+
+    A server that quietly serves a different release line than the operator
+    asked for is worse than one that refuses to start.
+    """
+    _clear_bundled_index_cache()
+    monkeypatch.setenv("NETBOX_SDK_NETBOX_VERSION", "3.9")
+
+    import netbox_mcp
+
+    with pytest.raises(UnsupportedNetBoxVersionError):
+        netbox_mcp.run([])

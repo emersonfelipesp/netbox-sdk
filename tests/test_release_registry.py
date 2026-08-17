@@ -93,50 +93,83 @@ def test_netbox_release_registry_preserves_public_contract() -> None:
 
 
 def test_typed_api_typing_surface_covers_every_registered_line() -> None:
-    """Every registered line must be reachable through the *static* typing surface.
+    """Every registered line must be reachable, and correctly typed, statically.
 
     ``SupportedNetBoxVersion`` is a ``Literal`` and ``typed_api`` is a set of
-    ``@overload`` stubs, so neither can be computed from the registry. That makes
-    it possible to register a line, have it work at runtime, and still have the
-    public typing surface reject or mis-type it. This guard turns that silent
-    half-addition into a hard failure by parsing the source of ``typed_api`` and
-    requiring an overload plus a union member for each registered line.
+    ``@overload`` stubs, so neither can be computed from the registry. A line can
+    therefore be registered, work at runtime, and still be rejected or MIS-typed
+    by the public typing surface.
+
+    This guard asserts the exact literal-to-return-type mapping, the
+    ``TYPE_CHECKING`` imports, and the ``TypedApiClient`` union membership by
+    parsing the AST. A substring search is not enough: removing a class from the
+    union leaves its name present in the import and the overload, and swapping an
+    overload's return type leaves every literal and class name intact.
     """
     source = (Path(__file__).resolve().parents[1] / "netbox_sdk" / "typed_api.py").read_text(
         encoding="utf-8"
     )
     tree = ast.parse(source)
 
-    overloaded: set[str] = set()
+    def _literal_value(node: ast.expr | None) -> str | None:
+        if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name):
+            if node.value.id != "Literal":
+                return None
+            inner = node.slice
+            if isinstance(inner, ast.Constant) and isinstance(inner.value, str):
+                return inner.value
+        return None
+
+    def _flatten_union(node: ast.expr) -> set[str]:
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+            return _flatten_union(node.left) | _flatten_union(node.right)
+        if isinstance(node, ast.Name):
+            return {node.id}
+        return set()
+
+    # literal -> declared return type, for each @overload of typed_api
+    overload_map: dict[str, str] = {}
     for node in ast.walk(tree):
         if not isinstance(node, ast.FunctionDef) or node.name != "typed_api":
             continue
         if not any(isinstance(d, ast.Name) and d.id == "overload" for d in node.decorator_list):
             continue
-        annotation = next(
-            (a.annotation for a in node.args.kwonlyargs if a.arg == "netbox_version"), None
+        literal = _literal_value(
+            next((a.annotation for a in node.args.kwonlyargs if a.arg == "netbox_version"), None)
         )
-        # Literal["4.6"] -> "4.6"
-        if isinstance(annotation, ast.Subscript):
-            literal = annotation.slice
-            if isinstance(literal, ast.Constant) and isinstance(literal.value, str):
-                overloaded.add(literal.value)
+        returns = node.returns
+        if literal is not None and isinstance(returns, ast.Name):
+            overload_map[literal] = returns.id
 
-    # Compared against the LIVE registry, not the transcribed matrix: the point of
-    # this guard is that two independently hand-maintained surfaces agree, so
-    # registering a line without adding its overload must fail here even before
-    # anyone updates EXPECTED_NETBOX_RELEASE_LINES.
-    registered = set(SUPPORTED_NETBOX_VERSIONS)
-    assert overloaded == registered, (
-        "typed_api overloads and the release registry disagree; "
-        f"overloads={sorted(overloaded)} registry={sorted(registered)}"
+    # TypedApiClient union members
+    union_members: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            if node.target.id == "TypedApiClient" and node.value is not None:
+                union_members = _flatten_union(node.value)
+
+    # names imported under TYPE_CHECKING
+    imported: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
+            "netbox_sdk.typed_versions."
+        ):
+            imported.update(alias.name for alias in node.names)
+
+    expected_map = {
+        line: f"TypedApiV{line.replace('.', '_')}" for line in SUPPORTED_NETBOX_VERSIONS
+    }
+    assert overload_map == expected_map, (
+        "typed_api overloads must map each registered line to its own typed class; "
+        f"got {overload_map}, expected {expected_map}"
     )
-    assert registered == set(EXPECTED_NETBOX_RELEASE_LINES)
-
-    # And each line's generated typed class must be named in the client union.
-    union_members = {f"TypedApiV{line.replace('.', '_')}" for line in SUPPORTED_NETBOX_VERSIONS}
-    missing = sorted(name for name in union_members if name not in source)
-    assert not missing, f"TypedApiClient union is missing: {missing}"
+    assert union_members == set(expected_map.values()), (
+        f"TypedApiClient union is {sorted(union_members)}, expected {sorted(expected_map.values())}"
+    )
+    assert imported == set(expected_map.values()), (
+        f"TYPE_CHECKING imports are {sorted(imported)}, expected {sorted(expected_map.values())}"
+    )
+    assert set(SUPPORTED_NETBOX_VERSIONS) == set(EXPECTED_NETBOX_RELEASE_LINES)
 
 
 def test_netbox_release_registry_and_artifacts_are_bidirectionally_complete() -> None:

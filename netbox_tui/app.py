@@ -41,7 +41,8 @@ from netbox_sdk.formatting import (
     semantic_cell,
 )
 from netbox_sdk.logging_runtime import get_logger
-from netbox_sdk.schema import SchemaIndex, fetch_schema_for_client
+from netbox_sdk.schema import SchemaIndex
+from netbox_sdk.schema_resolution import resolve_index
 from netbox_tui.branch_screen import (
     BranchPill,
     BranchSwitcherScreen,
@@ -111,10 +112,15 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
         index: SchemaIndex,
         theme_name: str | None = None,
         demo_mode: bool = False,
+        pinned_line: str | None = None,
     ) -> None:
         super().__init__()
         self.client = client
         self.index = index
+        # The release line the TUI was launched with, carried so an interactive
+        # login can rebuild the schema against the SAME line instead of silently
+        # adopting whatever the connected instance reports.
+        self._pinned_line = pinned_line
         # Plugin resources are instance-specific; discard bundled plugin paths and
         # repopulate them only from live discovery on the connected NetBox.
         self.index.remove_group_resources("plugins")
@@ -990,7 +996,12 @@ class NetBoxTuiApp(FilterOverlayMixin, App[None]):
 
     async def _reload_schema_for_authenticated_client(self) -> None:
         try:
-            schema = await fetch_schema_for_client(self.client)
+            # Reuse the release line the TUI was launched with. Without it an
+            # interactive login would silently swap contracts: a 4.5-pinned TUI
+            # connected to a 4.6 instance would come back describing 4.6 while
+            # the CLI and MCP surfaces stayed pinned to 4.5.
+            reloaded = await resolve_index(self.client, line=self._pinned_line)
+            schema = reloaded.schema
         except Exception:
             logger.debug(
                 "tui schema reload after login failed",
@@ -1307,6 +1318,7 @@ def run_tui(
     index: SchemaIndex,
     theme_name: str | None = None,
     demo_mode: bool = False,
+    pinned_line: str | None = None,
 ) -> None:
     try:
         next_mode = "main"
@@ -1318,6 +1330,7 @@ def run_tui(
                     index=index,
                     theme_name=next_theme,
                     demo_mode=demo_mode,
+                    pinned_line=pinned_line,
                 )
                 result = app.run()
                 if result == SWITCH_TO_DEV_TUI:
