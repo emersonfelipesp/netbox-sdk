@@ -24,6 +24,14 @@ DATAMODEL_CODE_GENERATOR_VERSION = "0.55.0"
 RUFF_VERSION = "0.15.9"
 
 RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
+    "4.7": {
+        "netbox_release": "v4.7.0-beta1",
+        "release_commit": "9c163ba2ddfdeafa4bca5c5ca493e70e96ab53f4",
+        "source_path": "contrib/openapi.json",
+        "source_blob_sha": "ab84349e95a8ba47fbba9632ab2ec32e1637bd90",
+        "source_sha256": "3fdbbc6170fca77c2e5dcd06b85bfaeb90637079b3fde2b8daeefa7846170762",
+        "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0-beta1/contrib/openapi.json",
+    },
     "4.6": {
         "netbox_release": "v4.6.6",
         "release_commit": "fb8c455ba61b57119a70670612dfdd05e8438b10",
@@ -31,10 +39,11 @@ RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
         "source_blob_sha": "024d34500a04ec876fb3b32fa18c685e953a02f8",
         "source_sha256": "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e",
         "source_url": "https://github.com/netbox-community/netbox/blob/v4.6.6/contrib/openapi.json",
-    }
+    },
 }
 
 SCHEMA_SOURCES = {
+    "4.7": Path("/tmp/netbox-v4.7.0-beta1-openapi.json"),
     "4.6": Path("/tmp/netbox-v4.6-openapi.json"),
     "4.5": Path("/tmp/netbox-v4.5.5/contrib/openapi.json"),
     "4.4": Path("/tmp/netbox-v4.4.10/contrib/openapi.json"),
@@ -553,6 +562,73 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
     return "\n".join(imports + body + endpoint_classes + app_classes + api_lines + factory_lines)
 
 
+# ---------------------------------------------------------------------------
+# Write-compatibility overlay
+# ---------------------------------------------------------------------------
+# NetBox 4.7 declares the legacy single-protocol ``protocol``/``ports`` pair on a
+# *shared* serializer that Service and ServiceTemplate inherit from. The bundled
+# upstream schema documents the write contract explicitly:
+#
+#   "Write: either format is accepted. When the legacy ``protocol``/``ports``
+#    pair is supplied (and ``port_mappings`` is not), it is translated into
+#    ``port_mappings``."
+#
+# but drf-spectacular's introspection does not emit ``protocol`` into the
+# writable models' ``properties`` block (``ports`` *is* emitted). Generating
+# straight from ``properties`` therefore produces writable models that silently
+# DROP a field the REST API accepts. That is not a cosmetic gap: a PATCH of
+# ``{"protocol": "udp", "ports": [53]}`` would be sent as ``{"ports": [53]}``,
+# and NetBox backfills the stored protocol - turning an intended tcp->udp change
+# into ``tcp/53``.
+#
+# The overlay restores those fields for model generation ONLY. It is applied to
+# an in-memory copy; the committed ``netbox-openapi-*.json`` stays byte-faithful
+# to the pinned upstream artifact, so provenance verification is unaffected.
+# Each entry is deterministic and copies the field definition from the
+# corresponding read-side request model rather than inventing a schema.
+WRITE_COMPAT_OVERLAY: dict[str, dict[str, tuple[str, ...]]] = {
+    "4.7": {
+        "WritableServiceRequest": ("protocol",),
+        "PatchedWritableServiceRequest": ("protocol",),
+        "WritableServiceTemplateRequest": ("protocol",),
+        "PatchedWritableServiceTemplateRequest": ("protocol",),
+    }
+}
+
+# Where each overlaid model borrows its field definition from.
+_OVERLAY_FIELD_SOURCE = {
+    "WritableServiceRequest": "ServiceRequest",
+    "PatchedWritableServiceRequest": "ServiceRequest",
+    "WritableServiceTemplateRequest": "ServiceTemplateRequest",
+    "PatchedWritableServiceTemplateRequest": "ServiceTemplateRequest",
+}
+
+
+def apply_write_compat_overlay(version: str, schema: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of ``schema`` with REST-writable legacy fields restored.
+
+    Raises:
+        KeyError: If an overlay target or its field source is missing, which means
+            the upstream schema changed shape and the overlay needs review rather
+            than silent skipping.
+    """
+    overlay = WRITE_COMPAT_OVERLAY.get(version)
+    if not overlay:
+        return schema
+    patched = json.loads(json.dumps(schema))
+    components = patched["components"]["schemas"]
+    for model, fields in overlay.items():
+        target = components[model]
+        source = components[_OVERLAY_FIELD_SOURCE[model]]
+        for field in fields:
+            if field in target.get("properties", {}):
+                continue
+            target.setdefault("properties", {})[field] = json.loads(
+                json.dumps(source["properties"][field])
+            )
+    return patched
+
+
 def generate_models(version: str, input_path: Path, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ)
@@ -728,9 +804,20 @@ def main() -> None:
         bundled_path = OPENAPI_ROOT / f"netbox-openapi-{version}.json"
         bundled_path.parent.mkdir(parents=True, exist_ok=True)
         schema = load_schema(source)
+        # The committed bundle stays byte-faithful to upstream; the overlay is
+        # applied only to the copy that model generation reads.
         bundled_path.write_text(json.dumps(schema, indent=2), encoding="utf-8")
         model_output = MODELS_ROOT / f"v{version_suffix}.py"
-        generate_models(version, bundled_path, model_output)
+        overlaid = apply_write_compat_overlay(version, schema)
+        if overlaid is schema:
+            generate_models(version, bundled_path, model_output)
+        else:
+            overlay_path = bundled_path.with_name(f"{bundled_path.stem}.overlaid.json")
+            overlay_path.write_text(json.dumps(overlaid, indent=2), encoding="utf-8")
+            try:
+                generate_models(version, overlay_path, model_output)
+            finally:
+                overlay_path.unlink(missing_ok=True)
         _prepend_models_module_doc(model_output, version)
         typed_output = TYPED_ROOT / f"v{version_suffix}.py"
         typed_output.write_text(build_bindings(version, schema), encoding="utf-8")

@@ -71,10 +71,12 @@ necessário executar geração de código localmente.
 Módulos relevantes:
 
 - `netbox_sdk.models.v4_6`
+- `netbox_sdk.models.v4_7` (preview)
 - `netbox_sdk.models.v4_5`
 - `netbox_sdk.models.v4_4`
 - `netbox_sdk.models.v4_3`
 - `netbox_sdk.typed_versions.v4_6`
+- `netbox_sdk.typed_versions.v4_7` (preview)
 - `netbox_sdk.typed_versions.v4_5`
 - `netbox_sdk.typed_versions.v4_4`
 - `netbox_sdk.typed_versions.v4_3`
@@ -84,3 +86,34 @@ Módulos relevantes:
 - Use `NetBoxApiClient` para controle bruto de requisições
 - Use `api()` para a fachada assíncrona ergonômica
 - Use `typed_api()` para E/S validada por Pydantic versionada
+
+### NetBox 4.7 (preview) — mapeamentos de porta de serviços
+
+O NetBox 4.7 adiciona `port_mappings`, permitindo que um serviço exponha vários
+protocolos ao mesmo tempo (DNS em `tcp/53` e `udp/53`). O par legado
+`protocol` + `ports` continua válido na escrita: o serializer compartilhado do
+upstream documenta que *"either format is accepted"*, traduzindo o par legado
+para `port_mappings` quando `port_mappings` não é informado. Informar ambos só é
+aceito quando concordam; um conflito real é rejeitado como ambíguo.
+
+```python
+# Ainda aceito no 4.7 — traduzido no servidor para port_mappings
+api.ipam.services.create({"name": "ssh", "protocol": "tcp", "ports": [22], ...})
+
+# Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos
+api.ipam.services.create({"name": "dns", "port_mappings": ["tcp/53", "udp/53"], ...})
+```
+
+Na leitura, um serviço de protocolo único reporta `port_mappings` **e** os campos
+legados `protocol`/`ports`; um serviço multiprotocolo reporta `null` para ambos,
+pois não pode ser expresso no formato antigo.
+
+> **Nota de geração.** O `drf-spectacular` omite `protocol` do bloco
+> `properties` dos modelos *graváveis* de serviço, embora o contrato de escrita
+> documentado o aceite. O `netbox-sdk` o restaura com um overlay determinístico
+> de geração (`scripts/generate_typed_sdk.py::apply_write_compat_overlay`)
+> aplicado apenas em memória — o bundle OpenAPI versionado permanece fiel byte a
+> byte ao artefato upstream fixado. Sem ele, um PATCH de
+> `{"protocol": "udp", "ports": [53]}` seria enviado como `{"ports": [53]}` e o
+> NetBox repreencheria o protocolo armazenado, ignorando silenciosamente a
+> alteração.

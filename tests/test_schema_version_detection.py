@@ -57,7 +57,7 @@ def test_netbox_version_help_uses_the_shared_registry_description() -> None:
     normalized_output = " ".join(plain_output.replace("│", " ").split())
 
     assert result.exit_code == 0
-    assert "4.3, 4.4, 4.5, 4.6" in normalized_output
+    assert "4.3, 4.4, 4.5, 4.6, 4.7 (preview)" in normalized_output
 
 
 class _FakeClient:

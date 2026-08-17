@@ -100,6 +100,65 @@ def test_v46_typed_regeneration_matches_committed_artifact(tmp_path) -> None:
     assert output_path.read_bytes() == committed.read_bytes()
 
 
+def test_v47_artifact_provenance_is_current() -> None:
+    provenance_path = (
+        ROOT / "netbox_sdk" / "reference" / "openapi" / "netbox-openapi-4.7.provenance.json"
+    )
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    schema = json.loads(
+        (ROOT / "netbox_sdk" / "reference" / "openapi" / "netbox-openapi-4.7.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert provenance["netbox_release"] == "v4.7.0-beta1"
+    assert provenance["release_commit"] == "9c163ba2ddfdeafa4bca5c5ca493e70e96ab53f4"
+    assert provenance["source_blob_sha"] == "ab84349e95a8ba47fbba9632ab2ec32e1637bd90"
+    assert (
+        provenance["source_sha256"]
+        == "3fdbbc6170fca77c2e5dcd06b85bfaeb90637079b3fde2b8daeefa7846170762"
+    )
+    assert provenance["generator"] == {
+        "name": "datamodel-code-generator",
+        "version": DATAMODEL_CODE_GENERATOR_VERSION,
+        "timestamp_disabled": True,
+    }
+    assert provenance["formatter"] == {"name": "ruff", "version": RUFF_VERSION}
+    assert schema["info"]["version"] == "4.7.0-beta1"
+    assert len(schema["paths"]) == 322
+    assert len(schema["components"]["schemas"]) == 1101
+    # 4.7 introduces cooling infrastructure and module bay types alongside the
+    # 4.6 surface; assert one of each so a silently truncated bundle is caught.
+    assert "/api/dcim/cooling-sources/" in schema["paths"]
+    assert "/api/dcim/module-bay-types/" in schema["paths"]
+    assert "/api/extras/scripts/upload/{id}/" in schema["paths"]
+
+    artifact_paths = {
+        "netbox-openapi-4.7.json": ROOT
+        / "netbox_sdk"
+        / "reference"
+        / "openapi"
+        / "netbox-openapi-4.7.json",
+        "models/v4_7.py": ROOT / "netbox_sdk" / "models" / "v4_7.py",
+        "typed_versions/v4_7.py": ROOT / "netbox_sdk" / "typed_versions" / "v4_7.py",
+    }
+    for name, path in artifact_paths.items():
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        assert digest == provenance["artifacts"][name]
+
+
+def test_v47_typed_regeneration_matches_committed_artifact(tmp_path) -> None:
+    schema_path = ROOT / "netbox_sdk" / "reference" / "openapi" / "netbox-openapi-4.7.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    output_path = tmp_path / "v4_7.py"
+    output_path.write_text(build_bindings("4.7", schema), encoding="utf-8")
+
+    format_generated_artifacts([output_path])
+
+    committed = ROOT / "netbox_sdk" / "typed_versions" / "v4_7.py"
+    assert output_path.read_bytes() == committed.read_bytes()
+
+
 def test_release_source_validation_rejects_unpinned_input(tmp_path) -> None:
     source = tmp_path / "source.json"
     source.write_text("not the official schema", encoding="utf-8")

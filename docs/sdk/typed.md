@@ -72,10 +72,12 @@ need to run code generation locally.
 Relevant modules:
 
 - `netbox_sdk.models.v4_6`
+- `netbox_sdk.models.v4_7` (preview)
 - `netbox_sdk.models.v4_5`
 - `netbox_sdk.models.v4_4`
 - `netbox_sdk.models.v4_3`
 - `netbox_sdk.typed_versions.v4_6`
+- `netbox_sdk.typed_versions.v4_7` (preview)
 - `netbox_sdk.typed_versions.v4_5`
 - `netbox_sdk.typed_versions.v4_4`
 - `netbox_sdk.typed_versions.v4_3`
@@ -85,3 +87,33 @@ Relevant modules:
 - Use `NetBoxApiClient` for raw request control
 - Use `api()` for the async ergonomic facade
 - Use `typed_api()` for versioned Pydantic-validated I/O
+
+### NetBox 4.7 (preview) — service port mappings
+
+NetBox 4.7 adds `port_mappings`, letting a service expose several protocols at
+once (DNS on both `tcp/53` and `udp/53`). The legacy single-protocol
+`protocol` + `ports` pair still works on write: upstream's shared serializer
+documents that *"either format is accepted"*, translating the legacy pair into
+`port_mappings` when `port_mappings` is not supplied. Supplying both is accepted
+only when they agree; a genuine conflict is rejected as ambiguous.
+
+```python
+# Still accepted on 4.7 — translated server-side into port_mappings
+api.ipam.services.create({"name": "ssh", "protocol": "tcp", "ports": [22], ...})
+
+# 4.7-native, and the only way to express multiple protocols
+api.ipam.services.create({"name": "dns", "port_mappings": ["tcp/53", "udp/53"], ...})
+```
+
+On read, a single-protocol service reports `port_mappings` **and** the legacy
+`protocol`/`ports`; a multi-protocol service reports `null` for both, because it
+cannot be expressed in the old format.
+
+> **Generation note.** `drf-spectacular` omits `protocol` from the *writable*
+> service models' `properties` block even though the documented write contract
+> accepts it. `netbox-sdk` restores it with a deterministic generation overlay
+> (`scripts/generate_typed_sdk.py::apply_write_compat_overlay`) applied in memory
+> only — the committed OpenAPI bundle stays byte-faithful to the pinned upstream
+> artifact. Without it, a PATCH of `{"protocol": "udp", "ports": [53]}` would be
+> sent as `{"ports": [53]}` and NetBox would backfill the stored protocol,
+> silently ignoring the change.

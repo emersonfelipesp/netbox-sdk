@@ -80,7 +80,7 @@ netbox_sdk/
 ## Validation Expectations
 
 - `python -c 'import netbox_sdk'` must work without CLI or TUI extras.
-- `typed_api()` and bundled OpenAPI helpers currently support NetBox release lines `4.6`, `4.5`, `4.4`, and `4.3`; the registry-derived default is 4.6. CLI, TUI, and MCP consume the same `schema_resolution` policy and honor the same version pin.
+- `typed_api()` and bundled OpenAPI helpers currently support NetBox release lines `4.7` (preview), `4.6`, `4.5`, `4.4`, and `4.3`; the registry-derived default is 4.6, the newest **stable** line (`latest_stable_line()` skips preview lines, so registering 4.7 did not move it). CLI, TUI, and MCP consume the same `schema_resolution` policy and honor the same version pin.
 - SDK tests should import from `netbox_sdk`, not `sdk`.
 - Consult [`reference/PYNETBOX.md`](../reference/PYNETBOX.md) when comparing SDK ergonomics to historical NetBox Python client behavior or prior-art feature patterns.
 

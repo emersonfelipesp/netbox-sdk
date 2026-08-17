@@ -41,7 +41,7 @@ flowchart TB
     services["services.py\nresolve_dynamic_request()\nrun_dynamic_command()"]
     facade["facade.py\nApi → App → Endpoint\n→ Record / RecordSet"]
     typed["typed_api.py\ntyped_api()\nClientes tipados por versão"]
-    models["models/\nModelos Pydantic gerados\nv4_3 · v4_4 · v4_5 · v4_6"]
+    models["models/\nModelos Pydantic gerados\nv4_3 · v4_4 · v4_5 · v4_6 · v4_7"]
     bridge["plugin_bridge.py\nManifestos versionados de plugins\nschema + caminho estritos"]
 
     config --> client
@@ -69,7 +69,7 @@ flowchart TB
 | `plugin_bridge.py` | Descobre manifestos semânticos versionados, valida contratos e payloads hostis e resolve destinos fixos locais ao plugin |
 | `facade.py` | `api()` — fachada async estilo PyNetBox: `Api → App → Endpoint → Record/RecordSet` |
 | `typed_api.py` | `typed_api()` — clientes tipados por versão com modelos Pydantic de request/response |
-| `models/` | Modelos Pydantic gerados para NetBox 4.3, 4.4, 4.5 e 4.6 |
+| `models/` | Modelos Pydantic gerados para NetBox 4.3, 4.4, 4.5, 4.6 e 4.7 (preview) |
 
 ---
 
@@ -99,9 +99,9 @@ flowchart TB
       versioning.py
       exceptions.py
       models/
-        v4_3.py · v4_4.py · v4_5.py · v4_6.py
+        v4_3.py · v4_4.py · v4_5.py · v4_6.py · v4_7.py
       typed_versions/
-        v4_3.py · v4_4.py · v4_5.py · v4_6.py
+        v4_3.py · v4_4.py · v4_5.py · v4_6.py · v4_7.py
       django_models/
       reference/openapi/
         netbox-openapi.json (alias legado)
@@ -109,6 +109,7 @@ flowchart TB
         netbox-openapi-4.4.json
         netbox-openapi-4.5.json
         netbox-openapi-4.6.json (padrão)
+        netbox-openapi-4.7.json (preview)
 
     netbox_cli/
       __init__.py

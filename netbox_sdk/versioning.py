@@ -7,7 +7,7 @@ from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict
 
-SupportedNetBoxVersion = Literal["4.6", "4.5", "4.4", "4.3"]
+SupportedNetBoxVersion = Literal["4.7", "4.6", "4.5", "4.4", "4.3"]
 
 
 class ReleaseLine(BaseModel):
@@ -28,6 +28,17 @@ class ReleaseLine(BaseModel):
 
 
 _RELEASE_LINE_REGISTRY: dict[SupportedNetBoxVersion, ReleaseLine] = {
+    # 4.7 is bundled from a pre-release upstream artifact (v4.7.0-beta1), so it
+    # is registered as "preview": selectable by explicit pin or live detection,
+    # but never the default. ``latest_stable_line()`` skips it, which is why
+    # DEFAULT_NETBOX_VERSION stays 4.6.
+    "4.7": ReleaseLine(
+        line="4.7",
+        status="preview",
+        openapi_asset="netbox-openapi-4.7.json",
+        models_module="netbox_sdk.models.v4_7",
+        typed_module="netbox_sdk.typed_versions.v4_7",
+    ),
     "4.6": ReleaseLine(
         line="4.6",
         status="stable",
