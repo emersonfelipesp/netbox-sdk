@@ -109,6 +109,7 @@ flowchart TB
         netbox-openapi-4.4.json
         netbox-openapi-4.5.json
         netbox-openapi-4.6.json (default)
+        netbox-openapi-4.7.json (preview)
 
     netbox_cli/
       __init__.py

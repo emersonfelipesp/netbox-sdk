@@ -16,10 +16,19 @@ if TYPE_CHECKING:
     from netbox_sdk.typed_versions.v4_4 import TypedApiV4_4
     from netbox_sdk.typed_versions.v4_5 import TypedApiV4_5
     from netbox_sdk.typed_versions.v4_6 import TypedApiV4_6
+    from netbox_sdk.typed_versions.v4_7 import TypedApiV4_7
 
-    TypedApiClient: TypeAlias = TypedApiV4_3 | TypedApiV4_4 | TypedApiV4_5 | TypedApiV4_6
+    TypedApiClient: TypeAlias = (
+        TypedApiV4_3 | TypedApiV4_4 | TypedApiV4_5 | TypedApiV4_6 | TypedApiV4_7
+    )
 else:
     TypedApiClient = object
+
+
+@overload
+def typed_api(
+    url: str, token: str | None = None, *, netbox_version: Literal["4.7"]
+) -> TypedApiV4_7: ...
 
 
 @overload

@@ -17,6 +17,7 @@ This directory contains reference material packaged with or directly relevant to
 |---|---|
 | `openapi/netbox-openapi.json` | Legacy compatibility alias; do not treat as the active default |
 | `openapi/netbox-openapi-4.6.json` | Bundled NetBox 4.6 release-line schema and default for `load_openapi_schema()` |
+| `openapi/netbox-openapi-4.7.json` | Bundled NetBox 4.7 preview release-line schema (upstream `v4.7.0-beta1`); opt-in, never the default |
 | `openapi/netbox-openapi-4.6.provenance.json` | Immutable source and generator provenance for the NetBox 4.6 artifacts |
 | `openapi/netbox-openapi-4.5.json` | Bundled NetBox 4.5 release-line schema |
 | `openapi/netbox-openapi-4.4.json` | Bundled NetBox 4.4 release-line schema |

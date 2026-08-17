@@ -24,6 +24,14 @@ DATAMODEL_CODE_GENERATOR_VERSION = "0.55.0"
 RUFF_VERSION = "0.15.9"
 
 RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
+    "4.7": {
+        "netbox_release": "v4.7.0-beta1",
+        "release_commit": "9c163ba2ddfdeafa4bca5c5ca493e70e96ab53f4",
+        "source_path": "contrib/openapi.json",
+        "source_blob_sha": "ab84349e95a8ba47fbba9632ab2ec32e1637bd90",
+        "source_sha256": "3fdbbc6170fca77c2e5dcd06b85bfaeb90637079b3fde2b8daeefa7846170762",
+        "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0-beta1/contrib/openapi.json",
+    },
     "4.6": {
         "netbox_release": "v4.6.6",
         "release_commit": "fb8c455ba61b57119a70670612dfdd05e8438b10",
@@ -31,10 +39,11 @@ RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
         "source_blob_sha": "024d34500a04ec876fb3b32fa18c685e953a02f8",
         "source_sha256": "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e",
         "source_url": "https://github.com/netbox-community/netbox/blob/v4.6.6/contrib/openapi.json",
-    }
+    },
 }
 
 SCHEMA_SOURCES = {
+    "4.7": Path("/tmp/netbox-v4.7.0-beta1-openapi.json"),
     "4.6": Path("/tmp/netbox-v4.6-openapi.json"),
     "4.5": Path("/tmp/netbox-v4.5.5/contrib/openapi.json"),
     "4.4": Path("/tmp/netbox-v4.4.10/contrib/openapi.json"),

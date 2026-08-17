@@ -192,6 +192,7 @@ Esquemas OpenAPI versionados são fornecidos com o pacote em `netbox_sdk/referen
 | Arquivo | Versão do NetBox |
 |---|---|
 | `netbox-openapi.json` | Alias legado de compatibilidade |
+| `netbox-openapi-4.7.json` | NetBox 4.7 (preview) |
 | `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |

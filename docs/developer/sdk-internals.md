@@ -204,6 +204,7 @@ Versioned OpenAPI schemas ship with the package under `netbox_sdk/reference/open
 | File | NetBox Version |
 |---|---|
 | `netbox-openapi.json` | Legacy compatibility alias |
+| `netbox-openapi-4.7.json` | NetBox 4.7 (preview) |
 | `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |
