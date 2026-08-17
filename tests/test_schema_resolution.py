@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -414,6 +415,25 @@ async def test_status_probe_is_best_effort_and_falls_back_to_get_version(
     assert client.status_calls == 1
     assert client.version_calls == 1
     assert bundled_loader == ["4.5"]
+
+
+async def test_status_probe_does_not_swallow_cancellation(bundled_loader: list[str]) -> None:
+    """Best-effort must not mean "eats cancellation".
+
+    ``_version_from_status`` catches ``Exception`` so a broken status endpoint
+    degrades gracefully. ``asyncio.CancelledError`` derives from
+    ``BaseException``, so it must still propagate — swallowing it would turn a
+    cancelled request into a silently completed one that resolves an index
+    nobody is waiting for.
+    """
+    client = _FakeClient("4.5.10", status_error=asyncio.CancelledError())
+
+    with pytest.raises(asyncio.CancelledError):
+        await schema_resolution.resolve_index(client)
+
+    assert client.status_calls == 1
+    assert client.version_calls == 0
+    assert bundled_loader == []
 
 
 async def test_status_document_is_preferred_when_usable(bundled_loader: list[str]) -> None:
