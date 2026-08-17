@@ -3045,6 +3045,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#release-registry-and-shared-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Registry and Shared Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3733,6 +3744,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#release-registry-and-shared-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Registry and Shared Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4303,6 +4325,26 @@
 </tr>
 </tbody>
 </table>
+<h3 id="release-registry-and-shared-resolution">Release Registry and Shared Resolution<a class="headerlink" href="#release-registry-and-shared-resolution" title="Permanent link">&para;</a></h3>
+<p><code>netbox_sdk/versioning.py</code> is the single owner of release-line metadata. Each
+frozen <code>ReleaseLine</code> record binds a line to its lifecycle status, bundled
+OpenAPI filename, generated-model module, and typed-client module. Existing
+constants such as <code>SUPPORTED_NETBOX_VERSIONS</code> and <code>DEFAULT_NETBOX_VERSION</code> are
+views over this registry; the default is the value returned by
+<code>latest_stable_line()</code>.</p>
+<p><code>netbox_sdk/schema_resolution.py</code> is the single selection policy used by the
+SDK, CLI, TUI, and MCP surfaces. <code>requested_netbox_version()</code> reads CLI aliases
+before the supported environment variables. <code>resolve_index()</code> then applies one
+precedence ladder:</p>
+<ol>
+<li>An explicit argument or CLI/environment pin selects that bundled line.</li>
+<li>A connected supported instance selects its matching bundled line.</li>
+<li>A connected unsupported instance supplies <code>/api/schema/</code> dynamically.</li>
+<li>Detection, fetch, or document failures use the default bundled line.</li>
+</ol>
+<p><code>bundled_index()</code> caches the parsed base index per process, but every call
+returns <code>SchemaIndex.clone()</code>. Runtime plugin discoveries therefore remain
+local to one CLI, TUI, facade, or MCP session.</p>
 <hr />
 <h2 id="facade-object-hierarchy">Facade Object Hierarchy<a class="headerlink" href="#facade-object-hierarchy" title="Permanent link">&para;</a></h2>
 <p><code>netbox_sdk/facade.py</code> provides a PyNetBox-compatible async API. The <code>api()</code> factory builds the root <code>Api</code> object; subsequent attribute accesses create <code>App</code> → <code>Endpoint</code> → <code>Record</code> / <code>RecordSet</code> objects.</p>
@@ -4396,10 +4438,9 @@
 <h3 id="version-selection">Version Selection<a class="headerlink" href="#version-selection" title="Permanent link">&para;</a></h3>
 <p>The <code>netbox_version</code> argument maps to a dynamically imported module:</p>
 <div class="language-python highlight"><span class="filename">netbox_sdk/typed_api.py (simplified)</span><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">typed_api</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">netbox_version</span><span class="p">):</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_netbox_version</span><span class="p">(</span><span class="n">netbox_version</span><span class="p">)</span>  <span class="c1"># &quot;4.6&quot; / &quot;4.5&quot; / &quot;4.4&quot; / &quot;4.3&quot;</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">suffix</span> <span class="o">=</span> <span class="n">version_module_suffix</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>             <span class="c1"># &quot;v4_6&quot; / &quot;v4_5&quot; / &quot;v4_4&quot; / &quot;v4_3&quot;</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;netbox_sdk.typed_versions.</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="k">return</span> <span class="n">module</span><span class="o">.</span><span class="n">build_typed_api</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_netbox_version</span><span class="p">(</span><span class="n">netbox_version</span><span class="p">)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">release_line</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span><span class="o">.</span><span class="n">typed_module</span><span class="p">)</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="k">return</span> <span class="n">module</span><span class="o">.</span><span class="n">build_api</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Overloaded return types provide IDE completion per version:</p>
 <div class="language-python highlight"><span class="filename">netbox_sdk/typed_api.py</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nd">@overload</span>

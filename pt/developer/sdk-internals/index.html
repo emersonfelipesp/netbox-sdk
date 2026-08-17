@@ -3034,6 +3034,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#registro-de-releases-e-resolucao-compartilhada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registro de releases e resolução compartilhada
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3672,6 +3683,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#registro-de-releases-e-resolucao-compartilhada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registro de releases e resolução compartilhada
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4194,6 +4216,26 @@
 </tr>
 </tbody>
 </table>
+<h3 id="registro-de-releases-e-resolucao-compartilhada">Registro de releases e resolução compartilhada<a class="headerlink" href="#registro-de-releases-e-resolucao-compartilhada" title="Permanent link">&para;</a></h3>
+<p><code>netbox_sdk/versioning.py</code> é o único proprietário dos metadados das linhas de
+release. Cada registro congelado <code>ReleaseLine</code> vincula uma linha ao status do
+ciclo de vida, arquivo OpenAPI embutido, módulo de modelos gerados e módulo do
+cliente tipado. Constantes existentes como <code>SUPPORTED_NETBOX_VERSIONS</code> e
+<code>DEFAULT_NETBOX_VERSION</code> são visões desse registro; o padrão é retornado por
+<code>latest_stable_line()</code>.</p>
+<p><code>netbox_sdk/schema_resolution.py</code> contém a única política de seleção usada por
+SDK, CLI, TUI e MCP. <code>requested_netbox_version()</code> lê primeiro os aliases da CLI
+e depois as variáveis de ambiente suportadas. <code>resolve_index()</code> aplica uma
+única ordem de precedência:</p>
+<ol>
+<li>Um argumento explícito ou pin da CLI/ambiente seleciona a linha embutida.</li>
+<li>Uma instância conectada e suportada seleciona o bundle correspondente.</li>
+<li>Uma instância conectada e não suportada fornece <code>/api/schema/</code> dinamicamente.</li>
+<li>Falhas de detecção, busca ou documento usam a linha embutida padrão.</li>
+</ol>
+<p><code>bundled_index()</code> mantém em cache o índice-base analisado por processo, mas
+cada chamada retorna <code>SchemaIndex.clone()</code>. Descobertas de plugins em runtime
+permanecem, assim, locais a uma sessão de CLI, TUI, fachada ou MCP.</p>
 <hr />
 <h2 id="hierarquia-de-objetos-da-fachada">Hierarquia de objetos da fachada<a class="headerlink" href="#hierarquia-de-objetos-da-fachada" title="Permanent link">&para;</a></h2>
 <p><code>netbox_sdk/facade.py</code> fornece uma API async compatível com PyNetBox. A função <code>api()</code> constrói o objeto <code>Api</code> raiz; acessos de atributo subsequentes criam <code>App</code> → <code>Endpoint</code> → <code>Record</code> / <code>RecordSet</code>.</p>
