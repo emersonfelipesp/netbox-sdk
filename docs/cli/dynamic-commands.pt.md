@@ -67,7 +67,7 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 
 | Flag | Descrição |
 |------|-------------|
-| `--netbox-version` / `--api-version` | Opção global para forçar uma linha de esquema integrada suportada (`4.3` até `4.6`) |
+| `--netbox-version` / `--api-version` | Opção global para forçar uma linha de esquema integrada suportada (`4.3`, `4.4`, `4.5`, `4.6`, `4.7` preview) |
 | `--id INTEGER` | ID do objeto para operações de detalhe (`get`, `update`, `patch`, `delete`) |
 | `-q` / `--query KEY=VALUE` | Filtro de query string (repetível) |
 | `-H` / `--header HEADER=VALUE` | Cabeçalho HTTP da requisição; `Header: Value` também é aceito (repetível) |

@@ -71,10 +71,12 @@ necessário executar geração de código localmente.
 Módulos relevantes:
 
 - `netbox_sdk.models.v4_6`
+- `netbox_sdk.models.v4_7` (preview)
 - `netbox_sdk.models.v4_5`
 - `netbox_sdk.models.v4_4`
 - `netbox_sdk.models.v4_3`
 - `netbox_sdk.typed_versions.v4_6`
+- `netbox_sdk.typed_versions.v4_7` (preview)
 - `netbox_sdk.typed_versions.v4_5`
 - `netbox_sdk.typed_versions.v4_4`
 - `netbox_sdk.typed_versions.v4_3`
