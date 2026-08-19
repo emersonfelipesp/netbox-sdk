@@ -3964,10 +3964,15 @@ of retrying indefinitely.</p>
 </span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
 </span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Preview a delete operation</span>
 </span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>delete<span class="w"> </span>--dry-run<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Preview an explicit plugin request when the route is not in the bundled schema</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/plugins/custom/widgets/<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;widget-a&quot;}&#39;</span>
 </span></code></pre></div>
-<p>Output shows the HTTP method, path, and request body in a formatted table. The
-<code>--dry-run</code> flag is only valid for actions that resolve to <code>POST</code>, <code>PUT</code>,
-<code>PATCH</code>, or <code>DELETE</code> (including the named CRUD/bulk actions).</p>
+<p>Output shows the HTTP method, path, and request body in a formatted table. Raw
+<code>nbx call</code> previews also show parsed query parameters and non-sensitive headers.
+The <code>--dry-run</code> flag is only valid for actions that resolve to <code>POST</code>, <code>PUT</code>,
+<code>PATCH</code>, or <code>DELETE</code> (including the named CRUD/bulk actions and write-method
+<code>nbx call</code> requests).</p>
 <p>Live writes are refused by the executing CLI unless the command includes
 <code>--confirm</code> or the process environment contains
 <code>NETBOX_SDK_CONFIRM_WRITE=1</code>. This gate applies to every dynamic action that

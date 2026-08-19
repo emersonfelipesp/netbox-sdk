@@ -5300,7 +5300,7 @@
 <p><strong>Entrada:</strong></p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>nbx<span class="w"> </span>call<span class="w"> </span>--help
 </span></code></pre></div>
-<p><strong>Código de saída:</strong> <code>0</code>  ·  <strong>Tempo de parede (s):</strong> <code>4.014</code></p>
+<p><strong>Código de saída:</strong> <code>0</code>  ·  <strong>Tempo de parede (s):</strong> <code>6.869</code></p>
 <p><strong>Saída:</strong></p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a> Usage: nbx call [OPTIONS] METHOD PATH                                          
 </span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>
@@ -5312,14 +5312,19 @@
 </span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>╰──────────────────────────────────────────────────────────────────────────────╯
 </span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>╭─ Options ────────────────────────────────────────────────────────────────────╮
 </span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>│ --query      -q      TEXT  Query parameter key=value                         │
-</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>│ --body-json          TEXT  Inline JSON request body                          │
-</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>│ --body-file          TEXT  Path to JSON request body file                    │
-</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>│ --json                     Output raw JSON                                   │
-</span><span id="__span-29-14"><a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>│ --yaml                     Output YAML                                       │
-</span><span id="__span-29-15"><a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>│ --markdown                 Output Markdown (mutually exclusive with          │
-</span><span id="__span-29-16"><a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a>│                            --json/--yaml)                                    │
-</span><span id="__span-29-17"><a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>│ --help                     Show this message and exit.                       │
-</span><span id="__span-29-18"><a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a>╰──────────────────────────────────────────────────────────────────────────────╯
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a>│ --header     -H      TEXT  HTTP header as Header=Value or &#39;Header: Value&#39;    │
+</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a>│                            (repeatable)                                      │
+</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>│ --body-json          TEXT  Inline JSON request body                          │
+</span><span id="__span-29-14"><a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>│ --body-file          TEXT  Path to JSON request body file                    │
+</span><span id="__span-29-15"><a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>│ --json                     Output raw JSON                                   │
+</span><span id="__span-29-16"><a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a>│ --yaml                     Output YAML                                       │
+</span><span id="__span-29-17"><a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a>│ --markdown                 Output Markdown (mutually exclusive with          │
+</span><span id="__span-29-18"><a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a>│                            --json/--yaml)                                    │
+</span><span id="__span-29-19"><a id="__codelineno-29-19" name="__codelineno-29-19" href="#__codelineno-29-19"></a>│ --confirm                  Confirm execution when METHOD can modify NetBox.  │
+</span><span id="__span-29-20"><a id="__codelineno-29-20" name="__codelineno-29-20" href="#__codelineno-29-20"></a>│ --dry-run                  Preview a write request without constructing a    │
+</span><span id="__span-29-21"><a id="__codelineno-29-21" name="__codelineno-29-21" href="#__codelineno-29-21"></a>│                            client or executing it.                           │
+</span><span id="__span-29-22"><a id="__codelineno-29-22" name="__codelineno-29-22" href="#__codelineno-29-22"></a>│ --help                     Show this message and exit.                       │
+</span><span id="__span-29-23"><a id="__codelineno-29-23" name="__codelineno-29-23" href="#__codelineno-29-23"></a>╰──────────────────────────────────────────────────────────────────────────────╯
 </span></code></pre></div>
 <hr />
 <h3 id="dynamic-commands">Dynamic Commands<a class="headerlink" href="#dynamic-commands" title="Permanent link">&para;</a></h3>

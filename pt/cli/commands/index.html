@@ -3851,8 +3851,9 @@ usado pelo <code>nbx dev django-model</code>.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/status/
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--json
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>nbx<span class="w"> </span>call<span class="w"> </span>GET<span class="w"> </span>/api/dcim/sites/<span class="w"> </span>--markdown
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span><span class="w"> </span>--confirm
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>nbx<span class="w"> </span>call<span class="w"> </span>PUT<span class="w"> </span>/api/dcim/devices/1/<span class="w"> </span>--body-file<span class="w"> </span>./device.json<span class="w"> </span>--confirm
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span><span class="w"> </span>--dry-run
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/ipam/ip-addresses/<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;address&quot;:&quot;192.0.2.1/24&quot;,&quot;status&quot;:&quot;active&quot;}&#39;</span><span class="w"> </span>--confirm
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>nbx<span class="w"> </span>call<span class="w"> </span>PUT<span class="w"> </span>/api/dcim/devices/1/<span class="w"> </span>--body-file<span class="w"> </span>./device.json<span class="w"> </span>--confirm
 </span></code></pre></div>
 <p><strong>Opções</strong></p>
 <table>
@@ -3866,6 +3867,10 @@ usado pelo <code>nbx dev django-model</code>.</p>
 <tr>
 <td><code>-q</code> / <code>--query KEY=VALUE</code></td>
 <td>Parâmetro de query string (repetível)</td>
+</tr>
+<tr>
+<td><code>-H</code> / <code>--header KEY=VALUE</code></td>
+<td>Cabeçalho da requisição (repetível)</td>
 </tr>
 <tr>
 <td><code>--body-json TEXT</code></td>
@@ -3888,17 +3893,30 @@ usado pelo <code>nbx dev django-model</code>.</p>
 <td>Respostas da API como Markdown com tabelas primeiro</td>
 </tr>
 <tr>
+<td><code>--dry-run</code></td>
+<td>Pré-visualiza <code>POST</code>, <code>PUT</code>, <code>PATCH</code> ou <code>DELETE</code> sem criar cliente nem enviar a requisição</td>
+</tr>
+<tr>
 <td><code>--confirm</code></td>
 <td>Confirma uma requisição <code>POST</code>, <code>PUT</code>, <code>PATCH</code> ou <code>DELETE</code></td>
 </tr>
 </tbody>
 </table>
 <p><code>--json</code>, <code>--yaml</code> e <code>--markdown</code> são mutuamente exclusivos.
+<code>--dry-run</code> mostra localmente método e caminho normalizados, além de query,
+cabeçalhos e corpo JSON analisados. Campos com formato de credencial em query,
+cabeçalhos e corpo são ocultados recursivamente, inclusive nomes com
+delimitadores, camel/acrônimos e maiúsculas compactas como <code>X-API-Key</code>,
+<code>clientAPIKey</code>, <code>XAPIKEY</code> e <code>ssh_private_key</code>; objetos e arrays vazios
+explícitos continuam visíveis como <code>{}</code> e <code>[]</code>, em vez de serem confundidos
+com corpo ausente. A opção é recusada para métodos de leitura e não pode ser
+combinada com <code>--confirm</code>.
 Métodos de escrita são recusados sem <code>--confirm</code> ou
 <code>NETBOX_SDK_CONFIRM_WRITE=1</code> no ambiente do processo <code>nbx</code>.
-Caminhos com separador codificado por porcentagem (<code>%2F</code> ou <code>%5C</code>, em qualquer
-combinação de maiúsculas/minúsculas) são rejeitados antes do cache ou da rede;
-passe valores de query por <code>-q</code> em vez de incorporá-los em <code>PATH</code>.</p>
+Caminhos com barra invertida literal ou separador codificado por porcentagem
+(<code>%2F</code> ou <code>%5C</code>, em qualquer combinação de maiúsculas/minúsculas) são rejeitados
+antes do cache ou da rede; passe valores de query por <code>-q</code> em vez de
+incorporá-los em <code>PATH</code>.</p>
 <hr />
 <h2 id="nbx-proxbox-resources"><code>nbx proxbox resources</code><a class="headerlink" href="#nbx-proxbox-resources" title="Permanent link">&para;</a></h2>
 <p>Lista o catálogo dedicado do <code>netbox-proxbox</code> como tabela Rich colorida ou

@@ -3964,10 +3964,15 @@ de repetir indefinidamente.</p>
 </span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
 </span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Pré-visualizar delete</span>
 </span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>devices<span class="w"> </span>delete<span class="w"> </span>--dry-run<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Pré-visualizar requisição explícita de plugin ausente do schema empacotado</span>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>nbx<span class="w"> </span>call<span class="w"> </span>POST<span class="w"> </span>/api/plugins/custom/widgets/<span class="w"> </span>--dry-run<span class="w"> </span>--body-json<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;widget-a&quot;}&#39;</span>
 </span></code></pre></div>
 <p>A saída mostra método HTTP, caminho e corpo da requisição em uma tabela
-formatada. A flag <code>--dry-run</code> só é válida para ações resolvidas como <code>POST</code>,
-<code>PUT</code>, <code>PATCH</code> ou <code>DELETE</code> (incluindo as ações CRUD/em lote nomeadas).</p>
+formatada. Pré-visualizações com <code>nbx call</code> também mostram parâmetros de query
+analisados e cabeçalhos não sensíveis. A flag <code>--dry-run</code> só é válida para
+ações resolvidas como <code>POST</code>, <code>PUT</code>, <code>PATCH</code> ou <code>DELETE</code> (incluindo as ações
+CRUD/em lote nomeadas e requisições <code>nbx call</code> com método de escrita).</p>
 <p>Escritas reais são recusadas pela própria CLI em execução, salvo quando o
 comando inclui <code>--confirm</code> ou o ambiente do processo contém
 <code>NETBOX_SDK_CONFIRM_WRITE=1</code>. O gate vale para toda ação dinâmica resolvida
