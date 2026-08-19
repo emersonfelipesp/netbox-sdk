@@ -6,6 +6,27 @@ and profile configuration used by the SDK and CLI. It does not generate one
 tool per OpenAPI operation, so its tool list stays stable when NetBox plugins
 change the reachable resources.
 
+## Which NetBox contract the server uses
+
+A server started **without** a version pin detects the connected instance's
+release line on its first tool call and uses that contract from then on. It is
+detected once per server, lazily, so the server still starts while NetBox is
+unreachable.
+
+Detection **fails closed**: if the instance cannot be reached, or answers
+`/api/schema/` with something that is not an OpenAPI document, the tool call
+fails. It never quietly answers from the default bundled contract, because a
+server that cannot describe the instance it is talking to should not pretend it
+can. A failed attempt is not cached, so a transient outage does not disable the
+server permanently.
+
+Passing `--netbox-version` (or constructing `NetBoxMCPService(pinned_line=...)`
+or `index=...`) makes that contract authoritative and skips detection entirely.
+
+`dry_run` previews stay local and construct no client, so they are rendered from
+the bundled contract and remain a *request preview* rather than server-side
+validation.
+
 ## Install and run
 
 ```bash

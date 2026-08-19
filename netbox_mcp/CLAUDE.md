@@ -50,6 +50,30 @@ OpenAPI operation.
   `resolve_index` with `fall_back_on_error` left off, so an unreachable or
   misbehaving instance surfaces the error instead of quietly serving the default
   bundled contract for a server it cannot actually describe.
+- **An unpinned server resolves the connected release line, once, lazily.**
+  `_dispatch_index()` is the single chokepoint for what contract a tool call
+  dispatches against:
+  - An injected `index=` or an explicit `pinned_line=` **is** the declared
+    contract and is returned unchanged — nothing is detected.
+  - Otherwise the connected instance's line is detected on **first dispatch**,
+    not in `__init__`, so a server is still constructible while NetBox is
+    unreachable, and the result is cached for the life of the service (an
+    `asyncio.Lock` with a re-check means concurrent first calls detect once, not
+    N times). This mirrors the CLI resolving once per invocation rather than per
+    command.
+  - It **fails closed**: `fall_back_on_error=False`, so a detection failure or a
+    non-OpenAPI document fails the tool call. A failed attempt is never cached,
+    so a transient outage does not poison the server for its lifetime.
+  - **Ordering with the mutation gate matters.** `_mutate` resolves the contract
+    *before* `_ensure_mutations_allowed()`, because a write dispatched against a
+    mis-detected contract is the worst outcome available.
+  - **`dry_run` stays client-free** and previews from the declared/bundled
+    contract. Acquiring a connection just to render a local preview would defeat
+    the point of the preview; this is documented as a local request preview, not
+    server-side validation.
+  - `filters` remains local-only and bundled-contract by design: it takes no
+    token, so it has nothing to authenticate a live resolution with, and #44
+    specifies it as a no-HTTP tool.
 
 ## Module Map
 
