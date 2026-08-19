@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from types import GenericAlias
 from typing import Any
 
-from pydantic import BaseModel, TypeAdapter, ValidationError
+from pydantic import BaseModel, ConfigDict, TypeAdapter, ValidationError
 
 from netbox_sdk.client import ApiResponse, NetBoxApiClient
 from netbox_sdk.config import Config
@@ -225,6 +225,69 @@ def validate_multipart_payload(
     return dumped
 
 
+class BackgroundJobHandle(BaseModel):
+    """The job NetBox created for a backgrounded bulk operation."""
+
+    model_config = ConfigDict(extra="allow")
+
+    id: int | None = None
+    url: str | None = None
+    status: str | None = None
+
+
+class BackgroundJobReference(BaseModel):
+    """The ``202`` body NetBox returns for ``?background=true`` bulk writes."""
+
+    model_config = ConfigDict(extra="allow")
+
+    job: BackgroundJobHandle
+
+
+def _background_requested(query: Any) -> bool:
+    """True when the validated query asked for background execution.
+
+    The *request* is the oracle, not the response status. The status is not
+    plumbed through the typed request path, and asking the request keeps this
+    deterministic and symmetric with :func:`response_model_for_payload`, which
+    already selects on request shape.
+    """
+    if query is None:
+        return False
+    if isinstance(query, dict):
+        value = query.get("background")
+    else:
+        value = getattr(query, "background", None)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(value)
+
+
+def response_model_for_request(
+    model_type: type[Any] | None,
+    payload: Any,
+    query: Any = None,
+) -> Any:
+    """Select the response model from the request that produced it.
+
+    Two independent variations of the same collection-path write are resolved
+    here rather than in every generated binding:
+
+    * ``?background=true`` (NetBox 4.7) answers ``202`` with a job reference
+      instead of the committed objects, so the declared synchronous model would
+      reject a perfectly good response;
+    * a list body commits a batch and returns a list (see
+      :func:`response_model_for_payload`).
+
+    Background wins, because it changes the response into something that is not
+    the resource at all -- for either body shape.
+    """
+    if model_type is None:
+        return None
+    if _background_requested(query):
+        return BackgroundJobReference
+    return response_model_for_payload(model_type, payload)
+
+
 def response_model_for_payload(model_type: type[Any] | None, payload: Any) -> Any:
     """Return the response model matching the shape of the request payload.
 
@@ -329,7 +392,7 @@ class TypedOperationMixin:
         if payload is None:
             return None
         return validate_response(
-            response_model_for_payload(response_model, request_payload),
+            response_model_for_request(response_model, request_payload, request_query),
             payload,
             method=method,
             path=path,

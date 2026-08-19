@@ -17,6 +17,6 @@
   "artifacts": {
     "netbox-openapi-4.7.json": "e10717a64ec3407a7b8efe239ef7496c60cf8a68fc55f981779a01684c969d63",
     "models/v4_7.py": "77418f976459bed5ded5228000312a5185638c86487a60fed55ec65f475f7ff0",
-    "typed_versions/v4_7.py": "e06d58278eadca5e2134c0d5cbe43a9ba461011bcb8c9eb084c3eab6f4e8f48b"
+    "typed_versions/v4_7.py": "3de5f7fa68b42cf4e0a7f011d97cd53bf003818200390a7cd7ae59f0b710e757"
   }
 }

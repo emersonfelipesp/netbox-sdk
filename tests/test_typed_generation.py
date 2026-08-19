@@ -10,6 +10,7 @@ from scripts.generate_typed_sdk import (
     DATAMODEL_CODE_GENERATOR_VERSION,
     RELEASE_PROVENANCE,
     RUFF_VERSION,
+    apply_background_bulk_overlay,
     build_bindings,
     format_generated_artifacts,
     generate_models,
@@ -151,7 +152,13 @@ def test_v47_typed_regeneration_matches_committed_artifact(tmp_path) -> None:
     schema_path = ROOT / "netbox_sdk" / "reference" / "openapi" / "netbox-openapi-4.7.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     output_path = tmp_path / "v4_7.py"
-    output_path.write_text(build_bindings("4.7", schema), encoding="utf-8")
+    # Mirror the generator exactly: bindings are built from the background-overlaid
+    # schema. Regenerating without the overlay would compare the committed artifact
+    # against a document the generator never uses, so this guard would fail for a
+    # reason unrelated to drift.
+    output_path.write_text(
+        build_bindings("4.7", apply_background_bulk_overlay("4.7", schema)), encoding="utf-8"
+    )
 
     format_generated_artifacts([output_path])
 
