@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import inspect
 import json
 import os
@@ -103,7 +104,13 @@ class NetBoxMCPService:
         self._pinned_line = (
             normalize_netbox_version(pinned_line) if pinned_line is not None else None
         )
+        # An injected index or an explicit pin IS the declared contract; nothing
+        # is detected in either case. Only an unpinned server has to ask the
+        # instance which contract it actually speaks.
+        self._contract_is_explicit = index is not None or self._pinned_line is not None
         self.index = index if index is not None else bundled_index(self._pinned_line)
+        self._connected_index: SchemaIndex | None = None
+        self._connected_lock = asyncio.Lock()
         self._client_factory = client_factory
         self._config_loader = config_loader
         self.allow_mutations = (
@@ -142,8 +149,43 @@ class NetBoxMCPService:
         finally:
             await self._close_client(client)
 
+    async def _dispatch_index(self, token: str | None) -> SchemaIndex:
+        """Return the contract this server should dispatch against.
+
+        An injected index or an explicit ``pinned_line`` is authoritative and is
+        returned as-is. Otherwise the connected instance's release line is
+        resolved **once per service instance**, lazily on first dispatch —
+        mirroring how the CLI resolves once per invocation rather than per
+        command, and keeping construction free of network I/O so a server can
+        still be built while NetBox is unreachable.
+
+        This fails closed. ``resolve_index`` is called with
+        ``fall_back_on_error=False``, so a detection failure or a non-OpenAPI
+        document propagates and fails the tool call. Quietly answering from the
+        default bundle would let this server speak for an instance it could not
+        actually describe — which is the whole defect being fixed here.
+        """
+        if self._contract_is_explicit:
+            return self.index
+        if self._connected_index is not None:
+            return self._connected_index
+        async with self._connected_lock:
+            # Re-check: concurrent first calls queue here, and only the first
+            # should pay for detection.
+            if self._connected_index is None:
+                client = self._make_client(token)
+                try:
+                    self._connected_index = await resolve_index(
+                        client,
+                        prefer_live=True,
+                        fall_back_on_error=False,
+                    )
+                finally:
+                    await self._close_client(client)
+        return self._connected_index
+
     async def _selected_index(self, *, live: bool, token: str | None) -> SchemaIndex:
-        return await self._live_index(token) if live else self.index
+        return await self._live_index(token) if live else await self._dispatch_index(token)
 
     def _ensure_resource(self, index: SchemaIndex, group: str, resource: str) -> None:
         if index.resource_paths(group, resource) is None:
@@ -339,8 +381,27 @@ class NetBoxMCPService:
         header: StringList,
         token: str | None,
     ) -> dict[str, Any]:
+        if dry_run:
+            # A preview must not acquire a connection. It is rendered from the
+            # declared/bundled contract deliberately, and is documented as a
+            # local request preview rather than server-side validation.
+            return self._dry_run(
+                resolve_dynamic_request(
+                    self.index,
+                    group,
+                    resource,
+                    action,
+                    object_id=object_id,
+                    query={},
+                    payload=payload,
+                )
+            )
+        # Resolve before the gate, not after: a write dispatched against a
+        # mis-detected contract is the worst outcome available here, so the
+        # contract must be settled before the request is even built.
+        index = await self._dispatch_index(token)
         resolved = resolve_dynamic_request(
-            self.index,
+            index,
             group,
             resource,
             action,
@@ -348,8 +409,6 @@ class NetBoxMCPService:
             query={},
             payload=payload,
         )
-        if dry_run:
-            return self._dry_run(resolved)
         self._ensure_mutations_allowed()
         client = self._make_client(token)
         try:

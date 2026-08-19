@@ -6,6 +6,28 @@ paginação, cliente e configuração de perfis usados pelo SDK e pela CLI. Ele 
 gera uma ferramenta por operação OpenAPI, portanto a lista de ferramentas
 permanece estável quando plugins mudam os recursos disponíveis.
 
+## Qual contrato do NetBox o servidor usa
+
+Um servidor iniciado **sem** pin de versão detecta a linha de release da
+instância conectada na primeira chamada de ferramenta e passa a usar aquele
+contrato. A detecção acontece uma vez por servidor, de forma preguiçosa, então o
+servidor continua iniciando mesmo com o NetBox inacessível.
+
+A detecção **falha fechada**: se a instância não puder ser alcançada, ou
+responder `/api/schema/` com algo que não é um documento OpenAPI, a chamada de
+ferramenta falha. Ela nunca responde silenciosamente a partir do contrato
+empacotado padrão, porque um servidor que não consegue descrever a instância com
+que fala não deveria fingir que consegue. Uma tentativa malsucedida não é
+armazenada em cache, então uma indisponibilidade transitória não desabilita o
+servidor permanentemente.
+
+Passar `--netbox-version` (ou construir `NetBoxMCPService(pinned_line=...)` ou
+`index=...`) torna aquele contrato autoritativo e pula a detecção por completo.
+
+Prévias com `dry_run` permanecem locais e não constroem cliente algum, então são
+renderizadas a partir do contrato empacotado e seguem sendo uma *prévia da
+requisição*, e não validação no servidor.
+
 ## Instalação e execução
 
 ```bash
