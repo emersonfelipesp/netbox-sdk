@@ -85,6 +85,33 @@ Isso vale igualmente para `POST`, `PUT` (`bulk-update`) e `PATCH`
 em lote responde com `204` sem corpo, então não há nada a validar e a chamada
 retorna `None`.
 
+### Operações em lote em segundo plano (NetBox 4.7)
+
+O NetBox 4.7 aceita `?background=true` em `POST`/`PUT`/`PATCH`/`DELETE` em lote.
+O lote é enfileirado em vez de executado na hora, e a resposta é um `202` com uma
+referência de job em vez dos objetos confirmados — o recurso existe para evitar
+timeouts de proxy em lotes grandes.
+
+```python
+result = await api.dcim.sites.create(
+    body=[{"name": "B1", "slug": "b1"}, {"name": "B2", "slug": "b2"}],
+    query={"background": True},
+)
+result.job.id      # 4211
+result.job.status  # "pending"
+```
+
+O runtime seleciona o modelo de resposta a partir da requisição: um `background`
+afirmativo resulta em `BackgroundJobReference`, e isso tem precedência sobre o
+formato do corpo, porque um lote enfileirado retorna um job tanto para um objeto
+único quanto para uma lista. Sem a flag, nada muda.
+
+> **Isto é um overlay, enquanto o schema upstream não descreve o recurso.** O
+> artefato 4.7 fixado (`v4.7.0-beta1`) não descreve o parâmetro, então o gerador
+> o declara mantendo o bundle versionado fiel byte a byte ao upstream. Um teste
+> de guarda falha assim que um schema 4.7 atualizado descrever `background`, de
+> modo que o overlay não sobreviva ao seu motivo de existir.
+
 ## Artefatos gerados
 
 O repositório inclui bundles OpenAPI versionados, modelos Pydantic gerados e

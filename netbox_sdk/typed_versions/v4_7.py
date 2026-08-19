@@ -21,6 +21,10 @@ class CircuitsCircuitGroupAssignmentsDetailGetQuery(BaseModel):
     omit: str | None = None
 
 
+class CircuitsCircuitGroupAssignmentsRootDeleteQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
     brief: bool | None = None
     circuit: list[str] | None = None
@@ -98,10 +102,26 @@ class CircuitsCircuitGroupAssignmentsRootGetQuery(BaseModel):
     virtual_circuit_id: list[int] | None = None
 
 
+class CircuitsCircuitGroupAssignmentsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitGroupAssignmentsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitGroupAssignmentsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsCircuitGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsCircuitGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsCircuitGroupsRootGetQuery(BaseModel):
@@ -200,6 +220,18 @@ class CircuitsCircuitGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsCircuitGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsCircuitTerminationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -210,6 +242,10 @@ class CircuitsCircuitTerminationsPathsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsCircuitTerminationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
@@ -377,10 +413,26 @@ class CircuitsCircuitTerminationsRootGetQuery(BaseModel):
     xconnect_id_regex: list[str] | None = Field(None, alias="xconnect_id__regex")
 
 
+class CircuitsCircuitTerminationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitTerminationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitTerminationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsCircuitTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsCircuitTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsCircuitTypesRootGetQuery(BaseModel):
@@ -484,10 +536,26 @@ class CircuitsCircuitTypesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsCircuitTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsCircuitsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsCircuitsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsCircuitsRootGetQuery(BaseModel):
@@ -667,10 +735,26 @@ class CircuitsCircuitsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsCircuitsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsCircuitsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsProviderAccountsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsProviderAccountsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsProviderAccountsRootGetQuery(BaseModel):
@@ -771,10 +855,26 @@ class CircuitsProviderAccountsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsProviderAccountsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsProviderAccountsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsProviderAccountsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsProviderNetworksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsProviderNetworksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsProviderNetworksRootGetQuery(BaseModel):
@@ -869,10 +969,26 @@ class CircuitsProviderNetworksRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsProviderNetworksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsProviderNetworksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsProviderNetworksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsProvidersDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsProvidersRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsProvidersRootGetQuery(BaseModel):
@@ -985,6 +1101,18 @@ class CircuitsProvidersRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsProvidersRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsProvidersRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsProvidersRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsVirtualCircuitTerminationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -995,6 +1123,10 @@ class CircuitsVirtualCircuitTerminationsPathsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsVirtualCircuitTerminationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsVirtualCircuitTerminationsRootGetQuery(BaseModel):
@@ -1078,10 +1210,26 @@ class CircuitsVirtualCircuitTerminationsRootGetQuery(BaseModel):
     virtual_circuit_id_n: list[int] | None = Field(None, alias="virtual_circuit_id__n")
 
 
+class CircuitsVirtualCircuitTerminationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsVirtualCircuitTerminationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsVirtualCircuitTerminationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsVirtualCircuitTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsVirtualCircuitTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsVirtualCircuitTypesRootGetQuery(BaseModel):
@@ -1185,10 +1333,26 @@ class CircuitsVirtualCircuitTypesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class CircuitsVirtualCircuitTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsVirtualCircuitTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsVirtualCircuitTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsVirtualCircuitsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CircuitsVirtualCircuitsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
@@ -1299,6 +1463,18 @@ class CircuitsVirtualCircuitsRootGetQuery(BaseModel):
     type_id: list[int] | None = None
     type_id_n: list[int] | None = Field(None, alias="type_id__n")
     updated_by_request: str | None = None
+
+
+class CircuitsVirtualCircuitsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsVirtualCircuitsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CircuitsVirtualCircuitsRootPutQuery(BaseModel):
+    background: bool | None = None
 
 
 class CoreBackgroundQueuesDetailGetQuery(BaseModel):
@@ -1419,6 +1595,10 @@ class CoreDataSourcesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class CoreDataSourcesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class CoreDataSourcesRootGetQuery(BaseModel):
@@ -1553,6 +1733,18 @@ class CoreDataSourcesRootGetQuery(BaseModel):
     type_nisw: list[str] | None = Field(None, alias="type__nisw")
     type_regex: list[str] | None = Field(None, alias="type__regex")
     updated_by_request: str | None = None
+
+
+class CoreDataSourcesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class CoreDataSourcesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class CoreDataSourcesRootPutQuery(BaseModel):
+    background: bool | None = None
 
 
 class CoreJobsDetailGetQuery(BaseModel):
@@ -1817,6 +2009,10 @@ class DcimCableBundlesDetailGetQuery(BaseModel):
     omit: str | None = None
 
 
+class DcimCableBundlesRootDeleteQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimCableBundlesRootGetQuery(BaseModel):
     brief: bool | None = None
     created: list[str] | None = None
@@ -1890,6 +2086,18 @@ class DcimCableBundlesRootGetQuery(BaseModel):
     tag_id_any: list[int] | None = Field(None, alias="tag_id__any")
     tag_id_n: list[int] | None = Field(None, alias="tag_id__n")
     updated_by_request: str | None = None
+
+
+class DcimCableBundlesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCableBundlesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCableBundlesRootPutQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCableTerminationsDetailGetQuery(BaseModel):
@@ -1971,6 +2179,10 @@ class DcimCablesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCablesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCablesRootGetQuery(BaseModel):
@@ -2158,6 +2370,18 @@ class DcimCablesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimCablesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCablesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCablesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimConnectedDeviceRootGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -2170,6 +2394,10 @@ class DcimConsolePortTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimConsolePortTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimConsolePortTemplatesRootGetQuery(BaseModel):
@@ -2263,10 +2491,26 @@ class DcimConsolePortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimConsolePortTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsolePortTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsolePortTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimConsolePortsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimConsolePortsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimConsolePortsRootGetQuery(BaseModel):
@@ -2465,6 +2709,18 @@ class DcimConsolePortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimConsolePortsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsolePortsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsolePortsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimConsolePortsTraceGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -2475,6 +2731,10 @@ class DcimConsoleServerPortTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimConsoleServerPortTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimConsoleServerPortTemplatesRootGetQuery(BaseModel):
@@ -2568,10 +2828,26 @@ class DcimConsoleServerPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimConsoleServerPortTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsoleServerPortTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsoleServerPortTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimConsoleServerPortsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimConsoleServerPortsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimConsoleServerPortsRootGetQuery(BaseModel):
@@ -2770,6 +3046,18 @@ class DcimConsoleServerPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimConsoleServerPortsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsoleServerPortsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimConsoleServerPortsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimConsoleServerPortsTraceGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -2780,6 +3068,10 @@ class DcimCoolingFeedsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCoolingFeedsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCoolingFeedsRootGetQuery(BaseModel):
@@ -2921,10 +3213,26 @@ class DcimCoolingFeedsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimCoolingFeedsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingFeedsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingFeedsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimCoolingIntakeTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCoolingIntakeTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCoolingIntakeTemplatesRootGetQuery(BaseModel):
@@ -3058,10 +3366,26 @@ class DcimCoolingIntakeTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimCoolingIntakeTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingIntakeTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingIntakeTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimCoolingIntakesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCoolingIntakesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCoolingIntakesRootGetQuery(BaseModel):
@@ -3262,10 +3586,26 @@ class DcimCoolingIntakesRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimCoolingIntakesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingIntakesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingIntakesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimCoolingOutflowTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCoolingOutflowTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCoolingOutflowTemplatesRootGetQuery(BaseModel):
@@ -3381,10 +3721,26 @@ class DcimCoolingOutflowTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimCoolingOutflowTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingOutflowTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingOutflowTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimCoolingOutflowsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCoolingOutflowsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCoolingOutflowsRootGetQuery(BaseModel):
@@ -3565,10 +3921,26 @@ class DcimCoolingOutflowsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimCoolingOutflowsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingOutflowsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingOutflowsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimCoolingSourcesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimCoolingSourcesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimCoolingSourcesRootGetQuery(BaseModel):
@@ -3714,10 +4086,26 @@ class DcimCoolingSourcesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimCoolingSourcesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingSourcesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimCoolingSourcesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimDeviceBayTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimDeviceBayTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimDeviceBayTemplatesRootGetQuery(BaseModel):
@@ -3797,10 +4185,26 @@ class DcimDeviceBayTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimDeviceBayTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceBayTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceBayTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimDeviceBaysDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimDeviceBaysRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimDeviceBaysRootGetQuery(BaseModel):
@@ -3949,10 +4353,26 @@ class DcimDeviceBaysRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimDeviceBaysRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceBaysRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceBaysRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimDeviceRolesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimDeviceRolesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimDeviceRolesRootGetQuery(BaseModel):
@@ -4067,10 +4487,26 @@ class DcimDeviceRolesRootGetQuery(BaseModel):
     vm_role: bool | None = None
 
 
+class DcimDeviceRolesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceRolesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceRolesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimDeviceTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimDeviceTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimDeviceTypesRootGetQuery(BaseModel):
@@ -4535,6 +4971,18 @@ class DcimDeviceTypesRootGetQuery(BaseModel):
     weight_unit_regex: list[str] | None = Field(None, alias="weight_unit__regex")
 
 
+class DcimDeviceTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDeviceTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimDevicesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -4543,6 +4991,10 @@ class DcimDevicesDetailGetQuery(BaseModel):
 
 class DcimDevicesRenderConfigPostQuery(BaseModel):
     format: Literal["json", "txt"] | None = None
+
+
+class DcimDevicesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimDevicesRootGetQuery(BaseModel):
@@ -4961,10 +5413,26 @@ class DcimDevicesRootGetQuery(BaseModel):
     virtual_chassis_member: bool | None = None
 
 
+class DcimDevicesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDevicesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimDevicesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimFrontPortTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimFrontPortTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimFrontPortTemplatesRootGetQuery(BaseModel):
@@ -5080,6 +5548,18 @@ class DcimFrontPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimFrontPortTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimFrontPortTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimFrontPortTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimFrontPortsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -5090,6 +5570,10 @@ class DcimFrontPortsPathsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimFrontPortsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimFrontPortsRootGetQuery(BaseModel):
@@ -5295,10 +5779,26 @@ class DcimFrontPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimFrontPortsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimFrontPortsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimFrontPortsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimInterfaceTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimInterfaceTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimInterfaceTemplatesRootGetQuery(BaseModel):
@@ -5451,10 +5951,26 @@ class DcimInterfaceTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimInterfaceTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInterfaceTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInterfaceTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimInterfacesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimInterfacesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimInterfacesRootGetQuery(BaseModel):
@@ -5839,6 +6355,18 @@ class DcimInterfacesRootGetQuery(BaseModel):
     wwn_regex: list[str] | None = Field(None, alias="wwn__regex")
 
 
+class DcimInterfacesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInterfacesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInterfacesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimInterfacesTraceGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -5849,6 +6377,10 @@ class DcimInventoryItemRolesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimInventoryItemRolesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimInventoryItemRolesRootGetQuery(BaseModel):
@@ -5952,10 +6484,26 @@ class DcimInventoryItemRolesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimInventoryItemRolesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInventoryItemRolesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInventoryItemRolesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimInventoryItemTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimInventoryItemTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimInventoryItemTemplatesRootGetQuery(BaseModel):
@@ -6066,10 +6614,26 @@ class DcimInventoryItemTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimInventoryItemTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInventoryItemTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInventoryItemTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimInventoryItemsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimInventoryItemsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimInventoryItemsRootGetQuery(BaseModel):
@@ -6285,10 +6849,26 @@ class DcimInventoryItemsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimInventoryItemsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInventoryItemsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimInventoryItemsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimLocationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimLocationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimLocationsRootGetQuery(BaseModel):
@@ -6439,10 +7019,26 @@ class DcimLocationsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimLocationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimLocationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimLocationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimMacAddressesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimMacAddressesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimMacAddressesRootGetQuery(BaseModel):
@@ -6542,10 +7138,26 @@ class DcimMacAddressesRootGetQuery(BaseModel):
     vminterface_id_n: list[int] | None = Field(None, alias="vminterface_id__n")
 
 
+class DcimMacAddressesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimMacAddressesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimMacAddressesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimManufacturersDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimManufacturersRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimManufacturersRootGetQuery(BaseModel):
@@ -6642,10 +7254,26 @@ class DcimManufacturersRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimManufacturersRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimManufacturersRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimManufacturersRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimModuleBayTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimModuleBayTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimModuleBayTemplatesRootGetQuery(BaseModel):
@@ -6744,10 +7372,26 @@ class DcimModuleBayTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimModuleBayTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleBayTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleBayTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimModuleBayTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimModuleBayTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimModuleBayTypesRootGetQuery(BaseModel):
@@ -6861,10 +7505,26 @@ class DcimModuleBayTypesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimModuleBayTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleBayTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleBayTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimModuleBaysDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimModuleBaysRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimModuleBaysRootGetQuery(BaseModel):
@@ -7032,10 +7692,26 @@ class DcimModuleBaysRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimModuleBaysRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleBaysRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleBaysRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimModuleTypeProfilesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimModuleTypeProfilesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimModuleTypeProfilesRootGetQuery(BaseModel):
@@ -7113,10 +7789,26 @@ class DcimModuleTypeProfilesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimModuleTypeProfilesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleTypeProfilesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleTypeProfilesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimModuleTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimModuleTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimModuleTypesRootGetQuery(BaseModel):
@@ -7498,10 +8190,26 @@ class DcimModuleTypesRootGetQuery(BaseModel):
     weight_unit_regex: list[str] | None = Field(None, alias="weight_unit__regex")
 
 
+class DcimModuleTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModuleTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimModulesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimModulesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimModulesRootGetQuery(BaseModel):
@@ -7643,10 +8351,26 @@ class DcimModulesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimModulesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModulesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimModulesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPlatformsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPlatformsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPlatformsRootGetQuery(BaseModel):
@@ -7752,10 +8476,26 @@ class DcimPlatformsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimPlatformsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPlatformsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPlatformsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerFeedsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPowerFeedsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPowerFeedsRootGetQuery(BaseModel):
@@ -7963,6 +8703,18 @@ class DcimPowerFeedsRootGetQuery(BaseModel):
     voltage_n: list[int] | None = Field(None, alias="voltage__n")
 
 
+class DcimPowerFeedsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerFeedsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerFeedsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerFeedsTraceGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -7973,6 +8725,10 @@ class DcimPowerOutletTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPowerOutletTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPowerOutletTemplatesRootGetQuery(BaseModel):
@@ -8128,10 +8884,26 @@ class DcimPowerOutletTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimPowerOutletTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerOutletTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerOutletTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerOutletsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPowerOutletsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPowerOutletsRootGetQuery(BaseModel):
@@ -8357,6 +9129,18 @@ class DcimPowerOutletsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimPowerOutletsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerOutletsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerOutletsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerOutletsTraceGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -8367,6 +9151,10 @@ class DcimPowerPanelsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPowerPanelsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPowerPanelsRootGetQuery(BaseModel):
@@ -8464,10 +9252,26 @@ class DcimPowerPanelsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimPowerPanelsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerPanelsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerPanelsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerPortTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPowerPortTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPowerPortTemplatesRootGetQuery(BaseModel):
@@ -8609,10 +9413,26 @@ class DcimPowerPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimPowerPortTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerPortTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerPortTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerPortsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimPowerPortsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimPowerPortsRootGetQuery(BaseModel):
@@ -8811,6 +9631,18 @@ class DcimPowerPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimPowerPortsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerPortsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimPowerPortsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimPowerPortsTraceGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -8821,6 +9653,10 @@ class DcimRackGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRackGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRackGroupsRootGetQuery(BaseModel):
@@ -8911,10 +9747,26 @@ class DcimRackGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimRackGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRackReservationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRackReservationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRackReservationsRootGetQuery(BaseModel):
@@ -9035,10 +9887,26 @@ class DcimRackReservationsRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class DcimRackReservationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackReservationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackReservationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRackRolesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRackRolesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRackRolesRootGetQuery(BaseModel):
@@ -9142,10 +10010,26 @@ class DcimRackRolesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimRackRolesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackRolesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackRolesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRackTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRackTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRackTypesRootGetQuery(BaseModel):
@@ -9377,6 +10261,18 @@ class DcimRackTypesRootGetQuery(BaseModel):
     width_regex: list[int] | None = Field(None, alias="width__regex")
 
 
+class DcimRackTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRackTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRacksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -9400,6 +10296,10 @@ class DcimRacksElevationGetQuery(BaseModel):
     start: int | None = None
     unit_height: int | None = None
     unit_width: int | None = None
+
+
+class DcimRacksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRacksRootGetQuery(BaseModel):
@@ -9720,10 +10620,26 @@ class DcimRacksRootGetQuery(BaseModel):
     width_regex: list[int] | None = Field(None, alias="width__regex")
 
 
+class DcimRacksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRacksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRacksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRearPortTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRearPortTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRearPortTemplatesRootGetQuery(BaseModel):
@@ -9839,6 +10755,18 @@ class DcimRearPortTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimRearPortTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRearPortTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRearPortTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRearPortsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -9849,6 +10777,10 @@ class DcimRearPortsPathsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRearPortsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRearPortsRootGetQuery(BaseModel):
@@ -10054,10 +10986,26 @@ class DcimRearPortsRootGetQuery(BaseModel):
     virtual_chassis_id_n: list[int] | None = Field(None, alias="virtual_chassis_id__n")
 
 
+class DcimRearPortsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRearPortsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRearPortsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimRegionsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimRegionsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimRegionsRootGetQuery(BaseModel):
@@ -10162,10 +11110,26 @@ class DcimRegionsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimRegionsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRegionsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimRegionsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimSiteGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimSiteGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimSiteGroupsRootGetQuery(BaseModel):
@@ -10270,10 +11234,26 @@ class DcimSiteGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimSiteGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimSiteGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimSiteGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimSitesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimSitesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimSitesRootGetQuery(BaseModel):
@@ -10442,10 +11422,26 @@ class DcimSitesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimSitesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimSitesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimSitesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimVirtualChassisDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimVirtualChassisRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimVirtualChassisRootGetQuery(BaseModel):
@@ -10563,10 +11559,26 @@ class DcimVirtualChassisRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimVirtualChassisRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimVirtualChassisRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimVirtualChassisRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class DcimVirtualDeviceContextsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class DcimVirtualDeviceContextsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
@@ -10687,10 +11699,26 @@ class DcimVirtualDeviceContextsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class DcimVirtualDeviceContextsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimVirtualDeviceContextsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class DcimVirtualDeviceContextsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasBookmarksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasBookmarksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasBookmarksRootGetQuery(BaseModel):
@@ -10731,10 +11759,26 @@ class ExtrasBookmarksRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class ExtrasBookmarksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasBookmarksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasBookmarksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasConfigContextProfilesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasConfigContextProfilesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasConfigContextProfilesRootGetQuery(BaseModel):
@@ -10824,10 +11868,26 @@ class ExtrasConfigContextProfilesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasConfigContextProfilesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasConfigContextProfilesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasConfigContextProfilesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasConfigContextsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasConfigContextsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasConfigContextsRootGetQuery(BaseModel):
@@ -10971,6 +12031,18 @@ class ExtrasConfigContextsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasConfigContextsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasConfigContextsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasConfigContextsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasConfigTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -10979,6 +12051,10 @@ class ExtrasConfigTemplatesDetailGetQuery(BaseModel):
 
 class ExtrasConfigTemplatesRenderPostQuery(BaseModel):
     format: Literal["json", "txt"] | None = None
+
+
+class ExtrasConfigTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasConfigTemplatesRootGetQuery(BaseModel):
@@ -11109,6 +12185,18 @@ class ExtrasConfigTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasConfigTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasConfigTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasConfigTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasCustomFieldChoiceSetsChoicesGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -11119,6 +12207,10 @@ class ExtrasCustomFieldChoiceSetsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasCustomFieldChoiceSetsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
@@ -11208,10 +12300,26 @@ class ExtrasCustomFieldChoiceSetsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasCustomFieldChoiceSetsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasCustomFieldChoiceSetsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasCustomFieldChoiceSetsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasCustomFieldsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasCustomFieldsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasCustomFieldsRootGetQuery(BaseModel):
@@ -11434,10 +12542,26 @@ class ExtrasCustomFieldsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasCustomFieldsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasCustomFieldsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasCustomFieldsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasCustomLinksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasCustomLinksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasCustomLinksRootGetQuery(BaseModel):
@@ -11609,16 +12733,44 @@ class ExtrasCustomLinksRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasCustomLinksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasCustomLinksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasCustomLinksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasDashboardRootDeleteQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasDashboardRootGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
 
 
+class ExtrasDashboardRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasDashboardRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasEventRulesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasEventRulesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasEventRulesRootGetQuery(BaseModel):
@@ -11735,10 +12887,26 @@ class ExtrasEventRulesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasEventRulesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasEventRulesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasEventRulesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasExportTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasExportTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasExportTemplatesRootGetQuery(BaseModel):
@@ -11876,10 +13044,26 @@ class ExtrasExportTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasExportTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasExportTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasExportTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasImageAttachmentsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasImageAttachmentsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasImageAttachmentsRootGetQuery(BaseModel):
@@ -11975,10 +13159,26 @@ class ExtrasImageAttachmentsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasImageAttachmentsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasImageAttachmentsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasImageAttachmentsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasJournalEntriesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasJournalEntriesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasJournalEntriesRootGetQuery(BaseModel):
@@ -12045,10 +13245,26 @@ class ExtrasJournalEntriesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasJournalEntriesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasJournalEntriesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasJournalEntriesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasNotificationGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasNotificationGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasNotificationGroupsRootGetQuery(BaseModel):
@@ -12061,10 +13277,26 @@ class ExtrasNotificationGroupsRootGetQuery(BaseModel):
     start: int | None = None
 
 
+class ExtrasNotificationGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasNotificationGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasNotificationGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasNotificationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasNotificationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasNotificationsRootGetQuery(BaseModel):
@@ -12077,10 +13309,26 @@ class ExtrasNotificationsRootGetQuery(BaseModel):
     start: int | None = None
 
 
+class ExtrasNotificationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasNotificationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasNotificationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasSavedFiltersDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasSavedFiltersRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasSavedFiltersRootGetQuery(BaseModel):
@@ -12193,6 +13441,18 @@ class ExtrasSavedFiltersRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasSavedFiltersRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasSavedFiltersRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasSavedFiltersRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasScriptsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -12233,10 +13493,18 @@ class ExtrasScriptsRootGetQuery(BaseModel):
     start: int | None = None
 
 
+class ExtrasScriptsUploadPostQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasSubscriptionsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasSubscriptionsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasSubscriptionsRootGetQuery(BaseModel):
@@ -12249,10 +13517,26 @@ class ExtrasSubscriptionsRootGetQuery(BaseModel):
     start: int | None = None
 
 
+class ExtrasSubscriptionsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasSubscriptionsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasSubscriptionsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasTableConfigsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasTableConfigsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasTableConfigsRootGetQuery(BaseModel):
@@ -12347,6 +13631,18 @@ class ExtrasTableConfigsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasTableConfigsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasTableConfigsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasTableConfigsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasTaggedObjectsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -12390,6 +13686,10 @@ class ExtrasTagsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasTagsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasTagsRootGetQuery(BaseModel):
@@ -12499,10 +13799,26 @@ class ExtrasTagsRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class ExtrasTagsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasTagsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasTagsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class ExtrasWebhooksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class ExtrasWebhooksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class ExtrasWebhooksRootGetQuery(BaseModel):
@@ -12641,10 +13957,26 @@ class ExtrasWebhooksRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class ExtrasWebhooksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasWebhooksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class ExtrasWebhooksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamAggregatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamAggregatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamAggregatesRootGetQuery(BaseModel):
@@ -12736,6 +14068,18 @@ class IpamAggregatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamAggregatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamAggregatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamAggregatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamAsnRangesAvailableAsnsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -12746,6 +14090,10 @@ class IpamAsnRangesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamAsnRangesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamAsnRangesRootGetQuery(BaseModel):
@@ -12861,10 +14209,26 @@ class IpamAsnRangesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamAsnRangesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamAsnRangesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamAsnRangesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamAsnsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamAsnsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamAsnsRootGetQuery(BaseModel):
@@ -12964,10 +14328,26 @@ class IpamAsnsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamAsnsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamAsnsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamAsnsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamFhrpGroupAssignmentsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamFhrpGroupAssignmentsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamFhrpGroupAssignmentsRootGetQuery(BaseModel):
@@ -13026,10 +14406,26 @@ class IpamFhrpGroupAssignmentsRootGetQuery(BaseModel):
     virtual_machine_id: list[int] | None = None
 
 
+class IpamFhrpGroupAssignmentsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamFhrpGroupAssignmentsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamFhrpGroupAssignmentsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamFhrpGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamFhrpGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamFhrpGroupsRootGetQuery(BaseModel):
@@ -13154,10 +14550,26 @@ class IpamFhrpGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamFhrpGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamFhrpGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamFhrpGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamIpAddressesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamIpAddressesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamIpAddressesRootGetQuery(BaseModel):
@@ -13316,6 +14728,18 @@ class IpamIpAddressesRootGetQuery(BaseModel):
     vrf_id_n: list[int] | None = Field(None, alias="vrf_id__n")
 
 
+class IpamIpAddressesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamIpAddressesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamIpAddressesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamIpRangesAvailableIpsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -13326,6 +14750,10 @@ class IpamIpRangesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamIpRangesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamIpRangesRootGetQuery(BaseModel):
@@ -13439,6 +14867,18 @@ class IpamIpRangesRootGetQuery(BaseModel):
     vrf_id_n: list[int] | None = Field(None, alias="vrf_id__n")
 
 
+class IpamIpRangesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamIpRangesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamIpRangesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamPrefixesAvailableIpsGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -13455,6 +14895,10 @@ class IpamPrefixesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamPrefixesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamPrefixesRootGetQuery(BaseModel):
@@ -13618,10 +15062,26 @@ class IpamPrefixesRootGetQuery(BaseModel):
     within_include: str | None = None
 
 
+class IpamPrefixesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamPrefixesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamPrefixesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamRirsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamRirsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamRirsRootGetQuery(BaseModel):
@@ -13713,10 +15173,26 @@ class IpamRirsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamRirsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamRirsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamRirsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamRolesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamRolesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamRolesRootGetQuery(BaseModel):
@@ -13814,10 +15290,26 @@ class IpamRolesRootGetQuery(BaseModel):
     weight_n: list[int] | None = Field(None, alias="weight__n")
 
 
+class IpamRolesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamRolesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamRolesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamRouteTargetsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamRouteTargetsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamRouteTargetsRootGetQuery(BaseModel):
@@ -13919,10 +15411,26 @@ class IpamRouteTargetsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamRouteTargetsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamRouteTargetsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamRouteTargetsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamServiceTemplatesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamServiceTemplatesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamServiceTemplatesRootGetQuery(BaseModel):
@@ -14010,10 +15518,26 @@ class IpamServiceTemplatesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamServiceTemplatesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamServiceTemplatesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamServiceTemplatesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamServicesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamServicesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamServicesRootGetQuery(BaseModel):
@@ -14126,6 +15650,18 @@ class IpamServicesRootGetQuery(BaseModel):
     virtual_machine_id: list[int] | None = None
 
 
+class IpamServicesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamServicesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamServicesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamVlanGroupsAvailableVlansGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -14136,6 +15672,10 @@ class IpamVlanGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamVlanGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamVlanGroupsRootGetQuery(BaseModel):
@@ -14259,10 +15799,26 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamVlanGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlanGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlanGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamVlanTranslationPoliciesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamVlanTranslationPoliciesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamVlanTranslationPoliciesRootGetQuery(BaseModel):
@@ -14340,10 +15896,26 @@ class IpamVlanTranslationPoliciesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamVlanTranslationPoliciesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlanTranslationPoliciesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlanTranslationPoliciesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamVlanTranslationRulesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamVlanTranslationRulesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamVlanTranslationRulesRootGetQuery(BaseModel):
@@ -14418,10 +15990,26 @@ class IpamVlanTranslationRulesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamVlanTranslationRulesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlanTranslationRulesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlanTranslationRulesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamVlansDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamVlansRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamVlansRootGetQuery(BaseModel):
@@ -14579,10 +16167,26 @@ class IpamVlansRootGetQuery(BaseModel):
     vminterface_id: int | None = None
 
 
+class IpamVlansRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlansRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVlansRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class IpamVrfsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class IpamVrfsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class IpamVrfsRootGetQuery(BaseModel):
@@ -14690,10 +16294,26 @@ class IpamVrfsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class IpamVrfsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVrfsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class IpamVrfsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class TenancyContactAssignmentsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class TenancyContactAssignmentsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class TenancyContactAssignmentsRootGetQuery(BaseModel):
@@ -14773,10 +16393,26 @@ class TenancyContactAssignmentsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyContactAssignmentsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactAssignmentsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactAssignmentsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class TenancyContactGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class TenancyContactGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class TenancyContactGroupsRootGetQuery(BaseModel):
@@ -14877,10 +16513,26 @@ class TenancyContactGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyContactGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class TenancyContactRolesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class TenancyContactRolesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class TenancyContactRolesRootGetQuery(BaseModel):
@@ -14971,10 +16623,26 @@ class TenancyContactRolesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyContactRolesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactRolesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactRolesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class TenancyContactsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class TenancyContactsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class TenancyContactsRootGetQuery(BaseModel):
@@ -15121,10 +16789,26 @@ class TenancyContactsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyContactsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyContactsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class TenancyTenantGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class TenancyTenantGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class TenancyTenantGroupsRootGetQuery(BaseModel):
@@ -15223,10 +16907,26 @@ class TenancyTenantGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyTenantGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyTenantGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyTenantGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class TenancyTenantsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class TenancyTenantsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class TenancyTenantsRootGetQuery(BaseModel):
@@ -15327,6 +17027,18 @@ class TenancyTenantsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class TenancyTenantsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyTenantsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class TenancyTenantsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class UsersConfigRootGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -15337,6 +17049,10 @@ class UsersGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class UsersGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class UsersGroupsRootGetQuery(BaseModel):
@@ -15393,10 +17109,26 @@ class UsersGroupsRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class UsersGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class UsersOwnerGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class UsersOwnerGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class UsersOwnerGroupsRootGetQuery(BaseModel):
@@ -15443,10 +17175,26 @@ class UsersOwnerGroupsRootGetQuery(BaseModel):
     start: int | None = None
 
 
+class UsersOwnerGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersOwnerGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersOwnerGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class UsersOwnersDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class UsersOwnersRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class UsersOwnersRootGetQuery(BaseModel):
@@ -15505,10 +17253,26 @@ class UsersOwnersRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class UsersOwnersRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersOwnersRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersOwnersRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class UsersPermissionsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class UsersPermissionsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class UsersPermissionsRootGetQuery(BaseModel):
@@ -15584,10 +17348,30 @@ class UsersPermissionsRootGetQuery(BaseModel):
     user_id_n: list[int] | None = Field(None, alias="user_id__n")
 
 
+class UsersPermissionsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersPermissionsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersPermissionsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class UsersTokensDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class UsersTokensProvisionPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersTokensRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class UsersTokensRootGetQuery(BaseModel):
@@ -15668,10 +17452,26 @@ class UsersTokensRootGetQuery(BaseModel):
     write_enabled: bool | None = None
 
 
+class UsersTokensRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersTokensRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersTokensRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class UsersUsersDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class UsersUsersRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class UsersUsersRootGetQuery(BaseModel):
@@ -15772,10 +17572,26 @@ class UsersUsersRootGetQuery(BaseModel):
     username_regex: list[str] | None = Field(None, alias="username__regex")
 
 
+class UsersUsersRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersUsersRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class UsersUsersRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationClusterGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VirtualizationClusterGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationClusterGroupsRootGetQuery(BaseModel):
@@ -15872,10 +17688,26 @@ class VirtualizationClusterGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VirtualizationClusterGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationClusterGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationClusterGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationClusterTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VirtualizationClusterTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationClusterTypesRootGetQuery(BaseModel):
@@ -15966,10 +17798,26 @@ class VirtualizationClusterTypesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VirtualizationClusterTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationClusterTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationClusterTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationClustersDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VirtualizationClustersRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationClustersRootGetQuery(BaseModel):
@@ -16107,10 +17955,26 @@ class VirtualizationClustersRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VirtualizationClustersRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationClustersRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationClustersRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationInterfacesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VirtualizationInterfacesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationInterfacesRootGetQuery(BaseModel):
@@ -16253,10 +18117,26 @@ class VirtualizationInterfacesRootGetQuery(BaseModel):
     vrf_id_n: list[int] | None = Field(None, alias="vrf_id__n")
 
 
+class VirtualizationInterfacesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationInterfacesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationInterfacesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationVirtualDisksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VirtualizationVirtualDisksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationVirtualDisksRootGetQuery(BaseModel):
@@ -16345,10 +18225,26 @@ class VirtualizationVirtualDisksRootGetQuery(BaseModel):
     virtual_machine_id_n: list[int] | None = Field(None, alias="virtual_machine_id__n")
 
 
+class VirtualizationVirtualDisksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationVirtualDisksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationVirtualDisksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationVirtualMachineTypesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VirtualizationVirtualMachineTypesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
@@ -16464,6 +18360,18 @@ class VirtualizationVirtualMachineTypesRootGetQuery(BaseModel):
     virtual_machine_count_n: list[int] | None = Field(None, alias="virtual_machine_count__n")
 
 
+class VirtualizationVirtualMachineTypesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationVirtualMachineTypesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationVirtualMachineTypesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VirtualizationVirtualMachinesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
@@ -16472,6 +18380,10 @@ class VirtualizationVirtualMachinesDetailGetQuery(BaseModel):
 
 class VirtualizationVirtualMachinesRenderConfigPostQuery(BaseModel):
     format: Literal["json", "txt"] | None = None
+
+
+class VirtualizationVirtualMachinesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
@@ -16701,10 +18613,26 @@ class VirtualizationVirtualMachinesRootGetQuery(BaseModel):
     virtual_machine_type_id_n: list[int] | None = Field(None, alias="virtual_machine_type_id__n")
 
 
+class VirtualizationVirtualMachinesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationVirtualMachinesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VirtualizationVirtualMachinesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnIkePoliciesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnIkePoliciesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnIkePoliciesRootGetQuery(BaseModel):
@@ -16823,10 +18751,26 @@ class VpnIkePoliciesRootGetQuery(BaseModel):
     version_regex: list[int] | None = Field(None, alias="version__regex")
 
 
+class VpnIkePoliciesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIkePoliciesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIkePoliciesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnIkeProposalsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnIkeProposalsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnIkeProposalsRootGetQuery(BaseModel):
@@ -16994,10 +18938,26 @@ class VpnIkeProposalsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnIkeProposalsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIkeProposalsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIkeProposalsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnIpsecPoliciesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnIpsecPoliciesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnIpsecPoliciesRootGetQuery(BaseModel):
@@ -17091,10 +19051,26 @@ class VpnIpsecPoliciesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnIpsecPoliciesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIpsecPoliciesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIpsecPoliciesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnIpsecProfilesDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnIpsecProfilesRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnIpsecProfilesRootGetQuery(BaseModel):
@@ -17193,10 +19169,26 @@ class VpnIpsecProfilesRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnIpsecProfilesRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIpsecProfilesRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIpsecProfilesRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnIpsecProposalsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnIpsecProposalsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnIpsecProposalsRootGetQuery(BaseModel):
@@ -17342,10 +19334,26 @@ class VpnIpsecProposalsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnIpsecProposalsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIpsecProposalsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnIpsecProposalsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnL2vpnTerminationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnL2vpnTerminationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnL2vpnTerminationsRootGetQuery(BaseModel):
@@ -17435,10 +19443,26 @@ class VpnL2vpnTerminationsRootGetQuery(BaseModel):
     vminterface_id_n: list[int] | None = Field(None, alias="vminterface_id__n")
 
 
+class VpnL2vpnTerminationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnL2vpnTerminationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnL2vpnTerminationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnL2vpnsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnL2vpnsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnL2vpnsRootGetQuery(BaseModel):
@@ -17584,10 +19608,26 @@ class VpnL2vpnsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnL2vpnsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnL2vpnsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnL2vpnsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnTunnelGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnTunnelGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnTunnelGroupsRootGetQuery(BaseModel):
@@ -17684,10 +19724,26 @@ class VpnTunnelGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnTunnelGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnTunnelGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnTunnelGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnTunnelTerminationsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnTunnelTerminationsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnTunnelTerminationsRootGetQuery(BaseModel):
@@ -17767,10 +19823,26 @@ class VpnTunnelTerminationsRootGetQuery(BaseModel):
     vminterface_id_n: list[int] | None = Field(None, alias="vminterface_id__n")
 
 
+class VpnTunnelTerminationsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnTunnelTerminationsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnTunnelTerminationsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class VpnTunnelsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class VpnTunnelsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class VpnTunnelsRootGetQuery(BaseModel):
@@ -17903,10 +19975,26 @@ class VpnTunnelsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class VpnTunnelsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnTunnelsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class VpnTunnelsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class WirelessWirelessLanGroupsDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class WirelessWirelessLanGroupsRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class WirelessWirelessLanGroupsRootGetQuery(BaseModel):
@@ -18005,10 +20093,26 @@ class WirelessWirelessLanGroupsRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class WirelessWirelessLanGroupsRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class WirelessWirelessLanGroupsRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class WirelessWirelessLanGroupsRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class WirelessWirelessLansDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class WirelessWirelessLansRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class WirelessWirelessLansRootGetQuery(BaseModel):
@@ -18179,10 +20283,26 @@ class WirelessWirelessLansRootGetQuery(BaseModel):
     vlan_id_n: list[int] | None = Field(None, alias="vlan_id__n")
 
 
+class WirelessWirelessLansRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class WirelessWirelessLansRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class WirelessWirelessLansRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class WirelessWirelessLinksDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
+
+
+class WirelessWirelessLinksRootDeleteQuery(BaseModel):
+    background: bool | None = None
 
 
 class WirelessWirelessLinksRootGetQuery(BaseModel):
@@ -18346,6 +20466,18 @@ class WirelessWirelessLinksRootGetQuery(BaseModel):
     updated_by_request: str | None = None
 
 
+class WirelessWirelessLinksRootPatchQuery(BaseModel):
+    background: bool | None = None
+
+
+class WirelessWirelessLinksRootPostQuery(BaseModel):
+    background: bool | None = None
+
+
+class WirelessWirelessLinksRootPutQuery(BaseModel):
+    background: bool | None = None
+
+
 class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
     """Typed OpenAPI resource `circuits/circuit_group_assignments` for NetBox 4.7."""
 
@@ -18370,13 +20502,14 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
     async def create(
         self,
         body: WritableCircuitGroupAssignmentRequest | list[WritableCircuitGroupAssignmentRequest],
+        query: CircuitsCircuitGroupAssignmentsRootPostQuery | dict[str, Any] | None = None,
     ) -> CircuitGroupAssignment:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupAssignmentsRootPostQuery,
+            query=query,
             body_model=WritableCircuitGroupAssignmentRequest
             | list[WritableCircuitGroupAssignmentRequest],
             body=body,
@@ -18385,14 +20518,16 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkCircuitGroupAssignmentRequest]
+        self,
+        body: list[BulkCircuitGroupAssignmentRequest],
+        query: CircuitsCircuitGroupAssignmentsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[CircuitGroupAssignment]:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupAssignmentsRootPutQuery,
+            query=query,
             body_model=list[BulkCircuitGroupAssignmentRequest],
             body=body,
             response_model=list[CircuitGroupAssignment],
@@ -18400,27 +20535,33 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCircuitGroupAssignmentRequest]
+        self,
+        body: list[PatchedBulkCircuitGroupAssignmentRequest],
+        query: CircuitsCircuitGroupAssignmentsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CircuitGroupAssignment]:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupAssignmentsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCircuitGroupAssignmentRequest],
             body=body,
             response_model=list[CircuitGroupAssignment],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CircuitGroupAssignmentRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CircuitGroupAssignmentRequest],
+        query: CircuitsCircuitGroupAssignmentsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupAssignmentsRootDeleteQuery,
+            query=query,
             body_model=list[CircuitGroupAssignmentRequest],
             body=body,
             response_model=None,
@@ -18509,26 +20650,34 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: CircuitGroupRequest | list[CircuitGroupRequest]) -> CircuitGroup:
+    async def create(
+        self,
+        body: CircuitGroupRequest | list[CircuitGroupRequest],
+        query: CircuitsCircuitGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> CircuitGroup:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupsRootPostQuery,
+            query=query,
             body_model=CircuitGroupRequest | list[CircuitGroupRequest],
             body=body,
             response_model=CircuitGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCircuitGroupRequest]) -> list[CircuitGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkCircuitGroupRequest],
+        query: CircuitsCircuitGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CircuitGroup]:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkCircuitGroupRequest],
             body=body,
             response_model=list[CircuitGroup],
@@ -18536,27 +20685,33 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCircuitGroupRequest]
+        self,
+        body: list[PatchedBulkCircuitGroupRequest],
+        query: CircuitsCircuitGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CircuitGroup]:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCircuitGroupRequest],
             body=body,
             response_model=list[CircuitGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CircuitGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CircuitGroupRequest],
+        query: CircuitsCircuitGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitGroupsRootDeleteQuery,
+            query=query,
             body_model=list[CircuitGroupRequest],
             body=body,
             response_model=None,
@@ -18646,14 +20801,16 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: CircuitTerminationRequest | list[CircuitTerminationRequest]
+        self,
+        body: CircuitTerminationRequest | list[CircuitTerminationRequest],
+        query: CircuitsCircuitTerminationsRootPostQuery | dict[str, Any] | None = None,
     ) -> CircuitTermination:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTerminationsRootPostQuery,
+            query=query,
             body_model=CircuitTerminationRequest | list[CircuitTerminationRequest],
             body=body,
             response_model=CircuitTermination,
@@ -18661,14 +20818,16 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkCircuitTerminationRequest]
+        self,
+        body: list[BulkCircuitTerminationRequest],
+        query: CircuitsCircuitTerminationsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[CircuitTermination]:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTerminationsRootPutQuery,
+            query=query,
             body_model=list[BulkCircuitTerminationRequest],
             body=body,
             response_model=list[CircuitTermination],
@@ -18676,27 +20835,33 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCircuitTerminationRequest]
+        self,
+        body: list[PatchedBulkCircuitTerminationRequest],
+        query: CircuitsCircuitTerminationsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CircuitTermination]:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTerminationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCircuitTerminationRequest],
             body=body,
             response_model=list[CircuitTermination],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CircuitTerminationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CircuitTerminationRequest],
+        query: CircuitsCircuitTerminationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTerminationsRootDeleteQuery,
+            query=query,
             body_model=list[CircuitTerminationRequest],
             body=body,
             response_model=None,
@@ -18807,26 +20972,34 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: CircuitTypeRequest | list[CircuitTypeRequest]) -> CircuitType:
+    async def create(
+        self,
+        body: CircuitTypeRequest | list[CircuitTypeRequest],
+        query: CircuitsCircuitTypesRootPostQuery | dict[str, Any] | None = None,
+    ) -> CircuitType:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTypesRootPostQuery,
+            query=query,
             body_model=CircuitTypeRequest | list[CircuitTypeRequest],
             body=body,
             response_model=CircuitType,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCircuitTypeRequest]) -> list[CircuitType]:
+    async def bulk_update(
+        self,
+        body: list[BulkCircuitTypeRequest],
+        query: CircuitsCircuitTypesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CircuitType]:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTypesRootPutQuery,
+            query=query,
             body_model=list[BulkCircuitTypeRequest],
             body=body,
             response_model=list[CircuitType],
@@ -18834,27 +21007,33 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCircuitTypeRequest]
+        self,
+        body: list[PatchedBulkCircuitTypeRequest],
+        query: CircuitsCircuitTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CircuitType]:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCircuitTypeRequest],
             body=body,
             response_model=list[CircuitType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CircuitTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CircuitTypeRequest],
+        query: CircuitsCircuitTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitTypesRootDeleteQuery,
+            query=query,
             body_model=list[CircuitTypeRequest],
             body=body,
             response_model=None,
@@ -18939,52 +21118,68 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableCircuitRequest | list[WritableCircuitRequest]) -> Circuit:
+    async def create(
+        self,
+        body: WritableCircuitRequest | list[WritableCircuitRequest],
+        query: CircuitsCircuitsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Circuit:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitsRootPostQuery,
+            query=query,
             body_model=WritableCircuitRequest | list[WritableCircuitRequest],
             body=body,
             response_model=Circuit,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCircuitRequest]) -> list[Circuit]:
+    async def bulk_update(
+        self,
+        body: list[BulkCircuitRequest],
+        query: CircuitsCircuitsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Circuit]:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitsRootPutQuery,
+            query=query,
             body_model=list[BulkCircuitRequest],
             body=body,
             response_model=list[Circuit],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkCircuitRequest]) -> list[Circuit]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkCircuitRequest],
+        query: CircuitsCircuitsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Circuit]:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCircuitRequest],
             body=body,
             response_model=list[Circuit],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CircuitRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CircuitRequest],
+        query: CircuitsCircuitsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsCircuitsRootDeleteQuery,
+            query=query,
             body_model=list[CircuitRequest],
             body=body,
             response_model=None,
@@ -19068,27 +21263,33 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ProviderAccountRequest | list[ProviderAccountRequest]
+        self,
+        body: ProviderAccountRequest | list[ProviderAccountRequest],
+        query: CircuitsProviderAccountsRootPostQuery | dict[str, Any] | None = None,
     ) -> ProviderAccount:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderAccountsRootPostQuery,
+            query=query,
             body_model=ProviderAccountRequest | list[ProviderAccountRequest],
             body=body,
             response_model=ProviderAccount,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkProviderAccountRequest]) -> list[ProviderAccount]:
+    async def bulk_update(
+        self,
+        body: list[BulkProviderAccountRequest],
+        query: CircuitsProviderAccountsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ProviderAccount]:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderAccountsRootPutQuery,
+            query=query,
             body_model=list[BulkProviderAccountRequest],
             body=body,
             response_model=list[ProviderAccount],
@@ -19096,27 +21297,33 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkProviderAccountRequest]
+        self,
+        body: list[PatchedBulkProviderAccountRequest],
+        query: CircuitsProviderAccountsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ProviderAccount]:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderAccountsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkProviderAccountRequest],
             body=body,
             response_model=list[ProviderAccount],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ProviderAccountRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ProviderAccountRequest],
+        query: CircuitsProviderAccountsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderAccountsRootDeleteQuery,
+            query=query,
             body_model=list[ProviderAccountRequest],
             body=body,
             response_model=None,
@@ -19204,27 +21411,33 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ProviderNetworkRequest | list[ProviderNetworkRequest]
+        self,
+        body: ProviderNetworkRequest | list[ProviderNetworkRequest],
+        query: CircuitsProviderNetworksRootPostQuery | dict[str, Any] | None = None,
     ) -> ProviderNetwork:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderNetworksRootPostQuery,
+            query=query,
             body_model=ProviderNetworkRequest | list[ProviderNetworkRequest],
             body=body,
             response_model=ProviderNetwork,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkProviderNetworkRequest]) -> list[ProviderNetwork]:
+    async def bulk_update(
+        self,
+        body: list[BulkProviderNetworkRequest],
+        query: CircuitsProviderNetworksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ProviderNetwork]:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderNetworksRootPutQuery,
+            query=query,
             body_model=list[BulkProviderNetworkRequest],
             body=body,
             response_model=list[ProviderNetwork],
@@ -19232,27 +21445,33 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkProviderNetworkRequest]
+        self,
+        body: list[PatchedBulkProviderNetworkRequest],
+        query: CircuitsProviderNetworksRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ProviderNetwork]:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderNetworksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkProviderNetworkRequest],
             body=body,
             response_model=list[ProviderNetwork],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ProviderNetworkRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ProviderNetworkRequest],
+        query: CircuitsProviderNetworksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProviderNetworksRootDeleteQuery,
+            query=query,
             body_model=list[ProviderNetworkRequest],
             body=body,
             response_model=None,
@@ -19339,52 +21558,68 @@ class CircuitsProvidersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ProviderRequest | list[ProviderRequest]) -> Provider:
+    async def create(
+        self,
+        body: ProviderRequest | list[ProviderRequest],
+        query: CircuitsProvidersRootPostQuery | dict[str, Any] | None = None,
+    ) -> Provider:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProvidersRootPostQuery,
+            query=query,
             body_model=ProviderRequest | list[ProviderRequest],
             body=body,
             response_model=Provider,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkProviderRequest]) -> list[Provider]:
+    async def bulk_update(
+        self,
+        body: list[BulkProviderRequest],
+        query: CircuitsProvidersRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Provider]:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProvidersRootPutQuery,
+            query=query,
             body_model=list[BulkProviderRequest],
             body=body,
             response_model=list[Provider],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkProviderRequest]) -> list[Provider]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkProviderRequest],
+        query: CircuitsProvidersRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Provider]:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProvidersRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkProviderRequest],
             body=body,
             response_model=list[Provider],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ProviderRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ProviderRequest],
+        query: CircuitsProvidersRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsProvidersRootDeleteQuery,
+            query=query,
             body_model=list[ProviderRequest],
             body=body,
             response_model=None,
@@ -19475,13 +21710,14 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: WritableVirtualCircuitTerminationRequest
         | list[WritableVirtualCircuitTerminationRequest],
+        query: CircuitsVirtualCircuitTerminationsRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualCircuitTermination:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTerminationsRootPostQuery,
+            query=query,
             body_model=WritableVirtualCircuitTerminationRequest
             | list[WritableVirtualCircuitTerminationRequest],
             body=body,
@@ -19490,14 +21726,16 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkVirtualCircuitTerminationRequest]
+        self,
+        body: list[BulkVirtualCircuitTerminationRequest],
+        query: CircuitsVirtualCircuitTerminationsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[VirtualCircuitTermination]:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTerminationsRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualCircuitTerminationRequest],
             body=body,
             response_model=list[VirtualCircuitTermination],
@@ -19505,27 +21743,33 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualCircuitTerminationRequest]
+        self,
+        body: list[PatchedBulkVirtualCircuitTerminationRequest],
+        query: CircuitsVirtualCircuitTerminationsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualCircuitTermination]:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTerminationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualCircuitTerminationRequest],
             body=body,
             response_model=list[VirtualCircuitTermination],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualCircuitTerminationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualCircuitTerminationRequest],
+        query: CircuitsVirtualCircuitTerminationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTerminationsRootDeleteQuery,
+            query=query,
             body_model=list[VirtualCircuitTerminationRequest],
             body=body,
             response_model=None,
@@ -19639,14 +21883,16 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: VirtualCircuitTypeRequest | list[VirtualCircuitTypeRequest]
+        self,
+        body: VirtualCircuitTypeRequest | list[VirtualCircuitTypeRequest],
+        query: CircuitsVirtualCircuitTypesRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualCircuitType:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTypesRootPostQuery,
+            query=query,
             body_model=VirtualCircuitTypeRequest | list[VirtualCircuitTypeRequest],
             body=body,
             response_model=VirtualCircuitType,
@@ -19654,14 +21900,16 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkVirtualCircuitTypeRequest]
+        self,
+        body: list[BulkVirtualCircuitTypeRequest],
+        query: CircuitsVirtualCircuitTypesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[VirtualCircuitType]:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTypesRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualCircuitTypeRequest],
             body=body,
             response_model=list[VirtualCircuitType],
@@ -19669,27 +21917,33 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualCircuitTypeRequest]
+        self,
+        body: list[PatchedBulkVirtualCircuitTypeRequest],
+        query: CircuitsVirtualCircuitTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualCircuitType]:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualCircuitTypeRequest],
             body=body,
             response_model=list[VirtualCircuitType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualCircuitTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualCircuitTypeRequest],
+        query: CircuitsVirtualCircuitTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitTypesRootDeleteQuery,
+            query=query,
             body_model=list[VirtualCircuitTypeRequest],
             body=body,
             response_model=None,
@@ -19777,27 +22031,33 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableVirtualCircuitRequest | list[WritableVirtualCircuitRequest]
+        self,
+        body: WritableVirtualCircuitRequest | list[WritableVirtualCircuitRequest],
+        query: CircuitsVirtualCircuitsRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualCircuit:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitsRootPostQuery,
+            query=query,
             body_model=WritableVirtualCircuitRequest | list[WritableVirtualCircuitRequest],
             body=body,
             response_model=VirtualCircuit,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVirtualCircuitRequest]) -> list[VirtualCircuit]:
+    async def bulk_update(
+        self,
+        body: list[BulkVirtualCircuitRequest],
+        query: CircuitsVirtualCircuitsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VirtualCircuit]:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitsRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualCircuitRequest],
             body=body,
             response_model=list[VirtualCircuit],
@@ -19805,27 +22065,33 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualCircuitRequest]
+        self,
+        body: list[PatchedBulkVirtualCircuitRequest],
+        query: CircuitsVirtualCircuitsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualCircuit]:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualCircuitRequest],
             body=body,
             response_model=list[VirtualCircuit],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualCircuitRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualCircuitRequest],
+        query: CircuitsVirtualCircuitsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CircuitsVirtualCircuitsRootDeleteQuery,
+            query=query,
             body_model=list[VirtualCircuitRequest],
             body=body,
             response_model=None,
@@ -20165,27 +22431,33 @@ class CoreDataSourcesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableDataSourceRequest | list[WritableDataSourceRequest]
+        self,
+        body: WritableDataSourceRequest | list[WritableDataSourceRequest],
+        query: CoreDataSourcesRootPostQuery | dict[str, Any] | None = None,
     ) -> DataSource:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreDataSourcesRootPostQuery,
+            query=query,
             body_model=WritableDataSourceRequest | list[WritableDataSourceRequest],
             body=body,
             response_model=DataSource,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkDataSourceRequest]) -> list[DataSource]:
+    async def bulk_update(
+        self,
+        body: list[BulkDataSourceRequest],
+        query: CoreDataSourcesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[DataSource]:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreDataSourcesRootPutQuery,
+            query=query,
             body_model=list[BulkDataSourceRequest],
             body=body,
             response_model=list[DataSource],
@@ -20193,27 +22465,33 @@ class CoreDataSourcesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkDataSourceRequest]
+        self,
+        body: list[PatchedBulkDataSourceRequest],
+        query: CoreDataSourcesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[DataSource]:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreDataSourcesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkDataSourceRequest],
             body=body,
             response_model=list[DataSource],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[DataSourceRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[DataSourceRequest],
+        query: CoreDataSourcesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=CoreDataSourcesRootDeleteQuery,
+            query=query,
             body_model=list[DataSourceRequest],
             body=body,
             response_model=None,
@@ -20429,26 +22707,34 @@ class DcimCableBundlesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: CableBundleRequest | list[CableBundleRequest]) -> CableBundle:
+    async def create(
+        self,
+        body: CableBundleRequest | list[CableBundleRequest],
+        query: DcimCableBundlesRootPostQuery | dict[str, Any] | None = None,
+    ) -> CableBundle:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCableBundlesRootPostQuery,
+            query=query,
             body_model=CableBundleRequest | list[CableBundleRequest],
             body=body,
             response_model=CableBundle,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCableBundleRequest]) -> list[CableBundle]:
+    async def bulk_update(
+        self,
+        body: list[BulkCableBundleRequest],
+        query: DcimCableBundlesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CableBundle]:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCableBundlesRootPutQuery,
+            query=query,
             body_model=list[BulkCableBundleRequest],
             body=body,
             response_model=list[CableBundle],
@@ -20456,27 +22742,33 @@ class DcimCableBundlesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCableBundleRequest]
+        self,
+        body: list[PatchedBulkCableBundleRequest],
+        query: DcimCableBundlesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CableBundle]:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCableBundlesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCableBundleRequest],
             body=body,
             response_model=list[CableBundle],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CableBundleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CableBundleRequest],
+        query: DcimCableBundlesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCableBundlesRootDeleteQuery,
+            query=query,
             body_model=list[CableBundleRequest],
             body=body,
             response_model=None,
@@ -20598,52 +22890,68 @@ class DcimCablesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableCableRequest | list[WritableCableRequest]) -> Cable:
+    async def create(
+        self,
+        body: WritableCableRequest | list[WritableCableRequest],
+        query: DcimCablesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Cable:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCablesRootPostQuery,
+            query=query,
             body_model=WritableCableRequest | list[WritableCableRequest],
             body=body,
             response_model=Cable,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCableRequest]) -> list[Cable]:
+    async def bulk_update(
+        self,
+        body: list[BulkCableRequest],
+        query: DcimCablesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Cable]:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCablesRootPutQuery,
+            query=query,
             body_model=list[BulkCableRequest],
             body=body,
             response_model=list[Cable],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkCableRequest]) -> list[Cable]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkCableRequest],
+        query: DcimCablesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Cable]:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCablesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCableRequest],
             body=body,
             response_model=list[Cable],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CableRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CableRequest],
+        query: DcimCablesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCablesRootDeleteQuery,
+            query=query,
             body_model=list[CableRequest],
             body=body,
             response_model=None,
@@ -20749,14 +23057,16 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableConsolePortTemplateRequest | list[WritableConsolePortTemplateRequest]
+        self,
+        body: WritableConsolePortTemplateRequest | list[WritableConsolePortTemplateRequest],
+        query: DcimConsolePortTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> ConsolePortTemplate:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortTemplatesRootPostQuery,
+            query=query,
             body_model=WritableConsolePortTemplateRequest
             | list[WritableConsolePortTemplateRequest],
             body=body,
@@ -20765,14 +23075,16 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkConsolePortTemplateRequest]
+        self,
+        body: list[BulkConsolePortTemplateRequest],
+        query: DcimConsolePortTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ConsolePortTemplate]:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkConsolePortTemplateRequest],
             body=body,
             response_model=list[ConsolePortTemplate],
@@ -20780,27 +23092,33 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConsolePortTemplateRequest]
+        self,
+        body: list[PatchedBulkConsolePortTemplateRequest],
+        query: DcimConsolePortTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConsolePortTemplate]:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConsolePortTemplateRequest],
             body=body,
             response_model=list[ConsolePortTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConsolePortTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConsolePortTemplateRequest],
+        query: DcimConsolePortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[ConsolePortTemplateRequest],
             body=body,
             response_model=None,
@@ -20894,27 +23212,33 @@ class DcimConsolePortsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableConsolePortRequest | list[WritableConsolePortRequest]
+        self,
+        body: WritableConsolePortRequest | list[WritableConsolePortRequest],
+        query: DcimConsolePortsRootPostQuery | dict[str, Any] | None = None,
     ) -> ConsolePort:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortsRootPostQuery,
+            query=query,
             body_model=WritableConsolePortRequest | list[WritableConsolePortRequest],
             body=body,
             response_model=ConsolePort,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkConsolePortRequest]) -> list[ConsolePort]:
+    async def bulk_update(
+        self,
+        body: list[BulkConsolePortRequest],
+        query: DcimConsolePortsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ConsolePort]:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortsRootPutQuery,
+            query=query,
             body_model=list[BulkConsolePortRequest],
             body=body,
             response_model=list[ConsolePort],
@@ -20922,27 +23246,33 @@ class DcimConsolePortsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConsolePortRequest]
+        self,
+        body: list[PatchedBulkConsolePortRequest],
+        query: DcimConsolePortsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConsolePort]:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConsolePortRequest],
             body=body,
             response_model=list[ConsolePort],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConsolePortRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConsolePortRequest],
+        query: DcimConsolePortsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsolePortsRootDeleteQuery,
+            query=query,
             body_model=list[ConsolePortRequest],
             body=body,
             response_model=None,
@@ -21053,13 +23383,14 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableConsoleServerPortTemplateRequest
         | list[WritableConsoleServerPortTemplateRequest],
+        query: DcimConsoleServerPortTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> ConsoleServerPortTemplate:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortTemplatesRootPostQuery,
+            query=query,
             body_model=WritableConsoleServerPortTemplateRequest
             | list[WritableConsoleServerPortTemplateRequest],
             body=body,
@@ -21068,14 +23399,16 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkConsoleServerPortTemplateRequest]
+        self,
+        body: list[BulkConsoleServerPortTemplateRequest],
+        query: DcimConsoleServerPortTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ConsoleServerPortTemplate]:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkConsoleServerPortTemplateRequest],
             body=body,
             response_model=list[ConsoleServerPortTemplate],
@@ -21083,27 +23416,33 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConsoleServerPortTemplateRequest]
+        self,
+        body: list[PatchedBulkConsoleServerPortTemplateRequest],
+        query: DcimConsoleServerPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConsoleServerPortTemplate]:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConsoleServerPortTemplateRequest],
             body=body,
             response_model=list[ConsoleServerPortTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConsoleServerPortTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConsoleServerPortTemplateRequest],
+        query: DcimConsoleServerPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[ConsoleServerPortTemplateRequest],
             body=body,
             response_model=None,
@@ -21197,14 +23536,16 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableConsoleServerPortRequest | list[WritableConsoleServerPortRequest]
+        self,
+        body: WritableConsoleServerPortRequest | list[WritableConsoleServerPortRequest],
+        query: DcimConsoleServerPortsRootPostQuery | dict[str, Any] | None = None,
     ) -> ConsoleServerPort:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortsRootPostQuery,
+            query=query,
             body_model=WritableConsoleServerPortRequest | list[WritableConsoleServerPortRequest],
             body=body,
             response_model=ConsoleServerPort,
@@ -21212,14 +23553,16 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkConsoleServerPortRequest]
+        self,
+        body: list[BulkConsoleServerPortRequest],
+        query: DcimConsoleServerPortsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ConsoleServerPort]:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortsRootPutQuery,
+            query=query,
             body_model=list[BulkConsoleServerPortRequest],
             body=body,
             response_model=list[ConsoleServerPort],
@@ -21227,27 +23570,33 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConsoleServerPortRequest]
+        self,
+        body: list[PatchedBulkConsoleServerPortRequest],
+        query: DcimConsoleServerPortsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConsoleServerPort]:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConsoleServerPortRequest],
             body=body,
             response_model=list[ConsoleServerPort],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConsoleServerPortRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConsoleServerPortRequest],
+        query: DcimConsoleServerPortsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimConsoleServerPortsRootDeleteQuery,
+            query=query,
             body_model=list[ConsoleServerPortRequest],
             body=body,
             response_model=None,
@@ -21361,27 +23710,33 @@ class DcimCoolingFeedsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableCoolingFeedRequest | list[WritableCoolingFeedRequest]
+        self,
+        body: WritableCoolingFeedRequest | list[WritableCoolingFeedRequest],
+        query: DcimCoolingFeedsRootPostQuery | dict[str, Any] | None = None,
     ) -> CoolingFeed:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingFeedsRootPostQuery,
+            query=query,
             body_model=WritableCoolingFeedRequest | list[WritableCoolingFeedRequest],
             body=body,
             response_model=CoolingFeed,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCoolingFeedRequest]) -> list[CoolingFeed]:
+    async def bulk_update(
+        self,
+        body: list[BulkCoolingFeedRequest],
+        query: DcimCoolingFeedsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CoolingFeed]:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingFeedsRootPutQuery,
+            query=query,
             body_model=list[BulkCoolingFeedRequest],
             body=body,
             response_model=list[CoolingFeed],
@@ -21389,27 +23744,33 @@ class DcimCoolingFeedsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCoolingFeedRequest]
+        self,
+        body: list[PatchedBulkCoolingFeedRequest],
+        query: DcimCoolingFeedsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CoolingFeed]:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingFeedsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCoolingFeedRequest],
             body=body,
             response_model=list[CoolingFeed],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CoolingFeedRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CoolingFeedRequest],
+        query: DcimCoolingFeedsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingFeedsRootDeleteQuery,
+            query=query,
             body_model=list[CoolingFeedRequest],
             body=body,
             response_model=None,
@@ -21497,13 +23858,14 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
     async def create(
         self,
         body: WritableCoolingIntakeTemplateRequest | list[WritableCoolingIntakeTemplateRequest],
+        query: DcimCoolingIntakeTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> CoolingIntakeTemplate:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakeTemplatesRootPostQuery,
+            query=query,
             body_model=WritableCoolingIntakeTemplateRequest
             | list[WritableCoolingIntakeTemplateRequest],
             body=body,
@@ -21512,14 +23874,16 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkCoolingIntakeTemplateRequest]
+        self,
+        body: list[BulkCoolingIntakeTemplateRequest],
+        query: DcimCoolingIntakeTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[CoolingIntakeTemplate]:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakeTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkCoolingIntakeTemplateRequest],
             body=body,
             response_model=list[CoolingIntakeTemplate],
@@ -21527,27 +23891,33 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCoolingIntakeTemplateRequest]
+        self,
+        body: list[PatchedBulkCoolingIntakeTemplateRequest],
+        query: DcimCoolingIntakeTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CoolingIntakeTemplate]:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakeTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCoolingIntakeTemplateRequest],
             body=body,
             response_model=list[CoolingIntakeTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CoolingIntakeTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CoolingIntakeTemplateRequest],
+        query: DcimCoolingIntakeTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakeTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[CoolingIntakeTemplateRequest],
             body=body,
             response_model=None,
@@ -21637,27 +24007,33 @@ class DcimCoolingIntakesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableCoolingIntakeRequest | list[WritableCoolingIntakeRequest]
+        self,
+        body: WritableCoolingIntakeRequest | list[WritableCoolingIntakeRequest],
+        query: DcimCoolingIntakesRootPostQuery | dict[str, Any] | None = None,
     ) -> CoolingIntake:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakesRootPostQuery,
+            query=query,
             body_model=WritableCoolingIntakeRequest | list[WritableCoolingIntakeRequest],
             body=body,
             response_model=CoolingIntake,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCoolingIntakeRequest]) -> list[CoolingIntake]:
+    async def bulk_update(
+        self,
+        body: list[BulkCoolingIntakeRequest],
+        query: DcimCoolingIntakesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CoolingIntake]:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakesRootPutQuery,
+            query=query,
             body_model=list[BulkCoolingIntakeRequest],
             body=body,
             response_model=list[CoolingIntake],
@@ -21665,27 +24041,33 @@ class DcimCoolingIntakesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCoolingIntakeRequest]
+        self,
+        body: list[PatchedBulkCoolingIntakeRequest],
+        query: DcimCoolingIntakesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CoolingIntake]:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCoolingIntakeRequest],
             body=body,
             response_model=list[CoolingIntake],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CoolingIntakeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CoolingIntakeRequest],
+        query: DcimCoolingIntakesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingIntakesRootDeleteQuery,
+            query=query,
             body_model=list[CoolingIntakeRequest],
             body=body,
             response_model=None,
@@ -21773,13 +24155,14 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
     async def create(
         self,
         body: WritableCoolingOutflowTemplateRequest | list[WritableCoolingOutflowTemplateRequest],
+        query: DcimCoolingOutflowTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> CoolingOutflowTemplate:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowTemplatesRootPostQuery,
+            query=query,
             body_model=WritableCoolingOutflowTemplateRequest
             | list[WritableCoolingOutflowTemplateRequest],
             body=body,
@@ -21788,14 +24171,16 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkCoolingOutflowTemplateRequest]
+        self,
+        body: list[BulkCoolingOutflowTemplateRequest],
+        query: DcimCoolingOutflowTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[CoolingOutflowTemplate]:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkCoolingOutflowTemplateRequest],
             body=body,
             response_model=list[CoolingOutflowTemplate],
@@ -21803,27 +24188,33 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCoolingOutflowTemplateRequest]
+        self,
+        body: list[PatchedBulkCoolingOutflowTemplateRequest],
+        query: DcimCoolingOutflowTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CoolingOutflowTemplate]:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCoolingOutflowTemplateRequest],
             body=body,
             response_model=list[CoolingOutflowTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CoolingOutflowTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CoolingOutflowTemplateRequest],
+        query: DcimCoolingOutflowTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[CoolingOutflowTemplateRequest],
             body=body,
             response_model=None,
@@ -21913,27 +24304,33 @@ class DcimCoolingOutflowsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableCoolingOutflowRequest | list[WritableCoolingOutflowRequest]
+        self,
+        body: WritableCoolingOutflowRequest | list[WritableCoolingOutflowRequest],
+        query: DcimCoolingOutflowsRootPostQuery | dict[str, Any] | None = None,
     ) -> CoolingOutflow:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowsRootPostQuery,
+            query=query,
             body_model=WritableCoolingOutflowRequest | list[WritableCoolingOutflowRequest],
             body=body,
             response_model=CoolingOutflow,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCoolingOutflowRequest]) -> list[CoolingOutflow]:
+    async def bulk_update(
+        self,
+        body: list[BulkCoolingOutflowRequest],
+        query: DcimCoolingOutflowsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CoolingOutflow]:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowsRootPutQuery,
+            query=query,
             body_model=list[BulkCoolingOutflowRequest],
             body=body,
             response_model=list[CoolingOutflow],
@@ -21941,27 +24338,33 @@ class DcimCoolingOutflowsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCoolingOutflowRequest]
+        self,
+        body: list[PatchedBulkCoolingOutflowRequest],
+        query: DcimCoolingOutflowsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CoolingOutflow]:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCoolingOutflowRequest],
             body=body,
             response_model=list[CoolingOutflow],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CoolingOutflowRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CoolingOutflowRequest],
+        query: DcimCoolingOutflowsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingOutflowsRootDeleteQuery,
+            query=query,
             body_model=list[CoolingOutflowRequest],
             body=body,
             response_model=None,
@@ -22047,27 +24450,33 @@ class DcimCoolingSourcesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableCoolingSourceRequest | list[WritableCoolingSourceRequest]
+        self,
+        body: WritableCoolingSourceRequest | list[WritableCoolingSourceRequest],
+        query: DcimCoolingSourcesRootPostQuery | dict[str, Any] | None = None,
     ) -> CoolingSource:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingSourcesRootPostQuery,
+            query=query,
             body_model=WritableCoolingSourceRequest | list[WritableCoolingSourceRequest],
             body=body,
             response_model=CoolingSource,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCoolingSourceRequest]) -> list[CoolingSource]:
+    async def bulk_update(
+        self,
+        body: list[BulkCoolingSourceRequest],
+        query: DcimCoolingSourcesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CoolingSource]:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingSourcesRootPutQuery,
+            query=query,
             body_model=list[BulkCoolingSourceRequest],
             body=body,
             response_model=list[CoolingSource],
@@ -22075,27 +24484,33 @@ class DcimCoolingSourcesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCoolingSourceRequest]
+        self,
+        body: list[PatchedBulkCoolingSourceRequest],
+        query: DcimCoolingSourcesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CoolingSource]:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingSourcesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCoolingSourceRequest],
             body=body,
             response_model=list[CoolingSource],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CoolingSourceRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CoolingSourceRequest],
+        query: DcimCoolingSourcesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimCoolingSourcesRootDeleteQuery,
+            query=query,
             body_model=list[CoolingSourceRequest],
             body=body,
             response_model=None,
@@ -22181,14 +24596,16 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: DeviceBayTemplateRequest | list[DeviceBayTemplateRequest]
+        self,
+        body: DeviceBayTemplateRequest | list[DeviceBayTemplateRequest],
+        query: DcimDeviceBayTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> DeviceBayTemplate:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBayTemplatesRootPostQuery,
+            query=query,
             body_model=DeviceBayTemplateRequest | list[DeviceBayTemplateRequest],
             body=body,
             response_model=DeviceBayTemplate,
@@ -22196,14 +24613,16 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkDeviceBayTemplateRequest]
+        self,
+        body: list[BulkDeviceBayTemplateRequest],
+        query: DcimDeviceBayTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[DeviceBayTemplate]:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBayTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkDeviceBayTemplateRequest],
             body=body,
             response_model=list[DeviceBayTemplate],
@@ -22211,27 +24630,33 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkDeviceBayTemplateRequest]
+        self,
+        body: list[PatchedBulkDeviceBayTemplateRequest],
+        query: DcimDeviceBayTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[DeviceBayTemplate]:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBayTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkDeviceBayTemplateRequest],
             body=body,
             response_model=list[DeviceBayTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[DeviceBayTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[DeviceBayTemplateRequest],
+        query: DcimDeviceBayTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBayTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[DeviceBayTemplateRequest],
             body=body,
             response_model=None,
@@ -22318,52 +24743,68 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: DeviceBayRequest | list[DeviceBayRequest]) -> DeviceBay:
+    async def create(
+        self,
+        body: DeviceBayRequest | list[DeviceBayRequest],
+        query: DcimDeviceBaysRootPostQuery | dict[str, Any] | None = None,
+    ) -> DeviceBay:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBaysRootPostQuery,
+            query=query,
             body_model=DeviceBayRequest | list[DeviceBayRequest],
             body=body,
             response_model=DeviceBay,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkDeviceBayRequest]) -> list[DeviceBay]:
+    async def bulk_update(
+        self,
+        body: list[BulkDeviceBayRequest],
+        query: DcimDeviceBaysRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[DeviceBay]:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBaysRootPutQuery,
+            query=query,
             body_model=list[BulkDeviceBayRequest],
             body=body,
             response_model=list[DeviceBay],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkDeviceBayRequest]) -> list[DeviceBay]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkDeviceBayRequest],
+        query: DcimDeviceBaysRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[DeviceBay]:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBaysRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkDeviceBayRequest],
             body=body,
             response_model=list[DeviceBay],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[DeviceBayRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[DeviceBayRequest],
+        query: DcimDeviceBaysRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceBaysRootDeleteQuery,
+            query=query,
             body_model=list[DeviceBayRequest],
             body=body,
             response_model=None,
@@ -22447,27 +24888,33 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableDeviceRoleRequest | list[WritableDeviceRoleRequest]
+        self,
+        body: WritableDeviceRoleRequest | list[WritableDeviceRoleRequest],
+        query: DcimDeviceRolesRootPostQuery | dict[str, Any] | None = None,
     ) -> DeviceRole:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceRolesRootPostQuery,
+            query=query,
             body_model=WritableDeviceRoleRequest | list[WritableDeviceRoleRequest],
             body=body,
             response_model=DeviceRole,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkDeviceRoleRequest]) -> list[DeviceRole]:
+    async def bulk_update(
+        self,
+        body: list[BulkDeviceRoleRequest],
+        query: DcimDeviceRolesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[DeviceRole]:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceRolesRootPutQuery,
+            query=query,
             body_model=list[BulkDeviceRoleRequest],
             body=body,
             response_model=list[DeviceRole],
@@ -22475,27 +24922,33 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkDeviceRoleRequest]
+        self,
+        body: list[PatchedBulkDeviceRoleRequest],
+        query: DcimDeviceRolesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[DeviceRole]:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceRolesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkDeviceRoleRequest],
             body=body,
             response_model=list[DeviceRole],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[DeviceRoleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[DeviceRoleRequest],
+        query: DcimDeviceRolesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceRolesRootDeleteQuery,
+            query=query,
             body_model=list[DeviceRoleRequest],
             body=body,
             response_model=None,
@@ -22581,14 +25034,16 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableDeviceTypeRequest | list[WritableDeviceTypeRequest] | dict[str, Any]
+        self,
+        body: WritableDeviceTypeRequest | list[WritableDeviceTypeRequest] | dict[str, Any],
+        query: DcimDeviceTypesRootPostQuery | dict[str, Any] | None = None,
     ) -> DeviceType:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceTypesRootPostQuery,
+            query=query,
             body_model=WritableDeviceTypeRequest | list[WritableDeviceTypeRequest],
             body=body,
             response_model=DeviceType,
@@ -22597,14 +25052,16 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkDeviceTypeRequest] | dict[str, Any]
+        self,
+        body: list[BulkDeviceTypeRequest] | dict[str, Any],
+        query: DcimDeviceTypesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[DeviceType]:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceTypesRootPutQuery,
+            query=query,
             body_model=list[BulkDeviceTypeRequest],
             body=body,
             response_model=list[DeviceType],
@@ -22613,14 +25070,16 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkDeviceTypeRequest] | dict[str, Any]
+        self,
+        body: list[PatchedBulkDeviceTypeRequest] | dict[str, Any],
+        query: DcimDeviceTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[DeviceType]:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkDeviceTypeRequest],
             body=body,
             response_model=list[DeviceType],
@@ -22628,13 +25087,17 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
             binary_field_names=("front_image", "rear_image"),
         )
 
-    async def bulk_delete(self, body: list[DeviceTypeRequest] | dict[str, Any]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[DeviceTypeRequest] | dict[str, Any],
+        query: DcimDeviceTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDeviceTypesRootDeleteQuery,
+            query=query,
             body_model=list[DeviceTypeRequest],
             body=body,
             response_model=None,
@@ -22728,52 +25191,68 @@ class DcimDevicesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableDeviceRequest | list[WritableDeviceRequest]) -> Device:
+    async def create(
+        self,
+        body: WritableDeviceRequest | list[WritableDeviceRequest],
+        query: DcimDevicesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Device:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDevicesRootPostQuery,
+            query=query,
             body_model=WritableDeviceRequest | list[WritableDeviceRequest],
             body=body,
             response_model=Device,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkDeviceRequest]) -> list[Device]:
+    async def bulk_update(
+        self,
+        body: list[BulkDeviceRequest],
+        query: DcimDevicesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Device]:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDevicesRootPutQuery,
+            query=query,
             body_model=list[BulkDeviceRequest],
             body=body,
             response_model=list[Device],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkDeviceRequest]) -> list[Device]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkDeviceRequest],
+        query: DcimDevicesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Device]:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDevicesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkDeviceRequest],
             body=body,
             response_model=list[Device],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[DeviceRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[DeviceRequest],
+        query: DcimDevicesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimDevicesRootDeleteQuery,
+            query=query,
             body_model=list[DeviceRequest],
             body=body,
             response_model=None,
@@ -22882,14 +25361,16 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableFrontPortTemplateRequest | list[WritableFrontPortTemplateRequest]
+        self,
+        body: WritableFrontPortTemplateRequest | list[WritableFrontPortTemplateRequest],
+        query: DcimFrontPortTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> FrontPortTemplate:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortTemplatesRootPostQuery,
+            query=query,
             body_model=WritableFrontPortTemplateRequest | list[WritableFrontPortTemplateRequest],
             body=body,
             response_model=FrontPortTemplate,
@@ -22897,14 +25378,16 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkFrontPortTemplateRequest]
+        self,
+        body: list[BulkFrontPortTemplateRequest],
+        query: DcimFrontPortTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[FrontPortTemplate]:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkFrontPortTemplateRequest],
             body=body,
             response_model=list[FrontPortTemplate],
@@ -22912,27 +25395,33 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkFrontPortTemplateRequest]
+        self,
+        body: list[PatchedBulkFrontPortTemplateRequest],
+        query: DcimFrontPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[FrontPortTemplate]:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkFrontPortTemplateRequest],
             body=body,
             response_model=list[FrontPortTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[FrontPortTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[FrontPortTemplateRequest],
+        query: DcimFrontPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[FrontPortTemplateRequest],
             body=body,
             response_model=None,
@@ -23026,53 +25515,67 @@ class DcimFrontPortsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableFrontPortRequest | list[WritableFrontPortRequest]
+        self,
+        body: WritableFrontPortRequest | list[WritableFrontPortRequest],
+        query: DcimFrontPortsRootPostQuery | dict[str, Any] | None = None,
     ) -> FrontPort:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortsRootPostQuery,
+            query=query,
             body_model=WritableFrontPortRequest | list[WritableFrontPortRequest],
             body=body,
             response_model=FrontPort,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkFrontPortRequest]) -> list[FrontPort]:
+    async def bulk_update(
+        self,
+        body: list[BulkFrontPortRequest],
+        query: DcimFrontPortsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[FrontPort]:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortsRootPutQuery,
+            query=query,
             body_model=list[BulkFrontPortRequest],
             body=body,
             response_model=list[FrontPort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkFrontPortRequest]) -> list[FrontPort]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkFrontPortRequest],
+        query: DcimFrontPortsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[FrontPort]:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkFrontPortRequest],
             body=body,
             response_model=list[FrontPort],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[FrontPortRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[FrontPortRequest],
+        query: DcimFrontPortsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimFrontPortsRootDeleteQuery,
+            query=query,
             body_model=list[FrontPortRequest],
             body=body,
             response_model=None,
@@ -23180,14 +25683,16 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableInterfaceTemplateRequest | list[WritableInterfaceTemplateRequest]
+        self,
+        body: WritableInterfaceTemplateRequest | list[WritableInterfaceTemplateRequest],
+        query: DcimInterfaceTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> InterfaceTemplate:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfaceTemplatesRootPostQuery,
+            query=query,
             body_model=WritableInterfaceTemplateRequest | list[WritableInterfaceTemplateRequest],
             body=body,
             response_model=InterfaceTemplate,
@@ -23195,14 +25700,16 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkInterfaceTemplateRequest]
+        self,
+        body: list[BulkInterfaceTemplateRequest],
+        query: DcimInterfaceTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[InterfaceTemplate]:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfaceTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkInterfaceTemplateRequest],
             body=body,
             response_model=list[InterfaceTemplate],
@@ -23210,27 +25717,33 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkInterfaceTemplateRequest]
+        self,
+        body: list[PatchedBulkInterfaceTemplateRequest],
+        query: DcimInterfaceTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[InterfaceTemplate]:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfaceTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkInterfaceTemplateRequest],
             body=body,
             response_model=list[InterfaceTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[InterfaceTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[InterfaceTemplateRequest],
+        query: DcimInterfaceTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfaceTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[InterfaceTemplateRequest],
             body=body,
             response_model=None,
@@ -23324,53 +25837,67 @@ class DcimInterfacesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableInterfaceRequest | list[WritableInterfaceRequest]
+        self,
+        body: WritableInterfaceRequest | list[WritableInterfaceRequest],
+        query: DcimInterfacesRootPostQuery | dict[str, Any] | None = None,
     ) -> Interface:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfacesRootPostQuery,
+            query=query,
             body_model=WritableInterfaceRequest | list[WritableInterfaceRequest],
             body=body,
             response_model=Interface,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkInterfaceRequest]) -> list[Interface]:
+    async def bulk_update(
+        self,
+        body: list[BulkInterfaceRequest],
+        query: DcimInterfacesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Interface]:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfacesRootPutQuery,
+            query=query,
             body_model=list[BulkInterfaceRequest],
             body=body,
             response_model=list[Interface],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkInterfaceRequest]) -> list[Interface]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkInterfaceRequest],
+        query: DcimInterfacesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Interface]:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfacesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkInterfaceRequest],
             body=body,
             response_model=list[Interface],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[InterfaceRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[InterfaceRequest],
+        query: DcimInterfacesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInterfacesRootDeleteQuery,
+            query=query,
             body_model=list[InterfaceRequest],
             body=body,
             response_model=None,
@@ -23478,14 +26005,16 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: InventoryItemRoleRequest | list[InventoryItemRoleRequest]
+        self,
+        body: InventoryItemRoleRequest | list[InventoryItemRoleRequest],
+        query: DcimInventoryItemRolesRootPostQuery | dict[str, Any] | None = None,
     ) -> InventoryItemRole:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemRolesRootPostQuery,
+            query=query,
             body_model=InventoryItemRoleRequest | list[InventoryItemRoleRequest],
             body=body,
             response_model=InventoryItemRole,
@@ -23493,14 +26022,16 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkInventoryItemRoleRequest]
+        self,
+        body: list[BulkInventoryItemRoleRequest],
+        query: DcimInventoryItemRolesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[InventoryItemRole]:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemRolesRootPutQuery,
+            query=query,
             body_model=list[BulkInventoryItemRoleRequest],
             body=body,
             response_model=list[InventoryItemRole],
@@ -23508,27 +26039,33 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkInventoryItemRoleRequest]
+        self,
+        body: list[PatchedBulkInventoryItemRoleRequest],
+        query: DcimInventoryItemRolesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[InventoryItemRole]:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemRolesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkInventoryItemRoleRequest],
             body=body,
             response_model=list[InventoryItemRole],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[InventoryItemRoleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[InventoryItemRoleRequest],
+        query: DcimInventoryItemRolesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemRolesRootDeleteQuery,
+            query=query,
             body_model=list[InventoryItemRoleRequest],
             body=body,
             response_model=None,
@@ -23616,14 +26153,16 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: InventoryItemTemplateRequest | list[InventoryItemTemplateRequest]
+        self,
+        body: InventoryItemTemplateRequest | list[InventoryItemTemplateRequest],
+        query: DcimInventoryItemTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> InventoryItemTemplate:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemTemplatesRootPostQuery,
+            query=query,
             body_model=InventoryItemTemplateRequest | list[InventoryItemTemplateRequest],
             body=body,
             response_model=InventoryItemTemplate,
@@ -23631,14 +26170,16 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkInventoryItemTemplateRequest]
+        self,
+        body: list[BulkInventoryItemTemplateRequest],
+        query: DcimInventoryItemTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[InventoryItemTemplate]:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkInventoryItemTemplateRequest],
             body=body,
             response_model=list[InventoryItemTemplate],
@@ -23646,27 +26187,33 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkInventoryItemTemplateRequest]
+        self,
+        body: list[PatchedBulkInventoryItemTemplateRequest],
+        query: DcimInventoryItemTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[InventoryItemTemplate]:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkInventoryItemTemplateRequest],
             body=body,
             response_model=list[InventoryItemTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[InventoryItemTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[InventoryItemTemplateRequest],
+        query: DcimInventoryItemTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[InventoryItemTemplateRequest],
             body=body,
             response_model=None,
@@ -23756,27 +26303,33 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableInventoryItemRequest | list[WritableInventoryItemRequest]
+        self,
+        body: WritableInventoryItemRequest | list[WritableInventoryItemRequest],
+        query: DcimInventoryItemsRootPostQuery | dict[str, Any] | None = None,
     ) -> InventoryItem:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemsRootPostQuery,
+            query=query,
             body_model=WritableInventoryItemRequest | list[WritableInventoryItemRequest],
             body=body,
             response_model=InventoryItem,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkInventoryItemRequest]) -> list[InventoryItem]:
+    async def bulk_update(
+        self,
+        body: list[BulkInventoryItemRequest],
+        query: DcimInventoryItemsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[InventoryItem]:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemsRootPutQuery,
+            query=query,
             body_model=list[BulkInventoryItemRequest],
             body=body,
             response_model=list[InventoryItem],
@@ -23784,27 +26337,33 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkInventoryItemRequest]
+        self,
+        body: list[PatchedBulkInventoryItemRequest],
+        query: DcimInventoryItemsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[InventoryItem]:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkInventoryItemRequest],
             body=body,
             response_model=list[InventoryItem],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[InventoryItemRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[InventoryItemRequest],
+        query: DcimInventoryItemsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimInventoryItemsRootDeleteQuery,
+            query=query,
             body_model=list[InventoryItemRequest],
             body=body,
             response_model=None,
@@ -23890,53 +26449,67 @@ class DcimLocationsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableLocationRequest | list[WritableLocationRequest]
+        self,
+        body: WritableLocationRequest | list[WritableLocationRequest],
+        query: DcimLocationsRootPostQuery | dict[str, Any] | None = None,
     ) -> Location:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimLocationsRootPostQuery,
+            query=query,
             body_model=WritableLocationRequest | list[WritableLocationRequest],
             body=body,
             response_model=Location,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkLocationRequest]) -> list[Location]:
+    async def bulk_update(
+        self,
+        body: list[BulkLocationRequest],
+        query: DcimLocationsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Location]:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimLocationsRootPutQuery,
+            query=query,
             body_model=list[BulkLocationRequest],
             body=body,
             response_model=list[Location],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkLocationRequest]) -> list[Location]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkLocationRequest],
+        query: DcimLocationsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Location]:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimLocationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkLocationRequest],
             body=body,
             response_model=list[Location],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[LocationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[LocationRequest],
+        query: DcimLocationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimLocationsRootDeleteQuery,
+            query=query,
             body_model=list[LocationRequest],
             body=body,
             response_model=None,
@@ -24019,26 +26592,34 @@ class DcimMacAddressesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: MACAddressRequest | list[MACAddressRequest]) -> MACAddress:
+    async def create(
+        self,
+        body: MACAddressRequest | list[MACAddressRequest],
+        query: DcimMacAddressesRootPostQuery | dict[str, Any] | None = None,
+    ) -> MACAddress:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimMacAddressesRootPostQuery,
+            query=query,
             body_model=MACAddressRequest | list[MACAddressRequest],
             body=body,
             response_model=MACAddress,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkMACAddressRequest]) -> list[MACAddress]:
+    async def bulk_update(
+        self,
+        body: list[BulkMACAddressRequest],
+        query: DcimMacAddressesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[MACAddress]:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimMacAddressesRootPutQuery,
+            query=query,
             body_model=list[BulkMACAddressRequest],
             body=body,
             response_model=list[MACAddress],
@@ -24046,27 +26627,33 @@ class DcimMacAddressesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkMACAddressRequest]
+        self,
+        body: list[PatchedBulkMACAddressRequest],
+        query: DcimMacAddressesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[MACAddress]:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimMacAddressesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkMACAddressRequest],
             body=body,
             response_model=list[MACAddress],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[MACAddressRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[MACAddressRequest],
+        query: DcimMacAddressesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimMacAddressesRootDeleteQuery,
+            query=query,
             body_model=list[MACAddressRequest],
             body=body,
             response_model=None,
@@ -24149,26 +26736,34 @@ class DcimManufacturersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ManufacturerRequest | list[ManufacturerRequest]) -> Manufacturer:
+    async def create(
+        self,
+        body: ManufacturerRequest | list[ManufacturerRequest],
+        query: DcimManufacturersRootPostQuery | dict[str, Any] | None = None,
+    ) -> Manufacturer:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimManufacturersRootPostQuery,
+            query=query,
             body_model=ManufacturerRequest | list[ManufacturerRequest],
             body=body,
             response_model=Manufacturer,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkManufacturerRequest]) -> list[Manufacturer]:
+    async def bulk_update(
+        self,
+        body: list[BulkManufacturerRequest],
+        query: DcimManufacturersRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Manufacturer]:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimManufacturersRootPutQuery,
+            query=query,
             body_model=list[BulkManufacturerRequest],
             body=body,
             response_model=list[Manufacturer],
@@ -24176,27 +26771,33 @@ class DcimManufacturersEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkManufacturerRequest]
+        self,
+        body: list[PatchedBulkManufacturerRequest],
+        query: DcimManufacturersRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[Manufacturer]:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimManufacturersRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkManufacturerRequest],
             body=body,
             response_model=list[Manufacturer],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ManufacturerRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ManufacturerRequest],
+        query: DcimManufacturersRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimManufacturersRootDeleteQuery,
+            query=query,
             body_model=list[ManufacturerRequest],
             body=body,
             response_model=None,
@@ -24280,14 +26881,16 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ModuleBayTemplateRequest | list[ModuleBayTemplateRequest]
+        self,
+        body: ModuleBayTemplateRequest | list[ModuleBayTemplateRequest],
+        query: DcimModuleBayTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> ModuleBayTemplate:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTemplatesRootPostQuery,
+            query=query,
             body_model=ModuleBayTemplateRequest | list[ModuleBayTemplateRequest],
             body=body,
             response_model=ModuleBayTemplate,
@@ -24295,14 +26898,16 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkModuleBayTemplateRequest]
+        self,
+        body: list[BulkModuleBayTemplateRequest],
+        query: DcimModuleBayTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ModuleBayTemplate]:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkModuleBayTemplateRequest],
             body=body,
             response_model=list[ModuleBayTemplate],
@@ -24310,27 +26915,33 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkModuleBayTemplateRequest]
+        self,
+        body: list[PatchedBulkModuleBayTemplateRequest],
+        query: DcimModuleBayTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ModuleBayTemplate]:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkModuleBayTemplateRequest],
             body=body,
             response_model=list[ModuleBayTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ModuleBayTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ModuleBayTemplateRequest],
+        query: DcimModuleBayTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[ModuleBayTemplateRequest],
             body=body,
             response_model=None,
@@ -24418,27 +27029,33 @@ class DcimModuleBayTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ModuleBayTypeRequest | list[ModuleBayTypeRequest]
+        self,
+        body: ModuleBayTypeRequest | list[ModuleBayTypeRequest],
+        query: DcimModuleBayTypesRootPostQuery | dict[str, Any] | None = None,
     ) -> ModuleBayType:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTypesRootPostQuery,
+            query=query,
             body_model=ModuleBayTypeRequest | list[ModuleBayTypeRequest],
             body=body,
             response_model=ModuleBayType,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkModuleBayTypeRequest]) -> list[ModuleBayType]:
+    async def bulk_update(
+        self,
+        body: list[BulkModuleBayTypeRequest],
+        query: DcimModuleBayTypesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ModuleBayType]:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTypesRootPutQuery,
+            query=query,
             body_model=list[BulkModuleBayTypeRequest],
             body=body,
             response_model=list[ModuleBayType],
@@ -24446,27 +27063,33 @@ class DcimModuleBayTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkModuleBayTypeRequest]
+        self,
+        body: list[PatchedBulkModuleBayTypeRequest],
+        query: DcimModuleBayTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ModuleBayType]:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkModuleBayTypeRequest],
             body=body,
             response_model=list[ModuleBayType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ModuleBayTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ModuleBayTypeRequest],
+        query: DcimModuleBayTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBayTypesRootDeleteQuery,
+            query=query,
             body_model=list[ModuleBayTypeRequest],
             body=body,
             response_model=None,
@@ -24551,52 +27174,68 @@ class DcimModuleBaysEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ModuleBayRequest | list[ModuleBayRequest]) -> ModuleBay:
+    async def create(
+        self,
+        body: ModuleBayRequest | list[ModuleBayRequest],
+        query: DcimModuleBaysRootPostQuery | dict[str, Any] | None = None,
+    ) -> ModuleBay:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBaysRootPostQuery,
+            query=query,
             body_model=ModuleBayRequest | list[ModuleBayRequest],
             body=body,
             response_model=ModuleBay,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkModuleBayRequest]) -> list[ModuleBay]:
+    async def bulk_update(
+        self,
+        body: list[BulkModuleBayRequest],
+        query: DcimModuleBaysRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ModuleBay]:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBaysRootPutQuery,
+            query=query,
             body_model=list[BulkModuleBayRequest],
             body=body,
             response_model=list[ModuleBay],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkModuleBayRequest]) -> list[ModuleBay]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkModuleBayRequest],
+        query: DcimModuleBaysRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[ModuleBay]:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBaysRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkModuleBayRequest],
             body=body,
             response_model=list[ModuleBay],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ModuleBayRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ModuleBayRequest],
+        query: DcimModuleBaysRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleBaysRootDeleteQuery,
+            query=query,
             body_model=list[ModuleBayRequest],
             body=body,
             response_model=None,
@@ -24680,14 +27319,16 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ModuleTypeProfileRequest | list[ModuleTypeProfileRequest]
+        self,
+        body: ModuleTypeProfileRequest | list[ModuleTypeProfileRequest],
+        query: DcimModuleTypeProfilesRootPostQuery | dict[str, Any] | None = None,
     ) -> ModuleTypeProfile:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypeProfilesRootPostQuery,
+            query=query,
             body_model=ModuleTypeProfileRequest | list[ModuleTypeProfileRequest],
             body=body,
             response_model=ModuleTypeProfile,
@@ -24695,14 +27336,16 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkModuleTypeProfileRequest]
+        self,
+        body: list[BulkModuleTypeProfileRequest],
+        query: DcimModuleTypeProfilesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ModuleTypeProfile]:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypeProfilesRootPutQuery,
+            query=query,
             body_model=list[BulkModuleTypeProfileRequest],
             body=body,
             response_model=list[ModuleTypeProfile],
@@ -24710,27 +27353,33 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkModuleTypeProfileRequest]
+        self,
+        body: list[PatchedBulkModuleTypeProfileRequest],
+        query: DcimModuleTypeProfilesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ModuleTypeProfile]:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypeProfilesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkModuleTypeProfileRequest],
             body=body,
             response_model=list[ModuleTypeProfile],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ModuleTypeProfileRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ModuleTypeProfileRequest],
+        query: DcimModuleTypeProfilesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypeProfilesRootDeleteQuery,
+            query=query,
             body_model=list[ModuleTypeProfileRequest],
             body=body,
             response_model=None,
@@ -24818,27 +27467,33 @@ class DcimModuleTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableModuleTypeRequest | list[WritableModuleTypeRequest]
+        self,
+        body: WritableModuleTypeRequest | list[WritableModuleTypeRequest],
+        query: DcimModuleTypesRootPostQuery | dict[str, Any] | None = None,
     ) -> ModuleType:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypesRootPostQuery,
+            query=query,
             body_model=WritableModuleTypeRequest | list[WritableModuleTypeRequest],
             body=body,
             response_model=ModuleType,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkModuleTypeRequest]) -> list[ModuleType]:
+    async def bulk_update(
+        self,
+        body: list[BulkModuleTypeRequest],
+        query: DcimModuleTypesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ModuleType]:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypesRootPutQuery,
+            query=query,
             body_model=list[BulkModuleTypeRequest],
             body=body,
             response_model=list[ModuleType],
@@ -24846,27 +27501,33 @@ class DcimModuleTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkModuleTypeRequest]
+        self,
+        body: list[PatchedBulkModuleTypeRequest],
+        query: DcimModuleTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ModuleType]:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkModuleTypeRequest],
             body=body,
             response_model=list[ModuleType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ModuleTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ModuleTypeRequest],
+        query: DcimModuleTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModuleTypesRootDeleteQuery,
+            query=query,
             body_model=list[ModuleTypeRequest],
             body=body,
             response_model=None,
@@ -24951,52 +27612,68 @@ class DcimModulesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableModuleRequest | list[WritableModuleRequest]) -> Module:
+    async def create(
+        self,
+        body: WritableModuleRequest | list[WritableModuleRequest],
+        query: DcimModulesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Module:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModulesRootPostQuery,
+            query=query,
             body_model=WritableModuleRequest | list[WritableModuleRequest],
             body=body,
             response_model=Module,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkModuleRequest]) -> list[Module]:
+    async def bulk_update(
+        self,
+        body: list[BulkModuleRequest],
+        query: DcimModulesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Module]:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModulesRootPutQuery,
+            query=query,
             body_model=list[BulkModuleRequest],
             body=body,
             response_model=list[Module],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkModuleRequest]) -> list[Module]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkModuleRequest],
+        query: DcimModulesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Module]:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModulesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkModuleRequest],
             body=body,
             response_model=list[Module],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ModuleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ModuleRequest],
+        query: DcimModulesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimModulesRootDeleteQuery,
+            query=query,
             body_model=list[ModuleRequest],
             body=body,
             response_model=None,
@@ -25080,53 +27757,67 @@ class DcimPlatformsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritablePlatformRequest | list[WritablePlatformRequest]
+        self,
+        body: WritablePlatformRequest | list[WritablePlatformRequest],
+        query: DcimPlatformsRootPostQuery | dict[str, Any] | None = None,
     ) -> Platform:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPlatformsRootPostQuery,
+            query=query,
             body_model=WritablePlatformRequest | list[WritablePlatformRequest],
             body=body,
             response_model=Platform,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkPlatformRequest]) -> list[Platform]:
+    async def bulk_update(
+        self,
+        body: list[BulkPlatformRequest],
+        query: DcimPlatformsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Platform]:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPlatformsRootPutQuery,
+            query=query,
             body_model=list[BulkPlatformRequest],
             body=body,
             response_model=list[Platform],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkPlatformRequest]) -> list[Platform]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkPlatformRequest],
+        query: DcimPlatformsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Platform]:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPlatformsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPlatformRequest],
             body=body,
             response_model=list[Platform],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PlatformRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PlatformRequest],
+        query: DcimPlatformsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPlatformsRootDeleteQuery,
+            query=query,
             body_model=list[PlatformRequest],
             body=body,
             response_model=None,
@@ -25214,53 +27905,67 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritablePowerFeedRequest | list[WritablePowerFeedRequest]
+        self,
+        body: WritablePowerFeedRequest | list[WritablePowerFeedRequest],
+        query: DcimPowerFeedsRootPostQuery | dict[str, Any] | None = None,
     ) -> PowerFeed:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerFeedsRootPostQuery,
+            query=query,
             body_model=WritablePowerFeedRequest | list[WritablePowerFeedRequest],
             body=body,
             response_model=PowerFeed,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkPowerFeedRequest]) -> list[PowerFeed]:
+    async def bulk_update(
+        self,
+        body: list[BulkPowerFeedRequest],
+        query: DcimPowerFeedsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[PowerFeed]:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerFeedsRootPutQuery,
+            query=query,
             body_model=list[BulkPowerFeedRequest],
             body=body,
             response_model=list[PowerFeed],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkPowerFeedRequest]) -> list[PowerFeed]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkPowerFeedRequest],
+        query: DcimPowerFeedsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[PowerFeed]:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerFeedsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPowerFeedRequest],
             body=body,
             response_model=list[PowerFeed],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PowerFeedRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PowerFeedRequest],
+        query: DcimPowerFeedsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerFeedsRootDeleteQuery,
+            query=query,
             body_model=list[PowerFeedRequest],
             body=body,
             response_model=None,
@@ -25368,14 +28073,16 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritablePowerOutletTemplateRequest | list[WritablePowerOutletTemplateRequest]
+        self,
+        body: WritablePowerOutletTemplateRequest | list[WritablePowerOutletTemplateRequest],
+        query: DcimPowerOutletTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> PowerOutletTemplate:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletTemplatesRootPostQuery,
+            query=query,
             body_model=WritablePowerOutletTemplateRequest
             | list[WritablePowerOutletTemplateRequest],
             body=body,
@@ -25384,14 +28091,16 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkPowerOutletTemplateRequest]
+        self,
+        body: list[BulkPowerOutletTemplateRequest],
+        query: DcimPowerOutletTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[PowerOutletTemplate]:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkPowerOutletTemplateRequest],
             body=body,
             response_model=list[PowerOutletTemplate],
@@ -25399,27 +28108,33 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkPowerOutletTemplateRequest]
+        self,
+        body: list[PatchedBulkPowerOutletTemplateRequest],
+        query: DcimPowerOutletTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[PowerOutletTemplate]:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPowerOutletTemplateRequest],
             body=body,
             response_model=list[PowerOutletTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PowerOutletTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PowerOutletTemplateRequest],
+        query: DcimPowerOutletTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[PowerOutletTemplateRequest],
             body=body,
             response_model=None,
@@ -25513,27 +28228,33 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritablePowerOutletRequest | list[WritablePowerOutletRequest]
+        self,
+        body: WritablePowerOutletRequest | list[WritablePowerOutletRequest],
+        query: DcimPowerOutletsRootPostQuery | dict[str, Any] | None = None,
     ) -> PowerOutlet:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletsRootPostQuery,
+            query=query,
             body_model=WritablePowerOutletRequest | list[WritablePowerOutletRequest],
             body=body,
             response_model=PowerOutlet,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkPowerOutletRequest]) -> list[PowerOutlet]:
+    async def bulk_update(
+        self,
+        body: list[BulkPowerOutletRequest],
+        query: DcimPowerOutletsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[PowerOutlet]:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletsRootPutQuery,
+            query=query,
             body_model=list[BulkPowerOutletRequest],
             body=body,
             response_model=list[PowerOutlet],
@@ -25541,27 +28262,33 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkPowerOutletRequest]
+        self,
+        body: list[PatchedBulkPowerOutletRequest],
+        query: DcimPowerOutletsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[PowerOutlet]:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPowerOutletRequest],
             body=body,
             response_model=list[PowerOutlet],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PowerOutletRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PowerOutletRequest],
+        query: DcimPowerOutletsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerOutletsRootDeleteQuery,
+            query=query,
             body_model=list[PowerOutletRequest],
             body=body,
             response_model=None,
@@ -25668,26 +28395,34 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: PowerPanelRequest | list[PowerPanelRequest]) -> PowerPanel:
+    async def create(
+        self,
+        body: PowerPanelRequest | list[PowerPanelRequest],
+        query: DcimPowerPanelsRootPostQuery | dict[str, Any] | None = None,
+    ) -> PowerPanel:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPanelsRootPostQuery,
+            query=query,
             body_model=PowerPanelRequest | list[PowerPanelRequest],
             body=body,
             response_model=PowerPanel,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkPowerPanelRequest]) -> list[PowerPanel]:
+    async def bulk_update(
+        self,
+        body: list[BulkPowerPanelRequest],
+        query: DcimPowerPanelsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[PowerPanel]:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPanelsRootPutQuery,
+            query=query,
             body_model=list[BulkPowerPanelRequest],
             body=body,
             response_model=list[PowerPanel],
@@ -25695,27 +28430,33 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkPowerPanelRequest]
+        self,
+        body: list[PatchedBulkPowerPanelRequest],
+        query: DcimPowerPanelsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[PowerPanel]:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPanelsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPowerPanelRequest],
             body=body,
             response_model=list[PowerPanel],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PowerPanelRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PowerPanelRequest],
+        query: DcimPowerPanelsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPanelsRootDeleteQuery,
+            query=query,
             body_model=list[PowerPanelRequest],
             body=body,
             response_model=None,
@@ -25799,14 +28540,16 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritablePowerPortTemplateRequest | list[WritablePowerPortTemplateRequest]
+        self,
+        body: WritablePowerPortTemplateRequest | list[WritablePowerPortTemplateRequest],
+        query: DcimPowerPortTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> PowerPortTemplate:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortTemplatesRootPostQuery,
+            query=query,
             body_model=WritablePowerPortTemplateRequest | list[WritablePowerPortTemplateRequest],
             body=body,
             response_model=PowerPortTemplate,
@@ -25814,14 +28557,16 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkPowerPortTemplateRequest]
+        self,
+        body: list[BulkPowerPortTemplateRequest],
+        query: DcimPowerPortTemplatesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[PowerPortTemplate]:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkPowerPortTemplateRequest],
             body=body,
             response_model=list[PowerPortTemplate],
@@ -25829,27 +28574,33 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkPowerPortTemplateRequest]
+        self,
+        body: list[PatchedBulkPowerPortTemplateRequest],
+        query: DcimPowerPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[PowerPortTemplate]:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPowerPortTemplateRequest],
             body=body,
             response_model=list[PowerPortTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PowerPortTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PowerPortTemplateRequest],
+        query: DcimPowerPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[PowerPortTemplateRequest],
             body=body,
             response_model=None,
@@ -25943,53 +28694,67 @@ class DcimPowerPortsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritablePowerPortRequest | list[WritablePowerPortRequest]
+        self,
+        body: WritablePowerPortRequest | list[WritablePowerPortRequest],
+        query: DcimPowerPortsRootPostQuery | dict[str, Any] | None = None,
     ) -> PowerPort:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortsRootPostQuery,
+            query=query,
             body_model=WritablePowerPortRequest | list[WritablePowerPortRequest],
             body=body,
             response_model=PowerPort,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkPowerPortRequest]) -> list[PowerPort]:
+    async def bulk_update(
+        self,
+        body: list[BulkPowerPortRequest],
+        query: DcimPowerPortsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[PowerPort]:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortsRootPutQuery,
+            query=query,
             body_model=list[BulkPowerPortRequest],
             body=body,
             response_model=list[PowerPort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkPowerPortRequest]) -> list[PowerPort]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkPowerPortRequest],
+        query: DcimPowerPortsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[PowerPort]:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPowerPortRequest],
             body=body,
             response_model=list[PowerPort],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PowerPortRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PowerPortRequest],
+        query: DcimPowerPortsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimPowerPortsRootDeleteQuery,
+            query=query,
             body_model=list[PowerPortRequest],
             body=body,
             response_model=None,
@@ -26096,52 +28861,68 @@ class DcimRackGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: RackGroupRequest | list[RackGroupRequest]) -> RackGroup:
+    async def create(
+        self,
+        body: RackGroupRequest | list[RackGroupRequest],
+        query: DcimRackGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> RackGroup:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackGroupsRootPostQuery,
+            query=query,
             body_model=RackGroupRequest | list[RackGroupRequest],
             body=body,
             response_model=RackGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRackGroupRequest]) -> list[RackGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkRackGroupRequest],
+        query: DcimRackGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RackGroup]:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkRackGroupRequest],
             body=body,
             response_model=list[RackGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRackGroupRequest]) -> list[RackGroup]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRackGroupRequest],
+        query: DcimRackGroupsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[RackGroup]:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRackGroupRequest],
             body=body,
             response_model=list[RackGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RackGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RackGroupRequest],
+        query: DcimRackGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackGroupsRootDeleteQuery,
+            query=query,
             body_model=list[RackGroupRequest],
             body=body,
             response_model=None,
@@ -26225,27 +29006,33 @@ class DcimRackReservationsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableRackReservationRequest | list[WritableRackReservationRequest]
+        self,
+        body: WritableRackReservationRequest | list[WritableRackReservationRequest],
+        query: DcimRackReservationsRootPostQuery | dict[str, Any] | None = None,
     ) -> RackReservation:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackReservationsRootPostQuery,
+            query=query,
             body_model=WritableRackReservationRequest | list[WritableRackReservationRequest],
             body=body,
             response_model=RackReservation,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRackReservationRequest]) -> list[RackReservation]:
+    async def bulk_update(
+        self,
+        body: list[BulkRackReservationRequest],
+        query: DcimRackReservationsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RackReservation]:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackReservationsRootPutQuery,
+            query=query,
             body_model=list[BulkRackReservationRequest],
             body=body,
             response_model=list[RackReservation],
@@ -26253,27 +29040,33 @@ class DcimRackReservationsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkRackReservationRequest]
+        self,
+        body: list[PatchedBulkRackReservationRequest],
+        query: DcimRackReservationsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[RackReservation]:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackReservationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRackReservationRequest],
             body=body,
             response_model=list[RackReservation],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RackReservationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RackReservationRequest],
+        query: DcimRackReservationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackReservationsRootDeleteQuery,
+            query=query,
             body_model=list[RackReservationRequest],
             body=body,
             response_model=None,
@@ -26360,52 +29153,68 @@ class DcimRackRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: RackRoleRequest | list[RackRoleRequest]) -> RackRole:
+    async def create(
+        self,
+        body: RackRoleRequest | list[RackRoleRequest],
+        query: DcimRackRolesRootPostQuery | dict[str, Any] | None = None,
+    ) -> RackRole:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackRolesRootPostQuery,
+            query=query,
             body_model=RackRoleRequest | list[RackRoleRequest],
             body=body,
             response_model=RackRole,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRackRoleRequest]) -> list[RackRole]:
+    async def bulk_update(
+        self,
+        body: list[BulkRackRoleRequest],
+        query: DcimRackRolesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RackRole]:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackRolesRootPutQuery,
+            query=query,
             body_model=list[BulkRackRoleRequest],
             body=body,
             response_model=list[RackRole],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRackRoleRequest]) -> list[RackRole]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRackRoleRequest],
+        query: DcimRackRolesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[RackRole]:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackRolesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRackRoleRequest],
             body=body,
             response_model=list[RackRole],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RackRoleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RackRoleRequest],
+        query: DcimRackRolesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackRolesRootDeleteQuery,
+            query=query,
             body_model=list[RackRoleRequest],
             body=body,
             response_model=None,
@@ -26489,53 +29298,67 @@ class DcimRackTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableRackTypeRequest | list[WritableRackTypeRequest]
+        self,
+        body: WritableRackTypeRequest | list[WritableRackTypeRequest],
+        query: DcimRackTypesRootPostQuery | dict[str, Any] | None = None,
     ) -> RackType:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackTypesRootPostQuery,
+            query=query,
             body_model=WritableRackTypeRequest | list[WritableRackTypeRequest],
             body=body,
             response_model=RackType,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRackTypeRequest]) -> list[RackType]:
+    async def bulk_update(
+        self,
+        body: list[BulkRackTypeRequest],
+        query: DcimRackTypesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RackType]:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackTypesRootPutQuery,
+            query=query,
             body_model=list[BulkRackTypeRequest],
             body=body,
             response_model=list[RackType],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRackTypeRequest]) -> list[RackType]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRackTypeRequest],
+        query: DcimRackTypesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[RackType]:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRackTypeRequest],
             body=body,
             response_model=list[RackType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RackTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RackTypeRequest],
+        query: DcimRackTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRackTypesRootDeleteQuery,
+            query=query,
             body_model=list[RackTypeRequest],
             body=body,
             response_model=None,
@@ -26622,52 +29445,68 @@ class DcimRacksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableRackRequest | list[WritableRackRequest]) -> Rack:
+    async def create(
+        self,
+        body: WritableRackRequest | list[WritableRackRequest],
+        query: DcimRacksRootPostQuery | dict[str, Any] | None = None,
+    ) -> Rack:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRacksRootPostQuery,
+            query=query,
             body_model=WritableRackRequest | list[WritableRackRequest],
             body=body,
             response_model=Rack,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRackRequest]) -> list[Rack]:
+    async def bulk_update(
+        self,
+        body: list[BulkRackRequest],
+        query: DcimRacksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Rack]:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRacksRootPutQuery,
+            query=query,
             body_model=list[BulkRackRequest],
             body=body,
             response_model=list[Rack],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRackRequest]) -> list[Rack]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRackRequest],
+        query: DcimRacksRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Rack]:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRacksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRackRequest],
             body=body,
             response_model=list[Rack],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RackRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RackRequest],
+        query: DcimRacksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRacksRootDeleteQuery,
+            query=query,
             body_model=list[RackRequest],
             body=body,
             response_model=None,
@@ -26773,27 +29612,33 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableRearPortTemplateRequest | list[WritableRearPortTemplateRequest]
+        self,
+        body: WritableRearPortTemplateRequest | list[WritableRearPortTemplateRequest],
+        query: DcimRearPortTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> RearPortTemplate:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortTemplatesRootPostQuery,
+            query=query,
             body_model=WritableRearPortTemplateRequest | list[WritableRearPortTemplateRequest],
             body=body,
             response_model=RearPortTemplate,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRearPortTemplateRequest]) -> list[RearPortTemplate]:
+    async def bulk_update(
+        self,
+        body: list[BulkRearPortTemplateRequest],
+        query: DcimRearPortTemplatesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RearPortTemplate]:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkRearPortTemplateRequest],
             body=body,
             response_model=list[RearPortTemplate],
@@ -26801,27 +29646,33 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkRearPortTemplateRequest]
+        self,
+        body: list[PatchedBulkRearPortTemplateRequest],
+        query: DcimRearPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[RearPortTemplate]:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRearPortTemplateRequest],
             body=body,
             response_model=list[RearPortTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RearPortTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RearPortTemplateRequest],
+        query: DcimRearPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[RearPortTemplateRequest],
             body=body,
             response_model=None,
@@ -26915,53 +29766,67 @@ class DcimRearPortsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableRearPortRequest | list[WritableRearPortRequest]
+        self,
+        body: WritableRearPortRequest | list[WritableRearPortRequest],
+        query: DcimRearPortsRootPostQuery | dict[str, Any] | None = None,
     ) -> RearPort:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortsRootPostQuery,
+            query=query,
             body_model=WritableRearPortRequest | list[WritableRearPortRequest],
             body=body,
             response_model=RearPort,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRearPortRequest]) -> list[RearPort]:
+    async def bulk_update(
+        self,
+        body: list[BulkRearPortRequest],
+        query: DcimRearPortsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RearPort]:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortsRootPutQuery,
+            query=query,
             body_model=list[BulkRearPortRequest],
             body=body,
             response_model=list[RearPort],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRearPortRequest]) -> list[RearPort]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRearPortRequest],
+        query: DcimRearPortsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[RearPort]:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRearPortRequest],
             body=body,
             response_model=list[RearPort],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RearPortRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RearPortRequest],
+        query: DcimRearPortsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRearPortsRootDeleteQuery,
+            query=query,
             body_model=list[RearPortRequest],
             body=body,
             response_model=None,
@@ -27066,52 +29931,68 @@ class DcimRegionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableRegionRequest | list[WritableRegionRequest]) -> Region:
+    async def create(
+        self,
+        body: WritableRegionRequest | list[WritableRegionRequest],
+        query: DcimRegionsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Region:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRegionsRootPostQuery,
+            query=query,
             body_model=WritableRegionRequest | list[WritableRegionRequest],
             body=body,
             response_model=Region,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRegionRequest]) -> list[Region]:
+    async def bulk_update(
+        self,
+        body: list[BulkRegionRequest],
+        query: DcimRegionsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Region]:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRegionsRootPutQuery,
+            query=query,
             body_model=list[BulkRegionRequest],
             body=body,
             response_model=list[Region],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRegionRequest]) -> list[Region]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRegionRequest],
+        query: DcimRegionsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Region]:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRegionsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRegionRequest],
             body=body,
             response_model=list[Region],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RegionRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RegionRequest],
+        query: DcimRegionsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimRegionsRootDeleteQuery,
+            query=query,
             body_model=list[RegionRequest],
             body=body,
             response_model=None,
@@ -27195,53 +30076,67 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableSiteGroupRequest | list[WritableSiteGroupRequest]
+        self,
+        body: WritableSiteGroupRequest | list[WritableSiteGroupRequest],
+        query: DcimSiteGroupsRootPostQuery | dict[str, Any] | None = None,
     ) -> SiteGroup:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSiteGroupsRootPostQuery,
+            query=query,
             body_model=WritableSiteGroupRequest | list[WritableSiteGroupRequest],
             body=body,
             response_model=SiteGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkSiteGroupRequest]) -> list[SiteGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkSiteGroupRequest],
+        query: DcimSiteGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[SiteGroup]:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSiteGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkSiteGroupRequest],
             body=body,
             response_model=list[SiteGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkSiteGroupRequest]) -> list[SiteGroup]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkSiteGroupRequest],
+        query: DcimSiteGroupsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[SiteGroup]:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSiteGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkSiteGroupRequest],
             body=body,
             response_model=list[SiteGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[SiteGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[SiteGroupRequest],
+        query: DcimSiteGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSiteGroupsRootDeleteQuery,
+            query=query,
             body_model=list[SiteGroupRequest],
             body=body,
             response_model=None,
@@ -27326,52 +30221,68 @@ class DcimSitesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableSiteRequest | list[WritableSiteRequest]) -> Site:
+    async def create(
+        self,
+        body: WritableSiteRequest | list[WritableSiteRequest],
+        query: DcimSitesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Site:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSitesRootPostQuery,
+            query=query,
             body_model=WritableSiteRequest | list[WritableSiteRequest],
             body=body,
             response_model=Site,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkSiteRequest]) -> list[Site]:
+    async def bulk_update(
+        self,
+        body: list[BulkSiteRequest],
+        query: DcimSitesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Site]:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSitesRootPutQuery,
+            query=query,
             body_model=list[BulkSiteRequest],
             body=body,
             response_model=list[Site],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkSiteRequest]) -> list[Site]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkSiteRequest],
+        query: DcimSitesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Site]:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSitesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkSiteRequest],
             body=body,
             response_model=list[Site],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[SiteRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[SiteRequest],
+        query: DcimSitesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimSitesRootDeleteQuery,
+            query=query,
             body_model=list[SiteRequest],
             body=body,
             response_model=None,
@@ -27455,27 +30366,33 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableVirtualChassisRequest | list[WritableVirtualChassisRequest]
+        self,
+        body: WritableVirtualChassisRequest | list[WritableVirtualChassisRequest],
+        query: DcimVirtualChassisRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualChassis:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualChassisRootPostQuery,
+            query=query,
             body_model=WritableVirtualChassisRequest | list[WritableVirtualChassisRequest],
             body=body,
             response_model=VirtualChassis,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVirtualChassisRequest]) -> list[VirtualChassis]:
+    async def bulk_update(
+        self,
+        body: list[BulkVirtualChassisRequest],
+        query: DcimVirtualChassisRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VirtualChassis]:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualChassisRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualChassisRequest],
             body=body,
             response_model=list[VirtualChassis],
@@ -27483,27 +30400,33 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualChassisRequest]
+        self,
+        body: list[PatchedBulkVirtualChassisRequest],
+        query: DcimVirtualChassisRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualChassis]:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualChassisRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualChassisRequest],
             body=body,
             response_model=list[VirtualChassis],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualChassisRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualChassisRequest],
+        query: DcimVirtualChassisRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualChassisRootDeleteQuery,
+            query=query,
             body_model=list[VirtualChassisRequest],
             body=body,
             response_model=None,
@@ -27589,14 +30512,16 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableVirtualDeviceContextRequest | list[WritableVirtualDeviceContextRequest]
+        self,
+        body: WritableVirtualDeviceContextRequest | list[WritableVirtualDeviceContextRequest],
+        query: DcimVirtualDeviceContextsRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualDeviceContext:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualDeviceContextsRootPostQuery,
+            query=query,
             body_model=WritableVirtualDeviceContextRequest
             | list[WritableVirtualDeviceContextRequest],
             body=body,
@@ -27605,14 +30530,16 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkVirtualDeviceContextRequest]
+        self,
+        body: list[BulkVirtualDeviceContextRequest],
+        query: DcimVirtualDeviceContextsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[VirtualDeviceContext]:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualDeviceContextsRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualDeviceContextRequest],
             body=body,
             response_model=list[VirtualDeviceContext],
@@ -27620,27 +30547,33 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualDeviceContextRequest]
+        self,
+        body: list[PatchedBulkVirtualDeviceContextRequest],
+        query: DcimVirtualDeviceContextsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualDeviceContext]:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualDeviceContextsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualDeviceContextRequest],
             body=body,
             response_model=list[VirtualDeviceContext],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualDeviceContextRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualDeviceContextRequest],
+        query: DcimVirtualDeviceContextsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=DcimVirtualDeviceContextsRootDeleteQuery,
+            query=query,
             body_model=list[VirtualDeviceContextRequest],
             body=body,
             response_model=None,
@@ -27729,52 +30662,68 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: BookmarkRequest | list[BookmarkRequest]) -> Bookmark:
+    async def create(
+        self,
+        body: BookmarkRequest | list[BookmarkRequest],
+        query: ExtrasBookmarksRootPostQuery | dict[str, Any] | None = None,
+    ) -> Bookmark:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasBookmarksRootPostQuery,
+            query=query,
             body_model=BookmarkRequest | list[BookmarkRequest],
             body=body,
             response_model=Bookmark,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkBookmarkRequest]) -> list[Bookmark]:
+    async def bulk_update(
+        self,
+        body: list[BulkBookmarkRequest],
+        query: ExtrasBookmarksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Bookmark]:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasBookmarksRootPutQuery,
+            query=query,
             body_model=list[BulkBookmarkRequest],
             body=body,
             response_model=list[Bookmark],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkBookmarkRequest]) -> list[Bookmark]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkBookmarkRequest],
+        query: ExtrasBookmarksRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Bookmark]:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasBookmarksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkBookmarkRequest],
             body=body,
             response_model=list[Bookmark],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[BookmarkRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[BookmarkRequest],
+        query: ExtrasBookmarksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasBookmarksRootDeleteQuery,
+            query=query,
             body_model=list[BookmarkRequest],
             body=body,
             response_model=None,
@@ -27862,14 +30811,16 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ConfigContextProfileRequest | list[ConfigContextProfileRequest]
+        self,
+        body: ConfigContextProfileRequest | list[ConfigContextProfileRequest],
+        query: ExtrasConfigContextProfilesRootPostQuery | dict[str, Any] | None = None,
     ) -> ConfigContextProfile:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextProfilesRootPostQuery,
+            query=query,
             body_model=ConfigContextProfileRequest | list[ConfigContextProfileRequest],
             body=body,
             response_model=ConfigContextProfile,
@@ -27877,14 +30828,16 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkConfigContextProfileRequest]
+        self,
+        body: list[BulkConfigContextProfileRequest],
+        query: ExtrasConfigContextProfilesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ConfigContextProfile]:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextProfilesRootPutQuery,
+            query=query,
             body_model=list[BulkConfigContextProfileRequest],
             body=body,
             response_model=list[ConfigContextProfile],
@@ -27892,27 +30845,33 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConfigContextProfileRequest]
+        self,
+        body: list[PatchedBulkConfigContextProfileRequest],
+        query: ExtrasConfigContextProfilesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConfigContextProfile]:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextProfilesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConfigContextProfileRequest],
             body=body,
             response_model=list[ConfigContextProfile],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConfigContextProfileRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConfigContextProfileRequest],
+        query: ExtrasConfigContextProfilesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextProfilesRootDeleteQuery,
+            query=query,
             body_model=list[ConfigContextProfileRequest],
             body=body,
             response_model=None,
@@ -28028,27 +30987,33 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ConfigContextRequest | list[ConfigContextRequest]
+        self,
+        body: ConfigContextRequest | list[ConfigContextRequest],
+        query: ExtrasConfigContextsRootPostQuery | dict[str, Any] | None = None,
     ) -> ConfigContext:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextsRootPostQuery,
+            query=query,
             body_model=ConfigContextRequest | list[ConfigContextRequest],
             body=body,
             response_model=ConfigContext,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkConfigContextRequest]) -> list[ConfigContext]:
+    async def bulk_update(
+        self,
+        body: list[BulkConfigContextRequest],
+        query: ExtrasConfigContextsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ConfigContext]:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextsRootPutQuery,
+            query=query,
             body_model=list[BulkConfigContextRequest],
             body=body,
             response_model=list[ConfigContext],
@@ -28056,27 +31021,33 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConfigContextRequest]
+        self,
+        body: list[PatchedBulkConfigContextRequest],
+        query: ExtrasConfigContextsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConfigContext]:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConfigContextRequest],
             body=body,
             response_model=list[ConfigContext],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConfigContextRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConfigContextRequest],
+        query: ExtrasConfigContextsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigContextsRootDeleteQuery,
+            query=query,
             body_model=list[ConfigContextRequest],
             body=body,
             response_model=None,
@@ -28192,27 +31163,33 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ConfigTemplateRequest | list[ConfigTemplateRequest]
+        self,
+        body: ConfigTemplateRequest | list[ConfigTemplateRequest],
+        query: ExtrasConfigTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> ConfigTemplate:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigTemplatesRootPostQuery,
+            query=query,
             body_model=ConfigTemplateRequest | list[ConfigTemplateRequest],
             body=body,
             response_model=ConfigTemplate,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkConfigTemplateRequest]) -> list[ConfigTemplate]:
+    async def bulk_update(
+        self,
+        body: list[BulkConfigTemplateRequest],
+        query: ExtrasConfigTemplatesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ConfigTemplate]:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkConfigTemplateRequest],
             body=body,
             response_model=list[ConfigTemplate],
@@ -28220,27 +31197,33 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkConfigTemplateRequest]
+        self,
+        body: list[PatchedBulkConfigTemplateRequest],
+        query: ExtrasConfigTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ConfigTemplate]:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkConfigTemplateRequest],
             body=body,
             response_model=list[ConfigTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ConfigTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ConfigTemplateRequest],
+        query: ExtrasConfigTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasConfigTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[ConfigTemplateRequest],
             body=body,
             response_model=None,
@@ -28377,14 +31360,16 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableCustomFieldChoiceSetRequest | list[WritableCustomFieldChoiceSetRequest]
+        self,
+        body: WritableCustomFieldChoiceSetRequest | list[WritableCustomFieldChoiceSetRequest],
+        query: ExtrasCustomFieldChoiceSetsRootPostQuery | dict[str, Any] | None = None,
     ) -> CustomFieldChoiceSet:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldChoiceSetsRootPostQuery,
+            query=query,
             body_model=WritableCustomFieldChoiceSetRequest
             | list[WritableCustomFieldChoiceSetRequest],
             body=body,
@@ -28393,14 +31378,16 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkCustomFieldChoiceSetRequest]
+        self,
+        body: list[BulkCustomFieldChoiceSetRequest],
+        query: ExtrasCustomFieldChoiceSetsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[CustomFieldChoiceSet]:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldChoiceSetsRootPutQuery,
+            query=query,
             body_model=list[BulkCustomFieldChoiceSetRequest],
             body=body,
             response_model=list[CustomFieldChoiceSet],
@@ -28408,27 +31395,33 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCustomFieldChoiceSetRequest]
+        self,
+        body: list[PatchedBulkCustomFieldChoiceSetRequest],
+        query: ExtrasCustomFieldChoiceSetsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CustomFieldChoiceSet]:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldChoiceSetsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCustomFieldChoiceSetRequest],
             body=body,
             response_model=list[CustomFieldChoiceSet],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CustomFieldChoiceSetRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CustomFieldChoiceSetRequest],
+        query: ExtrasCustomFieldChoiceSetsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldChoiceSetsRootDeleteQuery,
+            query=query,
             body_model=list[CustomFieldChoiceSetRequest],
             body=body,
             response_model=None,
@@ -28542,27 +31535,33 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableCustomFieldRequest | list[WritableCustomFieldRequest]
+        self,
+        body: WritableCustomFieldRequest | list[WritableCustomFieldRequest],
+        query: ExtrasCustomFieldsRootPostQuery | dict[str, Any] | None = None,
     ) -> CustomField:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldsRootPostQuery,
+            query=query,
             body_model=WritableCustomFieldRequest | list[WritableCustomFieldRequest],
             body=body,
             response_model=CustomField,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCustomFieldRequest]) -> list[CustomField]:
+    async def bulk_update(
+        self,
+        body: list[BulkCustomFieldRequest],
+        query: ExtrasCustomFieldsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CustomField]:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldsRootPutQuery,
+            query=query,
             body_model=list[BulkCustomFieldRequest],
             body=body,
             response_model=list[CustomField],
@@ -28570,27 +31569,33 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCustomFieldRequest]
+        self,
+        body: list[PatchedBulkCustomFieldRequest],
+        query: ExtrasCustomFieldsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CustomField]:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCustomFieldRequest],
             body=body,
             response_model=list[CustomField],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CustomFieldRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CustomFieldRequest],
+        query: ExtrasCustomFieldsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomFieldsRootDeleteQuery,
+            query=query,
             body_model=list[CustomFieldRequest],
             body=body,
             response_model=None,
@@ -28675,26 +31680,34 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: CustomLinkRequest | list[CustomLinkRequest]) -> CustomLink:
+    async def create(
+        self,
+        body: CustomLinkRequest | list[CustomLinkRequest],
+        query: ExtrasCustomLinksRootPostQuery | dict[str, Any] | None = None,
+    ) -> CustomLink:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomLinksRootPostQuery,
+            query=query,
             body_model=CustomLinkRequest | list[CustomLinkRequest],
             body=body,
             response_model=CustomLink,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkCustomLinkRequest]) -> list[CustomLink]:
+    async def bulk_update(
+        self,
+        body: list[BulkCustomLinkRequest],
+        query: ExtrasCustomLinksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[CustomLink]:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomLinksRootPutQuery,
+            query=query,
             body_model=list[BulkCustomLinkRequest],
             body=body,
             response_model=list[CustomLink],
@@ -28702,27 +31715,33 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkCustomLinkRequest]
+        self,
+        body: list[PatchedBulkCustomLinkRequest],
+        query: ExtrasCustomLinksRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[CustomLink]:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomLinksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkCustomLinkRequest],
             body=body,
             response_model=list[CustomLink],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[CustomLinkRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[CustomLinkRequest],
+        query: ExtrasCustomLinksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasCustomLinksRootDeleteQuery,
+            query=query,
             body_model=list[CustomLinkRequest],
             body=body,
             response_model=None,
@@ -28805,39 +31824,49 @@ class ExtrasDashboardEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: DashboardRequest) -> Dashboard:
+    async def bulk_update(
+        self,
+        body: DashboardRequest,
+        query: ExtrasDashboardRootPutQuery | dict[str, Any] | None = None,
+    ) -> Dashboard:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasDashboardRootPutQuery,
+            query=query,
             body_model=DashboardRequest,
             body=body,
             response_model=Dashboard,
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: PatchedDashboardRequest) -> Dashboard:
+    async def bulk_partial_update(
+        self,
+        body: PatchedDashboardRequest,
+        query: ExtrasDashboardRootPatchQuery | dict[str, Any] | None = None,
+    ) -> Dashboard:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasDashboardRootPatchQuery,
+            query=query,
             body_model=PatchedDashboardRequest,
             body=body,
             response_model=Dashboard,
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self) -> None:
+    async def bulk_delete(
+        self, query: ExtrasDashboardRootDeleteQuery | dict[str, Any] | None = None
+    ) -> None:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasDashboardRootDeleteQuery,
+            query=query,
             body_model=None,
             body=None,
             response_model=None,
@@ -28867,53 +31896,67 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableEventRuleRequest | list[WritableEventRuleRequest]
+        self,
+        body: WritableEventRuleRequest | list[WritableEventRuleRequest],
+        query: ExtrasEventRulesRootPostQuery | dict[str, Any] | None = None,
     ) -> EventRule:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasEventRulesRootPostQuery,
+            query=query,
             body_model=WritableEventRuleRequest | list[WritableEventRuleRequest],
             body=body,
             response_model=EventRule,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkEventRuleRequest]) -> list[EventRule]:
+    async def bulk_update(
+        self,
+        body: list[BulkEventRuleRequest],
+        query: ExtrasEventRulesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[EventRule]:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasEventRulesRootPutQuery,
+            query=query,
             body_model=list[BulkEventRuleRequest],
             body=body,
             response_model=list[EventRule],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkEventRuleRequest]) -> list[EventRule]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkEventRuleRequest],
+        query: ExtrasEventRulesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[EventRule]:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasEventRulesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkEventRuleRequest],
             body=body,
             response_model=list[EventRule],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[EventRuleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[EventRuleRequest],
+        query: ExtrasEventRulesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasEventRulesRootDeleteQuery,
+            query=query,
             body_model=list[EventRuleRequest],
             body=body,
             response_model=None,
@@ -29003,27 +32046,33 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ExportTemplateRequest | list[ExportTemplateRequest]
+        self,
+        body: ExportTemplateRequest | list[ExportTemplateRequest],
+        query: ExtrasExportTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> ExportTemplate:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasExportTemplatesRootPostQuery,
+            query=query,
             body_model=ExportTemplateRequest | list[ExportTemplateRequest],
             body=body,
             response_model=ExportTemplate,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkExportTemplateRequest]) -> list[ExportTemplate]:
+    async def bulk_update(
+        self,
+        body: list[BulkExportTemplateRequest],
+        query: ExtrasExportTemplatesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ExportTemplate]:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasExportTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkExportTemplateRequest],
             body=body,
             response_model=list[ExportTemplate],
@@ -29031,27 +32080,33 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkExportTemplateRequest]
+        self,
+        body: list[PatchedBulkExportTemplateRequest],
+        query: ExtrasExportTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ExportTemplate]:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasExportTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkExportTemplateRequest],
             body=body,
             response_model=list[ExportTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ExportTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ExportTemplateRequest],
+        query: ExtrasExportTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasExportTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[ExportTemplateRequest],
             body=body,
             response_model=None,
@@ -29159,14 +32214,16 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ImageAttachmentRequest | list[ImageAttachmentRequest] | dict[str, Any]
+        self,
+        body: ImageAttachmentRequest | list[ImageAttachmentRequest] | dict[str, Any],
+        query: ExtrasImageAttachmentsRootPostQuery | dict[str, Any] | None = None,
     ) -> ImageAttachment:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasImageAttachmentsRootPostQuery,
+            query=query,
             body_model=ImageAttachmentRequest | list[ImageAttachmentRequest],
             body=body,
             response_model=ImageAttachment,
@@ -29175,14 +32232,16 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkImageAttachmentRequest] | dict[str, Any]
+        self,
+        body: list[BulkImageAttachmentRequest] | dict[str, Any],
+        query: ExtrasImageAttachmentsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ImageAttachment]:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasImageAttachmentsRootPutQuery,
+            query=query,
             body_model=list[BulkImageAttachmentRequest],
             body=body,
             response_model=list[ImageAttachment],
@@ -29191,14 +32250,16 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkImageAttachmentRequest] | dict[str, Any]
+        self,
+        body: list[PatchedBulkImageAttachmentRequest] | dict[str, Any],
+        query: ExtrasImageAttachmentsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ImageAttachment]:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasImageAttachmentsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkImageAttachmentRequest],
             body=body,
             response_model=list[ImageAttachment],
@@ -29206,13 +32267,17 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
             binary_field_names=("image",),
         )
 
-    async def bulk_delete(self, body: list[ImageAttachmentRequest] | dict[str, Any]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ImageAttachmentRequest] | dict[str, Any],
+        query: ExtrasImageAttachmentsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasImageAttachmentsRootDeleteQuery,
+            query=query,
             body_model=list[ImageAttachmentRequest],
             body=body,
             response_model=None,
@@ -29305,27 +32370,33 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableJournalEntryRequest | list[WritableJournalEntryRequest]
+        self,
+        body: WritableJournalEntryRequest | list[WritableJournalEntryRequest],
+        query: ExtrasJournalEntriesRootPostQuery | dict[str, Any] | None = None,
     ) -> JournalEntry:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasJournalEntriesRootPostQuery,
+            query=query,
             body_model=WritableJournalEntryRequest | list[WritableJournalEntryRequest],
             body=body,
             response_model=JournalEntry,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkJournalEntryRequest]) -> list[JournalEntry]:
+    async def bulk_update(
+        self,
+        body: list[BulkJournalEntryRequest],
+        query: ExtrasJournalEntriesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[JournalEntry]:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasJournalEntriesRootPutQuery,
+            query=query,
             body_model=list[BulkJournalEntryRequest],
             body=body,
             response_model=list[JournalEntry],
@@ -29333,27 +32404,33 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkJournalEntryRequest]
+        self,
+        body: list[PatchedBulkJournalEntryRequest],
+        query: ExtrasJournalEntriesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[JournalEntry]:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasJournalEntriesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkJournalEntryRequest],
             body=body,
             response_model=list[JournalEntry],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[JournalEntryRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[JournalEntryRequest],
+        query: ExtrasJournalEntriesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasJournalEntriesRootDeleteQuery,
+            query=query,
             body_model=list[JournalEntryRequest],
             body=body,
             response_model=None,
@@ -29441,14 +32518,16 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: NotificationGroupRequest | list[NotificationGroupRequest]
+        self,
+        body: NotificationGroupRequest | list[NotificationGroupRequest],
+        query: ExtrasNotificationGroupsRootPostQuery | dict[str, Any] | None = None,
     ) -> NotificationGroup:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationGroupsRootPostQuery,
+            query=query,
             body_model=NotificationGroupRequest | list[NotificationGroupRequest],
             body=body,
             response_model=NotificationGroup,
@@ -29456,14 +32535,16 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkNotificationGroupRequest]
+        self,
+        body: list[BulkNotificationGroupRequest],
+        query: ExtrasNotificationGroupsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[NotificationGroup]:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkNotificationGroupRequest],
             body=body,
             response_model=list[NotificationGroup],
@@ -29471,27 +32552,33 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkNotificationGroupRequest]
+        self,
+        body: list[PatchedBulkNotificationGroupRequest],
+        query: ExtrasNotificationGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[NotificationGroup]:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkNotificationGroupRequest],
             body=body,
             response_model=list[NotificationGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[NotificationGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[NotificationGroupRequest],
+        query: ExtrasNotificationGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationGroupsRootDeleteQuery,
+            query=query,
             body_model=list[NotificationGroupRequest],
             body=body,
             response_model=None,
@@ -29578,26 +32665,34 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: NotificationRequest | list[NotificationRequest]) -> Notification:
+    async def create(
+        self,
+        body: NotificationRequest | list[NotificationRequest],
+        query: ExtrasNotificationsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Notification:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationsRootPostQuery,
+            query=query,
             body_model=NotificationRequest | list[NotificationRequest],
             body=body,
             response_model=Notification,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkNotificationRequest]) -> list[Notification]:
+    async def bulk_update(
+        self,
+        body: list[BulkNotificationRequest],
+        query: ExtrasNotificationsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Notification]:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationsRootPutQuery,
+            query=query,
             body_model=list[BulkNotificationRequest],
             body=body,
             response_model=list[Notification],
@@ -29605,27 +32700,33 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkNotificationRequest]
+        self,
+        body: list[PatchedBulkNotificationRequest],
+        query: ExtrasNotificationsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[Notification]:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkNotificationRequest],
             body=body,
             response_model=list[Notification],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[NotificationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[NotificationRequest],
+        query: ExtrasNotificationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasNotificationsRootDeleteQuery,
+            query=query,
             body_model=list[NotificationRequest],
             body=body,
             response_model=None,
@@ -29708,26 +32809,34 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: SavedFilterRequest | list[SavedFilterRequest]) -> SavedFilter:
+    async def create(
+        self,
+        body: SavedFilterRequest | list[SavedFilterRequest],
+        query: ExtrasSavedFiltersRootPostQuery | dict[str, Any] | None = None,
+    ) -> SavedFilter:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSavedFiltersRootPostQuery,
+            query=query,
             body_model=SavedFilterRequest | list[SavedFilterRequest],
             body=body,
             response_model=SavedFilter,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkSavedFilterRequest]) -> list[SavedFilter]:
+    async def bulk_update(
+        self,
+        body: list[BulkSavedFilterRequest],
+        query: ExtrasSavedFiltersRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[SavedFilter]:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSavedFiltersRootPutQuery,
+            query=query,
             body_model=list[BulkSavedFilterRequest],
             body=body,
             response_model=list[SavedFilter],
@@ -29735,27 +32844,33 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkSavedFilterRequest]
+        self,
+        body: list[PatchedBulkSavedFilterRequest],
+        query: ExtrasSavedFiltersRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[SavedFilter]:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSavedFiltersRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkSavedFilterRequest],
             body=body,
             response_model=list[SavedFilter],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[SavedFilterRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[SavedFilterRequest],
+        query: ExtrasSavedFiltersRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSavedFiltersRootDeleteQuery,
+            query=query,
             body_model=list[SavedFilterRequest],
             body=body,
             response_model=None,
@@ -29881,13 +32996,17 @@ class ExtrasScriptsUpload(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def create(self, body: ScriptModuleRequest | dict[str, Any]) -> ScriptModule:
+    async def create(
+        self,
+        body: ScriptModuleRequest | dict[str, Any],
+        query: ExtrasScriptsUploadPostQuery | dict[str, Any] | None = None,
+    ) -> ScriptModule:
         path = "/api/extras/scripts/upload/"
         return await self._typed_multipart_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasScriptsUploadPostQuery,
+            query=query,
             body_model=ScriptModuleRequest,
             body=body,
             response_model=ScriptModule,
@@ -29956,26 +33075,34 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: SubscriptionRequest | list[SubscriptionRequest]) -> Subscription:
+    async def create(
+        self,
+        body: SubscriptionRequest | list[SubscriptionRequest],
+        query: ExtrasSubscriptionsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Subscription:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSubscriptionsRootPostQuery,
+            query=query,
             body_model=SubscriptionRequest | list[SubscriptionRequest],
             body=body,
             response_model=Subscription,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkSubscriptionRequest]) -> list[Subscription]:
+    async def bulk_update(
+        self,
+        body: list[BulkSubscriptionRequest],
+        query: ExtrasSubscriptionsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Subscription]:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSubscriptionsRootPutQuery,
+            query=query,
             body_model=list[BulkSubscriptionRequest],
             body=body,
             response_model=list[Subscription],
@@ -29983,27 +33110,33 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkSubscriptionRequest]
+        self,
+        body: list[PatchedBulkSubscriptionRequest],
+        query: ExtrasSubscriptionsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[Subscription]:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSubscriptionsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkSubscriptionRequest],
             body=body,
             response_model=list[Subscription],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[SubscriptionRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[SubscriptionRequest],
+        query: ExtrasSubscriptionsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasSubscriptionsRootDeleteQuery,
+            query=query,
             body_model=list[SubscriptionRequest],
             body=body,
             response_model=None,
@@ -30086,26 +33219,34 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: TableConfigRequest | list[TableConfigRequest]) -> TableConfig:
+    async def create(
+        self,
+        body: TableConfigRequest | list[TableConfigRequest],
+        query: ExtrasTableConfigsRootPostQuery | dict[str, Any] | None = None,
+    ) -> TableConfig:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTableConfigsRootPostQuery,
+            query=query,
             body_model=TableConfigRequest | list[TableConfigRequest],
             body=body,
             response_model=TableConfig,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTableConfigRequest]) -> list[TableConfig]:
+    async def bulk_update(
+        self,
+        body: list[BulkTableConfigRequest],
+        query: ExtrasTableConfigsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[TableConfig]:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTableConfigsRootPutQuery,
+            query=query,
             body_model=list[BulkTableConfigRequest],
             body=body,
             response_model=list[TableConfig],
@@ -30113,27 +33254,33 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkTableConfigRequest]
+        self,
+        body: list[PatchedBulkTableConfigRequest],
+        query: ExtrasTableConfigsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[TableConfig]:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTableConfigsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTableConfigRequest],
             body=body,
             response_model=list[TableConfig],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TableConfigRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TableConfigRequest],
+        query: ExtrasTableConfigsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTableConfigsRootDeleteQuery,
+            query=query,
             body_model=list[TableConfigRequest],
             body=body,
             response_model=None,
@@ -30253,52 +33400,68 @@ class ExtrasTagsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: TagRequest | list[TagRequest]) -> Tag:
+    async def create(
+        self,
+        body: TagRequest | list[TagRequest],
+        query: ExtrasTagsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Tag:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTagsRootPostQuery,
+            query=query,
             body_model=TagRequest | list[TagRequest],
             body=body,
             response_model=Tag,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTagRequest]) -> list[Tag]:
+    async def bulk_update(
+        self,
+        body: list[BulkTagRequest],
+        query: ExtrasTagsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Tag]:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTagsRootPutQuery,
+            query=query,
             body_model=list[BulkTagRequest],
             body=body,
             response_model=list[Tag],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkTagRequest]) -> list[Tag]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkTagRequest],
+        query: ExtrasTagsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Tag]:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTagsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTagRequest],
             body=body,
             response_model=list[Tag],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TagRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TagRequest],
+        query: ExtrasTagsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasTagsRootDeleteQuery,
+            query=query,
             body_model=list[TagRequest],
             body=body,
             response_model=None,
@@ -30381,52 +33544,68 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WebhookRequest | list[WebhookRequest]) -> Webhook:
+    async def create(
+        self,
+        body: WebhookRequest | list[WebhookRequest],
+        query: ExtrasWebhooksRootPostQuery | dict[str, Any] | None = None,
+    ) -> Webhook:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasWebhooksRootPostQuery,
+            query=query,
             body_model=WebhookRequest | list[WebhookRequest],
             body=body,
             response_model=Webhook,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkWebhookRequest]) -> list[Webhook]:
+    async def bulk_update(
+        self,
+        body: list[BulkWebhookRequest],
+        query: ExtrasWebhooksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Webhook]:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasWebhooksRootPutQuery,
+            query=query,
             body_model=list[BulkWebhookRequest],
             body=body,
             response_model=list[Webhook],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkWebhookRequest]) -> list[Webhook]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkWebhookRequest],
+        query: ExtrasWebhooksRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Webhook]:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasWebhooksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkWebhookRequest],
             body=body,
             response_model=list[Webhook],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[WebhookRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[WebhookRequest],
+        query: ExtrasWebhooksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=ExtrasWebhooksRootDeleteQuery,
+            query=query,
             body_model=list[WebhookRequest],
             body=body,
             response_model=None,
@@ -30510,53 +33689,67 @@ class IpamAggregatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableAggregateRequest | list[WritableAggregateRequest]
+        self,
+        body: WritableAggregateRequest | list[WritableAggregateRequest],
+        query: IpamAggregatesRootPostQuery | dict[str, Any] | None = None,
     ) -> Aggregate:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAggregatesRootPostQuery,
+            query=query,
             body_model=WritableAggregateRequest | list[WritableAggregateRequest],
             body=body,
             response_model=Aggregate,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkAggregateRequest]) -> list[Aggregate]:
+    async def bulk_update(
+        self,
+        body: list[BulkAggregateRequest],
+        query: IpamAggregatesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Aggregate]:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAggregatesRootPutQuery,
+            query=query,
             body_model=list[BulkAggregateRequest],
             body=body,
             response_model=list[Aggregate],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkAggregateRequest]) -> list[Aggregate]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkAggregateRequest],
+        query: IpamAggregatesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Aggregate]:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAggregatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkAggregateRequest],
             body=body,
             response_model=list[Aggregate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[AggregateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[AggregateRequest],
+        query: IpamAggregatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAggregatesRootDeleteQuery,
+            query=query,
             body_model=list[AggregateRequest],
             body=body,
             response_model=None,
@@ -30645,52 +33838,68 @@ class IpamAsnRangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ASNRangeRequest | list[ASNRangeRequest]) -> ASNRange:
+    async def create(
+        self,
+        body: ASNRangeRequest | list[ASNRangeRequest],
+        query: IpamAsnRangesRootPostQuery | dict[str, Any] | None = None,
+    ) -> ASNRange:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnRangesRootPostQuery,
+            query=query,
             body_model=ASNRangeRequest | list[ASNRangeRequest],
             body=body,
             response_model=ASNRange,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkASNRangeRequest]) -> list[ASNRange]:
+    async def bulk_update(
+        self,
+        body: list[BulkASNRangeRequest],
+        query: IpamAsnRangesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ASNRange]:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnRangesRootPutQuery,
+            query=query,
             body_model=list[BulkASNRangeRequest],
             body=body,
             response_model=list[ASNRange],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkASNRangeRequest]) -> list[ASNRange]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkASNRangeRequest],
+        query: IpamAsnRangesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[ASNRange]:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnRangesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkASNRangeRequest],
             body=body,
             response_model=list[ASNRange],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ASNRangeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ASNRangeRequest],
+        query: IpamAsnRangesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnRangesRootDeleteQuery,
+            query=query,
             body_model=list[ASNRangeRequest],
             body=body,
             response_model=None,
@@ -30810,52 +34019,64 @@ class IpamAsnsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ASNRequest | list[ASNRequest]) -> ASN:
+    async def create(
+        self,
+        body: ASNRequest | list[ASNRequest],
+        query: IpamAsnsRootPostQuery | dict[str, Any] | None = None,
+    ) -> ASN:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnsRootPostQuery,
+            query=query,
             body_model=ASNRequest | list[ASNRequest],
             body=body,
             response_model=ASN,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkASNRequest]) -> list[ASN]:
+    async def bulk_update(
+        self, body: list[BulkASNRequest], query: IpamAsnsRootPutQuery | dict[str, Any] | None = None
+    ) -> list[ASN]:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnsRootPutQuery,
+            query=query,
             body_model=list[BulkASNRequest],
             body=body,
             response_model=list[ASN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkASNRequest]) -> list[ASN]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkASNRequest],
+        query: IpamAsnsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[ASN]:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkASNRequest],
             body=body,
             response_model=list[ASN],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ASNRequest]) -> None:
+    async def bulk_delete(
+        self, body: list[ASNRequest], query: IpamAsnsRootDeleteQuery | dict[str, Any] | None = None
+    ) -> None:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamAsnsRootDeleteQuery,
+            query=query,
             body_model=list[ASNRequest],
             body=body,
             response_model=None,
@@ -30939,14 +34160,16 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: FHRPGroupAssignmentRequest | list[FHRPGroupAssignmentRequest]
+        self,
+        body: FHRPGroupAssignmentRequest | list[FHRPGroupAssignmentRequest],
+        query: IpamFhrpGroupAssignmentsRootPostQuery | dict[str, Any] | None = None,
     ) -> FHRPGroupAssignment:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupAssignmentsRootPostQuery,
+            query=query,
             body_model=FHRPGroupAssignmentRequest | list[FHRPGroupAssignmentRequest],
             body=body,
             response_model=FHRPGroupAssignment,
@@ -30954,14 +34177,16 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkFHRPGroupAssignmentRequest]
+        self,
+        body: list[BulkFHRPGroupAssignmentRequest],
+        query: IpamFhrpGroupAssignmentsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[FHRPGroupAssignment]:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupAssignmentsRootPutQuery,
+            query=query,
             body_model=list[BulkFHRPGroupAssignmentRequest],
             body=body,
             response_model=list[FHRPGroupAssignment],
@@ -30969,27 +34194,33 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkFHRPGroupAssignmentRequest]
+        self,
+        body: list[PatchedBulkFHRPGroupAssignmentRequest],
+        query: IpamFhrpGroupAssignmentsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[FHRPGroupAssignment]:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupAssignmentsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkFHRPGroupAssignmentRequest],
             body=body,
             response_model=list[FHRPGroupAssignment],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[FHRPGroupAssignmentRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[FHRPGroupAssignmentRequest],
+        query: IpamFhrpGroupAssignmentsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupAssignmentsRootDeleteQuery,
+            query=query,
             body_model=list[FHRPGroupAssignmentRequest],
             body=body,
             response_model=None,
@@ -31076,52 +34307,68 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: FHRPGroupRequest | list[FHRPGroupRequest]) -> FHRPGroup:
+    async def create(
+        self,
+        body: FHRPGroupRequest | list[FHRPGroupRequest],
+        query: IpamFhrpGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> FHRPGroup:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupsRootPostQuery,
+            query=query,
             body_model=FHRPGroupRequest | list[FHRPGroupRequest],
             body=body,
             response_model=FHRPGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkFHRPGroupRequest]) -> list[FHRPGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkFHRPGroupRequest],
+        query: IpamFhrpGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[FHRPGroup]:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkFHRPGroupRequest],
             body=body,
             response_model=list[FHRPGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkFHRPGroupRequest]) -> list[FHRPGroup]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkFHRPGroupRequest],
+        query: IpamFhrpGroupsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[FHRPGroup]:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkFHRPGroupRequest],
             body=body,
             response_model=list[FHRPGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[FHRPGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[FHRPGroupRequest],
+        query: IpamFhrpGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamFhrpGroupsRootDeleteQuery,
+            query=query,
             body_model=list[FHRPGroupRequest],
             body=body,
             response_model=None,
@@ -31205,53 +34452,67 @@ class IpamIpAddressesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableIPAddressRequest | list[WritableIPAddressRequest]
+        self,
+        body: WritableIPAddressRequest | list[WritableIPAddressRequest],
+        query: IpamIpAddressesRootPostQuery | dict[str, Any] | None = None,
     ) -> IPAddress:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpAddressesRootPostQuery,
+            query=query,
             body_model=WritableIPAddressRequest | list[WritableIPAddressRequest],
             body=body,
             response_model=IPAddress,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIPAddressRequest]) -> list[IPAddress]:
+    async def bulk_update(
+        self,
+        body: list[BulkIPAddressRequest],
+        query: IpamIpAddressesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IPAddress]:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpAddressesRootPutQuery,
+            query=query,
             body_model=list[BulkIPAddressRequest],
             body=body,
             response_model=list[IPAddress],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkIPAddressRequest]) -> list[IPAddress]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkIPAddressRequest],
+        query: IpamIpAddressesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[IPAddress]:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpAddressesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIPAddressRequest],
             body=body,
             response_model=list[IPAddress],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IPAddressRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IPAddressRequest],
+        query: IpamIpAddressesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpAddressesRootDeleteQuery,
+            query=query,
             body_model=list[IPAddressRequest],
             body=body,
             response_model=None,
@@ -31340,52 +34601,68 @@ class IpamIpRangesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableIPRangeRequest | list[WritableIPRangeRequest]) -> IPRange:
+    async def create(
+        self,
+        body: WritableIPRangeRequest | list[WritableIPRangeRequest],
+        query: IpamIpRangesRootPostQuery | dict[str, Any] | None = None,
+    ) -> IPRange:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpRangesRootPostQuery,
+            query=query,
             body_model=WritableIPRangeRequest | list[WritableIPRangeRequest],
             body=body,
             response_model=IPRange,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIPRangeRequest]) -> list[IPRange]:
+    async def bulk_update(
+        self,
+        body: list[BulkIPRangeRequest],
+        query: IpamIpRangesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IPRange]:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpRangesRootPutQuery,
+            query=query,
             body_model=list[BulkIPRangeRequest],
             body=body,
             response_model=list[IPRange],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkIPRangeRequest]) -> list[IPRange]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkIPRangeRequest],
+        query: IpamIpRangesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[IPRange]:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpRangesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIPRangeRequest],
             body=body,
             response_model=list[IPRange],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IPRangeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IPRangeRequest],
+        query: IpamIpRangesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamIpRangesRootDeleteQuery,
+            query=query,
             body_model=list[IPRangeRequest],
             body=body,
             response_model=None,
@@ -31511,52 +34788,68 @@ class IpamPrefixesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritablePrefixRequest | list[WritablePrefixRequest]) -> Prefix:
+    async def create(
+        self,
+        body: WritablePrefixRequest | list[WritablePrefixRequest],
+        query: IpamPrefixesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Prefix:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesRootPostQuery,
+            query=query,
             body_model=WritablePrefixRequest | list[WritablePrefixRequest],
             body=body,
             response_model=Prefix,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkPrefixRequest]) -> list[Prefix]:
+    async def bulk_update(
+        self,
+        body: list[BulkPrefixRequest],
+        query: IpamPrefixesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Prefix]:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesRootPutQuery,
+            query=query,
             body_model=list[BulkPrefixRequest],
             body=body,
             response_model=list[Prefix],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkPrefixRequest]) -> list[Prefix]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkPrefixRequest],
+        query: IpamPrefixesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Prefix]:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkPrefixRequest],
             body=body,
             response_model=list[Prefix],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[PrefixRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[PrefixRequest],
+        query: IpamPrefixesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamPrefixesRootDeleteQuery,
+            query=query,
             body_model=list[PrefixRequest],
             body=body,
             response_model=None,
@@ -31711,52 +35004,64 @@ class IpamRirsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: RIRRequest | list[RIRRequest]) -> RIR:
+    async def create(
+        self,
+        body: RIRRequest | list[RIRRequest],
+        query: IpamRirsRootPostQuery | dict[str, Any] | None = None,
+    ) -> RIR:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRirsRootPostQuery,
+            query=query,
             body_model=RIRRequest | list[RIRRequest],
             body=body,
             response_model=RIR,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRIRRequest]) -> list[RIR]:
+    async def bulk_update(
+        self, body: list[BulkRIRRequest], query: IpamRirsRootPutQuery | dict[str, Any] | None = None
+    ) -> list[RIR]:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRirsRootPutQuery,
+            query=query,
             body_model=list[BulkRIRRequest],
             body=body,
             response_model=list[RIR],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRIRRequest]) -> list[RIR]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRIRRequest],
+        query: IpamRirsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[RIR]:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRirsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRIRRequest],
             body=body,
             response_model=list[RIR],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RIRRequest]) -> None:
+    async def bulk_delete(
+        self, body: list[RIRRequest], query: IpamRirsRootDeleteQuery | dict[str, Any] | None = None
+    ) -> None:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRirsRootDeleteQuery,
+            query=query,
             body_model=list[RIRRequest],
             body=body,
             response_model=None,
@@ -31839,52 +35144,68 @@ class IpamRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: RoleRequest | list[RoleRequest]) -> Role:
+    async def create(
+        self,
+        body: RoleRequest | list[RoleRequest],
+        query: IpamRolesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Role:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRolesRootPostQuery,
+            query=query,
             body_model=RoleRequest | list[RoleRequest],
             body=body,
             response_model=Role,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRoleRequest]) -> list[Role]:
+    async def bulk_update(
+        self,
+        body: list[BulkRoleRequest],
+        query: IpamRolesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Role]:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRolesRootPutQuery,
+            query=query,
             body_model=list[BulkRoleRequest],
             body=body,
             response_model=list[Role],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkRoleRequest]) -> list[Role]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkRoleRequest],
+        query: IpamRolesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Role]:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRolesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRoleRequest],
             body=body,
             response_model=list[Role],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RoleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RoleRequest],
+        query: IpamRolesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRolesRootDeleteQuery,
+            query=query,
             body_model=list[RoleRequest],
             body=body,
             response_model=None,
@@ -31967,26 +35288,34 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: RouteTargetRequest | list[RouteTargetRequest]) -> RouteTarget:
+    async def create(
+        self,
+        body: RouteTargetRequest | list[RouteTargetRequest],
+        query: IpamRouteTargetsRootPostQuery | dict[str, Any] | None = None,
+    ) -> RouteTarget:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRouteTargetsRootPostQuery,
+            query=query,
             body_model=RouteTargetRequest | list[RouteTargetRequest],
             body=body,
             response_model=RouteTarget,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkRouteTargetRequest]) -> list[RouteTarget]:
+    async def bulk_update(
+        self,
+        body: list[BulkRouteTargetRequest],
+        query: IpamRouteTargetsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[RouteTarget]:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRouteTargetsRootPutQuery,
+            query=query,
             body_model=list[BulkRouteTargetRequest],
             body=body,
             response_model=list[RouteTarget],
@@ -31994,27 +35323,33 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkRouteTargetRequest]
+        self,
+        body: list[PatchedBulkRouteTargetRequest],
+        query: IpamRouteTargetsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[RouteTarget]:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRouteTargetsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkRouteTargetRequest],
             body=body,
             response_model=list[RouteTarget],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[RouteTargetRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[RouteTargetRequest],
+        query: IpamRouteTargetsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamRouteTargetsRootDeleteQuery,
+            query=query,
             body_model=list[RouteTargetRequest],
             body=body,
             response_model=None,
@@ -32098,27 +35433,33 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableServiceTemplateRequest | list[WritableServiceTemplateRequest]
+        self,
+        body: WritableServiceTemplateRequest | list[WritableServiceTemplateRequest],
+        query: IpamServiceTemplatesRootPostQuery | dict[str, Any] | None = None,
     ) -> ServiceTemplate:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServiceTemplatesRootPostQuery,
+            query=query,
             body_model=WritableServiceTemplateRequest | list[WritableServiceTemplateRequest],
             body=body,
             response_model=ServiceTemplate,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkServiceTemplateRequest]) -> list[ServiceTemplate]:
+    async def bulk_update(
+        self,
+        body: list[BulkServiceTemplateRequest],
+        query: IpamServiceTemplatesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ServiceTemplate]:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServiceTemplatesRootPutQuery,
+            query=query,
             body_model=list[BulkServiceTemplateRequest],
             body=body,
             response_model=list[ServiceTemplate],
@@ -32126,27 +35467,33 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkServiceTemplateRequest]
+        self,
+        body: list[PatchedBulkServiceTemplateRequest],
+        query: IpamServiceTemplatesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ServiceTemplate]:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServiceTemplatesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkServiceTemplateRequest],
             body=body,
             response_model=list[ServiceTemplate],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ServiceTemplateRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ServiceTemplateRequest],
+        query: IpamServiceTemplatesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServiceTemplatesRootDeleteQuery,
+            query=query,
             body_model=list[ServiceTemplateRequest],
             body=body,
             response_model=None,
@@ -32233,52 +35580,68 @@ class IpamServicesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableServiceRequest | list[WritableServiceRequest]) -> Service:
+    async def create(
+        self,
+        body: WritableServiceRequest | list[WritableServiceRequest],
+        query: IpamServicesRootPostQuery | dict[str, Any] | None = None,
+    ) -> Service:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServicesRootPostQuery,
+            query=query,
             body_model=WritableServiceRequest | list[WritableServiceRequest],
             body=body,
             response_model=Service,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkServiceRequest]) -> list[Service]:
+    async def bulk_update(
+        self,
+        body: list[BulkServiceRequest],
+        query: IpamServicesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Service]:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServicesRootPutQuery,
+            query=query,
             body_model=list[BulkServiceRequest],
             body=body,
             response_model=list[Service],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkServiceRequest]) -> list[Service]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkServiceRequest],
+        query: IpamServicesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Service]:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServicesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkServiceRequest],
             body=body,
             response_model=list[Service],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ServiceRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ServiceRequest],
+        query: IpamServicesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamServicesRootDeleteQuery,
+            query=query,
             body_model=list[ServiceRequest],
             body=body,
             response_model=None,
@@ -32365,52 +35728,68 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: VLANGroupRequest | list[VLANGroupRequest]) -> VLANGroup:
+    async def create(
+        self,
+        body: VLANGroupRequest | list[VLANGroupRequest],
+        query: IpamVlanGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> VLANGroup:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanGroupsRootPostQuery,
+            query=query,
             body_model=VLANGroupRequest | list[VLANGroupRequest],
             body=body,
             response_model=VLANGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVLANGroupRequest]) -> list[VLANGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkVLANGroupRequest],
+        query: IpamVlanGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VLANGroup]:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkVLANGroupRequest],
             body=body,
             response_model=list[VLANGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkVLANGroupRequest]) -> list[VLANGroup]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkVLANGroupRequest],
+        query: IpamVlanGroupsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[VLANGroup]:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVLANGroupRequest],
             body=body,
             response_model=list[VLANGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VLANGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VLANGroupRequest],
+        query: IpamVlanGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanGroupsRootDeleteQuery,
+            query=query,
             body_model=list[VLANGroupRequest],
             body=body,
             response_model=None,
@@ -32531,14 +35910,16 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: VLANTranslationPolicyRequest | list[VLANTranslationPolicyRequest]
+        self,
+        body: VLANTranslationPolicyRequest | list[VLANTranslationPolicyRequest],
+        query: IpamVlanTranslationPoliciesRootPostQuery | dict[str, Any] | None = None,
     ) -> VLANTranslationPolicy:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationPoliciesRootPostQuery,
+            query=query,
             body_model=VLANTranslationPolicyRequest | list[VLANTranslationPolicyRequest],
             body=body,
             response_model=VLANTranslationPolicy,
@@ -32546,14 +35927,16 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkVLANTranslationPolicyRequest]
+        self,
+        body: list[BulkVLANTranslationPolicyRequest],
+        query: IpamVlanTranslationPoliciesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[VLANTranslationPolicy]:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationPoliciesRootPutQuery,
+            query=query,
             body_model=list[BulkVLANTranslationPolicyRequest],
             body=body,
             response_model=list[VLANTranslationPolicy],
@@ -32561,27 +35944,33 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVLANTranslationPolicyRequest]
+        self,
+        body: list[PatchedBulkVLANTranslationPolicyRequest],
+        query: IpamVlanTranslationPoliciesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VLANTranslationPolicy]:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationPoliciesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVLANTranslationPolicyRequest],
             body=body,
             response_model=list[VLANTranslationPolicy],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VLANTranslationPolicyRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VLANTranslationPolicyRequest],
+        query: IpamVlanTranslationPoliciesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationPoliciesRootDeleteQuery,
+            query=query,
             body_model=list[VLANTranslationPolicyRequest],
             body=body,
             response_model=None,
@@ -32671,14 +36060,16 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: VLANTranslationRuleRequest | list[VLANTranslationRuleRequest]
+        self,
+        body: VLANTranslationRuleRequest | list[VLANTranslationRuleRequest],
+        query: IpamVlanTranslationRulesRootPostQuery | dict[str, Any] | None = None,
     ) -> VLANTranslationRule:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationRulesRootPostQuery,
+            query=query,
             body_model=VLANTranslationRuleRequest | list[VLANTranslationRuleRequest],
             body=body,
             response_model=VLANTranslationRule,
@@ -32686,14 +36077,16 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkVLANTranslationRuleRequest]
+        self,
+        body: list[BulkVLANTranslationRuleRequest],
+        query: IpamVlanTranslationRulesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[VLANTranslationRule]:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationRulesRootPutQuery,
+            query=query,
             body_model=list[BulkVLANTranslationRuleRequest],
             body=body,
             response_model=list[VLANTranslationRule],
@@ -32701,27 +36094,33 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVLANTranslationRuleRequest]
+        self,
+        body: list[PatchedBulkVLANTranslationRuleRequest],
+        query: IpamVlanTranslationRulesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VLANTranslationRule]:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationRulesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVLANTranslationRuleRequest],
             body=body,
             response_model=list[VLANTranslationRule],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VLANTranslationRuleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VLANTranslationRuleRequest],
+        query: IpamVlanTranslationRulesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlanTranslationRulesRootDeleteQuery,
+            query=query,
             body_model=list[VLANTranslationRuleRequest],
             body=body,
             response_model=None,
@@ -32808,52 +36207,68 @@ class IpamVlansEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableVLANRequest | list[WritableVLANRequest]) -> VLAN:
+    async def create(
+        self,
+        body: WritableVLANRequest | list[WritableVLANRequest],
+        query: IpamVlansRootPostQuery | dict[str, Any] | None = None,
+    ) -> VLAN:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlansRootPostQuery,
+            query=query,
             body_model=WritableVLANRequest | list[WritableVLANRequest],
             body=body,
             response_model=VLAN,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVLANRequest]) -> list[VLAN]:
+    async def bulk_update(
+        self,
+        body: list[BulkVLANRequest],
+        query: IpamVlansRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VLAN]:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlansRootPutQuery,
+            query=query,
             body_model=list[BulkVLANRequest],
             body=body,
             response_model=list[VLAN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkVLANRequest]) -> list[VLAN]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkVLANRequest],
+        query: IpamVlansRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[VLAN]:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlansRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVLANRequest],
             body=body,
             response_model=list[VLAN],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VLANRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VLANRequest],
+        query: IpamVlansRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVlansRootDeleteQuery,
+            query=query,
             body_model=list[VLANRequest],
             body=body,
             response_model=None,
@@ -32936,52 +36351,64 @@ class IpamVrfsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: VRFRequest | list[VRFRequest]) -> VRF:
+    async def create(
+        self,
+        body: VRFRequest | list[VRFRequest],
+        query: IpamVrfsRootPostQuery | dict[str, Any] | None = None,
+    ) -> VRF:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVrfsRootPostQuery,
+            query=query,
             body_model=VRFRequest | list[VRFRequest],
             body=body,
             response_model=VRF,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVRFRequest]) -> list[VRF]:
+    async def bulk_update(
+        self, body: list[BulkVRFRequest], query: IpamVrfsRootPutQuery | dict[str, Any] | None = None
+    ) -> list[VRF]:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVrfsRootPutQuery,
+            query=query,
             body_model=list[BulkVRFRequest],
             body=body,
             response_model=list[VRF],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkVRFRequest]) -> list[VRF]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkVRFRequest],
+        query: IpamVrfsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[VRF]:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVrfsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVRFRequest],
             body=body,
             response_model=list[VRF],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VRFRequest]) -> None:
+    async def bulk_delete(
+        self, body: list[VRFRequest], query: IpamVrfsRootDeleteQuery | dict[str, Any] | None = None
+    ) -> None:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=IpamVrfsRootDeleteQuery,
+            query=query,
             body_model=list[VRFRequest],
             body=body,
             response_model=None,
@@ -33065,14 +36492,16 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableContactAssignmentRequest | list[WritableContactAssignmentRequest]
+        self,
+        body: WritableContactAssignmentRequest | list[WritableContactAssignmentRequest],
+        query: TenancyContactAssignmentsRootPostQuery | dict[str, Any] | None = None,
     ) -> ContactAssignment:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactAssignmentsRootPostQuery,
+            query=query,
             body_model=WritableContactAssignmentRequest | list[WritableContactAssignmentRequest],
             body=body,
             response_model=ContactAssignment,
@@ -33080,14 +36509,16 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkContactAssignmentRequest]
+        self,
+        body: list[BulkContactAssignmentRequest],
+        query: TenancyContactAssignmentsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[ContactAssignment]:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactAssignmentsRootPutQuery,
+            query=query,
             body_model=list[BulkContactAssignmentRequest],
             body=body,
             response_model=list[ContactAssignment],
@@ -33095,27 +36526,33 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkContactAssignmentRequest]
+        self,
+        body: list[PatchedBulkContactAssignmentRequest],
+        query: TenancyContactAssignmentsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ContactAssignment]:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactAssignmentsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkContactAssignmentRequest],
             body=body,
             response_model=list[ContactAssignment],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ContactAssignmentRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ContactAssignmentRequest],
+        query: TenancyContactAssignmentsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactAssignmentsRootDeleteQuery,
+            query=query,
             body_model=list[ContactAssignmentRequest],
             body=body,
             response_model=None,
@@ -33205,27 +36642,33 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableContactGroupRequest | list[WritableContactGroupRequest]
+        self,
+        body: WritableContactGroupRequest | list[WritableContactGroupRequest],
+        query: TenancyContactGroupsRootPostQuery | dict[str, Any] | None = None,
     ) -> ContactGroup:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactGroupsRootPostQuery,
+            query=query,
             body_model=WritableContactGroupRequest | list[WritableContactGroupRequest],
             body=body,
             response_model=ContactGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkContactGroupRequest]) -> list[ContactGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkContactGroupRequest],
+        query: TenancyContactGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ContactGroup]:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkContactGroupRequest],
             body=body,
             response_model=list[ContactGroup],
@@ -33233,27 +36676,33 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkContactGroupRequest]
+        self,
+        body: list[PatchedBulkContactGroupRequest],
+        query: TenancyContactGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ContactGroup]:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkContactGroupRequest],
             body=body,
             response_model=list[ContactGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ContactGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ContactGroupRequest],
+        query: TenancyContactGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactGroupsRootDeleteQuery,
+            query=query,
             body_model=list[ContactGroupRequest],
             body=body,
             response_model=None,
@@ -33340,26 +36789,34 @@ class TenancyContactRolesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ContactRoleRequest | list[ContactRoleRequest]) -> ContactRole:
+    async def create(
+        self,
+        body: ContactRoleRequest | list[ContactRoleRequest],
+        query: TenancyContactRolesRootPostQuery | dict[str, Any] | None = None,
+    ) -> ContactRole:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactRolesRootPostQuery,
+            query=query,
             body_model=ContactRoleRequest | list[ContactRoleRequest],
             body=body,
             response_model=ContactRole,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkContactRoleRequest]) -> list[ContactRole]:
+    async def bulk_update(
+        self,
+        body: list[BulkContactRoleRequest],
+        query: TenancyContactRolesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ContactRole]:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactRolesRootPutQuery,
+            query=query,
             body_model=list[BulkContactRoleRequest],
             body=body,
             response_model=list[ContactRole],
@@ -33367,27 +36824,33 @@ class TenancyContactRolesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkContactRoleRequest]
+        self,
+        body: list[PatchedBulkContactRoleRequest],
+        query: TenancyContactRolesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ContactRole]:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactRolesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkContactRoleRequest],
             body=body,
             response_model=list[ContactRole],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ContactRoleRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ContactRoleRequest],
+        query: TenancyContactRolesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactRolesRootDeleteQuery,
+            query=query,
             body_model=list[ContactRoleRequest],
             body=body,
             response_model=None,
@@ -33470,52 +36933,68 @@ class TenancyContactsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ContactRequest | list[ContactRequest]) -> Contact:
+    async def create(
+        self,
+        body: ContactRequest | list[ContactRequest],
+        query: TenancyContactsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Contact:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactsRootPostQuery,
+            query=query,
             body_model=ContactRequest | list[ContactRequest],
             body=body,
             response_model=Contact,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkContactRequest]) -> list[Contact]:
+    async def bulk_update(
+        self,
+        body: list[BulkContactRequest],
+        query: TenancyContactsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Contact]:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactsRootPutQuery,
+            query=query,
             body_model=list[BulkContactRequest],
             body=body,
             response_model=list[Contact],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkContactRequest]) -> list[Contact]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkContactRequest],
+        query: TenancyContactsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Contact]:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkContactRequest],
             body=body,
             response_model=list[Contact],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ContactRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ContactRequest],
+        query: TenancyContactsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyContactsRootDeleteQuery,
+            query=query,
             body_model=list[ContactRequest],
             body=body,
             response_model=None,
@@ -33599,27 +37078,33 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableTenantGroupRequest | list[WritableTenantGroupRequest]
+        self,
+        body: WritableTenantGroupRequest | list[WritableTenantGroupRequest],
+        query: TenancyTenantGroupsRootPostQuery | dict[str, Any] | None = None,
     ) -> TenantGroup:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantGroupsRootPostQuery,
+            query=query,
             body_model=WritableTenantGroupRequest | list[WritableTenantGroupRequest],
             body=body,
             response_model=TenantGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTenantGroupRequest]) -> list[TenantGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkTenantGroupRequest],
+        query: TenancyTenantGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[TenantGroup]:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkTenantGroupRequest],
             body=body,
             response_model=list[TenantGroup],
@@ -33627,27 +37112,33 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkTenantGroupRequest]
+        self,
+        body: list[PatchedBulkTenantGroupRequest],
+        query: TenancyTenantGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[TenantGroup]:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTenantGroupRequest],
             body=body,
             response_model=list[TenantGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TenantGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TenantGroupRequest],
+        query: TenancyTenantGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantGroupsRootDeleteQuery,
+            query=query,
             body_model=list[TenantGroupRequest],
             body=body,
             response_model=None,
@@ -33732,52 +37223,68 @@ class TenancyTenantsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: TenantRequest | list[TenantRequest]) -> Tenant:
+    async def create(
+        self,
+        body: TenantRequest | list[TenantRequest],
+        query: TenancyTenantsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Tenant:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantsRootPostQuery,
+            query=query,
             body_model=TenantRequest | list[TenantRequest],
             body=body,
             response_model=Tenant,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTenantRequest]) -> list[Tenant]:
+    async def bulk_update(
+        self,
+        body: list[BulkTenantRequest],
+        query: TenancyTenantsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Tenant]:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantsRootPutQuery,
+            query=query,
             body_model=list[BulkTenantRequest],
             body=body,
             response_model=list[Tenant],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkTenantRequest]) -> list[Tenant]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkTenantRequest],
+        query: TenancyTenantsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Tenant]:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTenantRequest],
             body=body,
             response_model=list[Tenant],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TenantRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TenantRequest],
+        query: TenancyTenantsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=TenancyTenantsRootDeleteQuery,
+            query=query,
             body_model=list[TenantRequest],
             body=body,
             response_model=None,
@@ -33882,52 +37389,68 @@ class UsersGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: GroupRequest | list[GroupRequest]) -> Group:
+    async def create(
+        self,
+        body: GroupRequest | list[GroupRequest],
+        query: UsersGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Group:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersGroupsRootPostQuery,
+            query=query,
             body_model=GroupRequest | list[GroupRequest],
             body=body,
             response_model=Group,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkGroupRequest]) -> list[Group]:
+    async def bulk_update(
+        self,
+        body: list[BulkGroupRequest],
+        query: UsersGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Group]:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkGroupRequest],
             body=body,
             response_model=list[Group],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkGroupRequest]) -> list[Group]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkGroupRequest],
+        query: UsersGroupsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Group]:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkGroupRequest],
             body=body,
             response_model=list[Group],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[GroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[GroupRequest],
+        query: UsersGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersGroupsRootDeleteQuery,
+            query=query,
             body_model=list[GroupRequest],
             body=body,
             response_model=None,
@@ -34010,26 +37533,34 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: OwnerGroupRequest | list[OwnerGroupRequest]) -> OwnerGroup:
+    async def create(
+        self,
+        body: OwnerGroupRequest | list[OwnerGroupRequest],
+        query: UsersOwnerGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> OwnerGroup:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnerGroupsRootPostQuery,
+            query=query,
             body_model=OwnerGroupRequest | list[OwnerGroupRequest],
             body=body,
             response_model=OwnerGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkOwnerGroupRequest]) -> list[OwnerGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkOwnerGroupRequest],
+        query: UsersOwnerGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[OwnerGroup]:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnerGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkOwnerGroupRequest],
             body=body,
             response_model=list[OwnerGroup],
@@ -34037,27 +37568,33 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkOwnerGroupRequest]
+        self,
+        body: list[PatchedBulkOwnerGroupRequest],
+        query: UsersOwnerGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[OwnerGroup]:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnerGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkOwnerGroupRequest],
             body=body,
             response_model=list[OwnerGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[OwnerGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[OwnerGroupRequest],
+        query: UsersOwnerGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnerGroupsRootDeleteQuery,
+            query=query,
             body_model=list[OwnerGroupRequest],
             body=body,
             response_model=None,
@@ -34140,52 +37677,68 @@ class UsersOwnersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: OwnerRequest | list[OwnerRequest]) -> Owner:
+    async def create(
+        self,
+        body: OwnerRequest | list[OwnerRequest],
+        query: UsersOwnersRootPostQuery | dict[str, Any] | None = None,
+    ) -> Owner:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnersRootPostQuery,
+            query=query,
             body_model=OwnerRequest | list[OwnerRequest],
             body=body,
             response_model=Owner,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkOwnerRequest]) -> list[Owner]:
+    async def bulk_update(
+        self,
+        body: list[BulkOwnerRequest],
+        query: UsersOwnersRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Owner]:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnersRootPutQuery,
+            query=query,
             body_model=list[BulkOwnerRequest],
             body=body,
             response_model=list[Owner],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkOwnerRequest]) -> list[Owner]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkOwnerRequest],
+        query: UsersOwnersRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Owner]:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnersRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkOwnerRequest],
             body=body,
             response_model=list[Owner],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[OwnerRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[OwnerRequest],
+        query: UsersOwnersRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersOwnersRootDeleteQuery,
+            query=query,
             body_model=list[OwnerRequest],
             body=body,
             response_model=None,
@@ -34269,27 +37822,33 @@ class UsersPermissionsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: ObjectPermissionRequest | list[ObjectPermissionRequest]
+        self,
+        body: ObjectPermissionRequest | list[ObjectPermissionRequest],
+        query: UsersPermissionsRootPostQuery | dict[str, Any] | None = None,
     ) -> ObjectPermission:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersPermissionsRootPostQuery,
+            query=query,
             body_model=ObjectPermissionRequest | list[ObjectPermissionRequest],
             body=body,
             response_model=ObjectPermission,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkObjectPermissionRequest]) -> list[ObjectPermission]:
+    async def bulk_update(
+        self,
+        body: list[BulkObjectPermissionRequest],
+        query: UsersPermissionsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ObjectPermission]:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersPermissionsRootPutQuery,
+            query=query,
             body_model=list[BulkObjectPermissionRequest],
             body=body,
             response_model=list[ObjectPermission],
@@ -34297,27 +37856,33 @@ class UsersPermissionsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkObjectPermissionRequest]
+        self,
+        body: list[PatchedBulkObjectPermissionRequest],
+        query: UsersPermissionsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ObjectPermission]:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersPermissionsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkObjectPermissionRequest],
             body=body,
             response_model=list[ObjectPermission],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ObjectPermissionRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ObjectPermissionRequest],
+        query: UsersPermissionsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersPermissionsRootDeleteQuery,
+            query=query,
             body_model=list[ObjectPermissionRequest],
             body=body,
             response_model=None,
@@ -34406,52 +37971,68 @@ class UsersTokensEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: TokenRequest | list[TokenRequest]) -> Token:
+    async def create(
+        self,
+        body: TokenRequest | list[TokenRequest],
+        query: UsersTokensRootPostQuery | dict[str, Any] | None = None,
+    ) -> Token:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersTokensRootPostQuery,
+            query=query,
             body_model=TokenRequest | list[TokenRequest],
             body=body,
             response_model=Token,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTokenRequest]) -> list[Token]:
+    async def bulk_update(
+        self,
+        body: list[BulkTokenRequest],
+        query: UsersTokensRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Token]:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersTokensRootPutQuery,
+            query=query,
             body_model=list[BulkTokenRequest],
             body=body,
             response_model=list[Token],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkTokenRequest]) -> list[Token]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkTokenRequest],
+        query: UsersTokensRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Token]:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersTokensRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTokenRequest],
             body=body,
             response_model=list[Token],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TokenRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TokenRequest],
+        query: UsersTokensRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersTokensRootDeleteQuery,
+            query=query,
             body_model=list[TokenRequest],
             body=body,
             response_model=None,
@@ -34519,13 +38100,17 @@ class UsersTokensProvision(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def create(self, body: TokenProvisionRequest) -> TokenProvision:
+    async def create(
+        self,
+        body: TokenProvisionRequest,
+        query: UsersTokensProvisionPostQuery | dict[str, Any] | None = None,
+    ) -> TokenProvision:
         path = "/api/users/tokens/provision/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersTokensProvisionPostQuery,
+            query=query,
             body_model=TokenProvisionRequest,
             body=body,
             response_model=TokenProvision,
@@ -34554,52 +38139,68 @@ class UsersUsersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: UserRequest | list[UserRequest]) -> User:
+    async def create(
+        self,
+        body: UserRequest | list[UserRequest],
+        query: UsersUsersRootPostQuery | dict[str, Any] | None = None,
+    ) -> User:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersUsersRootPostQuery,
+            query=query,
             body_model=UserRequest | list[UserRequest],
             body=body,
             response_model=User,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkUserRequest]) -> list[User]:
+    async def bulk_update(
+        self,
+        body: list[BulkUserRequest],
+        query: UsersUsersRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[User]:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersUsersRootPutQuery,
+            query=query,
             body_model=list[BulkUserRequest],
             body=body,
             response_model=list[User],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkUserRequest]) -> list[User]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkUserRequest],
+        query: UsersUsersRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[User]:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersUsersRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkUserRequest],
             body=body,
             response_model=list[User],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[UserRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[UserRequest],
+        query: UsersUsersRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=UsersUsersRootDeleteQuery,
+            query=query,
             body_model=list[UserRequest],
             body=body,
             response_model=None,
@@ -34682,26 +38283,34 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ClusterGroupRequest | list[ClusterGroupRequest]) -> ClusterGroup:
+    async def create(
+        self,
+        body: ClusterGroupRequest | list[ClusterGroupRequest],
+        query: VirtualizationClusterGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> ClusterGroup:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterGroupsRootPostQuery,
+            query=query,
             body_model=ClusterGroupRequest | list[ClusterGroupRequest],
             body=body,
             response_model=ClusterGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkClusterGroupRequest]) -> list[ClusterGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkClusterGroupRequest],
+        query: VirtualizationClusterGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ClusterGroup]:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkClusterGroupRequest],
             body=body,
             response_model=list[ClusterGroup],
@@ -34709,27 +38318,33 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkClusterGroupRequest]
+        self,
+        body: list[PatchedBulkClusterGroupRequest],
+        query: VirtualizationClusterGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ClusterGroup]:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkClusterGroupRequest],
             body=body,
             response_model=list[ClusterGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ClusterGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ClusterGroupRequest],
+        query: VirtualizationClusterGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterGroupsRootDeleteQuery,
+            query=query,
             body_model=list[ClusterGroupRequest],
             body=body,
             response_model=None,
@@ -34814,26 +38429,34 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: ClusterTypeRequest | list[ClusterTypeRequest]) -> ClusterType:
+    async def create(
+        self,
+        body: ClusterTypeRequest | list[ClusterTypeRequest],
+        query: VirtualizationClusterTypesRootPostQuery | dict[str, Any] | None = None,
+    ) -> ClusterType:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterTypesRootPostQuery,
+            query=query,
             body_model=ClusterTypeRequest | list[ClusterTypeRequest],
             body=body,
             response_model=ClusterType,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkClusterTypeRequest]) -> list[ClusterType]:
+    async def bulk_update(
+        self,
+        body: list[BulkClusterTypeRequest],
+        query: VirtualizationClusterTypesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[ClusterType]:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterTypesRootPutQuery,
+            query=query,
             body_model=list[BulkClusterTypeRequest],
             body=body,
             response_model=list[ClusterType],
@@ -34841,27 +38464,33 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkClusterTypeRequest]
+        self,
+        body: list[PatchedBulkClusterTypeRequest],
+        query: VirtualizationClusterTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[ClusterType]:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkClusterTypeRequest],
             body=body,
             response_model=list[ClusterType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ClusterTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ClusterTypeRequest],
+        query: VirtualizationClusterTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClusterTypesRootDeleteQuery,
+            query=query,
             body_model=list[ClusterTypeRequest],
             body=body,
             response_model=None,
@@ -34946,52 +38575,68 @@ class VirtualizationClustersEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableClusterRequest | list[WritableClusterRequest]) -> Cluster:
+    async def create(
+        self,
+        body: WritableClusterRequest | list[WritableClusterRequest],
+        query: VirtualizationClustersRootPostQuery | dict[str, Any] | None = None,
+    ) -> Cluster:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClustersRootPostQuery,
+            query=query,
             body_model=WritableClusterRequest | list[WritableClusterRequest],
             body=body,
             response_model=Cluster,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkClusterRequest]) -> list[Cluster]:
+    async def bulk_update(
+        self,
+        body: list[BulkClusterRequest],
+        query: VirtualizationClustersRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Cluster]:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClustersRootPutQuery,
+            query=query,
             body_model=list[BulkClusterRequest],
             body=body,
             response_model=list[Cluster],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkClusterRequest]) -> list[Cluster]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkClusterRequest],
+        query: VirtualizationClustersRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Cluster]:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClustersRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkClusterRequest],
             body=body,
             response_model=list[Cluster],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[ClusterRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[ClusterRequest],
+        query: VirtualizationClustersRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationClustersRootDeleteQuery,
+            query=query,
             body_model=list[ClusterRequest],
             body=body,
             response_model=None,
@@ -35077,27 +38722,33 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableVMInterfaceRequest | list[WritableVMInterfaceRequest]
+        self,
+        body: WritableVMInterfaceRequest | list[WritableVMInterfaceRequest],
+        query: VirtualizationInterfacesRootPostQuery | dict[str, Any] | None = None,
     ) -> VMInterface:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationInterfacesRootPostQuery,
+            query=query,
             body_model=WritableVMInterfaceRequest | list[WritableVMInterfaceRequest],
             body=body,
             response_model=VMInterface,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVMInterfaceRequest]) -> list[VMInterface]:
+    async def bulk_update(
+        self,
+        body: list[BulkVMInterfaceRequest],
+        query: VirtualizationInterfacesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VMInterface]:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationInterfacesRootPutQuery,
+            query=query,
             body_model=list[BulkVMInterfaceRequest],
             body=body,
             response_model=list[VMInterface],
@@ -35105,27 +38756,33 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVMInterfaceRequest]
+        self,
+        body: list[PatchedBulkVMInterfaceRequest],
+        query: VirtualizationInterfacesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VMInterface]:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationInterfacesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVMInterfaceRequest],
             body=body,
             response_model=list[VMInterface],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VMInterfaceRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VMInterfaceRequest],
+        query: VirtualizationInterfacesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationInterfacesRootDeleteQuery,
+            query=query,
             body_model=list[VMInterfaceRequest],
             body=body,
             response_model=None,
@@ -35212,26 +38869,34 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: VirtualDiskRequest | list[VirtualDiskRequest]) -> VirtualDisk:
+    async def create(
+        self,
+        body: VirtualDiskRequest | list[VirtualDiskRequest],
+        query: VirtualizationVirtualDisksRootPostQuery | dict[str, Any] | None = None,
+    ) -> VirtualDisk:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualDisksRootPostQuery,
+            query=query,
             body_model=VirtualDiskRequest | list[VirtualDiskRequest],
             body=body,
             response_model=VirtualDisk,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVirtualDiskRequest]) -> list[VirtualDisk]:
+    async def bulk_update(
+        self,
+        body: list[BulkVirtualDiskRequest],
+        query: VirtualizationVirtualDisksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VirtualDisk]:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualDisksRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualDiskRequest],
             body=body,
             response_model=list[VirtualDisk],
@@ -35239,27 +38904,33 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualDiskRequest]
+        self,
+        body: list[PatchedBulkVirtualDiskRequest],
+        query: VirtualizationVirtualDisksRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualDisk]:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualDisksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualDiskRequest],
             body=body,
             response_model=list[VirtualDisk],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualDiskRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualDiskRequest],
+        query: VirtualizationVirtualDisksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualDisksRootDeleteQuery,
+            query=query,
             body_model=list[VirtualDiskRequest],
             body=body,
             response_model=None,
@@ -35345,14 +39016,16 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: VirtualMachineTypeRequest | list[VirtualMachineTypeRequest]
+        self,
+        body: VirtualMachineTypeRequest | list[VirtualMachineTypeRequest],
+        query: VirtualizationVirtualMachineTypesRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualMachineType:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachineTypesRootPostQuery,
+            query=query,
             body_model=VirtualMachineTypeRequest | list[VirtualMachineTypeRequest],
             body=body,
             response_model=VirtualMachineType,
@@ -35360,14 +39033,16 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkVirtualMachineTypeRequest]
+        self,
+        body: list[BulkVirtualMachineTypeRequest],
+        query: VirtualizationVirtualMachineTypesRootPutQuery | dict[str, Any] | None = None,
     ) -> list[VirtualMachineType]:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachineTypesRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualMachineTypeRequest],
             body=body,
             response_model=list[VirtualMachineType],
@@ -35375,27 +39050,33 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualMachineTypeRequest]
+        self,
+        body: list[PatchedBulkVirtualMachineTypeRequest],
+        query: VirtualizationVirtualMachineTypesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualMachineType]:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachineTypesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualMachineTypeRequest],
             body=body,
             response_model=list[VirtualMachineType],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualMachineTypeRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualMachineTypeRequest],
+        query: VirtualizationVirtualMachineTypesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachineTypesRootDeleteQuery,
+            query=query,
             body_model=list[VirtualMachineTypeRequest],
             body=body,
             response_model=None,
@@ -35487,27 +39168,33 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableVirtualMachineRequest | list[WritableVirtualMachineRequest]
+        self,
+        body: WritableVirtualMachineRequest | list[WritableVirtualMachineRequest],
+        query: VirtualizationVirtualMachinesRootPostQuery | dict[str, Any] | None = None,
     ) -> VirtualMachine:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachinesRootPostQuery,
+            query=query,
             body_model=WritableVirtualMachineRequest | list[WritableVirtualMachineRequest],
             body=body,
             response_model=VirtualMachine,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkVirtualMachineRequest]) -> list[VirtualMachine]:
+    async def bulk_update(
+        self,
+        body: list[BulkVirtualMachineRequest],
+        query: VirtualizationVirtualMachinesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[VirtualMachine]:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachinesRootPutQuery,
+            query=query,
             body_model=list[BulkVirtualMachineRequest],
             body=body,
             response_model=list[VirtualMachine],
@@ -35515,27 +39202,33 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkVirtualMachineRequest]
+        self,
+        body: list[PatchedBulkVirtualMachineRequest],
+        query: VirtualizationVirtualMachinesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[VirtualMachine]:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachinesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkVirtualMachineRequest],
             body=body,
             response_model=list[VirtualMachine],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[VirtualMachineRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[VirtualMachineRequest],
+        query: VirtualizationVirtualMachinesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VirtualizationVirtualMachinesRootDeleteQuery,
+            query=query,
             body_model=list[VirtualMachineRequest],
             body=body,
             response_model=None,
@@ -35648,53 +39341,67 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableIKEPolicyRequest | list[WritableIKEPolicyRequest]
+        self,
+        body: WritableIKEPolicyRequest | list[WritableIKEPolicyRequest],
+        query: VpnIkePoliciesRootPostQuery | dict[str, Any] | None = None,
     ) -> IKEPolicy:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkePoliciesRootPostQuery,
+            query=query,
             body_model=WritableIKEPolicyRequest | list[WritableIKEPolicyRequest],
             body=body,
             response_model=IKEPolicy,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIKEPolicyRequest]) -> list[IKEPolicy]:
+    async def bulk_update(
+        self,
+        body: list[BulkIKEPolicyRequest],
+        query: VpnIkePoliciesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IKEPolicy]:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkePoliciesRootPutQuery,
+            query=query,
             body_model=list[BulkIKEPolicyRequest],
             body=body,
             response_model=list[IKEPolicy],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkIKEPolicyRequest]) -> list[IKEPolicy]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkIKEPolicyRequest],
+        query: VpnIkePoliciesRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[IKEPolicy]:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkePoliciesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIKEPolicyRequest],
             body=body,
             response_model=list[IKEPolicy],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IKEPolicyRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IKEPolicyRequest],
+        query: VpnIkePoliciesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkePoliciesRootDeleteQuery,
+            query=query,
             body_model=list[IKEPolicyRequest],
             body=body,
             response_model=None,
@@ -35780,27 +39487,33 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableIKEProposalRequest | list[WritableIKEProposalRequest]
+        self,
+        body: WritableIKEProposalRequest | list[WritableIKEProposalRequest],
+        query: VpnIkeProposalsRootPostQuery | dict[str, Any] | None = None,
     ) -> IKEProposal:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkeProposalsRootPostQuery,
+            query=query,
             body_model=WritableIKEProposalRequest | list[WritableIKEProposalRequest],
             body=body,
             response_model=IKEProposal,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIKEProposalRequest]) -> list[IKEProposal]:
+    async def bulk_update(
+        self,
+        body: list[BulkIKEProposalRequest],
+        query: VpnIkeProposalsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IKEProposal]:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkeProposalsRootPutQuery,
+            query=query,
             body_model=list[BulkIKEProposalRequest],
             body=body,
             response_model=list[IKEProposal],
@@ -35808,27 +39521,33 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkIKEProposalRequest]
+        self,
+        body: list[PatchedBulkIKEProposalRequest],
+        query: VpnIkeProposalsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[IKEProposal]:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkeProposalsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIKEProposalRequest],
             body=body,
             response_model=list[IKEProposal],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IKEProposalRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IKEProposalRequest],
+        query: VpnIkeProposalsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIkeProposalsRootDeleteQuery,
+            query=query,
             body_model=list[IKEProposalRequest],
             body=body,
             response_model=None,
@@ -35914,27 +39633,33 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableIPSecPolicyRequest | list[WritableIPSecPolicyRequest]
+        self,
+        body: WritableIPSecPolicyRequest | list[WritableIPSecPolicyRequest],
+        query: VpnIpsecPoliciesRootPostQuery | dict[str, Any] | None = None,
     ) -> IPSecPolicy:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecPoliciesRootPostQuery,
+            query=query,
             body_model=WritableIPSecPolicyRequest | list[WritableIPSecPolicyRequest],
             body=body,
             response_model=IPSecPolicy,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIPSecPolicyRequest]) -> list[IPSecPolicy]:
+    async def bulk_update(
+        self,
+        body: list[BulkIPSecPolicyRequest],
+        query: VpnIpsecPoliciesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IPSecPolicy]:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecPoliciesRootPutQuery,
+            query=query,
             body_model=list[BulkIPSecPolicyRequest],
             body=body,
             response_model=list[IPSecPolicy],
@@ -35942,27 +39667,33 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkIPSecPolicyRequest]
+        self,
+        body: list[PatchedBulkIPSecPolicyRequest],
+        query: VpnIpsecPoliciesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[IPSecPolicy]:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecPoliciesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIPSecPolicyRequest],
             body=body,
             response_model=list[IPSecPolicy],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IPSecPolicyRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IPSecPolicyRequest],
+        query: VpnIpsecPoliciesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecPoliciesRootDeleteQuery,
+            query=query,
             body_model=list[IPSecPolicyRequest],
             body=body,
             response_model=None,
@@ -36048,27 +39779,33 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableIPSecProfileRequest | list[WritableIPSecProfileRequest]
+        self,
+        body: WritableIPSecProfileRequest | list[WritableIPSecProfileRequest],
+        query: VpnIpsecProfilesRootPostQuery | dict[str, Any] | None = None,
     ) -> IPSecProfile:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProfilesRootPostQuery,
+            query=query,
             body_model=WritableIPSecProfileRequest | list[WritableIPSecProfileRequest],
             body=body,
             response_model=IPSecProfile,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIPSecProfileRequest]) -> list[IPSecProfile]:
+    async def bulk_update(
+        self,
+        body: list[BulkIPSecProfileRequest],
+        query: VpnIpsecProfilesRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IPSecProfile]:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProfilesRootPutQuery,
+            query=query,
             body_model=list[BulkIPSecProfileRequest],
             body=body,
             response_model=list[IPSecProfile],
@@ -36076,27 +39813,33 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkIPSecProfileRequest]
+        self,
+        body: list[PatchedBulkIPSecProfileRequest],
+        query: VpnIpsecProfilesRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[IPSecProfile]:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProfilesRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIPSecProfileRequest],
             body=body,
             response_model=list[IPSecProfile],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IPSecProfileRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IPSecProfileRequest],
+        query: VpnIpsecProfilesRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProfilesRootDeleteQuery,
+            query=query,
             body_model=list[IPSecProfileRequest],
             body=body,
             response_model=None,
@@ -36182,27 +39925,33 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableIPSecProposalRequest | list[WritableIPSecProposalRequest]
+        self,
+        body: WritableIPSecProposalRequest | list[WritableIPSecProposalRequest],
+        query: VpnIpsecProposalsRootPostQuery | dict[str, Any] | None = None,
     ) -> IPSecProposal:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProposalsRootPostQuery,
+            query=query,
             body_model=WritableIPSecProposalRequest | list[WritableIPSecProposalRequest],
             body=body,
             response_model=IPSecProposal,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkIPSecProposalRequest]) -> list[IPSecProposal]:
+    async def bulk_update(
+        self,
+        body: list[BulkIPSecProposalRequest],
+        query: VpnIpsecProposalsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[IPSecProposal]:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProposalsRootPutQuery,
+            query=query,
             body_model=list[BulkIPSecProposalRequest],
             body=body,
             response_model=list[IPSecProposal],
@@ -36210,27 +39959,33 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkIPSecProposalRequest]
+        self,
+        body: list[PatchedBulkIPSecProposalRequest],
+        query: VpnIpsecProposalsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[IPSecProposal]:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProposalsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkIPSecProposalRequest],
             body=body,
             response_model=list[IPSecProposal],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[IPSecProposalRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[IPSecProposalRequest],
+        query: VpnIpsecProposalsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnIpsecProposalsRootDeleteQuery,
+            query=query,
             body_model=list[IPSecProposalRequest],
             body=body,
             response_model=None,
@@ -36316,27 +40071,33 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: L2VPNTerminationRequest | list[L2VPNTerminationRequest]
+        self,
+        body: L2VPNTerminationRequest | list[L2VPNTerminationRequest],
+        query: VpnL2vpnTerminationsRootPostQuery | dict[str, Any] | None = None,
     ) -> L2VPNTermination:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnTerminationsRootPostQuery,
+            query=query,
             body_model=L2VPNTerminationRequest | list[L2VPNTerminationRequest],
             body=body,
             response_model=L2VPNTermination,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkL2VPNTerminationRequest]) -> list[L2VPNTermination]:
+    async def bulk_update(
+        self,
+        body: list[BulkL2VPNTerminationRequest],
+        query: VpnL2vpnTerminationsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[L2VPNTermination]:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnTerminationsRootPutQuery,
+            query=query,
             body_model=list[BulkL2VPNTerminationRequest],
             body=body,
             response_model=list[L2VPNTermination],
@@ -36344,27 +40105,33 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkL2VPNTerminationRequest]
+        self,
+        body: list[PatchedBulkL2VPNTerminationRequest],
+        query: VpnL2vpnTerminationsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[L2VPNTermination]:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnTerminationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkL2VPNTerminationRequest],
             body=body,
             response_model=list[L2VPNTermination],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[L2VPNTerminationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[L2VPNTerminationRequest],
+        query: VpnL2vpnTerminationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnTerminationsRootDeleteQuery,
+            query=query,
             body_model=list[L2VPNTerminationRequest],
             body=body,
             response_model=None,
@@ -36451,52 +40218,68 @@ class VpnL2vpnsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableL2VPNRequest | list[WritableL2VPNRequest]) -> L2VPN:
+    async def create(
+        self,
+        body: WritableL2VPNRequest | list[WritableL2VPNRequest],
+        query: VpnL2vpnsRootPostQuery | dict[str, Any] | None = None,
+    ) -> L2VPN:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnsRootPostQuery,
+            query=query,
             body_model=WritableL2VPNRequest | list[WritableL2VPNRequest],
             body=body,
             response_model=L2VPN,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkL2VPNRequest]) -> list[L2VPN]:
+    async def bulk_update(
+        self,
+        body: list[BulkL2VPNRequest],
+        query: VpnL2vpnsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[L2VPN]:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnsRootPutQuery,
+            query=query,
             body_model=list[BulkL2VPNRequest],
             body=body,
             response_model=list[L2VPN],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkL2VPNRequest]) -> list[L2VPN]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkL2VPNRequest],
+        query: VpnL2vpnsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[L2VPN]:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkL2VPNRequest],
             body=body,
             response_model=list[L2VPN],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[L2VPNRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[L2VPNRequest],
+        query: VpnL2vpnsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnL2vpnsRootDeleteQuery,
+            query=query,
             body_model=list[L2VPNRequest],
             body=body,
             response_model=None,
@@ -36579,26 +40362,34 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: TunnelGroupRequest | list[TunnelGroupRequest]) -> TunnelGroup:
+    async def create(
+        self,
+        body: TunnelGroupRequest | list[TunnelGroupRequest],
+        query: VpnTunnelGroupsRootPostQuery | dict[str, Any] | None = None,
+    ) -> TunnelGroup:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelGroupsRootPostQuery,
+            query=query,
             body_model=TunnelGroupRequest | list[TunnelGroupRequest],
             body=body,
             response_model=TunnelGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTunnelGroupRequest]) -> list[TunnelGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkTunnelGroupRequest],
+        query: VpnTunnelGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[TunnelGroup]:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkTunnelGroupRequest],
             body=body,
             response_model=list[TunnelGroup],
@@ -36606,27 +40397,33 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkTunnelGroupRequest]
+        self,
+        body: list[PatchedBulkTunnelGroupRequest],
+        query: VpnTunnelGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[TunnelGroup]:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTunnelGroupRequest],
             body=body,
             response_model=list[TunnelGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TunnelGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TunnelGroupRequest],
+        query: VpnTunnelGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelGroupsRootDeleteQuery,
+            query=query,
             body_model=list[TunnelGroupRequest],
             body=body,
             response_model=None,
@@ -36710,14 +40507,16 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableTunnelTerminationRequest | list[WritableTunnelTerminationRequest]
+        self,
+        body: WritableTunnelTerminationRequest | list[WritableTunnelTerminationRequest],
+        query: VpnTunnelTerminationsRootPostQuery | dict[str, Any] | None = None,
     ) -> TunnelTermination:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelTerminationsRootPostQuery,
+            query=query,
             body_model=WritableTunnelTerminationRequest | list[WritableTunnelTerminationRequest],
             body=body,
             response_model=TunnelTermination,
@@ -36725,14 +40524,16 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_update(
-        self, body: list[BulkTunnelTerminationRequest]
+        self,
+        body: list[BulkTunnelTerminationRequest],
+        query: VpnTunnelTerminationsRootPutQuery | dict[str, Any] | None = None,
     ) -> list[TunnelTermination]:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelTerminationsRootPutQuery,
+            query=query,
             body_model=list[BulkTunnelTerminationRequest],
             body=body,
             response_model=list[TunnelTermination],
@@ -36740,27 +40541,33 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkTunnelTerminationRequest]
+        self,
+        body: list[PatchedBulkTunnelTerminationRequest],
+        query: VpnTunnelTerminationsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[TunnelTermination]:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelTerminationsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTunnelTerminationRequest],
             body=body,
             response_model=list[TunnelTermination],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TunnelTerminationRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TunnelTerminationRequest],
+        query: VpnTunnelTerminationsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelTerminationsRootDeleteQuery,
+            query=query,
             body_model=list[TunnelTerminationRequest],
             body=body,
             response_model=None,
@@ -36849,52 +40656,68 @@ class VpnTunnelsEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, body: WritableTunnelRequest | list[WritableTunnelRequest]) -> Tunnel:
+    async def create(
+        self,
+        body: WritableTunnelRequest | list[WritableTunnelRequest],
+        query: VpnTunnelsRootPostQuery | dict[str, Any] | None = None,
+    ) -> Tunnel:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelsRootPostQuery,
+            query=query,
             body_model=WritableTunnelRequest | list[WritableTunnelRequest],
             body=body,
             response_model=Tunnel,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkTunnelRequest]) -> list[Tunnel]:
+    async def bulk_update(
+        self,
+        body: list[BulkTunnelRequest],
+        query: VpnTunnelsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[Tunnel]:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelsRootPutQuery,
+            query=query,
             body_model=list[BulkTunnelRequest],
             body=body,
             response_model=list[Tunnel],
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(self, body: list[PatchedBulkTunnelRequest]) -> list[Tunnel]:
+    async def bulk_partial_update(
+        self,
+        body: list[PatchedBulkTunnelRequest],
+        query: VpnTunnelsRootPatchQuery | dict[str, Any] | None = None,
+    ) -> list[Tunnel]:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkTunnelRequest],
             body=body,
             response_model=list[Tunnel],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[TunnelRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[TunnelRequest],
+        query: VpnTunnelsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=VpnTunnelsRootDeleteQuery,
+            query=query,
             body_model=list[TunnelRequest],
             body=body,
             response_model=None,
@@ -36978,27 +40801,33 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableWirelessLANGroupRequest | list[WritableWirelessLANGroupRequest]
+        self,
+        body: WritableWirelessLANGroupRequest | list[WritableWirelessLANGroupRequest],
+        query: WirelessWirelessLanGroupsRootPostQuery | dict[str, Any] | None = None,
     ) -> WirelessLANGroup:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLanGroupsRootPostQuery,
+            query=query,
             body_model=WritableWirelessLANGroupRequest | list[WritableWirelessLANGroupRequest],
             body=body,
             response_model=WirelessLANGroup,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkWirelessLANGroupRequest]) -> list[WirelessLANGroup]:
+    async def bulk_update(
+        self,
+        body: list[BulkWirelessLANGroupRequest],
+        query: WirelessWirelessLanGroupsRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[WirelessLANGroup]:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLanGroupsRootPutQuery,
+            query=query,
             body_model=list[BulkWirelessLANGroupRequest],
             body=body,
             response_model=list[WirelessLANGroup],
@@ -37006,27 +40835,33 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkWirelessLANGroupRequest]
+        self,
+        body: list[PatchedBulkWirelessLANGroupRequest],
+        query: WirelessWirelessLanGroupsRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[WirelessLANGroup]:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLanGroupsRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkWirelessLANGroupRequest],
             body=body,
             response_model=list[WirelessLANGroup],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[WirelessLANGroupRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[WirelessLANGroupRequest],
+        query: WirelessWirelessLanGroupsRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLanGroupsRootDeleteQuery,
+            query=query,
             body_model=list[WirelessLANGroupRequest],
             body=body,
             response_model=None,
@@ -37116,27 +40951,33 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableWirelessLANRequest | list[WritableWirelessLANRequest]
+        self,
+        body: WritableWirelessLANRequest | list[WritableWirelessLANRequest],
+        query: WirelessWirelessLansRootPostQuery | dict[str, Any] | None = None,
     ) -> WirelessLAN:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLansRootPostQuery,
+            query=query,
             body_model=WritableWirelessLANRequest | list[WritableWirelessLANRequest],
             body=body,
             response_model=WirelessLAN,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkWirelessLANRequest]) -> list[WirelessLAN]:
+    async def bulk_update(
+        self,
+        body: list[BulkWirelessLANRequest],
+        query: WirelessWirelessLansRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[WirelessLAN]:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLansRootPutQuery,
+            query=query,
             body_model=list[BulkWirelessLANRequest],
             body=body,
             response_model=list[WirelessLAN],
@@ -37144,27 +40985,33 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkWirelessLANRequest]
+        self,
+        body: list[PatchedBulkWirelessLANRequest],
+        query: WirelessWirelessLansRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[WirelessLAN]:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLansRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkWirelessLANRequest],
             body=body,
             response_model=list[WirelessLAN],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[WirelessLANRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[WirelessLANRequest],
+        query: WirelessWirelessLansRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLansRootDeleteQuery,
+            query=query,
             body_model=list[WirelessLANRequest],
             body=body,
             response_model=None,
@@ -37252,27 +41099,33 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
         )
 
     async def create(
-        self, body: WritableWirelessLinkRequest | list[WritableWirelessLinkRequest]
+        self,
+        body: WritableWirelessLinkRequest | list[WritableWirelessLinkRequest],
+        query: WirelessWirelessLinksRootPostQuery | dict[str, Any] | None = None,
     ) -> WirelessLink:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLinksRootPostQuery,
+            query=query,
             body_model=WritableWirelessLinkRequest | list[WritableWirelessLinkRequest],
             body=body,
             response_model=WirelessLink,
             return_none_on_404=False,
         )
 
-    async def bulk_update(self, body: list[BulkWirelessLinkRequest]) -> list[WirelessLink]:
+    async def bulk_update(
+        self,
+        body: list[BulkWirelessLinkRequest],
+        query: WirelessWirelessLinksRootPutQuery | dict[str, Any] | None = None,
+    ) -> list[WirelessLink]:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLinksRootPutQuery,
+            query=query,
             body_model=list[BulkWirelessLinkRequest],
             body=body,
             response_model=list[WirelessLink],
@@ -37280,27 +41133,33 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
         )
 
     async def bulk_partial_update(
-        self, body: list[PatchedBulkWirelessLinkRequest]
+        self,
+        body: list[PatchedBulkWirelessLinkRequest],
+        query: WirelessWirelessLinksRootPatchQuery | dict[str, Any] | None = None,
     ) -> list[WirelessLink]:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLinksRootPatchQuery,
+            query=query,
             body_model=list[PatchedBulkWirelessLinkRequest],
             body=body,
             response_model=list[WirelessLink],
             return_none_on_404=False,
         )
 
-    async def bulk_delete(self, body: list[WirelessLinkRequest]) -> None:
+    async def bulk_delete(
+        self,
+        body: list[WirelessLinkRequest],
+        query: WirelessWirelessLinksRootDeleteQuery | dict[str, Any] | None = None,
+    ) -> None:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=None,
-            query=None,
+            query_model=WirelessWirelessLinksRootDeleteQuery,
+            query=query,
             body_model=list[WirelessLinkRequest],
             body=body,
             response_model=None,

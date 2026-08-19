@@ -84,6 +84,33 @@ This applies to `POST`, `PUT` (`bulk-update`) and `PATCH` (`bulk-patch`) alike,
 because all of them route through one request path. Bulk `DELETE` answers with a
 bodyless `204`, so there is nothing to validate and the call returns `None`.
 
+### Background bulk operations (NetBox 4.7)
+
+NetBox 4.7 accepts `?background=true` on bulk `POST`/`PUT`/`PATCH`/`DELETE`. The
+batch is queued instead of executed inline, and the response is `202` carrying a
+job reference rather than the committed objects — the feature exists to avoid
+proxy timeouts on large batches.
+
+```python
+result = await api.dcim.sites.create(
+    body=[{"name": "B1", "slug": "b1"}, {"name": "B2", "slug": "b2"}],
+    query={"background": True},
+)
+result.job.id      # 4211
+result.job.status  # "pending"
+```
+
+The runtime selects the response model from the request: an affirmative
+`background` flag yields `BackgroundJobReference`, and that takes precedence over
+body shape, because a queued batch returns a job for either a single object or a
+list. Without the flag, nothing changes.
+
+> **This is an overlay, pending upstream schema support.** The pinned 4.7
+> artifact (`v4.7.0-beta1`) does not describe the parameter, so the generator
+> declares it while keeping the committed bundle byte-faithful to upstream. A
+> guard test fails once a refreshed 4.7 schema describes `background` itself, so
+> the overlay cannot outlive its reason to exist.
+
 ## Generated artifacts
 
 The repository ships committed OpenAPI bundles, generated Pydantic models, and

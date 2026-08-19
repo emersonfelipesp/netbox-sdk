@@ -604,6 +604,77 @@ _OVERLAY_FIELD_SOURCE = {
 }
 
 
+# Background bulk-operation overlay
+# ---------------------------------------------------------------------------
+# NetBox 4.7 adds ``?background=true`` to bulk POST/PUT/PATCH/DELETE on collection
+# paths, answering 202 with a job reference instead of executing synchronously.
+# It exists specifically to avoid proxy timeouts on large batches.
+#
+# The pinned upstream artifact is ``v4.7.0-beta1``, whose OpenAPI document does
+# not describe the capability at all (0 ``background`` parameters, 0 ``202``
+# responses -- asserted by a guard test). The generated bindings are therefore
+# *faithful to the artifact*, and the typed surface simply cannot reach a feature
+# the raw client can already use.
+#
+# This is a distinct mechanism from WRITE_COMPAT_OVERLAY above, which patches
+# component-schema *properties*. This one patches *operations*, adding a query
+# parameter, so the generated query model exposes it.
+#
+# Remove this the moment upstream's GA schema describes the parameter; the guard
+# test in tests/test_typed_background_bulk.py fails if the overlay outlives its
+# reason to exist.
+BACKGROUND_BULK_OVERLAY_VERSIONS: frozenset[str] = frozenset({"4.7"})
+
+_BACKGROUND_PARAMETER: dict[str, Any] = {
+    "in": "query",
+    "name": "background",
+    "schema": {"type": "boolean"},
+    "description": (
+        "Execute this bulk operation as a background job. The response is 202 with a "
+        "job reference instead of the committed objects."
+    ),
+}
+
+_BACKGROUND_METHODS = ("post", "put", "patch", "delete")
+
+
+def _is_collection_path(path: str) -> bool:
+    """True for a bulk-capable collection path -- no ``{...}`` placeholder."""
+    return path.startswith("/api/") and "{" not in path
+
+
+def apply_background_bulk_overlay(version: str, schema: dict[str, Any]) -> dict[str, Any]:
+    """Return a copy of ``schema`` declaring ``?background=true`` on bulk writes.
+
+    Applied to an in-memory copy only; the committed ``netbox-openapi-*.json``
+    stays byte-faithful to the pinned upstream artifact, so provenance
+    verification is unaffected.
+    """
+    if version not in BACKGROUND_BULK_OVERLAY_VERSIONS:
+        return schema
+    patched = json.loads(json.dumps(schema))
+    paths = patched.get("paths")
+    if not isinstance(paths, dict):
+        return patched
+    for path, item in paths.items():
+        if not isinstance(item, dict) or not _is_collection_path(path):
+            continue
+        for method in _BACKGROUND_METHODS:
+            operation = item.get(method)
+            if not isinstance(operation, dict):
+                continue
+            parameters = operation.setdefault("parameters", [])
+            if not isinstance(parameters, list):
+                continue
+            if any(
+                isinstance(p, dict) and p.get("name") == "background" and p.get("in") == "query"
+                for p in parameters
+            ):
+                continue  # upstream now describes it; nothing to add
+            parameters.append(json.loads(json.dumps(_BACKGROUND_PARAMETER)))
+    return patched
+
+
 def apply_write_compat_overlay(version: str, schema: dict[str, Any]) -> dict[str, Any]:
     """Return a copy of ``schema`` with REST-writable legacy fields restored.
 
@@ -820,7 +891,13 @@ def main() -> None:
                 overlay_path.unlink(missing_ok=True)
         _prepend_models_module_doc(model_output, version)
         typed_output = TYPED_ROOT / f"v{version_suffix}.py"
-        typed_output.write_text(build_bindings(version, schema), encoding="utf-8")
+        # Bindings are generated from the background-overlaid schema so the typed
+        # surface can reach 4.7's background bulk mode; the committed bundle above
+        # is untouched and stays byte-faithful to upstream.
+        typed_output.write_text(
+            build_bindings(version, apply_background_bulk_overlay(version, schema)),
+            encoding="utf-8",
+        )
         format_generated_artifacts([model_output, typed_output])
         write_release_provenance(
             version,
