@@ -177,9 +177,7 @@ def _install_sdk_provider(modules: dict[str, Any]) -> Any | None:
         return _SDK_PROVIDER
     try:
         reader = modules["periodic_reader"](modules["otlp_metric_exporter"]())
-        provider = modules["meter_provider"](
-            metric_readers=[reader], resource=_resource(modules)
-        )
+        provider = modules["meter_provider"](metric_readers=[reader], resource=_resource(modules))
         modules["metrics"].set_meter_provider(provider)
     except Exception:  # noqa: BLE001
         logger.debug("failed to initialize OpenTelemetry MeterProvider", exc_info=True)
