@@ -52,7 +52,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_certification_readiness.py` | Integration package certification evidence, metadata, and documentation checks |
 | `test_cli_decorators.py` | Reusable CLI decorator factories and Typer metadata behavior |
 | `test_cli_error_handling.py` | CLI error output formatting and exit code behavior |
-| `test_cli_new_options.py` | New CLI option wiring and command defaults |
+| `test_cli_new_options.py` | New CLI option wiring, guarded raw-call dry-run previews, and command defaults |
 | `test_cli_trace.py` | Cable trace ASCII rendering (Unicode boxes, endpoint labels, status, cable segments) |
 | `test_cli_tui.py` | `NbxCliTuiApp` Pilot tests: command tree navigation, leaf action resolution, command construction |
 | `test_cli_tui_theme.py` | TUI theme selection, live switching, persistence via `tui_state.json` |
@@ -80,7 +80,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_logo_render.py` | NetBox logo wordmark rendering against each built-in theme |
 | `test_logs_tui.py` | `NetBoxLogsTuiApp` Pilot tests: log entry display, surface theming across all built-in themes |
 | `test_markdown_output.py` | Markdown rendering helpers and `--output markdown` flag handling |
-| `test_mcp.py` | MCP schemas, mutation gate, dry-run, mocked reads, CLI JSON parity, and deterministic hook behavior |
+| `test_mcp.py` | MCP schemas, mutation gate, dry-run, mocked reads, CLI JSON parity, and deterministic hook behavior including literal dry-run allowance |
 | `test_mock_api.py` | FastAPI mock NetBox API CRUD, pagination, filtering, and Branching routes |
 | `test_no_hardcoded_colors.py` | Two checks: (1) zero hex literals in any runtime TCSS file; (2) all `$token` references in TCSS are in the explicit `_ALLOWED_THEME_TOKENS` allowlist |
 | `test_output_safety.py` | ANSI stripping, control character replacement, safe Rich Text rendering |

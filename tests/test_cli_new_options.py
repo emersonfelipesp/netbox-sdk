@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 import pytest
 from click.exceptions import BadParameter
@@ -18,6 +19,21 @@ from netbox_sdk.schema import SchemaIndex
 pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def plain(text: str) -> str:
+    """Strip ANSI escapes so assertions see the text that is actually on screen.
+
+    Rich highlights option-like tokens, so ``--dry-run`` is emitted as several
+    separately-coloured runs and a raw ``in result.output`` check misses a
+    message that rendered perfectly well. The ``not in`` direction is the
+    dangerous one: a secret that *did* render would still satisfy the check
+    once styling split it, so the redaction guards below would pass while
+    leaking. Strip first, then assert.
+    """
+    return _ANSI_RE.sub("", text)
 
 
 def _live_plugin_index() -> SchemaIndex:
@@ -127,6 +143,204 @@ def test_call_command_forwards_headers_and_repeated_query(monkeypatch):
     assert result.exit_code == 0
     assert client.calls[0]["query"] == {"tag": ["prod", "edge"]}
     assert client.calls[0]["headers"] == {"If-Match": '"etag"'}
+
+
+def test_raw_call_dry_run_previews_exact_request_without_constructing_client(monkeypatch):
+    monkeypatch.delenv("NETBOX_SDK_CONFIRM_WRITE", raising=False)
+    monkeypatch.setattr(
+        cli,
+        "_get_client",
+        lambda: pytest.fail("raw call dry-run constructed a client"),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        [
+            "call",
+            "post",
+            "api/plugins/nms/gitea-deployment-%74argets/",
+            "-q",
+            "tag=prod",
+            "-q",
+            "tag=edge",
+            "-q",
+            "access_token=must-not-render-query",
+            "-H",
+            'If-Match: "etag"',
+            "-H",
+            "Authorization: Bearer must-not-render",
+            "-H",
+            "X-API-Key: must-not-render-api-key",
+            "--body-json",
+            (
+                '{"owner":"N-MultiCloud","repo":"ui.nmulti.cloud",'
+                '"credentials":{"client_secret":"must-not-render-body",'
+                '"ssh_private_key":"must-not-render-private-key"},'
+                '"clientSecret":"must-not-render-camel-secret",'
+                '"clientAPIKey":"must-not-render-acronym-key",'
+                '"X-APIKEY":"must-not-render-header-style-key",'
+                '"XAPIKEY":"must-not-render-compact-api-key",'
+                '"SSHPRIVATEKEY":"must-not-render-compact-private-key",'
+                '"ACCESSTOKEN":"must-not-render-compact-token",'
+                '"AUTHENTICATION":"must-not-render-compact-auth",'
+                '"PASSPHRASE":"must-not-render-compact-passphrase"}'
+            ),
+            "--dry-run",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Dry Run Preview" in plain(result.output)
+    assert "POST" in plain(result.output)
+    assert "/api/plugins/nms/gitea-deployment-targets/" in plain(result.output)
+    assert '"tag": [' in plain(result.output)
+    assert '"prod"' in plain(result.output)
+    assert '"edge"' in plain(result.output)
+    assert "If-Match" in plain(result.output)
+    assert "etag" in plain(result.output)
+    assert "Authorization" in plain(result.output)
+    assert "[redacted]" in plain(result.output)
+    assert "must-not-render" not in plain(result.output)
+    assert "must-not-render-query" not in plain(result.output)
+    assert "must-not-render-body" not in plain(result.output)
+    assert "must-not-render-api-key" not in plain(result.output)
+    assert "must-not-render-private-key" not in plain(result.output)
+    assert "must-not-render-camel-secret" not in plain(result.output)
+    assert "must-not-render-acronym-key" not in plain(result.output)
+    assert "must-not-render-header-style-key" not in plain(result.output)
+    assert "must-not-render-compact-api-key" not in plain(result.output)
+    assert "must-not-render-compact-private-key" not in plain(result.output)
+    assert "must-not-render-compact-token" not in plain(result.output)
+    assert "must-not-render-compact-auth" not in plain(result.output)
+    assert "must-not-render-compact-passphrase" not in plain(result.output)
+    assert "N-MultiCloud" in plain(result.output)
+    assert "ui.nmulti.cloud" in plain(result.output)
+
+
+@pytest.mark.parametrize(
+    ("body_args", "expected", "absent"),
+    [
+        ([], "(none)", None),
+        (["--body-json", "{}"], "{}", "(none)"),
+        (["--body-json", "[]"], "[]", "(none)"),
+    ],
+)
+def test_raw_call_dry_run_distinguishes_absent_and_empty_json_bodies(
+    monkeypatch: pytest.MonkeyPatch,
+    body_args: list[str],
+    expected: str,
+    absent: str | None,
+) -> None:
+    monkeypatch.setattr(
+        cli,
+        "_get_client",
+        lambda: pytest.fail("raw call dry-run constructed a client"),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        ["call", "POST", "/api/dcim/devices/", *body_args, "--dry-run"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Body" in plain(result.output)
+    assert expected in plain(result.output)
+    if absent is not None:
+        assert absent not in plain(result.output)
+
+
+def test_raw_call_live_dispatch_matches_preview_method_and_path_normalization(monkeypatch):
+    client = _CaptureClient()
+    monkeypatch.setattr(cli, "_get_client", lambda: client)
+    argv = [
+        "call",
+        " post ",
+        "api/plugins/nms/gitea-deployment-%74argets/",
+        "--body-json",
+        "{}",
+    ]
+
+    preview = runner.invoke(cli.app, [*argv, "--dry-run"])
+    result = runner.invoke(cli.app, [*argv, "--confirm"])
+
+    assert preview.exit_code == 0, preview.output
+    assert "POST" in preview.output
+    assert "/api/plugins/nms/gitea-deployment-targets/" in preview.output
+    assert result.exit_code == 0, result.output
+    assert client.calls[0]["method"] == "POST"
+    assert client.calls[0]["path"] == "/api/plugins/nms/gitea-deployment-targets/"
+
+
+@pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS"])
+def test_raw_call_dry_run_rejects_read_methods_before_client_creation(
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+) -> None:
+    monkeypatch.setattr(
+        cli,
+        "_get_client",
+        lambda: pytest.fail("invalid raw call dry-run constructed a client"),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        ["call", method, "/api/status/", "--dry-run"],
+    )
+
+    assert result.exit_code != 0
+    assert "only supported for POST, PUT, PATCH, and DELETE" in plain(result.output)
+
+
+def test_raw_call_dry_run_rejects_confirmation_before_client_creation(monkeypatch):
+    monkeypatch.setattr(
+        cli,
+        "_get_client",
+        lambda: pytest.fail("ambiguous raw call dry-run constructed a client"),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        [
+            "call",
+            "POST",
+            "/api/dcim/devices/",
+            "--body-json",
+            "{}",
+            "--dry-run",
+            "--confirm",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "either --dry-run or --confirm" in plain(result.output)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "https://netbox.example/api/dcim/devices/",
+        "/api/dcim/devices/?status=active",
+        "/api/dcim%2Fdevices/",
+        "/api/dcim\\devices/",
+    ],
+)
+def test_raw_call_dry_run_rejects_unsafe_paths_before_client_creation(
+    monkeypatch: pytest.MonkeyPatch,
+    path: str,
+) -> None:
+    monkeypatch.setattr(
+        cli,
+        "_get_client",
+        lambda: pytest.fail("unsafe raw call dry-run constructed a client"),
+    )
+
+    result = runner.invoke(
+        cli.app,
+        ["call", "POST", path, "--body-json", "{}", "--dry-run"],
+    )
+
+    assert result.exit_code != 0
+    assert "Request path" in plain(result.output)
 
 
 def test_dev_http_get_forwards_headers_and_repeated_query(monkeypatch):

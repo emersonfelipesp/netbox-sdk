@@ -100,6 +100,7 @@ Make an explicit HTTP request to any NetBox API path.
 nbx call GET /api/status/
 nbx call GET /api/dcim/sites/ --json
 nbx call GET /api/dcim/sites/ --markdown
+nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}' --dry-run
 nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}' --confirm
 nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 ```
@@ -109,19 +110,28 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 | Flag | Description |
 |------|-------------|
 | `-q` / `--query KEY=VALUE` | Query string parameter (repeatable) |
+| `-H` / `--header KEY=VALUE` | Request header (repeatable) |
 | `--body-json TEXT` | Inline JSON request body |
 | `--body-file PATH` | Path to a JSON file to use as request body |
 | `--json` | Output raw JSON instead of a Rich table |
 | `--yaml` | Output as YAML |
 | `--markdown` | Output API responses as table-first Markdown |
+| `--dry-run` | Preview a `POST`, `PUT`, `PATCH`, or `DELETE` without constructing a client or sending it |
 | `--confirm` | Confirm a `POST`, `PUT`, `PATCH`, or `DELETE` request |
 
 `--json`, `--yaml`, and `--markdown` are mutually exclusive.
+`--dry-run` shows the normalized method and path plus the parsed query, headers,
+and JSON body locally. Credential-shaped query, header, and body fields are
+redacted recursively, including delimiter, camel/acronym, and compact-uppercase
+names such as `X-API-Key`, `clientAPIKey`, `XAPIKEY`, and `ssh_private_key`;
+explicit empty objects and arrays remain visible as `{}` and `[]` rather than
+being confused with an absent body. It is rejected for read methods and cannot
+be combined with `--confirm`.
 Write methods are refused unless `--confirm` is passed or
 `NETBOX_SDK_CONFIRM_WRITE=1` is present in the `nbx` process environment.
-Paths containing a percent-encoded path separator (`%2F` or `%5C`, in any
-letter case) are rejected before cache access or network dispatch; pass query
-values through `-q` instead of embedding them in `PATH`.
+Paths containing a literal backslash or percent-encoded path separator (`%2F`
+or `%5C`, in any letter case) are rejected before cache access or network
+dispatch; pass query values through `-q` instead of embedding them in `PATH`.
 
 ---
 

@@ -31,12 +31,12 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 
 | File | Purpose |
 |---|---|
-| `__init__.py` | Root Typer app, `main()`, top-level command registration, script entrypoint target |
+| `__init__.py` | Root Typer app, `main()`, top-level command registration, script entrypoint target, and guarded raw-call execution/client-free dry-run preview |
 | `branching.py` | `nbx branching ...`, `nbx branch ...`, and branch-aware command helpers |
 | `decorators.py` | Reusable Typer decorator factories for repeated option/argument metadata |
 | `runtime.py` | Thin CLI adapter over `netbox_sdk.schema_resolution` (`_get_registration_index()` for network-free command registration, `_get_runtime_index()` for execution with `--netbox-version` override or connected-instance detection), plus runtime config cache, client factories, spinner integration, and demo refresh wiring |
 | `dynamic.py` | OpenAPI-driven dynamic command registration and execution. Supports NetBox 4.5/4.6 parallel command surfaces, `-H` / `--header`, repeated `-q` filters, bulk operations, auto-pagination, and filter discovery |
-| `support.py` | Shared CLI rendering, output selection, TUI lazy-import helpers |
+| `support.py` | Shared CLI rendering, output selection, redacted request dry-run previews, and TUI lazy-import helpers |
 | `demo.py` | `nbx demo ...` command tree |
 | `dev.py` | `nbx dev ...` command tree |
 | `django_model.py` | Django model CLI commands |

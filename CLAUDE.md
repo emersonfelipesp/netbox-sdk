@@ -158,6 +158,15 @@ dialog before every POST, PUT, PATCH, or DELETE dispatch.
 
 **Query/header forwarding**: `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.
 
+**Guarded raw-call preview**: write-method `nbx call` requests accept a
+client-free `--dry-run` that renders the normalized method, path, parsed query,
+headers, and JSON body before the existing confirmation gate permits live
+execution; credential-shaped fields, including compound API/private-key names,
+are redacted recursively, while explicit empty JSON objects and arrays remain
+distinct from an absent body. Read methods reject `--dry-run`, and `--dry-run`
+cannot be combined with `--confirm`. Literal backslashes and percent-encoded
+path separators fail before preview or dispatch.
+
 **Bulk routing**: `bulk-update`, `bulk-patch`, and `bulk-delete` always target the list path, never the detail path. The `--id` option is silently ignored for bulk actions.
 
 **Filter discovery**: `filters` is a synthetic local action that calls `SchemaIndex.filter_params()` and prints the available query parameters without making an HTTP request.

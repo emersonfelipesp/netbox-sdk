@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from netbox_sdk.client import NetBoxApiClient
+from netbox_sdk.client import NetBoxApiClient, normalize_request_path
 from netbox_sdk.config import Config, authorization_header_value, normalize_base_url
 from netbox_sdk.http_cache import build_cache_key
 
@@ -98,6 +98,27 @@ def test_encoded_path_separator_in_traversal_rejected(tmp_path, monkeypatch) -> 
     client = _client(tmp_path, monkeypatch)
     with pytest.raises(ValueError, match="percent-encoded path separators"):
         client.build_url("/api/%2e%2e%2fetc%2fpasswd")
+
+
+def test_literal_backslash_in_request_path_rejected(tmp_path, monkeypatch) -> None:
+    """A literal backslash must fail on the first normalization pass."""
+    client = _client(tmp_path, monkeypatch)
+    with pytest.raises(ValueError, match="must not contain backslashes"):
+        client.build_url("/api/dcim\\devices/")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/api//dcim/./devices/../sites/",
+        "/api/%64cim/device%73/5/",
+        "/api/dcim/devices/%3Fvalue/",
+    ],
+)
+def test_request_path_normalization_is_idempotent(path: str) -> None:
+    normalized = normalize_request_path(path)
+
+    assert normalize_request_path(normalized) == normalized
 
 
 # ---------------------------------------------------------------------------

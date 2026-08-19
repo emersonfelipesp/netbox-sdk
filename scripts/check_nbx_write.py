@@ -13,6 +13,7 @@ from typing import Any
 
 CONFIRMATION = "NETBOX_SDK_CONFIRM_WRITE=1"
 CONFIRM_FLAG = "--confirm"
+DRY_RUN_FLAG = "--dry-run"
 WRITE_ACTIONS = frozenset(
     {
         "create",
@@ -346,7 +347,7 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
             return False
         return (
             _SHELL_EXPANSION_PATTERN.search(positionals[1]) is not None
-            or positionals[1].upper() in WRITE_HTTP_METHODS
+            or positionals[1].strip().upper() in WRITE_HTTP_METHODS
         )
     if root in _BRANCHING_ROOTS:
         if len(positionals) < 2:
@@ -377,6 +378,33 @@ def _positionals_indicate_write(positionals: list[str]) -> bool:
     )
 
 
+def _positionals_support_dry_run(positionals: list[str]) -> bool:
+    """Return whether literal positionals identify a no-network dry-run grammar.
+
+    Only the guarded raw ``call`` write surface and generated dynamic
+    OpenAPI/Proxbox-catalog write actions support ``--dry-run``. Branching,
+    Proxbox ``sync``/``tui``, dev raw HTTP, and GraphQL do not. Any unresolved
+    shell expansion fails closed because the hook cannot prove which grammar
+    the shell will ultimately execute.
+    """
+    if not positionals or any(
+        _SHELL_EXPANSION_PATTERN.search(word) is not None for word in positionals
+    ):
+        return False
+
+    root = positionals[0]
+    if root == "call":
+        return len(positionals) >= 2 and positionals[1].strip().upper() in WRITE_HTTP_METHODS
+    if root in _BRANCHING_ROOTS or root == "graphql":
+        return False
+    if root == "proxbox" and len(positionals) >= 2 and positionals[1] in {"sync", "tui"}:
+        return False
+    for index in range(len(positionals) - 2):
+        if positionals[index] == "dev" and positionals[index + 1] == "http":
+            return False
+    return any(word in WRITE_ACTIONS or word.upper() in WRITE_HTTP_METHODS for word in positionals)
+
+
 def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation: bool) -> bool:
     command_index = _command_token_index(tokens)
     for index, token in enumerate(tokens):
@@ -388,6 +416,10 @@ def _segment_has_unconfirmed_write(tokens: list[str], *, inherited_confirmation:
                     inherited_confirmation
                     or CONFIRMATION in tokens[:index]
                     or CONFIRM_FLAG in tokens[index + 1 :]
+                    or (
+                        DRY_RUN_FLAG in tokens[index + 1 :]
+                        and _positionals_support_dry_run(positionals)
+                    )
                 ):
                     return True
         elif index == command_index and _SHELL_EXPANSION_PATTERN.search(token) is not None:

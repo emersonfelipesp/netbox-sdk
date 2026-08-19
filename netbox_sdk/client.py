@@ -67,6 +67,77 @@ _scoped_headers: contextvars.ContextVar[dict[str, str] | None] = contextvars.Con
 )
 
 
+def normalize_request_path(path: str) -> str:
+    """Validate and canonicalize a relative NetBox API request path."""
+    raw = path.strip()
+    if not raw:
+        raise ValueError("Request path cannot be empty")
+    if "\\" in raw:
+        raise ValueError("Request path must not contain backslashes")
+    parsed = urlsplit(raw)
+    if parsed.scheme or parsed.netloc:
+        raise ValueError("Request path must be relative to the configured NetBox base URL")
+    if parsed.query or parsed.fragment:
+        raise ValueError("Request path must not include query parameters or fragments")
+    if _ENCODED_PATH_SEPARATOR_RE.search(parsed.path):
+        raise ValueError(
+            "Request path must not contain percent-encoded path separators (%2F or %5C)"
+        )
+    normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
+    # Collapse repeated "/" the same way the outbound request's own
+    # build_url() already does, so the path used for cache keys, the
+    # cache-generation fence, and invalidate_path() can never diverge
+    # from what is actually sent on the wire. build_url() always strips
+    # every leading "/" before merging the path onto the base URL via
+    # urljoin(), and that merge collapses internal "//" runs down to a
+    # single "/" even when neither segment is a literal "." or "..".
+    # This runs unconditionally, not only when a dot segment is present:
+    # left unresolved, a request through an equivalent-but-unnormalized
+    # alias (e.g. "/api//dcim/devices/5/") mutated the canonical
+    # resource on the wire while invalidating cache entries keyed to the
+    # literal alias instead — the canonical cached entries stayed
+    # untouched and a verification read could still return stale
+    # pre-write data. urlsplit() above already rejects a leading "//" as
+    # a netloc, so `normalized` is always exactly one leading "/" here —
+    # posixpath's POSIX-mandated special case for exactly two leading
+    # slashes never applies.
+    had_trailing_slash = normalized.endswith("/") and normalized != "/"
+    resolved = posixpath.normpath(normalized)
+    if had_trailing_slash and not resolved.endswith("/"):
+        resolved += "/"
+    normalized = resolved
+    # aiohttp builds its outbound request from the URL string this
+    # module hands it via yarl.URL(str), which fully canonicalizes the
+    # path exactly like a browser would: it resolves any remaining
+    # "."/".." segments AND percent-decodes every octet that encodes an
+    # RFC 3986 "unreserved" character (e.g. "%64cim" -> "dcim",
+    # "device%73" -> "devices"), while leaving encoded reserved
+    # delimiters such as "%3F"/"%23" untouched. Encoded path separators
+    # are rejected above because servers and proxies disagree on whether
+    # to decode them before route matching. The dot-segment-only
+    # handling this function used to do did not decode non-dot aliases
+    # at all, so a write through e.g. "/api/%64cim/devices/5/" mutated
+    # the canonical "/api/dcim/devices/5/" resource on the wire while
+    # invalidating cache entries keyed to the literal encoded alias,
+    # leaving the canonical cached entries stale and servable by a
+    # verification read. Delegating to yarl's own ``raw_path`` reproduces
+    # aiohttp's canonicalization exactly rather than
+    # re-implementing RFC 3986's unreserved-character set by hand — the
+    # host portion is a fixed placeholder because path canonicalization
+    # does not depend on it.
+    try:
+        from yarl import URL
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "aiohttp is required for HTTP requests. Install project dependencies first."
+        ) from exc
+    had_trailing_slash = normalized.endswith("/") and normalized != "/"
+    canonical = URL(f"http://netbox-sdk.invalid{normalized}").raw_path
+    if had_trailing_slash and not canonical.endswith("/"):
+        canonical += "/"
+    return canonical
+
+
 def _extract_case_insensitive(
     headers: dict[str, str], name: str
 ) -> tuple[bool, str | None, dict[str, str]]:
@@ -332,71 +403,7 @@ class NetBoxApiClient:
         return urljoin(f"{self.config.base_url.rstrip('/')}/", normalized.lstrip("/"))
 
     def _normalize_request_path(self, path: str) -> str:
-        raw = path.strip()
-        if not raw:
-            raise ValueError("Request path cannot be empty")
-        parsed = urlsplit(raw)
-        if parsed.scheme or parsed.netloc:
-            raise ValueError("Request path must be relative to the configured NetBox base URL")
-        if parsed.query or parsed.fragment:
-            raise ValueError("Request path must not include query parameters or fragments")
-        if _ENCODED_PATH_SEPARATOR_RE.search(parsed.path):
-            raise ValueError(
-                "Request path must not contain percent-encoded path separators (%2F or %5C)"
-            )
-        normalized = parsed.path if parsed.path.startswith("/") else f"/{parsed.path}"
-        # Collapse repeated "/" the same way the outbound request's own
-        # build_url() already does, so the path used for cache keys, the
-        # cache-generation fence, and invalidate_path() can never diverge
-        # from what is actually sent on the wire. build_url() always strips
-        # every leading "/" before merging the path onto the base URL via
-        # urljoin(), and that merge collapses internal "//" runs down to a
-        # single "/" even when neither segment is a literal "." or "..".
-        # This runs unconditionally, not only when a dot segment is present:
-        # left unresolved, a request through an equivalent-but-unnormalized
-        # alias (e.g. "/api//dcim/devices/5/") mutated the canonical
-        # resource on the wire while invalidating cache entries keyed to the
-        # literal alias instead — the canonical cached entries stayed
-        # untouched and a verification read could still return stale
-        # pre-write data. urlsplit() above already rejects a leading "//" as
-        # a netloc, so `normalized` is always exactly one leading "/" here —
-        # posixpath's POSIX-mandated special case for exactly two leading
-        # slashes never applies.
-        had_trailing_slash = normalized.endswith("/") and normalized != "/"
-        resolved = posixpath.normpath(normalized)
-        if had_trailing_slash and not resolved.endswith("/"):
-            resolved += "/"
-        normalized = resolved
-        # aiohttp builds its outbound request from the URL string this
-        # module hands it via yarl.URL(str), which fully canonicalizes the
-        # path exactly like a browser would: it resolves any remaining
-        # "."/".." segments AND percent-decodes every octet that encodes an
-        # RFC 3986 "unreserved" character (e.g. "%64cim" -> "dcim",
-        # "device%73" -> "devices"), while leaving encoded reserved
-        # delimiters such as "%3F"/"%23" untouched. Encoded path separators
-        # are rejected above because servers and proxies disagree on whether
-        # to decode them before route matching. The dot-segment-only
-        # handling this function used to do did not decode non-dot aliases
-        # at all, so a write through e.g. "/api/%64cim/devices/5/" mutated
-        # the canonical "/api/dcim/devices/5/" resource on the wire while
-        # invalidating cache entries keyed to the literal encoded alias,
-        # leaving the canonical cached entries stale and servable by a
-        # verification read. Delegating to yarl's own ``raw_path`` reproduces
-        # aiohttp's canonicalization exactly rather than
-        # re-implementing RFC 3986's unreserved-character set by hand — the
-        # host portion is a fixed placeholder because path canonicalization
-        # does not depend on it.
-        try:
-            from yarl import URL
-        except ModuleNotFoundError as exc:
-            raise RuntimeError(
-                "aiohttp is required for HTTP requests. Install project dependencies first."
-            ) from exc
-        had_trailing_slash = normalized.endswith("/") and normalized != "/"
-        canonical = URL(f"http://netbox-sdk.invalid{normalized}").raw_path
-        if had_trailing_slash and not canonical.endswith("/"):
-            canonical += "/"
-        return canonical
+        return normalize_request_path(path)
 
     async def request(
         self,

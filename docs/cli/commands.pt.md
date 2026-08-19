@@ -100,6 +100,7 @@ Faz uma requisição HTTP explícita a qualquer caminho da API NetBox.
 nbx call GET /api/status/
 nbx call GET /api/dcim/sites/ --json
 nbx call GET /api/dcim/sites/ --markdown
+nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}' --dry-run
 nbx call POST /api/ipam/ip-addresses/ --body-json '{"address":"192.0.2.1/24","status":"active"}' --confirm
 nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 ```
@@ -109,19 +110,30 @@ nbx call PUT /api/dcim/devices/1/ --body-file ./device.json --confirm
 | Flag | Descrição |
 |------|-------------|
 | `-q` / `--query KEY=VALUE` | Parâmetro de query string (repetível) |
+| `-H` / `--header KEY=VALUE` | Cabeçalho da requisição (repetível) |
 | `--body-json TEXT` | Corpo JSON inline da requisição |
 | `--body-file PATH` | Caminho para arquivo JSON como corpo |
 | `--json` | Saída JSON bruta em vez de tabela Rich |
 | `--yaml` | Saída YAML |
 | `--markdown` | Respostas da API como Markdown com tabelas primeiro |
+| `--dry-run` | Pré-visualiza `POST`, `PUT`, `PATCH` ou `DELETE` sem criar cliente nem enviar a requisição |
 | `--confirm` | Confirma uma requisição `POST`, `PUT`, `PATCH` ou `DELETE` |
 
 `--json`, `--yaml` e `--markdown` são mutuamente exclusivos.
+`--dry-run` mostra localmente método e caminho normalizados, além de query,
+cabeçalhos e corpo JSON analisados. Campos com formato de credencial em query,
+cabeçalhos e corpo são ocultados recursivamente, inclusive nomes com
+delimitadores, camel/acrônimos e maiúsculas compactas como `X-API-Key`,
+`clientAPIKey`, `XAPIKEY` e `ssh_private_key`; objetos e arrays vazios
+explícitos continuam visíveis como `{}` e `[]`, em vez de serem confundidos
+com corpo ausente. A opção é recusada para métodos de leitura e não pode ser
+combinada com `--confirm`.
 Métodos de escrita são recusados sem `--confirm` ou
 `NETBOX_SDK_CONFIRM_WRITE=1` no ambiente do processo `nbx`.
-Caminhos com separador codificado por porcentagem (`%2F` ou `%5C`, em qualquer
-combinação de maiúsculas/minúsculas) são rejeitados antes do cache ou da rede;
-passe valores de query por `-q` em vez de incorporá-los em `PATH`.
+Caminhos com barra invertida literal ou separador codificado por porcentagem
+(`%2F` ou `%5C`, em qualquer combinação de maiúsculas/minúsculas) são rejeitados
+antes do cache ou da rede; passe valores de query por `-q` em vez de
+incorporá-los em `PATH`.
 
 ---
 

@@ -56,6 +56,7 @@ from netbox_cli.support import (
     emit_cli_error,
     format_click_exception,
     load_tui_callables,
+    print_dry_run,
     print_response,
     resolve_output_format,
     resolve_requested_theme,
@@ -63,6 +64,7 @@ from netbox_cli.support import (
     run_with_spinner,
 )
 from netbox_cli.write_confirmation import WRITE_HTTP_METHODS, require_write_confirmation
+from netbox_sdk.client import normalize_request_path
 from netbox_sdk.config import (
     DEFAULT_PROFILE,
     DEMO_PROFILE,
@@ -525,6 +527,11 @@ def call_command(
         "--confirm",
         help="Confirm execution when METHOD can modify NetBox.",
     ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview a write request without constructing a client or executing it.",
+    ),
 ) -> None:
     """Call an arbitrary NetBox API path."""
     resolve_output_format(
@@ -539,14 +546,38 @@ def call_command(
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
     payload = load_json_payload(body_json, body_file)
-    if method.strip().upper() in WRITE_HTTP_METHODS:
+    normalized_method = method.strip().upper()
+    if dry_run:
+        if confirm:
+            raise typer.BadParameter("Use either --dry-run or --confirm, not both.")
+        if normalized_method not in WRITE_HTTP_METHODS:
+            raise typer.BadParameter(
+                "--dry-run is only supported for POST, PUT, PATCH, and DELETE requests."
+            )
+        try:
+            normalized_path = normalize_request_path(path)
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc)) from exc
+        print_dry_run(
+            method=normalized_method,
+            path=normalized_path,
+            query=query_dict,
+            headers=headers,
+            body=payload,
+        )
+        return
+    if normalized_method in WRITE_HTTP_METHODS:
         require_write_confirmation(confirmed=confirm)
+    try:
+        normalized_path = normalize_request_path(path)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
     client = _get_client()
     request_kwargs: dict[str, Any] = {"query": query_dict, "payload": payload}
     if headers:
         request_kwargs["headers"] = headers
     response = run_with_spinner(
-        client.request(method, path, **request_kwargs),
+        client.request(normalized_method, normalized_path, **request_kwargs),
         close=client,
     )
     print_response(

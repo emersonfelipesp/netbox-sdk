@@ -66,16 +66,21 @@
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ╭─ Options ────────────────────────────────────────────────────────────────────╮
     │ --query      -q      TEXT  Query parameter key=value                         │
+    │ --header     -H      TEXT  HTTP header as Header=Value or 'Header: Value'    │
+    │                            (repeatable)                                      │
     │ --body-json          TEXT  Inline JSON request body                          │
     │ --body-file          TEXT  Path to JSON request body file                    │
     │ --json                     Output raw JSON                                   │
     │ --yaml                     Output YAML                                       │
     │ --markdown                 Output Markdown (mutually exclusive with          │
     │                            --json/--yaml)                                    │
+    │ --confirm                  Confirm execution when METHOD can modify NetBox.  │
+    │ --dry-run                  Preview a write request without constructing a    │
+    │                            client or executing it.                           │
     │ --help                     Show this message and exit.                       │
     ╰──────────────────────────────────────────────────────────────────────────────╯
     ```
 
-<span class="nbx-badge nbx-badge--ok">saída&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">4.014s</span>
+<span class="nbx-badge nbx-badge--ok">saída&nbsp;0</span> <span class="nbx-badge nbx-badge--neutral">6.869s</span>
 
 ---
