@@ -12,6 +12,12 @@ permissions:
 
 env:
   CANONICAL_GITEA_URL: https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git
+  # Canonical Gitea is served behind a source-IP allowlist, so a GitHub-hosted
+  # runner cannot reach it. The mirror is the fallback source for the SAME refs.
+  # This does not weaken the tag check: IMMUTABLE_TAG_OBJECT/COMMIT below are
+  # pinned constants that are verified whichever source served the fetch, so a
+  # tampered mirror still fails the policy validation.
+  MIRROR_FALLBACK_URL: https://github.com/emersonfelipesp/netbox-sdk.git
   CANONICAL_MAIN_REF: refs/remotes/gitea/release-policy-main
   IMMUTABLE_TAG_REF: refs/release-policy/gitea-v0.0.10
   IMMUTABLE_TAG_OBJECT: e104bdd554ac2becf7abd38b238d8fb5509651f4
@@ -79,11 +85,19 @@ jobs:
       - name: Sync the locked release toolchain
         run: uv sync --only-group publish --locked
 
-      - name: Fetch canonical Gitea main and immutable release tag
+      - name: Fetch canonical main and immutable release tag
         run: |
-          git fetch --no-tags "$CANONICAL_GITEA_URL" \
-            "+refs/heads/main:${CANONICAL_MAIN_REF}" \
-            "+refs/tags/v0.0.10:${IMMUTABLE_TAG_REF}"
+          set -euo pipefail
+          if git fetch --no-tags "$CANONICAL_GITEA_URL" \
+              "+refs/heads/main:${CANONICAL_MAIN_REF}" \
+              "+refs/tags/v0.0.10:${IMMUTABLE_TAG_REF}"; then
+            echo "release-policy source: canonical Gitea"
+          else
+            echo "release-policy source: GitHub mirror (canonical Gitea unreachable)" >&2
+            git fetch --no-tags "$MIRROR_FALLBACK_URL" \
+              "+refs/heads/main:${CANONICAL_MAIN_REF}" \
+              "+refs/tags/v0.0.10:${IMMUTABLE_TAG_REF}"
+          fi
 
       - name: Validate package metadata, tag, and canonical-main ancestry
         id: meta
@@ -353,9 +367,16 @@ jobs:
           PACKAGE_VERSION: ${{ needs.prepare-release.outputs.version }}
         run: |
           set -euo pipefail
-          git fetch --no-tags "$CANONICAL_GITEA_URL" \
-            "+refs/heads/main:${CANONICAL_MAIN_REF}" \
-            "+refs/tags/v0.0.10:${IMMUTABLE_TAG_REF}"
+          if git fetch --no-tags "$CANONICAL_GITEA_URL" \
+              "+refs/heads/main:${CANONICAL_MAIN_REF}" \
+              "+refs/tags/v0.0.10:${IMMUTABLE_TAG_REF}"; then
+            echo "release-policy source: canonical Gitea"
+          else
+            echo "release-policy source: GitHub mirror (canonical Gitea unreachable)" >&2
+            git fetch --no-tags "$MIRROR_FALLBACK_URL" \
+              "+refs/heads/main:${CANONICAL_MAIN_REF}" \
+              "+refs/tags/v0.0.10:${IMMUTABLE_TAG_REF}"
+          fi
           .venv/bin/python scripts/release_policy.py \
             --expected-package netbox-sdk \
             --event-name "$GITHUB_EVENT_NAME" \

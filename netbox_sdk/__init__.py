@@ -124,7 +124,7 @@ __all__ = [
     "validate_plugin_tool_response_document",
 ]
 
-__version__ = "0.0.11rc4"
+__version__ = "0.0.11"
 
 from netbox_sdk.branching import (
     BranchConflictError,

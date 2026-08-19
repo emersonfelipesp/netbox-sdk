@@ -48,6 +48,7 @@ from scripts.gitea_release import (
     validate_trusted_source_checkout,
 )
 from scripts.release_policy import (
+    is_public_pypi_version,
     validate_exact_canonical_source,
     validate_gitea_candidate_tag,
     validated_commit_epoch,
@@ -56,11 +57,11 @@ from scripts.release_policy import (
 pytestmark = pytest.mark.suite_sdk
 
 PACKAGE = "netbox-sdk"
-VERSION = "0.0.11rc4"
+VERSION = "0.0.11"
 SOURCE_SHA = "a" * 40
 SOURCE_EPOCH = 1700000000
-WHEEL = "netbox_sdk-0.0.11rc4-py3-none-any.whl"
-SDIST = "netbox_sdk-0.0.11rc4.tar.gz"
+WHEEL = "netbox_sdk-0.0.11-py3-none-any.whl"
+SDIST = "netbox_sdk-0.0.11.tar.gz"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -82,7 +83,7 @@ def _source_repo(tmp_path: Path) -> tuple[Path, str]:
     (repo / "pyproject.toml").write_text(
         """[project]
 name = "netbox-sdk"
-version = "0.0.11rc4"
+version = "0.0.11"
 description = "Fixture"
 readme = "README.md"
 license = "Apache-2.0"
@@ -133,7 +134,7 @@ def _metadata() -> bytes:
     return (
         b"Metadata-Version: 2.4\n"
         b"Name: netbox-sdk\n"
-        b"Version: 0.0.11rc4\n"
+        b"Version: 0.0.11\n"
         b"Summary: Fixture\n"
         b"Author-email: Release Author <author@example.invalid>\n"
         b"Maintainer-email: Release Maintainer <maintainer@example.invalid>\n"
@@ -156,7 +157,7 @@ def _metadata() -> bytes:
 
 
 def _wheel_members(repo: Path) -> dict[str, bytes]:
-    dist_info = "netbox_sdk-0.0.11rc4.dist-info"
+    dist_info = "netbox_sdk-0.0.11.dist-info"
     members = {
         "demo/__init__.py": (repo / "demo/__init__.py").read_bytes(),
         "demo/py.typed": b"",
@@ -228,7 +229,7 @@ def _write_sdist(
     *,
     directories: set[str] | None = None,
 ) -> None:
-    prefix = "netbox_sdk-0.0.11rc4"
+    prefix = "netbox_sdk-0.0.11"
     with tarfile.open(path, "w:gz") as archive:
         root = tarfile.TarInfo(prefix)
         root.type = tarfile.DIRTYPE
@@ -457,7 +458,7 @@ def _mutate_archive_envelope(transfer: Path, repo: Path, mutation: str) -> None:
         sdist.write_bytes(sdist.read_bytes() + gzip.compress(b"", mtime=SOURCE_EPOCH))
         return
     if mutation in {"tar-metadata", "pax-metadata"}:
-        prefix = "netbox_sdk-0.0.11rc4"
+        prefix = "netbox_sdk-0.0.11"
         members = _sdist_members(repo)
         with tarfile.open(sdist, "w:gz", format=tarfile.PAX_FORMAT) as archive:
             root = tarfile.TarInfo(prefix)
@@ -577,9 +578,9 @@ def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
         if target == "wheel-code":
             members["demo/__init__.py"] = b"raise SystemExit('hostile')\n"
         else:
-            name = "netbox_sdk-0.0.11rc4.dist-info/METADATA"
+            name = "netbox_sdk-0.0.11.dist-info/METADATA"
             members[name] = members[name].replace(b"\n\n", b"\nRequires-Dist: hostile\n\n", 1)
-        record = "netbox_sdk-0.0.11rc4.dist-info/RECORD"
+        record = "netbox_sdk-0.0.11.dist-info/RECORD"
         del members[record]
         output = io.StringIO()
         writer = csv.writer(output, lineterminator="\n")
@@ -621,7 +622,7 @@ def test_builder_cannot_bless_hostile_archives_with_a_matching_manifest(
 
 
 def _rewrite_wheel_record(members: dict[str, bytes]) -> None:
-    record = "netbox_sdk-0.0.11rc4.dist-info/RECORD"
+    record = "netbox_sdk-0.0.11.dist-info/RECORD"
     members.pop(record, None)
     output = io.StringIO()
     writer = csv.writer(output, lineterminator="\n")
@@ -664,7 +665,7 @@ def test_all_core_metadata_and_readme_copies_are_source_authoritative(
     transfer, manifest, repo = _transfer(tmp_path)
     if metadata_location == "wheel":
         members = _wheel_members(repo)
-        metadata_name = "netbox_sdk-0.0.11rc4.dist-info/METADATA"
+        metadata_name = "netbox_sdk-0.0.11.dist-info/METADATA"
         members[metadata_name] = members[metadata_name].replace(original, replacement, 1)
         _rewrite_wheel_record(members)
         _write_wheel(transfer / WHEEL, members)
@@ -716,7 +717,7 @@ def test_complete_metadata_header_multimap_rejects_injected_and_duplicate_header
     transfer, manifest, repo = _transfer(tmp_path)
     if metadata_location == "wheel":
         members = _wheel_members(repo)
-        metadata_name = "netbox_sdk-0.0.11rc4.dist-info/METADATA"
+        metadata_name = "netbox_sdk-0.0.11.dist-info/METADATA"
         members[metadata_name] = members[metadata_name].replace(
             b"\n\n", b"\n" + injected_header + b"\n", 1
         )
@@ -763,7 +764,7 @@ def test_exact_wheel_header_multimap_rejects_untrusted_generated_content(
 ) -> None:
     transfer, manifest, repo = _transfer(tmp_path)
     members = _wheel_members(repo)
-    wheel_metadata = "netbox_sdk-0.0.11rc4.dist-info/WHEEL"
+    wheel_metadata = "netbox_sdk-0.0.11.dist-info/WHEEL"
     members[wheel_metadata] = members[wheel_metadata].replace(original, replacement, 1)
     _rewrite_wheel_record(members)
     _write_wheel(transfer / WHEEL, members)
@@ -1125,17 +1126,16 @@ def test_registry_uses_exact_gitea_routes_and_downloads_remote_content() -> None
     assert classify_remote_state(registry.inspect(manifest), manifest) == "exact"
     registry.link(manifest)
     assert client.paths == [
-        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11rc4"),
-        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11rc4/files"),
+        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11"),
+        ("GET", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/0.0.11/files"),
         (
             "GET",
-            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11rc4/"
-            "netbox_sdk-0.0.11rc4-py3-none-any.whl",
+            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11/"
+            "netbox_sdk-0.0.11-py3-none-any.whl",
         ),
         (
             "GET",
-            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11rc4/"
-            "netbox_sdk-0.0.11rc4.tar.gz",
+            "/api/packages/emersonfelipesp/pypi/files/netbox-sdk/0.0.11/netbox_sdk-0.0.11.tar.gz",
         ),
         ("POST", "/api/v1/packages/emersonfelipesp/pypi/netbox-sdk/-/link/netbox-sdk"),
     ]
@@ -1289,18 +1289,34 @@ def test_http_client_refuses_redirects_and_oversized_bodies(response: _Response)
 def test_gitea_tag_policy_and_validated_action_output(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    validate_gitea_candidate_tag(event_name="push", ref_name=f"v{VERSION}", version=VERSION)
-    for invalid in ("v0.0.11rc1", "0.0.11rc4", "v0.0.11"):
+    # The private-registry candidate path is RC-only by contract, so this
+    # exercises an explicit release candidate rather than the project version --
+    # which is a final release whenever the repository sits between candidates.
+    candidate = "0.0.11rc4"
+    validate_gitea_candidate_tag(event_name="push", ref_name=f"v{candidate}", version=candidate)
+    for invalid in (
+        "v0.0.11rc1",  # a different candidate than the version being published
+        candidate,  # missing the mandatory "v" prefix
+        f"v{VERSION}",  # a final release is never a valid candidate tag
+    ):
         with pytest.raises(RuntimeError):
-            validate_gitea_candidate_tag(event_name="push", ref_name=invalid, version=VERSION)
+            validate_gitea_candidate_tag(event_name="push", ref_name=invalid, version=candidate)
     with pytest.raises(RuntimeError, match="Unsupported"):
         validate_gitea_candidate_tag(
-            event_name="workflow_dispatch", ref_name=f"v{VERSION}", version=VERSION
+            event_name="workflow_dispatch", ref_name=f"v{candidate}", version=candidate
         )
     output = tmp_path / "output"
     monkeypatch.setenv("GITHUB_OUTPUT", str(output))
-    assert _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{VERSION}")) == 0
-    assert output.read_text() == f"tag=v{VERSION}\n"
+    # `_main_validate_tag` reads the real project version, so the correct
+    # expectation depends on which kind of version the repository currently
+    # carries. Asserting only the candidate case would make this test fail every
+    # time a final release is cut, for a reason that is not a defect.
+    if is_public_pypi_version(VERSION):
+        with pytest.raises(RuntimeError, match="only public RC versions"):
+            _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{VERSION}"))
+    else:
+        assert _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{VERSION}")) == 0
+        assert output.read_text() == f"tag=v{VERSION}\n"
 
 
 def _tag_protection_evidence() -> list[dict[str, object]]:
@@ -1803,11 +1819,11 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.11rc4")
-    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.11rc4")
+    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.11")
+    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.11")
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert "git push gitea v0.0.11rc4" in readme
+    assert "git push gitea v0.0.11" in readme
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {

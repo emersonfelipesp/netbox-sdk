@@ -33,7 +33,7 @@ from scripts.prepare_testpypi_upload import (
 
 pytestmark = pytest.mark.suite_sdk
 PACKAGE = "netbox-sdk"
-VERSION = "0.0.11rc4"
+VERSION = "0.0.11"
 EXPECTED_NETBOX_RELEASE_LINES = ("4.7", "4.6", "4.5", "4.4", "4.3")
 EXPECTED_RELEASE_RECORDS = {
     "4.7": {
@@ -239,8 +239,8 @@ def _published(
 def _dist(tmp_path: Path) -> tuple[Path, Path, Path]:
     dist = tmp_path / "dist"
     dist.mkdir()
-    wheel = dist / "netbox_sdk-0.0.11rc4-py3-none-any.whl"
-    sdist = dist / "netbox_sdk-0.0.11rc4.tar.gz"
+    wheel = dist / "netbox_sdk-0.0.11-py3-none-any.whl"
+    sdist = dist / "netbox_sdk-0.0.11.tar.gz"
     wheel.write_bytes(b"wheel")
     sdist.write_bytes(b"sdist")
     return dist, wheel, sdist
@@ -281,7 +281,7 @@ def test_prepare_upload_rejects_existing_filename_with_different_hash(tmp_path: 
 
 def test_prepare_upload_rejects_unexpected_remote_artifact(tmp_path: Path) -> None:
     dist, wheel, _ = _dist(tmp_path)
-    unexpected = tmp_path / "netbox_sdk-0.0.11rc4-cp313-cp313-manylinux.whl"
+    unexpected = tmp_path / "netbox_sdk-0.0.11-cp313-cp313-manylinux.whl"
     unexpected.write_bytes(b"unexpected-wheel")
 
     with pytest.raises(RuntimeError, match="unexpected artifact"):
@@ -321,7 +321,7 @@ def test_local_artifacts_require_exact_wheel_and_sdist_identity(tmp_path: Path) 
     "unexpected_name",
     [
         "checksums.txt",
-        "netbox_sdk-0.0.11rc4-py3-none-any.whl.sig",
+        "netbox_sdk-0.0.11-py3-none-any.whl.sig",
     ],
 )
 def test_local_artifacts_reject_unexpected_entries(
@@ -337,7 +337,7 @@ def test_local_artifacts_reject_unexpected_entries(
 
 def test_local_artifacts_reject_multiple_wheels(tmp_path: Path) -> None:
     dist, _, _ = _dist(tmp_path)
-    (dist / "netbox_sdk-0.0.11rc4-1-py3-none-any.whl").write_bytes(b"extra")
+    (dist / "netbox_sdk-0.0.11-1-py3-none-any.whl").write_bytes(b"extra")
 
     with pytest.raises(RuntimeError, match="exactly one wheel and one source distribution"):
         validate_local_artifacts(dist, package=PACKAGE, version=VERSION)
@@ -346,7 +346,7 @@ def test_local_artifacts_reject_multiple_wheels(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("artifact", "replacement"),
     [
-        ("wheel", "other_sdk-0.0.11rc4-py3-none-any.whl"),
+        ("wheel", "other_sdk-0.0.11-py3-none-any.whl"),
         ("sdist", "netbox_sdk-0.0.12.tar.gz"),
     ],
 )
@@ -480,7 +480,7 @@ def test_testpypi_metadata_rejects_production_file_host() -> None:
             {
                 "urls": [
                     {
-                        "filename": "netbox_sdk-0.0.11rc4-py3-none-any.whl",
+                        "filename": "netbox_sdk-0.0.11-py3-none-any.whl",
                         "digests": {"sha256": "0" * 64},
                         "url": "https://files.pythonhosted.org/packages/netbox_sdk.whl",
                     }
