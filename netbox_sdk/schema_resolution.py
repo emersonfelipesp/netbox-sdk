@@ -74,11 +74,27 @@ def requested_netbox_version(
 def bundled_index(
     line: SupportedNetBoxVersion | str | None = None,
 ) -> SchemaIndex:
-    """Return an isolated clone of a process-cached bundled schema index."""
+    """Return an isolated clone of a process-cached bundled schema index.
+
+    "Isolated" describes the *derived* maps: :meth:`SchemaIndex.clone` copies
+    ``operations`` and the resource-path map, but every clone shares the one
+    parsed OpenAPI document for that release line. The document is therefore
+    frozen before it is cached, so a caller that mutates a nested part of
+    ``index.schema`` gets an immediate :class:`SchemaDocumentFrozenError` at the
+    offending line instead of silently corrupting every later SDK, CLI, TUI and
+    MCP consumer in the process.
+
+    Freezing costs one pass per release line, at first use. Deep-copying instead
+    was rejected: the bundled documents are 7.7-9.6 MB and a copy costs more
+    than twice the parse, on every call rather than once.
+    """
     selected = normalize_netbox_version(line)
     cached = _BUNDLED_INDEXES.get(selected)
     if cached is None:
-        cached = SchemaIndex(schema_module.load_openapi_schema(version=selected))
+        document = schema_module.freeze_document(
+            schema_module.load_openapi_schema(version=selected)
+        )
+        cached = SchemaIndex(document)
         _BUNDLED_INDEXES[selected] = cached
     return cached.clone()
 

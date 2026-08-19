@@ -24,6 +24,36 @@ idx = build_schema_index(Path("/path/to/custom-schema.json"))
 
 ---
 
+## Shared documents are read-only
+
+`bundled_index()` parses one OpenAPI document per release line and caches it for
+the process. Every caller gets a `clone()`, but a clone copies only the *derived*
+maps — the parsed document itself is shared, because copying a 7.7-9.6 MB
+document on every call would cost more than the parse it avoids.
+
+The cached document is therefore frozen. Mutating any part of it, at any depth,
+raises `SchemaDocumentFrozenError`:
+
+```python
+from netbox_sdk import SchemaDocumentFrozenError
+from netbox_sdk.schema_resolution import bundled_index
+
+index = bundled_index("4.6")
+try:
+    del index.schema["paths"]["/api/dcim/devices/"]
+except SchemaDocumentFrozenError:
+    pass  # every other consumer in this process is unharmed
+```
+
+Without the freeze this deletion would reach every later consumer, and clones
+already handed out would keep derived entries pointing at a path the document no
+longer described — leaving the index internally inconsistent rather than merely
+stale. Copy the part you need instead of mutating in place.
+
+Adding runtime-discovered plugin resources is unaffected:
+`add_discovered_resource()` touches only the derived maps, which stay mutable and
+per-clone.
+
 ## Groups and resources
 
 ```python
