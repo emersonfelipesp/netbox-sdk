@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import inspect
-import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -27,6 +26,7 @@ from textual.widgets import (
 )
 
 from netbox_sdk.client import ConnectionProbe, NetBoxApiClient
+from netbox_sdk.django_models import catalog
 from netbox_sdk.django_models.rich_rendering import (
     clear_all_expansions,
     render_fields_table_rich,
@@ -67,21 +67,19 @@ _VIEW_MODE_OPTIONS = (
     ("- Models", "django"),
 )
 
-_BUILDS_DIR = Path(__file__).resolve().parent.parent.parent / "django_models_builds"
+# This module used to resolve the catalog itself, with one ``parent`` too many:
+# from ``netbox_tui/django_model_app.py`` that landed ABOVE the repository root,
+# so the TUI discovered zero builds even in a checkout. Both surfaces now share
+# one service, which also makes them agree on ordering and precedence.
 
 
 def _discover_versions() -> tuple[tuple[str, str], ...]:
-    """Scan ``django_models_builds/`` for versioned build files.
+    """List every reachable build, bundled and downloaded.
 
-    Returns ``Select``-compatible options sorted newest-first.
+    Returns ``Select``-compatible options ordered newest-first by the shared
+    catalog service, so the TUI and the SDK always present the same list.
     """
-    if not _BUILDS_DIR.is_dir():
-        return ()
-    options: list[tuple[str, str]] = []
-    for f in sorted(_BUILDS_DIR.glob("*-django-models-build.json"), reverse=True):
-        tag = f.name.replace("-django-models-build.json", "")
-        options.append((f"  {tag}", tag))
-    return tuple(options)
+    return tuple((f"  {tag}", tag) for tag in catalog.available_tags())
 
 
 def _match_version(api_version: str, tags: list[str]) -> str | None:
@@ -294,13 +292,13 @@ class DjangoModelTuiApp(App[None]):
             self.notify(f"Error loading cache: {exc}", severity="error")
 
     def _load_version(self, tag: str) -> None:
-        """Load a versioned build from ``django_models_builds/``."""
-        build_file = _BUILDS_DIR / f"{tag}-django-models-build.json"
-        if not build_file.exists():
-            self.notify(f"Build file not found: {build_file.name}", severity="error")
+        """Load a versioned build through the shared catalog service."""
+        try:
+            self._graph = catalog.load_build(tag)
+        except FileNotFoundError:
+            self.notify(f"Build not found: {tag}", severity="error")
             return
         try:
-            self._graph = json.loads(build_file.read_text(encoding="utf-8"))
             self._build_tree()
             self._render_stats()
             models = self._graph.get("stats", {}).get("total_models", 0) if self._graph else 0

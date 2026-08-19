@@ -19,13 +19,17 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from netbox_sdk.django_models import catalog
 from netbox_sdk.django_models.store import DjangoModelStore
 
 _RELEASES_URL = "https://api.github.com/repos/netbox-community/netbox/releases"
 _NETBOX_REPO_URL = "https://github.com/netbox-community/netbox.git"
 
-# Build files live under django_models_builds/ at the repo root.
-_BUILDS_DIR = Path(__file__).resolve().parent.parent.parent / "django_models_builds"
+# Builds come from the shared catalog service (imported above): a read-only
+# bundled set shipped as package data, plus a user-writable store. Resolving a
+# repository-root path from this module worked only in a checkout — in an
+# installation it pointed outside the package, where the catalog is absent and
+# the location is generally unwritable.
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -94,26 +98,22 @@ def find_github_release_tag(api_version: str) -> str | None:
 
 
 def builds_dir() -> Path:
-    """Return the django_models_builds/ directory path."""
-    return _BUILDS_DIR
+    """Return the writable directory new builds are generated into.
+
+    This is the user-writable store, never the installed package: writing beside
+    ``site-packages`` fails on a read-only installation.
+    """
+    return catalog.user_builds_dir()
 
 
 def available_build_tags() -> list[str]:
-    """List all versioned build tags available in django_models_builds/."""
-    if not _BUILDS_DIR.is_dir():
-        return []
-    return sorted(
-        (
-            f.name.replace("-django-models-build.json", "")
-            for f in _BUILDS_DIR.glob("*-django-models-build.json")
-        ),
-        reverse=True,
-    )
+    """List every reachable build tag, bundled and downloaded, newest first."""
+    return catalog.available_tags()
 
 
 def build_exists(tag: str) -> bool:
-    """Check if a build file already exists for *tag*."""
-    return (_BUILDS_DIR / f"{tag}-django-models-build.json").exists()
+    """Check whether *tag* is reachable from either store."""
+    return catalog.build_exists(tag)
 
 
 def _match_tag(api_version: str, tags: list[str]) -> str | None:
@@ -148,7 +148,7 @@ def clone_and_build(
         The built graph dict.
     """
     if output_path is None:
-        output_path = _BUILDS_DIR / f"{tag}-django-models-build.json"
+        output_path = catalog.user_builds_dir() / f"{tag}-django-models-build.json"
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -224,10 +224,11 @@ def fetch_and_build(
         return None
 
     if build_exists(tag):
-        _print(f"  Build already exists: {_BUILDS_DIR / f'{tag}-django-models-build.json'}")
+        located = catalog.build_path(tag)
+        _print(f"  Build already exists: {located if located is not None else tag}")
         return None
 
-    output_path = _BUILDS_DIR / f"{tag}-django-models-build.json"
+    output_path = catalog.user_builds_dir() / f"{tag}-django-models-build.json"
     _print(f"\n  This will clone {_NETBOX_REPO_URL} (tag {tag})")
     _print(f"  and build the Django model graph → {output_path}")
 
