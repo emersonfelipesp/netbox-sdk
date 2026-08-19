@@ -72,6 +72,7 @@ netbox_sdk/
 - `netbox_sdk.exceptions` — shared error types (`RequestError`, facade errors, `JsonPayloadError`)
 - `netbox_sdk.facade` — async convenience facade exposed via `api()`
 - `netbox_sdk.typed_api` — versioned typed client factory exposed via `typed_api()`
+- `netbox_sdk.typed_runtime` — shared request/response plumbing behind every generated typed binding. `response_model_for_payload()` selects the response model from the **shape of the request payload**, because NetBox's bulk endpoints reuse the collection path: a list body commits a batch and returns a list, while the upstream OpenAPI document declares only the singular response. Validating a committed batch against the singular model would raise `TypedResponseValidationError` *after the server had already applied it*, and a retry would duplicate the rows. Applies to `POST`/`PUT`/`PATCH` through the one shared request path; bulk `DELETE` returns a bodyless `204`, so the call returns `None` with nothing to validate
 - `netbox_sdk.models` / `netbox_sdk.typed_versions` — committed generated models and typed bindings
 - `netbox_sdk.http_cache` — filesystem cache primitives
 - `netbox_sdk.http_ssl` — TLS verification configuration and connector construction
