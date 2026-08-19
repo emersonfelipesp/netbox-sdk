@@ -19,6 +19,7 @@ import re
 from typing import Any
 
 import pytest
+from conftest import cli_json
 from typer.testing import CliRunner
 
 from netbox_cli import app as nbx_app
@@ -282,8 +283,20 @@ def test_branching_writes_accept_explicit_confirmation(
     assert recording_branching_client.calls == [verb]
 
 
-def test_branching_status_when_plugin_missing(monkeypatch):
-    """A 404 from /api/plugins/branching/ should produce a JSON 'available: false'."""
+@pytest.mark.parametrize("force_color", ["", "3"], ids=["spinner-suppressed", "spinner-rendered"])
+def test_branching_status_when_plugin_missing(monkeypatch, force_color):
+    """A 404 from /api/plugins/branching/ should produce a JSON 'available: false'.
+
+    Run in both spinner modes. Rich renders its status spinner whenever it thinks
+    stdout is a terminal, which it does whenever ``FORCE_COLOR`` is set, and the
+    spinner's control sequences land in the same captured buffer as the payload.
+    Asserting in only one mode makes the result depend on the developer's shell
+    rather than on the command.
+    """
+    if force_color:
+        monkeypatch.setenv("FORCE_COLOR", force_color)
+    else:
+        monkeypatch.delenv("FORCE_COLOR", raising=False)
 
     class _ClientReturning404:
         async def request(self, method: str, path: str, **kwargs: Any):  # noqa: ARG002
@@ -310,7 +323,7 @@ def test_branching_status_when_plugin_missing(monkeypatch):
 
     result = runner.invoke(nbx_app, ["branching", "status"])
     assert result.exit_code == 0
-    payload = json.loads(result.stdout.strip())
+    payload = cli_json(result.stdout)
     assert payload == {"available": False}
 
 

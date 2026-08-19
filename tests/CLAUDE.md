@@ -130,6 +130,41 @@ When you add a new test module, assign it to one owning package and add the matc
 
 ---
 
+## Asserting on CLI Output
+
+**Never parse `result.stdout` as if it were a clean stream.** Rich renders the
+`Fetching...` status spinner whenever it believes stdout is a terminal, and it
+believes that whenever `FORCE_COLOR` is set — which Claude Code, many CI images
+and plenty of developer shells do. `CliRunner` captures the spinner's
+cursor-hide, cursor-up and erase-line sequences into the same buffer as the
+payload. Rich also highlights option-like tokens, so a rendered `--dry-run`
+arrives split across several colour runs.
+
+Both bite, and the second one bites silently:
+
+- A **positive** assertion (`"..." in result.output`) fails loudly and is merely
+  annoying.
+- A **negative** assertion (`secret not in result.output`) *passes* once styling
+  splits the value — so a redaction guard reports success in precisely the case
+  it exists to catch. This is a real defect that shipped: 13 such guards were
+  affected before it was corrected.
+
+Use the shared helpers in `tests/conftest.py`:
+
+| Helper | Use for |
+|---|---|
+| `cli_json(result.stdout)` | parsing a JSON payload a command printed |
+| `strip_terminal_control(text)` | any other assertion over captured output |
+
+`cli_json` strips escapes **and** decodes from the first JSON opening token,
+because stripping alone is not enough: the spinner's literal text survives, as it
+is erased with cursor movement rather than by rewriting the buffer.
+
+Where output rendering itself is the property under test, parametrize over both
+modes (`monkeypatch.setenv`/`delenv` on `FORCE_COLOR` — Rich re-evaluates
+`is_terminal` per access, so this genuinely toggles the spinner) rather than
+asserting in whichever mode the local shell happens to provide.
+
 ## Patterns
 
 ### Mocking the API client
