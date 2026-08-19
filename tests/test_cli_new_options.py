@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 
 import pytest
 from click.exceptions import BadParameter
@@ -18,6 +19,21 @@ from netbox_sdk.schema import SchemaIndex
 pytestmark = pytest.mark.suite_cli
 
 runner = CliRunner()
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def plain(text: str) -> str:
+    """Strip ANSI escapes so assertions see the text that is actually on screen.
+
+    Rich highlights option-like tokens, so ``--dry-run`` is emitted as several
+    separately-coloured runs and a raw ``in result.output`` check misses a
+    message that rendered perfectly well. The ``not in`` direction is the
+    dangerous one: a secret that *did* render would still satisfy the check
+    once styling split it, so the redaction guards below would pass while
+    leaking. Strip first, then assert.
+    """
+    return _ANSI_RE.sub("", text)
 
 
 def _live_plugin_index() -> SchemaIndex:
@@ -174,31 +190,31 @@ def test_raw_call_dry_run_previews_exact_request_without_constructing_client(mon
     )
 
     assert result.exit_code == 0, result.output
-    assert "Dry Run Preview" in result.output
-    assert "POST" in result.output
-    assert "/api/plugins/nms/gitea-deployment-targets/" in result.output
-    assert '"tag": [' in result.output
-    assert '"prod"' in result.output
-    assert '"edge"' in result.output
-    assert "If-Match" in result.output
-    assert "etag" in result.output
-    assert "Authorization" in result.output
-    assert "[redacted]" in result.output
-    assert "must-not-render" not in result.output
-    assert "must-not-render-query" not in result.output
-    assert "must-not-render-body" not in result.output
-    assert "must-not-render-api-key" not in result.output
-    assert "must-not-render-private-key" not in result.output
-    assert "must-not-render-camel-secret" not in result.output
-    assert "must-not-render-acronym-key" not in result.output
-    assert "must-not-render-header-style-key" not in result.output
-    assert "must-not-render-compact-api-key" not in result.output
-    assert "must-not-render-compact-private-key" not in result.output
-    assert "must-not-render-compact-token" not in result.output
-    assert "must-not-render-compact-auth" not in result.output
-    assert "must-not-render-compact-passphrase" not in result.output
-    assert "N-MultiCloud" in result.output
-    assert "ui.nmulti.cloud" in result.output
+    assert "Dry Run Preview" in plain(result.output)
+    assert "POST" in plain(result.output)
+    assert "/api/plugins/nms/gitea-deployment-targets/" in plain(result.output)
+    assert '"tag": [' in plain(result.output)
+    assert '"prod"' in plain(result.output)
+    assert '"edge"' in plain(result.output)
+    assert "If-Match" in plain(result.output)
+    assert "etag" in plain(result.output)
+    assert "Authorization" in plain(result.output)
+    assert "[redacted]" in plain(result.output)
+    assert "must-not-render" not in plain(result.output)
+    assert "must-not-render-query" not in plain(result.output)
+    assert "must-not-render-body" not in plain(result.output)
+    assert "must-not-render-api-key" not in plain(result.output)
+    assert "must-not-render-private-key" not in plain(result.output)
+    assert "must-not-render-camel-secret" not in plain(result.output)
+    assert "must-not-render-acronym-key" not in plain(result.output)
+    assert "must-not-render-header-style-key" not in plain(result.output)
+    assert "must-not-render-compact-api-key" not in plain(result.output)
+    assert "must-not-render-compact-private-key" not in plain(result.output)
+    assert "must-not-render-compact-token" not in plain(result.output)
+    assert "must-not-render-compact-auth" not in plain(result.output)
+    assert "must-not-render-compact-passphrase" not in plain(result.output)
+    assert "N-MultiCloud" in plain(result.output)
+    assert "ui.nmulti.cloud" in plain(result.output)
 
 
 @pytest.mark.parametrize(
@@ -227,10 +243,10 @@ def test_raw_call_dry_run_distinguishes_absent_and_empty_json_bodies(
     )
 
     assert result.exit_code == 0, result.output
-    assert "Body" in result.output
-    assert expected in result.output
+    assert "Body" in plain(result.output)
+    assert expected in plain(result.output)
     if absent is not None:
-        assert absent not in result.output
+        assert absent not in plain(result.output)
 
 
 def test_raw_call_live_dispatch_matches_preview_method_and_path_normalization(monkeypatch):
@@ -272,7 +288,7 @@ def test_raw_call_dry_run_rejects_read_methods_before_client_creation(
     )
 
     assert result.exit_code != 0
-    assert "only supported for POST, PUT, PATCH, and DELETE" in result.output
+    assert "only supported for POST, PUT, PATCH, and DELETE" in plain(result.output)
 
 
 def test_raw_call_dry_run_rejects_confirmation_before_client_creation(monkeypatch):
@@ -296,7 +312,7 @@ def test_raw_call_dry_run_rejects_confirmation_before_client_creation(monkeypatc
     )
 
     assert result.exit_code != 0
-    assert "either --dry-run or --confirm" in result.output
+    assert "either --dry-run or --confirm" in plain(result.output)
 
 
 @pytest.mark.parametrize(
@@ -324,7 +340,7 @@ def test_raw_call_dry_run_rejects_unsafe_paths_before_client_creation(
     )
 
     assert result.exit_code != 0
-    assert "Request path" in result.output
+    assert "Request path" in plain(result.output)
 
 
 def test_dev_http_get_forwards_headers_and_repeated_query(monkeypatch):
