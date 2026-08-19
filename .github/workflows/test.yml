@@ -48,7 +48,11 @@ jobs:
               - 'CERTIFICATION.md'
               - 'llms.txt'
               - 'tests/test_docs_alignment.py'
-              - 'tests/test_certification_readiness.py'
+              # tests/test_certification_readiness.py is deliberately NOT listed:
+              # it carries no ownership marker, so `-m suite_sdk` does not collect
+              # it and routing here would imply coverage this filter cannot give.
+              # certification.yml already runs it unconditionally on every push
+              # and pull request, and .gitea/workflows/ci.yml runs it too.
             sdk:
               - 'netbox_sdk/**'
               - 'scripts/generate_typed_sdk.py'
