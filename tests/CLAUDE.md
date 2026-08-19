@@ -130,6 +130,36 @@ When you add a new test module, assign it to one owning package and add the matc
 
 ---
 
+## Agent-Evaluation Corpus
+
+`tests/eval/corpus.py` holds the declarative scenario corpus for agent
+evaluation: a task prompt, the state it starts from, the state it must end in,
+and which tool calls are a correct route there. **Data only** — nothing in
+`tests/eval/` drives a model, so scenarios can be added, reviewed and proven
+correct without model access or model cost.
+
+Adding a scenario means appending a `Scenario`; no harness change is required.
+
+`tests/test_eval_corpus.py` **validates** the corpus by replaying each declared
+solution against the mock backend and asserting the declared end state actually
+results. This is not ceremony: an unvalidated corpus silently mis-grades every
+run it is used for, and the failure is invisible — the harness reports confident
+verdicts against expectations that were never achievable.
+
+Two rules that are enforced, not merely intended:
+
+- **A `must_refuse` scenario may not declare a solution.** The validator replays
+  solutions, so a solution there would perform the exact action the scenario
+  exists to assert never happens.
+- **Scenarios with `requires_schema_lookup=True` are load-bearing.** They are the
+  ones whose required field cannot be guessed from the prompt, so they are what
+  distinguishes an agent that consulted `describe_operation`/`nbx capabilities`
+  from one that got lucky. A guard fails if too few remain.
+
+Effects are recorded as method/path/body rather than tool names, because the
+same task is reachable through the MCP tools *or* the CLI, and a corpus that
+hard-codes one surface cannot grade the other.
+
 ## Asserting on CLI Output
 
 **Never parse `result.stdout` as if it were a clean stream.** Rich renders the
