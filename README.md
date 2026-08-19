@@ -100,7 +100,7 @@ pip install 'netbox-sdk[all]'
 Pinned to the latest final release on the default package index:
 
 ```bash
-pip install 'netbox-sdk[all]==0.0.10'
+pip install 'netbox-sdk[all]==0.0.11'
 ```
 
 With `uv` as a user tool:
