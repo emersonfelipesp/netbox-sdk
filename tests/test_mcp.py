@@ -12,6 +12,7 @@ from typing import Any
 
 import httpx
 import pytest
+from conftest import cli_json
 from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.responses import PlainTextResponse
@@ -685,7 +686,7 @@ def test_hook_does_not_interfere_with_unrelated_bash() -> None:
 def test_hook_fails_closed_for_malformed_nbx_write() -> None:
     result = _run_hook("nbx dcim devices delete --body-json '{")
     assert result.returncode == 0
-    assert json.loads(result.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert cli_json(result.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
 @pytest.mark.parametrize("method", ["POST", "PUT", "PATCH", "DELETE", "post", "Delete"])
@@ -742,7 +743,7 @@ def test_hook_rejects_dry_run_for_unsupported_or_unresolved_write_grammar(comman
     result = _run_hook(command)
 
     assert result.returncode == 0
-    assert json.loads(result.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert cli_json(result.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
 @pytest.mark.parametrize("method", ["POST", "put", "PATCH", "delete"])

@@ -1,4 +1,7 @@
+import json
+import re
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -31,3 +34,34 @@ def _reset_scoped_headers():
         yield
     finally:
         _scoped_headers.reset(token)
+
+
+# Rich renders the "Fetching..." status spinner whenever it believes stdout is a
+# terminal, and it believes that whenever FORCE_COLOR is set — which Claude Code,
+# many CI images, and plenty of developer shells do. CliRunner captures the
+# spinner's cursor-hide, cursor-up and erase-line sequences into the same buffer
+# as the payload, so a test that parses stdout as pure JSON passes or fails
+# depending on the ambient environment rather than on the code under test.
+#
+# CI happens to run with it unset, which is why this stayed hidden there.
+_CSI_RE = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]")
+
+
+def strip_terminal_control(text: str) -> str:
+    """Remove ANSI CSI sequences and carriage returns from captured output."""
+    return _CSI_RE.sub("", text).replace("\r", "")
+
+
+def cli_json(output: str) -> Any:
+    """Parse the JSON document a CLI command printed, ignoring terminal noise.
+
+    Stripping escapes alone is not enough: the spinner's *text* ("Fetching...")
+    survives, because it is erased with cursor-movement sequences rather than by
+    rewriting the buffer. So decode from the first JSON opening token instead of
+    assuming the payload starts at byte zero.
+    """
+    cleaned = strip_terminal_control(output)
+    for index, character in enumerate(cleaned):
+        if character in "{[":
+            return json.JSONDecoder().raw_decode(cleaned, index)[0]
+    raise AssertionError(f"no JSON document in CLI output: {cleaned!r}")

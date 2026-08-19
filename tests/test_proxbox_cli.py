@@ -6,6 +6,7 @@ import json
 from typing import Any
 
 import pytest
+from conftest import cli_json
 from typer.testing import CliRunner
 
 from netbox_cli import app as nbx_app
@@ -85,7 +86,7 @@ def test_proxbox_resources_command_lists_catalog_json() -> None:
     result = runner.invoke(nbx_app, ["proxbox", "resources", "--json"])
 
     assert result.exit_code == 0
-    payload = json.loads(result.stdout)
+    payload = cli_json(result.stdout)
     commands = {item["command"] for item in payload}
     assert "nbx proxbox endpoints/proxmox" in commands
     assert "nbx proxbox operations/deletion-requests" in commands
@@ -100,7 +101,7 @@ def test_proxbox_ops_command_shows_read_only_operations() -> None:
     result = runner.invoke(nbx_app, ["proxbox", "ops", "operations/deletion-requests", "--json"])
 
     assert result.exit_code == 0
-    payload = json.loads(result.stdout)
+    payload = cli_json(result.stdout)
     assert [item["action"] for item in payload] == ["list", "get"]
     assert {item["method"] for item in payload} == {"GET"}
 
@@ -338,7 +339,7 @@ def test_proxbox_sync_stream_failure_with_terminal_success_is_warning(
     )
 
     assert result.exit_code == 0
-    payload = json.loads(result.stdout)
+    payload = cli_json(result.stdout)
     assert payload["job_id"] == 101
     assert payload["status"] == "completed"
     assert payload["ok"] is True
@@ -360,7 +361,7 @@ def test_proxbox_sync_stream_eof_without_complete_uses_authoritative_success(
     result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
 
     assert result.exit_code == 0
-    payload = json.loads(result.stdout)
+    payload = cli_json(result.stdout)
     assert payload["ok"] is True
     assert payload["errors"] == []
     assert "before the terminal complete frame" in payload["warnings"][0]["message"]
@@ -385,7 +386,7 @@ def test_proxbox_sync_stream_failure_polls_nonterminal_job_to_completion(
     result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
 
     assert result.exit_code == 0
-    payload = json.loads(result.stdout)
+    payload = cli_json(result.stdout)
     assert payload["status"] == "completed"
     assert payload["ok"] is True
     assert payload["errors"] == []
@@ -407,7 +408,7 @@ def test_proxbox_sync_stream_failure_with_authoritative_job_error_still_fails(
     result = runner.invoke(nbx_app, ["proxbox", "sync", "--json", "--confirm"])
 
     assert result.exit_code == 1
-    payload = json.loads(result.stdout)
+    payload = cli_json(result.stdout)
     assert payload["status"] == "errored"
     assert payload["ok"] is False
     assert any("job failed" in entry["detail"] for entry in payload["errors"])
