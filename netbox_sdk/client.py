@@ -43,6 +43,7 @@ from netbox_sdk.http_cache import (
     build_cache_key,
 )
 from netbox_sdk.http_ssl import connector_for_config
+from netbox_sdk.metrics import record_client_request
 from netbox_sdk.telemetry import client_request_span, server_address_from_url
 
 if TYPE_CHECKING:
@@ -415,20 +416,31 @@ class NetBoxApiClient:
         headers: dict[str, str] | None = None,
         expect_json: bool = True,
     ) -> ApiResponse:
-        with client_request_span(
-            self.config,
-            method,
-            path,
-            server_address_from_url(self.config.base_url),
-        ) as span:
-            response = await self._request_impl(
-                method=method,
-                path=path,
-                query=query,
-                payload=payload,
-                headers=headers,
-                expect_json=expect_json,
-            )
+        server_address = server_address_from_url(self.config.base_url)
+        with client_request_span(self.config, method, path, server_address) as span:
+            started = time.perf_counter()
+            status: int | None = None
+            try:
+                response = await self._request_impl(
+                    method=method,
+                    path=path,
+                    query=query,
+                    payload=payload,
+                    headers=headers,
+                    expect_json=expect_json,
+                )
+                status = response.status
+            finally:
+                # Recorded in `finally` so a failed request is still counted: a
+                # metric that only sees successes hides exactly the incident it
+                # exists to surface. `status` stays None when nothing came back.
+                record_client_request(
+                    method=method,
+                    path=path,
+                    status=status,
+                    duration_seconds=time.perf_counter() - started,
+                    server_address=server_address,
+                )
             span.set_response_status(response.status)
             span.set_cache_status(response.headers.get("X-NBX-Cache"))
             return response

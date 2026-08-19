@@ -286,6 +286,43 @@ External services are optional at runtime. The Python SDK can target any NetBox
 instance reachable over HTTPS/HTTP, and the local mock API can be used for
 offline tests.
 
+## OpenTelemetry Request Metrics
+
+Metrics activate **on the presence of an OTLP endpoint alone** — no SDK-specific
+toggle. Install the `otel` extra and set either
+`OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` or `OTEL_EXPORTER_OTLP_ENDPOINT`, and every
+`NetBoxApiClient.request()` records against a counter and a duration histogram.
+A deployment that already exports telemetry therefore gets request rates and
+latencies with no per-service wiring, which is the difference from tracing:
+tracing emits one record per request and asks for an explicit opt-in, metrics
+aggregate and do not.
+
+| Instrument | Name | Unit |
+| --- | --- | --- |
+| Counter | `netbox.client.request.count` | `{request}` |
+| Histogram | `netbox.client.request.duration` | `s` |
+
+Attributes are the HTTP method, a **templated** operation path, the response
+status, and the server address. The template is what keeps cardinality bounded:
+`/api/dcim/devices/17/` is recorded as `/api/dcim/devices/{id}/`, so a metric
+attribute never carries an object id. Numeric and UUID segments are both
+templated.
+
+A request that raises is still counted, with no status attribute — the failure
+path is the one an operator most needs to see. Recording never raises into the
+caller: a telemetry failure must not break the call it observes.
+
+An existing global `MeterProvider` configured by the host application is reused,
+never replaced. With the `otel` extra absent, or with `OTEL_SDK_DISABLED=true` or
+`OTEL_METRICS_EXPORTER=none`, everything degrades to a no-op.
+
+| Variable | Purpose |
+| --- | --- |
+| `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` | Metrics-specific OTLP endpoint; activates metrics |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Shared OTLP endpoint; also activates metrics |
+| `OTEL_METRICS_EXPORTER` | Use `none` to disable metrics while leaving tracing alone |
+| `OTEL_SDK_DISABLED` | Standard kill switch; disables metrics when true |
+
 ## OpenTelemetry Request Tracing
 
 Tracing is disabled by default. Install the `otel` extra and enable it with
