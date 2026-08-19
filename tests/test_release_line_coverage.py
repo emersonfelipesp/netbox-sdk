@@ -196,10 +196,7 @@ def test_every_registered_line_builds_a_mock_app(line: str) -> None:
     until this test existed, so every matrix job could pass without the mock
     server ever being built for its named line.
     """
-    fastapi = pytest.importorskip(
-        "fastapi", reason="the mock server requires the optional `mock` extra"
-    )
-    assert fastapi is not None
+    pytest.importorskip("fastapi", reason="the mock server requires the optional `mock` extra")
 
     from netbox_sdk.mock.app import create_mock_app
 
@@ -396,4 +393,99 @@ def test_matrix_job_is_triggered_by_every_package_its_checks_import() -> None:
         assert f"needs.changes.outputs.{output}" in condition, (
             f"the matrix job imports {package} but is not gated on "
             f"needs.changes.outputs.{output}, so a {output}-only change skips it"
+        )
+
+
+# Extras the matrix job's own test inputs need in order to actually run rather
+# than skip. `importorskip` is right for a developer running without an extra —
+# the mock server genuinely is not installed then — but in CI a skip would mean
+# the job reports success having asserted nothing, which is the exact shape this
+# module exists to prevent.
+MATRIX_REQUIRED_EXTRAS = {
+    "mock": "tests/test_mock_api.py and the per-line mock assertions need fastapi",
+    "cli": "the parity step imports netbox_cli.runtime",
+    "mcp": "the parity step imports netbox_mcp.service",
+}
+
+
+def test_matrix_job_syncs_every_extra_its_checks_require() -> None:
+    """The matrix job must install what its own tests need, or they skip green.
+
+    Verified empirically while writing this: with ``fastapi`` unimportable the
+    per-line mock tests report ``10 skipped`` and exit 0. Nothing else asserts
+    that CI installs the ``mock`` extra, so dropping it from this job's sync
+    would silently delete all per-line mock coverage — including the
+    ``/api/status/`` discriminator — while the job stayed green.
+    """
+    workflow = yaml.safe_load(_read(".github/workflows/test.yml"))
+    job = workflow["jobs"]["test-bundled-release-lines"]
+
+    sync = next(
+        (s for s in job["steps"] if "uv sync" in str(s.get("run", ""))),
+        None,
+    )
+    assert sync is not None, "the matrix job has no `uv sync` step"
+    command = str(sync["run"])
+
+    missing = sorted(
+        f"{extra} ({why})"
+        for extra, why in MATRIX_REQUIRED_EXTRAS.items()
+        if f"--extra {extra}" not in command
+    )
+    assert not missing, (
+        "the matrix job does not install extras its own checks depend on, so those "
+        f"checks would skip instead of running: {missing}"
+    )
+
+
+def test_documentation_changes_route_to_a_job_that_runs_the_docs_guard() -> None:
+    """A docs-only pull request must run the docs alignment guard.
+
+    Before this, no ``docs/`` pattern appeared in any filter, so changing
+    ``docs/sdk/index.md`` matched nothing and no GitHub test job ran — the
+    registry-derived inventory guard did not execute on exactly the pull requests
+    that make an inventory stale.
+
+    Gitea CI runs the full suite unconditionally on every pull request, so this
+    was defence-in-depth rather than an unguarded path, but the GitHub matrices
+    own the multi-Python coverage and should not silently skip.
+    """
+    import fnmatch
+
+    workflow = yaml.safe_load(_read(".github/workflows/test.yml"))
+    detect = next(
+        (
+            s
+            for s in workflow["jobs"]["changes"]["steps"]
+            if "filters" in str((s.get("with") or {}).keys())
+        ),
+        None,
+    )
+    assert detect is not None, "the changes job has no filters step"
+    filters = yaml.safe_load(detect["with"]["filters"])
+
+    # Representative documentation inputs that carry support inventories.
+    samples = ("docs/sdk/index.md", "docs/sdk/typed.pt.md", "CERTIFICATION.md")
+    for sample in samples:
+        matched = [
+            name
+            for name, patterns in filters.items()
+            if any(fnmatch.fnmatch(sample, p.replace("**", "*")) for p in patterns)
+        ]
+        assert matched, f"{sample} matches no change-detection filter"
+
+        # ...and at least one matched filter must gate a job that runs the guard.
+        gating = [
+            job_name
+            for job_name, job in workflow["jobs"].items()
+            if any(f"needs.changes.outputs.{name}" in str(job.get("if", "")) for name in matched)
+            and any(
+                "test_docs_alignment" in str(s.get("run", ""))
+                or "suite_sdk" in str(s.get("run", ""))
+                for s in job.get("steps", [])
+            )
+        ]
+        assert gating, (
+            f"{sample} routes to {matched}, but no job gated on those outputs runs "
+            "the documentation alignment guard"
         )
