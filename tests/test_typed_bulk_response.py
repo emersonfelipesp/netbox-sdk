@@ -119,3 +119,129 @@ async def test_bulk_create_returns_a_list_and_issues_exactly_one_request() -> No
     assert isinstance(result, list), f"bulk create returned {type(result).__name__}, not a list"
     assert [site.name for site in result] == ["B1", "B2"]
     assert len(calls) == 1, f"a committed batch must not be retried; saw {len(calls)} requests"
+
+
+def _bulk_harness() -> tuple[Any, list[dict[str, Any]]]:
+    """Build a typed app over a fake client that mirrors NetBox's bulk semantics.
+
+    The fake answers a list body with a list and a single body with an object,
+    and answers ``DELETE`` with a bodyless ``204`` — the three shapes the
+    collection path actually returns.
+    """
+    from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase
+
+    calls: list[dict[str, Any]] = []
+
+    class _Response:
+        def __init__(self, status: int, body: Any) -> None:
+            self.status = status
+            self.text = "" if body is None else json.dumps(body)
+            self.headers = {"Content-Type": "application/json"} if body is not None else {}
+            self._body = body
+
+        def json(self) -> Any:
+            return self._body
+
+    class _Client:
+        netbox_version = "4.6"
+
+        async def request(self, method: str, path: str, **kwargs: Any) -> Any:
+            payload = kwargs.get("payload")
+            calls.append({"method": method, "path": path, "payload": payload})
+            if method == "DELETE":
+                return _Response(204, None)
+            rows = payload if isinstance(payload, list) else [payload]
+            body = [
+                {
+                    "id": i + 1,
+                    "url": f"https://nb.example/api/dcim/sites/{i + 1}/",
+                    "display_url": f"https://nb.example/dcim/sites/{i + 1}/",
+                    "display": row["name"],
+                    "name": row["name"],
+                    "slug": row["slug"],
+                    "created": "2026-01-01T00:00:00Z",
+                    "last_updated": "2026-01-01T00:00:00Z",
+                    "circuit_count": 0,
+                    "device_count": 0,
+                    "prefix_count": 0,
+                    "rack_count": 0,
+                    "virtualmachine_count": 0,
+                    "vlan_count": 0,
+                }
+                for i, row in enumerate(rows)
+            ]
+            status = 200 if method in {"PUT", "PATCH"} else 201
+            return _Response(status, body if isinstance(payload, list) else body[0])
+
+    class _Api(TypedApiBase):
+        pass
+
+    api = _Api(client=_Client(), netbox_version="4.6")  # type: ignore[arg-type]
+    return TypedAppBase(api), calls
+
+
+@pytest.mark.parametrize("method", ["PUT", "PATCH"])
+async def test_bulk_update_and_patch_also_return_lists(method: str) -> None:
+    """`bulk-update` and `bulk-patch` share the collection path, so they shared the defect.
+
+    The correction lives in `_typed_json_request`, which every verb routes
+    through — this pins that rather than assuming it.
+    """
+    from netbox_sdk.models.v4_6 import Site as SiteV46
+
+    app, calls = _bulk_harness()
+
+    result = await app._typed_json_request(
+        method,
+        "/api/dcim/sites/",
+        body_model=None,
+        body=[{"name": "B1", "slug": "b1"}, {"name": "B2", "slug": "b2"}],
+        response_model=SiteV46,
+    )
+
+    assert isinstance(result, list), f"{method} returned {type(result).__name__}, not a list"
+    assert [site.name for site in result] == ["B1", "B2"]
+    assert len(calls) == 1, f"a committed batch must not be retried; saw {len(calls)} requests"
+
+
+async def test_bulk_delete_returns_none_without_validating_a_body() -> None:
+    """NetBox answers a bulk delete with a bodyless 204.
+
+    There is no payload to validate, so the list-shaped request must not cause
+    the runtime to demand a list-shaped response. Returning `None` here is what
+    keeps a successful bulk delete from being reported as a failure.
+    """
+    from netbox_sdk.models.v4_6 import Site as SiteV46
+
+    app, calls = _bulk_harness()
+
+    result = await app._typed_json_request(
+        "DELETE",
+        "/api/dcim/sites/",
+        body_model=None,
+        body=[{"id": 1}, {"id": 2}],
+        response_model=SiteV46,
+    )
+
+    assert result is None
+    assert len(calls) == 1
+    assert calls[0]["method"] == "DELETE"
+
+
+async def test_single_object_body_still_returns_one_object() -> None:
+    """The non-bulk path must be untouched by the shape selection."""
+    from netbox_sdk.models.v4_6 import Site as SiteV46
+
+    app, calls = _bulk_harness()
+
+    result = await app._typed_json_request(
+        "POST",
+        "/api/dcim/sites/",
+        body_model=None,
+        body={"name": "solo", "slug": "solo"},
+        response_model=SiteV46,
+    )
+
+    assert not isinstance(result, list)
+    assert result.name == "solo"
+    assert len(calls) == 1

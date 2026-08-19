@@ -62,6 +62,29 @@ asyncio.run(main())
 - Corpos de resposta são validados depois do HTTP e levantam `TypedResponseValidationError`
 - Versões não suportadas levantam `UnsupportedNetBoxVersionError`
 
+### Respostas em lote são validadas conforme o formato retornado pelo servidor
+
+O NetBox reutiliza o caminho da coleção para operações em lote. Enviar um
+objeto **único** retorna aquele objeto; enviar uma **lista** confirma o lote e
+retorna uma **lista**. O documento OpenAPI upstream declara apenas a resposta
+singular para esse caminho, então os bindings gerados declaram apenas o modelo
+singular:
+
+```python
+async def create(self, body: WritableSiteRequest | list[WritableSiteRequest]) -> Site: ...
+```
+
+Por isso o runtime seleciona o modelo de resposta a partir do formato do corpo
+da requisição: um corpo de lista é validado como `list[Model]`, e um corpo único
+como `Model`. Sem isso, um lote já confirmado levantaria
+`TypedResponseValidationError` *depois de o servidor já ter aplicado todos os
+objetos* — e a reação natural, tentar de novo, criaria duplicatas.
+
+Isso vale igualmente para `POST`, `PUT` (`bulk-update`) e `PATCH`
+(`bulk-patch`), pois todos passam pelo mesmo caminho de requisição. O `DELETE`
+em lote responde com `204` sem corpo, então não há nada a validar e a chamada
+retorna `None`.
+
 ## Artefatos gerados
 
 O repositório inclui bundles OpenAPI versionados, modelos Pydantic gerados e

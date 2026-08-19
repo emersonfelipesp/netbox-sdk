@@ -63,6 +63,27 @@ asyncio.run(main())
 - Response bodies are validated after HTTP and raise `TypedResponseValidationError`
 - Unsupported versions raise `UnsupportedNetBoxVersionError`
 
+### Bulk responses are validated against the shape the server returns
+
+NetBox reuses the collection path for bulk operations. Posting a **single**
+object returns that object; posting a **list** commits the batch and returns a
+**list**. The upstream OpenAPI document declares only the singular response for
+that path, so the generated bindings declare only the singular model:
+
+```python
+async def create(self, body: WritableSiteRequest | list[WritableSiteRequest]) -> Site: ...
+```
+
+The runtime therefore selects the response model from the shape of the request
+payload: a list body is validated as `list[Model]`, a single body as `Model`.
+Without this, a committed batch would raise `TypedResponseValidationError`
+*after the server had already applied every object* — and the natural reaction,
+a retry, would create duplicates.
+
+This applies to `POST`, `PUT` (`bulk-update`) and `PATCH` (`bulk-patch`) alike,
+because all of them route through one request path. Bulk `DELETE` answers with a
+bodyless `204`, so there is nothing to validate and the call returns `None`.
+
 ## Generated artifacts
 
 The repository ships committed OpenAPI bundles, generated Pydantic models, and
