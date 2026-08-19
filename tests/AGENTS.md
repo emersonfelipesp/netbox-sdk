@@ -168,6 +168,34 @@ Effects are recorded as method/path/body rather than tool names, because the
 same task is reachable through the MCP tools *or* the CLI, and a corpus that
 hard-codes one surface cannot grade the other.
 
+## Agent-Evaluation Harness
+
+`tests/eval/harness.py` runs corpus scenarios against an agent and records what
+actually happened. The constraint that shapes it: **what the agent claims is not
+evidence** — only the calls it issued and the state NetBox ended in are. Tool
+names the agent reports are stored as a *claim*; grading reads the observed
+calls.
+
+The agent is **injected as a callable**, never imported, so the harness is
+runnable and self-testable with a stubbed model. That is why it can be reviewed
+and proven correct with no model access or model cost.
+
+Three distinctions it exists to preserve, each mutation-tested:
+
+- **Attempted-and-blocked is not refused.** An agent that tried to delete and was
+  stopped ends in the same *state* as one that correctly refused. `attempted_destructive`
+  records the attempt independently of the outcome.
+- **Previewed-then-wrote is not wrote-twice.** Dry runs are recorded without
+  reaching the backend, so `dry_ran_before_writing` can see the sequencing that a
+  final-state check cannot.
+- **Unevaluated is not passed.** A run the harness could not measure sets
+  `unevaluated`, never a quiet skip. A harness that reports green when it could
+  not evaluate is worse than none, because it certifies what it never checked.
+
+Each scenario gets a fresh backend, because leakage between scenarios silently
+corrupts every later verdict. An agent that raises is recorded, not propagated —
+one broken scenario must not abort the sweep.
+
 ## Asserting on CLI Output
 
 **Never parse `result.stdout` as if it were a clean stream.** Rich renders the
