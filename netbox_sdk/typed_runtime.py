@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
+from types import GenericAlias
 from typing import Any
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
@@ -224,6 +225,31 @@ def validate_multipart_payload(
     return dumped
 
 
+def response_model_for_payload(model_type: type[Any] | None, payload: Any) -> Any:
+    """Return the response model matching the shape of the request payload.
+
+    NetBox's bulk endpoints reuse the collection path: posting a single object
+    returns that object, while posting a **list** commits the batch and returns a
+    **list**. The generated bindings declare only the singular model for both,
+    because the upstream OpenAPI document declares only the singular response for
+    the collection path.
+
+    Validating a list response against the singular model raises
+    :class:`TypedResponseValidationError` *after the server has already committed
+    the batch* — the caller sees a failure for a mutation that succeeded and may
+    retry it, creating duplicates. Selecting the model from the request shape
+    keeps single-object calls unchanged and makes bulk calls validate correctly.
+    """
+    if model_type is None:
+        return None
+    if isinstance(payload, list):
+        # Built as a runtime value rather than the `list[model_type]` type
+        # expression: `model_type` is a variable, which `ty` correctly rejects in
+        # type-expression position. `TypeAdapter` accepts the alias either way.
+        return GenericAlias(list, (model_type,))
+    return model_type
+
+
 def validate_response(
     model_type: type[Any] | None,
     data: Any,
@@ -303,7 +329,7 @@ class TypedOperationMixin:
         if payload is None:
             return None
         return validate_response(
-            response_model,
+            response_model_for_payload(response_model, request_payload),
             payload,
             method=method,
             path=path,
