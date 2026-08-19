@@ -46,6 +46,84 @@ _LOOKUP_SUFFIXES: tuple[str, ...] = (
 )
 
 
+class SchemaDocumentFrozenError(TypeError):
+    """Raised when a caller mutates a shared, process-cached OpenAPI document.
+
+    :func:`netbox_sdk.schema_resolution.bundled_index` caches one parsed
+    document per release line and hands every caller a :meth:`SchemaIndex.clone`
+    over that *same* document. A mutation therefore reaches every later SDK,
+    CLI, TUI and MCP consumer in the process — and worse, clones already handed
+    out keep derived maps pointing at paths the document no longer contains, so
+    the index becomes internally inconsistent rather than merely stale.
+
+    Deep-copying per call was rejected: the bundled documents are 7.7-9.6 MB and
+    a copy costs more than twice the parse itself, on a hot path. Freezing turns
+    silent action-at-a-distance corruption into an immediate, local error at the
+    line that actually did it.
+    """
+
+
+def _frozen(*_args: Any, **_kwargs: Any) -> Any:
+    raise SchemaDocumentFrozenError(
+        "the bundled OpenAPI document is shared across every consumer in this "
+        "process and is read-only; copy the part you need instead of mutating it"
+    )
+
+
+class FrozenDict(dict[Any, Any]):
+    """A ``dict`` that raises on mutation.
+
+    Subclasses ``dict`` rather than wrapping in ``MappingProxyType`` because the
+    parsing code guards with ``isinstance(value, dict)``; a mapping proxy fails
+    that check and would silently disable schema parsing altogether.
+    """
+
+    __slots__ = ()
+
+    __setitem__ = _frozen
+    __delitem__ = _frozen
+    update = _frozen
+    setdefault = _frozen
+    pop = _frozen
+    popitem = _frozen
+    clear = _frozen
+    __ior__ = _frozen
+
+
+class FrozenList(list[Any]):
+    """A ``list`` that raises on mutation, for the same reason as :class:`FrozenDict`."""
+
+    __slots__ = ()
+
+    __setitem__ = _frozen
+    __delitem__ = _frozen
+    append = _frozen
+    extend = _frozen
+    insert = _frozen
+    remove = _frozen
+    pop = _frozen
+    clear = _frozen
+    sort = _frozen
+    reverse = _frozen
+    __iadd__ = _frozen
+    __imul__ = _frozen
+
+
+def freeze_document(value: Any) -> Any:
+    """Recursively return a read-only view of a parsed OpenAPI document.
+
+    Containers are rebuilt as :class:`FrozenDict`/:class:`FrozenList`; scalars
+    are returned unchanged. Exact ``type(...) is`` checks are used so an already
+    frozen container is not rebuilt, which makes the function idempotent and
+    keeps re-freezing a cached document free.
+    """
+    if type(value) is dict:
+        return FrozenDict((key, freeze_document(item)) for key, item in value.items())
+    if type(value) is list:
+        return FrozenList(freeze_document(item) for item in value)
+    return value
+
+
 class FilterParam(BaseModel):
     """A single query parameter available for filtering a list endpoint."""
 
@@ -102,7 +180,20 @@ class SchemaIndex:
         self._build()
 
     def clone(self) -> SchemaIndex:
-        """Return a mutable copy of the derived index without reparsing OpenAPI."""
+        """Return a copy of the *derived* index without reparsing OpenAPI.
+
+        ``operations`` and the resource-path map are copied, so
+        :meth:`add_discovered_resource` on one clone never reaches another. The
+        parsed ``schema`` document is deliberately **shared**, because copying a
+        7.7-9.6 MB document on every clone would cost more than the parse it
+        avoids.
+
+        Sharing is only safe while the document is treated as read-only.
+        Documents cached by :func:`netbox_sdk.schema_resolution.bundled_index`
+        are frozen for exactly that reason, and mutating one raises
+        :class:`SchemaDocumentFrozenError` rather than corrupting every other
+        clone in the process.
+        """
         clone = object.__new__(SchemaIndex)
         clone.schema = self.schema
         clone.operations = list(self.operations)
@@ -408,6 +499,13 @@ async def fetch_schema_for_client(client: Any) -> dict[str, Any]:
 
     Uses the bundled schema when the connected version is a supported release line;
     fetches dynamically via ``/api/schema/`` otherwise.
+
+    The returned document is **not** a copy. On the bundled path it is the
+    process-cached document shared by every consumer, and it is frozen — mutating
+    it raises :class:`SchemaDocumentFrozenError`. On the live path it is the
+    freshly parsed document for that call and is not shared, but callers should
+    still treat the result as read-only rather than depend on which path served
+    them; copy the part you need instead of mutating in place.
     """
     from netbox_sdk.schema_resolution import resolve_index  # noqa: PLC0415
 

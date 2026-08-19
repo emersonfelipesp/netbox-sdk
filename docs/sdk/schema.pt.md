@@ -24,6 +24,37 @@ idx = build_schema_index(Path("/path/to/custom-schema.json"))
 
 ---
 
+## Documentos compartilhados são somente leitura
+
+`bundled_index()` faz o parse de um documento OpenAPI por linha de release e o
+mantém em cache no processo. Cada chamador recebe um `clone()`, mas o clone copia
+apenas os mapas *derivados* — o documento em si é compartilhado, porque copiar um
+documento de 7,7-9,6 MB a cada chamada custaria mais do que o parse que ele evita.
+
+Por isso o documento em cache é congelado. Qualquer mutação, em qualquer
+profundidade, levanta `SchemaDocumentFrozenError`:
+
+```python
+from netbox_sdk import SchemaDocumentFrozenError
+from netbox_sdk.schema_resolution import bundled_index
+
+index = bundled_index("4.6")
+try:
+    del index.schema["paths"]["/api/dcim/devices/"]
+except SchemaDocumentFrozenError:
+    pass  # nenhum outro consumidor do processo é afetado
+```
+
+Sem o congelamento, essa remoção alcançaria todos os consumidores posteriores, e
+os clones já entregues manteriam entradas derivadas apontando para um caminho que
+o documento não descreve mais — deixando o índice internamente inconsistente, e
+não apenas desatualizado. Copie a parte de que você precisa em vez de mutar no
+lugar.
+
+Adicionar recursos de plugin descobertos em runtime não é afetado:
+`add_discovered_resource()` altera apenas os mapas derivados, que continuam
+mutáveis e por clone.
+
 ## Grupos e recursos
 
 ```python
