@@ -945,6 +945,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#background-bulk-operations-netbox-47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background bulk operations (NetBox 4.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3328,6 +3339,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#background-bulk-operations-netbox-47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background bulk operations (NetBox 4.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3510,6 +3532,29 @@ a retry, would create duplicates.</p>
 <p>This applies to <code>POST</code>, <code>PUT</code> (<code>bulk-update</code>) and <code>PATCH</code> (<code>bulk-patch</code>) alike,
 because all of them route through one request path. Bulk <code>DELETE</code> answers with a
 bodyless <code>204</code>, so there is nothing to validate and the call returns <code>None</code>.</p>
+<h3 id="background-bulk-operations-netbox-47">Background bulk operations (NetBox 4.7)<a class="headerlink" href="#background-bulk-operations-netbox-47" title="Permanent link">&para;</a></h3>
+<p>NetBox 4.7 accepts <code>?background=true</code> on bulk <code>POST</code>/<code>PUT</code>/<code>PATCH</code>/<code>DELETE</code>. The
+batch is queued instead of executed inline, and the response is <code>202</code> carrying a
+job reference rather than the committed objects — the feature exists to avoid
+proxy timeouts on large batches.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">body</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;B1&quot;</span><span class="p">,</span> <span class="s2">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;b1&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;B2&quot;</span><span class="p">,</span> <span class="s2">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;b2&quot;</span><span class="p">}],</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">query</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">result</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">id</span>      <span class="c1"># 4211</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">result</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">status</span>  <span class="c1"># &quot;pending&quot;</span>
+</span></code></pre></div>
+<p>The runtime selects the response model from the request: an affirmative
+<code>background</code> flag yields <code>BackgroundJobReference</code>, and that takes precedence over
+body shape, because a queued batch returns a job for either a single object or a
+list. Without the flag, nothing changes.</p>
+<blockquote>
+<p><strong>This is an overlay, pending upstream schema support.</strong> The pinned 4.7
+artifact (<code>v4.7.0-beta1</code>) does not describe the parameter, so the generator
+declares it while keeping the committed bundle byte-faithful to upstream. A
+guard test fails once a refreshed 4.7 schema describes <code>background</code> itself, so
+the overlay cannot outlive its reason to exist.</p>
+</blockquote>
 <h2 id="generated-artifacts">Generated artifacts<a class="headerlink" href="#generated-artifacts" title="Permanent link">&para;</a></h2>
 <p>The repository ships committed OpenAPI bundles, generated Pydantic models, and
 generated typed endpoint bindings for the supported release lines. Users do not
@@ -3540,11 +3585,11 @@ once (DNS on both <code>tcp/53</code> and <code>udp/53</code>). The legacy singl
 documents that <em>"either format is accepted"</em>, translating the legacy pair into
 <code>port_mappings</code> when <code>port_mappings</code> is not supplied. Supplying both is accepted
 only when they agree; a genuine conflict is rejected as ambiguous.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Still accepted on 4.7 — translated server-side into port_mappings</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># 4.7-native, and the only way to express multiple protocols</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Still accepted on 4.7 — translated server-side into port_mappings</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># 4.7-native, and the only way to express multiple protocols</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
 </span></code></pre></div>
 <p>On read, a single-protocol service reports <code>port_mappings</code> <strong>and</strong> the legacy
 <code>protocol</code>/<code>ports</code>; a multi-protocol service reports <code>null</code> for both, because it

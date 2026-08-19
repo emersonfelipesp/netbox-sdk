@@ -945,6 +945,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#operacoes-em-lote-em-segundo-plano-netbox-47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operações em lote em segundo plano (NetBox 4.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3328,6 +3339,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#operacoes-em-lote-em-segundo-plano-netbox-47" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operações em lote em segundo plano (NetBox 4.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3511,6 +3533,29 @@ objetos</em> — e a reação natural, tentar de novo, criaria duplicatas.</p>
 (<code>bulk-patch</code>), pois todos passam pelo mesmo caminho de requisição. O <code>DELETE</code>
 em lote responde com <code>204</code> sem corpo, então não há nada a validar e a chamada
 retorna <code>None</code>.</p>
+<h3 id="operacoes-em-lote-em-segundo-plano-netbox-47">Operações em lote em segundo plano (NetBox 4.7)<a class="headerlink" href="#operacoes-em-lote-em-segundo-plano-netbox-47" title="Permanent link">&para;</a></h3>
+<p>O NetBox 4.7 aceita <code>?background=true</code> em <code>POST</code>/<code>PUT</code>/<code>PATCH</code>/<code>DELETE</code> em lote.
+O lote é enfileirado em vez de executado na hora, e a resposta é um <code>202</code> com uma
+referência de job em vez dos objetos confirmados — o recurso existe para evitar
+timeouts de proxy em lotes grandes.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">dcim</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">body</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;B1&quot;</span><span class="p">,</span> <span class="s2">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;b1&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;B2&quot;</span><span class="p">,</span> <span class="s2">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;b2&quot;</span><span class="p">}],</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">query</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">result</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">id</span>      <span class="c1"># 4211</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">result</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">status</span>  <span class="c1"># &quot;pending&quot;</span>
+</span></code></pre></div>
+<p>O runtime seleciona o modelo de resposta a partir da requisição: um <code>background</code>
+afirmativo resulta em <code>BackgroundJobReference</code>, e isso tem precedência sobre o
+formato do corpo, porque um lote enfileirado retorna um job tanto para um objeto
+único quanto para uma lista. Sem a flag, nada muda.</p>
+<blockquote>
+<p><strong>Isto é um overlay, enquanto o schema upstream não descreve o recurso.</strong> O
+artefato 4.7 fixado (<code>v4.7.0-beta1</code>) não descreve o parâmetro, então o gerador
+o declara mantendo o bundle versionado fiel byte a byte ao upstream. Um teste
+de guarda falha assim que um schema 4.7 atualizado descrever <code>background</code>, de
+modo que o overlay não sobreviva ao seu motivo de existir.</p>
+</blockquote>
 <h2 id="artefatos-gerados">Artefatos gerados<a class="headerlink" href="#artefatos-gerados" title="Permanent link">&para;</a></h2>
 <p>O repositório inclui bundles OpenAPI versionados, modelos Pydantic gerados e
 bindings tipados de endpoints gerados para as linhas de release suportadas. Não é
@@ -3541,11 +3586,11 @@ protocolos ao mesmo tempo (DNS em <code>tcp/53</code> e <code>udp/53</code>). O 
 upstream documenta que <em>"either format is accepted"</em>, traduzindo o par legado
 para <code>port_mappings</code> quando <code>port_mappings</code> não é informado. Informar ambos só é
 aceito quando concordam; um conflito real é rejeitado como ambíguo.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Ainda aceito no 4.7 — traduzido no servidor para port_mappings</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Ainda aceito no 4.7 — traduzido no servidor para port_mappings</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
 </span></code></pre></div>
 <p>Na leitura, um serviço de protocolo único reporta <code>port_mappings</code> <strong>e</strong> os campos
 legados <code>protocol</code>/<code>ports</code>; um serviço multiprotocolo reporta <code>null</code> para ambos,
