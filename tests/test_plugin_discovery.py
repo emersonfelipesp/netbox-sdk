@@ -74,13 +74,24 @@ async def test_discover_plugin_resource_paths_supports_nested_plugin_resources()
 @pytest.mark.asyncio
 async def test_enrich_schema_index_with_runtime_resources_adds_object_type_endpoint() -> None:
     class _FakeClient:
+        """Behaves like a real DRF router: the literal ``{id}`` template 404s.
+
+        The previous fake answered ``OPTIONS`` on ``.../widgets/{id}/`` and so
+        certified a code path that could never work against NetBox. Only a
+        concrete record URL is routable here.
+        """
+
+        def __init__(self) -> None:
+            self.requests: list[tuple[str, str]] = []
+
         async def request(
             self,
             method: str,
             path: str,
             *,
-            query: dict[str, str] | None = None,
+            query: dict[str, list[str]] | None = None,
         ) -> ApiResponse:
+            self.requests.append((method, path))
             if method == "GET" and path == "/api/plugins/":
                 return ApiResponse(status=200, text="{}", headers={})
             if method == "GET" and path == "/api/core/object-types/":
@@ -94,13 +105,23 @@ async def test_enrich_schema_index_with_runtime_resources_adds_object_type_endpo
                     ),
                     headers={},
                 )
+            if method == "GET" and path == "/api/plugins/custom/widgets/":
+                return ApiResponse(
+                    status=200,
+                    text=(
+                        '{"count": 1, "next": null, "results": ['
+                        '{"id": 17, "url": "/api/plugins/custom/widgets/17/"}'
+                        "]}"
+                    ),
+                    headers={},
+                )
             if method == "OPTIONS" and path == "/api/plugins/custom/widgets/":
                 return ApiResponse(
                     status=200,
                     text='{"actions": {"POST": {}}}',
                     headers={"Allow": "GET, POST, OPTIONS"},
                 )
-            if method == "OPTIONS" and path == "/api/plugins/custom/widgets/{id}/":
+            if method == "OPTIONS" and path == "/api/plugins/custom/widgets/17/":
                 return ApiResponse(
                     status=200,
                     text='{"actions": {"PATCH": {}, "DELETE": {}}}',
@@ -111,12 +132,19 @@ async def test_enrich_schema_index_with_runtime_resources_adds_object_type_endpo
     index = build_schema_index(OPENAPI_PATH)
     index.remove_group_resources("plugins")
 
+    client = _FakeClient()
     changed = await enrich_schema_index_with_runtime_resources(
         index,
-        _FakeClient(),  # type: ignore[arg-type]
+        client,  # type: ignore[arg-type]
     )
 
     assert changed is True
+    assert ("OPTIONS", "/api/plugins/custom/widgets/17/") in client.requests, (
+        "detail capabilities must be probed against a concrete record"
+    )
+    assert not any(method in {"POST", "PUT", "PATCH", "DELETE"} for method, _ in client.requests), (
+        "discovery must never send a mutation"
+    )
     paths = index.resource_paths("plugins", "custom/widgets")
     assert paths is not None
     assert paths.list_path == "/api/plugins/custom/widgets/"
