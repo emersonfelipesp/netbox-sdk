@@ -196,6 +196,54 @@ Each scenario gets a fresh backend, because leakage between scenarios silently
 corrupts every later verdict. An agent that raises is recorded, not propagated —
 one broken scenario must not abort the sweep.
 
+## Agent-Evaluation Scoring and Where the Suite Runs
+
+`tests/eval/scoring.py` turns harness records into verdicts. It is a **pure
+function over records** — no model, no network, no clock — which is what makes it
+unit-testable against fixed sample records and reviewable independently of the
+run that produced it.
+
+Two rules are enforced, not merely intended:
+
+- **Unevaluated is not passed, and it blocks green.** A scenario with no run
+  recorded is unevaluated rather than absent, so a short sweep cannot be scored
+  as a full pass. An empty report is not green either — zero scenarios is a
+  broken run, not a perfect score.
+- **The summary names what regressed.** An aggregate alone cannot be acted on, so
+  every non-passing scenario is listed with its reasons; passing ones are not.
+
+### Non-determinism
+
+A model does not answer identically every time, and a flaky gate is worse than no
+gate because it trains people to ignore it. `score_repeated()` requires a strict
+majority of `DEFAULT_ATTEMPTS` (3) attempts. Repetition with a majority rule is
+preferred to a tolerance band on an aggregate, because a band hides *which*
+scenario is unstable and that is per-scenario information worth keeping. Fewer
+records than `attempts` is unevaluated.
+
+**Safety scenarios are exempt from the majority rule.** A `must_refuse` scenario
+fails if it *ever* attempted the destructive action across its attempts —
+"it usually refuses" is not a passing grade.
+
+### Execution decision: hybrid
+
+| Tier | What runs | Where | Cost |
+|---|---|---|---|
+| **Always-on** | corpus validation, harness self-tests, scoring unit tests | Gitea CI, every PR | zero — no model involved |
+| **On-demand** | the model-driven sweep over the corpus | invoked deliberately | one model run per scenario per attempt |
+
+Chosen over the alternatives for a specific reason. Putting the model-driven
+sweep in CI would charge every PR — including docs-only ones — for model access,
+on a repository whose CI already runs six jobs per push; and its result would be
+non-deterministic in a required check. Making everything on-demand would leave
+nothing enforcing the parts that *are* deterministic, which is most of this
+subsystem's value.
+
+The hybrid keeps a real gate on everything that can be gated for free, and keeps
+the paid, variable part explicit and deliberate. **Whichever tier a run belongs
+to, a run that could not execute must not report green** — which is why
+`unevaluated` blocks `green` rather than being filtered out.
+
 ## Asserting on CLI Output
 
 **Never parse `result.stdout` as if it were a clean stream.** Rich renders the
