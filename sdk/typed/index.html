@@ -931,6 +931,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Validation behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bulk-responses-are-validated-against-the-shape-the-server-returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bulk responses are validated against the shape the server returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3297,6 +3314,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Validation behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bulk-responses-are-validated-against-the-shape-the-server-returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bulk responses are validated against the shape the server returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3461,6 +3495,21 @@ typed client.</p>
 <li>Response bodies are validated after HTTP and raise <code>TypedResponseValidationError</code></li>
 <li>Unsupported versions raise <code>UnsupportedNetBoxVersionError</code></li>
 </ul>
+<h3 id="bulk-responses-are-validated-against-the-shape-the-server-returns">Bulk responses are validated against the shape the server returns<a class="headerlink" href="#bulk-responses-are-validated-against-the-shape-the-server-returns" title="Permanent link">&para;</a></h3>
+<p>NetBox reuses the collection path for bulk operations. Posting a <strong>single</strong>
+object returns that object; posting a <strong>list</strong> commits the batch and returns a
+<strong>list</strong>. The upstream OpenAPI document declares only the singular response for
+that path, so the generated bindings declare only the singular model:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">WritableSiteRequest</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">WritableSiteRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Site</span><span class="p">:</span> <span class="o">...</span>
+</span></code></pre></div>
+<p>The runtime therefore selects the response model from the shape of the request
+payload: a list body is validated as <code>list[Model]</code>, a single body as <code>Model</code>.
+Without this, a committed batch would raise <code>TypedResponseValidationError</code>
+<em>after the server had already applied every object</em> — and the natural reaction,
+a retry, would create duplicates.</p>
+<p>This applies to <code>POST</code>, <code>PUT</code> (<code>bulk-update</code>) and <code>PATCH</code> (<code>bulk-patch</code>) alike,
+because all of them route through one request path. Bulk <code>DELETE</code> answers with a
+bodyless <code>204</code>, so there is nothing to validate and the call returns <code>None</code>.</p>
 <h2 id="generated-artifacts">Generated artifacts<a class="headerlink" href="#generated-artifacts" title="Permanent link">&para;</a></h2>
 <p>The repository ships committed OpenAPI bundles, generated Pydantic models, and
 generated typed endpoint bindings for the supported release lines. Users do not
@@ -3491,11 +3540,11 @@ once (DNS on both <code>tcp/53</code> and <code>udp/53</code>). The legacy singl
 documents that <em>"either format is accepted"</em>, translating the legacy pair into
 <code>port_mappings</code> when <code>port_mappings</code> is not supplied. Supplying both is accepted
 only when they agree; a genuine conflict is rejected as ambiguous.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Still accepted on 4.7 — translated server-side into port_mappings</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 4.7-native, and the only way to express multiple protocols</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Still accepted on 4.7 — translated server-side into port_mappings</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># 4.7-native, and the only way to express multiple protocols</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
 </span></code></pre></div>
 <p>On read, a single-protocol service reports <code>port_mappings</code> <strong>and</strong> the legacy
 <code>protocol</code>/<code>ports</code>; a multi-protocol service reports <code>null</code> for both, because it

@@ -931,6 +931,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Comportamento de validação">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#respostas-em-lote-sao-validadas-conforme-o-formato-retornado-pelo-servidor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Respostas em lote são validadas conforme o formato retornado pelo servidor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3297,6 +3314,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Comportamento de validação">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#respostas-em-lote-sao-validadas-conforme-o-formato-retornado-pelo-servidor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Respostas em lote são validadas conforme o formato retornado pelo servidor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3460,6 +3494,23 @@ cliente tipado <code>4.4</code>.</p>
 <li>Corpos de resposta são validados depois do HTTP e levantam <code>TypedResponseValidationError</code></li>
 <li>Versões não suportadas levantam <code>UnsupportedNetBoxVersionError</code></li>
 </ul>
+<h3 id="respostas-em-lote-sao-validadas-conforme-o-formato-retornado-pelo-servidor">Respostas em lote são validadas conforme o formato retornado pelo servidor<a class="headerlink" href="#respostas-em-lote-sao-validadas-conforme-o-formato-retornado-pelo-servidor" title="Permanent link">&para;</a></h3>
+<p>O NetBox reutiliza o caminho da coleção para operações em lote. Enviar um
+objeto <strong>único</strong> retorna aquele objeto; enviar uma <strong>lista</strong> confirma o lote e
+retorna uma <strong>lista</strong>. O documento OpenAPI upstream declara apenas a resposta
+singular para esse caminho, então os bindings gerados declaram apenas o modelo
+singular:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">WritableSiteRequest</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">WritableSiteRequest</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Site</span><span class="p">:</span> <span class="o">...</span>
+</span></code></pre></div>
+<p>Por isso o runtime seleciona o modelo de resposta a partir do formato do corpo
+da requisição: um corpo de lista é validado como <code>list[Model]</code>, e um corpo único
+como <code>Model</code>. Sem isso, um lote já confirmado levantaria
+<code>TypedResponseValidationError</code> <em>depois de o servidor já ter aplicado todos os
+objetos</em> — e a reação natural, tentar de novo, criaria duplicatas.</p>
+<p>Isso vale igualmente para <code>POST</code>, <code>PUT</code> (<code>bulk-update</code>) e <code>PATCH</code>
+(<code>bulk-patch</code>), pois todos passam pelo mesmo caminho de requisição. O <code>DELETE</code>
+em lote responde com <code>204</code> sem corpo, então não há nada a validar e a chamada
+retorna <code>None</code>.</p>
 <h2 id="artefatos-gerados">Artefatos gerados<a class="headerlink" href="#artefatos-gerados" title="Permanent link">&para;</a></h2>
 <p>O repositório inclui bundles OpenAPI versionados, modelos Pydantic gerados e
 bindings tipados de endpoints gerados para as linhas de release suportadas. Não é
@@ -3490,11 +3541,11 @@ protocolos ao mesmo tempo (DNS em <code>tcp/53</code> e <code>udp/53</code>). O 
 upstream documenta que <em>"either format is accepted"</em>, traduzindo o par legado
 para <code>port_mappings</code> quando <code>port_mappings</code> não é informado. Informar ambos só é
 aceito quando concordam; um conflito real é rejeitado como ambíguo.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Ainda aceito no 4.7 — traduzido no servidor para port_mappings</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Ainda aceito no 4.7 — traduzido no servidor para port_mappings</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ssh&quot;</span><span class="p">,</span> <span class="s2">&quot;protocol&quot;</span><span class="p">:</span> <span class="s2">&quot;tcp&quot;</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Forma nativa do 4.7, e a única maneira de expressar múltiplos protocolos</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">api</span><span class="o">.</span><span class="n">ipam</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;port_mappings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tcp/53&quot;</span><span class="p">,</span> <span class="s2">&quot;udp/53&quot;</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
 </span></code></pre></div>
 <p>Na leitura, um serviço de protocolo único reporta <code>port_mappings</code> <strong>e</strong> os campos
 legados <code>protocol</code>/<code>ports</code>; um serviço multiprotocolo reporta <code>null</code> para ambos,
