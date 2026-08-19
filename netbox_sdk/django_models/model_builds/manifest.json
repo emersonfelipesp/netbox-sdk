@@ -1,0 +1,9 @@
+{
+  "builds": {
+    "4.3": "v4.3.7",
+    "4.4": "v4.4.10",
+    "4.5": "v4.5.10",
+    "4.6": "v4.6.3"
+  },
+  "description": "Newest non-prerelease Django model build per supported NetBox release line. Regenerate with scripts/build_model_catalog.py."
+}

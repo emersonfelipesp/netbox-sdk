@@ -159,7 +159,11 @@ where = ["."]
 include = ["netbox_sdk*", "netbox_tui*", "netbox_cli*", "netbox_mcp*"]
 
 [tool.setuptools.package-data]
-netbox_sdk = ["reference/openapi/*.json", "py.typed"]
+netbox_sdk = [
+  "reference/openapi/*.json",
+  "django_models/model_builds/*.json",
+  "py.typed",
+]
 netbox_cli = ["py.typed"]
 netbox_tui = ["*.tcss", "themes/*.json", "py.typed"]
 netbox_mcp = ["py.typed"]
@@ -177,6 +181,7 @@ markers = [
   "suite_mcp: tests owned by the optional netbox_mcp package",
   "live: tests that require a live NetBox instance (skipped when NETBOX_URL is absent)",
   "demo_live: tests that run live against demo.netbox.dev (skipped when NETBOX_DEMO_LIVE=1 is not set)",
+  "slow: tests that build or install a distribution and take tens of seconds",
 ]
 
 [tool.ruff]
