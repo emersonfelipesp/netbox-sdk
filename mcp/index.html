@@ -3148,6 +3148,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#which-netbox-contract-the-server-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which NetBox contract the server uses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#install-and-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3276,6 +3287,22 @@ the same <code>SchemaIndex</code>, request resolver, plugin discovery, paginatio
 and profile configuration used by the SDK and CLI. It does not generate one
 tool per OpenAPI operation, so its tool list stays stable when NetBox plugins
 change the reachable resources.</p>
+<h2 id="which-netbox-contract-the-server-uses">Which NetBox contract the server uses<a class="headerlink" href="#which-netbox-contract-the-server-uses" title="Permanent link">&para;</a></h2>
+<p>A server started <strong>without</strong> a version pin detects the connected instance's
+release line on its first tool call and uses that contract from then on. It is
+detected once per server, lazily, so the server still starts while NetBox is
+unreachable.</p>
+<p>Detection <strong>fails closed</strong>: if the instance cannot be reached, or answers
+<code>/api/schema/</code> with something that is not an OpenAPI document, the tool call
+fails. It never quietly answers from the default bundled contract, because a
+server that cannot describe the instance it is talking to should not pretend it
+can. A failed attempt is not cached, so a transient outage does not disable the
+server permanently.</p>
+<p>Passing <code>--netbox-version</code> (or constructing <code>NetBoxMCPService(pinned_line=...)</code>
+or <code>index=...</code>) makes that contract authoritative and skips detection entirely.</p>
+<p><code>dry_run</code> previews stay local and construct no client, so they are rendered from
+the bundled contract and remain a <em>request preview</em> rather than server-side
+validation.</p>
 <h2 id="install-and-run">Install and run<a class="headerlink" href="#install-and-run" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;netbox-sdk[mcp]&#39;</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>nbx-mcp
