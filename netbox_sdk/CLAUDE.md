@@ -35,6 +35,7 @@ netbox_sdk/
 ├── plugin_discovery.py
 ├── plugin_bridge.py
 ├── proxbox.py
+├── proxbox_jobs.py
 ├── exceptions.py
 ├── logging_runtime.py
 ├── output_safety.py
@@ -78,6 +79,7 @@ netbox_sdk/
 - `netbox_sdk.plugin_bridge` — versioned semantic plugin-manifest discovery and strict contract/input/output validation; discovery uses fresh bounded non-redirecting responses, accepts configured NetBox URL prefixes, enforces aggregate root/request/body/tool/time budgets, keeps advertised links and fixed tool targets same-origin/plugin-local, requires strict finite JSON, applies lossless integer semantics (large floats never round into another identity), accepts leap seconds only at normalized UTC month boundaries, rejects date-time normalization overflow, restricts reads to query-encodable schemas, and rejects unbounded schema features. Descriptor version 1 is generic; plugin repositories own their operation payload snapshots.
 - `netbox_sdk.proxbox` — stable netbox-proxbox resource catalog plus catalog-backed request helper used by the dedicated CLI and TUI surfaces
 - `netbox_sdk.proxbox_sync` — Proxbox scheduling/SSE/job-fetch helpers and `ProxboxSyncError`, which carries an optional structured `job_id` once scheduling has succeeded
+- `netbox_sdk.proxbox_jobs` — read-only Proxbox **sync job** retrieval: parses core `core.Job` rows carrying a `proxbox_sync` block into `ProxboxSyncJobRecord`, mirrors the plugin's `is_proxbox_sync_job` predicate (data key / legacy queue / default name on an accepted queue / targeted-VM name, with the `queue_name or ""` normalisation), and runs a **bounded** scan of `/api/core/jobs/` because NetBox cannot filter on `data`. Two invariants are load-bearing: `ProxboxJobFilters.server_query()` may emit only names in `SERVER_PARAM_WHITELIST` — NetBox *silently ignores* unknown query parameters, so a typo would widen the query to every job in the instance rather than fail — and every listing returns `scanned` / `matched` / `truncated` / `window` so a truncated scan can never be mistaken for an exhaustive one. Parameter parsing is total: hostile or malformed `data` degrades to empty params and never raises, an empty `proxmox_endpoint_ids` means "all endpoints", and `sync_types: ["all"]` (or absent) covers every requested type. A scope that cannot be parsed is recorded as `INVALID` and matches **no** scoped query rather than every one (an unreadable endpoint list is not "all endpoints"); a legacy `Proxbox Sync: Virtual machine <id>` row has its scope reconstructed from its name, mirroring the plugin's own `_infer_targeted_vm_job_params`; `--errored` and `--user` are evaluated client-side on purpose — pushing the failure statuses down would discard completed-with-error rows, and the core `user` filter is an integer on NetBox 4.5 but a username on 4.6+, so only a local comparison is correct on every supported line
 - `netbox_sdk.mock` — FastAPI-backed mock NetBox API used by tests and local development
 - Shared cross-package helpers: `formatting`, `logging_runtime`, `output_safety`, `trace_ascii`, `demo_auth`, `django_models`
 

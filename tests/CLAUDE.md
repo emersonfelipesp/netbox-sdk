@@ -87,6 +87,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_pagination_cursor.py` | Cursor and paginated response handling |
 | `test_plugin_discovery.py` | `discover_plugin_resource_paths()` — mock API walk, collection detection, deduplication |
 | `test_proxbox_cli.py` | `nbx proxbox` catalog, CRUD dry-run, read-only command protection, and sync stream rendering |
+| `test_proxbox_jobs.py` | Proxbox sync-job SDK surface: the predicate parity matrix mirroring the plugin's own row grid, the hostile-`job.data` fuzz suite, the server-parameter whitelist and its fail-closed mutation check, documented filter semantics (empty endpoint list means all; `all` covers every sync type; legacy singular `sync_type`), bounded-scan truncation reporting, and cluster/node endpoint resolution |
+| `test_proxbox_jobs_cli.py` | `nbx proxbox jobs list|get|statuses` driven end-to-end over a path-routed fake transport: window resolution and its suppression by `--id`/`--all-time`, server-filter pushdown, column selection, the scan footer, log-level filtering, error exit codes, and the fixed-width table layout that keeps Rich from collapsing `id`/`status` to zero width |
 | `test_proxbox_resources.py` | Dedicated netbox-proxbox SDK catalog, schema registration, and catalog-backed request helper |
 | `test_proxbox_sync.py` | Proxbox sync scheduling, endpoint resolution, SSE parsing, and stream transport |
 | `test_proxbox_tui.py` | Proxbox-only request workbench catalog and resource activation behavior |

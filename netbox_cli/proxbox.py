@@ -18,6 +18,7 @@ from rich.table import Table
 from rich.text import Text
 
 from netbox_cli.dynamic import _build_action_command
+from netbox_cli.proxbox_jobs import jobs_app
 from netbox_cli.runtime import _get_client
 from netbox_cli.support import (
     console,
@@ -1100,10 +1101,22 @@ def _float_value(value: Any) -> float | None:
 
 _register_proxbox_resource_commands(proxbox_app)
 
+# The catalog builds its own sub-Typers from `command_parts`, and Typer would
+# silently accept a second sub-app under the same name — the job commands would
+# just stop resolving. Fail at import instead if the catalog ever grows a "jobs"
+# branch, rather than shipping a command tree with a shadowed group.
+if any(spec.command_parts[:1] == ("jobs",) for spec in proxbox_resources()):
+    raise RuntimeError(
+        "The Proxbox resource catalog now defines a 'jobs' command group, which "
+        "would shadow 'nbx proxbox jobs'. Rename one of them."
+    )
+proxbox_app.add_typer(jobs_app, name="jobs")
+
 
 __all__ = [
     "RenderState",
     "frame_to_line",
+    "jobs_app",
     "proxbox_app",
     "render_frame",
 ]

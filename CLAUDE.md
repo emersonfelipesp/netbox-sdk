@@ -36,6 +36,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── decorators.py
     ├── exceptions.py
     ├── proxbox.py
+    ├── proxbox_jobs.py
     ├── proxbox_sync.py
     ├── http_cache.py
     ├── http_ssl.py
@@ -77,6 +78,7 @@ netbox_cli/   optional Typer layer
     ├── runtime.py    config/index/client factories
     ├── dynamic.py    OpenAPI command registration/execution
     ├── proxbox.py    netbox-proxbox catalog, CRUD, TUI, and sync commands
+    ├── proxbox_jobs.py  nbx proxbox jobs — bounded, filtered sync-job retrieval (read-only)
     ├── support.py    shared CLI rendering/error helpers
     ├── demo.py       demo profile command tree
     ├── dev.py        dev command tree
@@ -206,6 +208,30 @@ fetching `/api/core/jobs/{job_id}/` after the stream for authoritative status
 and error log entries. `ProxboxSyncError` preserves a known scheduled `job_id`
 when that authoritative fetch fails so automation can inspect the existing job
 instead of blindly scheduling a duplicate.
+
+`netbox_sdk.proxbox_jobs` owns the read side of the same contract. netbox-proxbox
+has no job model: a sync is a core `core.Job` row whose `data` carries a
+`proxbox_sync` block, and `/api/core/jobs/` cannot filter on `data`. The module
+therefore mirrors the plugin's `is_proxbox_sync_job` predicate and runs a
+**bounded** scan — server-side filters pushed down, Proxbox predicate and
+parameter filters applied locally. Two rules are load-bearing and must not be
+relaxed. `ProxboxJobFilters.server_query()` may emit only names in
+`SERVER_PARAM_WHITELIST`, because NetBox *silently ignores* an unknown query
+parameter: a misspelled filter does not fail, it returns every job in the
+instance. And every listing carries `scanned` / `matched` / `truncated` /
+`window`, so a scan that stopped at `--limit` or `--max-scan` can never be
+mistaken for an exhaustive one. Three behaviours in that module are counter-intuitive on purpose and must not be
+"optimised" back. `--errored` and `--user` are evaluated client-side: pushing the
+failure statuses down would discard a run that finished `completed` while
+recording a stage error — the row an operator is looking for — and the core
+`user` filter is typed as an integer on NetBox 4.5 but as a username on 4.6+, so
+only a local comparison is correct on every supported line. And a scope list
+that cannot be parsed is `INVALID`, not empty: an unreadable endpoint list is
+not "all endpoints", so a scoped query skips that row instead of matching it.
+
+`netbox_cli.proxbox_jobs` owns the matching Rich
+and Typer surface (`nbx proxbox jobs list|get|statuses`), including the default
+30-day window and the scan footer; it is read-only and takes no `--confirm`.
 
 `netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox resources`,
 `ops`, generated CRUD commands, the confirmation-gated Proxbox TUI launcher,
