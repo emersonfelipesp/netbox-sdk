@@ -474,9 +474,9 @@ def test_release_workflow_uses_locked_publish_tools() -> None:
     assert dependency_groups["publish"] == [
         "build==1.5.0",
         "packaging==26.0",
-        "setuptools==80.9.0",
+        "setuptools==83.0.0",
         "twine==6.2.0",
-        "wheel==0.45.1",
+        "wheel==0.46.2",
     ]
     workflow_text = _read(".github/workflows/publish-testpypi.yml")
     assert "uv sync --only-group publish --locked" in workflow_text
