@@ -1409,6 +1409,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#jobs-de-sincronizacao-nbx-proxbox-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jobs de Sincronização (nbx proxbox jobs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jobs de Sincronização (nbx proxbox jobs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-a-listagem-funciona-e-por-que-e-limitada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como a listagem funciona, e por que é limitada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtros
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saída
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#familias-de-recursos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3275,6 +3325,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#jobs-de-sincronizacao-nbx-proxbox-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jobs de Sincronização (nbx proxbox jobs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jobs de Sincronização (nbx proxbox jobs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#como-a-listagem-funciona-e-por-que-e-limitada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como a listagem funciona, e por que é limitada
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtros
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saída
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#familias-de-recursos" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3427,6 +3527,14 @@ como <code>/api/plugins/proxbox/firewall/rules/{id}/</code>.</p>
 <td>Agenda um job de sync guiado e transmite progresso SSE</td>
 </tr>
 <tr>
+<td><code>nbx proxbox jobs list</code></td>
+<td>Lista jobs de sync passados e em execução com filtros ricos</td>
+</tr>
+<tr>
+<td><code>nbx proxbox jobs get JOB_ID</code></td>
+<td>Mostra um job de sync completo, com parâmetros e logs</td>
+</tr>
+<tr>
 <td><code>nbx proxbox tui</code></td>
 <td>Abre a bancada de requisições somente para Proxbox</td>
 </tr>
@@ -3477,6 +3585,209 @@ sugerir que o trabalho agendado nunca ocorreu. Se a própria busca autoritativa
 falhar, a saída de erro JSON preserva o <code>job_id</code> conhecido; a automação deve
 inspecionar esse job existente antes de considerar outro sync, sem reagendar às
 cegas.</p>
+<h2 id="jobs-de-sincronizacao-nbx-proxbox-jobs">Jobs de Sincronização (<code>nbx proxbox jobs</code>)<a class="headerlink" href="#jobs-de-sincronizacao-nbx-proxbox-jobs" title="Permanent link">&para;</a></h2>
+<p><code>nbx proxbox sync</code> <em>inicia</em> uma sincronização e transmite um job.
+<code>nbx proxbox jobs</code> responde à outra metade: quais sincronizações rodaram, contra
+quais endpoints, com qual resultado e o que reportaram.</p>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Finalidade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nbx proxbox jobs list</code></td>
+<td>Lista jobs de sync Proxbox com filtros, limitada e reportada</td>
+</tr>
+<tr>
+<td><code>nbx proxbox jobs get JOB_ID</code></td>
+<td>Mostra um job completo: campos do core, parâmetros, resposta e log</td>
+</tr>
+<tr>
+<td><code>nbx proxbox jobs statuses</code></td>
+<td>Imprime os valores aceitos por <code>--status</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="como-a-listagem-funciona-e-por-que-e-limitada">Como a listagem funciona, e por que é limitada<a class="headerlink" href="#como-a-listagem-funciona-e-por-que-e-limitada" title="Permanent link">&para;</a></h3>
+<p>O netbox-proxbox não tem modelo de job próprio. Uma sincronização Proxbox é uma
+linha <strong><code>core.Job</code> do NetBox</strong> cujo <code>data</code> carrega um bloco <code>proxbox_sync</code>.
+<code>GET /api/core/jobs/</code> serializa todos os campos necessários e filtra no servidor
+por status, nome, fila, usuário, tipo/id de objeto, id e os quatro timestamps —
+mas <strong>não filtra por <code>data</code></strong>, que é a única forma confiável de distinguir uma
+sincronização Proxbox do job de qualquer outro plugin (uma execução agendada com
+nome customizado não carrega nome reconhecível algum).</p>
+<p>Assim, <code>list</code> empurra para o servidor todo filtro que o NetBox entende e depois
+aplica o predicado Proxbox e os filtros de parâmetros localmente sobre as linhas
+retornadas. Duas consequências são deliberadas e visíveis:</p>
+<ul>
+<li><strong>Uma janela padrão dos últimos 30 dias</strong> limita a varredura. Amplie com
+  <code>--since 90d</code>, mire outro timestamp com <code>--date-field</code> ou remova com
+  <code>--all-time</code>. Informar PKs explícitos com <code>--id</code> também remove a janela.</li>
+<li><strong>Todo resultado declara a própria completude</strong> — todos os limites de tempo em
+  vigor (não apenas um), quantas linhas de job foram varridas, quantas casaram
+  e, em destaque, se a varredura parou cedo em <code>--limit</code>, em <code>--max-scan</code> ou
+  porque a lista de jobs mudou durante a leitura. A deriva é detectada de três
+  formas: uma página repetida, um job entregue duas vezes e — para uma varredura
+  que acredita ter chegado ao fim — menos linhas vistas do que o NetBox anunciou,
+  que é a aparência de uma exclusão no meio da leitura quando nada se repete. O <code>--limit</code> só reporta
+  truncamento quando existe de fato mais um resultado, então exatamente <code>N</code>
+  casos aparecem como completos. Uma listagem truncada nunca parece completa.</li>
+</ul>
+<p><code>--since</code>/<code>--until</code> e os limites explícitos <code>--&lt;campo&gt;-after</code>/<code>--&lt;campo&gt;-before</code>
+são duas respostas para a mesma pergunta quando miram o mesmo timestamp, então
+combiná-los no mesmo campo é recusado em vez de resolvido silenciosamente. O
+<code>--date-field</code> escolhe a qual timestamp a janela se aplica, inclusive a janela
+padrão de 30 dias quando nenhum limite é informado.</p>
+<p>Como a lista inteira é varrida, <code>--all-time</code> em uma instância grande é caro: as
+linhas de job carregam todos os seus <code>log_entries</code>, então uma página de 100
+linhas já tem algumas centenas de kilobytes. Prefira uma janela ou um filtro
+resolvido no servidor.</p>
+<h3 id="filtros">Filtros<a class="headerlink" href="#filtros" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Casa com</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--status/-s</code> (repetível)</td>
+<td>Status do job no core; enviado como filtro multi-valor ao servidor</td>
+</tr>
+<tr>
+<td><code>--type/-t</code> (repetível)</td>
+<td>Slug de tipo de sync do Proxbox</td>
+</tr>
+<tr>
+<td><code>--endpoint/-e</code> (repetível)</td>
+<td>PK ou nome exato do endpoint Proxmox</td>
+</tr>
+<tr>
+<td><code>--cluster</code> (repetível)</td>
+<td>PK ou nome do cluster Proxmox, casado pelo endpoint dele</td>
+</tr>
+<tr>
+<td><code>--node</code> (repetível)</td>
+<td>PK ou nome do node Proxmox, casado pelo endpoint dele</td>
+</tr>
+<tr>
+<td><code>--vm</code> (repetível)</td>
+<td>PK da máquina virtual NetBox registrada nos parâmetros</td>
+</tr>
+<tr>
+<td><code>--run-id</code> (repetível)</td>
+<td>Identificador da execução Proxbox</td>
+</tr>
+<tr>
+<td><code>--batch-object-type</code></td>
+<td>Tipo de objeto em lote registrado nos parâmetros</td>
+</tr>
+<tr>
+<td><code>--id</code> (repetível)</td>
+<td>PK do job no core; também remove a janela padrão</td>
+</tr>
+<tr>
+<td><code>--user</code></td>
+<td><strong>Nome de usuário</strong> NetBox que enfileirou o job (não o PK); casado localmente</td>
+</tr>
+<tr>
+<td><code>--name</code>, <code>--name-contains</code></td>
+<td>Nome exato / substring sem diferenciar maiúsculas</td>
+</tr>
+<tr>
+<td><code>--queue</code>, <code>--rq-job-id</code></td>
+<td>Nome da fila RQ e UUID do job RQ</td>
+</tr>
+<tr>
+<td><code>--since</code>, <code>--until</code>, <code>--date-field</code></td>
+<td>Limites relativos (<code>24h</code>, <code>7d</code>, <code>2w</code>) ou ISO-8601</td>
+</tr>
+<tr>
+<td><code>--created-after/-before</code>, <code>--started-*</code>, <code>--completed-*</code>, <code>--scheduled-*</code></td>
+<td>Limites explícitos por campo</td>
+</tr>
+<tr>
+<td><code>--errored</code></td>
+<td>Jobs que falharam, mais jobs que terminaram registrando erro</td>
+</tr>
+<tr>
+<td><code>--recurring</code> / <code>--one-shot</code></td>
+<td>Jobs com, ou sem, intervalo de agendamento</td>
+</tr>
+</tbody>
+</table>
+<p><code>--endpoint</code>, <code>--cluster</code> e <code>--node</code> formam uma <strong>união</strong>: um job que tocou
+qualquer um dos escopos citados casa.</p>
+<p>Três semânticas de filtro merecem destaque, porque decidem se sincronizações
+completas aparecem em consultas com escopo:</p>
+<ul>
+<li><strong>Lista de endpoints vazia significa "todos os endpoints".</strong> É o que a API de
+  agendamento grava quando nenhum endpoint é informado, e essa execução de fato
+  sincronizou todos — portanto ela casa com qualquer
+  <code>--endpoint</code>/<code>--cluster</code>/<code>--node</code>, e a coluna de endpoint mostra <code>all</code>.</li>
+<li><strong>Um job com <code>sync_types: ["all"]</code> casa com qualquer <code>--type</code></strong>, pelo mesmo
+  motivo. Um job sem tipos registrados recebe o mesmo tratamento, já que o
+  padrão do próprio plugin é <code>all</code>.</li>
+<li><strong><code>--errored</code> é mais amplo que um status de falha.</strong> Uma execução pode
+  terminar <code>completed</code> registrando erro de estágio, e é exatamente essa linha
+  que o operador procura. Por isso <code>--errored</code> deliberadamente <em>não</em> restringe a
+  consulta do servidor aos status de falha — isso descartaria essas linhas antes
+  de examiná-las — ou seja, ele filtra sem reduzir a varredura.</li>
+<li><strong>Um escopo ilegível não casa com nada.</strong> Se a lista de endpoints ou de tipos
+  registrada em um job estiver malformada — inclusive um <code>null</code> presente, que o
+  plugin nunca grava — ela não é tratada como "tudo": uma consulta com escopo
+  pula a linha em vez de responder a partir de evidência que não conseguiu
+  interpretar. A saída JSON traz <code>endpoint_scope</code> / <code>sync_type_scope</code> /
+  <code>vm_scope</code>, tornando visível a diferença entre <em>ausente</em>, <em>vazio</em>, <em>válido</em> e
+  <em>inválido</em>.</li>
+<li><strong>Jobs legados de VM única são reconstruídos pelo nome.</strong> Linhas chamadas
+  <code>Proxbox Sync: Virtual machine &lt;id&gt;</code> são anteriores ao bloco de parâmetros,
+  então o escopo é recuperado do nome — do mesmo modo que o plugin faz — e
+  marcado com <code>params_inferred</code>. Sem isso, <code>--vm &lt;id&gt;</code> perderia justamente o job
+  que mirou aquela VM.</li>
+<li><strong><code>--user</code> é casado localmente, não enviado ao NetBox.</strong> A API de jobs do core
+  tipa esse filtro de formas diferentes entre as linhas suportadas (4.5 espera o
+  PK do usuário, 4.6+ o nome), então um nome enviado a uma instância 4.5 vira
+  erro de validação em vez de filtro. Ele restringe a saída, não a varredura.</li>
+</ul>
+<h3 id="saida">Saída<a class="headerlink" href="#saida" title="Permanent link">&para;</a></h3>
+<p>A tabela padrão mostra id, status, criação, nome, tipos de sync, endpoints e um
+erro truncado, com cada coluna dimensionada ao terminal para que as estreitas
+nunca sejam espremidas. <code>--wide</code> acrescenta tempos, usuário, fila, alvos
+de VM, run id e contagem de logs. <code>--fields id,status,run_id</code> escolhe colunas
+explicitamente, e <code>--json</code> emite o registro normalizado completo — todo campo de
+parâmetro, o tempo de execução, o resumo da resposta — dentro de um envelope que
+também carrega os fatos da varredura. <code>nbx proxbox jobs get --json</code> ainda
+devolve a linha original do job em <code>raw</code>. Os dois comandos JSON emitem JSON
+estrito: um número não finito em qualquer ponto do job, inclusive nessa linha
+original, sai como <code>null</code> em vez do literal não padronizado <code>Infinity</code>. O <code>get</code> aceita qualquer PK de job do
+core, então também mostra o job de outro plugin — e avisa no registro, em vez de
+apresentar parâmetros Proxbox ausentes como se estivessem vazios.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Jobs recentes (últimos 30 dias por padrão).</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Tudo que falhou na última semana, com o conjunto amplo de colunas.</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>--since<span class="w"> </span>7d<span class="w"> </span>--errored<span class="w"> </span>--wide
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Syncs de storage que tocaram um cluster, em JSON para automação.</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>--cluster<span class="w"> </span>PVE-CLUSTER-02<span class="w"> </span>--type<span class="w"> </span>storage<span class="w"> </span>--json
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Todo sync de um endpoint, sem limite de tempo (caro em instância grande).</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>--endpoint<span class="w"> </span>pve-prod<span class="w"> </span>--all-time<span class="w"> </span>--max-scan<span class="w"> </span><span class="m">20000</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Syncs em execução ou na fila.</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>-s<span class="w"> </span>running<span class="w"> </span>-s<span class="w"> </span>pending<span class="w"> </span>--all-time
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># Um job completo, apenas avisos.</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>get<span class="w"> </span><span class="m">24422</span><span class="w"> </span>--log-level<span class="w"> </span>warning
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>get<span class="w"> </span><span class="m">24422</span><span class="w"> </span>--json
+</span></code></pre></div>
+<p>Todos os comandos <code>nbx proxbox jobs</code> são <strong>somente leitura</strong> e não exigem
+<code>--confirm</code>.</p>
 <h2 id="familias-de-recursos">Famílias de Recursos<a class="headerlink" href="#familias-de-recursos" title="Permanent link">&para;</a></h2>
 <p>O catálogo agrupa endpoints do plugin por fluxo operacional:</p>
 <table>
@@ -3522,12 +3833,12 @@ cegas.</p>
 </tbody>
 </table>
 <h2 id="fluxo">Fluxo<a class="headerlink" href="#fluxo" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[comando nbx proxbox] --&gt; B[catálogo Proxbox]
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[caminho no SchemaIndex]
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[resolvedor dinâmico de requisição]
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    D --&gt; E[NetBoxApiClient]
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    E --&gt; F[API do plugin netbox-proxbox]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>flowchart LR
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    A[comando nbx proxbox] --&gt; B[catálogo Proxbox]
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    B --&gt; C[caminho no SchemaIndex]
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    C --&gt; D[resolvedor dinâmico de requisição]
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    D --&gt; E[NetBoxApiClient]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    E --&gt; F[API do plugin netbox-proxbox]
 </span></code></pre></div>
 <h2 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h2>
 <p><code>nbx proxbox tui</code> lança a mesma bancada de requisições usada por <code>nbx dev tui</code>,

@@ -1409,6 +1409,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sync-jobs-nbx-proxbox-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sync Jobs (nbx proxbox jobs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sync Jobs (nbx proxbox jobs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-listing-works-and-why-it-is-bounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the listing works, and why it is bounded
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#resource-families" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3275,6 +3325,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sync-jobs-nbx-proxbox-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sync Jobs (nbx proxbox jobs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sync Jobs (nbx proxbox jobs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-the-listing-works-and-why-it-is-bounded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the listing works, and why it is bounded
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#resource-families" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3428,6 +3528,14 @@ paths such as <code>/api/plugins/proxbox/firewall/rules/{id}/</code>.</p>
 <td>Schedule a guided sync job and stream SSE progress</td>
 </tr>
 <tr>
+<td><code>nbx proxbox jobs list</code></td>
+<td>List past and running sync jobs with rich filtering</td>
+</tr>
+<tr>
+<td><code>nbx proxbox jobs get JOB_ID</code></td>
+<td>Show one sync job in full, including parameters and logs</td>
+</tr>
+<tr>
 <td><code>nbx proxbox tui</code></td>
 <td>Open the Proxbox-only request workbench</td>
 </tr>
@@ -3477,6 +3585,206 @@ non-terminal job is reported from its authoritative status without implying
 the scheduled work never happened. If the authoritative fetch itself fails,
 JSON error output preserves the known <code>job_id</code>; automation must inspect that
 existing job before considering another sync rather than blindly rescheduling.</p>
+<h2 id="sync-jobs-nbx-proxbox-jobs">Sync Jobs (<code>nbx proxbox jobs</code>)<a class="headerlink" href="#sync-jobs-nbx-proxbox-jobs" title="Permanent link">&para;</a></h2>
+<p><code>nbx proxbox sync</code> <em>starts</em> a sync and streams one job. <code>nbx proxbox jobs</code>
+answers the other half: which syncs ran, against which endpoints, with what
+result, and what they reported.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nbx proxbox jobs list</code></td>
+<td>List Proxbox sync jobs with filters, bounded and reported</td>
+</tr>
+<tr>
+<td><code>nbx proxbox jobs get JOB_ID</code></td>
+<td>Show one job in full: core fields, parameters, response, log entries</td>
+</tr>
+<tr>
+<td><code>nbx proxbox jobs statuses</code></td>
+<td>Print the accepted <code>--status</code> values</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-the-listing-works-and-why-it-is-bounded">How the listing works, and why it is bounded<a class="headerlink" href="#how-the-listing-works-and-why-it-is-bounded" title="Permanent link">&para;</a></h3>
+<p>netbox-proxbox has no job model of its own. A Proxbox sync is a <strong>core NetBox
+<code>core.Job</code> row</strong> whose <code>data</code> carries a <code>proxbox_sync</code> block. <code>GET /api/core/jobs/</code>
+serialises every field an operator needs and filters server-side on status,
+name, queue, user, object type/id, id and the four timestamps — but it <strong>cannot
+filter on <code>data</code></strong>, which is the only reliable way to tell a Proxbox sync from
+any other plugin's job (a run scheduled with a custom job name carries no
+recognisable name at all).</p>
+<p>So <code>list</code> pushes down every filter NetBox understands, then applies the Proxbox
+predicate and the parameter filters locally over the rows that come back. Two
+consequences are deliberate and visible:</p>
+<ul>
+<li><strong>A default time window of the last 30 days</strong> bounds the scan. Widen it with
+  <code>--since 90d</code>, target a different timestamp with <code>--date-field</code>, or remove it
+  with <code>--all-time</code>. Naming explicit job PKs with <code>--id</code> also removes it.</li>
+<li><strong>Every result states its own completeness</strong> — every time bound in effect
+  (not just one of them), how many core job rows were scanned, how many matched,
+  and, in bold, whether the scan stopped early at <code>--limit</code> or <code>--max-scan</code>, or
+  because the job list shifted underneath it. Drift is caught three ways: a
+  repeated page, a core job delivered twice, and — for a scan that believes it
+  reached the end — fewer rows seen than NetBox advertised, which is what a
+  deletion mid-scan looks like when nothing repeats. <code>--limit</code> reports truncation only
+  when a further match actually exists, so exactly-<code>N</code> matches read as complete.
+  A truncated listing never looks complete.</li>
+</ul>
+<p><code>--since</code>/<code>--until</code> and the explicit <code>--&lt;field&gt;-after</code>/<code>--&lt;field&gt;-before</code> bounds
+are two answers to the same question when they name the same timestamp, so
+combining them on one field is refused rather than silently resolved.
+<code>--date-field</code> selects which timestamp the window applies to, including the
+default 30-day look-back when no bound is given at all.</p>
+<p>Because the whole job list is scanned, <code>--all-time</code> on a large instance is
+expensive: core job rows carry their full <code>log_entries</code>, so a page of 100 rows
+is several hundred kilobytes. Prefer a window or a server-side filter.</p>
+<h3 id="filters">Filters<a class="headerlink" href="#filters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--status/-s</code> (repeatable)</td>
+<td>Core job status; pushed down as a multi-value server filter</td>
+</tr>
+<tr>
+<td><code>--type/-t</code> (repeatable)</td>
+<td>Proxbox sync-type slug</td>
+</tr>
+<tr>
+<td><code>--endpoint/-e</code> (repeatable)</td>
+<td>Proxmox endpoint PK or exact name</td>
+</tr>
+<tr>
+<td><code>--cluster</code> (repeatable)</td>
+<td>Proxmox cluster PK or name, matched through its endpoint</td>
+</tr>
+<tr>
+<td><code>--node</code> (repeatable)</td>
+<td>Proxmox node PK or name, matched through its endpoint</td>
+</tr>
+<tr>
+<td><code>--vm</code> (repeatable)</td>
+<td>NetBox virtual machine PK recorded in the run parameters</td>
+</tr>
+<tr>
+<td><code>--run-id</code> (repeatable)</td>
+<td>Proxbox run identifier</td>
+</tr>
+<tr>
+<td><code>--batch-object-type</code></td>
+<td>Batch object type recorded in the run parameters</td>
+</tr>
+<tr>
+<td><code>--id</code> (repeatable)</td>
+<td>Core job PK; also removes the default window</td>
+</tr>
+<tr>
+<td><code>--user</code></td>
+<td>NetBox <strong>username</strong> that enqueued the job (not a PK); matched locally</td>
+</tr>
+<tr>
+<td><code>--name</code>, <code>--name-contains</code></td>
+<td>Exact / case-insensitive substring job name</td>
+</tr>
+<tr>
+<td><code>--queue</code>, <code>--rq-job-id</code></td>
+<td>RQ queue name and RQ job UUID</td>
+</tr>
+<tr>
+<td><code>--since</code>, <code>--until</code>, <code>--date-field</code></td>
+<td>Relative (<code>24h</code>, <code>7d</code>, <code>2w</code>) or ISO-8601 bounds</td>
+</tr>
+<tr>
+<td><code>--created-after/-before</code>, <code>--started-*</code>, <code>--completed-*</code>, <code>--scheduled-*</code></td>
+<td>Explicit per-field bounds</td>
+</tr>
+<tr>
+<td><code>--errored</code></td>
+<td>Failed jobs, plus jobs that finished but recorded an error</td>
+</tr>
+<tr>
+<td><code>--recurring</code> / <code>--one-shot</code></td>
+<td>Jobs with, or without, a schedule interval</td>
+</tr>
+</tbody>
+</table>
+<p><code>--endpoint</code>, <code>--cluster</code>, and <code>--node</code> are a <strong>union</strong>: a job that touched any
+of the named scopes matches.</p>
+<p>Three filter semantics are worth stating explicitly, because they decide whether
+full syncs show up in scoped queries:</p>
+<ul>
+<li><strong>An empty endpoint list means "all endpoints".</strong> That is what the schedule
+  API stores when no endpoint is named, and such a run really did sync every
+  endpoint — so it matches any <code>--endpoint</code>/<code>--cluster</code>/<code>--node</code>, and the
+  endpoint column renders <code>all</code>.</li>
+<li><strong>A job recorded as <code>sync_types: ["all"]</code> matches every <code>--type</code></strong>, for the
+  same reason. A job with no recorded types is treated the same way, since the
+  plugin's own default is <code>all</code>.</li>
+<li><strong><code>--errored</code> is broader than a failure status.</strong> A run can finish <code>completed</code>
+  while recording a stage error, and that is exactly the row an operator is
+  looking for. So <code>--errored</code> deliberately does <em>not</em> narrow the server query to
+  the failure statuses — it would discard those rows before they could be
+  examined — which means it filters without shrinking the scan.</li>
+<li><strong>A scope that cannot be read matches nothing.</strong> If a job's recorded endpoint
+  or sync-type list is malformed — including a present <code>null</code>, which the plugin
+  never writes — it is not treated as "everything": a scoped query skips it
+  rather than answering from evidence it could not parse. The JSON output
+  carries <code>endpoint_scope</code> / <code>sync_type_scope</code> / <code>vm_scope</code> so the distinction
+  between <em>absent</em>, <em>empty</em>, <em>valid</em>, and <em>invalid</em> is visible.</li>
+<li><strong>Legacy single-VM jobs are reconstructed from their name.</strong> Rows named
+  <code>Proxbox Sync: Virtual machine &lt;id&gt;</code> predate the parameters block, so their
+  scope is recovered from the name — the same way the plugin does it — and
+  flagged with <code>params_inferred</code>. Without that, <code>--vm &lt;id&gt;</code> would miss the very
+  job that targeted that VM.</li>
+<li><strong><code>--user</code> is matched locally, not pushed to NetBox.</strong> The core job API types
+  that filter differently across supported release lines (4.5 expects a user PK,
+  4.6+ a username), so a username sent to a 4.5 instance is a validation error
+  rather than a filter. It therefore narrows the output but not the scan.</li>
+</ul>
+<h3 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h3>
+<p>The default table shows id, status, created, name, sync types, endpoints, and
+a truncated error, each column sized to the terminal so the narrow ones are
+never squeezed away. <code>--wide</code> adds timings, user, queue, VM
+targets, run id, and log counts. <code>--fields id,status,run_id</code> selects columns
+explicitly, and <code>--json</code> emits the complete normalized record — every parameter
+field, the runtime, the response summary — inside an envelope that also carries
+the scan facts. <code>nbx proxbox jobs get --json</code> additionally returns the untouched
+core job row under <code>raw</code>. Both JSON commands emit strict JSON: a non-finite
+number anywhere in the job, including that raw row, comes out as <code>null</code> rather
+than the non-standard literal <code>Infinity</code>. <code>get</code> takes any core job PK, so it will happily show
+another plugin's job — it says so on the record rather than presenting absent
+Proxbox parameters as empty ones.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Recent sync jobs (last 30 days by default).</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Everything that failed in the last week, widest column set.</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>--since<span class="w"> </span>7d<span class="w"> </span>--errored<span class="w"> </span>--wide
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Storage syncs that touched one cluster, as JSON for automation.</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>--cluster<span class="w"> </span>PVE-CLUSTER-02<span class="w"> </span>--type<span class="w"> </span>storage<span class="w"> </span>--json
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Every sync for one endpoint, no time bound (expensive on a large instance).</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>--endpoint<span class="w"> </span>pve-prod<span class="w"> </span>--all-time<span class="w"> </span>--max-scan<span class="w"> </span><span class="m">20000</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Currently running or queued syncs.</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w"> </span>-s<span class="w"> </span>running<span class="w"> </span>-s<span class="w"> </span>pending<span class="w"> </span>--all-time
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># One job in full, warnings only.</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>get<span class="w"> </span><span class="m">24422</span><span class="w"> </span>--log-level<span class="w"> </span>warning
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>nbx<span class="w"> </span>proxbox<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>get<span class="w"> </span><span class="m">24422</span><span class="w"> </span>--json
+</span></code></pre></div>
+<p>Every <code>nbx proxbox jobs</code> command is <strong>read-only</strong> and needs no <code>--confirm</code>.</p>
 <h2 id="resource-families">Resource Families<a class="headerlink" href="#resource-families" title="Permanent link">&para;</a></h2>
 <p>The catalog groups plugin endpoints by operator workflow:</p>
 <table>
@@ -3522,12 +3830,12 @@ existing job before considering another sync rather than blindly rescheduling.</
 </tbody>
 </table>
 <h2 id="flow">Flow<a class="headerlink" href="#flow" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[nbx proxbox command] --&gt; B[Proxbox catalog]
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[SchemaIndex resource path]
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[Dynamic request resolver]
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    D --&gt; E[NetBoxApiClient]
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    E --&gt; F[netbox-proxbox plugin API]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>flowchart LR
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    A[nbx proxbox command] --&gt; B[Proxbox catalog]
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    B --&gt; C[SchemaIndex resource path]
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    C --&gt; D[Dynamic request resolver]
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    D --&gt; E[NetBoxApiClient]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    E --&gt; F[netbox-proxbox plugin API]
 </span></code></pre></div>
 <h2 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h2>
 <p><code>nbx proxbox tui</code> launches the same request workbench used by <code>nbx dev tui</code>,
