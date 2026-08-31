@@ -289,6 +289,7 @@ jobs:
           SOURCE_SHA: ${{ needs.build-candidate.outputs.source_sha }}
         run: |
           set -euo pipefail
+          cd "$SOURCE_ROOT"
           "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release validate-tag \
             --event-name "$RELEASE_EVENT" \
             --tag "$RELEASE_TAG"
@@ -296,7 +297,6 @@ jobs:
             "+refs/heads/main:refs/remotes/gitea/release-main" \
             "+refs/tags/${RELEASE_TAG}:refs/release-policy/candidate" \
             "+refs/tags/v0.0.10:refs/release-policy/gitea-v0.0.10"
-          cd "$SOURCE_ROOT"
           "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release policy \
             --event-name "$RELEASE_EVENT" \
             --tag "$RELEASE_TAG" \

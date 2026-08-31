@@ -1585,10 +1585,24 @@ def _assert_workflow_policy(text: str) -> None:
         assert 'cd "$TOOL_ROOT"' in step["run"]
         assert step["run"].index('cd "$TOOL_ROOT"') < step["run"].index("-m scripts.gitea_release")
 
+    verify_script_steps = [
+        step
+        for step in jobs["verify-and-seal"]["steps"]
+        if "run" in step and "-m scripts.gitea_release" in step["run"]
+    ]
+    assert verify_script_steps
+    for step in verify_script_steps:
+        assert 'cd "$SOURCE_ROOT"' in step["run"], step.get("name")
+        assert step["run"].index('cd "$SOURCE_ROOT"') < step["run"].index(
+            "-m scripts.gitea_release"
+        ), step.get("name")
+
     for guide in ("CLAUDE.md", "AGENTS.md"):
         guide_text = Path(guide).read_text(encoding="utf-8")
         assert "separate disposable, credential-free job" in guide_text
         assert "A third disposable job" in guide_text
+        assert 'cd "$SOURCE_ROOT"' in guide_text
+        assert "canonical-main squash SHA" in guide_text
         assert "built-in token remains\npackage-read-only" in guide_text
         assert "`PACKAGE_WRITE_TOKEN` secret" in guide_text
         assert "credential-free `mirror-host`" not in guide_text
@@ -1643,6 +1657,14 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
             'test -n "$VERIFIED_SOURCE_SHA"',
         ),
         ('cd "$TOOL_ROOT"', 'cd "$PUBLISH_ROOT"'),
+        (
+            '          set -euo pipefail\n          cd "$SOURCE_ROOT"\n          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release validate-tag',
+            '          set -euo pipefail\n          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release validate-tag',
+        ),
+        (
+            '          set -euo pipefail\n          cd "$SOURCE_ROOT"\n          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release seal-transfer',
+            '          set -euo pipefail\n          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release seal-transfer',
+        ),
         (
             "SOURCE_SHA: ${{ github.sha }}",
             "SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}",
@@ -1825,11 +1847,11 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.12rc1")
-    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.12rc1")
+    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.12rc2")
+    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.12rc2")
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert "git push gitea v0.0.12rc1" in readme
+    assert "git push gitea v0.0.12rc2" in readme
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {
