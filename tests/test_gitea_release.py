@@ -12,6 +12,7 @@ import stat
 import subprocess
 import sys
 import tarfile
+import tomllib
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
@@ -1311,12 +1312,17 @@ def test_gitea_tag_policy_and_validated_action_output(
     # expectation depends on which kind of version the repository currently
     # carries. Asserting only the candidate case would make this test fail every
     # time a final release is cut, for a reason that is not a defect.
-    if is_public_pypi_version(VERSION):
+    project_version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"][
+        "version"
+    ]
+    if is_public_pypi_version(project_version):
         with pytest.raises(RuntimeError, match="only public RC versions"):
-            _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{VERSION}"))
+            _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{project_version}"))
     else:
-        assert _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{VERSION}")) == 0
-        assert output.read_text() == f"tag=v{VERSION}\n"
+        assert (
+            _main_validate_tag(SimpleNamespace(event_name="push", tag=f"v{project_version}")) == 0
+        )
+        assert output.read_text() == f"tag=v{project_version}\n"
 
 
 def _tag_protection_evidence() -> list[dict[str, object]]:
@@ -1819,11 +1825,11 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.11")
-    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.11")
+    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.12rc1")
+    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.12rc1")
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert "git push gitea v0.0.11" in readme
+    assert "git push gitea v0.0.12rc1" in readme
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {

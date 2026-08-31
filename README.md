@@ -425,8 +425,8 @@ nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
 python -m scripts.gitea_release validate-tag-protection \
   --policy-file .gitea/release-tag-policy.json \
   --evidence-file /tmp/netbox-sdk-tag-protections.json
-git tag -a v0.0.11 -m "Release v0.0.11"
-git push gitea v0.0.11
+git tag -a v0.0.12rc1 -m "Release v0.0.12rc1"
+git push gitea v0.0.12rc1
 ```
 
 The evidence command and validator are a mandatory preflight before creating
