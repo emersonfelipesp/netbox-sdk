@@ -99,6 +99,7 @@ dev = [
   "opentelemetry-sdk",
   "opentelemetry-exporter-otlp-proto-http",
   "mcp>=1.23.0,<2",
+  "datamodel-code-generator==0.55.0",
 ]
 docs = [
   "mkdocs-material>=9.7.6",
@@ -126,6 +127,7 @@ dev = [
   "opentelemetry-sdk",
   "opentelemetry-exporter-otlp-proto-http",
   "mcp>=1.23.0,<2",
+  "datamodel-code-generator==0.55.0",
 ]
 docs = [
   "mkdocs-material>=9.7.6",

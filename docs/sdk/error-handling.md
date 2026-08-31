@@ -33,6 +33,32 @@ except RequestError as exc:
 The facade layer raises `RequestError` for failed endpoint operations such as
 `await nb.dcim.devices.get(1)` when the response is not a handled success case.
 
+### Bulk create and update failures (NetBox 4.7)
+
+NetBox 4.7 returns a structured body when a bulk create or update fails:
+
+```json
+{"detail": "1 of 2 objects could not be created.", "errors": [{"index": 1, "errors": {"name": ["This field is required."]}}]}
+```
+
+`RequestError` parses that shape so callers can correct the failing objects
+instead of treating the body as opaque text. An entry is kept only when it
+has exactly one locator — `index` or `id`, a real non-negative integer, never
+both. Malformed rows are dropped. Other error envelopes keep the historical
+message string and leave `entry_errors` empty.
+
+```python
+from netbox_sdk import RequestError
+
+try:
+    await nb.dcim.devices.create([{"name": "ok"}, {"name": ""}])
+except RequestError as exc:
+    if exc.entry_errors:
+        print(exc.detail)
+        for entry in exc.entry_errors:
+            print(entry.index, entry.id, entry.errors)
+```
+
 ---
 
 ## Facade-specific exceptions

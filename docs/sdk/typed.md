@@ -33,7 +33,7 @@ Patch versions normalize to their release line, so `4.4.10` selects the `4.4`
 typed client.
 
 Continuous integration exercises the live-NetBox suite against
-`v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+`v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 
 ## Example
 
@@ -106,10 +106,12 @@ body shape, because a queued batch returns a job for either a single object or a
 list. Without the flag, nothing changes.
 
 > **This is an overlay, pending upstream schema support.** The pinned 4.7
-> artifact (`v4.7.0-beta1`) does not describe the parameter, so the generator
-> declares it while keeping the committed bundle byte-faithful to upstream. A
-> guard test fails once a refreshed 4.7 schema describes `background` itself, so
-> the overlay cannot outlive its reason to exist.
+> artifact (`v4.7.0-beta2`) does not describe the parameter, so the generator
+> declares it on bulk JSON-array writes while keeping the committed bundle
+> byte-faithful to upstream. Singular collection paths such as the extras
+> dashboard are not overlaid. A guard test fails once a refreshed 4.7 schema
+> describes `background` itself, so the overlay cannot outlive its reason to
+> exist.
 
 ## Generated artifacts
 

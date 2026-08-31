@@ -10,8 +10,8 @@ typed client, and imports the generated models module. A line that is registered
 but whose artifacts are corrupt, truncated, or un-importable fails here rather
 than at a user's first call.
 
-It also holds the CI-coverage contract, so the decision "4.7 has no live-instance
-job" is asserted and self-retiring instead of living only in a closed issue.
+It also holds the CI-coverage contract, so a line without a live-instance job
+must carry a documented, self-retiring exception in ``LINES_WITHOUT_LIVE_CI``.
 """
 
 from __future__ import annotations
@@ -64,13 +64,6 @@ class LiveCiExemption(NamedTuple):
 # Either way, a line that gains a live job fails its own exemption below, so no
 # entry can outlive its reason unnoticed.
 LINES_WITHOUT_LIVE_CI: dict[str, LiveCiExemption] = {
-    "4.7": LiveCiExemption(
-        cause="no-upstream-image",
-        reason=(
-            "ghcr.io/netbox-community/netbox publishes no tag for v4.7.0-beta1 "
-            "(verified against the GHCR tag list). Re-check at 4.7 GA."
-        ),
-    ),
     "4.3": LiveCiExemption(
         cause="ci-cost",
         reason=(
@@ -277,9 +270,9 @@ def test_ci_runs_the_version_sensitive_suite_for_every_registered_line() -> None
 def test_live_netbox_matrix_covers_every_line_without_a_documented_exception() -> None:
     """Every registered line is either live-tested or explicitly excepted.
 
-    This is what makes the "4.7 has no live job" decision self-retiring: when
-    upstream publishes an image and the matrix gains a 4.7 entry, the stale
-    exception below fails this test and must be removed.
+    This is what makes a missing live job self-retiring: when the matrix gains
+    an entry for a previously excepted line, the stale exception below fails
+    this test and must be removed.
     """
     live_lines = {
         ".".join(str(version).lstrip("v").split(".")[:2])

@@ -12,8 +12,10 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
+import click
 import pytest
 from conftest import cli_json, strip_terminal_control
+from typer.main import get_command
 from typer.testing import CliRunner
 
 from netbox_cli import app as nbx_app
@@ -526,15 +528,19 @@ def test_object_type_and_object_id_filters_reach_the_server(transport: _FakeTran
 
 
 def test_every_documented_filter_flag_is_wired(transport: _FakeTransport) -> None:
-    """Guard against a flag existing in --help but never reaching a filter.
+    """Guard against a documented flag never being registered on the command.
 
-    Each of these is asserted through its observable effect: a server query key,
-    or a request to the resolution endpoint it depends on.
+    Rich help ellipsizes long option names (``--batch-object-type`` becomes
+    ``--batch-object-ty…``) even when ``COLUMNS`` is wide, so this inspects the
+    Click parameter table rather than the rendered help panel.
     """
-    # Rich wraps long option names at the ambient terminal width, so a narrow
-    # console would split "--batch-object-type" and fail this for the wrong reason.
-    wide = runner.invoke(nbx_app, ["proxbox", "jobs", "list", "--help"], env={"COLUMNS": "200"})
-    help_text = strip_terminal_control(wide.output)
+    del transport
+    jobs_click = get_command(jobs_mod.jobs_app)
+    list_cmd = jobs_click.get_command(click.Context(jobs_click), "list")
+    assert list_cmd is not None
+    option_names = {
+        name for param in list_cmd.params for name in (*param.opts, *param.secondary_opts)
+    }
     for flag in (
         "--status",
         "--type",
@@ -568,7 +574,7 @@ def test_every_documented_filter_flag_is_wired(transport: _FakeTransport) -> Non
         "--wide",
         "--json",
     ):
-        assert flag in help_text, f"{flag} is missing from the command surface"
+        assert flag in option_names, f"{flag} is missing from the command surface"
 
 
 def test_list_json_rows_include_the_response_summary(transport: _FakeTransport) -> None:

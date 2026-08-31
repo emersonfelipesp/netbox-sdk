@@ -32,7 +32,7 @@ Linhas de release suportadas:
 Versões de patch normalizam para sua linha de release, então `4.4.10` seleciona o
 cliente tipado `4.4`.
 
-A integração contínua exercita a suíte live-NetBox contra `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
+A integração contínua exercita a suíte live-NetBox contra `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ## Exemplo
 
@@ -107,10 +107,12 @@ formato do corpo, porque um lote enfileirado retorna um job tanto para um objeto
 único quanto para uma lista. Sem a flag, nada muda.
 
 > **Isto é um overlay, enquanto o schema upstream não descreve o recurso.** O
-> artefato 4.7 fixado (`v4.7.0-beta1`) não descreve o parâmetro, então o gerador
-> o declara mantendo o bundle versionado fiel byte a byte ao upstream. Um teste
-> de guarda falha assim que um schema 4.7 atualizado descrever `background`, de
-> modo que o overlay não sobreviva ao seu motivo de existir.
+> artefato 4.7 fixado (`v4.7.0-beta2`) não descreve o parâmetro, então o gerador
+> o declara em escritas bulk com corpo JSON em array, mantendo o bundle
+> versionado fiel byte a byte ao upstream. Caminhos de coleção singulares, como
+> o dashboard de extras, não recebem o overlay. Um teste de guarda falha assim
+> que um schema 4.7 atualizado descrever `background`, de modo que o overlay
+> não sobreviva ao seu motivo de existir.
 
 ## Artefatos gerados
 

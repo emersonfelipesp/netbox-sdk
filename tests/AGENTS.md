@@ -117,7 +117,7 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_ssl_verify_cli.py` | TLS verification prompts and `nbx test` probe retry (`_prompt_ssl_verify_if_unset`, `_retry_probe_after_ssl_prompt`) |
 | `test_theme_registry.py` | Theme JSON loading, `#RRGGBB` format enforcement, required variable keys, alias conflicts |
 | `test_typed_sdk.py` | Versioned typed SDK bundles, request/response validation, and version selection |
-| `test_typed_generation.py` | OpenAPI typed-binding generation, query-model identity, and multipart selection |
+| `test_typed_generation.py` | OpenAPI typed-binding generation, query-model identity, multipart selection, and hermetic model regeneration via the locked `datamodel-codegen` extra |
 | `test_live_netbox.py` | Read-only core API/runtime OpenAPI checks plus a `NETBOX_LIVE_TEST=1`-gated disposable NetBox 4.6.6 any-tag fixture roundtrip against ephemeral CI instances |
 | `test_tui_interaction.py` | Main TUI Pilot integration tests: navigation, `ContextBreadcrumb`, filtering, detail panel, cable trace, `SupportModal`, theme tokens for `Input`/`OptionList`/`DataTable`/`Footer`/toast internals |
 | `test_tui_screenshots.py` | Screenshot harness registration and deterministic GraphQL screenshot setup for docs generation |
@@ -130,8 +130,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 - Branch and pull request CI routes to the affected package suites based on changed files.
 - Shared files such as `pyproject.toml`, `uv.lock`, `tests/conftest.py`, and test workflow definitions trigger the full suite instead of package-selective runs.
 - Direct pushes to `main` always run the full `uv run pytest` matrix.
-- SDK-affecting branch/PR changes and every direct push to `main` run live NetBox SDK integration tests against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
-- The same trigger runs the **bundled release-line matrix** (`test-bundled-release-lines`): one job per registered line — including `4.7`, which has no live job — pinning `NETBOX_SDK_NETBOX_VERSION`/`NETBOX_MOCK_VERSION` and running the version-sensitive suites plus a CLI-vs-MCP resolution parity check. Keep the workflow matrix in sync with `SUPPORTED_NETBOX_VERSIONS`; `test_release_line_coverage.py` fails if it drifts.
+- SDK-affecting branch/PR changes and every direct push to `main` run live NetBox SDK integration tests against `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`. Each live job passes `NETBOX_EXPECTED_VERSION` from the matrix tag (leading `v` stripped) and fails before the suite if `/api/status/` reports a different exact version. `v4.7.0-beta2` is digest-pinned and fails closed if that digest cannot be pulled.
+- The same trigger runs the **bundled release-line matrix** (`test-bundled-release-lines`): one job per registered line pinning `NETBOX_SDK_NETBOX_VERSION`/`NETBOX_MOCK_VERSION` and running the version-sensitive suites plus a CLI-vs-MCP resolution parity check. Keep the workflow matrix in sync with `SUPPORTED_NETBOX_VERSIONS`; `test_release_line_coverage.py` fails if it drifts.
 - Security CI path-routes `test_security_sdk.py`, `test_security_cli.py`, and `test_security_tui.py`.
 - Release validation always runs the full `uv run pytest` matrix before publish.
 - Private-registry changes must run `tests/test_gitea_release.py`; archive-envelope, metadata-header, workflow-layout, token-boundary, and external tag-policy checks are fail-closed and must never be skipped when they cannot evaluate.

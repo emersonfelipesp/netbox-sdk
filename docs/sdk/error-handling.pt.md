@@ -33,6 +33,27 @@ except RequestError as exc:
 A camada de fachada levanta `RequestError` para operações de endpoint falhas como
 `await nb.dcim.devices.get(1)` quando a resposta não é um caso de sucesso tratado.
 
+### Falhas de criação e atualização em lote (NetBox 4.7)
+
+O NetBox 4.7 devolve um corpo estruturado quando uma criação ou atualização em
+lote falha. `RequestError` interpreta esse formato em `.detail` e `.entry_errors`
+para que o chamador corrija só os objetos que falharam. Uma entrada só é
+mantida quando tem exatamente um localizador — `index` ou `id`, inteiro
+não negativo, nunca ambos. Linhas malformadas são descartadas. Outros
+envelopes de erro mantêm a mensagem histórica e deixam `entry_errors` vazio.
+
+```python
+from netbox_sdk import RequestError
+
+try:
+    await nb.dcim.devices.create([{"name": "ok"}, {"name": ""}])
+except RequestError as exc:
+    if exc.entry_errors:
+        print(exc.detail)
+        for entry in exc.entry_errors:
+            print(entry.index, entry.id, entry.errors)
+```
+
 ---
 
 ## Exceções específicas da fachada

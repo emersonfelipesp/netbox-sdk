@@ -28,7 +28,7 @@ class ReleaseLine(BaseModel):
 
 
 _RELEASE_LINE_REGISTRY: dict[SupportedNetBoxVersion, ReleaseLine] = {
-    # 4.7 is bundled from a pre-release upstream artifact (v4.7.0-beta1), so it
+    # 4.7 is bundled from a pre-release upstream artifact (v4.7.0-beta2), so it
     # is registered as "preview": selectable by explicit pin or live detection,
     # but never the default. ``latest_stable_line()`` skips it, which is why
     # DEFAULT_NETBOX_VERSION stays 4.6.

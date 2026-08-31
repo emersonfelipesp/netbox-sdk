@@ -24,6 +24,9 @@ __all__ = [
     "NetBoxApiClient",
     "ApiResponse",
     "RequestError",
+    "BulkOperationEntryError",
+    "custom_field_write_value",
+    "custom_fields_for_write",
     "ConnectionProbe",
     "api",
     "async_api",
@@ -150,8 +153,10 @@ from netbox_sdk.config import (
     save_config,
     save_profile_config,
 )
+from netbox_sdk.custom_fields import custom_field_write_value, custom_fields_for_write
 from netbox_sdk.exceptions import (
     AllocationError,
+    BulkOperationEntryError,
     ContentError,
     JsonPayloadError,
     PaginationError,

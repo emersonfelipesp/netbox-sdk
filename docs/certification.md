@@ -22,7 +22,7 @@ tests, documentation, supportability, and maintainability.
 | Package metadata | `pyproject.toml` declares project URLs, Python range, SPDX license, license files, entry points, optional extras, and package data |
 | Python support | Python 3.11, 3.12, and 3.13 |
 | NetBox compatibility | Typed SDK release lines for NetBox `4.6`, `4.5`, `4.4`, and `4.3`, plus `4.7` (preview, opt-in) |
-| Live NetBox validation | CI runs live SDK tests against NetBox `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`; every bundled line including `4.7` also runs a schema-pinned bundled release-line job |
+| Live NetBox validation | CI runs live SDK tests against NetBox `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`; every bundled line including `4.7` also runs a schema-pinned bundled release-line job |
 | Offline validation | Mock NetBox API, typed-client tests, schema tests, SDK/CLI/TUI suites, and security tests |
 | Package validation | Build, `twine check`, and wheel install/import smoke tests in CI |
 | Documentation | README plus MkDocs site covering install, auth, requests, typed SDK, schema, errors, branching, mock API, CLI, and TUI |

@@ -544,25 +544,6 @@ class BriefManufacturerRequest(BriefCircuitTypeRequest):
     pass
 
 
-class BriefModuleBayType(BaseModel):
-    id: int
-    url: AnyUrl
-    display: str
-    name: constr(max_length=100)
-    slug: constr(pattern=r"^[-a-zA-Z0-9_]+$", max_length=100)
-    manufacturer: BriefManufacturer | None = None
-    color: constr(pattern=r"^[0-9a-f]{6}$", max_length=6) | constr(max_length=0) | None = None
-    description: constr(max_length=200) | None = None
-
-
-class BriefModuleBayTypeRequest(BaseModel):
-    name: constr(min_length=1, max_length=100)
-    slug: constr(pattern=r"^[-a-zA-Z0-9_]+$", min_length=1, max_length=100)
-    manufacturer: int | BriefManufacturerRequest | None = None
-    color: constr(pattern=r"^[0-9a-f]{6}$", max_length=6) | constr(max_length=0) | None = None
-    description: constr(max_length=200) | None = None
-
-
 class BriefModuleTypeProfile(BriefCableBundle):
     pass
 
@@ -2118,6 +2099,14 @@ class UiEditable(BaseModel):
     label: Literal["Yes", "No", "Hidden"] | None = None
 
 
+class Status6(BaseModel):
+    value: Literal["active", "provisioning", "deleting"] | None = Field(
+        None,
+        description="* `active` - Active\n* `provisioning` - Provisioning\n* `deleting` - Deleting",
+    )
+    label: Literal["Active", "Provisioning", "Deleting"] | None = None
+
+
 class CustomField(BaseModel):
     id: int
     url: AnyUrl
@@ -2192,6 +2181,7 @@ class CustomField(BaseModel):
         description="A JSON schema definition for validating the custom field value",
     )
     choice_set: BriefCustomFieldChoiceSet | None = None
+    status: Status6
     owner: BriefOwner | None = None
     comments: str | None = None
     created: AwareDatetime
@@ -2498,7 +2488,7 @@ class URL2(RootModel[constr(max_length=200)]):
     root: constr(max_length=200) = Field(..., title="URL")
 
 
-class Status6(BaseModel):
+class Status7(BaseModel):
     value: Literal["new", "queued", "syncing", "completed", "failed"] | None = Field(
         None,
         description="* `new` - New\n* `queued` - Queued\n* `syncing` - Syncing\n* `completed` - Completed\n* `failed` - Failed",
@@ -2515,7 +2505,7 @@ class DataSource(BaseModel):
     type: Type11
     source_url: URL2 = Field(..., title="URL")
     enabled: bool | None = None
-    status: Status6
+    status: Status7
     description: constr(max_length=200) | None = None
     sync_interval: Literal[1, 60, 720, 1440, 10080, 43200] | None = Field(
         None,
@@ -2577,7 +2567,7 @@ class Face(BaseModel):
     label: Literal["Front", "Rear"] | None = None
 
 
-class Status7(BaseModel):
+class Status8(BaseModel):
     value: (
         Literal[
             "offline",
@@ -3069,7 +3059,7 @@ class Group1(BaseModel):
     ) = None
 
 
-class Status8(BaseModel):
+class Status9(BaseModel):
     value: Literal["active", "reserved", "deprecated", "dhcp", "slaac"] | None = Field(
         None,
         description="* `active` - Active\n* `reserved` - Reserved\n* `deprecated` - Deprecated\n* `dhcp` - DHCP\n* `slaac` - SLAAC",
@@ -3100,7 +3090,7 @@ class Role(BaseModel):
     ) = None
 
 
-class Status9(BaseModel):
+class Status10(BaseModel):
     value: Literal["active", "reserved", "deprecated"] | None = Field(
         None,
         description="* `active` - Active\n* `reserved` - Reserved\n* `deprecated` - Deprecated",
@@ -3268,6 +3258,7 @@ class Type14(BaseModel):
             "100gbase-x-dsfp",
             "100gbase-x-qsfp28",
             "100gbase-x-qsfpdd",
+            "100gbase-x-sfp112",
             "100gbase-x-sfpdd",
             "200gbase-x-cfp2",
             "200gbase-x-qsfp56",
@@ -3339,6 +3330,15 @@ class Type14(BaseModel):
             "infiniband-hdr",
             "infiniband-ndr",
             "infiniband-xdr",
+            "infiniband-sdr-4x",
+            "infiniband-ddr-4x",
+            "infiniband-qdr-4x",
+            "infiniband-fdr10-4x",
+            "infiniband-fdr-4x",
+            "infiniband-edr-4x",
+            "infiniband-hdr-4x",
+            "infiniband-ndr-4x",
+            "infiniband-xdr-4x",
             "t1",
             "e1",
             "t3",
@@ -3369,12 +3369,13 @@ class Type14(BaseModel):
             "extreme-summitstack-128",
             "extreme-summitstack-256",
             "extreme-summitstack-512",
+            "hpe-synergy-interconnect-link",
             "other",
         ]
         | None
     ) = Field(
         None,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     label: (
         Literal[
@@ -3493,6 +3494,7 @@ class Type14(BaseModel):
             "DSFP (100GE)",
             "QSFP28 (100GE)",
             "QSFP-DD (100GE)",
+            "SFP112 (100GE)",
             "SFP-DD (100GE)",
             "CFP2 (200GE)",
             "QSFP56 (200GE)",
@@ -3563,7 +3565,16 @@ class Type14(BaseModel):
             "EDR (25 Gbps)",
             "HDR (50 Gbps)",
             "NDR (100 Gbps)",
-            "XDR (250 Gbps)",
+            "XDR (200 Gbps)",
+            "SDR 4X (8 Gbps)",
+            "DDR 4X (16 Gbps)",
+            "QDR 4X (32 Gbps)",
+            "FDR10 4X (40 Gbps)",
+            "FDR 4X (56 Gbps)",
+            "EDR 4X (100 Gbps)",
+            "HDR 4X (200 Gbps)",
+            "NDR 4X (400 Gbps)",
+            "XDR 4X (800 Gbps)",
             "T1 (1.544 Mbps)",
             "E1 (2.048 Mbps)",
             "T3 (45 Mbps)",
@@ -3594,6 +3605,7 @@ class Type14(BaseModel):
             "Extreme SummitStack-128",
             "Extreme SummitStack-256",
             "Extreme SummitStack-512",
+            "HPE Synergy Interconnect Link",
             "Other",
         ]
         | None
@@ -4079,7 +4091,7 @@ class ManagementOnly4(ManagementOnly1):
     pass
 
 
-class Status10(BaseModel):
+class Status11(BaseModel):
     value: Literal["offline", "active", "planned", "staged", "failed", "decommissioning"] | None = (
         Field(
             None,
@@ -4095,7 +4107,7 @@ class SerialNumber7(SerialNumber1):
     pass
 
 
-class Status11(Status):
+class Status12(Status):
     pass
 
 
@@ -4116,7 +4128,7 @@ class Job(BaseModel):
     object_id: conint(ge=0, le=9223372036854775807) | None = None
     object: Any
     name: constr(max_length=200)
-    status: Status11
+    status: Status12
     created: AwareDatetime
     scheduled: AwareDatetime | None = None
     interval: conint(ge=1, le=2147483647) | None = Field(
@@ -4148,7 +4160,7 @@ class Type16(Type):
     pass
 
 
-class Status12(BaseModel):
+class Status13(BaseModel):
     value: Literal["active", "planned", "decommissioning"] | None = Field(
         None,
         description="* `active` - Active\n* `planned` - Planned\n* `decommissioning` - Decommissioning",
@@ -4156,7 +4168,7 @@ class Status12(BaseModel):
     label: Literal["Active", "Planned", "Decommissioning"] | None = None
 
 
-class Status13(BaseModel):
+class Status14(BaseModel):
     value: Literal["planned", "staging", "active", "decommissioning", "retired"] | None = Field(
         None,
         description="* `planned` - Planned\n* `staging` - Staging\n* `active` - Active\n* `decommissioning` - Decommissioning\n* `retired` - Retired",
@@ -4164,7 +4176,7 @@ class Status13(BaseModel):
     label: Literal["Planned", "Staging", "Active", "Decommissioning", "Retired"] | None = None
 
 
-class Status14(Status10):
+class Status15(Status11):
     pass
 
 
@@ -6077,7 +6089,7 @@ class PatchedBulkModuleTypeRequest(BaseModel):
     )
     description: constr(max_length=200) | None = None
     attributes: Any | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     owner: int | BriefOwnerRequest | None = None
     comments: str | None = None
     tags: list[NestedTagRequest] | None = None
@@ -9137,7 +9149,7 @@ class PatchedWritableModuleTypeRequest(BaseModel):
     )
     description: constr(max_length=200) | None = None
     attributes: Any | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     owner: int | BriefOwnerRequest | None = None
     comments: str | None = None
     tags: list[NestedTagRequest] | None = None
@@ -9725,7 +9737,7 @@ class PlatformRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status15(Status4):
+class Status16(Status4):
     pass
 
 
@@ -9757,7 +9769,7 @@ class PowerFeed(BaseModel):
     power_panel: BriefPowerPanel
     rack: BriefRack | None = None
     name: constr(max_length=100)
-    status: Status15 | None = None
+    status: Status16 | None = None
     type: Type17 | None = None
     supply: Supply | None = None
     phase: Phase | None = None
@@ -10034,7 +10046,7 @@ class Type18(BaseModel):
     ) = None
 
 
-class Status16(BaseModel):
+class Status17(BaseModel):
     value: Literal["enabled", "disabled", "faulty"] | None = Field(
         None,
         description="* `enabled` - Enabled\n* `disabled` - Disabled\n* `faulty` - Faulty",
@@ -10307,7 +10319,7 @@ class Type20(BaseModel):
     ) = None
 
 
-class Status17(BaseModel):
+class Status18(BaseModel):
     value: Literal["container", "active", "reserved", "deprecated"] | None = Field(
         None,
         description="* `container` - Container\n* `active` - Active\n* `reserved` - Reserved\n* `deprecated` - Deprecated",
@@ -10328,7 +10340,7 @@ class Prefix(BaseModel):
     scope: Any
     tenant: BriefTenant | None = None
     vlan: BriefVLAN | None = None
-    status: Status17 | None = None
+    status: Status18 | None = None
     role: BriefRole | None = None
     is_pool: IsAPool | None = Field(
         None,
@@ -10489,7 +10501,7 @@ class RIRRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status18(BaseModel):
+class Status19(BaseModel):
     value: Literal["reserved", "available", "planned", "active", "deprecated"] | None = Field(
         None,
         description="* `reserved` - Reserved\n* `available` - Available\n* `planned` - Planned\n* `active` - Active\n* `deprecated` - Deprecated",
@@ -10570,7 +10582,7 @@ class Rack(BaseModel):
     location: BriefLocation | None = None
     group: BriefRackGroup | None = None
     tenant: BriefTenant | None = None
-    status: Status18 | None = None
+    status: Status19 | None = None
     role: BriefRackRole | None = None
     serial: SerialNumber17 | None = Field(None, title="Serial number")
     asset_tag: constr(max_length=50) | None = Field(
@@ -10730,7 +10742,7 @@ class RackRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status19(BaseModel):
+class Status20(BaseModel):
     value: Literal["pending", "active", "stale"] | None = Field(
         None,
         description="* `pending` - Pending\n* `active` - Active\n* `stale` - Stale",
@@ -10746,7 +10758,7 @@ class RackReservation(BaseModel):
     rack: BriefRack
     units: list[conint(ge=0, le=32767)]
     unit_count: int
-    status: Status19 | None = None
+    status: Status20 | None = None
     created: AwareDatetime
     last_updated: AwareDatetime
     user: BriefUser
@@ -11202,7 +11214,7 @@ class ServiceTemplateRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status20(Status13):
+class Status21(Status14):
     pass
 
 
@@ -11505,7 +11517,7 @@ class TokenRequest(BaseModel):
     )
 
 
-class Status21(BaseModel):
+class Status22(BaseModel):
     value: Literal["planned", "active", "disabled"] | None = Field(
         None,
         description="* `planned` - Planned\n* `active` - Active\n* `disabled` - Disabled",
@@ -11551,7 +11563,7 @@ class Tunnel(BaseModel):
     display_url: AnyUrl
     display: str
     name: constr(max_length=100)
-    status: Status21
+    status: Status22
     group: BriefTunnelGroup | None = None
     encapsulation: Encapsulation
     ipsec_profile: BriefIPSecProfile | None = None
@@ -11645,7 +11657,7 @@ class UserRequest(BaseModel):
     permissions: list[int] | None = None
 
 
-class Status22(Status9):
+class Status23(Status10):
     pass
 
 
@@ -11666,7 +11678,7 @@ class VLAN(BaseModel):
     vid: VLANID = Field(..., description="Numeric VLAN ID (1-4094)", title="VLAN ID")
     name: constr(max_length=64)
     tenant: BriefTenant | None = None
-    status: Status22 | None = None
+    status: Status23 | None = None
     role: BriefRole | None = None
     description: constr(max_length=200) | None = None
     qinq_role: QinqRole | None = None
@@ -11883,7 +11895,7 @@ class CircuitID12(CircuitID):
     pass
 
 
-class Status23(Status2):
+class Status24(Status2):
     pass
 
 
@@ -11896,7 +11908,7 @@ class VirtualCircuit(BaseModel):
     provider_network: BriefProviderNetwork
     provider_account: BriefProviderAccount | None = None
     type: BriefVirtualCircuitType
-    status: Status23 | None = None
+    status: Status24 | None = None
     tenant: BriefTenant | None = None
     description: constr(max_length=200) | None = None
     owner: BriefOwner | None = None
@@ -11993,7 +12005,7 @@ class VirtualCircuitTypeRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status24(BaseModel):
+class Status25(BaseModel):
     value: Literal["active", "planned", "offline"] | None = Field(
         None,
         description="* `active` - Active\n* `planned` - Planned\n* `offline` - Offline",
@@ -12027,7 +12039,7 @@ class VirtualDiskRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status25(BaseModel):
+class Status26(BaseModel):
     value: (
         Literal[
             "offline",
@@ -12203,7 +12215,7 @@ class WebhookRequest(BaseModel):
     tags: list[NestedTagRequest] | None = None
 
 
-class Status26(BaseModel):
+class Status27(BaseModel):
     value: Literal["active", "reserved", "disabled", "deprecated", ""] | None = Field(
         None,
         description="* `active` - Active\n* `reserved` - Reserved\n* `disabled` - Disabled\n* `deprecated` - Deprecated",
@@ -12234,7 +12246,7 @@ class WirelessLAN(BaseModel):
     ssid: constr(max_length=32)
     description: constr(max_length=200) | None = None
     group: BriefWirelessLANGroup | None = None
-    status: Status26 | None = None
+    status: Status27 | None = None
     vlan: BriefVLAN | None = None
     scope_type: str | None = None
     scope_id: int | None = None
@@ -12307,7 +12319,7 @@ class WirelessLANRequest(BaseModel):
     custom_fields: dict[str, Any] | None = None
 
 
-class Status27(Status1):
+class Status28(Status1):
     pass
 
 
@@ -12319,7 +12331,7 @@ class WirelessLink(BaseModel):
     interface_a: BriefInterface
     interface_b: BriefInterface
     ssid: constr(max_length=32) | None = None
-    status: Status27 | None = None
+    status: Status28 | None = None
     tenant: BriefTenant | None = None
     auth_type: AuthType | None = None
     auth_cipher: AuthCipher | None = None
@@ -13172,7 +13184,7 @@ class WritableModuleTypeRequest(BaseModel):
     )
     description: constr(max_length=200) | None = None
     attributes: Any | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     owner: int | BriefOwnerRequest | None = None
     comments: str | None = None
     tags: list[NestedTagRequest] | None = None
@@ -15139,6 +15151,7 @@ class BulkInterfaceRequest(BaseModel):
         "100gbase-x-dsfp",
         "100gbase-x-qsfp28",
         "100gbase-x-qsfpdd",
+        "100gbase-x-sfp112",
         "100gbase-x-sfpdd",
         "200gbase-x-cfp2",
         "200gbase-x-qsfp56",
@@ -15210,6 +15223,15 @@ class BulkInterfaceRequest(BaseModel):
         "infiniband-hdr",
         "infiniband-ndr",
         "infiniband-xdr",
+        "infiniband-sdr-4x",
+        "infiniband-ddr-4x",
+        "infiniband-qdr-4x",
+        "infiniband-fdr10-4x",
+        "infiniband-fdr-4x",
+        "infiniband-edr-4x",
+        "infiniband-hdr-4x",
+        "infiniband-ndr-4x",
+        "infiniband-xdr-4x",
         "t1",
         "e1",
         "t3",
@@ -15240,10 +15262,11 @@ class BulkInterfaceRequest(BaseModel):
         "extreme-summitstack-128",
         "extreme-summitstack-256",
         "extreme-summitstack-512",
+        "hpe-synergy-interconnect-link",
         "other",
     ] = Field(
         ...,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -15652,6 +15675,7 @@ class BulkInterfaceTemplateRequest(BaseModel):
         "100gbase-x-dsfp",
         "100gbase-x-qsfp28",
         "100gbase-x-qsfpdd",
+        "100gbase-x-sfp112",
         "100gbase-x-sfpdd",
         "200gbase-x-cfp2",
         "200gbase-x-qsfp56",
@@ -15723,6 +15747,15 @@ class BulkInterfaceTemplateRequest(BaseModel):
         "infiniband-hdr",
         "infiniband-ndr",
         "infiniband-xdr",
+        "infiniband-sdr-4x",
+        "infiniband-ddr-4x",
+        "infiniband-qdr-4x",
+        "infiniband-fdr10-4x",
+        "infiniband-fdr-4x",
+        "infiniband-edr-4x",
+        "infiniband-hdr-4x",
+        "infiniband-ndr-4x",
+        "infiniband-xdr-4x",
         "t1",
         "e1",
         "t3",
@@ -15753,10 +15786,11 @@ class BulkInterfaceTemplateRequest(BaseModel):
         "extreme-summitstack-128",
         "extreme-summitstack-256",
         "extreme-summitstack-512",
+        "hpe-synergy-interconnect-link",
         "other",
     ] = Field(
         ...,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -15969,7 +16003,7 @@ class BulkModuleBayRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     installed_module: int | BriefModuleRequest | None = None
     owner: int | BriefOwnerRequest | None = None
     tags: list[NestedTagRequest] | None = None
@@ -15990,7 +16024,7 @@ class BulkModuleBayTemplateRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
 
 
 class BulkModuleBayTypeRequest(BaseModel):
@@ -16082,7 +16116,7 @@ class BulkModuleTypeRequest(BaseModel):
     )
     description: constr(max_length=200) | None = None
     attributes: Any | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     owner: int | BriefOwnerRequest | None = None
     comments: str | None = None
     tags: list[NestedTagRequest] | None = None
@@ -18681,7 +18715,7 @@ class Device(BaseModel):
         None, description="GPS coordinate in decimal format (xx.yyyyyy)"
     )
     parent_device: NestedDevice
-    status: Status7 | None = None
+    status: Status8 | None = None
     airflow: Airflow | None = None
     cooling_method: CoolingMethod | None = None
     primary_ip: BriefIPAddress
@@ -19443,7 +19477,7 @@ class IPAddress(BaseModel):
     address: str
     vrf: BriefVRF | None = None
     tenant: BriefTenant | None = None
-    status: Status8 | None = None
+    status: Status9 | None = None
     role: Role | None = None
     assigned_object_type: str | None = None
     assigned_object_id: conint(ge=0, le=9223372036854775807) | None = None
@@ -19515,7 +19549,7 @@ class IPRange(BaseModel):
     size: int
     vrf: BriefVRF | None = None
     tenant: BriefTenant | None = None
-    status: Status9 | None = None
+    status: Status10 | None = None
     role: BriefRole | None = None
     description: constr(max_length=200) | None = None
     owner: BriefOwner | None = None
@@ -19805,6 +19839,7 @@ class InterfaceRequest(BaseModel):
         "100gbase-x-dsfp",
         "100gbase-x-qsfp28",
         "100gbase-x-qsfpdd",
+        "100gbase-x-sfp112",
         "100gbase-x-sfpdd",
         "200gbase-x-cfp2",
         "200gbase-x-qsfp56",
@@ -19876,6 +19911,15 @@ class InterfaceRequest(BaseModel):
         "infiniband-hdr",
         "infiniband-ndr",
         "infiniband-xdr",
+        "infiniband-sdr-4x",
+        "infiniband-ddr-4x",
+        "infiniband-qdr-4x",
+        "infiniband-fdr10-4x",
+        "infiniband-fdr-4x",
+        "infiniband-edr-4x",
+        "infiniband-hdr-4x",
+        "infiniband-ndr-4x",
+        "infiniband-xdr-4x",
         "t1",
         "e1",
         "t3",
@@ -19906,10 +19950,11 @@ class InterfaceRequest(BaseModel):
         "extreme-summitstack-128",
         "extreme-summitstack-256",
         "extreme-summitstack-512",
+        "hpe-synergy-interconnect-link",
         "other",
     ] = Field(
         ...,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -20349,6 +20394,7 @@ class InterfaceTemplateRequest(BaseModel):
         "100gbase-x-dsfp",
         "100gbase-x-qsfp28",
         "100gbase-x-qsfpdd",
+        "100gbase-x-sfp112",
         "100gbase-x-sfpdd",
         "200gbase-x-cfp2",
         "200gbase-x-qsfp56",
@@ -20420,6 +20466,15 @@ class InterfaceTemplateRequest(BaseModel):
         "infiniband-hdr",
         "infiniband-ndr",
         "infiniband-xdr",
+        "infiniband-sdr-4x",
+        "infiniband-ddr-4x",
+        "infiniband-qdr-4x",
+        "infiniband-fdr10-4x",
+        "infiniband-fdr-4x",
+        "infiniband-edr-4x",
+        "infiniband-hdr-4x",
+        "infiniband-ndr-4x",
+        "infiniband-xdr-4x",
         "t1",
         "e1",
         "t3",
@@ -20450,10 +20505,11 @@ class InterfaceTemplateRequest(BaseModel):
         "extreme-summitstack-128",
         "extreme-summitstack-256",
         "extreme-summitstack-512",
+        "hpe-synergy-interconnect-link",
         "other",
     ] = Field(
         ...,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -20502,7 +20558,7 @@ class InventoryItem(BaseModel):
     parent: int | None = None
     name: constr(max_length=64)
     label: constr(max_length=64) | None = Field(None, description="Physical label")
-    status: Status10 | None = None
+    status: Status11 | None = None
     role: BriefInventoryItemRole | None = None
     manufacturer: BriefManufacturer | None = None
     part_id: constr(max_length=50) | None = Field(
@@ -20649,7 +20705,7 @@ class L2VPN(BaseModel):
     name: constr(max_length=100)
     slug: constr(pattern=r"^[-a-zA-Z0-9_]+$", max_length=100)
     type: Type16 | None = None
-    status: Status12 | None = None
+    status: Status13 | None = None
     import_targets: list[RouteTarget] | None = None
     export_targets: list[RouteTarget] | None = None
     description: constr(max_length=200) | None = None
@@ -20734,7 +20790,7 @@ class Location(BaseModel):
     slug: constr(pattern=r"^[-a-zA-Z0-9_]+$", max_length=100)
     site: BriefSite
     parent: NestedLocation | None = None
-    status: Status13 | None = None
+    status: Status14 | None = None
     tenant: BriefTenant | None = None
     facility: constr(max_length=50) | None = Field(
         None, description="Local facility ID or description"
@@ -20834,7 +20890,7 @@ class Module(BaseModel):
     device: BriefDevice
     module_bay: NestedModuleBay
     module_type: BriefModuleType
-    status: Status14 | None = None
+    status: Status15 | None = None
     serial: SerialNumber7 | None = Field(None, title="Serial number")
     asset_tag: constr(max_length=50) | None = Field(
         None, description="A unique tag used to identify this device"
@@ -20849,31 +20905,6 @@ class Module(BaseModel):
     is_bay_compatible: bool
 
 
-class ModuleBay(BaseModel):
-    id: int
-    url: AnyUrl
-    display_url: AnyUrl
-    display: str
-    device: BriefDevice
-    module: BriefModule | None = None
-    name: constr(max_length=64)
-    label: constr(max_length=64) | None = Field(None, description="Physical label")
-    position: constr(max_length=30) | None = Field(
-        None, description="Identifier to reference when renaming installed components"
-    )
-    enabled: bool | None = None
-    description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayType] | None = None
-    installed_module: BriefModule | None = None
-    owner: BriefOwner | None = None
-    tags: list[NestedTag] | None = None
-    custom_fields: dict[str, Any] | None = None
-    created: AwareDatetime
-    last_updated: AwareDatetime
-    field_occupied: FieldOccupied = Field(..., alias="_occupied", title=" occupied")
-    is_module_compatible: bool
-
-
 class ModuleBayRequest(BaseModel):
     device: int | BriefDeviceRequest
     module: int | BriefModuleRequest | None = None
@@ -20884,32 +20915,11 @@ class ModuleBayRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     installed_module: int | BriefModuleRequest | None = None
     owner: int | BriefOwnerRequest | None = None
     tags: list[NestedTagRequest] | None = None
     custom_fields: dict[str, Any] | None = None
-
-
-class ModuleBayTemplate(BaseModel):
-    id: int
-    url: AnyUrl
-    display: str
-    device_type: BriefDeviceType | None = None
-    module_type: BriefModuleType | None = None
-    name: constr(max_length=64) = Field(
-        ...,
-        description="{module} is accepted as a substitution for the module bay position when attached to a module type.",
-    )
-    label: constr(max_length=64) | None = Field(None, description="Physical label")
-    position: constr(max_length=30) | None = Field(
-        None, description="Identifier to reference when renaming installed components"
-    )
-    enabled: bool | None = None
-    description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayType] | None = None
-    created: AwareDatetime
-    last_updated: AwareDatetime
 
 
 class ModuleBayTemplateRequest(BaseModel):
@@ -20925,7 +20935,7 @@ class ModuleBayTemplateRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
 
 
 class ModuleBayType(BaseModel):
@@ -21005,7 +21015,7 @@ class ModuleType(BaseModel):
     )
     description: constr(max_length=200) | None = None
     attributes: Any | None = None
-    module_bay_types: list[BriefModuleBayType] | None = None
+    module_bay_types: list[ModuleBayType] | None = None
     owner: BriefOwner | None = None
     comments: str | None = None
     tags: list[NestedTag] | None = None
@@ -21654,28 +21664,6 @@ class PaginatedManufacturerList(BaseModel):
         None, examples=["http://api.example.org/accounts/?offset=200&limit=100"]
     )
     results: list[Manufacturer]
-
-
-class PaginatedModuleBayList(BaseModel):
-    count: int = Field(..., examples=[123])
-    next: AnyUrl | None = Field(
-        None, examples=["http://api.example.org/accounts/?offset=400&limit=100"]
-    )
-    previous: AnyUrl | None = Field(
-        None, examples=["http://api.example.org/accounts/?offset=200&limit=100"]
-    )
-    results: list[ModuleBay]
-
-
-class PaginatedModuleBayTemplateList(BaseModel):
-    count: int = Field(..., examples=[123])
-    next: AnyUrl | None = Field(
-        None, examples=["http://api.example.org/accounts/?offset=400&limit=100"]
-    )
-    previous: AnyUrl | None = Field(
-        None, examples=["http://api.example.org/accounts/?offset=200&limit=100"]
-    )
-    results: list[ModuleBayTemplate]
 
 
 class PaginatedModuleBayTypeList(BaseModel):
@@ -22827,6 +22815,7 @@ class PatchedBulkInterfaceRequest(BaseModel):
             "100gbase-x-dsfp",
             "100gbase-x-qsfp28",
             "100gbase-x-qsfpdd",
+            "100gbase-x-sfp112",
             "100gbase-x-sfpdd",
             "200gbase-x-cfp2",
             "200gbase-x-qsfp56",
@@ -22898,6 +22887,15 @@ class PatchedBulkInterfaceRequest(BaseModel):
             "infiniband-hdr",
             "infiniband-ndr",
             "infiniband-xdr",
+            "infiniband-sdr-4x",
+            "infiniband-ddr-4x",
+            "infiniband-qdr-4x",
+            "infiniband-fdr10-4x",
+            "infiniband-fdr-4x",
+            "infiniband-edr-4x",
+            "infiniband-hdr-4x",
+            "infiniband-ndr-4x",
+            "infiniband-xdr-4x",
             "t1",
             "e1",
             "t3",
@@ -22928,12 +22926,13 @@ class PatchedBulkInterfaceRequest(BaseModel):
             "extreme-summitstack-128",
             "extreme-summitstack-256",
             "extreme-summitstack-512",
+            "hpe-synergy-interconnect-link",
             "other",
         ]
         | None
     ) = Field(
         None,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -23343,6 +23342,7 @@ class PatchedBulkInterfaceTemplateRequest(BaseModel):
             "100gbase-x-dsfp",
             "100gbase-x-qsfp28",
             "100gbase-x-qsfpdd",
+            "100gbase-x-sfp112",
             "100gbase-x-sfpdd",
             "200gbase-x-cfp2",
             "200gbase-x-qsfp56",
@@ -23414,6 +23414,15 @@ class PatchedBulkInterfaceTemplateRequest(BaseModel):
             "infiniband-hdr",
             "infiniband-ndr",
             "infiniband-xdr",
+            "infiniband-sdr-4x",
+            "infiniband-ddr-4x",
+            "infiniband-qdr-4x",
+            "infiniband-fdr10-4x",
+            "infiniband-fdr-4x",
+            "infiniband-edr-4x",
+            "infiniband-hdr-4x",
+            "infiniband-ndr-4x",
+            "infiniband-xdr-4x",
             "t1",
             "e1",
             "t3",
@@ -23444,12 +23453,13 @@ class PatchedBulkInterfaceTemplateRequest(BaseModel):
             "extreme-summitstack-128",
             "extreme-summitstack-256",
             "extreme-summitstack-512",
+            "hpe-synergy-interconnect-link",
             "other",
         ]
         | None
     ) = Field(
         None,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -23519,7 +23529,7 @@ class PatchedBulkModuleBayRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     installed_module: int | BriefModuleRequest | None = None
     owner: int | BriefOwnerRequest | None = None
     tags: list[NestedTagRequest] | None = None
@@ -23540,7 +23550,7 @@ class PatchedBulkModuleBayTemplateRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
 
 
 class PatchedBulkPowerOutletRequest(BaseModel):
@@ -24386,7 +24396,7 @@ class PatchedModuleBayRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
     installed_module: int | BriefModuleRequest | None = None
     owner: int | BriefOwnerRequest | None = None
     tags: list[NestedTagRequest] | None = None
@@ -24406,7 +24416,7 @@ class PatchedModuleBayTemplateRequest(BaseModel):
     )
     enabled: bool | None = None
     description: constr(max_length=200) | None = None
-    module_bay_types: list[BriefModuleBayTypeRequest] | None = None
+    module_bay_types: list[int] | None = None
 
 
 class PatchedWritableCircuitRequest(BaseModel):
@@ -25001,6 +25011,7 @@ class PatchedWritableInterfaceRequest(BaseModel):
             "100gbase-x-dsfp",
             "100gbase-x-qsfp28",
             "100gbase-x-qsfpdd",
+            "100gbase-x-sfp112",
             "100gbase-x-sfpdd",
             "200gbase-x-cfp2",
             "200gbase-x-qsfp56",
@@ -25072,6 +25083,15 @@ class PatchedWritableInterfaceRequest(BaseModel):
             "infiniband-hdr",
             "infiniband-ndr",
             "infiniband-xdr",
+            "infiniband-sdr-4x",
+            "infiniband-ddr-4x",
+            "infiniband-qdr-4x",
+            "infiniband-fdr10-4x",
+            "infiniband-fdr-4x",
+            "infiniband-edr-4x",
+            "infiniband-hdr-4x",
+            "infiniband-ndr-4x",
+            "infiniband-xdr-4x",
             "t1",
             "e1",
             "t3",
@@ -25102,12 +25122,13 @@ class PatchedWritableInterfaceRequest(BaseModel):
             "extreme-summitstack-128",
             "extreme-summitstack-256",
             "extreme-summitstack-512",
+            "hpe-synergy-interconnect-link",
             "other",
         ]
         | None
     ) = Field(
         None,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -25317,6 +25338,7 @@ class PatchedWritableInterfaceTemplateRequest(BaseModel):
             "100gbase-x-dsfp",
             "100gbase-x-qsfp28",
             "100gbase-x-qsfpdd",
+            "100gbase-x-sfp112",
             "100gbase-x-sfpdd",
             "200gbase-x-cfp2",
             "200gbase-x-qsfp56",
@@ -25388,6 +25410,15 @@ class PatchedWritableInterfaceTemplateRequest(BaseModel):
             "infiniband-hdr",
             "infiniband-ndr",
             "infiniband-xdr",
+            "infiniband-sdr-4x",
+            "infiniband-ddr-4x",
+            "infiniband-qdr-4x",
+            "infiniband-fdr10-4x",
+            "infiniband-fdr-4x",
+            "infiniband-edr-4x",
+            "infiniband-hdr-4x",
+            "infiniband-ndr-4x",
+            "infiniband-xdr-4x",
             "t1",
             "e1",
             "t3",
@@ -25418,12 +25449,13 @@ class PatchedWritableInterfaceTemplateRequest(BaseModel):
             "extreme-summitstack-128",
             "extreme-summitstack-256",
             "extreme-summitstack-512",
+            "hpe-synergy-interconnect-link",
             "other",
         ]
         | None
     ) = Field(
         None,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -26243,7 +26275,7 @@ class PowerOutlet(BaseModel):
     name: constr(max_length=64)
     label: constr(max_length=64) | None = Field(None, description="Physical label")
     type: Type18 | None = None
-    status: Status16 | None = None
+    status: Status17 | None = None
     color: constr(pattern=r"^[0-9a-f]{6}$", max_length=6) | constr(max_length=0) | None = None
     power_port: BriefPowerPort | None = None
     feed_leg: FeedLeg | None = None
@@ -27145,7 +27177,7 @@ class Site(BaseModel):
     display: str
     name: constr(max_length=100) = Field(..., description="Full name of the site")
     slug: constr(pattern=r"^[-a-zA-Z0-9_]+$", max_length=100)
-    status: Status20 | None = None
+    status: Status21 | None = None
     region: BriefRegion | None = None
     group: BriefSiteGroup | None = None
     tenant: BriefTenant | None = None
@@ -27287,7 +27319,7 @@ class VirtualDeviceContext(BaseModel):
     primary_ip: BriefIPAddress
     primary_ip4: BriefIPAddress | None = None
     primary_ip6: BriefIPAddress | None = None
-    status: Status24
+    status: Status25
     description: constr(max_length=200) | None = None
     owner: BriefOwner | None = None
     comments: str | None = None
@@ -27324,7 +27356,7 @@ class VirtualMachine(BaseModel):
     name: constr(max_length=64)
     virtual_machine_type: BriefVirtualMachineType | None = None
     role: BriefDeviceRole | None = None
-    status: Status25 | None = None
+    status: Status26 | None = None
     start_on_boot: StartOnBoot | None = None
     site: BriefSite | None = None
     cluster: BriefCluster | None = None
@@ -27761,6 +27793,7 @@ class WritableInterfaceRequest(BaseModel):
         "100gbase-x-dsfp",
         "100gbase-x-qsfp28",
         "100gbase-x-qsfpdd",
+        "100gbase-x-sfp112",
         "100gbase-x-sfpdd",
         "200gbase-x-cfp2",
         "200gbase-x-qsfp56",
@@ -27832,6 +27865,15 @@ class WritableInterfaceRequest(BaseModel):
         "infiniband-hdr",
         "infiniband-ndr",
         "infiniband-xdr",
+        "infiniband-sdr-4x",
+        "infiniband-ddr-4x",
+        "infiniband-qdr-4x",
+        "infiniband-fdr10-4x",
+        "infiniband-fdr-4x",
+        "infiniband-edr-4x",
+        "infiniband-hdr-4x",
+        "infiniband-ndr-4x",
+        "infiniband-xdr-4x",
         "t1",
         "e1",
         "t3",
@@ -27862,10 +27904,11 @@ class WritableInterfaceRequest(BaseModel):
         "extreme-summitstack-128",
         "extreme-summitstack-256",
         "extreme-summitstack-512",
+        "hpe-synergy-interconnect-link",
         "other",
     ] = Field(
         ...,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -28074,6 +28117,7 @@ class WritableInterfaceTemplateRequest(BaseModel):
         "100gbase-x-dsfp",
         "100gbase-x-qsfp28",
         "100gbase-x-qsfpdd",
+        "100gbase-x-sfp112",
         "100gbase-x-sfpdd",
         "200gbase-x-cfp2",
         "200gbase-x-qsfp56",
@@ -28145,6 +28189,15 @@ class WritableInterfaceTemplateRequest(BaseModel):
         "infiniband-hdr",
         "infiniband-ndr",
         "infiniband-xdr",
+        "infiniband-sdr-4x",
+        "infiniband-ddr-4x",
+        "infiniband-qdr-4x",
+        "infiniband-fdr10-4x",
+        "infiniband-fdr-4x",
+        "infiniband-edr-4x",
+        "infiniband-hdr-4x",
+        "infiniband-ndr-4x",
+        "infiniband-xdr-4x",
         "t1",
         "e1",
         "t3",
@@ -28175,10 +28228,11 @@ class WritableInterfaceTemplateRequest(BaseModel):
         "extreme-summitstack-128",
         "extreme-summitstack-256",
         "extreme-summitstack-512",
+        "hpe-synergy-interconnect-link",
         "other",
     ] = Field(
         ...,
-        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (250 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `other` - Other",
+        description="* `virtual` - Virtual\n* `bridge` - Bridge\n* `lag` - Link Aggregation Group (LAG)\n* `channel` - Channel\n* `100base-fx` - 100BASE-FX (10/100ME)\n* `100base-lfx` - 100BASE-LFX (10/100ME)\n* `100base-tx` - 100BASE-TX (10/100ME)\n* `100base-t1` - 100BASE-T1 (10/100ME)\n* `1000base-bx10-d` - 1000BASE-BX10-D (1GE BiDi Down)\n* `1000base-bx10-u` - 1000BASE-BX10-U (1GE BiDi Up)\n* `1000base-cwdm` - 1000BASE-CWDM (1GE)\n* `1000base-cx` - 1000BASE-CX (1GE DAC)\n* `1000base-dwdm` - 1000BASE-DWDM (1GE)\n* `1000base-ex` - 1000BASE-EX (1GE)\n* `1000base-lsx` - 1000BASE-LSX (1GE)\n* `1000base-lx` - 1000BASE-LX (1GE)\n* `1000base-lx10` - 1000BASE-LX10/LH (1GE)\n* `1000base-sx` - 1000BASE-SX (1GE)\n* `1000base-t` - 1000BASE-T (1GE)\n* `1000base-tx` - 1000BASE-TX (1GE)\n* `1000base-zx` - 1000BASE-ZX (1GE)\n* `2.5gbase-t` - 2.5GBASE-T (2.5GE)\n* `5gbase-t` - 5GBASE-T (5GE)\n* `10gbase-br-d` - 10GBASE-BR-D (10GE BiDi Down)\n* `10gbase-br-u` - 10GBASE-BR-U (10GE BiDi Up)\n* `10gbase-cu` - 10GBASE-CU (10GE DAC Passive Twinax)\n* `10gbase-cx4` - 10GBASE-CX4 (10GE DAC)\n* `10gbase-er` - 10GBASE-ER (10GE)\n* `10gbase-lr` - 10GBASE-LR (10GE)\n* `10gbase-lrm` - 10GBASE-LRM (10GE)\n* `10gbase-lx4` - 10GBASE-LX4 (10GE)\n* `10gbase-sr` - 10GBASE-SR (10GE)\n* `10gbase-t` - 10GBASE-T (10GE)\n* `10gbase-zr` - 10GBASE-ZR (10GE)\n* `25gbase-cr` - 25GBASE-CR (25GE DAC)\n* `25gbase-er` - 25GBASE-ER (25GE)\n* `25gbase-lr` - 25GBASE-LR (25GE)\n* `25gbase-sr` - 25GBASE-SR (25GE)\n* `25gbase-t` - 25GBASE-T (25GE)\n* `40gbase-cr4` - 40GBASE-CR4 (40GE DAC)\n* `40gbase-er4` - 40GBASE-ER4 (40GE)\n* `40gbase-fr4` - 40GBASE-FR4 (40GE)\n* `40gbase-lr4` - 40GBASE-LR4 (40GE)\n* `40gbase-sr4` - 40GBASE-SR4 (40GE)\n* `40gbase-sr4-bd` - 40GBASE-SR4 (40GE BiDi)\n* `50gbase-cr` - 50GBASE-CR (50GE DAC)\n* `50gbase-er` - 50GBASE-ER (50GE)\n* `50gbase-fr` - 50GBASE-FR (50GE)\n* `50gbase-lr` - 50GBASE-LR (50GE)\n* `50gbase-sr` - 50GBASE-SR (50GE)\n* `100gbase-cr1` - 100GBASE-CR1 (100GE DAC)\n* `100gbase-cr2` - 100GBASE-CR2 (100GE DAC)\n* `100gbase-cr4` - 100GBASE-CR4 (100GE DAC)\n* `100gbase-cr10` - 100GBASE-CR10 (100GE DAC)\n* `100gbase-cwdm4` - 100GBASE-CWDM4 (100GE)\n* `100gbase-dr` - 100GBASE-DR (100GE)\n* `100gbase-er4` - 100GBASE-ER4 (100GE)\n* `100gbase-fr1` - 100GBASE-FR1 (100GE)\n* `100gbase-lr1` - 100GBASE-LR1 (100GE)\n* `100gbase-lr4` - 100GBASE-LR4 (100GE)\n* `100gbase-sr1` - 100GBASE-SR1 (100GE)\n* `100gbase-sr1.2` - 100GBASE-SR1.2 (100GE BiDi)\n* `100gbase-sr2` - 100GBASE-SR2 (100GE)\n* `100gbase-sr4` - 100GBASE-SR4 (100GE)\n* `100gbase-sr10` - 100GBASE-SR10 (100GE)\n* `100gbase-zr` - 100GBASE-ZR (100GE)\n* `200gbase-cr2` - 200GBASE-CR2 (200GE)\n* `200gbase-cr4` - 200GBASE-CR4 (200GE)\n* `200gbase-dr4` - 200GBASE-DR4 (200GE)\n* `200gbase-er4` - 200GBASE-ER4 (200GE)\n* `200gbase-fr4` - 200GBASE-FR4 (200GE)\n* `200gbase-lr4` - 200GBASE-LR4 (200GE)\n* `200gbase-sr2` - 200GBASE-SR2 (200GE)\n* `200gbase-sr4` - 200GBASE-SR4 (200GE)\n* `200gbase-vr2` - 200GBASE-VR2 (200GE)\n* `400gbase-cr4` - 400GBASE-CR4 (400GE)\n* `400gbase-dr4` - 400GBASE-DR4 (400GE)\n* `400gbase-er8` - 400GBASE-ER8 (400GE)\n* `400gbase-fr4` - 400GBASE-FR4 (400GE)\n* `400gbase-fr8` - 400GBASE-FR8 (400GE)\n* `400gbase-lr4` - 400GBASE-LR4 (400GE)\n* `400gbase-lr8` - 400GBASE-LR8 (400GE)\n* `400gbase-sr4` - 400GBASE-SR4 (400GE)\n* `400gbase-sr4_2` - 400GBASE-SR4.2 (400GE BiDi)\n* `400gbase-sr8` - 400GBASE-SR8 (400GE)\n* `400gbase-sr16` - 400GBASE-SR16 (400GE)\n* `400gbase-vr4` - 400GBASE-VR4 (400GE)\n* `400gbase-zr` - 400GBASE-ZR (400GE)\n* `800gbase-cr8` - 800GBASE-CR8 (800GE)\n* `800gbase-dr8` - 800GBASE-DR8 (800GE)\n* `800gbase-sr8` - 800GBASE-SR8 (800GE)\n* `800gbase-vr8` - 800GBASE-VR8 (800GE)\n* `1.6tbase-cr8` - 1.6TBASE-CR8 (1.6TE)\n* `1.6tbase-dr8` - 1.6TBASE-DR8 (1.6TE)\n* `1.6tbase-dr8-2` - 1.6TBASE-DR8-2 (1.6TE)\n* `100base-x-sfp` - SFP (100ME)\n* `1000base-x-gbic` - GBIC (1GE)\n* `1000base-x-sfp` - SFP (1GE)\n* `2.5gbase-x-sfp` - SFP (2.5GE)\n* `10gbase-x-sfpp` - SFP+ (10GE)\n* `10gbase-x-xenpak` - XENPAK (10GE)\n* `10gbase-x-xfp` - XFP (10GE)\n* `10gbase-x-x2` - X2 (10GE)\n* `25gbase-x-sfp28` - SFP28 (25GE)\n* `40gbase-x-qsfpp` - QSFP+ (40GE)\n* `50gbase-x-sfp28` - QSFP28 (50GE)\n* `50gbase-x-sfp56` - SFP56 (50GE)\n* `100gbase-x-cfp` - CFP (100GE)\n* `100gbase-x-cfp2` - CFP2 (100GE)\n* `100gbase-x-cfp4` - CFP4 (100GE)\n* `100gbase-x-cxp` - CXP (100GE)\n* `100gbase-x-cpak` - Cisco CPAK (100GE)\n* `100gbase-x-dsfp` - DSFP (100GE)\n* `100gbase-x-qsfp28` - QSFP28 (100GE)\n* `100gbase-x-qsfpdd` - QSFP-DD (100GE)\n* `100gbase-x-sfp112` - SFP112 (100GE)\n* `100gbase-x-sfpdd` - SFP-DD (100GE)\n* `200gbase-x-cfp2` - CFP2 (200GE)\n* `200gbase-x-qsfp56` - QSFP56 (200GE)\n* `200gbase-x-qsfpdd` - QSFP-DD (200GE)\n* `400gbase-x-qsfp112` - QSFP112 (400GE)\n* `400gbase-x-qsfpdd` - QSFP-DD (400GE)\n* `400gbase-x-cdfp` - CDFP (400GE)\n* `400gbase-x-cfp2` - CFP2 (400GE)\n* `400gbase-x-cfp8` - CPF8 (400GE)\n* `400gbase-x-osfp` - OSFP (400GE)\n* `400gbase-x-osfp-rhs` - OSFP-RHS (400GE)\n* `800gbase-x-osfp` - OSFP (800GE)\n* `800gbase-x-qsfpdd` - QSFP-DD (800GE)\n* `1.6tbase-x-osfp1600` - OSFP1600 (1.6TE)\n* `1.6tbase-x-osfp1600-rhs` - OSFP1600-RHS (1.6TE)\n* `1.6tbase-x-qsfpdd1600` - QSFP-DD1600 (1.6TE)\n* `1000base-kx` - 1000BASE-KX (1GE)\n* `2.5gbase-kx` - 2.5GBASE-KX (2.5GE)\n* `5gbase-kr` - 5GBASE-KR (5GE)\n* `10gbase-kr` - 10GBASE-KR (10GE)\n* `10gbase-kx4` - 10GBASE-KX4 (10GE)\n* `25gbase-kr` - 25GBASE-KR (25GE)\n* `40gbase-kr4` - 40GBASE-KR4 (40GE)\n* `50gbase-kr` - 50GBASE-KR (50GE)\n* `100gbase-kp4` - 100GBASE-KP4 (100GE)\n* `100gbase-kr2` - 100GBASE-KR2 (100GE)\n* `100gbase-kr4` - 100GBASE-KR4 (100GE)\n* `1.6tbase-kr8` - 1.6TBASE-KR8 (1.6TE)\n* `ieee802.11a` - IEEE 802.11a\n* `ieee802.11g` - IEEE 802.11b/g\n* `ieee802.11n` - IEEE 802.11n (Wi-Fi 4)\n* `ieee802.11ac` - IEEE 802.11ac (Wi-Fi 5)\n* `ieee802.11ad` - IEEE 802.11ad (WiGig)\n* `ieee802.11ax` - IEEE 802.11ax (Wi-Fi 6)\n* `ieee802.11ay` - IEEE 802.11ay (WiGig)\n* `ieee802.11be` - IEEE 802.11be (Wi-Fi 7)\n* `ieee802.15.1` - IEEE 802.15.1 (Bluetooth)\n* `ieee802.15.4` - IEEE 802.15.4 (LR-WPAN)\n* `other-wireless` - Other (Wireless)\n* `gsm` - GSM\n* `cdma` - CDMA\n* `lte` - LTE\n* `4g` - 4G\n* `5g` - 5G\n* `sonet-oc3` - OC-3/STM-1\n* `sonet-oc12` - OC-12/STM-4\n* `sonet-oc48` - OC-48/STM-16\n* `sonet-oc192` - OC-192/STM-64\n* `sonet-oc768` - OC-768/STM-256\n* `sonet-oc1920` - OC-1920/STM-640\n* `sonet-oc3840` - OC-3840/STM-1234\n* `1gfc-sfp` - SFP (1GFC)\n* `2gfc-sfp` - SFP (2GFC)\n* `4gfc-sfp` - SFP (4GFC)\n* `8gfc-sfpp` - SFP+ (8GFC)\n* `16gfc-sfpp` - SFP+ (16GFC)\n* `32gfc-sfp28` - SFP28 (32GFC)\n* `32gfc-sfpp` - SFP+ (32GFC)\n* `64gfc-qsfpp` - QSFP+ (64GFC)\n* `64gfc-sfpdd` - SFP-DD (64GFC)\n* `64gfc-sfpp` - SFP+ (64GFC)\n* `128gfc-qsfp28` - QSFP28 (128GFC)\n* `infiniband-sdr` - SDR (2 Gbps)\n* `infiniband-ddr` - DDR (4 Gbps)\n* `infiniband-qdr` - QDR (8 Gbps)\n* `infiniband-fdr10` - FDR10 (10 Gbps)\n* `infiniband-fdr` - FDR (13.5 Gbps)\n* `infiniband-edr` - EDR (25 Gbps)\n* `infiniband-hdr` - HDR (50 Gbps)\n* `infiniband-ndr` - NDR (100 Gbps)\n* `infiniband-xdr` - XDR (200 Gbps)\n* `infiniband-sdr-4x` - SDR 4X (8 Gbps)\n* `infiniband-ddr-4x` - DDR 4X (16 Gbps)\n* `infiniband-qdr-4x` - QDR 4X (32 Gbps)\n* `infiniband-fdr10-4x` - FDR10 4X (40 Gbps)\n* `infiniband-fdr-4x` - FDR 4X (56 Gbps)\n* `infiniband-edr-4x` - EDR 4X (100 Gbps)\n* `infiniband-hdr-4x` - HDR 4X (200 Gbps)\n* `infiniband-ndr-4x` - NDR 4X (400 Gbps)\n* `infiniband-xdr-4x` - XDR 4X (800 Gbps)\n* `t1` - T1 (1.544 Mbps)\n* `e1` - E1 (2.048 Mbps)\n* `t3` - T3 (45 Mbps)\n* `e3` - E3 (34 Mbps)\n* `xdsl` - xDSL\n* `docsis` - DOCSIS\n* `moca` - MoCA\n* `bpon` - BPON (622 Mbps / 155 Mbps)\n* `epon` - EPON (1 Gbps)\n* `10g-epon` - 10G-EPON (10 Gbps)\n* `gpon` - GPON (2.5 Gbps / 1.25 Gbps)\n* `xg-pon` - XG-PON (10 Gbps / 2.5 Gbps)\n* `xgs-pon` - XGS-PON (10 Gbps)\n* `ng-pon2` - NG-PON2 (TWDM-PON) (4x10 Gbps)\n* `25g-pon` - 25G-PON (25 Gbps)\n* `50g-pon` - 50G-PON (50 Gbps)\n* `cisco-stackwise` - Cisco StackWise\n* `cisco-stackwise-plus` - Cisco StackWise Plus\n* `cisco-flexstack` - Cisco FlexStack\n* `cisco-flexstack-plus` - Cisco FlexStack Plus\n* `cisco-stackwise-80` - Cisco StackWise-80\n* `cisco-stackwise-160` - Cisco StackWise-160\n* `cisco-stackwise-320` - Cisco StackWise-320\n* `cisco-stackwise-480` - Cisco StackWise-480\n* `cisco-stackwise-1t` - Cisco StackWise-1T\n* `juniper-vcp` - Juniper VCP\n* `extreme-summitstack` - Extreme SummitStack\n* `extreme-summitstack-128` - Extreme SummitStack-128\n* `extreme-summitstack-256` - Extreme SummitStack-256\n* `extreme-summitstack-512` - Extreme SummitStack-512\n* `hpe-synergy-interconnect-link` - HPE Synergy Interconnect Link\n* `other` - Other",
     )
     channels: conint(ge=1, le=1024) | None = Field(
         None,
@@ -28877,6 +28931,52 @@ class Interface(BaseModel):
     field_occupied: FieldOccupied = Field(..., alias="_occupied", title=" occupied")
 
 
+class ModuleBay(BaseModel):
+    id: int
+    url: AnyUrl
+    display_url: AnyUrl
+    display: str
+    device: BriefDevice
+    module: BriefModule | None = None
+    name: constr(max_length=64)
+    label: constr(max_length=64) | None = Field(None, description="Physical label")
+    position: constr(max_length=30) | None = Field(
+        None, description="Identifier to reference when renaming installed components"
+    )
+    enabled: bool | None = None
+    description: constr(max_length=200) | None = None
+    module_bay_types: list[ModuleBayType] | None = None
+    installed_module: BriefModule | None = None
+    owner: BriefOwner | None = None
+    tags: list[NestedTag] | None = None
+    custom_fields: dict[str, Any] | None = None
+    created: AwareDatetime
+    last_updated: AwareDatetime
+    field_occupied: FieldOccupied = Field(..., alias="_occupied", title=" occupied")
+    is_module_compatible: bool
+
+
+class ModuleBayTemplate(BaseModel):
+    id: int
+    url: AnyUrl
+    display: str
+    device_type: BriefDeviceType | None = None
+    module_type: BriefModuleType | None = None
+    name: constr(max_length=64) = Field(
+        ...,
+        description="{module} is accepted as a substitution for the module bay position when attached to a module type.",
+    )
+    label: constr(max_length=64) | None = Field(None, description="Physical label")
+    position: constr(max_length=30) | None = Field(
+        None, description="Identifier to reference when renaming installed components"
+    )
+    enabled: bool | None = None
+    description: constr(max_length=200) | None = None
+    module_bay_types: list[ModuleBayType] | None = None
+    created: AwareDatetime
+    last_updated: AwareDatetime
+
+
 class NotificationGroup(BaseModel):
     id: int
     url: AnyUrl
@@ -28964,6 +29064,28 @@ class PaginatedInterfaceList(BaseModel):
         None, examples=["http://api.example.org/accounts/?offset=200&limit=100"]
     )
     results: list[Interface]
+
+
+class PaginatedModuleBayList(BaseModel):
+    count: int = Field(..., examples=[123])
+    next: AnyUrl | None = Field(
+        None, examples=["http://api.example.org/accounts/?offset=400&limit=100"]
+    )
+    previous: AnyUrl | None = Field(
+        None, examples=["http://api.example.org/accounts/?offset=200&limit=100"]
+    )
+    results: list[ModuleBay]
+
+
+class PaginatedModuleBayTemplateList(BaseModel):
+    count: int = Field(..., examples=[123])
+    next: AnyUrl | None = Field(
+        None, examples=["http://api.example.org/accounts/?offset=400&limit=100"]
+    )
+    previous: AnyUrl | None = Field(
+        None, examples=["http://api.example.org/accounts/?offset=200&limit=100"]
+    )
+    results: list[ModuleBayTemplate]
 
 
 class PaginatedNotificationGroupList(BaseModel):

@@ -4,7 +4,7 @@
 with a job reference rather than executing synchronously — it exists to avoid
 proxy timeouts on large batches.
 
-The pinned upstream artifact (``v4.7.0-beta1``) does not describe the capability,
+The pinned upstream artifact (``v4.7.0-beta2``) does not describe the capability,
 so the generated bindings were faithful to a schema that omits it and the typed
 client simply could not ask. A generator overlay declares the parameter, and the
 runtime selects the response model from the request.
@@ -246,3 +246,34 @@ async def test_the_same_verbs_are_unchanged_without_background(method: str) -> N
     assert isinstance(result, list)
     assert [site.name for site in result] == ["B1", "B2"]
     assert len(calls) == 1
+
+
+def test_overlay_skips_singular_collection_mutations() -> None:
+    """Dashboard, script upload, and token provision are not bulk writes."""
+    from scripts.generate_typed_sdk import apply_background_bulk_overlay
+
+    document = json.loads(BUNDLED_4_7.read_text(encoding="utf-8"))
+    overlaid = apply_background_bulk_overlay("4.7", document)
+
+    def _has_background(path: str, method: str) -> bool:
+        operation = overlaid["paths"][path][method]
+        return any(
+            isinstance(parameter, dict)
+            and parameter.get("name") == "background"
+            and parameter.get("in") == "query"
+            for parameter in operation.get("parameters", []) or []
+        )
+
+    assert _has_background("/api/dcim/devices/", "post")
+    assert _has_background("/api/dcim/devices/", "put")
+    assert _has_background("/api/dcim/devices/", "delete")
+    assert not _has_background("/api/extras/dashboard/", "put")
+    assert not _has_background("/api/extras/dashboard/", "patch")
+    assert not _has_background("/api/extras/scripts/upload/", "post")
+    assert not _has_background("/api/users/tokens/provision/", "post")
+    dashboard_delete = overlaid["paths"]["/api/extras/dashboard/"]["delete"]
+    assert "background" not in {
+        parameter.get("name")
+        for parameter in dashboard_delete.get("parameters", []) or []
+        if isinstance(parameter, dict)
+    }

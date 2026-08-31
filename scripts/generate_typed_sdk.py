@@ -25,12 +25,12 @@ RUFF_VERSION = "0.15.9"
 
 RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
     "4.7": {
-        "netbox_release": "v4.7.0-beta1",
-        "release_commit": "9c163ba2ddfdeafa4bca5c5ca493e70e96ab53f4",
+        "netbox_release": "v4.7.0-beta2",
+        "release_commit": "aa1d49d0f5021a28e6efc2d0364b84c5bcec7137",
         "source_path": "contrib/openapi.json",
-        "source_blob_sha": "ab84349e95a8ba47fbba9632ab2ec32e1637bd90",
-        "source_sha256": "3fdbbc6170fca77c2e5dcd06b85bfaeb90637079b3fde2b8daeefa7846170762",
-        "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0-beta1/contrib/openapi.json",
+        "source_blob_sha": "1a3e6621a50520515652f969e9736da2545704c2",
+        "source_sha256": "1408f6421f45720ecf25aa0edb777f185f74f9a87af887b5eeb73fee8012b880",
+        "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0-beta2/contrib/openapi.json",
     },
     "4.6": {
         "netbox_release": "v4.6.6",
@@ -43,7 +43,7 @@ RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
 }
 
 SCHEMA_SOURCES = {
-    "4.7": Path("/tmp/netbox-v4.7.0-beta1-openapi.json"),
+    "4.7": Path("/tmp/netbox-v4.7.0-beta2-openapi.json"),
     "4.6": Path("/tmp/netbox-v4.6-openapi.json"),
     "4.5": Path("/tmp/netbox-v4.5.5/contrib/openapi.json"),
     "4.4": Path("/tmp/netbox-v4.4.10/contrib/openapi.json"),
@@ -610,7 +610,7 @@ _OVERLAY_FIELD_SOURCE = {
 # paths, answering 202 with a job reference instead of executing synchronously.
 # It exists specifically to avoid proxy timeouts on large batches.
 #
-# The pinned upstream artifact is ``v4.7.0-beta1``, whose OpenAPI document does
+# The pinned upstream artifact is ``v4.7.0-beta2``, whose OpenAPI document does
 # not describe the capability at all (0 ``background`` parameters, 0 ``202``
 # responses -- asserted by a guard test). The generated bindings are therefore
 # *faithful to the artifact*, and the typed surface simply cannot reach a feature
@@ -639,12 +639,76 @@ _BACKGROUND_METHODS = ("post", "put", "patch", "delete")
 
 
 def _is_collection_path(path: str) -> bool:
-    """True for a bulk-capable collection path -- no ``{...}`` placeholder."""
+    """True for a collection path -- no ``{...}`` placeholder.
+
+    Necessary but not sufficient for a bulk write. Singular resources such as
+    the extras dashboard also live at parameter-free paths.
+    """
     return path.startswith("/api/") and "{" not in path
+
+
+def _deref_local_schema(schema_doc: dict[str, Any], node: Any) -> Any:
+    """Follow one local ``#/components/schemas/`` pointer, otherwise return ``node``."""
+    if not isinstance(node, dict):
+        return node
+    ref = node.get("$ref")
+    if not isinstance(ref, str) or not ref.startswith("#/components/schemas/"):
+        return node
+    name = ref.rsplit("/", 1)[-1]
+    components = schema_doc.get("components")
+    schemas = components.get("schemas") if isinstance(components, dict) else None
+    if not isinstance(schemas, dict):
+        return node
+    target = schemas.get(name)
+    return target if isinstance(target, dict) else node
+
+
+def _json_body_schema(operation: dict[str, Any]) -> Any:
+    body = operation.get("requestBody")
+    if not isinstance(body, dict):
+        return None
+    content = body.get("content")
+    if not isinstance(content, dict):
+        return None
+    json_content = content.get("application/json")
+    if not isinstance(json_content, dict):
+        return None
+    return json_content.get("schema")
+
+
+def _schema_node_is_array(schema_doc: dict[str, Any], node: Any) -> bool:
+    """True when ``node`` is an array schema or a oneOf/anyOf that includes one."""
+    resolved = _deref_local_schema(schema_doc, node)
+    if not isinstance(resolved, dict):
+        return False
+    if resolved.get("type") == "array":
+        return True
+    for key in ("oneOf", "anyOf"):
+        variants = resolved.get(key)
+        if isinstance(variants, list) and any(
+            _schema_node_is_array(schema_doc, variant) for variant in variants
+        ):
+            return True
+    return False
+
+
+def _is_bulk_write_operation(
+    schema_doc: dict[str, Any], path: str, operation: dict[str, Any]
+) -> bool:
+    """True when the operation accepts a JSON array (NetBox bulk create/update/delete)."""
+    return _is_collection_path(path) and _schema_node_is_array(
+        schema_doc, _json_body_schema(operation)
+    )
 
 
 def apply_background_bulk_overlay(version: str, schema: dict[str, Any]) -> dict[str, Any]:
     """Return a copy of ``schema`` declaring ``?background=true`` on bulk writes.
+
+    Eligibility is the JSON request body, not the path shape. Parameter-free
+    paths such as ``/api/extras/dashboard/`` and ``/api/extras/scripts/upload/``
+    are singular mutations; advertising ``background`` there would make the
+    runtime expect ``BackgroundJobReference`` after a write that already
+    committed.
 
     Applied to an in-memory copy only; the committed ``netbox-openapi-*.json``
     stays byte-faithful to the pinned upstream artifact, so provenance
@@ -657,11 +721,13 @@ def apply_background_bulk_overlay(version: str, schema: dict[str, Any]) -> dict[
     if not isinstance(paths, dict):
         return patched
     for path, item in paths.items():
-        if not isinstance(item, dict) or not _is_collection_path(path):
+        if not isinstance(item, dict):
             continue
         for method in _BACKGROUND_METHODS:
             operation = item.get(method)
             if not isinstance(operation, dict):
+                continue
+            if not _is_bulk_write_operation(patched, path, operation):
                 continue
             parameters = operation.setdefault("parameters", [])
             if not isinstance(parameters, list):
@@ -700,6 +766,17 @@ def apply_write_compat_overlay(version: str, schema: dict[str, Any]) -> dict[str
     return patched
 
 
+def _datamodel_codegen_command() -> list[str]:
+    executable = shutil.which("datamodel-codegen")
+    if executable is None:
+        raise RuntimeError(
+            "datamodel-codegen is not on PATH; install the locked development extra "
+            f"(uv sync --dev) so generation uses datamodel-code-generator=="
+            f"{DATAMODEL_CODE_GENERATOR_VERSION}"
+        )
+    return [executable]
+
+
 def generate_models(version: str, input_path: Path, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ)
@@ -707,10 +784,7 @@ def generate_models(version: str, input_path: Path, output_path: Path) -> None:
     env.setdefault("UV_TOOL_DIR", "/tmp/uv-tools")
     subprocess.run(
         [
-            "uvx",
-            "--from",
-            f"datamodel-code-generator=={DATAMODEL_CODE_GENERATOR_VERSION}",
-            "datamodel-codegen",
+            *_datamodel_codegen_command(),
             "--input",
             str(input_path),
             "--input-file-type",

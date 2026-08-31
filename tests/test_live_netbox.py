@@ -35,12 +35,20 @@ async def test_live_core_status_schema_and_typed_list() -> None:
         cleanup.push_async_callback(live_api.client.close)
         status = await live_api.status()
         version = str(status["netbox-version"])
+        expected = os.getenv("NETBOX_EXPECTED_VERSION")
+        if expected:
+            want = expected.removeprefix("v")
+            assert version == want, (
+                f"live job expected NetBox {want}; /api/status/ reported {version}"
+            )
         release_line = ".".join(version.split(".")[:2])
-        assert release_line in {"4.5", "4.6"}
+        assert release_line in {"4.5", "4.6", "4.7"}
 
         schema = await live_api.openapi()
         assert str(schema["info"]["version"]).startswith(release_line)
         assert "/api/dcim/devices/" in schema["paths"]
+        if release_line == "4.7":
+            assert "/api/dcim/cooling-sources/" in schema["paths"]
 
         typed = typed_api(url, token=token, netbox_version=release_line)
         cleanup.push_async_callback(typed.client.close)

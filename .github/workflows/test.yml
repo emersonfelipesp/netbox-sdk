@@ -385,13 +385,15 @@ jobs:
 
   test-live-netbox:
     name: live NetBox ${{ matrix.netbox-version }} / Python 3.11
+    env:
+      NETBOX_EXPECTED_VERSION: ${{ matrix.netbox-version }}
     needs: changes
     if: ${{ (github.event_name == 'push' && github.ref_name == 'main') || needs.changes.outputs.run_all == 'true' || needs.changes.outputs.sdk == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6"]
+        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6", "v4.7.0-beta2"]
     # Only postgres and redis as service containers — netbox is started
     # manually in a step so postgres is healthy before netbox connects.
     services:
@@ -446,6 +448,11 @@ jobs:
           set -euo pipefail
 
           image="ghcr.io/netbox-community/netbox:${{ matrix.netbox-version }}"
+          # Preview tags move; pin the beta2 image by digest so a retag cannot
+          # silently swap the live 4.7 job onto a different build.
+          if [ "${{ matrix.netbox-version }}" = "v4.7.0-beta2" ]; then
+            image="ghcr.io/netbox-community/netbox@sha256:b4c36c2ecbb161dad6557cec9f505e7dd7af0fee23f16f937f5585f440941467"
+          fi
           token_key="ci1234567890"
           token="0123456789abcdef0123456789abcdef01234567"
           token_pepper="ci-token-pepper-for-testing-only-not-for-production-use-12345"
@@ -472,6 +479,11 @@ jobs:
               "$image"
             echo "NETBOX_CI_BACKEND=docker" >> "$GITHUB_ENV"
             exit 0
+          fi
+
+          if [ "${{ matrix.netbox-version }}" = "v4.7.0-beta2" ]; then
+            echo "Pinned digest for v4.7.0-beta2 is unavailable; failing closed (no mutable tag fallback)"
+            exit 1
           fi
 
           echo "Docker image $image is unavailable; falling back to source checkout"
@@ -617,7 +629,16 @@ jobs:
             exit 1
           fi
 
-          python3 -c "import json,sys; print('NetBox API status:', json.load(open('/tmp/netbox-status.json')).get('netbox-version', 'unknown'))"
+          python3 - <<'PY'
+          import json, os, sys
+          expected = os.environ["NETBOX_EXPECTED_VERSION"].removeprefix("v")
+          reported = json.load(open("/tmp/netbox-status.json")).get("netbox-version")
+          print(f"NetBox API status: {reported} (expected {expected})")
+          if reported != expected:
+              raise SystemExit(
+                  f"Live job expected NetBox {expected}; /api/status/ reported {reported!r}"
+              )
+          PY
 
       - name: Set NetBox connection env vars
         run: |
@@ -640,6 +661,7 @@ jobs:
           NETBOX_TOKEN_KEY: ${{ env.NETBOX_TOKEN_KEY }}
           NETBOX_TOKEN_SECRET: ${{ env.NETBOX_TOKEN_SECRET }}
           NETBOX_LIVE_TEST: "1"
+          NETBOX_EXPECTED_VERSION: ${{ matrix.netbox-version }}
         run: uv run pytest -v --tb=short -p no:randomly -m suite_sdk
 
       - name: Dump NetBox logs on failure

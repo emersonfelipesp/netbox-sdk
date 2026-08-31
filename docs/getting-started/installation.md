@@ -75,7 +75,7 @@ uv run nbx --help
 
 The repository ships committed OpenAPI bundles and generated Pydantic models for
 NetBox `4.6`, `4.5`, `4.4`, and `4.3`, plus `4.7` (preview, opt-in). Users do not need to run code generation
-locally. CI live-tests the SDK against `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+locally. CI live-tests the SDK against `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 
 ## IDE type hints
 

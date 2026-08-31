@@ -51,6 +51,28 @@ device.name = "sw-lon-01-renamed"
 await device.save()
 ```
 
+### Selection custom fields (NetBox 4.7)
+
+NetBox 4.7 returns selection and multiple-selection custom field values as
+objects (`{"value": "datacenter", "label": "Data Center"}`). Writes still accept
+the raw value. Copying a 4.7 read payload into a write body would submit the
+object form. Use `custom_fields_for_write(..., selection=...)` so only named
+selection fields are unwrapped. JSON custom fields, even ones whose payload
+is exactly `{value, label}`, stay intact unless you name them:
+
+```python
+from netbox_sdk import custom_fields_for_write
+
+device = await nb.dcim.devices.get(42)
+await nb.dcim.devices.patch(
+    42,
+    custom_fields=custom_fields_for_write(
+        device.custom_fields,
+        selection=("site_role", "regions"),
+    ),
+)
+```
+
 ### Use detail endpoints
 
 ```python
@@ -123,8 +145,8 @@ typed_api("https://netbox.example.com", token="tok", netbox_version="4.5.5")
 
 The typed client supports NetBox `4.6`, `4.5`, `4.4`, and `4.3`, plus `4.7` (preview, opt-in). Generated
 models for those release lines are committed in the repository and shipped
-with the package. The CI live-NetBox suite exercises `v4.6.6`, `v4.6.3`,
-`v4.6.2`, and `v4.5.10`.
+with the package. The CI live-NetBox suite exercises `v4.7.0-beta2`, `v4.6.6`,
+`v4.6.3`, `v4.6.2`, and `v4.5.10`.
 
 ---
 

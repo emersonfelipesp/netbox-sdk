@@ -12461,6 +12461,21 @@ class ExtrasCustomFieldsRootGetQuery(BaseModel):
     search_weight_lte: list[int] | None = Field(None, alias="search_weight__lte")
     search_weight_n: list[int] | None = Field(None, alias="search_weight__n")
     start: int | None = None
+    status: Literal["active", "deleting", "null", "provisioning"] | None = None
+    status_empty: bool | None = Field(None, alias="status__empty")
+    status_ic: list[str] | None = Field(None, alias="status__ic")
+    status_ie: list[str] | None = Field(None, alias="status__ie")
+    status_iew: list[str] | None = Field(None, alias="status__iew")
+    status_iregex: list[str] | None = Field(None, alias="status__iregex")
+    status_isw: list[str] | None = Field(None, alias="status__isw")
+    status_n: Literal["active", "deleting", "null", "provisioning"] | None = Field(
+        None, alias="status__n"
+    )
+    status_nic: list[str] | None = Field(None, alias="status__nic")
+    status_nie: list[str] | None = Field(None, alias="status__nie")
+    status_niew: list[str] | None = Field(None, alias="status__niew")
+    status_nisw: list[str] | None = Field(None, alias="status__nisw")
+    status_regex: list[str] | None = Field(None, alias="status__regex")
     type: list[str] | None = None
     type_empty: bool | None = Field(None, alias="type__empty")
     type_ic: list[str] | None = Field(None, alias="type__ic")
@@ -12745,22 +12760,10 @@ class ExtrasCustomLinksRootPutQuery(BaseModel):
     background: bool | None = None
 
 
-class ExtrasDashboardRootDeleteQuery(BaseModel):
-    background: bool | None = None
-
-
 class ExtrasDashboardRootGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
-
-
-class ExtrasDashboardRootPatchQuery(BaseModel):
-    background: bool | None = None
-
-
-class ExtrasDashboardRootPutQuery(BaseModel):
-    background: bool | None = None
 
 
 class ExtrasEventRulesDetailGetQuery(BaseModel):
@@ -13491,10 +13494,6 @@ class ExtrasScriptsRootGetQuery(BaseModel):
     ordering: str | None = None
     q: str | None = None
     start: int | None = None
-
-
-class ExtrasScriptsUploadPostQuery(BaseModel):
-    background: bool | None = None
 
 
 class ExtrasSubscriptionsDetailGetQuery(BaseModel):
@@ -17364,10 +17363,6 @@ class UsersTokensDetailGetQuery(BaseModel):
     brief: bool | None = None
     fields: str | None = None
     omit: str | None = None
-
-
-class UsersTokensProvisionPostQuery(BaseModel):
-    background: bool | None = None
 
 
 class UsersTokensRootDeleteQuery(BaseModel):
@@ -31824,49 +31819,39 @@ class ExtrasDashboardEndpoint(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def bulk_update(
-        self,
-        body: DashboardRequest,
-        query: ExtrasDashboardRootPutQuery | dict[str, Any] | None = None,
-    ) -> Dashboard:
+    async def bulk_update(self, body: DashboardRequest) -> Dashboard:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "PUT",
             path,
-            query_model=ExtrasDashboardRootPutQuery,
-            query=query,
+            query_model=None,
+            query=None,
             body_model=DashboardRequest,
             body=body,
             response_model=Dashboard,
             return_none_on_404=False,
         )
 
-    async def bulk_partial_update(
-        self,
-        body: PatchedDashboardRequest,
-        query: ExtrasDashboardRootPatchQuery | dict[str, Any] | None = None,
-    ) -> Dashboard:
+    async def bulk_partial_update(self, body: PatchedDashboardRequest) -> Dashboard:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "PATCH",
             path,
-            query_model=ExtrasDashboardRootPatchQuery,
-            query=query,
+            query_model=None,
+            query=None,
             body_model=PatchedDashboardRequest,
             body=body,
             response_model=Dashboard,
             return_none_on_404=False,
         )
 
-    async def bulk_delete(
-        self, query: ExtrasDashboardRootDeleteQuery | dict[str, Any] | None = None
-    ) -> None:
+    async def bulk_delete(self) -> None:
         path = "/api/extras/dashboard/"
         return await self._typed_json_request(
             "DELETE",
             path,
-            query_model=ExtrasDashboardRootDeleteQuery,
-            query=query,
+            query_model=None,
+            query=None,
             body_model=None,
             body=None,
             response_model=None,
@@ -32996,17 +32981,13 @@ class ExtrasScriptsUpload(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def create(
-        self,
-        body: ScriptModuleRequest | dict[str, Any],
-        query: ExtrasScriptsUploadPostQuery | dict[str, Any] | None = None,
-    ) -> ScriptModule:
+    async def create(self, body: ScriptModuleRequest | dict[str, Any]) -> ScriptModule:
         path = "/api/extras/scripts/upload/"
         return await self._typed_multipart_request(
             "POST",
             path,
-            query_model=ExtrasScriptsUploadPostQuery,
-            query=query,
+            query_model=None,
+            query=None,
             body_model=ScriptModuleRequest,
             body=body,
             response_model=ScriptModule,
@@ -38100,17 +38081,13 @@ class UsersTokensProvision(TypedAppBase):
     def __init__(self, api: TypedApiBase) -> None:
         super().__init__(api)
 
-    async def create(
-        self,
-        body: TokenProvisionRequest,
-        query: UsersTokensProvisionPostQuery | dict[str, Any] | None = None,
-    ) -> TokenProvision:
+    async def create(self, body: TokenProvisionRequest) -> TokenProvision:
         path = "/api/users/tokens/provision/"
         return await self._typed_json_request(
             "POST",
             path,
-            query_model=UsersTokensProvisionPostQuery,
-            query=query,
+            query_model=None,
+            query=None,
             body_model=TokenProvisionRequest,
             body=body,
             response_model=TokenProvision,

@@ -51,6 +51,27 @@ device.name = "sw-lon-01-renamed"
 await device.save()
 ```
 
+### Campos personalizados de seleção (NetBox 4.7)
+
+O NetBox 4.7 devolve valores de campos personalizados de seleção e seleção
+múltipla como objetos (`{"value": "datacenter", "label": "Data Center"}`). A
+escrita ainda aceita o valor bruto. Use `custom_fields_for_write(..., selection=...)`
+para desembrulhar só os campos de seleção nomeados. Campos JSON, mesmo com
+o formato `{value, label}`, ficam intactos a menos que você os nomeie:
+
+```python
+from netbox_sdk import custom_fields_for_write
+
+device = await nb.dcim.devices.get(42)
+await nb.dcim.devices.patch(
+    42,
+    custom_fields=custom_fields_for_write(
+        device.custom_fields,
+        selection=("site_role", "regions"),
+    ),
+)
+```
+
 ### Usar endpoints de detalhe
 
 ```python
@@ -123,7 +144,7 @@ typed_api("https://netbox.example.com", token="tok", netbox_version="4.5.5")
 
 O cliente tipado suporta NetBox `4.6`, `4.5`, `4.4` e `4.3`, além de `4.7` (preview, opcional). Modelos gerados
 para essas linhas de release estão versionados no repositório e acompanham
-o pacote. A suíte live-NetBox de CI exercita `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
+o pacote. A suíte live-NetBox de CI exercita `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ---
 

@@ -159,14 +159,13 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
   `netbox_sdk.schema_resolution` is the single bundled/live resolution policy
   used by SDK, CLI, TUI, and MCP. Bundled typed and OpenAPI support currently
   targets NetBox release lines `4.7` (preview), `4.6`, `4.5`, `4.4`, and `4.3`; the default
-  remains 4.6. `4.7` is bundled from the upstream `v4.7.0-beta1` pre-release and
+  remains 4.6. `4.7` is bundled from the upstream `v4.7.0-beta2` pre-release and
   is registered with `status="preview"`: reachable by explicit pin
   (`--netbox-version 4.7` / `NETBOX_SDK_NETBOX_VERSION=4.7`) or by live detection
-  when the instance reports `4.7.x`, but never selected by default. There is no
-  live-CI job for it because upstream publishes no container image for the beta;
-  it is covered instead by the **bundled release-line matrix**, which runs one
-  CI job per registered line against the bundled schema. The CI live-NetBox
-  suite exercises `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+  when the instance reports `4.7.x`, but never selected by default. Live CI
+  exercises `v4.7.0-beta2` from a digest-pinned GHCR image, plus `v4.6.6`,
+  `v4.6.3`, `v4.6.2`, and `v4.5.10`. The **bundled release-line matrix** still
+  runs one CI job per registered line against the bundled schema.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.
 
