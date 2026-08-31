@@ -3491,7 +3491,7 @@ facade.</p>
 <p>Patch versions normalize to their release line, so <code>4.4.10</code> selects the <code>4.4</code>
 typed client.</p>
 <p>Continuous integration exercises the live-NetBox suite against
-<code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code>, and <code>v4.5.10</code>.</p>
+<code>v4.7.0-beta2</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code>, and <code>v4.5.10</code>.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -3550,10 +3550,12 @@ body shape, because a queued batch returns a job for either a single object or a
 list. Without the flag, nothing changes.</p>
 <blockquote>
 <p><strong>This is an overlay, pending upstream schema support.</strong> The pinned 4.7
-artifact (<code>v4.7.0-beta1</code>) does not describe the parameter, so the generator
-declares it while keeping the committed bundle byte-faithful to upstream. A
-guard test fails once a refreshed 4.7 schema describes <code>background</code> itself, so
-the overlay cannot outlive its reason to exist.</p>
+artifact (<code>v4.7.0-beta2</code>) does not describe the parameter, so the generator
+declares it on bulk JSON-array writes while keeping the committed bundle
+byte-faithful to upstream. Singular collection paths such as the extras
+dashboard are not overlaid. A guard test fails once a refreshed 4.7 schema
+describes <code>background</code> itself, so the overlay cannot outlive its reason to
+exist.</p>
 </blockquote>
 <h2 id="generated-artifacts">Generated artifacts<a class="headerlink" href="#generated-artifacts" title="Permanent link">&para;</a></h2>
 <p>The repository ships committed OpenAPI bundles, generated Pydantic models, and

@@ -3490,7 +3490,7 @@ fachada assíncrona.</p>
 </ul>
 <p>Versões de patch normalizam para sua linha de release, então <code>4.4.10</code> seleciona o
 cliente tipado <code>4.4</code>.</p>
-<p>A integração contínua exercita a suíte live-NetBox contra <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code> e <code>v4.5.10</code>.</p>
+<p>A integração contínua exercita a suíte live-NetBox contra <code>v4.7.0-beta2</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code> e <code>v4.5.10</code>.</p>
 <h2 id="exemplo">Exemplo<a class="headerlink" href="#exemplo" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -3551,10 +3551,12 @@ formato do corpo, porque um lote enfileirado retorna um job tanto para um objeto
 único quanto para uma lista. Sem a flag, nada muda.</p>
 <blockquote>
 <p><strong>Isto é um overlay, enquanto o schema upstream não descreve o recurso.</strong> O
-artefato 4.7 fixado (<code>v4.7.0-beta1</code>) não descreve o parâmetro, então o gerador
-o declara mantendo o bundle versionado fiel byte a byte ao upstream. Um teste
-de guarda falha assim que um schema 4.7 atualizado descrever <code>background</code>, de
-modo que o overlay não sobreviva ao seu motivo de existir.</p>
+artefato 4.7 fixado (<code>v4.7.0-beta2</code>) não descreve o parâmetro, então o gerador
+o declara em escritas bulk com corpo JSON em array, mantendo o bundle
+versionado fiel byte a byte ao upstream. Caminhos de coleção singulares, como
+o dashboard de extras, não recebem o overlay. Um teste de guarda falha assim
+que um schema 4.7 atualizado descrever <code>background</code>, de modo que o overlay
+não sobreviva ao seu motivo de existir.</p>
 </blockquote>
 <h2 id="artefatos-gerados">Artefatos gerados<a class="headerlink" href="#artefatos-gerados" title="Permanent link">&para;</a></h2>
 <p>O repositório inclui bundles OpenAPI versionados, modelos Pydantic gerados e
