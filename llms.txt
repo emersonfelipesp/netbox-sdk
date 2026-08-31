@@ -64,4 +64,4 @@ API-first NetBox client with a Python SDK, CLI, typed MCP server, and interactiv
 ## Packaging Status
 - **Repository name**: `netbox-sdk`
 - **Current published package name**: `netbox-sdk` (PyPI `name = "netbox-sdk"` in `pyproject.toml`). `netbox-console` was a legacy alias published separately in earlier releases; it is not shipped from this project file.
-- **Current project version**: `0.0.12rc2`
+- **Current project version**: `0.0.12rc3`

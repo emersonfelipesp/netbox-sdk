@@ -2064,25 +2064,45 @@ def _main_publish(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser()
+class _StoreOnce(argparse.Action):
+    """Reject a second occurrence of the same option, including --flag=value form."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        del parser, option_string
+        current = getattr(namespace, self.dest, None)
+        if current is not None:
+            raise argparse.ArgumentError(self, "option may be given only once")
+        setattr(namespace, self.dest, values)
+
+
+def _cli_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(allow_abbrev=False)
     commands = parser.add_subparsers(dest="command", required=True)
 
-    validate_tag = commands.add_parser("validate-tag")
+    def command(name: str) -> argparse.ArgumentParser:
+        return commands.add_parser(name, allow_abbrev=False)
+
+    validate_tag = command("validate-tag")
     validate_tag.add_argument("--event-name", required=True)
     validate_tag.add_argument("--tag", required=True)
     validate_tag.set_defaults(handler=_main_validate_tag)
 
-    validate_tag_protection = commands.add_parser("validate-tag-protection")
+    validate_tag_protection = command("validate-tag-protection")
     validate_tag_protection.add_argument("--policy-file", type=Path, required=True)
     validate_tag_protection.add_argument("--evidence-file", type=Path, required=True)
     validate_tag_protection.set_defaults(handler=_main_validate_tag_protection)
 
-    policy = commands.add_parser("policy")
+    policy = command("policy")
     _add_policy_arguments(policy)
     policy.set_defaults(handler=_main_policy)
 
-    prepare = commands.add_parser("prepare-transfer")
+    prepare = command("prepare-transfer")
     prepare.add_argument("--dist-dir", type=Path, required=True)
     prepare.add_argument("--transfer-dir", type=Path, required=True)
     prepare.add_argument("--package", required=True)
@@ -2091,21 +2111,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     prepare.add_argument("--source-epoch", type=int, required=True)
     prepare.set_defaults(handler=_main_prepare)
 
-    normalize = commands.add_parser("normalize-build")
+    normalize = command("normalize-build")
     normalize.add_argument("--dist-dir", type=Path, required=True)
     normalize.add_argument("--package", required=True)
     normalize.add_argument("--version", required=True)
     normalize.add_argument("--source-epoch", type=int, required=True)
     normalize.set_defaults(handler=_main_normalize)
 
-    compare = commands.add_parser("compare-builds")
+    compare = command("compare-builds")
     compare.add_argument("--first-dir", type=Path, required=True)
     compare.add_argument("--second-dir", type=Path, required=True)
     compare.add_argument("--package", required=True)
     compare.add_argument("--version", required=True)
     compare.set_defaults(handler=_main_compare)
 
-    seal = commands.add_parser("seal-transfer")
+    seal = command("seal-transfer")
     seal.add_argument("--transfer-dir", type=Path, required=True)
     seal.add_argument("--sealed-dir", type=Path, required=True)
     seal.add_argument("--source-root", type=Path, required=True)
@@ -2115,7 +2135,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     seal.add_argument("--source-epoch", type=int, required=True)
     seal.set_defaults(handler=_main_seal)
 
-    harden_seal = commands.add_parser("harden-seal")
+    harden_seal = command("harden-seal")
     harden_seal.add_argument("--sealed-dir", type=Path, required=True)
     harden_seal.add_argument("--package", required=True)
     harden_seal.add_argument("--version", required=True)
@@ -2123,13 +2143,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     harden_seal.add_argument("--source-epoch", type=int, required=True)
     harden_seal.set_defaults(handler=_main_harden_seal)
 
-    publish = commands.add_parser("publish")
+    publish = command("publish")
     publish.add_argument("--sealed-dir", type=Path, required=True)
     publish.add_argument("--package", required=True)
     publish.add_argument("--version", required=True)
     publish.add_argument("--source-sha", required=True)
     publish.add_argument("--source-epoch", type=int, required=True)
-    publish.add_argument("--server-url", required=True)
+    publish.add_argument("--server-url", required=True, action=_StoreOnce)
     publish.add_argument("--owner", required=True)
     publish.add_argument("--repository", required=True)
     publish.add_argument("--username", required=True)
@@ -2138,8 +2158,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     publish.add_argument("--deadline-seconds", type=float, default=180.0)
     publish.add_argument("--request-timeout", type=float, default=15.0)
     publish.set_defaults(handler=_main_publish)
+    return parser
 
-    args = parser.parse_args(argv)
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _cli_parser().parse_args(argv)
     try:
         return int(args.handler(args))
     except (ReleaseError, RuntimeError, ValueError) as exc:

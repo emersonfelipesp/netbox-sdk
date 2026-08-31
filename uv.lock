@@ -1230,7 +1230,7 @@ wheels = [
 
 [[package]]
 name = "netbox-sdk"
-version = "0.0.12rc2"
+version = "0.0.12rc3"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },

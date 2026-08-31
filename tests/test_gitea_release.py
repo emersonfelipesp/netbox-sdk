@@ -30,6 +30,7 @@ from scripts.gitea_release import (
     ReleaseError,
     RemoteState,
     TransferManifest,
+    _cli_parser,
     _main_publish,
     _main_validate_tag,
     _manifest_payload,
@@ -1438,6 +1439,23 @@ def test_release_source_must_equal_canonical_main(tmp_path: Path) -> None:
         validate_exact_canonical_source(candidate_ref=first, canonical_main_ref=second, repo=repo)
 
 
+def _publish_server_urls(run: str) -> list[str]:
+    urls: list[str] = []
+    tokens = run.split()
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token == "--server-url":
+            assert index + 1 < len(tokens)
+            urls.append(tokens[index + 1].strip('"'))
+            index += 2
+            continue
+        if token.startswith("--server-url="):
+            urls.append(token.split("=", 1)[1].strip('"'))
+        index += 1
+    return urls
+
+
 def _assert_workflow_policy(text: str) -> None:
     required = (
         '      - "v*rc*"',
@@ -1466,6 +1484,7 @@ def _assert_workflow_policy(text: str) -> None:
         "UV_PYTHON_INSTALL_DIR=%s",
         'case "$(readlink -f "$PUBLISH_ROOT/venv/bin/python")" in',
         "https://git.nmulti.cloud/emersonfelipesp/netbox-sdk.git",
+        '--server-url "https://git.nmulti.cloud"',
         "GITEA_TOKEN: ${{ secrets.PACKAGE_WRITE_TOKEN }}",
         'test "$VERIFIED_SOURCE_SHA" = "$EVENT_SOURCE_SHA"',
         'cd "$TOOL_ROOT"',
@@ -1493,6 +1512,7 @@ def _assert_workflow_policy(text: str) -> None:
     assert text.count('--install-dir "$BOOTSTRAP_PYTHON_ROOT"') == 3
     assert text.count('UV_PYTHON_INSTALL_DIR="$MANAGED_PYTHON_ROOT"') == 3
     assert text.count("${{ github.token }}") == 0
+    assert "${{ github.server_url }}" not in text
     assert text.count("${{ secrets.PACKAGE_WRITE_TOKEN }}") == 1
     assert text.count('"$MANAGED_PYTHON_ROOT"/*) ;;') == 3
     assert "UV_MANAGED_PYTHON" not in text
@@ -1585,6 +1605,9 @@ def _assert_workflow_policy(text: str) -> None:
         assert 'cd "$TOOL_ROOT"' in step["run"]
         assert step["run"].index('cd "$TOOL_ROOT"') < step["run"].index("-m scripts.gitea_release")
 
+    publish = final_steps["Publish the sealed exact package"]
+    assert _publish_server_urls(publish["run"]) == ["https://git.nmulti.cloud"]
+
     verify_script_steps = [
         step
         for step in jobs["verify-and-seal"]["steps"]
@@ -1603,6 +1626,7 @@ def _assert_workflow_policy(text: str) -> None:
         assert "A third disposable job" in guide_text
         assert 'cd "$SOURCE_ROOT"' in guide_text
         assert "canonical-main squash SHA" in guide_text
+        assert "github.server_url" in guide_text
         assert "built-in token remains\npackage-read-only" in guide_text
         assert "`PACKAGE_WRITE_TOKEN` secret" in guide_text
         assert "credential-free `mirror-host`" not in guide_text
@@ -1666,6 +1690,18 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
             '          set -euo pipefail\n          "$PUBLISH_ROOT/venv/bin/python" -m scripts.gitea_release seal-transfer',
         ),
         (
+            '--server-url "https://git.nmulti.cloud"',
+            '--server-url "${{ github.server_url }}"',
+        ),
+        (
+            '            --server-url "https://git.nmulti.cloud" \\\n            --owner emersonfelipesp',
+            '            --server-url "https://git.nmulti.cloud" \\\n            --server-url "https://attacker.example" \\\n            --owner emersonfelipesp',
+        ),
+        (
+            '            --server-url "https://git.nmulti.cloud" \\\n            --owner emersonfelipesp',
+            '            --server-url "https://git.nmulti.cloud" \\\n            --server-url=https://attacker.example \\\n            --owner emersonfelipesp',
+        ),
+        (
             "SOURCE_SHA: ${{ github.sha }}",
             "SOURCE_SHA: ${{ needs.verify-and-seal.outputs.source_sha }}",
         ),
@@ -1676,6 +1712,44 @@ def test_private_registry_workflow_security_contract_and_mutations() -> None:
             _assert_workflow_policy(mutated)
     (seal_transfer,)
     (validate_seal,)
+
+
+def test_publish_cli_rejects_duplicate_and_abbreviated_server_url() -> None:
+    parser = _cli_parser()
+    required = [
+        "publish",
+        "--sealed-dir",
+        "sealed",
+        "--package",
+        "netbox-sdk",
+        "--version",
+        "0.0.12rc3",
+        "--source-sha",
+        "a" * 40,
+        "--source-epoch",
+        "1",
+        "--server-url",
+        "https://git.nmulti.cloud",
+        "--owner",
+        "emersonfelipesp",
+        "--repository",
+        "netbox-sdk",
+        "--username",
+        "emersonfelipesp",
+        "--python",
+        "/usr/bin/python",
+    ]
+    parsed = parser.parse_args(required)
+    assert parsed.server_url == "https://git.nmulti.cloud"
+    for extra in (
+        ["--server-url", "https://attacker.example"],
+        ["--server-url=https://attacker.example"],
+    ):
+        with pytest.raises(SystemExit):
+            parser.parse_args([*required, *extra])
+    abbreviated = [token if token != "--server-url" else "--server-ur" for token in required]
+    with pytest.raises(SystemExit):
+        parser.parse_args(abbreviated)
 
 
 def test_gitea_artifact_v3_compatibility_workflow_is_cross_job_and_bounded() -> None:
@@ -1847,11 +1921,11 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.12rc2")
-    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.12rc2")
+    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.12rc3")
+    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.12rc3")
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert "git push gitea v0.0.12rc2" in readme
+    assert "git push gitea v0.0.12rc3" in readme
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {

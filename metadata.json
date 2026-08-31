@@ -1,5 +1,5 @@
 {
-  "release": "0.0.12rc2",
+  "release": "0.0.12rc3",
   "python": "3.11+",
   "netbox": [
     "4.3",
@@ -8,9 +8,9 @@
     "4.6",
     "4.7"
   ],
-  "generated_at": "2026-08-31T19:53:44Z",
+  "generated_at": "2026-08-31T20:53:01Z",
   "source": {
     "repo": "emersonfelipesp/netbox-sdk",
-    "commit": "10955e351885ffeb74b95bc874a6af46b4f2108a"
+    "commit": "6c71607ddba121993ba7ccae0dcce75ad72db9ac"
   }
 }

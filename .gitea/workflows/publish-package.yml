@@ -486,7 +486,7 @@ jobs:
             --version "$RELEASE_VERSION" \
             --source-sha "$SOURCE_SHA" \
             --source-epoch "$SOURCE_EPOCH" \
-            --server-url "${{ github.server_url }}" \
+            --server-url "https://git.nmulti.cloud" \
             --owner emersonfelipesp \
             --repository netbox-sdk \
             --username emersonfelipesp \
