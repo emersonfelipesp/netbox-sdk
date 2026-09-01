@@ -102,6 +102,8 @@ def test_ci_contains_certification_package_and_docs_gates() -> None:
     )
     assert "failing closed (no mutable tag fallback)" in tests_workflow
     assert "NETBOX_EXPECTED_VERSION: ${{ matrix.netbox-version }}" in tests_workflow
+    assert "scripts/check_live_netbox_status.py" in tests_workflow
+    assert "tests/test_check_live_netbox_status.py" in tests_workflow
     assert "needs.changes.outputs.sdk == 'true'" in tests_workflow
     assert "tests/test_typed_generation.py" in tests_workflow
     assert "tests/test_live_netbox.py" in tests_workflow

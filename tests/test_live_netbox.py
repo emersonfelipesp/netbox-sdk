@@ -9,6 +9,7 @@ from uuid import uuid4
 import pytest
 
 from netbox_sdk import api, typed_api
+from scripts.check_live_netbox_status import live_status_matches
 
 pytestmark = [pytest.mark.suite_sdk, pytest.mark.live]
 
@@ -38,8 +39,9 @@ async def test_live_core_status_schema_and_typed_list() -> None:
         expected = os.getenv("NETBOX_EXPECTED_VERSION")
         if expected:
             want = expected.removeprefix("v")
-            assert version == want, (
-                f"live job expected NetBox {want}; /api/status/ reported {version}"
+            image = os.getenv("NETBOX_CI_IMAGE")
+            assert live_status_matches(expected, version, image), (
+                f"live job expected NetBox {want} on {image!r}; /api/status/ reported {version}"
             )
         release_line = ".".join(version.split(".")[:2])
         assert release_line in {"4.5", "4.6", "4.7"}

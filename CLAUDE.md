@@ -264,7 +264,8 @@ the transport loss as a warning rather than a job error.
   is registered with `status="preview"`: reachable by explicit pin
   (`--netbox-version 4.7` / `NETBOX_SDK_NETBOX_VERSION=4.7`) or by live detection
   when the instance reports `4.7.x`, but never selected by default. Live CI
-  exercises `v4.7.0-beta2` from a digest-pinned GHCR image, plus `v4.6.6`,
+  exercises `v4.7.0-beta2` from a digest-pinned GHCR image (that image's
+  `/api/status/` reports `4.7.0`; live CI accepts that known alias), plus `v4.6.6`,
   `v4.6.3`, `v4.6.2`, and `v4.5.10`. The **bundled release-line matrix** still
   runs one CI job per registered line against the bundled schema.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.

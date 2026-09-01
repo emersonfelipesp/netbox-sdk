@@ -57,6 +57,7 @@ jobs:
               - 'netbox_sdk/**'
               - 'scripts/generate_typed_sdk.py'
               - 'scripts/prepare_testpypi_upload.py'
+              - 'scripts/check_live_netbox_status.py'
               - 'tests/test_api_auth.py'
               - 'tests/test_api_cache.py'
               - 'tests/test_config_profiles.py'
@@ -80,6 +81,7 @@ jobs:
               - 'tests/test_typed_sdk.py'
               - 'tests/test_typed_generation.py'
               - 'tests/test_live_netbox.py'
+              - 'tests/test_check_live_netbox_status.py'
               - 'tests/test_security_sdk.py'
             cli:
               - 'netbox_cli/**'
@@ -478,6 +480,7 @@ jobs:
               -e SUPERUSER_API_TOKEN="$token" \
               "$image"
             echo "NETBOX_CI_BACKEND=docker" >> "$GITHUB_ENV"
+            echo "NETBOX_CI_IMAGE=$image" >> "$GITHUB_ENV"
             exit 0
           fi
 
@@ -629,16 +632,10 @@ jobs:
             exit 1
           fi
 
-          python3 - <<'PY'
-          import json, os, sys
-          expected = os.environ["NETBOX_EXPECTED_VERSION"].removeprefix("v")
-          reported = json.load(open("/tmp/netbox-status.json")).get("netbox-version")
-          print(f"NetBox API status: {reported} (expected {expected})")
-          if reported != expected:
-              raise SystemExit(
-                  f"Live job expected NetBox {expected}; /api/status/ reported {reported!r}"
-              )
-          PY
+          python3 scripts/check_live_netbox_status.py \
+            --expected "$NETBOX_EXPECTED_VERSION" \
+            --status-file /tmp/netbox-status.json \
+            --image "${NETBOX_CI_IMAGE:-}"
 
       - name: Set NetBox connection env vars
         run: |
@@ -662,6 +659,7 @@ jobs:
           NETBOX_TOKEN_SECRET: ${{ env.NETBOX_TOKEN_SECRET }}
           NETBOX_LIVE_TEST: "1"
           NETBOX_EXPECTED_VERSION: ${{ matrix.netbox-version }}
+          NETBOX_CI_IMAGE: ${{ env.NETBOX_CI_IMAGE }}
         run: uv run pytest -v --tb=short -p no:randomly -m suite_sdk
 
       - name: Dump NetBox logs on failure
