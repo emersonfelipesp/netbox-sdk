@@ -441,7 +441,21 @@ with the title pattern `netbox-sdk vX.Y.Z`:
 
 ```bash
 gh release create vX.Y.Z \
-  --title "netbox-sdk vX.Y.Z"
+  --title "netbox-sdk vX.Y.Z" \
+  --target <canonical-main-sha>
+```
+
+This source candidate is a final. Do not authorize it with a direct tag push.
+After the Gitea package exists, confirm the tag is absent, then bind the
+GitHub Release to the reviewed `main` SHA. `--target` is ignored when the
+tag already exists, so an unexpected `v0.0.12` must fail closed:
+
+```bash
+git ls-remote origin refs/tags/v0.0.12
+# Must print nothing.
+gh release create v0.0.12 \
+  --title "netbox-sdk v0.0.12" \
+  --target <canonical-main-sha>
 ```
 
 When cutting a source candidate, bump **`pyproject.toml`** and

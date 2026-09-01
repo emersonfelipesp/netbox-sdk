@@ -1926,6 +1926,9 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
     assert "git push gitea v0.0.12rc3" in readme
+    assert "git tag -a v0.0.12 -m" not in readme
+    assert "--target <canonical-main-sha>" in readme
+    assert "git ls-remote origin refs/tags/v0.0.12" in readme
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {

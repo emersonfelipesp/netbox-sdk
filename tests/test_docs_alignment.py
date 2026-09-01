@@ -334,7 +334,15 @@ def test_all_release_version_surfaces_match_pyproject() -> None:
 
     readme = _read("README.md")
     assert f"netbox-sdk[all]=={published}" in readme
-    assert f"git push gitea v{version}" in readme
+    if is_public_pypi_version(version):
+        assert re.search(r"git push gitea v\S+rc\S*", readme)
+        assert not re.search(rf"git push gitea v{re.escape(version)}(?:\s|$)", readme)
+        assert f"git tag -a v{version} -m" not in readme
+        assert f"gh release create v{version}" in readme
+        assert "--target <canonical-main-sha>" in readme
+        assert f"git ls-remote origin refs/tags/v{version}" in readme
+    else:
+        assert f"git push gitea v{version}" in readme
     assert "gh release create vX.Y.Z" in readme
     assert '--title "netbox-sdk vX.Y.Z"' in readme
 

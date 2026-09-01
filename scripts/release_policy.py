@@ -165,6 +165,28 @@ def validate_exact_canonical_source(
     return candidate
 
 
+def validate_release_source(
+    *,
+    event_name: str,
+    candidate_ref: str,
+    canonical_main_ref: str,
+    repo: Path = ROOT,
+) -> tuple[str, str]:
+    """RC pushes may be ancestors of main; final releases must equal main."""
+    if event_name == "release":
+        commit = validate_exact_canonical_source(
+            candidate_ref=candidate_ref,
+            canonical_main_ref=canonical_main_ref,
+            repo=repo,
+        )
+        return commit, commit
+    return validate_canonical_main_ancestry(
+        candidate_ref=candidate_ref,
+        canonical_main_ref=canonical_main_ref,
+        repo=repo,
+    )
+
+
 def validated_commit_epoch(*, commit_ref: str, repo: Path = ROOT) -> int:
     """Return the exact commit timestamp when it is safe for archive normalization."""
     resolved = _git_output(repo, "rev-parse", "--verify", f"{commit_ref}^{{commit}}")
@@ -205,7 +227,8 @@ def main() -> int:
         ref_name=args.ref_name,
         version=context.version,
     )
-    candidate, canonical_main = validate_canonical_main_ancestry(
+    candidate, canonical_main = validate_release_source(
+        event_name=args.event_name,
         candidate_ref=args.candidate_ref,
         canonical_main_ref=args.canonical_main_ref,
     )

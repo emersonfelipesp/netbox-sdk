@@ -11,6 +11,7 @@ from scripts.release_policy import (
     validate_canonical_main_ancestry,
     validate_event_tag,
     validate_immutable_tag,
+    validate_release_source,
 )
 
 pytestmark = pytest.mark.suite_sdk
@@ -78,6 +79,37 @@ def test_release_commit_must_already_be_on_canonical_main(tmp_path: Path) -> Non
             canonical_main_ref="refs/remotes/origin/release-policy-main",
             repo=repo,
         )
+
+
+def test_final_release_source_must_equal_canonical_main(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-b", "main")
+    _git(repo, "config", "user.name", "Release Test")
+    _git(repo, "config", "user.email", "release-test@example.invalid")
+    ancestor = _commit(repo, "base", "base")
+    canonical_main = _commit(repo, "main", "main")
+    _git(repo, "update-ref", "refs/remotes/origin/release-policy-main", canonical_main)
+
+    assert validate_release_source(
+        event_name="push",
+        candidate_ref=ancestor,
+        canonical_main_ref="refs/remotes/origin/release-policy-main",
+        repo=repo,
+    ) == (ancestor, canonical_main)
+    with pytest.raises(RuntimeError, match="must equal the explicitly fetched canonical main"):
+        validate_release_source(
+            event_name="release",
+            candidate_ref=ancestor,
+            canonical_main_ref="refs/remotes/origin/release-policy-main",
+            repo=repo,
+        )
+    assert validate_release_source(
+        event_name="release",
+        candidate_ref=canonical_main,
+        canonical_main_ref="refs/remotes/origin/release-policy-main",
+        repo=repo,
+    ) == (canonical_main, canonical_main)
 
 
 def test_release_events_require_exact_project_version() -> None:
