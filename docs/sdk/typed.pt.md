@@ -24,6 +24,7 @@ nb = typed_api(
 
 Linhas de release suportadas:
 
+- `4.7` (padrão estável)
 - `4.6`
 - `4.5`
 - `4.4`
@@ -32,7 +33,7 @@ Linhas de release suportadas:
 Versões de patch normalizam para sua linha de release, então `4.4.10` seleciona o
 cliente tipado `4.4`.
 
-A integração contínua exercita a suíte live-NetBox contra `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
+A integração contínua exercita a suíte live-NetBox contra `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ## Exemplo
 
@@ -107,7 +108,7 @@ formato do corpo, porque um lote enfileirado retorna um job tanto para um objeto
 único quanto para uma lista. Sem a flag, nada muda.
 
 > **Isto é um overlay, enquanto o schema upstream não descreve o recurso.** O
-> artefato 4.7 fixado (`v4.7.0-beta2`) não descreve o parâmetro, então o gerador
+> artefato 4.7 fixado (`v4.7.0`) não descreve o parâmetro, então o gerador
 > o declara em escritas bulk com corpo JSON em array, mantendo o bundle
 > versionado fiel byte a byte ao upstream. Caminhos de coleção singulares, como
 > o dashboard de extras, não recebem o overlay. Um teste de guarda falha assim
@@ -122,13 +123,13 @@ necessário executar geração de código localmente.
 
 Módulos relevantes:
 
+- `netbox_sdk.models.v4_7`
 - `netbox_sdk.models.v4_6`
-- `netbox_sdk.models.v4_7` (preview)
 - `netbox_sdk.models.v4_5`
 - `netbox_sdk.models.v4_4`
 - `netbox_sdk.models.v4_3`
+- `netbox_sdk.typed_versions.v4_7`
 - `netbox_sdk.typed_versions.v4_6`
-- `netbox_sdk.typed_versions.v4_7` (preview)
 - `netbox_sdk.typed_versions.v4_5`
 - `netbox_sdk.typed_versions.v4_4`
 - `netbox_sdk.typed_versions.v4_3`
@@ -139,7 +140,7 @@ Módulos relevantes:
 - Use `api()` para a fachada assíncrona ergonômica
 - Use `typed_api()` para E/S validada por Pydantic versionada
 
-### NetBox 4.7 (preview) — mapeamentos de porta de serviços
+### NetBox 4.7 GA — mapeamentos de porta de serviços
 
 O NetBox 4.7 adiciona `port_mappings`, permitindo que um serviço exponha vários
 protocolos ao mesmo tempo (DNS em `tcp/53` e `udp/53`). O par legado
@@ -160,12 +161,7 @@ Na leitura, um serviço de protocolo único reporta `port_mappings` **e** os cam
 legados `protocol`/`ports`; um serviço multiprotocolo reporta `null` para ambos,
 pois não pode ser expresso no formato antigo.
 
-> **Nota de geração.** O `drf-spectacular` omite `protocol` do bloco
-> `properties` dos modelos *graváveis* de serviço, embora o contrato de escrita
-> documentado o aceite. O `netbox-sdk` o restaura com um overlay determinístico
-> de geração (`scripts/generate_typed_sdk.py::apply_write_compat_overlay`)
-> aplicado apenas em memória — o bundle OpenAPI versionado permanece fiel byte a
-> byte ao artefato upstream fixado. Sem ele, um PATCH de
-> `{"protocol": "udp", "ports": [53]}` seria enviado como `{"ports": [53]}` e o
-> NetBox repreencheria o protocolo armazenado, ignorando silenciosamente a
-> alteração.
+> **Nota de geração.** O schema oficial GA `v4.7.0` emite `protocol`, `ports` e
+> `port_mappings` diretamente em todos os modelos graváveis de serviço e de
+> template de serviço. Portanto, o gerador consome as propriedades upstream sem
+> um overlay de compatibilidade de serviço.

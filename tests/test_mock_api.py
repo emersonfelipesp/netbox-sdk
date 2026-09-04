@@ -19,6 +19,7 @@ import httpx
 import pytest
 
 from netbox_sdk.mock import create_mock_app
+from netbox_sdk.mock.routes import RefResolver, _value_validation_errors
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -94,7 +95,14 @@ def test_netbox_status(client):
     assert resp.status_code == 200
     body = resp.json()
     assert "netbox-version" in body
-    assert body["netbox-version"].startswith("4.")
+    assert body["netbox-version"] == "4.7.0"
+
+
+def test_default_mock_tracks_the_stable_sdk_default(client):
+    from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION
+
+    assert DEFAULT_NETBOX_VERSION == "4.7"
+    assert client.get("/mock/state").json()["schema_version"] == "4.7.0"
 
 
 def test_mock_state_endpoint(client):
@@ -114,6 +122,66 @@ def test_mock_reset_endpoint(client):
     resp = client.post("/mock/reset")
     assert resp.status_code == 200
     assert client.get("/api/dcim/sites/").json()["count"] == 0
+
+
+def test_mock_apps_have_independent_state_namespaces():
+    first = _AsgiTestClient(create_mock_app())
+    second = _AsgiTestClient(create_mock_app())
+
+    created = first.post("/api/dcim/sites/", json={"name": "First", "slug": "first"})
+
+    assert created.status_code == 201
+    assert first.get("/api/dcim/sites/").json()["count"] == 1
+    assert second.get("/api/dcim/sites/").json()["count"] == 0
+
+
+def test_mock_apps_isolate_branching_jobs_reset_and_route_metadata():
+    first = _AsgiTestClient(create_mock_app(version="4.7"))
+    second = _AsgiTestClient(create_mock_app(version="4.6"))
+
+    first_branch = first.post(
+        "/api/plugins/branching/branches/",
+        json={"name": "First branch"},
+    ).json()
+    assert first.get("/api/plugins/branching/branches/").json()["count"] == 1
+    assert second.get("/api/plugins/branching/branches/").json()["count"] == 0
+    assert second.get(f"/api/plugins/branching/branches/{first_branch['id']}/").status_code == 404
+
+    first_job = first.post(f"/api/plugins/branching/branches/{first_branch['id']}/sync/").json()
+    assert second.get(f"/api/core/jobs/{first_job['id']}/").status_code == 404
+
+    second_branch = second.post(
+        "/api/plugins/branching/branches/",
+        json={"name": "Second branch"},
+    ).json()
+    second_job = second.post(f"/api/plugins/branching/branches/{second_branch['id']}/merge/").json()
+    assert first_job["id"] == second_job["id"] == 1
+    assert first.get(f"/api/core/jobs/{first_job['id']}/").json()["name"] == "sync"
+    assert second.get(f"/api/core/jobs/{second_job['id']}/").json()["name"] == "merge"
+
+    assert first.get("/mock/state").json()["schema_version"] == "4.7.0"
+    assert second.get("/mock/state").json()["schema_version"] == "4.6.6"
+
+    assert first.post("/mock/reset").status_code == 200
+    assert first.get("/api/plugins/branching/branches/").json()["count"] == 0
+    assert first.get(f"/api/core/jobs/{first_job['id']}/").status_code == 404
+    assert second.get("/api/plugins/branching/branches/").json()["count"] == 1
+    assert second.get(f"/api/core/jobs/{second_job['id']}/").status_code == 200
+
+
+def test_mock_rejects_exclusive_numeric_boundaries():
+    resolver = RefResolver({})
+    schema = {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 10,
+        "exclusiveMinimum": True,
+        "exclusiveMaximum": True,
+    }
+
+    assert _value_validation_errors(0, schema, resolver)
+    assert _value_validation_errors(10, schema, resolver)
+    assert _value_validation_errors(5, schema, resolver) == []
 
 
 # ---------------------------------------------------------------------------
@@ -291,6 +359,295 @@ def test_bulk_delete(client):
     assert client.get("/api/ipam/vlans/").json()["count"] == 1
 
 
+def test_bulk_validation_returns_structured_per_index_errors_atomically(client):
+    resp = client.post(
+        "/api/ipam/vlans/",
+        json=[{"name": "Valid", "vid": 10}, "not-an-object"],
+    )
+
+    assert resp.status_code == 400
+    assert resp.json() == {
+        "detail": "1 of 2 objects could not be created.",
+        "errors": [
+            {
+                "index": 1,
+                "errors": {"non_field_errors": ["Expected an object."]},
+            }
+        ],
+    }
+    assert client.get("/api/ipam/vlans/").json()["count"] == 0
+
+
+def test_singular_validation_rejects_missing_required_fields(client):
+    response = client.post("/api/ipam/vlans/", json={"status": "active"})
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "name": ["This field is required."],
+        "vid": ["This field is required."],
+    }
+    assert client.get("/api/ipam/vlans/").json()["count"] == 0
+
+
+def test_bulk_validation_rejects_types_choices_and_ranges_atomically(client):
+    response = client.post(
+        "/api/ipam/vlans/",
+        json=[
+            {"name": "Valid", "vid": 10, "status": "active"},
+            {"name": 42, "vid": 5000, "status": "invented"},
+        ],
+    )
+
+    assert response.status_code == 400
+    assert response.json()["errors"] == [
+        {
+            "index": 1,
+            "errors": {
+                "name": ["Expected string."],
+                "vid": ["Ensure this value is less than or equal to 4094."],
+                "status": ["'invented' is not a valid choice."],
+            },
+        }
+    ]
+    assert client.get("/api/ipam/vlans/").json()["count"] == 0
+
+
+def test_unique_field_validation_is_singular_and_bulk_atomic(client):
+    first = client.post("/api/dcim/sites/", json={"name": "First", "slug": "unique"})
+    assert first.status_code == 201
+
+    duplicate = client.post("/api/dcim/sites/", json={"name": "Second", "slug": "unique"})
+    assert duplicate.status_code == 400
+    assert duplicate.json()["slug"] == ["An object with this value already exists."]
+
+    bulk = client.post(
+        "/api/dcim/sites/",
+        json=[
+            {"name": "Third", "slug": "batch-duplicate"},
+            {"name": "Fourth", "slug": "batch-duplicate"},
+        ],
+    )
+    assert bulk.status_code == 400
+    assert bulk.json()["errors"][0]["index"] == 1
+    assert client.get("/api/dcim/sites/").json()["count"] == 1
+
+
+@pytest.mark.parametrize(
+    ("method", "expected_count"),
+    [("POST", 1), ("PUT", 1), ("PATCH", 1), ("DELETE", 0)],
+)
+def test_background_bulk_is_pollable_and_eventually_mutates(client, method, expected_count):
+    resp = client.request(
+        method,
+        "/api/dcim/sites/?background=true",
+        json=[{"id": 1, "name": "Queued", "slug": "queued"}],
+    )
+
+    assert resp.status_code == 202
+    assert resp.json()["job"]["status"] == "pending"
+    job_id = resp.json()["job"]["id"]
+    assert isinstance(job_id, int)
+    assert client.get("/api/dcim/sites/").json()["count"] == 0
+
+    pending = client.get(f"/api/core/jobs/{job_id}/")
+    assert pending.status_code == 200
+    assert pending.json()["status"] == "pending"
+    assert client.get("/api/dcim/sites/").json()["count"] == 0
+
+    completed = client.get(f"/api/core/jobs/{job_id}/")
+    assert completed.status_code == 200
+    assert completed.json()["status"] == "completed"
+    assert client.get("/api/dcim/sites/").json()["count"] == expected_count
+
+
+def test_background_bulk_failure_is_observable_and_atomic(client):
+    response = client.post(
+        "/api/ipam/vlans/?background=true",
+        json=[{"name": "Missing VID"}],
+    )
+    job_id = response.json()["job"]["id"]
+
+    assert client.get(f"/api/core/jobs/{job_id}/").json()["status"] == "pending"
+    failed = client.get(f"/api/core/jobs/{job_id}/").json()
+
+    assert failed["status"] == "failed"
+    assert "vid" in failed["error"]
+    assert client.get("/api/ipam/vlans/").json()["count"] == 0
+
+
+def test_ga_service_port_shapes_round_trip(client):
+    created = client.post(
+        "/api/ipam/services/",
+        json={
+            "name": "https",
+            "parent_object_type": "dcim.device",
+            "parent_object_id": 1,
+            "protocol": "tcp",
+            "ports": [443],
+        },
+    )
+
+    assert created.status_code == 201
+    service = created.json()
+    assert service["port_mappings"] == ["tcp/443"]
+    assert service["protocol"] == {"value": "tcp", "label": "TCP"}
+    assert service["ports"] == [443]
+
+    updated = client.patch(
+        f"/api/ipam/services/{service['id']}/",
+        json={"port_mappings": ["tcp/53", "udp/53"]},
+    )
+    assert updated.status_code == 200
+    assert updated.json()["port_mappings"] == ["tcp/53", "udp/53"]
+    assert updated.json()["protocol"] is None
+    assert updated.json()["ports"] is None
+
+
+def _service_payload(**overrides):
+    payload = {
+        "name": "dns",
+        "parent_object_type": "dcim.device",
+        "parent_object_id": 1,
+        "port_mappings": ["tcp/53"],
+        "protocol": "tcp",
+        "ports": [53],
+    }
+    payload.update(overrides)
+    return payload
+
+
+def test_ga_service_accepts_matching_dual_representations(client):
+    response = client.post("/api/ipam/services/", json=_service_payload())
+
+    assert response.status_code == 201
+    assert response.json()["port_mappings"] == ["tcp/53"]
+
+
+def test_ga_service_rejects_conflicting_create(client):
+    response = client.post(
+        "/api/ipam/services/",
+        json=_service_payload(ports=[443]),
+    )
+
+    assert response.status_code == 400
+    assert "ambiguous" in response.json()["non_field_errors"][0]
+    assert client.get("/api/ipam/services/").json()["count"] == 0
+
+
+def test_ga_service_rejects_conflicting_patch_without_mutation(client):
+    service = client.post("/api/ipam/services/", json=_service_payload()).json()
+
+    response = client.patch(
+        f"/api/ipam/services/{service['id']}/",
+        json={"port_mappings": ["udp/53"], "protocol": "tcp", "ports": [53]},
+    )
+
+    assert response.status_code == 400
+    assert "ambiguous" in response.json()["non_field_errors"][0]
+    stored = client.get(f"/api/ipam/services/{service['id']}/").json()
+    assert stored["port_mappings"] == ["tcp/53"]
+
+
+def test_ga_service_rejects_conflicting_bulk_atomically(client):
+    response = client.post(
+        "/api/ipam/services/",
+        json=[_service_payload(name="valid"), _service_payload(name="invalid", ports=[443])],
+    )
+
+    assert response.status_code == 400
+    assert response.json()["errors"][0]["index"] == 1
+    assert "ambiguous" in response.json()["errors"][0]["errors"]["non_field_errors"][0]
+    assert client.get("/api/ipam/services/").json()["count"] == 0
+
+
+def test_ga_selection_custom_fields_serialize_as_choice_objects(client):
+    choice_set = client.post(
+        "/api/extras/custom-field-choice-sets/",
+        json={
+            "name": "Site roles",
+            "extra_choices": [["datacenter", "Data Center"], ["edge", "Edge"]],
+        },
+    ).json()
+    for name, field_type in (("site_role", "select"), ("regions", "multiselect")):
+        response = client.post(
+            "/api/extras/custom-fields/",
+            json={
+                "name": name,
+                "object_types": ["dcim.site"],
+                "type": field_type,
+                "choice_set": choice_set["id"],
+            },
+        )
+        assert response.status_code == 201
+    client.post(
+        "/api/extras/custom-fields/",
+        json={"name": "metadata", "object_types": ["dcim.site"], "type": "json"},
+    )
+
+    site = client.post(
+        "/api/dcim/sites/",
+        json={
+            "name": "Choice Site",
+            "slug": "choice-site",
+            "custom_fields": {
+                "site_role": "datacenter",
+                "regions": ["datacenter", "edge"],
+                "metadata": {"value": "raw", "label": "JSON"},
+            },
+        },
+    ).json()
+
+    assert site["custom_fields"] == {
+        "site_role": {"value": "datacenter", "label": "Data Center"},
+        "regions": [
+            {"value": "datacenter", "label": "Data Center"},
+            {"value": "edge", "label": "Edge"},
+        ],
+        "metadata": {"value": "raw", "label": "JSON"},
+    }
+
+
+def test_ga_selection_custom_fields_preserve_null_empty_and_unknown_values(client):
+    choice_set = client.post(
+        "/api/extras/custom-field-choice-sets/",
+        json={"name": "Sparse choices", "extra_choices": [["known", "Known"]]},
+    ).json()
+    for name, field_type in (("nullable_role", "select"), ("sparse_regions", "multiselect")):
+        response = client.post(
+            "/api/extras/custom-fields/",
+            json={
+                "name": name,
+                "object_types": ["dcim.site"],
+                "type": field_type,
+                "choice_set": choice_set["id"],
+            },
+        )
+        assert response.status_code == 201
+
+    null_and_empty = client.post(
+        "/api/dcim/sites/",
+        json={
+            "name": "Sparse Site",
+            "slug": "sparse-site",
+            "custom_fields": {"nullable_role": None, "sparse_regions": []},
+        },
+    ).json()
+    unknown = client.post(
+        "/api/dcim/sites/",
+        json={
+            "name": "Unknown Site",
+            "slug": "unknown-site",
+            "custom_fields": {"nullable_role": "unknown", "sparse_regions": ["unknown"]},
+        },
+    ).json()
+
+    assert null_and_empty["custom_fields"] == {"nullable_role": None, "sparse_regions": []}
+    assert unknown["custom_fields"] == {
+        "nullable_role": {"value": "unknown", "label": "unknown"},
+        "sparse_regions": [{"value": "unknown", "label": "unknown"}],
+    }
+
+
 # ---------------------------------------------------------------------------
 # Pagination
 # ---------------------------------------------------------------------------
@@ -455,13 +812,16 @@ def test_filter_list_value_expands_to_repeated_params():
 @pytest.mark.parametrize(
     "path, payload",
     [
-        ("/api/circuits/circuits/", {"cid": "CKT-001"}),
+        ("/api/circuits/circuits/", {"cid": "CKT-001", "provider": 1, "type": 1}),
         ("/api/ipam/prefixes/", {"prefix": "10.0.0.0/8"}),
         ("/api/ipam/ip-addresses/", {"address": "192.168.1.1/32"}),
         ("/api/ipam/vlans/", {"name": "Test VLAN", "vid": 42}),
-        ("/api/dcim/racks/", {"name": "Rack-01"}),
-        ("/api/dcim/devices/", {"name": "router-01"}),
-        ("/api/dcim/interfaces/", {"name": "Gi0/0"}),
+        ("/api/dcim/racks/", {"name": "Rack-01", "site": 1}),
+        (
+            "/api/dcim/devices/",
+            {"name": "router-01", "device_type": 1, "role": 1, "site": 1},
+        ),
+        ("/api/dcim/interfaces/", {"name": "Gi0/0", "device": 1, "type": "1000base-t"}),
         ("/api/tenancy/tenants/", {"name": "ACME", "slug": "acme"}),
         ("/api/virtualization/virtual-machines/", {"name": "vm-01"}),
     ],

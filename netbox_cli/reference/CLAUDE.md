@@ -25,7 +25,7 @@ registration/execution uses committed versioned schemas from
 `netbox_sdk/reference/openapi/`.
 
 Current CLI schema behavior:
-- `_get_registration_index()` builds the network-free command tree from the selected SDK bundled schema (default NetBox 4.6).
+- `_get_registration_index()` builds the network-free command tree from the selected SDK bundled schema (default NetBox 4.7).
 - `_get_runtime_index()` honors `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detects the configured instance release line for execution.
 - Dynamic command routing and filter discovery should not be wired back to this directory.
 

@@ -165,7 +165,7 @@ asyncio.run(main())
 ```
 
 O cliente tipado valida requisições e respostas com modelos Pydantic versionados
-para NetBox `4.6`, `4.5`, `4.4` e `4.3`, além de `4.7` (preview, opcional).
+para as linhas de release estáveis do NetBox `4.7`, `4.6`, `4.5`, `4.4` e `4.3`.
 
 ---
 

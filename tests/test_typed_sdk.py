@@ -249,23 +249,9 @@ async def test_typed_action_endpoint_supports_other_versions(monkeypatch) -> Non
 def test_v47_service_write_contract_preserves_the_legacy_protocol_pair() -> None:
     """NetBox 4.7 accepts BOTH service write formats; the bindings must send both.
 
-    The pinned upstream schema documents the write contract in the shared
-    serializer's description: *"Write: either format is accepted. When the legacy
-    ``protocol``/``ports`` pair is supplied (and ``port_mappings`` is not), it is
-    translated into ``port_mappings``."* drf-spectacular nonetheless omits
-    ``protocol`` from the writable models' ``properties`` block while emitting
-    ``ports``.
-
-    Generating straight from ``properties`` produced writable models that dropped
-    ``protocol`` silently. That is a data-corruption bug, not a cosmetic gap: a
-    PATCH of ``{"protocol": "udp", "ports": [53]}`` went out as ``{"ports": [53]}``
-    and NetBox backfilled the stored protocol, turning an intended tcp->udp change
-    into ``tcp/53``.
-
-    ``scripts.generate_typed_sdk.apply_write_compat_overlay`` restores the field
-    for model generation only; the committed OpenAPI bundle stays byte-faithful to
-    upstream. This test asserts the *outgoing payload*, so it cannot pass while the
-    field is being dropped.
+    The official GA schema emits ``protocol``, ``ports``, and ``port_mappings``
+    directly on every writable service model. This test asserts the source schema
+    and outgoing payload so a future generation cannot silently drop a field.
     """
     from netbox_sdk.models.v4_6 import WritableServiceRequest as WritableV46
     from netbox_sdk.models.v4_7 import (
@@ -275,6 +261,9 @@ def test_v47_service_write_contract_preserves_the_legacy_protocol_pair() -> None
         WritableServiceRequest,
         WritableServiceTemplateRequest,
     )
+    from netbox_sdk.schema import load_openapi_schema
+
+    schemas = load_openapi_schema(version="4.7")["components"]["schemas"]
 
     # Every writable service model accepts the legacy pair AND the new spelling.
     for model in (
@@ -283,6 +272,7 @@ def test_v47_service_write_contract_preserves_the_legacy_protocol_pair() -> None
         WritableServiceTemplateRequest,
         PatchedWritableServiceTemplateRequest,
     ):
+        assert {"protocol", "ports", "port_mappings"} <= set(schemas[model.__name__]["properties"])
         assert "protocol" in model.model_fields, model.__name__
         assert "ports" in model.model_fields, model.__name__
         assert "port_mappings" in model.model_fields, model.__name__
@@ -321,92 +311,3 @@ def test_v47_service_write_contract_preserves_the_legacy_protocol_pair() -> None
     # 4.6 parity: the same legacy payload was accepted before, so a caller moving
     # from 4.6 to 4.7 keeps working.
     assert "protocol" in WritableV46.model_fields
-
-
-def test_write_compat_overlay_is_deterministic_and_leaves_the_bundle_untouched() -> None:
-    """The overlay must not mutate the pinned upstream document."""
-    import json as _json
-    from pathlib import Path as _Path
-
-    from scripts.generate_typed_sdk import apply_write_compat_overlay
-
-    bundle_path = (
-        _Path(__file__).resolve().parents[1]
-        / "netbox_sdk"
-        / "reference"
-        / "openapi"
-        / "netbox-openapi-4.7.json"
-    )
-    original = _json.loads(bundle_path.read_text(encoding="utf-8"))
-    before = _json.dumps(original, sort_keys=True)
-
-    first = apply_write_compat_overlay("4.7", original)
-    second = apply_write_compat_overlay("4.7", original)
-
-    # Input untouched, output deterministic, field actually added.
-    assert _json.dumps(original, sort_keys=True) == before
-    assert _json.dumps(first, sort_keys=True) == _json.dumps(second, sort_keys=True)
-    assert "protocol" in first["components"]["schemas"]["WritableServiceRequest"]["properties"]
-    assert (
-        "protocol" not in original["components"]["schemas"]["WritableServiceRequest"]["properties"]
-    )
-
-    # A line with no overlay is returned unchanged, by identity.
-    assert apply_write_compat_overlay("4.6", original) is original
-
-
-def test_write_compat_overlay_covers_every_omitted_writable_field() -> None:
-    """The overlay must cover *every* field upstream documents but omits.
-
-    ``drf-spectacular`` omits fields declared on a shared parent serializer from
-    the child's ``properties`` block while still rendering the parent's
-    description, which is how the service ``protocol`` regression arose. This
-    guard sweeps the whole bundled schema for that signature — a writable
-    component whose description names a field in double backticks that is absent
-    from its own ``properties`` but present on the corresponding read-side
-    request component — and asserts the overlay covers exactly those cases.
-
-    If NetBox 4.7 GA (or another line) introduces a new instance, this fails
-    rather than silently generating another field-dropping model.
-    """
-    import json as _json
-    import re as _re
-    from pathlib import Path as _Path
-
-    from scripts.generate_typed_sdk import WRITE_COMPAT_OVERLAY
-
-    bundle = _json.loads(
-        (
-            _Path(__file__).resolve().parents[1]
-            / "netbox_sdk"
-            / "reference"
-            / "openapi"
-            / "netbox-openapi-4.7.json"
-        ).read_text(encoding="utf-8")
-    )
-    components = bundle["components"]["schemas"]
-
-    discovered: dict[str, set[str]] = {}
-    for name, component in components.items():
-        if "Request" not in name or not isinstance(component, dict):
-            continue
-        description = component.get("description") or ""
-        if not description:
-            continue
-        properties = set(component.get("properties", {}))
-        for field in set(_re.findall(r"``([a-z_]{3,30})``", description)) - properties:
-            siblings = (
-                name.replace("Writable", "").replace("Patched", ""),
-                name.replace("Patched", ""),
-            )
-            if any(
-                sibling in components and field in components[sibling].get("properties", {})
-                for sibling in siblings
-            ):
-                discovered.setdefault(name, set()).add(field)
-
-    covered = {model: set(fields) for model, fields in WRITE_COMPAT_OVERLAY["4.7"].items()}
-    assert discovered == covered, (
-        "the write-compat overlay and the schema's omitted writable fields disagree; "
-        f"schema={discovered} overlay={covered}"
-    )

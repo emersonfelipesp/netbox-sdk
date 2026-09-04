@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 
 from netbox_sdk.client import _scoped_headers
+from netbox_sdk.schema_resolution import clear_schema_caches
 
 OPENAPI_PATH = (
     Path(__file__).resolve().parent.parent
@@ -34,6 +35,16 @@ def _reset_scoped_headers():
         yield
     finally:
         _scoped_headers.reset(token)
+
+
+@pytest.fixture(autouse=True)
+def _reset_schema_caches():
+    """Prevent patched SDK or CLI schema loaders from leaking across tests."""
+    clear_schema_caches()
+    try:
+        yield
+    finally:
+        clear_schema_caches()
 
 
 # Rich renders the "Fetching..." status spinner whenever it believes stdout is a

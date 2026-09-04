@@ -21,6 +21,7 @@ from netbox_sdk.exceptions import (
     RequestError,
 )
 from netbox_sdk.schema import ResourcePaths, SchemaIndex, build_schema_index, parse_group_resource
+from netbox_sdk.schema_resolution import resolve_index
 
 if TYPE_CHECKING:
     from netbox_sdk.branching import BranchingClient
@@ -87,7 +88,12 @@ def api(
         token: API token (v1 ``Token`` or v2 ``nbt_`` form). Ignored if ``client`` is passed.
         strict_filters: When True, unknown filter keys raise instead of being dropped.
         client: Optional pre-built :class:`~netbox_sdk.client.NetBoxApiClient`.
-        schema: Optional pre-built OpenAPI index (defaults to bundled schema).
+        schema: Optional pre-built OpenAPI index. When omitted, construction is
+            network-free and starts with the newest bundled default (currently
+            NetBox 4.7), then the first schema-dependent request detects the
+            connected release and replaces that provisional index. Pass a
+            matching index to pin the contract, or use :func:`async_api` for
+            eager detection and runtime-resource discovery.
 
     Returns:
         Root :class:`Api` instance with app attributes (``dcim``, ``ipam``, etc.).
@@ -182,6 +188,7 @@ class Api:
         pagination_mode: PaginationMode = "auto",
     ) -> None:
         self.client = client
+        self._schema_deferred = schema is None
         self.schema = schema or build_schema_index()
         self.strict_filters = strict_filters
         env_override = _normalize_pagination_mode(os.environ.get(_PAGINATION_MODE_ENV_VAR))
@@ -193,6 +200,13 @@ class Api:
             setattr(self, name, App(self, name))
         self.plugins = PluginsApp(self)
         self._branching: BranchingClient | None = None
+
+    async def _ensure_schema(self) -> None:
+        """Resolve the connected server schema before a schema-dependent request."""
+        if not self._schema_deferred:
+            return
+        self.schema = await resolve_index(self.client)
+        self._schema_deferred = False
 
     @property
     def branching(self) -> BranchingClient:
@@ -458,9 +472,17 @@ class Endpoint:
             else str(value)
             for key, value in kwargs.items()
         }
-        if strict_filters:
+        if strict_filters and not self.api._schema_deferred:
             _validate_filters(self.api.schema, self.group, self.resource, self._list_path, query)
-        return RecordSet(self, query=query, limit=limit, offset=offset, start=start, mode=mode)
+        return RecordSet(
+            self,
+            query=query,
+            limit=limit,
+            offset=offset,
+            start=start,
+            mode=mode,
+            strict_filters=strict_filters,
+        )
 
     async def get(self, *args: Any, **kwargs: Any) -> Record | None:
         """Return a single :class:`Record` by primary key or filter terms.
@@ -474,6 +496,7 @@ class Endpoint:
         Raises:
             ValueError: When the filter form returns more than one record.
         """
+        await self.api._ensure_schema()
         key = args[0] if args else None
         if key is None:
             matches = await self.filter(**kwargs).to_list(limit_override=2)
@@ -504,6 +527,7 @@ class Endpoint:
             A :class:`Record` for single-object creates, or a ``list[Record]``
             for bulk creates.
         """
+        await self.api._ensure_schema()
         payload = _payload_from_args(*args, **kwargs)
         response = await self.api.client.request("POST", self._list_path, payload=payload)
         _raise_for_status(response)
@@ -521,6 +545,7 @@ class Endpoint:
         Returns:
             The list of updated records as returned by the server.
         """
+        await self.api._ensure_schema()
         response = await self.api.client.request(
             "PATCH", self._list_path, payload=_normalize_bulk_objects(objects)
         )
@@ -541,6 +566,7 @@ class Endpoint:
             ``True`` on success. The server returns ``204 No Content`` and the
             facade does not surface a body.
         """
+        await self.api._ensure_schema()
         payload = _normalize_delete_objects(objects)
         response = await self.api.client.request("DELETE", self._list_path, payload=payload)
         _raise_for_status(response)
@@ -553,6 +579,7 @@ class Endpoint:
         when neither is present. Useful for introspecting writable fields and
         their declared choices.
         """
+        await self.api._ensure_schema()
         response = await self.api.client.request("OPTIONS", self._list_path)
         _raise_for_status(response)
         payload = _decode_json(response)
@@ -678,6 +705,7 @@ class RecordSet:
         offset: int | None = None,
         start: int | None = None,
         mode: PaginationMode | None = None,
+        strict_filters: bool = False,
     ) -> None:
         if start is not None and offset is not None:
             raise ValueError("'start' and 'offset' are mutually exclusive")
@@ -703,7 +731,8 @@ class RecordSet:
             if self._requested_mode in ("cursor", "offset")
             else None
         )
-        self._next_path: str | None = endpoint._list_path
+        self._strict_filters = strict_filters
+        self._next_path: str | None = None if endpoint.api._schema_deferred else endpoint._list_path
         self._next_query: dict[str, str | list[str]] = dict(query)
         self._buffer: deque[Record] = deque()
         self._started: bool = False
@@ -732,6 +761,16 @@ class RecordSet:
         this server-side) and seeds ``start`` and ``limit``. In offset mode
         this only adds ``limit`` / ``offset`` when the caller supplied them.
         """
+        await self.endpoint.api._ensure_schema()
+        self._next_path = self._next_path or self.endpoint._list_path
+        if self._strict_filters:
+            _validate_filters(
+                self.endpoint.api.schema,
+                self.endpoint.group,
+                self.endpoint.resource,
+                self.endpoint._list_path,
+                self.query,
+            )
         if self._mode is None:
             self._mode = await self.endpoint.api._resolve_pagination_mode()
         if self._mode == "cursor":
@@ -835,6 +874,7 @@ class RecordSet:
         Raises:
             ContentError: When the probe response is malformed.
         """
+        await self.endpoint.api._ensure_schema()
         if self.count is not None:
             return self.count
         # Always probe with offset=0 — cursor responses set count: null for performance,
@@ -975,6 +1015,7 @@ class Record:
         endpoint = self.endpoint
         if endpoint is None:
             raise ValueError("Record is not attached to an endpoint")
+        await self.api._ensure_schema()
         changes = self.updates()
         if not changes:
             return None
@@ -1004,6 +1045,7 @@ class Record:
         record_id = self._data.get("id")
         if record_id is None:
             raise ValueError("Record is missing an id")
+        await self.api._ensure_schema()
         response = await self.api.client.request(
             "DELETE", endpoint._detail_path_template.replace("{id}", str(record_id))
         )
@@ -1020,6 +1062,7 @@ class TraceableRecord(Record):
         endpoint = self.endpoint
         if endpoint is None:
             raise ValueError("Record is not attached to an endpoint")
+        await endpoint.api._ensure_schema()
         path = endpoint.api.schema.trace_path(endpoint.group, endpoint.resource)
         if path is None:
             raise AttributeError("trace")
@@ -1036,6 +1079,7 @@ class PathableRecord(Record):
         endpoint = self.endpoint
         if endpoint is None:
             raise ValueError("Record is not attached to an endpoint")
+        await endpoint.api._ensure_schema()
         path = endpoint.api.schema.paths_path(endpoint.group, endpoint.resource)
         if path is None:
             raise AttributeError("paths")
@@ -1151,11 +1195,36 @@ def _validate_filters(
     Pure function: no side effects, no dependence on any Endpoint instance state.
     Raises ``ParameterValidationError`` with the offending parameter names.
     """
-    allowed = {param.name for param in schema.filter_params(group, resource)}
+    allowed = _query_parameter_names(schema, list_path)
     invalid = sorted(key for key in query if key not in allowed)
     if invalid:
-        errors = [f"'{key}' is not allowed as parameter on path '{list_path}'." for key in invalid]
+        version = schema.schema.get("info", {}).get("version", "unknown")
+        errors = [
+            f"'{key}' is not allowed as parameter on path '{list_path}' by the loaded "
+            f"NetBox schema ({version}). Omit schema= so api() detects the connected "
+            "release before its first request, use async_api() for eager detection, or pass "
+            "api(..., schema=build_schema_index(version='...')) with the matching release line."
+            for key in invalid
+        ]
         raise ParameterValidationError(errors)
+
+
+def _query_parameter_names(schema: SchemaIndex, list_path: str) -> set[str]:
+    """Return every query parameter declared for a list operation.
+
+    ``SchemaIndex.filter_params()`` intentionally hides lookup-suffix variants
+    from discovery output. Strict validation must still accept those declared
+    variants, such as the NetBox 4.6 ``protocol__ic`` service filter.
+    """
+    paths = schema.schema.get("paths", {})
+    path_item = paths.get(list_path, {}) if isinstance(paths, dict) else {}
+    operation = path_item.get("get", {}) if isinstance(path_item, dict) else {}
+    parameters = operation.get("parameters", []) if isinstance(operation, dict) else []
+    return {
+        str(parameter["name"])
+        for parameter in parameters
+        if isinstance(parameter, dict) and parameter.get("in") == "query" and parameter.get("name")
+    }
 
 
 def _coerce_nested(api: Api, endpoint: Endpoint | None, value: object) -> object:

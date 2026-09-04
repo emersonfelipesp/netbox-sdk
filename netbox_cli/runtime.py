@@ -47,6 +47,7 @@ from netbox_sdk.schema_resolution import (
 )
 from netbox_sdk.schema_resolution import (
     bundled_index,
+    register_schema_cache_resetter,
     requested_netbox_version,
     resolve_index,
 )
@@ -69,6 +70,17 @@ _SCHEMA_INDEX: SchemaIndex | None = None
 _SCHEMA_VERSION: SupportedNetBoxVersion | None = None
 _RUNTIME_CONFIGS: dict[str, Config] = {}
 logger = get_logger(__name__)
+
+
+def _clear_runtime_schema_cache() -> None:
+    """Clear the CLI adapter cache when the shared SDK cache is invalidated."""
+    global _SCHEMA_DOCUMENT, _SCHEMA_INDEX, _SCHEMA_VERSION
+    _SCHEMA_DOCUMENT = None
+    _SCHEMA_INDEX = None
+    _SCHEMA_VERSION = None
+
+
+register_schema_cache_resetter(_clear_runtime_schema_cache)
 
 
 def _raw_requested_netbox_version(argv: list[str] | None = None) -> str | None:
@@ -109,29 +121,26 @@ def _load_schema_for_connected_instance(
     """Resolve the OpenAPI schema for a profile's NetBox instance.
 
     Uses a bundled schema when the connected version is a supported release line,
-    fetches it dynamically via /api/schema/ for unsupported versions, and falls
-    back to the default bundled schema when config is absent or any error occurs.
+    fetches it dynamically via /api/schema/ for unsupported versions, and uses
+    the default bundled schema only when the profile has no configured base URL.
+    Detection, transport, and invalid-document failures propagate so a command
+    cannot execute against a confidently mismatched contract.
     """
-    try:
-        cfg = cfg or load_profile_config(profile)
-        if not cfg.base_url:
-            logger.debug("no base_url configured; using default bundled schema")
-            return bundled_index(DEFAULT_NETBOX_VERSION).schema
-        schema = run_with_spinner(_detect_and_fetch_schema(cfg))
-        if not isinstance(schema.get("paths"), dict):
-            logger.debug(
-                "connected schema response did not contain OpenAPI paths; using default bundled schema",
-                extra={"nbx_event": "schema_runtime_invalid_document"},
-            )
-            return bundled_index(DEFAULT_NETBOX_VERSION).schema
-        return schema
-    except Exception as exc:  # noqa: BLE001
-        logger.debug(
-            "schema version detection failed (%s); using default bundled schema",
-            exc,
-            extra={"nbx_event": "schema_version_detection_failed"},
-        )
+    cfg = cfg or load_profile_config(profile)
+    if not cfg.base_url:
+        logger.debug("no base_url configured; using default bundled schema")
         return bundled_index(DEFAULT_NETBOX_VERSION).schema
+    schema = run_with_spinner(_detect_and_fetch_schema(cfg))
+    if not isinstance(schema.get("paths"), dict):
+        logger.debug(
+            "connected schema response did not contain OpenAPI paths",
+            extra={"nbx_event": "schema_runtime_invalid_document"},
+        )
+        raise RuntimeError(
+            "The configured NetBox instance returned an invalid OpenAPI schema; "
+            "refusing to use the default bundled contract."
+        )
+    return schema
 
 
 def _get_index() -> SchemaIndex:
@@ -168,22 +177,16 @@ def _get_runtime_index(
     """Return the schema index for command execution.
 
     Explicit version overrides win. Otherwise, when a configured instance is
-    available, detect its API version and choose the matching bundled schema;
-    fall back to the latest supported bundled schema when detection fails.
+    available, detect its API version and choose the matching bundled schema.
+    Detection failures propagate; the default is reserved for profiles without
+    a base URL.
     """
     requested = _requested_netbox_version()
     if requested is not None:
         return _get_static_index(requested)
-    try:
-        cfg = cfg or load_profile_config(profile)
-        if cfg.base_url:
-            return _get_connected_index(profile, cfg)
-    except Exception as exc:  # noqa: BLE001
-        logger.debug(
-            "runtime schema detection failed (%s); using static bundled schema",
-            exc,
-            extra={"nbx_event": "schema_runtime_detection_failed"},
-        )
+    cfg = cfg or load_profile_config(profile)
+    if cfg.base_url:
+        return _get_connected_index(profile, cfg)
     return _get_static_index(DEFAULT_NETBOX_VERSION)
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from typing import Any
+from uuid import uuid4
 
 from fastapi import FastAPI
 
@@ -11,14 +12,16 @@ from netbox_sdk import __version__ as _sdk_version
 from netbox_sdk.mock.loader import load_mock_data
 from netbox_sdk.mock.routes import netbox_mock_route_state, register_netbox_mock_routes
 from netbox_sdk.mock.routes_branching import (
-    _reset as _reset_branching_state,
-)
-from netbox_sdk.mock.routes_branching import (
     register_branching_mock_routes,
 )
+from netbox_sdk.mock.schema_helpers import schema_fingerprint
 from netbox_sdk.mock.state import ThreadSafeMockStore, mock_store, reset_mock_state
 from netbox_sdk.schema import load_openapi_schema
-from netbox_sdk.versioning import SupportedNetBoxVersion, normalize_netbox_version
+from netbox_sdk.versioning import (
+    DEFAULT_NETBOX_VERSION,
+    SupportedNetBoxVersion,
+    normalize_netbox_version,
+)
 
 
 def create_mock_app(
@@ -27,20 +30,21 @@ def create_mock_app(
 ) -> FastAPI:
     """Build the standalone NetBox mock API FastAPI application.
 
-    Reads ``NETBOX_MOCK_VERSION`` env var (default ``"4.5"``), loads the
+    Reads ``NETBOX_MOCK_VERSION`` env var (default: the newest stable release line), loads the
     bundled OpenAPI schema, and registers all NetBox endpoints as dynamic
     in-memory CRUD routes.
 
     Args:
         version: NetBox release line override. Defaults to ``NETBOX_MOCK_VERSION``
-            env var or ``"4.5"``.
+            env var or :data:`netbox_sdk.versioning.DEFAULT_NETBOX_VERSION`.
 
     Returns:
         Configured :class:`fastapi.FastAPI` instance ready for ``uvicorn``.
     """
     resolved_version: SupportedNetBoxVersion = version or normalize_netbox_version(
-        os.environ.get("NETBOX_MOCK_VERSION", "4.5")
+        os.environ.get("NETBOX_MOCK_VERSION", DEFAULT_NETBOX_VERSION)
     )
+    state_namespace = f"app-{uuid4().hex}"
 
     openapi_doc = load_openapi_schema(version=resolved_version)
     netbox_api_version = openapi_doc.get("info", {}).get("version", resolved_version)
@@ -60,7 +64,7 @@ def create_mock_app(
 
     @app.get("/", include_in_schema=False)
     async def root() -> dict[str, Any]:
-        state = netbox_mock_route_state()
+        state = netbox_mock_route_state(app)
         return {
             "message": "NetBox mock API — schema-driven in-memory server",
             "netbox_version": netbox_api_version,
@@ -88,18 +92,16 @@ def create_mock_app(
     @app.post("/mock/reset", tags=["mock control"])
     async def mock_reset() -> dict[str, str]:
         """Reset all in-memory mock state to empty."""
-        reset_mock_state()
-        _reset_branching_state()
+        reset_mock_state(namespace=state_namespace)
+        branching_state.reset()
         return {"status": "reset", "message": "All mock state has been cleared."}
 
     @app.get("/mock/state", tags=["mock control"])
     async def mock_state_info() -> dict[str, Any]:
         """Return metadata about the current mock state and registered routes."""
-        from netbox_sdk.mock.schema_helpers import schema_fingerprint
-
         fingerprint = schema_fingerprint(openapi_doc)
-        store: ThreadSafeMockStore = mock_store(fingerprint)
-        route_state = netbox_mock_route_state()
+        store: ThreadSafeMockStore = mock_store(fingerprint, namespace=state_namespace)
+        route_state = netbox_mock_route_state(app)
         return {
             "route_count": route_state.get("route_count"),
             "schema_version": route_state.get("schema_version"),
@@ -111,12 +113,17 @@ def create_mock_app(
     # -------------------------------------------------------------------
     # Register branching routes before the schema-driven routes so they
     # take precedence on overlapping paths (e.g. /api/core/jobs/{id}/).
-    register_branching_mock_routes(app)
+    background_job_store = mock_store(schema_fingerprint(openapi_doc), namespace=state_namespace)
+    branching_state = register_branching_mock_routes(
+        app,
+        background_job_store=background_job_store,
+    )
     custom_data = load_mock_data()
     register_netbox_mock_routes(
         app,
         version=resolved_version,
         openapi_document=openapi_doc,
+        namespace=state_namespace,
         custom_mock_data=custom_data,
     )
 

@@ -51,10 +51,37 @@ asyncio.run(main())
 
 If you want raw HTTP control instead of the facade, use `NetBoxApiClient` directly.
 
+### Schema compatibility contract
+
+`api()` is a synchronous factory, so it does not contact the server while it is
+being constructed. If `schema=` is omitted, construction starts with the newest
+stable bundled contract (currently NetBox 4.7), then the first
+schema-dependent request detects the connected release and replaces that
+provisional index. Detection and live-schema failures propagate instead of
+silently retaining the default contract. For a known older server, you can
+bypass detection and pin its schema explicitly:
+
+```python
+from netbox_sdk import api, build_schema_index
+
+nb = api(
+    "https://netbox.example.com",
+    token="your-token",
+    schema=build_schema_index(version="4.6"),
+)
+```
+
+For an unpinned server, omit `schema=` and let the first request detect every
+supported release line, or use `await async_api(...)` when detection must finish
+before the facade is returned. With `strict_filters` enabled, deferred
+validation runs after detection; an unknown-filter error names the loaded
+schema and points to the available selection paths because the rejection is
+local and no request reached NetBox.
+
 ## Plugins and custom objects
 
-Use `async_api()` when you want the facade to select the connected NetBox schema
-and enrich it with runtime resources. It discovers plugin REST collections under
+Use `async_api()` when you want eager schema selection and runtime-resource
+enrichment. It discovers plugin REST collections under
 `/api/plugins/` and public ObjectType resources advertised by
 `/api/core/object-types/`.
 
@@ -85,7 +112,7 @@ nb = typed_api(
 
 Supported release lines:
 
-- `4.7` (preview, opt-in)
+- `4.7` (stable, default; official `v4.7.0` GA schema)
 - `4.6`
 - `4.5`
 - `4.4`

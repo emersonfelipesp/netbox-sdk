@@ -74,8 +74,8 @@ uv run nbx --help
 ## Suporte ao SDK tipado
 
 O repositório inclui bundles OpenAPI versionados e modelos Pydantic gerados para
-NetBox `4.6`, `4.5`, `4.4` e `4.3`, além de `4.7` (preview, opcional). Não é necessário executar geração de código
-localmente. A CI testa o SDK contra `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
+NetBox `4.7`, `4.6`, `4.5`, `4.4` e `4.3`. A linha 4.7 padrão é gerada a partir do schema oficial GA `v4.7.0`. Não é necessário executar geração de código
+localmente. A CI testa o SDK contra `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`.
 
 ## Type hints na IDE
 

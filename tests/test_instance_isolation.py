@@ -20,10 +20,23 @@ pytestmark = pytest.mark.suite_cli
 
 
 def _reset_runtime_schema(monkeypatch: pytest.MonkeyPatch) -> None:
-    schema_resolution._clear_bundled_index_cache()
-    monkeypatch.setattr(runtime, "_SCHEMA_DOCUMENT", None)
-    monkeypatch.setattr(runtime, "_SCHEMA_INDEX", None)
-    monkeypatch.setattr(runtime, "_SCHEMA_VERSION", None)
+    schema_resolution.clear_schema_caches()
+
+
+def test_shared_cache_reset_reloads_after_cli_cache_was_populated(monkeypatch) -> None:
+    first = runtime._get_index()
+    assert "_replacement" not in first.schema
+
+    replacement = {"paths": {}, "_replacement": True}
+    monkeypatch.setattr(
+        schema_resolution.schema_module,
+        "load_openapi_schema",
+        lambda **kwargs: replacement,
+    )
+
+    schema_resolution.clear_schema_caches()
+
+    assert runtime._get_index().schema["_replacement"] is True
 
 
 def test_runtime_schema_indexes_are_isolated_between_callers(monkeypatch) -> None:

@@ -199,12 +199,12 @@ for list_path, detail_path in paths:
 
 ### Versioned Bundled Schemas
 
-Versioned OpenAPI schemas ship with the package under `netbox_sdk/reference/openapi/`. `load_openapi_schema()` defaults to the NetBox 4.6 schema unless a supported release line is supplied explicitly.
+Versioned OpenAPI schemas ship with the package under `netbox_sdk/reference/openapi/`. `load_openapi_schema()` defaults to the official NetBox 4.7 GA schema unless a supported release line is supplied explicitly.
 
 | File | NetBox Version |
 |---|---|
 | `netbox-openapi.json` | Legacy compatibility alias |
-| `netbox-openapi-4.7.json` | NetBox 4.7 (preview) |
+| `netbox-openapi-4.7.json` | NetBox 4.7 GA (default) |
 | `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |

@@ -65,12 +65,23 @@ def capture_sdk_logs(logger_name: str) -> Iterator[list[logging.LogRecord]]:
         logger.setLevel(previous_level)
 
 
-@pytest.fixture(autouse=True)
-def _isolated_resolution_state(monkeypatch: pytest.MonkeyPatch) -> None:
+@contextmanager
+def _isolated_bundled_index_cache() -> Iterator[None]:
+    """Discard every cached document created inside a test-controlled scope."""
     schema_resolution._clear_bundled_index_cache()
-    monkeypatch.setattr(schema_resolution.sys, "argv", ["pytest"])
-    for name in _VERSION_ENV_VARS:
-        monkeypatch.delenv(name, raising=False)
+    try:
+        yield
+    finally:
+        schema_resolution._clear_bundled_index_cache()
+
+
+@pytest.fixture(autouse=True)
+def _isolated_resolution_state(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    with _isolated_bundled_index_cache():
+        monkeypatch.setattr(schema_resolution.sys, "argv", ["pytest"])
+        for name in _VERSION_ENV_VARS:
+            monkeypatch.delenv(name, raising=False)
+        yield
 
 
 @pytest.fixture()
@@ -90,6 +101,30 @@ def bundled_loader(monkeypatch: pytest.MonkeyPatch) -> list[str]:
 
     monkeypatch.setattr(schema_resolution.schema_module, "load_openapi_schema", _load)
     return loaded
+
+
+def test_resolution_state_discards_a_document_loaded_through_a_test_double(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A patched loader must not leave its partial document for a later test."""
+    partial = {
+        "_source": "test-double",
+        "paths": {"/api/test/widgets/": {"get": {"summary": "partial"}}},
+    }
+
+    with monkeypatch.context() as loader_patch:
+        loader_patch.setattr(
+            schema_resolution.schema_module,
+            "load_openapi_schema",
+            lambda **_kwargs: partial,
+        )
+        with _isolated_bundled_index_cache():
+            loaded = schema_resolution.bundled_index("4.7")
+            assert loaded.schema["_source"] == "test-double"
+
+    restored = schema_resolution.bundled_index("4.7")
+    assert restored.schema["info"]["version"] == "4.7.0"
+    assert "/api/dcim/cooling-sources/" in restored.schema["paths"]
 
 
 class _FakeClient:
@@ -330,10 +365,10 @@ async def test_connected_resolution_failures_fall_back_when_opted_in(
     with capture_sdk_logs("netbox_sdk.schema_resolution") as records:
         index = await schema_resolution.resolve_index(client, fall_back_on_error=True)
 
-    assert index.schema["_release_line"] == "4.6"
+    assert index.schema["_release_line"] == "4.7"
     assert client.version_calls == expected_version_calls
     assert client.openapi_calls == expected_openapi_calls
-    assert bundled_loader == ["4.6"]
+    assert bundled_loader == ["4.7"]
     matching = [
         record for record in records if getattr(record, "nbx_event", None) == expected_event
     ]
@@ -524,8 +559,8 @@ async def test_invalid_live_document_falls_back_only_when_requested(
 
     index = await schema_resolution.resolve_index(client, fall_back_on_error=True)
 
-    assert index.schema["_release_line"] == "4.6"
-    assert bundled_loader == ["4.6"]
+    assert index.schema["_release_line"] == "4.7"
+    assert bundled_loader == ["4.7"]
 
 
 async def test_prefer_live_false_uses_default_without_detection(bundled_loader: list[str]) -> None:
@@ -533,10 +568,10 @@ async def test_prefer_live_false_uses_default_without_detection(bundled_loader: 
 
     index = await schema_resolution.resolve_index(client, prefer_live=False)
 
-    assert index.schema["_release_line"] == "4.6"
+    assert index.schema["_release_line"] == "4.7"
     assert client.version_calls == 0
     assert client.openapi_calls == 0
-    assert bundled_loader == ["4.6"]
+    assert bundled_loader == ["4.7"]
 
 
 async def test_detect_release_line_maps_supported_and_unsupported_versions() -> None:
@@ -588,4 +623,4 @@ async def test_resolution_preserves_bundled_and_dynamic_log_messages(
 
 def test_bundled_index_returns_schema_index(bundled_loader: list[str]) -> None:
     assert isinstance(schema_resolution.bundled_index(), SchemaIndex)
-    assert bundled_loader == ["4.6"]
+    assert bundled_loader == ["4.7"]

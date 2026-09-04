@@ -67,7 +67,7 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 
 | Flag | Descrição |
 |------|-------------|
-| `--netbox-version` / `--api-version` | Opção global para forçar uma linha de esquema integrada suportada (`4.3`, `4.4`, `4.5`, `4.6`, `4.7` preview) |
+| `--netbox-version` / `--api-version` | Opção global para forçar uma linha de esquema integrada suportada (`4.3`, `4.4`, `4.5`, `4.6`, `4.7`) |
 | `--id INTEGER` | ID do objeto para operações de detalhe (`get`, `update`, `patch`, `delete`) |
 | `-q` / `--query KEY=VALUE` | Filtro de query string (repetível) |
 | `-H` / `--header HEADER=VALUE` | Cabeçalho HTTP da requisição; `Header: Value` também é aceito (repetível) |
@@ -91,14 +91,16 @@ Nem todo recurso suporta todas as ações — a disponibilidade depende do esque
 
 ## Seleção de versão do NetBox
 
-`nbx` suporta em paralelo todas as superfícies de comando integradas (`4.3`, `4.4`, `4.5`, `4.6` e a linha preview `4.7`):
+`nbx` suporta em paralelo todas as superfícies de comando integradas (`4.3`, `4.4`, `4.5`, `4.6` e `4.7`):
 
-- Por padrão, a árvore estática de comandos usa o esquema integrado do NetBox 4.6, então recursos 4.6 como `dcim/cable-bundles` ficam disponíveis.
+- Por padrão, a árvore estática de comandos usa o schema oficial GA integrado do NetBox 4.7.
 - Durante a execução de comandos, auxiliares de descoberta e abertura de TUI, `nbx` verifica a versão da instância configurada e usa o esquema integrado correspondente quando a linha é suportada.
+- Se a instância configurada não puder ser alcançada, se a detecção de versão falhar ou se o schema ao vivo for inválido, a execução falha de forma segura em vez de substituir o contrato integrado padrão.
+- As visualizações `--dry-run`, que não criam cliente, usam o schema explícito/estático que registrou o comando e nunca consultam a instância.
 - Use `--netbox-version` / `--api-version` ou `NETBOX_SDK_NETBOX_VERSION` para fixar explicitamente o esquema integrado.
 
 ```bash
-# Descoberta de comandos padrão em 4.6
+# Descoberta de comandos padrão em 4.7
 nbx dcim cable-bundles list --help
 
 # Fixar descoberta e execução em NetBox 4.5
@@ -359,8 +361,8 @@ Veja [Perfil demo](demo-profile.md) para a configuração.
 
 ## Como funciona
 
-Na inicialização, `_register_openapi_subcommands()` em `dynamic.py` constrói um `SchemaIndex` sem rede a partir do esquema integrado selecionado por `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`, com padrão NetBox 4.6. Em seguida, cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o `app` raiz e outra para `demo_app` com a fábrica de cliente demo.
+Na inicialização, `_register_openapi_subcommands()` em `dynamic.py` constrói um `SchemaIndex` sem rede a partir do esquema integrado selecionado por `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`, com padrão NetBox 4.7. Em seguida, cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o `app` raiz e outra para `demo_app` com a fábrica de cliente demo.
 
-A execução real do comando usa `_get_runtime_index()` de `runtime.py`. Overrides explícitos de versão têm prioridade; caso contrário, a CLI consulta a instância configurada e seleciona o esquema integrado correspondente para linhas de release NetBox suportadas.
+A execução real do comando usa `_get_runtime_index()` de `runtime.py`. Overrides explícitos de versão têm prioridade; caso contrário, a CLI consulta a instância configurada e seleciona o esquema integrado correspondente para linhas de release NetBox suportadas. Uma falha de detecção ou de schema em um perfil configurado é terminal; somente perfis sem URL base podem usar o contrato integrado padrão. As visualizações dry-run permanecem sem rede e são resolvidas pelo índice estático de registro.
 
 Para recursos de plugins / objetos customizados, o esquema integrado dá ao `nbx` a árvore estática de comandos que ele conhece. Use `--live` com `groups`, `resources` ou `ops` para enriquecer esse índice a partir da instância NetBox configurada via `/api/plugins/` e `/api/core/object-types/`. Invocações dinâmicas livres também tentam enriquecimento ao vivo quando o recurso solicitado não existe no esquema integrado.

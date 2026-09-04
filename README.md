@@ -26,7 +26,7 @@ release maintainability.
 | License | Apache-2.0 in `LICENSE.txt` and `pyproject.toml` package metadata |
 | Package | `netbox-sdk` on PyPI, with `netbox_sdk`, `netbox_cli`, `netbox_tui`, and `netbox_mcp` import packages |
 | Python | Python `3.11`, `3.12`, and `3.13` |
-| NetBox API compatibility | Typed clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`, plus `4.7` as a preview line (upstream `v4.7.0-beta2`, opt-in); live CI against `v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10` |
+| NetBox API compatibility | Stable typed clients for NetBox `4.7`, `4.6`, `4.5`, `4.4`, and `4.3`; the default is the official NetBox `v4.7.0` GA schema; live CI against `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10` |
 | Tests | Mock API suite, live NetBox suite, security tests, type checks, package metadata checks, and strict docs builds in GitHub Actions |
 | Support | GitHub issues for bugs/features/docs requests; docs at <https://emersonfelipesp.github.io/netbox-sdk/> |
 
@@ -130,7 +130,7 @@ nbx dcim devices patch --id 1 --body-json '{"status":"active"}' --confirm
 nbx dcim devices delete --id 1 --confirm
 
 # NetBox version selection
-# Default command discovery uses the bundled 4.6 schema; execution detects configured instances.
+# Default command discovery uses the bundled 4.7 GA schema; execution detects configured instances.
 nbx dcim cable-bundles list --help
 nbx --netbox-version 4.5 dcim devices list
 NETBOX_SDK_NETBOX_VERSION=4.5 nbx resources dcim

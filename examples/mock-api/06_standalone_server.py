@@ -11,7 +11,7 @@ Or via the installed script:
     uv run nbx-mock
 
 Environment variables:
-    NETBOX_MOCK_VERSION  NetBox release line to simulate (default: 4.5)
+    NETBOX_MOCK_VERSION  NetBox release line to simulate (default: 4.7)
     HOST                 Bind address (default: 0.0.0.0)
     PORT                 Listen port (default: 8001)
 
@@ -36,7 +36,7 @@ app = create_mock_app()
 if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8001"))
-    version = os.environ.get("NETBOX_MOCK_VERSION", "4.5")
+    version = os.environ.get("NETBOX_MOCK_VERSION", "4.7")
 
     print("=" * 60)
     print("NetBox Mock API Server")

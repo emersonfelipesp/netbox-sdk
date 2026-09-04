@@ -138,7 +138,7 @@ pip install -e '.[all]'
 
 ## CLI Dynamic Command Surface
 
-The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.6 schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` as a thin adapter over `netbox_sdk.schema_resolution` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line.
+The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.7 GA schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` as a thin adapter over `netbox_sdk.schema_resolution` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line. Configured-profile detection and live-schema failures fail closed instead of substituting the default contract; client-free dry runs use their explicit/static registration index.
 
 `list` supports `--all` / `--max-records`; write actions include `create`, `update`, `patch`, `delete`, plus `bulk-update`, `bulk-patch`, and `bulk-delete` on list paths; `filters` is a local schema action. `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows. Write-method `nbx call` requests support client-free `--dry-run` previews of the normalized method and path plus parsed query, headers, and JSON body; compound API/private-key credential names are redacted recursively, explicit empty bodies remain distinct from no body, and literal backslashes or encoded path separators fail before preview or dispatch.
 
@@ -152,20 +152,25 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - Semantic plugin discovery and dispatch must use `NetBoxApiClient.request_bounded()` so contracts are current, uncached, non-redirecting, and body-bounded; never authorize a plugin tool from the ordinary stale-if-error cache.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
+- The synchronous `api()` facade performs no network access while it is being
+  constructed. Without an explicit `schema=`, it starts with the newest stable
+  bundled contract (currently 4.7), then detects and installs the connected
+  release before the first schema-dependent request; detection failures
+  propagate. Callers may use `await async_api(...)` for eager detection and
+  runtime-resource discovery, or pass `build_schema_index(version="4.x")` to
+  pin the contract. Strict-filter validation runs after deferred detection and
+  must never imply that NetBox rejected a request prevented by the local schema.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
   all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works
   without the `otel` extra.
 - `netbox_sdk.versioning` is the single release-line registry, and
   `netbox_sdk.schema_resolution` is the single bundled/live resolution policy
   used by SDK, CLI, TUI, and MCP. Bundled typed and OpenAPI support currently
-  targets NetBox release lines `4.7` (preview), `4.6`, `4.5`, `4.4`, and `4.3`; the default
-  remains 4.6. `4.7` is bundled from the upstream `v4.7.0-beta2` pre-release and
-  is registered with `status="preview"`: reachable by explicit pin
-  (`--netbox-version 4.7` / `NETBOX_SDK_NETBOX_VERSION=4.7`) or by live detection
-  when the instance reports `4.7.x`, but never selected by default. Live CI
-  exercises `v4.7.0-beta2` from a digest-pinned GHCR image (that image's
-  `/api/status/` reports `4.7.0`; live CI accepts that known alias), plus `v4.6.6`,
-  `v4.6.3`, `v4.6.2`, and `v4.5.10`. The **bundled release-line matrix** still
+  targets stable NetBox release lines `4.7`, `4.6`, `4.5`, `4.4`, and `4.3`; the
+  default is 4.7. `4.7` is bundled from the official upstream `v4.7.0` GA
+  release and registered with `status="stable"`. Live CI exercises `v4.7.0`,
+  `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`. The **bundled release-line matrix**
+  still
   runs one CI job per registered line against the bundled schema.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.

@@ -395,12 +395,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6", "v4.7.0-beta2"]
+        netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6", "v4.7.0"]
+        include:
+          - netbox-version: "v4.5.10"
+            release_commit: "b78bd713294564e0421c36c936a909e64da04b8d"
+            sdk_release_line: ""
+            netbox_image: ""
+            image_digest: ""
+          - netbox-version: "v4.6.2"
+            release_commit: "742f4b433048e9aa63bf644e0cb4a97737c408b5"
+            sdk_release_line: ""
+            netbox_image: ""
+            image_digest: ""
+          - netbox-version: "v4.6.3"
+            release_commit: "0c26f973ffb56a945391fd93bae8542bbcca8e37"
+            sdk_release_line: ""
+            netbox_image: ""
+            image_digest: ""
+          - netbox-version: "v4.6.6"
+            release_commit: "fb8c455ba61b57119a70670612dfdd05e8438b10"
+            sdk_release_line: "4.6"
+            netbox_image: ""
+            image_digest: ""
+          - netbox-version: "v4.7.0"
+            release_commit: "5f06007e4c9bacc93ce17c1e645fc1143d60df3d"
+            sdk_release_line: "4.7"
+            netbox_image: "ghcr.io/netbox-community/netbox@sha256:a2cdf00fab61d2ae37e4f987adaa403fad5c4049a63bc960768b7bbf804e2cb6"
+            image_digest: "sha256:a2cdf00fab61d2ae37e4f987adaa403fad5c4049a63bc960768b7bbf804e2cb6"
     # Only postgres and redis as service containers — netbox is started
     # manually in a step so postgres is healthy before netbox connects.
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94
         env:
           POSTGRES_DB: netbox
           POSTGRES_USER: netbox
@@ -412,7 +438,7 @@ jobs:
           --health-interval 5s
           --health-retries 10
       redis:
-        image: redis:7
+        image: redis:7@sha256:71da9275c5f3fcb97d0fa0c8c5b36cc995327265420f17a04bfd544f458059f7
         ports:
           - 6379:6379
         options: >-
@@ -422,23 +448,23 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.11"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
 
       - name: Sync development environment
         run: uv sync --dev --extra cli --extra tui --extra demo --extra mock --extra mcp --locked
 
       - name: Set up Python 3.13 for source NetBox fallback
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.13"
 
@@ -449,17 +475,39 @@ jobs:
         run: |
           set -euo pipefail
 
-          image="ghcr.io/netbox-community/netbox:${{ matrix.netbox-version }}"
-          # Preview tags move; pin the beta2 image by digest so a retag cannot
-          # silently swap the live 4.7 job onto a different build.
-          if [ "${{ matrix.netbox-version }}" = "v4.7.0-beta2" ]; then
-            image="ghcr.io/netbox-community/netbox@sha256:b4c36c2ecbb161dad6557cec9f505e7dd7af0fee23f16f937f5585f440941467"
-          fi
+          image="${{ matrix.netbox_image }}"
+          expected_digest="${{ matrix.image_digest }}"
+          expected_commit="${{ matrix.release_commit }}"
+          sdk_release_line="${{ matrix.sdk_release_line }}"
           token_key="ci1234567890"
           token="0123456789abcdef0123456789abcdef01234567"
           token_pepper="ci-token-pepper-for-testing-only-not-for-production-use-12345"
 
-          if docker pull "$image"; then
+          git clone --depth 1 --branch "${{ matrix.netbox-version }}" \
+            https://github.com/netbox-community/netbox.git /tmp/netbox-source
+          actual_commit=$(git -C /tmp/netbox-source rev-parse HEAD)
+          python3 scripts/check_live_netbox_provenance.py \
+            --expected-commit "$expected_commit" \
+            --actual-commit "$actual_commit"
+
+          if [ -n "$sdk_release_line" ]; then
+            uv run python scripts/generate_typed_sdk.py \
+              --version "$sdk_release_line" \
+              --source /tmp/netbox-source/contrib/openapi.json \
+              --release-repository /tmp/netbox-source \
+              --verify-only
+          fi
+
+          if [ -n "$image" ]; then
+            if ! docker pull "$image"; then
+              echo "Reviewed immutable Docker image $image is unavailable" >&2
+              exit 1
+            fi
+            docker image inspect "$image" --format '{{json .RepoDigests}}' \
+              > /tmp/netbox-image-digests.json
+            python3 scripts/check_live_netbox_provenance.py \
+              --expected-image-digest "$expected_digest" \
+              --repo-digests-file /tmp/netbox-image-digests.json
             echo "Starting NetBox from $image"
             docker run -d \
               --name netbox-ci \
@@ -480,18 +528,14 @@ jobs:
               -e SUPERUSER_API_TOKEN="$token" \
               "$image"
             echo "NETBOX_CI_BACKEND=docker" >> "$GITHUB_ENV"
-            echo "NETBOX_CI_IMAGE=$image" >> "$GITHUB_ENV"
             exit 0
           fi
 
-          if [ "${{ matrix.netbox-version }}" = "v4.7.0-beta2" ]; then
-            echo "Pinned digest for v4.7.0-beta2 is unavailable; failing closed (no mutable tag fallback)"
+          if [ "$sdk_release_line" = "4.7" ]; then
+            echo "NetBox 4.7.0 requires a reviewed immutable OCI image" >&2
             exit 1
           fi
-
-          echo "Docker image $image is unavailable; falling back to source checkout"
-          git clone --depth 1 --branch "${{ matrix.netbox-version }}" \
-            https://github.com/netbox-community/netbox.git /tmp/netbox-source
+          echo "No reviewed OCI digest is configured; using the verified source checkout"
 
           cat > /tmp/netbox-source/netbox/netbox/configuration.py <<'PY'
           ALLOWED_HOSTS = ['*']
@@ -634,8 +678,7 @@ jobs:
 
           python3 scripts/check_live_netbox_status.py \
             --expected "$NETBOX_EXPECTED_VERSION" \
-            --status-file /tmp/netbox-status.json \
-            --image "${NETBOX_CI_IMAGE:-}"
+            --status-file /tmp/netbox-status.json
 
       - name: Set NetBox connection env vars
         run: |
@@ -659,7 +702,6 @@ jobs:
           NETBOX_TOKEN_SECRET: ${{ env.NETBOX_TOKEN_SECRET }}
           NETBOX_LIVE_TEST: "1"
           NETBOX_EXPECTED_VERSION: ${{ matrix.netbox-version }}
-          NETBOX_CI_IMAGE: ${{ env.NETBOX_CI_IMAGE }}
         run: uv run pytest -v --tb=short -p no:randomly -m suite_sdk
 
       - name: Dump NetBox logs on failure

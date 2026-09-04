@@ -1,4 +1,4 @@
-"""NetBox 4.7 preview-line contracts that must stay true after a pin bump."""
+"""NetBox 4.7 GA contracts that must stay true after a pin bump."""
 
 from __future__ import annotations
 
@@ -181,19 +181,14 @@ def test_bulk_update_error_exposes_object_id_without_index() -> None:
     )
 
 
-async def test_detected_47_beta2_uses_the_47_bundle_not_the_46_default() -> None:
-    """A 4.7.0-beta2 server must not be silently described by the 4.6 default.
-
-    Silent fallback is the failure that makes a wrong answer look like a right
-    one: cooling paths would be missing, service filters would include lookups
-    4.7 removed, and selection custom fields would be typed as scalars.
-    """
-    assert DEFAULT_NETBOX_VERSION == "4.6"
-    client = _StatusClient("4.7.0-beta2")
+async def test_detected_47_ga_uses_the_47_bundle_without_live_schema_fetch() -> None:
+    """A 4.7.0 server resolves to the bundled GA schema, now also the default."""
+    assert DEFAULT_NETBOX_VERSION == "4.7"
+    client = _StatusClient("4.7.0")
     index = await resolve_index(client)
     assert client.openapi_calls == 0
-    assert index.schema["info"]["version"] == "4.7.0-beta2"
+    assert index.schema["info"]["version"] == "4.7.0"
     assert "/api/dcim/cooling-sources/" in index.schema["paths"]
     default = load_openapi_schema(version=DEFAULT_NETBOX_VERSION)
-    assert "/api/dcim/cooling-sources/" not in default["paths"]
-    assert default["info"]["version"].startswith("4.6")
+    assert default["info"]["version"] == "4.7.0"
+    assert "/api/dcim/cooling-sources/" in default["paths"]

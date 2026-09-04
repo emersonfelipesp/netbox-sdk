@@ -13,6 +13,7 @@ import subprocess
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -22,15 +23,16 @@ TYPED_ROOT = SDK_ROOT / "typed_versions"
 OPENAPI_ROOT = SDK_ROOT / "reference" / "openapi"
 DATAMODEL_CODE_GENERATOR_VERSION = "0.55.0"
 RUFF_VERSION = "0.15.9"
+BYTE_FAITHFUL_RELEASE_BUNDLE_VERSIONS: frozenset[str] = frozenset({"4.7"})
 
 RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
     "4.7": {
-        "netbox_release": "v4.7.0-beta2",
-        "release_commit": "aa1d49d0f5021a28e6efc2d0364b84c5bcec7137",
+        "netbox_release": "v4.7.0",
+        "release_commit": "5f06007e4c9bacc93ce17c1e645fc1143d60df3d",
         "source_path": "contrib/openapi.json",
-        "source_blob_sha": "1a3e6621a50520515652f969e9736da2545704c2",
-        "source_sha256": "1408f6421f45720ecf25aa0edb777f185f74f9a87af887b5eeb73fee8012b880",
-        "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0-beta2/contrib/openapi.json",
+        "source_blob_sha": "ea7f7e9c38c37d2139c6600db584b249571524a6",
+        "source_sha256": "be7f971179b1d6ba03b590c08ebe65966a32220ea8fdfd272f60dc5d66ea9008",
+        "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0/contrib/openapi.json",
     },
     "4.6": {
         "netbox_release": "v4.6.6",
@@ -43,7 +45,7 @@ RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
 }
 
 SCHEMA_SOURCES = {
-    "4.7": Path("/tmp/netbox-v4.7.0-beta2-openapi.json"),
+    "4.7": Path("/tmp/netbox-v4.7.0-openapi.json"),
     "4.6": Path("/tmp/netbox-v4.6-openapi.json"),
     "4.5": Path("/tmp/netbox-v4.5.5/contrib/openapi.json"),
     "4.4": Path("/tmp/netbox-v4.4.10/contrib/openapi.json"),
@@ -130,6 +132,8 @@ class OperationSpec:
     response_model_expr: str | None
     raw_response: bool = False
     path_param_names: tuple[str, ...] = ()
+    background_query: bool = False
+    accepts_bulk_create: bool = False
 
 
 def render_query_model(name: str, parameters: list[dict[str, Any]]) -> str:
@@ -297,99 +301,201 @@ def response_expr(operation: dict[str, Any]) -> tuple[str | None, bool]:
     return None, False
 
 
+def response_annotation(spec: OperationSpec) -> str:
+    """Return the static response union for one generated operation."""
+    response = spec.response_model_expr or "None"
+    if spec.method_name == "get" and spec.response_model_expr is not None:
+        response = f"{response} | None"
+    if spec.accepts_bulk_create and spec.response_model_expr is not None:
+        response = f"{response} | list[{spec.response_model_expr}]"
+    if spec.background_query:
+        if spec.response_model_expr is None:
+            response = "BackgroundJobReference | None"
+        else:
+            response = f"{response} | BackgroundJobReference"
+    return response
+
+
 def path_param_names(path: str) -> tuple[str, ...]:
     return tuple(re.findall(r"{([^}]+)}", path))
 
 
-def build_bindings(version: str, schema: dict[str, Any]) -> str:
-    suffix = version.replace(".", "_")
+def _api_path_parts(path: str) -> tuple[str, str, bool, str, str] | None:
+    if not path.startswith("/api/"):
+        return None
+    parts = [part for part in path.split("/") if part]
+    if len(parts) < 3:
+        return None
+    group = snake_case(parts[1])
+    resource = snake_case(parts[2])
+    is_detail = len(parts) >= 4 and parts[3].startswith("{") and parts[3].endswith("}")
+    action_parts = parts[4:] if is_detail else parts[3:]
+    action_name = snake_case("_".join(action_parts)) if action_parts else ""
+    query_scope = action_name or ("detail" if is_detail else "root")
+    return group, resource, is_detail, action_name, query_scope
+
+
+def _operation_method_name(
+    method: str,
+    operation: dict[str, Any],
+    *,
+    is_detail: bool,
+    action_name: str,
+) -> str:
+    is_action = bool(action_name)
+    if is_action:
+        action_method = {
+            "get": "list",
+            "post": "create",
+            "put": "update",
+            "patch": "partial_update",
+            "delete": "delete",
+        }.get(method)
+        if action_method is not None:
+            return action_method
+    special_method = SPECIAL_METHOD_NAMES.get((method, is_detail, is_action))
+    if special_method is not None:
+        return special_method
+    return snake_case(operation.get("operationId") or f"{method}_{action_name or 'call'}")
+
+
+def _register_query_model(
+    query_models: dict[str, str],
+    *,
+    class_key: str,
+    method: str,
+    path: str,
+    params: list[dict[str, Any]],
+) -> str | None:
+    if not params:
+        return None
+    query_model_name = f"{class_key}{pascal_case(method)}Query"
+    rendered_query = render_query_model(query_model_name, params)
+    existing_query = query_models.get(query_model_name)
+    if existing_query is not None and existing_query != rendered_query:
+        raise ValueError(
+            f"Conflicting query model {query_model_name!r} generated for {method.upper()} {path}"
+        )
+    query_models[query_model_name] = rendered_query
+    return query_model_name
+
+
+def _build_operation_spec(
+    version: str,
+    operation: dict[str, Any],
+    components: dict[str, Any],
+    *,
+    method: str,
+    path: str,
+    method_name: str,
+    query_model_name: str | None,
+    params: list[dict[str, Any]],
+) -> OperationSpec:
+    body_spec = request_body_spec(operation, components)
+    response_model_expr, raw_response = response_expr(operation)
+    accepts_bulk_create = (
+        version == "4.7"
+        and method_name == "create"
+        and body_spec is not None
+        and "list[" in body_spec.type_expr
+    )
+    return OperationSpec(
+        method=method.upper(),
+        operation_id=str(operation.get("operationId") or ""),
+        path=path,
+        method_name=method_name,
+        query_model_name=query_model_name,
+        body_model_expr=body_spec.type_expr if body_spec else None,
+        body_media_type=body_spec.media_type if body_spec else None,
+        body_binary_field_names=body_spec.binary_field_names if body_spec else (),
+        response_model_expr=response_model_expr,
+        raw_response=raw_response,
+        path_param_names=path_param_names(path),
+        background_query=any(param.get("name") == "background" for param in params),
+        accepts_bulk_create=accepts_bulk_create,
+    )
+
+
+def _collect_operations(
+    version: str,
+    schema: dict[str, Any],
+) -> tuple[dict[str, dict[str, list[OperationSpec]]], dict[str, str]]:
     per_group_resources: dict[str, dict[str, list[OperationSpec]]] = defaultdict(
         lambda: defaultdict(list)
     )
     query_models: dict[str, str] = {}
-    list_detail_pairs: dict[tuple[str, str], dict[str, str]] = defaultdict(dict)
     components = schema.get("components", {}).get("schemas", {})
     if not isinstance(components, dict):
         components = {}
 
     for path, path_item in schema.get("paths", {}).items():
-        if not isinstance(path_item, dict) or not path.startswith("/api/"):
+        path_parts = _api_path_parts(path)
+        if not isinstance(path_item, dict) or path_parts is None:
             continue
-        parts = [part for part in path.split("/") if part]
-        if len(parts) < 3:
-            continue
-        group = snake_case(parts[1])
-        resource = snake_case(parts[2])
-        is_detail = len(parts) >= 4 and parts[3].startswith("{") and parts[3].endswith("}")
-        is_action = len(parts) > (4 if is_detail else 3)
-        if not is_action:
-            list_detail_pairs[(group, resource)]["detail" if is_detail else "list"] = path
-
-        action_parts = parts[4:] if is_detail else parts[3:]
-        action_name = snake_case("_".join(action_parts)) if action_parts else ""
-        query_scope = action_name or ("detail" if is_detail else "root")
+        group, resource, is_detail, action_name, query_scope = path_parts
         class_key = pascal_case(f"{group}_{resource}_{query_scope}")
 
         for method, operation in path_item.items():
-            if method.lower() not in {"get", "post", "put", "patch", "delete"}:
-                continue
-            if not isinstance(operation, dict):
+            normalized_method = method.lower()
+            if normalized_method not in {"get", "post", "put", "patch", "delete"} or not isinstance(
+                operation, dict
+            ):
                 continue
             params = [
                 param
                 for param in operation.get("parameters", [])
                 if isinstance(param, dict) and param.get("in") == "query"
             ]
-            query_model_name = None
-            if params:
-                query_model_name = f"{class_key}{pascal_case(method)}Query"
-                rendered_query = render_query_model(query_model_name, params)
-                existing_query = query_models.get(query_model_name)
-                if existing_query is not None and existing_query != rendered_query:
-                    raise ValueError(
-                        f"Conflicting query model {query_model_name!r} generated for "
-                        f"{method.upper()} {path}"
-                    )
-                query_models[query_model_name] = rendered_query
-            body_spec = request_body_spec(operation, components)
-            response_model_expr, raw_response = response_expr(operation)
-            method_name = None
-            if is_action:
-                method_name = {
-                    "get": "list",
-                    "post": "create",
-                    "put": "update",
-                    "patch": "partial_update",
-                    "delete": "delete",
-                }.get(method.lower())
-            if method_name is None:
-                method_name = SPECIAL_METHOD_NAMES.get((method.lower(), is_detail, is_action))
-            if method_name is None:
-                method_name = snake_case(
-                    operation.get("operationId") or f"{method}_{action_name or 'call'}"
-                )
-            spec = OperationSpec(
-                method=method.upper(),
-                operation_id=str(operation.get("operationId") or ""),
+            query_model_name = _register_query_model(
+                query_models,
+                class_key=class_key,
+                method=normalized_method,
+                path=path,
+                params=params,
+            )
+            method_name = _operation_method_name(
+                normalized_method,
+                operation,
+                is_detail=is_detail,
+                action_name=action_name,
+            )
+            spec = _build_operation_spec(
+                version,
+                operation,
+                components,
+                method=normalized_method,
                 path=path,
                 method_name=method_name,
                 query_model_name=query_model_name,
-                body_model_expr=body_spec.type_expr if body_spec else None,
-                body_media_type=body_spec.media_type if body_spec else None,
-                body_binary_field_names=body_spec.binary_field_names if body_spec else (),
-                response_model_expr=response_model_expr,
-                raw_response=raw_response,
-                path_param_names=path_param_names(path),
+                params=params,
             )
             resource_key = resource if not action_name else f"{resource}:{action_name}"
             per_group_resources[group][resource_key].append(spec)
+    return per_group_resources, query_models
 
+
+def _runtime_imports(
+    per_group_resources: dict[str, dict[str, list[OperationSpec]]],
+) -> tuple[list[str], bool]:
     raw_plugin_fallback = "plugins" not in per_group_resources
-    runtime_imports = ["TypedApiBase", "TypedAppBase", "build_typed_client"]
+    specs = (
+        spec
+        for resources in per_group_resources.values()
+        for operations in resources.values()
+        for spec in operations
+    )
+    has_background_operation = any(spec.background_query for spec in specs)
+    imports = ["TypedApiBase", "TypedAppBase", "build_typed_client"]
+    if has_background_operation:
+        imports.append("BackgroundJobReference")
     if raw_plugin_fallback:
-        runtime_imports.insert(0, "RawBranchingApp")
+        imports.insert(0, "RawBranchingApp")
+    return imports, raw_plugin_fallback
 
-    imports = [
+
+def _binding_import_lines(version: str, runtime_imports: list[str]) -> list[str]:
+    suffix = version.replace(".", "_")
+    return [
         '"""',
         f"Auto-generated typed NetBox {version} API bindings from OpenAPI.",
         "",
@@ -407,142 +513,168 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         f"from netbox_sdk.typed_runtime import {', '.join(runtime_imports)}",
         "",
     ]
-    body = []
-    if query_models:
-        for model_name in sorted(query_models):
-            body.append(query_models[model_name])
-            body.append("")
 
+
+def _query_model_lines(query_models: dict[str, str]) -> list[str]:
+    lines: list[str] = []
+    for model_name in sorted(query_models):
+        lines.extend((query_models[model_name], ""))
+    return lines
+
+
+def _child_resource_map(resource_keys: dict[str, list[OperationSpec]]) -> dict[str, list[str]]:
+    child_map: dict[str, list[str]] = defaultdict(list)
+    for key in resource_keys:
+        if ":" in key:
+            parent, child = key.split(":", 1)
+            child_map[parent].append(child)
+    return child_map
+
+
+def _operation_signature(spec: OperationSpec) -> tuple[str, str]:
+    path_params: list[str] = []
+    path_expr = spec.path
+    for name in spec.path_param_names:
+        py_name = snake_case(name)
+        path_params.append(f"{py_name}: int | str")
+        path_expr = path_expr.replace(f"{{{name}}}", f"{{{py_name}}}")
+    params = ["self", *path_params]
+    if spec.body_model_expr is not None:
+        body_annotation = spec.body_model_expr
+        if spec.body_media_type == "multipart/form-data":
+            body_annotation = f"{body_annotation} | dict[str, Any]"
+        params.append(f"body: {body_annotation}")
+    if spec.query_model_name is not None:
+        params.append(f"query: {spec.query_model_name} | dict[str, Any] | None = None")
+    return ", ".join(params), path_expr
+
+
+def _typed_request_line(spec: OperationSpec) -> str:
+    if spec.raw_response:
+        query_arg = "query=query" if spec.query_model_name is not None else "query=None"
+        query_model = spec.query_model_name or "None"
+        return (
+            f"        return await self._typed_raw_request({spec.method!r}, path, "
+            f"query_model={query_model}, {query_arg})"
+        )
+    kwargs = [
+        f"query_model={spec.query_model_name or 'None'}",
+        f"query={'query' if spec.query_model_name is not None else 'None'}",
+        f"body_model={spec.body_model_expr or 'None'}",
+        f"body={'body' if spec.body_model_expr is not None else 'None'}",
+        f"response_model={spec.response_model_expr or 'None'}",
+        f"return_none_on_404={'True' if spec.method_name == 'get' else 'False'}",
+    ]
+    request_method = "_typed_json_request"
+    if spec.body_media_type == "multipart/form-data":
+        request_method = "_typed_multipart_request"
+        kwargs.append(f"binary_field_names={spec.body_binary_field_names!r}")
+    return f"        return await self.{request_method}({spec.method!r}, path, {', '.join(kwargs)})"
+
+
+def _operation_lines(spec: OperationSpec) -> list[str]:
+    signature, path_expr = _operation_signature(spec)
+    lines = [f"    async def {spec.method_name}({signature}) -> {response_annotation(spec)}:"]
+    path_literal = f'f"{path_expr}"' if spec.path_param_names else f'"{path_expr}"'
+    lines.extend((f"        path = {path_literal}", _typed_request_line(spec), ""))
+    return lines
+
+
+def _endpoint_class(
+    version: str,
+    group: str,
+    resource_key: str,
+    operations: list[OperationSpec],
+    child_map: dict[str, list[str]],
+) -> str:
+    resource_name, _, action_name = resource_key.partition(":")
+    class_name = pascal_case(f"{group}_{resource_name}_{action_name or 'endpoint'}")
+    lines = [
+        f"class {class_name}(TypedAppBase):",
+        f'    """Typed OpenAPI resource `{group}/{resource_key}` for NetBox {version}."""',
+        "    def __init__(self, api: TypedApiBase) -> None:",
+        "        super().__init__(api)",
+        "",
+    ]
+    if not action_name:
+        for child in sorted(child_map.get(resource_name, [])):
+            child_class = pascal_case(f"{group}_{resource_name}_{child}")
+            attr_name = snake_case(child)
+            lines.extend(
+                (
+                    "    @property",
+                    f"    def {attr_name}(self) -> {child_class}:",
+                    f"        return {child_class}(self._api)",
+                    "",
+                )
+            )
+    for spec in operations:
+        lines.extend(_operation_lines(spec))
+    if len(lines) == 5:
+        lines.extend(("    pass", ""))
+    return "\n".join(lines)
+
+
+def _group_app_class(version: str, group: str, root_resources: list[str]) -> str:
+    app_class_name = pascal_case(f"{group}_app")
+    lines = [
+        f"class {app_class_name}(TypedAppBase):",
+        f'    """Typed API group `{group}` for NetBox {version}."""',
+        "    def __init__(self, api: TypedApiBase) -> None:",
+        "        super().__init__(api)",
+        "",
+    ]
+    for resource in root_resources:
+        endpoint_class = pascal_case(f"{group}_{resource}_endpoint")
+        lines.extend(
+            (
+                "    @property",
+                f"    def {resource}(self) -> {endpoint_class}:",
+                f"        return {endpoint_class}(self._api)",
+                "",
+            )
+        )
+    if len(lines) == 5:
+        lines.extend(("    pass", ""))
+    return "\n".join(lines)
+
+
+def _render_group(
+    version: str,
+    group: str,
+    resources: dict[str, list[OperationSpec]],
+) -> tuple[list[str], str, str]:
+    root_resources = sorted(key for key in resources if ":" not in key)
+    child_map = _child_resource_map(resources)
     endpoint_classes: list[str] = []
-    app_classes: list[str] = []
-    api_assignments: list[str] = []
+    for resource_key, operations in sorted(resources.items()):
+        endpoint_classes.extend(
+            (_endpoint_class(version, group, resource_key, operations, child_map), "")
+        )
+    app_class_name = pascal_case(f"{group}_app")
+    app_class = _group_app_class(version, group, root_resources)
+    assignment = f"        self.{group} = {app_class_name}(self)"
+    return endpoint_classes, app_class, assignment
 
-    for group in sorted(per_group_resources):
-        root_resources = sorted(key for key in per_group_resources[group] if ":" not in key)
-        child_map: dict[str, list[str]] = defaultdict(list)
-        for key in per_group_resources[group]:
-            if ":" in key:
-                parent, child = key.split(":", 1)
-                child_map[parent].append(child)
 
-        generated_classes: dict[str, str] = {}
-        for resource_key, operations in sorted(per_group_resources[group].items()):
-            resource_name, _, action_name = resource_key.partition(":")
-            class_name = pascal_case(f"{group}_{resource_name}_{action_name or 'endpoint'}")
-            lines = [
-                f"class {class_name}(TypedAppBase):",
-                f'    """Typed OpenAPI resource `{group}/{resource_key}` for NetBox {version}."""',
-            ]
-            lines.append("    def __init__(self, api: TypedApiBase) -> None:")
-            lines.append("        super().__init__(api)")
-            lines.append("")
-            if not action_name:
-                for child in sorted(child_map.get(resource_name, [])):
-                    child_class = pascal_case(f"{group}_{resource_name}_{child}")
-                    attr_name = snake_case(child)
-                    lines.append("    @property")
-                    lines.append(f"    def {attr_name}(self) -> {child_class}:")
-                    lines.append(f"        return {child_class}(self._api)")
-                    lines.append("")
-            for spec in operations:
-                path_params = []
-                path_expr = spec.path
-                for name in spec.path_param_names:
-                    py_name = snake_case(name)
-                    path_params.append(f"{py_name}: int | str")
-                    path_expr = path_expr.replace(f"{{{name}}}", f"{{{py_name}}}")
-                params = ["self", *path_params]
-                if spec.body_model_expr is not None:
-                    body_annotation = spec.body_model_expr
-                    if spec.body_media_type == "multipart/form-data":
-                        body_annotation = f"{body_annotation} | dict[str, Any]"
-                    params.append(f"body: {body_annotation}")
-                if spec.query_model_name is not None:
-                    params.append(f"query: {spec.query_model_name} | dict[str, Any] | None = None")
-                signature = ", ".join(params)
-                return_expr = spec.response_model_expr or "None"
-                if spec.method_name == "get" and spec.response_model_expr is not None:
-                    return_expr = f"{return_expr} | None"
-                lines.append(f"    async def {spec.method_name}({signature}) -> {return_expr}:")
-                if spec.path_param_names:
-                    lines.append(f'        path = f"{path_expr}"')
-                else:
-                    lines.append(f'        path = "{path_expr}"')
-                if spec.raw_response:
-                    query_arg = "query=query" if spec.query_model_name is not None else "query=None"
-                    query_model = spec.query_model_name or "None"
-                    lines.append(
-                        f"        return await self._typed_raw_request({spec.method!r}, path, query_model={query_model}, {query_arg})"
-                    )
-                else:
-                    kwargs = [
-                        f"query_model={spec.query_model_name or 'None'}",
-                        f"query={'query' if spec.query_model_name is not None else 'None'}",
-                        f"body_model={spec.body_model_expr or 'None'}",
-                        f"body={'body' if spec.body_model_expr is not None else 'None'}",
-                        f"response_model={spec.response_model_expr or 'None'}",
-                        f"return_none_on_404={'True' if spec.method_name == 'get' else 'False'}",
-                    ]
-                    request_method = "_typed_json_request"
-                    if spec.body_media_type == "multipart/form-data":
-                        request_method = "_typed_multipart_request"
-                        kwargs.append(f"binary_field_names={spec.body_binary_field_names!r}")
-                    lines.append(
-                        f"        return await self.{request_method}({spec.method!r}, path, "
-                        f"{', '.join(kwargs)})"
-                    )
-                lines.append("")
-            if len(lines) == 4:
-                lines.append("    pass")
-                lines.append("")
-            generated_classes[resource_key] = "\n".join(lines)
-
-        for resource_key in sorted(generated_classes):
-            endpoint_classes.append(generated_classes[resource_key])
-            endpoint_classes.append("")
-
-        app_class_name = pascal_case(f"{group}_app")
-        lines = [
-            f"class {app_class_name}(TypedAppBase):",
-            f'    """Typed API group `{group}` for NetBox {version}."""',
+def _plugin_fallback_class() -> str:
+    return "\n".join(
+        [
+            "class PluginsApp(TypedAppBase):",
+            '    """Typed-client access to NetBox plugin endpoints."""',
             "    def __init__(self, api: TypedApiBase) -> None:",
             "        super().__init__(api)",
             "",
+            "    @property",
+            "    def branching(self) -> RawBranchingApp:",
+            "        return RawBranchingApp(self._api)",
+            "",
         ]
-        for resource in root_resources:
-            endpoint_class = pascal_case(f"{group}_{resource}_endpoint")
-            lines.append("    @property")
-            lines.append(f"    def {resource}(self) -> {endpoint_class}:")
-            lines.append(f"        return {endpoint_class}(self._api)")
-            lines.append("")
-        if len(lines) == 4:
-            lines.append("    pass")
-            lines.append("")
-        app_classes.append("\n".join(lines))
-        app_classes.append("")
-        api_assignments.append(f"        self.{group} = {app_class_name}(self)")
+    )
 
-    if raw_plugin_fallback:
-        app_classes.extend(
-            [
-                "\n".join(
-                    [
-                        "class PluginsApp(TypedAppBase):",
-                        '    """Typed-client access to NetBox plugin endpoints."""',
-                        "    def __init__(self, api: TypedApiBase) -> None:",
-                        "        super().__init__(api)",
-                        "",
-                        "    @property",
-                        "    def branching(self) -> RawBranchingApp:",
-                        "        return RawBranchingApp(self._api)",
-                        "",
-                    ]
-                ),
-                "",
-            ]
-        )
-        api_assignments.append("        self.plugins = PluginsApp(self)")
 
+def _root_api_lines(version: str, api_assignments: list[str]) -> tuple[list[str], list[str]]:
+    suffix = version.replace(".", "_")
     api_class_name = f"TypedApiV{suffix}"
     api_lines = [
         f"class {api_class_name}(TypedApiBase):",
@@ -559,49 +691,32 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
         f"    return {api_class_name}(client)",
         "",
     ]
+    return api_lines, factory_lines
+
+
+def build_bindings(version: str, schema: dict[str, Any]) -> str:
+    per_group_resources, query_models = _collect_operations(version, schema)
+    runtime_imports, raw_plugin_fallback = _runtime_imports(per_group_resources)
+    imports = _binding_import_lines(version, runtime_imports)
+    body = _query_model_lines(query_models)
+
+    endpoint_classes: list[str] = []
+    app_classes: list[str] = []
+    api_assignments: list[str] = []
+    for group in sorted(per_group_resources):
+        group_endpoints, group_app, assignment = _render_group(
+            version, group, per_group_resources[group]
+        )
+        endpoint_classes.extend(group_endpoints)
+        app_classes.extend((group_app, ""))
+        api_assignments.append(assignment)
+
+    if raw_plugin_fallback:
+        app_classes.extend((_plugin_fallback_class(), ""))
+        api_assignments.append("        self.plugins = PluginsApp(self)")
+
+    api_lines, factory_lines = _root_api_lines(version, api_assignments)
     return "\n".join(imports + body + endpoint_classes + app_classes + api_lines + factory_lines)
-
-
-# ---------------------------------------------------------------------------
-# Write-compatibility overlay
-# ---------------------------------------------------------------------------
-# NetBox 4.7 declares the legacy single-protocol ``protocol``/``ports`` pair on a
-# *shared* serializer that Service and ServiceTemplate inherit from. The bundled
-# upstream schema documents the write contract explicitly:
-#
-#   "Write: either format is accepted. When the legacy ``protocol``/``ports``
-#    pair is supplied (and ``port_mappings`` is not), it is translated into
-#    ``port_mappings``."
-#
-# but drf-spectacular's introspection does not emit ``protocol`` into the
-# writable models' ``properties`` block (``ports`` *is* emitted). Generating
-# straight from ``properties`` therefore produces writable models that silently
-# DROP a field the REST API accepts. That is not a cosmetic gap: a PATCH of
-# ``{"protocol": "udp", "ports": [53]}`` would be sent as ``{"ports": [53]}``,
-# and NetBox backfills the stored protocol - turning an intended tcp->udp change
-# into ``tcp/53``.
-#
-# The overlay restores those fields for model generation ONLY. It is applied to
-# an in-memory copy; the committed ``netbox-openapi-*.json`` stays byte-faithful
-# to the pinned upstream artifact, so provenance verification is unaffected.
-# Each entry is deterministic and copies the field definition from the
-# corresponding read-side request model rather than inventing a schema.
-WRITE_COMPAT_OVERLAY: dict[str, dict[str, tuple[str, ...]]] = {
-    "4.7": {
-        "WritableServiceRequest": ("protocol",),
-        "PatchedWritableServiceRequest": ("protocol",),
-        "WritableServiceTemplateRequest": ("protocol",),
-        "PatchedWritableServiceTemplateRequest": ("protocol",),
-    }
-}
-
-# Where each overlaid model borrows its field definition from.
-_OVERLAY_FIELD_SOURCE = {
-    "WritableServiceRequest": "ServiceRequest",
-    "PatchedWritableServiceRequest": "ServiceRequest",
-    "WritableServiceTemplateRequest": "ServiceTemplateRequest",
-    "PatchedWritableServiceTemplateRequest": "ServiceTemplateRequest",
-}
 
 
 # Background bulk-operation overlay
@@ -610,17 +725,13 @@ _OVERLAY_FIELD_SOURCE = {
 # paths, answering 202 with a job reference instead of executing synchronously.
 # It exists specifically to avoid proxy timeouts on large batches.
 #
-# The pinned upstream artifact is ``v4.7.0-beta2``, whose OpenAPI document does
-# not describe the capability at all (0 ``background`` parameters, 0 ``202``
+# The pinned upstream artifact is ``v4.7.0``, whose OpenAPI document does not
+# describe the capability at all (0 ``background`` parameters, 0 ``202``
 # responses -- asserted by a guard test). The generated bindings are therefore
 # *faithful to the artifact*, and the typed surface simply cannot reach a feature
 # the raw client can already use.
 #
-# This is a distinct mechanism from WRITE_COMPAT_OVERLAY above, which patches
-# component-schema *properties*. This one patches *operations*, adding a query
-# parameter, so the generated query model exposes it.
-#
-# Remove this the moment upstream's GA schema describes the parameter; the guard
+# Remove this the moment an upstream schema describes the parameter; the guard
 # test in tests/test_typed_background_bulk.py fails if the overlay outlives its
 # reason to exist.
 BACKGROUND_BULK_OVERLAY_VERSIONS: frozenset[str] = frozenset({"4.7"})
@@ -741,31 +852,6 @@ def apply_background_bulk_overlay(version: str, schema: dict[str, Any]) -> dict[
     return patched
 
 
-def apply_write_compat_overlay(version: str, schema: dict[str, Any]) -> dict[str, Any]:
-    """Return a copy of ``schema`` with REST-writable legacy fields restored.
-
-    Raises:
-        KeyError: If an overlay target or its field source is missing, which means
-            the upstream schema changed shape and the overlay needs review rather
-            than silent skipping.
-    """
-    overlay = WRITE_COMPAT_OVERLAY.get(version)
-    if not overlay:
-        return schema
-    patched = json.loads(json.dumps(schema))
-    components = patched["components"]["schemas"]
-    for model, fields in overlay.items():
-        target = components[model]
-        source = components[_OVERLAY_FIELD_SOURCE[model]]
-        for field in fields:
-            if field in target.get("properties", {}):
-                continue
-            target.setdefault("properties", {})[field] = json.loads(
-                json.dumps(source["properties"][field])
-            )
-    return patched
-
-
 def _datamodel_codegen_command() -> list[str]:
     executable = shutil.which("datamodel-codegen")
     if executable is None:
@@ -843,8 +929,80 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def validate_release_source(version: str, source_path: Path) -> None:
-    """Reject release inputs that do not match the pinned official artifact."""
+def _git_output(repository: Path, *args: str, text: bool = True) -> str | bytes:
+    """Run one read-only Git query against an upstream checkout."""
+    result = subprocess.run(
+        ["git", "-C", str(repository), *args],
+        check=True,
+        capture_output=True,
+        text=text,
+    )
+    return result.stdout.strip() if text else result.stdout
+
+
+def _validate_release_git_objects(
+    version: str,
+    source_path: Path,
+    release_repository: Path,
+) -> None:
+    """Bind a pinned source file to its reviewed tag, commit, path, and blob."""
+    release = RELEASE_PROVENANCE[version]
+    tag_ref = f"refs/tags/{release['netbox_release']}^{{commit}}"
+    try:
+        tag_commit = _git_output(release_repository, "rev-parse", "--verify", tag_ref)
+        commit_type = _git_output(
+            release_repository,
+            "cat-file",
+            "-t",
+            release["release_commit"],
+        )
+        source_blob = _git_output(
+            release_repository,
+            "rev-parse",
+            "--verify",
+            f"{release['release_commit']}:{release['source_path']}",
+        )
+        blob_bytes = _git_output(
+            release_repository,
+            "cat-file",
+            "blob",
+            release["source_blob_sha"],
+            text=False,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(
+            f"Cannot verify immutable NetBox {release['netbox_release']} Git provenance "
+            f"in {release_repository}"
+        ) from exc
+
+    if tag_commit != release["release_commit"]:
+        raise ValueError(
+            f"NetBox {release['netbox_release']} tag target mismatch: expected "
+            f"{release['release_commit']}, got {tag_commit}"
+        )
+    if commit_type != "commit":
+        raise ValueError(
+            f"NetBox {release['netbox_release']} release object is not a commit: {commit_type}"
+        )
+    if source_blob != release["source_blob_sha"]:
+        raise ValueError(
+            f"NetBox {release['netbox_release']} source blob mismatch: expected "
+            f"{release['source_blob_sha']}, got {source_blob}"
+        )
+    if blob_bytes != source_path.read_bytes():
+        raise ValueError(
+            f"NetBox {release['netbox_release']} source bytes do not match Git blob "
+            f"{release['source_blob_sha']}"
+        )
+
+
+def validate_release_source(
+    version: str,
+    source_path: Path,
+    *,
+    release_repository: Path | None = None,
+) -> None:
+    """Reject release inputs that do not match the pinned artifact and Git objects."""
 
     release = RELEASE_PROVENANCE.get(version)
     if release is None:
@@ -856,12 +1014,152 @@ def validate_release_source(version: str, source_path: Path) -> None:
             f"NetBox {release['netbox_release']} source SHA-256 mismatch for "
             f"{source_path}: expected {expected}, got {actual}"
         )
+    if release_repository is None:
+        raise ValueError(
+            f"NetBox {release['netbox_release']} requires an upstream Git checkout "
+            "to verify its immutable tag, commit, and source blob"
+        )
+    _validate_release_git_objects(version, source_path, release_repository)
+
+
+def validate_release_bundle(version: str, source_path: Path, bundled_path: Path) -> None:
+    """Require the committed bundle to satisfy its reviewed source-byte contract."""
+    if version in BYTE_FAITHFUL_RELEASE_BUNDLE_VERSIONS:
+        if source_path.read_bytes() != bundled_path.read_bytes():
+            raise ValueError(
+                f"Bundled schema {bundled_path} is not byte-for-byte identical to "
+                f"reviewed upstream source {source_path}"
+            )
+        return
+
+    source = load_schema(source_path)
+    bundled = load_schema(bundled_path)
+    if source != bundled:
+        raise ValueError(
+            f"Bundled schema {bundled_path} does not match normalized source {source_path}"
+        )
+
+
+def _release_artifact_paths(version: str, bundled_path: Path) -> dict[str, Path]:
+    suffix = version.replace(".", "_")
+    return {
+        bundled_path.name: bundled_path,
+        f"models/v{suffix}.py": MODELS_ROOT / f"v{suffix}.py",
+        f"typed_versions/v{suffix}.py": TYPED_ROOT / f"v{suffix}.py",
+    }
+
+
+def _load_release_provenance(bundled_path: Path) -> dict[str, Any]:
+    provenance_path = bundled_path.with_name(f"{bundled_path.stem}.provenance.json")
+    if not provenance_path.is_file():
+        raise FileNotFoundError(f"Release provenance not found: {provenance_path}")
+    try:
+        payload = json.loads(provenance_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Release provenance is not valid JSON: {provenance_path}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"Release provenance must be a JSON object: {provenance_path}")
+    return payload
+
+
+def _validate_release_provenance_metadata(version: str, payload: dict[str, Any]) -> None:
+    """Anchor documentary provenance to reviewed constants outside the sidecar."""
+    release = RELEASE_PROVENANCE.get(version)
+    if release is None:
+        raise ValueError(f"NetBox {version} has no immutable release provenance contract")
+    expected: dict[str, Any] = {
+        **release,
+        "generator": {
+            "name": "datamodel-code-generator",
+            "version": DATAMODEL_CODE_GENERATOR_VERSION,
+            "timestamp_disabled": True,
+        },
+        "formatter": {"name": "ruff", "version": RUFF_VERSION},
+    }
+    for field, value in expected.items():
+        if payload.get(field) != value:
+            raise ValueError(
+                f"Release provenance {field} mismatch for NetBox {version}: "
+                f"expected {value!r}, got {payload.get(field)!r}"
+            )
+
+
+def _validate_recorded_artifact_hashes(
+    version: str,
+    payload: dict[str, Any],
+    expected: dict[str, Path],
+) -> None:
+    artifacts = payload.get("artifacts")
+    if not isinstance(artifacts, dict) or set(artifacts) != set(expected):
+        raise ValueError(
+            f"Release provenance artifact set mismatch for NetBox {version}: "
+            f"expected {sorted(expected)}, got {sorted(artifacts) if isinstance(artifacts, dict) else artifacts}"
+        )
+    for name, path in expected.items():
+        if not path.is_file():
+            raise FileNotFoundError(f"Release artifact not found: {path}")
+        actual = _sha256(path)
+        if artifacts[name] != actual:
+            raise ValueError(
+                f"Release artifact hash mismatch for {name}: expected {artifacts[name]}, got {actual}"
+            )
+
+
+def _regenerate_release_artifacts(
+    version: str,
+    bundled_path: Path,
+    output_root: Path,
+) -> dict[str, Path]:
+    """Regenerate deterministic Python artifacts from the committed schema."""
+    suffix = version.replace(".", "_")
+    model_output = output_root / f"models-v{suffix}.py"
+    typed_output = output_root / f"typed-v{suffix}.py"
+    generate_models(version, bundled_path, model_output)
+    _prepend_models_module_doc(model_output, version)
+    schema = load_schema(bundled_path)
+    typed_output.write_text(
+        build_bindings(version, apply_background_bulk_overlay(version, schema)),
+        encoding="utf-8",
+    )
+    format_generated_artifacts([model_output, typed_output])
+    return {
+        f"models/v{suffix}.py": model_output,
+        f"typed_versions/v{suffix}.py": typed_output,
+    }
+
+
+def validate_release_artifact_hashes(version: str, bundled_path: Path) -> None:
+    """Verify provenance metadata, recorded hashes, and deterministic regeneration."""
+    if version in BYTE_FAITHFUL_RELEASE_BUNDLE_VERSIONS:
+        reviewed_digest = RELEASE_PROVENANCE[version]["source_sha256"]
+        bundled_digest = _sha256(bundled_path)
+        if bundled_digest != reviewed_digest:
+            raise ValueError(
+                f"Bundled schema {bundled_path} does not match reviewed upstream bytes: "
+                f"expected SHA-256 {reviewed_digest}, got {bundled_digest}"
+            )
+
+    payload = _load_release_provenance(bundled_path)
+    expected = _release_artifact_paths(version, bundled_path)
+    _validate_release_provenance_metadata(version, payload)
+    _validate_recorded_artifact_hashes(version, payload, expected)
+
+    with TemporaryDirectory(prefix=f"netbox-sdk-v{version.replace('.', '-')}-verify-") as temp_dir:
+        regenerated = _regenerate_release_artifacts(version, bundled_path, Path(temp_dir))
+        for name, generated_path in regenerated.items():
+            committed_path = expected[name]
+            if generated_path.read_bytes() != committed_path.read_bytes():
+                raise ValueError(
+                    f"Release artifact deterministic regeneration mismatch for {name}: "
+                    f"{committed_path} was not generated from {bundled_path}"
+                )
 
 
 def write_release_provenance(
     version: str,
     *,
     source_path: Path,
+    release_repository: Path,
     bundled_path: Path,
     model_path: Path,
     typed_path: Path,
@@ -878,7 +1176,12 @@ def write_release_provenance(
     ]
     if missing:
         raise FileNotFoundError(f"Cannot write provenance; missing artifacts: {missing}")
-    validate_release_source(version, source_path)
+    validate_release_source(
+        version,
+        source_path,
+        release_repository=release_repository,
+    )
+    validate_release_bundle(version, source_path, bundled_path)
 
     payload: dict[str, Any] = {
         **release,
@@ -938,31 +1241,55 @@ def main() -> None:
         choices=sorted(SCHEMA_SOURCES),
         help="Specific release line(s) to generate",
     )
+    parser.add_argument(
+        "--source",
+        type=Path,
+        help="Override the source document (requires exactly one --version)",
+    )
+    parser.add_argument(
+        "--release-repository",
+        type=Path,
+        help="Upstream NetBox Git checkout containing each pinned release tag",
+    )
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Verify immutable source and deterministically regenerate artifacts without modifying them",
+    )
     args = parser.parse_args()
     versions = args.version or sorted(SCHEMA_SOURCES)
+    if args.source is not None and len(versions) != 1:
+        parser.error("--source requires exactly one --version")
     for version in versions:
-        source = SCHEMA_SOURCES[version]
+        source = args.source or SCHEMA_SOURCES[version]
         if not source.exists():
             raise FileNotFoundError(f"Schema source not found: {source}")
-        validate_release_source(version, source)
+        if version in RELEASE_PROVENANCE and args.release_repository is None:
+            parser.error(
+                f"--release-repository is required to verify immutable NetBox {version} provenance"
+            )
+        validate_release_source(
+            version,
+            source,
+            release_repository=args.release_repository,
+        )
         version_suffix = version.replace(".", "_")
         bundled_path = OPENAPI_ROOT / f"netbox-openapi-{version}.json"
-        bundled_path.parent.mkdir(parents=True, exist_ok=True)
+        if args.verify_only:
+            if not bundled_path.is_file():
+                raise FileNotFoundError(f"Bundled schema not found: {bundled_path}")
+            validate_release_bundle(version, source, bundled_path)
+            validate_release_artifact_hashes(version, bundled_path)
+            continue
         schema = load_schema(source)
-        # The committed bundle stays byte-faithful to upstream; the overlay is
-        # applied only to the copy that model generation reads.
-        bundled_path.write_text(json.dumps(schema, indent=2), encoding="utf-8")
-        model_output = MODELS_ROOT / f"v{version_suffix}.py"
-        overlaid = apply_write_compat_overlay(version, schema)
-        if overlaid is schema:
-            generate_models(version, bundled_path, model_output)
+        bundled_path.parent.mkdir(parents=True, exist_ok=True)
+        if version in BYTE_FAITHFUL_RELEASE_BUNDLE_VERSIONS:
+            shutil.copyfile(source, bundled_path)
         else:
-            overlay_path = bundled_path.with_name(f"{bundled_path.stem}.overlaid.json")
-            overlay_path.write_text(json.dumps(overlaid, indent=2), encoding="utf-8")
-            try:
-                generate_models(version, overlay_path, model_output)
-            finally:
-                overlay_path.unlink(missing_ok=True)
+            bundled_path.write_text(json.dumps(schema, indent=2), encoding="utf-8")
+        validate_release_bundle(version, source, bundled_path)
+        model_output = MODELS_ROOT / f"v{version_suffix}.py"
+        generate_models(version, bundled_path, model_output)
         _prepend_models_module_doc(model_output, version)
         typed_output = TYPED_ROOT / f"v{version_suffix}.py"
         # Bindings are generated from the background-overlaid schema so the typed
@@ -976,6 +1303,7 @@ def main() -> None:
         write_release_provenance(
             version,
             source_path=source,
+            release_repository=args.release_repository,
             bundled_path=bundled_path,
             model_path=model_output,
             typed_path=typed_output,

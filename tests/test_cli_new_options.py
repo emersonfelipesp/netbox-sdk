@@ -118,6 +118,10 @@ def _patch_list_client(monkeypatch: pytest.MonkeyPatch) -> None:
         "netbox_cli.runtime._get_client",
         lambda: _FakeListClient(),
     )
+    monkeypatch.setattr(
+        "netbox_cli.runtime._get_runtime_index",
+        cli._get_index,
+    )
 
 
 def test_call_command_forwards_headers_and_repeated_query(monkeypatch):
@@ -651,6 +655,49 @@ class TestDryRunValidation:
         assert result.exit_code == 0
         assert "Dry Run Preview" in result.output
 
+    def test_registered_dry_run_never_loads_profile_or_runtime_factories(self, monkeypatch):
+        from netbox_cli import runtime
+
+        for target, name in (
+            (cli, "_ensure_runtime_config"),
+            (runtime, "load_profile_config"),
+            (runtime, "_get_runtime_index"),
+            (runtime, "_get_client"),
+        ):
+            monkeypatch.setattr(
+                target,
+                name,
+                lambda name=name: pytest.fail(f"dry run called {name}"),
+            )
+
+        result = runner.invoke(
+            cli.app,
+            [
+                "dcim",
+                "devices",
+                "patch",
+                "--id",
+                "1",
+                "--dry-run",
+                "--body-json",
+                '{"name":"test"}',
+                "-q",
+                "tag=prod",
+                "-q",
+                "tag=edge",
+                "-H",
+                'If-Match: "etag"',
+            ],
+        )
+
+        output = plain(result.output)
+        assert result.exit_code == 0, output
+        assert '"tag": [' in output
+        assert '"prod"' in output
+        assert '"edge"' in output
+        assert "If-Match" in output
+        assert "etag" in output
+
     def test_dry_run_allowed_for_update(self, monkeypatch):
         monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
 
@@ -756,7 +803,7 @@ class TestColumnControl:
 
                 return _Response()
 
-        monkeypatch.setattr(cli, "_ensure_runtime_config", _mock_config)
+        _patch_list_client(monkeypatch)
         monkeypatch.setattr(
             "netbox_cli.runtime._get_client",
             lambda: _ClientWithRows(),

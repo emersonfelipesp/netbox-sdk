@@ -86,6 +86,7 @@ __all__ = [
     "InvalidLiveSchemaError",
     "requested_netbox_version",
     "bundled_index",
+    "clear_schema_caches",
     "detect_release_line",
     "resolve_index",
     "serialize_capabilities",
@@ -234,6 +235,7 @@ from netbox_sdk.schema import (
 from netbox_sdk.schema_resolution import (
     InvalidLiveSchemaError,
     bundled_index,
+    clear_schema_caches,
     detect_release_line,
     requested_netbox_version,
     resolve_index,

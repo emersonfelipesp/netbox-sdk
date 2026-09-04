@@ -36,8 +36,8 @@ compatibility tests.
 | Surface | Compatibility evidence |
 | --- | --- |
 | Python | `requires-python = ">=3.11,<3.14"`; CI runs Python 3.11, 3.12, and 3.13 |
-| NetBox typed SDK | Versioned generated clients for NetBox `4.6`, `4.5`, `4.4`, and `4.3`, plus `4.7` as an opt-in preview line |
-| NetBox live API | CI live-tests the SDK against NetBox `v4.7.0-beta2` (digest-pinned GHCR image), `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10` |
+| NetBox typed SDK | Stable versioned generated clients for NetBox `4.7`, `4.6`, `4.5`, `4.4`, and `4.3`; NetBox 4.7 is generated from the official `v4.7.0` GA schema |
+| NetBox live API | CI live-tests the SDK against NetBox `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10` |
 | Pagination | Runtime pagination selection covers NetBox 4.6 cursor pagination and older offset pagination |
 | Plugins/custom objects | Runtime discovery supports public plugin/custom-object REST resources exposed under NetBox APIs |
 | Branching | Optional `branching` extra marks support for NetBox Branching workflows without adding runtime dependencies |

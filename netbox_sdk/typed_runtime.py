@@ -281,10 +281,10 @@ def response_model_for_request(
     Background wins, because it changes the response into something that is not
     the resource at all -- for either body shape.
     """
-    if model_type is None:
-        return None
     if _background_requested(query):
         return BackgroundJobReference
+    if model_type is None:
+        return None
     return response_model_for_payload(model_type, payload)
 
 

@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
+import shutil
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -14,10 +16,11 @@ from scripts.generate_typed_sdk import (
     RUFF_VERSION,
     _prepend_models_module_doc,
     apply_background_bulk_overlay,
-    apply_write_compat_overlay,
     build_bindings,
     format_generated_artifacts,
     generate_models,
+    validate_release_artifact_hashes,
+    validate_release_bundle,
     validate_release_source,
     write_release_provenance,
 )
@@ -138,12 +141,12 @@ def test_v47_artifact_provenance_is_current() -> None:
         )
     )
 
-    assert provenance["netbox_release"] == "v4.7.0-beta2"
-    assert provenance["release_commit"] == "aa1d49d0f5021a28e6efc2d0364b84c5bcec7137"
-    assert provenance["source_blob_sha"] == "1a3e6621a50520515652f969e9736da2545704c2"
+    assert provenance["netbox_release"] == "v4.7.0"
+    assert provenance["release_commit"] == "5f06007e4c9bacc93ce17c1e645fc1143d60df3d"
+    assert provenance["source_blob_sha"] == "ea7f7e9c38c37d2139c6600db584b249571524a6"
     assert (
         provenance["source_sha256"]
-        == "1408f6421f45720ecf25aa0edb777f185f74f9a87af887b5eeb73fee8012b880"
+        == "be7f971179b1d6ba03b590c08ebe65966a32220ea8fdfd272f60dc5d66ea9008"
     )
     assert provenance["generator"] == {
         "name": "datamodel-code-generator",
@@ -151,9 +154,9 @@ def test_v47_artifact_provenance_is_current() -> None:
         "timestamp_disabled": True,
     }
     assert provenance["formatter"] == {"name": "ruff", "version": RUFF_VERSION}
-    assert schema["info"]["version"] == "4.7.0-beta2"
+    assert schema["info"]["version"] == "4.7.0"
     assert len(schema["paths"]) == 322
-    assert len(schema["components"]["schemas"]) == 1099
+    assert len(schema["components"]["schemas"]) == 1109
     # 4.7 introduces cooling infrastructure and module bay types alongside the
     # 4.6 surface; assert one of each so a silently truncated bundle is caught.
     assert "/api/dcim/cooling-sources/" in schema["paths"]
@@ -172,6 +175,80 @@ def test_v47_artifact_provenance_is_current() -> None:
     for name, path in artifact_paths.items():
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         assert digest == provenance["artifacts"][name]
+
+    assert provenance["artifacts"]["netbox-openapi-4.7.json"] == provenance["source_sha256"]
+
+    validate_release_artifact_hashes("4.7", artifact_paths["netbox-openapi-4.7.json"])
+
+
+def test_release_verification_rejects_coupled_artifact_and_sidecar_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A matching sidecar edit must not certify an altered generated artifact."""
+    schema_root = tmp_path / "openapi"
+    model_root = tmp_path / "models"
+    typed_root = tmp_path / "typed_versions"
+    for directory in (schema_root, model_root, typed_root):
+        directory.mkdir()
+
+    source_root = ROOT / "netbox_sdk"
+    bundled = schema_root / "netbox-openapi-4.7.json"
+    provenance = schema_root / "netbox-openapi-4.7.provenance.json"
+    model = model_root / "v4_7.py"
+    typed = typed_root / "v4_7.py"
+    shutil.copyfile(source_root / "reference" / "openapi" / bundled.name, bundled)
+    shutil.copyfile(source_root / "reference" / "openapi" / provenance.name, provenance)
+    shutil.copyfile(source_root / "models" / model.name, model)
+    shutil.copyfile(source_root / "typed_versions" / typed.name, typed)
+
+    typed.write_text(typed.read_text(encoding="utf-8") + "\n# coupled drift\n", encoding="utf-8")
+    payload = json.loads(provenance.read_text(encoding="utf-8"))
+    payload["artifacts"]["typed_versions/v4_7.py"] = hashlib.sha256(typed.read_bytes()).hexdigest()
+    provenance.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr("scripts.generate_typed_sdk.MODELS_ROOT", model_root)
+    monkeypatch.setattr("scripts.generate_typed_sdk.TYPED_ROOT", typed_root)
+    with pytest.raises(ValueError, match="deterministic regeneration mismatch.*typed_versions"):
+        validate_release_artifact_hashes("4.7", bundled)
+
+
+def test_release_verification_rejects_reformatted_bundle_and_sidecar_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A matching sidecar edit must not certify reserialized upstream bytes."""
+    schema_root = tmp_path / "openapi"
+    model_root = tmp_path / "models"
+    typed_root = tmp_path / "typed_versions"
+    for directory in (schema_root, model_root, typed_root):
+        directory.mkdir()
+
+    source_root = ROOT / "netbox_sdk"
+    bundled = schema_root / "netbox-openapi-4.7.json"
+    provenance = schema_root / "netbox-openapi-4.7.provenance.json"
+    model = model_root / "v4_7.py"
+    typed = typed_root / "v4_7.py"
+    shutil.copyfile(source_root / "reference" / "openapi" / bundled.name, bundled)
+    shutil.copyfile(source_root / "reference" / "openapi" / provenance.name, provenance)
+    shutil.copyfile(source_root / "models" / model.name, model)
+    shutil.copyfile(source_root / "typed_versions" / typed.name, typed)
+
+    document = json.loads(bundled.read_text(encoding="utf-8"))
+    bundled.write_text(
+        json.dumps(document, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    mutated_digest = hashlib.sha256(bundled.read_bytes()).hexdigest()
+    assert mutated_digest != RELEASE_PROVENANCE["4.7"]["source_sha256"]
+    payload = json.loads(provenance.read_text(encoding="utf-8"))
+    payload["artifacts"][bundled.name] = mutated_digest
+    provenance.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr("scripts.generate_typed_sdk.MODELS_ROOT", model_root)
+    monkeypatch.setattr("scripts.generate_typed_sdk.TYPED_ROOT", typed_root)
+    with pytest.raises(ValueError, match="reviewed upstream bytes"):
+        validate_release_artifact_hashes("4.7", bundled)
 
 
 def test_v47_typed_regeneration_matches_committed_artifact(tmp_path) -> None:
@@ -195,12 +272,8 @@ def test_v47_typed_regeneration_matches_committed_artifact(tmp_path) -> None:
 def test_v47_model_regeneration_matches_committed_artifact(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("UV_OFFLINE", "1")
     schema_path = ROOT / "netbox_sdk" / "reference" / "openapi" / "netbox-openapi-4.7.json"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    overlaid = apply_write_compat_overlay("4.7", schema)
-    overlay_path = tmp_path / "netbox-openapi-4.7.overlaid.json"
-    overlay_path.write_text(json.dumps(overlaid, indent=2), encoding="utf-8")
     output_path = tmp_path / "v4_7.py"
-    generate_models("4.7", overlay_path, output_path)
+    generate_models("4.7", schema_path, output_path)
     _prepend_models_module_doc(output_path, "4.7")
     format_generated_artifacts([output_path])
     committed = ROOT / "netbox_sdk" / "models" / "v4_7.py"
@@ -215,25 +288,139 @@ def test_release_source_validation_rejects_unpinned_input(tmp_path) -> None:
         validate_release_source("4.6", source)
 
 
+def _pinned_test_release(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path]:
+    repository = tmp_path / "upstream"
+    repository.mkdir()
+    subprocess.run(["git", "init", "-q", str(repository)], check=True)
+    source = repository / "contrib" / "openapi.json"
+    source.parent.mkdir()
+    source.write_text('{"openapi":"3.0.0","paths":{}}\n', encoding="utf-8")
+    other = repository / "other.txt"
+    other.write_text("different blob\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repository), "add", "."], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repository),
+            "-c",
+            "user.name=Provenance Test",
+            "-c",
+            "user.email=provenance@example.com",
+            "commit",
+            "-qm",
+            "Release test",
+        ],
+        check=True,
+    )
+    subprocess.run(["git", "-C", str(repository), "tag", "v9.9.9"], check=True)
+    commit = subprocess.run(
+        ["git", "-C", str(repository), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    source_blob = subprocess.run(
+        ["git", "-C", str(repository), "rev-parse", "HEAD:contrib/openapi.json"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    other_blob = subprocess.run(
+        ["git", "-C", str(repository), "rev-parse", "HEAD:other.txt"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    monkeypatch.setitem(
+        RELEASE_PROVENANCE,
+        "test",
+        {
+            "netbox_release": "v9.9.9",
+            "release_commit": commit,
+            "source_path": "contrib/openapi.json",
+            "source_blob_sha": source_blob,
+            "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+            "source_url": "https://example.invalid/openapi.json",
+            "other_blob_sha": other_blob,
+        },
+    )
+    return repository, source
+
+
+def test_release_source_binds_tag_commit_blob_and_bytes(monkeypatch, tmp_path) -> None:
+    repository, source = _pinned_test_release(tmp_path, monkeypatch)
+
+    validate_release_source("test", source, release_repository=repository)
+
+
+def test_release_source_fails_closed_without_git_checkout(monkeypatch, tmp_path) -> None:
+    _repository, source = _pinned_test_release(tmp_path, monkeypatch)
+
+    with pytest.raises(ValueError, match="requires an upstream Git checkout"):
+        validate_release_source("test", source)
+
+
+def test_ci_verifies_upstream_release_bundle() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert "--release-repository /tmp/netbox-source" in workflow
+    assert "--verify-only" in workflow
+    assert "--source /tmp/netbox-source/contrib/openapi.json" in workflow
+
+
+def test_release_source_rejects_wrong_commit(monkeypatch, tmp_path) -> None:
+    repository, source = _pinned_test_release(tmp_path, monkeypatch)
+    monkeypatch.setitem(RELEASE_PROVENANCE["test"], "release_commit", "0" * 40)
+
+    with pytest.raises(ValueError, match="Cannot verify immutable"):
+        validate_release_source("test", source, release_repository=repository)
+
+
+def test_release_source_rejects_wrong_blob(monkeypatch, tmp_path) -> None:
+    repository, source = _pinned_test_release(tmp_path, monkeypatch)
+    release = RELEASE_PROVENANCE["test"]
+    monkeypatch.setitem(release, "source_blob_sha", release["other_blob_sha"])
+
+    with pytest.raises(ValueError, match="source blob mismatch"):
+        validate_release_source("test", source, release_repository=repository)
+
+
+def test_release_bundle_rejects_reformatted_document_drift(tmp_path) -> None:
+    source = tmp_path / "source.json"
+    bundle = tmp_path / "bundle.json"
+    source.write_text('{"paths":{}}\n', encoding="utf-8")
+    bundle.write_text('{\n  "paths": {}\n}\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="not byte-for-byte identical"):
+        validate_release_bundle("4.7", source, bundle)
+
+
 def test_provenance_writer_hashes_generated_artifacts(monkeypatch, tmp_path) -> None:
     source = tmp_path / "source.json"
     bundled = tmp_path / "netbox-openapi-4.6.json"
     model = tmp_path / "v4_6-model.py"
     typed = tmp_path / "v4_6-typed.py"
     for path, contents in (
-        (source, "source"),
-        (bundled, "schema"),
+        (source, '{"openapi":"3.0.0","paths":{}}'),
+        (bundled, '{"paths":{},"openapi":"3.0.0"}'),
         (model, "model"),
         (typed, "typed"),
     ):
         path.write_text(contents, encoding="utf-8")
 
     release = RELEASE_PROVENANCE["4.6"]
-    monkeypatch.setitem(release, "source_sha256", hashlib.sha256(b"source").hexdigest())
+    monkeypatch.setitem(release, "source_sha256", hashlib.sha256(source.read_bytes()).hexdigest())
+    verified: list[tuple[str, Path, Path]] = []
+    monkeypatch.setattr(
+        "scripts.generate_typed_sdk._validate_release_git_objects",
+        lambda version, path, repository: verified.append((version, path, repository)),
+    )
 
     output = write_release_provenance(
         "4.6",
         source_path=source,
+        release_repository=tmp_path,
         bundled_path=bundled,
         model_path=model,
         typed_path=typed,
@@ -241,8 +428,9 @@ def test_provenance_writer_hashes_generated_artifacts(monkeypatch, tmp_path) -> 
 
     assert output is not None
     payload = json.loads(output.read_text(encoding="utf-8"))
-    assert payload["source_sha256"] == hashlib.sha256(b"source").hexdigest()
-    assert payload["artifacts"][bundled.name] == hashlib.sha256(b"schema").hexdigest()
+    assert verified == [("4.6", source, tmp_path)]
+    assert payload["source_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+    assert payload["artifacts"][bundled.name] == hashlib.sha256(bundled.read_bytes()).hexdigest()
     assert payload["artifacts"][f"models/{model.name}"] == hashlib.sha256(b"model").hexdigest()
     assert (
         payload["artifacts"][f"typed_versions/{typed.name}"] == hashlib.sha256(b"typed").hexdigest()

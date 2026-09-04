@@ -9,12 +9,12 @@ Usage:
     uv run python examples/mock-api/04_multi_resource.py
 """
 
-from fastapi.testclient import TestClient
+from _client import AsgiTestClient
 
 from netbox_sdk.mock import create_mock_app
 
 app = create_mock_app()
-client = TestClient(app)
+client = AsgiTestClient(app)
 
 
 def post(path: str, payload: dict) -> dict:

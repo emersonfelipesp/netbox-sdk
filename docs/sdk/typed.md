@@ -24,6 +24,7 @@ nb = typed_api(
 
 Supported release lines:
 
+- `4.7` (stable default)
 - `4.6`
 - `4.5`
 - `4.4`
@@ -33,7 +34,7 @@ Patch versions normalize to their release line, so `4.4.10` selects the `4.4`
 typed client.
 
 Continuous integration exercises the live-NetBox suite against
-`v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+`v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 
 ## Example
 
@@ -106,7 +107,7 @@ body shape, because a queued batch returns a job for either a single object or a
 list. Without the flag, nothing changes.
 
 > **This is an overlay, pending upstream schema support.** The pinned 4.7
-> artifact (`v4.7.0-beta2`) does not describe the parameter, so the generator
+> artifact (`v4.7.0`) does not describe the parameter, so the generator
 > declares it on bulk JSON-array writes while keeping the committed bundle
 > byte-faithful to upstream. Singular collection paths such as the extras
 > dashboard are not overlaid. A guard test fails once a refreshed 4.7 schema
@@ -121,13 +122,13 @@ need to run code generation locally.
 
 Relevant modules:
 
+- `netbox_sdk.models.v4_7`
 - `netbox_sdk.models.v4_6`
-- `netbox_sdk.models.v4_7` (preview)
 - `netbox_sdk.models.v4_5`
 - `netbox_sdk.models.v4_4`
 - `netbox_sdk.models.v4_3`
+- `netbox_sdk.typed_versions.v4_7`
 - `netbox_sdk.typed_versions.v4_6`
-- `netbox_sdk.typed_versions.v4_7` (preview)
 - `netbox_sdk.typed_versions.v4_5`
 - `netbox_sdk.typed_versions.v4_4`
 - `netbox_sdk.typed_versions.v4_3`
@@ -138,7 +139,7 @@ Relevant modules:
 - Use `api()` for the async ergonomic facade
 - Use `typed_api()` for versioned Pydantic-validated I/O
 
-### NetBox 4.7 (preview) — service port mappings
+### NetBox 4.7 GA — service port mappings
 
 NetBox 4.7 adds `port_mappings`, letting a service expose several protocols at
 once (DNS on both `tcp/53` and `udp/53`). The legacy single-protocol
@@ -159,11 +160,7 @@ On read, a single-protocol service reports `port_mappings` **and** the legacy
 `protocol`/`ports`; a multi-protocol service reports `null` for both, because it
 cannot be expressed in the old format.
 
-> **Generation note.** `drf-spectacular` omits `protocol` from the *writable*
-> service models' `properties` block even though the documented write contract
-> accepts it. `netbox-sdk` restores it with a deterministic generation overlay
-> (`scripts/generate_typed_sdk.py::apply_write_compat_overlay`) applied in memory
-> only — the committed OpenAPI bundle stays byte-faithful to the pinned upstream
-> artifact. Without it, a PATCH of `{"protocol": "udp", "ports": [53]}` would be
-> sent as `{"ports": [53]}` and NetBox would backfill the stored protocol,
-> silently ignoring the change.
+> **Generation note.** The official `v4.7.0` GA schema emits `protocol`, `ports`,
+> and `port_mappings` directly on every writable service and service-template
+> model. The generator therefore consumes the upstream properties without a
+> service compatibility overlay.

@@ -12,7 +12,7 @@ Usage:
 """
 
 import pytest
-from fastapi.testclient import TestClient
+from _client import AsgiTestClient
 
 from netbox_sdk.mock import create_mock_app
 
@@ -30,10 +30,10 @@ def mock_app():
 @pytest.fixture()
 def client(mock_app):
     """Return a TestClient and reset mock state before each test."""
-    with TestClient(mock_app) as c:
-        # Reset ensures tests are isolated from each other
-        c.post("/mock/reset")
-        yield c
+    test_client = AsgiTestClient(mock_app)
+    # Reset ensures tests are isolated from each other
+    test_client.post("/mock/reset")
+    return test_client
 
 
 # ---------------------------------------------------------------------------

@@ -100,4 +100,4 @@ nb = typed_api("https://netbox.example.com", token="…", netbox_version="4.6")
 branches = await nb.plugins.branching.branches.list()
 ```
 
-`PluginsApp.branching` está conectado para todas as linhas integradas — 4.3, 4.4, 4.5, 4.6 e a linha preview 4.7. Somente a 4.4 traz o wrapper totalmente tipado; as demais expõem o `RawBranchingApp` baseado em dicionário.
+`PluginsApp.branching` está conectado para todas as linhas integradas — 4.3, 4.4, 4.5, 4.6 e 4.7. Somente a 4.4 traz o wrapper totalmente tipado; as demais expõem o `RawBranchingApp` baseado em dicionário.

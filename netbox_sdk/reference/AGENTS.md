@@ -26,8 +26,8 @@ This directory contains reference material packaged with or directly relevant to
 | Path | Purpose |
 |---|---|
 | `openapi/netbox-openapi.json` | Legacy compatibility alias; do not treat as the active default |
-| `openapi/netbox-openapi-4.6.json` | Bundled NetBox 4.6 release-line schema and default for `load_openapi_schema()` |
-| `openapi/netbox-openapi-4.7.json` | Bundled NetBox 4.7 preview release-line schema (upstream `v4.7.0-beta2`); opt-in, never the default |
+| `openapi/netbox-openapi-4.7.json` | Bundled official NetBox v4.7.0 GA release-line schema and default for `load_openapi_schema()` |
+| `openapi/netbox-openapi-4.6.json` | Bundled NetBox 4.6 release-line schema |
 | `openapi/netbox-openapi-4.6.provenance.json` | Immutable source and generator provenance for the NetBox 4.6 artifacts |
 | `openapi/netbox-openapi-4.5.json` | Bundled NetBox 4.5 release-line schema |
 | `openapi/netbox-openapi-4.4.json` | Bundled NetBox 4.4 release-line schema |
@@ -35,8 +35,17 @@ This directory contains reference material packaged with or directly relevant to
 
 ## Notes
 
-- Runtime code should prefer the versioned bundled schemas for typed and schema-loading workflows; default CLI/static SDK schema selection is NetBox 4.6 unless overridden.
+- Runtime code should prefer the versioned bundled schemas for typed and schema-loading workflows; default CLI/static SDK schema selection is NetBox 4.7 unless overridden.
+- The 4.7 schema is pinned to the official NetBox v4.7.0 GA release, and its provenance file records the upstream commit/blob plus artifact hashes.
 - The 4.6 schema is pinned to the NetBox v4.6.6 release and its provenance file records the upstream commit/blob plus artifact hashes.
+- Release generation requires an upstream Git checkout. The generator verifies
+  that the release tag peels to the reviewed commit, the source path resolves to
+  the reviewed blob, the blob bytes match the independently pinned SHA-256, and
+  the NetBox 4.7 source bytes exactly equal the committed bundle. Verification also
+  regenerates the model and typed modules into temporary outputs and byte-compares
+  them with the committed artifacts, independently of the mutable provenance
+  sidecar hashes. GitHub live CI repeats this in `--verify-only` mode for every
+  provenance-managed live line.
 - `netbox_sdk.versioning` owns the release-line registry and artifact mapping;
   `netbox_sdk.schema_resolution` owns bundled/live/default selection for every
   runtime surface.

@@ -11,7 +11,7 @@ import typer
 
 from netbox_sdk.client import ApiResponse
 from netbox_sdk.schema import build_schema_index
-from tests.conftest import OPENAPI_PATH
+from tests.conftest import OPENAPI_PATH, strip_terminal_control
 
 pytestmark = pytest.mark.suite_cli
 
@@ -270,6 +270,77 @@ def test_handle_dynamic_invocation_raw_method_dry_run_skips_client(capsys):
     captured = capsys.readouterr()
     assert "POST" in captured.out
     assert "/api/dcim/devices/" in captured.out
+
+
+def test_free_form_dry_run_uses_default_static_factory_and_previews_exact_request(
+    monkeypatch,
+    capsys,
+):
+    from netbox_cli import dynamic, runtime
+
+    registration_factory = MagicMock(wraps=runtime._get_registration_index)
+    runtime_factory = MagicMock(side_effect=AssertionError("runtime index must not be built"))
+    client_factory = MagicMock(side_effect=AssertionError("client must not be built"))
+    monkeypatch.setattr(runtime, "_get_registration_index", registration_factory)
+    monkeypatch.setattr(runtime, "_get_runtime_index", runtime_factory)
+    monkeypatch.setattr(runtime, "_get_client", client_factory)
+    monkeypatch.setattr(
+        runtime,
+        "load_profile_config",
+        MagicMock(side_effect=AssertionError("configured profile must not be loaded")),
+    )
+
+    dynamic._handle_dynamic_invocation(
+        [
+            "dcim",
+            "devices",
+            "PATCH",
+            "--id",
+            "1",
+            "--dry-run",
+            "--body-json",
+            '{"name":"leaf01","api_token":"must-not-render-body"}',
+            "-q",
+            "tag=prod",
+            "-q",
+            "tag=edge",
+            "-q",
+            "access_token=must-not-render-query",
+            "-H",
+            'If-Match: "etag"',
+            "-H",
+            "Authorization: Bearer must-not-render-header",
+        ]
+    )
+
+    output = strip_terminal_control(capsys.readouterr().out)
+    registration_factory.assert_called_once_with()
+    runtime_factory.assert_not_called()
+    client_factory.assert_not_called()
+    assert '"tag": [' in output
+    assert '"prod"' in output
+    assert '"edge"' in output
+    assert "If-Match" in output
+    assert "etag" in output
+    assert "Authorization" in output
+    assert "[redacted]" in output
+    assert "must-not-render" not in output
+
+
+def test_free_form_dry_run_rejects_trace_before_any_factory(monkeypatch):
+    from netbox_cli import dynamic, runtime
+
+    for name in ("_get_registration_index", "_get_runtime_index", "_get_client"):
+        monkeypatch.setattr(
+            runtime,
+            name,
+            MagicMock(side_effect=AssertionError(f"{name} must not be called")),
+        )
+
+    with pytest.raises(typer.BadParameter, match="only supported for get actions"):
+        dynamic._handle_dynamic_invocation(
+            ["dcim", "devices", "create", "--dry-run", "--trace", "--body-json", "{}"]
+        )
 
 
 def test_execute_dynamic_action_raw_method_requires_confirmation_before_dispatch(monkeypatch):

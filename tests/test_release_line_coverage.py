@@ -212,9 +212,9 @@ def test_every_registered_line_builds_a_mock_app(line: str) -> None:
     else:
         assert cooling not in routes, f"{line} does not bundle {cooling} but the mock serves it"
 
-    # The cooling route only separates the preview line from the stable ones. If
-    # the mock mapped every stable request to a single line, the assertions above
-    # would still pass. Ask the server which line it believes it is serving.
+    # The cooling route separates 4.7 from the older lines, but cannot distinguish
+    # those older lines from one another. Ask the server which exact line it
+    # believes it is serving.
     _assert_status_reports_line(app, line)
 
 
@@ -253,12 +253,7 @@ def test_preview_lines_are_never_the_default() -> None:
 
 
 def test_ci_runs_the_version_sensitive_suite_for_every_registered_line() -> None:
-    """CI must name every registered line, so a dropped line is visible.
-
-    The full mocked suite exercises the version-sensitive tests transitively, but
-    nothing in CI *named* 4.7, so a regression that removed its coverage would
-    not have shown up in any job title or report.
-    """
+    """CI must name every registered line, so a dropped line is visible."""
     declared = set(_matrix_values("test-bundled-release-lines", "bundled-netbox-version"))
 
     assert declared == set(SUPPORTED_NETBOX_VERSIONS), (

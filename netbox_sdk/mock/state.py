@@ -5,11 +5,22 @@ from __future__ import annotations
 import hashlib
 import os
 import threading
+from collections.abc import Callable
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Any
 
 _store_lock = threading.Lock()
 _stores: dict[str, ThreadSafeMockStore] = {}
+
+
+@dataclass(slots=True)
+class _BackgroundJob:
+    record: dict[str, Any]
+    object_key: str
+    collection_key: str
+    operation: Callable[[], tuple[bool, Any]]
+    pending_polls: int = 1
 
 
 class ThreadSafeMockStore:
@@ -26,6 +37,7 @@ class ThreadSafeMockStore:
         self._collections: dict[str, dict[str, Any]] = {}
         self._deleted: set[str] = set()
         self._id_counters: dict[str, int] = {}
+        self._background_jobs: dict[int, _BackgroundJob] = {}
         self._schema_fingerprint: str = ""
 
     def touch_schema(self, fingerprint: str) -> bool:
@@ -38,6 +50,7 @@ class ThreadSafeMockStore:
             self._collections.clear()
             self._deleted.clear()
             self._id_counters.clear()
+            self._background_jobs.clear()
             return True
 
     def reset(self) -> None:
@@ -47,6 +60,7 @@ class ThreadSafeMockStore:
             self._collections.clear()
             self._deleted.clear()
             self._id_counters.clear()
+            self._background_jobs.clear()
 
     # --- Object store ---
 
@@ -121,6 +135,54 @@ class ThreadSafeMockStore:
         with self._lock:
             return self._id_counters.get(collection_path, 0) + 1
 
+    # --- Deterministic background jobs ---
+
+    def queue_background_job(
+        self,
+        job_id: int,
+        *,
+        record: dict[str, Any],
+        object_key: str,
+        collection_key: str,
+        operation: Callable[[], tuple[bool, Any]],
+    ) -> dict[str, Any]:
+        """Persist a pending job whose mutation runs after one observed pending poll."""
+        with self._lock:
+            state = _BackgroundJob(
+                record=deepcopy(record),
+                object_key=object_key,
+                collection_key=collection_key,
+                operation=operation,
+            )
+            self._background_jobs[job_id] = state
+            self._objects[object_key] = deepcopy(record)
+            self._collections.setdefault(collection_key, {})[object_key] = deepcopy(record)
+            return deepcopy(record)
+
+    def poll_background_job(self, job_id: int) -> dict[str, Any] | None:
+        """Observe pending once, then complete or fail the queued mutation deterministically."""
+        with self._lock:
+            state = self._background_jobs.get(job_id)
+            if state is None:
+                return None
+            if state.record["status"] != "pending":
+                return deepcopy(state.record)
+            if state.pending_polls > 0:
+                state.pending_polls -= 1
+                return deepcopy(state.record)
+
+            try:
+                succeeded, result = state.operation()
+            except Exception as exc:  # noqa: BLE001 - job failures become observable state
+                succeeded, result = False, str(exc)
+            state.record["status"] = "completed" if succeeded else "failed"
+            state.record["error"] = "" if succeeded else str(result)
+            self._objects[state.object_key] = deepcopy(state.record)
+            self._collections.setdefault(state.collection_key, {})[state.object_key] = deepcopy(
+                state.record
+            )
+            return deepcopy(state.record)
+
     # --- Metadata ---
 
     def stats(self) -> dict[str, int]:
@@ -162,11 +224,15 @@ def mock_store(
 
 def reset_mock_state(*, namespace: str | None = None, schema_fingerprint: str = "") -> None:
     """Reset the live mock state for a given namespace."""
-    resolved = _resolved_namespace(namespace)
+    resolved = namespace or os.environ.get("NETBOX_MOCK_STATE_NAMESPACE")
     with _store_lock:
-        for key, store in _stores.items():
-            if key.startswith(f"{resolved}:"):
-                store.reset()
+        stores = (
+            _stores.values()
+            if resolved is None
+            else (store for key, store in _stores.items() if key.startswith(f"{resolved}:"))
+        )
+        for store in stores:
+            store.reset()
 
 
 __all__ = [

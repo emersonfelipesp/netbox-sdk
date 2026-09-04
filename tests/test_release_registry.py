@@ -38,7 +38,7 @@ EXPECTED_NETBOX_RELEASE_LINES = ("4.7", "4.6", "4.5", "4.4", "4.3")
 EXPECTED_RELEASE_RECORDS = {
     "4.7": {
         "line": "4.7",
-        "status": "preview",
+        "status": "stable",
         "openapi_asset": "netbox-openapi-4.7.json",
         "models_module": "netbox_sdk.models.v4_7",
         "typed_module": "netbox_sdk.typed_versions.v4_7",
@@ -84,10 +84,10 @@ def test_netbox_release_registry_preserves_public_contract() -> None:
     assert all(isinstance(record, ReleaseLine) for record in records)
     with pytest.raises(ValidationError):
         setattr(records[0], "line", "9.9")
-    assert DEFAULT_NETBOX_VERSION == "4.6"
-    assert latest_stable_line() == "4.6"
-    assert describe_supported_versions() == "4.3, 4.4, 4.5, 4.6, 4.7 (preview)"
-    assert normalize_netbox_version(None) == "4.6"
+    assert DEFAULT_NETBOX_VERSION == "4.7"
+    assert latest_stable_line() == "4.7"
+    assert describe_supported_versions() == "4.3, 4.4, 4.5, 4.6, 4.7"
+    assert normalize_netbox_version(None) == "4.7"
     assert release_line("v4.5.10").line == "4.5"
     assert normalize_netbox_version("v4.5.10") == "4.5"
     with pytest.raises(UnsupportedNetBoxVersionError, match="Supported release lines"):

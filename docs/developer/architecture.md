@@ -69,7 +69,7 @@ flowchart TB
 | `plugin_bridge.py` | Discovers versioned semantic plugin manifests, validates hostile contracts and payloads, and resolves fixed plugin-local targets |
 | `facade.py` | `api()` — PyNetBox-style async facade: `Api → App → Endpoint → Record/RecordSet` |
 | `typed_api.py` | `typed_api()` — version-specific typed clients with Pydantic request/response models |
-| `models/` | Generated Pydantic models for NetBox 4.3, 4.4, 4.5, 4.6, and 4.7 (preview) |
+| `models/` | Generated Pydantic models for the stable NetBox 4.3, 4.4, 4.5, 4.6, and 4.7 release lines |
 
 ---
 
@@ -108,8 +108,8 @@ flowchart TB
         netbox-openapi-4.3.json
         netbox-openapi-4.4.json
         netbox-openapi-4.5.json
-        netbox-openapi-4.6.json (default)
-        netbox-openapi-4.7.json (preview)
+        netbox-openapi-4.6.json
+        netbox-openapi-4.7.json (default, official v4.7.0 GA)
 
     netbox_cli/
       __init__.py

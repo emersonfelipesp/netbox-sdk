@@ -107,6 +107,7 @@ def _handle_dynamic_invocation(
     *,
     client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
     index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
+    dry_run_index_factory: Callable[[], SchemaIndex] = _runtime_get_registration_index,
 ) -> None:
     """Parse ``nbx <group> <resource> <action> ...`` argv tail and execute the resolved request."""
     if len(raw_args) < 3:
@@ -161,6 +162,8 @@ def _handle_dynamic_invocation(
         raise typer.BadParameter("Use either --trace or --trace-only, not both.")
     action_lower = action.lower()
     action_is_write = _action_is_write(action)
+    if (trace or trace_only) and action_lower != "get":
+        raise typer.BadParameter("--trace and --trace-only are only supported for get actions")
     if dry_run and not action_is_write:
         raise typer.BadParameter(
             "--dry-run is only supported for write operations "
@@ -170,9 +173,10 @@ def _handle_dynamic_invocation(
         raise typer.BadParameter("--all is only supported for the list action")
     if action_is_write and not dry_run:
         require_write_confirmation(confirmed=confirmed)
-    # Dry-run previews only need the OpenAPI index; avoid building an API client (and loading config).
+    # Dry runs resolve against the explicit/static registration contract. Runtime
+    # resolution can load the configured profile and probe its NetBox instance.
     skip_client = bool(dry_run and action_is_write)
-    index = index_factory()
+    index = dry_run_index_factory() if skip_client else index_factory()
     client = None if skip_client else client_factory()
     if client is not None and index.resource_paths(group, resource) is None:
         from netbox_sdk.plugin_discovery import (  # noqa: PLC0415
@@ -251,6 +255,18 @@ def _handle_dynamic_invocation(
             index=index,
             close_client=True,
         )
+
+
+def _parse_positive_int_option(args: list[str], index: int, option: str) -> int:
+    if index + 1 >= len(args):
+        raise typer.BadParameter(f"{option} requires a number")
+    try:
+        value = int(args[index + 1])
+    except ValueError:
+        raise typer.BadParameter(f"{option} must be a number") from None
+    if value < 1:
+        raise typer.BadParameter(f"{option} must be at least 1")
+    return value
 
 
 def _parse_dynamic_options(
@@ -348,14 +364,7 @@ def _parse_dynamic_options(
             i += 2
             continue
         if token == "--max-columns":
-            if i + 1 >= len(args):
-                raise typer.BadParameter("--max-columns requires a number")
-            try:
-                max_columns = int(args[i + 1])
-                if max_columns < 1:
-                    raise typer.BadParameter("--max-columns must be at least 1")
-            except ValueError:
-                raise typer.BadParameter("--max-columns must be a number")
+            max_columns = _parse_positive_int_option(args, i, token)
             i += 2
             continue
         if token == "--dry-run":
@@ -367,14 +376,7 @@ def _parse_dynamic_options(
             i += 1
             continue
         if token == "--max-records":
-            if i + 1 >= len(args):
-                raise typer.BadParameter("--max-records requires a number")
-            try:
-                max_records = int(args[i + 1])
-                if max_records < 1:
-                    raise typer.BadParameter("--max-records must be at least 1")
-            except ValueError:
-                raise typer.BadParameter("--max-records must be a number")
+            max_records = _parse_positive_int_option(args, i, token)
             i += 2
             continue
         raise typer.BadParameter(f"Unknown option: {token}")
@@ -458,22 +460,32 @@ def _execute_dynamic_action(
 
     if dry_run and action_is_write:
         from netbox_cli.support import print_dry_run
-        from netbox_sdk.services import load_json_payload, resolve_dynamic_request
+        from netbox_sdk.services import (
+            load_json_payload,
+            parse_header_pairs,
+            parse_key_value_pairs,
+            resolve_dynamic_request,
+        )
+
+        query = parse_key_value_pairs(query_pairs)
+        headers = parse_header_pairs(header_pairs or [])
+        body = load_json_payload(body_json, body_file)
 
         resolved = resolve_dynamic_request(
-            index or _runtime_get_index(),
+            index or _runtime_get_registration_index(),
             group,
             resource,
             action,
             object_id=object_id,
-            query={},
-            payload=None,
+            query=query,
+            payload=body,
         )
-        body = load_json_payload(body_json, body_file)
         return print_dry_run(
             method=resolved.method,
             path=resolved.path,
-            body=body,
+            query=resolved.query,
+            headers=headers,
+            body=resolved.payload,
         )
 
     if action_is_write:
@@ -541,6 +553,7 @@ def _build_action_command(
     action: str,
     client_factory: Callable[[], NetBoxApiClient] = _runtime_get_client,
     index_factory: Callable[[], SchemaIndex] = _runtime_get_index,
+    dry_run_index_factory: Callable[[], SchemaIndex] = _runtime_get_registration_index,
 ) -> Callable[..., None]:
     # --- filters: pure local action, no HTTP call ---
     if action == "filters":
@@ -655,7 +668,11 @@ def _build_action_command(
             require_write_confirmation(confirmed=confirm)
 
         active_client = None if dry_run else client_factory()
-        index = index_factory()
+        # A dry run cannot detect a connected instance without ceasing to be
+        # client-free. Resolve its preview from the same explicit/static schema
+        # that registered the command; live execution still fails closed through
+        # ``index_factory`` when instance detection is unavailable.
+        index = dry_run_index_factory() if dry_run else index_factory()
         columns_list = [c.strip() for c in columns.split(",")] if columns else None
 
         if fetch_all and action == "list" and active_client is not None:

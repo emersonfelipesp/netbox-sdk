@@ -4,7 +4,7 @@
 with a job reference rather than executing synchronously — it exists to avoid
 proxy timeouts on large batches.
 
-The pinned upstream artifact (``v4.7.0-beta2``) does not describe the capability,
+The pinned upstream artifact (``v4.7.0``) does not describe the capability,
 so the generated bindings were faithful to a schema that omits it and the typed
 client simply could not ask. A generator overlay declares the parameter, and the
 runtime selects the response model from the request.
@@ -74,6 +74,8 @@ def test_generated_4_7_bindings_expose_background() -> None:
     source = Path(v4_7.__file__).read_text(encoding="utf-8")
 
     assert "background: bool | None = None" in source
+    assert ") -> Site | list[Site] | BackgroundJobReference:" in source
+    assert ") -> BackgroundJobReference | None:" in source
 
 
 @pytest.mark.parametrize(
@@ -124,8 +126,11 @@ def test_a_list_body_without_background_still_returns_a_list() -> None:
     assert response_model_for_request(Site, [{"name": "a"}], None) == list[Site]
 
 
-def test_absent_response_model_stays_absent() -> None:
-    assert response_model_for_request(None, {"name": "a"}, {"background": True}) is None
+def test_background_response_does_not_require_a_synchronous_model() -> None:
+    assert (
+        response_model_for_request(None, {"name": "a"}, {"background": True})
+        is BackgroundJobReference
+    )
 
 
 def test_job_reference_parses_a_realistic_202_body() -> None:
@@ -148,7 +153,7 @@ def test_job_reference_parses_a_realistic_202_body() -> None:
     assert parsed.job.model_dump().get("created") == "2026-01-01T00:00:00Z"
 
 
-def _harness() -> tuple[Any, list[dict[str, Any]]]:
+def _harness(*, generated: bool = False) -> tuple[Any, list[dict[str, Any]]]:
     from netbox_sdk.typed_runtime import TypedApiBase, TypedAppBase
 
     calls: list[dict[str, Any]] = []
@@ -206,7 +211,31 @@ def _harness() -> tuple[Any, list[dict[str, Any]]]:
     class _Api(TypedApiBase):
         pass
 
-    return TypedAppBase(_Api(client=_Client(), netbox_version="4.7")), calls  # type: ignore[arg-type]
+    client = _Client()
+    if generated:
+        from netbox_sdk.typed_versions.v4_7 import TypedApiV4_7
+
+        return TypedApiV4_7(client).dcim.sites, calls  # type: ignore[arg-type]
+    return TypedAppBase(_Api(client=client, netbox_version="4.7")), calls  # type: ignore[arg-type]
+
+
+async def test_generated_bulk_delete_background_returns_a_validated_job_reference() -> None:
+    endpoint, calls = _harness(generated=True)
+
+    result = await endpoint.bulk_delete(
+        body=[{"name": "B1", "slug": "b1"}],
+        query={"background": True},
+    )
+
+    assert isinstance(result, BackgroundJobReference)
+    assert result.job.id == 7
+    assert calls == [
+        {
+            "method": "DELETE",
+            "path": "/api/dcim/sites/",
+            "query": {"background": "True"},
+        }
+    ]
 
 
 @pytest.mark.parametrize("method", ["POST", "PUT", "PATCH", "DELETE"])

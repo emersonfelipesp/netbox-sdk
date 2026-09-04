@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from collections.abc import Awaitable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from typing import Any, cast
 
 import netbox_sdk.schema as schema_module
@@ -26,6 +26,7 @@ _NETBOX_VERSION_ENV_VARS = (
     "NETBOX_VERSION",
 )
 _BUNDLED_INDEXES: dict[SupportedNetBoxVersion, SchemaIndex] = {}
+_SCHEMA_CACHE_RESETTERS: list[Callable[[], None]] = []
 
 
 def _raw_requested_netbox_version(
@@ -99,9 +100,22 @@ def bundled_index(
     return cached.clone()
 
 
-def _clear_bundled_index_cache() -> None:
-    """Clear process-cached bundled indexes for test/process reset adapters."""
+def register_schema_cache_resetter(resetter: Callable[[], None]) -> None:
+    """Register a package adapter cleared by :func:`clear_schema_caches`."""
+    if resetter not in _SCHEMA_CACHE_RESETTERS:
+        _SCHEMA_CACHE_RESETTERS.append(resetter)
+
+
+def clear_schema_caches() -> None:
+    """Clear every process-local schema cache through one shared invalidation API."""
     _BUNDLED_INDEXES.clear()
+    for resetter in tuple(_SCHEMA_CACHE_RESETTERS):
+        resetter()
+
+
+def _clear_bundled_index_cache() -> None:
+    """Compatibility alias for the shared schema-cache invalidation API."""
+    clear_schema_caches()
 
 
 class InvalidLiveSchemaError(RuntimeError):

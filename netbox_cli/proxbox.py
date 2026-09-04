@@ -480,6 +480,7 @@ def _register_proxbox_resource_commands(target_app: typer.Typer) -> None:
                 action=action,
                 client_factory=_get_client,
                 index_factory=_proxbox_index_factory,
+                dry_run_index_factory=_proxbox_index_factory,
             )
             leaf_app.command(
                 name=action,

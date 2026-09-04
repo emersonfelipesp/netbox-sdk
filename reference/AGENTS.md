@@ -70,5 +70,5 @@ Annotated source / documentation extracts from real-world Textual apps, used to 
 ### `openapi/` — NetBox OpenAPI Schema (repo-level copy)
 
 These are reference copies only. The runtime and typed SDK source of truth is in
-`netbox_sdk/reference/openapi/`, including versioned bundles for `4.6`, `4.5`,
-`4.4`, and `4.3`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.
+`netbox_sdk/reference/openapi/`, including versioned bundles for `4.7`, `4.6`,
+`4.5`, `4.4`, and `4.3`. See [`netbox_sdk/reference/CLAUDE.md`](../netbox_sdk/reference/CLAUDE.md) for details.

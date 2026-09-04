@@ -51,10 +51,39 @@ asyncio.run(main())
 
 Se quiser controle HTTP bruto em vez da fachada, use `NetBoxApiClient` diretamente.
 
+### Contrato de compatibilidade do esquema
+
+`api()` é uma fábrica síncrona, portanto não contata o servidor durante sua
+construção. Se `schema=` for omitido, a construção começa com o contrato
+integrado estável mais recente (atualmente NetBox 4.7); antes da primeira
+requisição que depende do esquema, a fachada detecta a release conectada e
+substitui esse índice provisório. Falhas de detecção ou de esquema ativo são
+propagadas em vez de preservar silenciosamente o contrato padrão. Para um
+servidor mais antigo conhecido, você pode ignorar a detecção e fixar o esquema
+explicitamente:
+
+```python
+from netbox_sdk import api, build_schema_index
+
+nb = api(
+    "https://netbox.example.com",
+    token="your-token",
+    schema=build_schema_index(version="4.6"),
+)
+```
+
+Para um servidor não fixado, omita `schema=` e deixe a primeira requisição
+detectar cada linha de release suportada, ou use `await async_api(...)` quando a
+detecção precisar terminar antes de a fachada ser retornada. Com
+`strict_filters` habilitado, a validação adiada ocorre depois da detecção; um
+erro de filtro desconhecido informa o esquema carregado e aponta para os
+caminhos de seleção disponíveis, pois a rejeição é local e nenhuma requisição
+chegou ao NetBox.
+
 ## Plugins e objetos customizados
 
-Use `async_api()` quando quiser que a fachada selecione o esquema da instância
-NetBox conectada e o enriqueça com recursos em tempo de execução. Ela descobre
+Use `async_api()` quando quiser seleção antecipada do esquema e enriquecimento
+com recursos em tempo de execução. Ela descobre
 coleções REST de plugins sob `/api/plugins/` e recursos públicos de ObjectType
 anunciados por `/api/core/object-types/`.
 
@@ -86,7 +115,7 @@ nb = typed_api(
 
 Linhas de release suportadas:
 
-- `4.7` (preview, opcional)
+- `4.7` (estável, padrão; schema oficial GA `v4.7.0`)
 - `4.6`
 - `4.5`
 - `4.4`

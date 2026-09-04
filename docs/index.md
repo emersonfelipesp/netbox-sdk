@@ -26,9 +26,9 @@ The SDK package itself exposes three layers:
 - `api()` / `Api` for the async facade layer
 - `typed_api()` for the versioned typed client backed by committed Pydantic models
 
-The current typed SDK release lines are NetBox `4.6`, `4.5`, `4.4`, and `4.3`, plus `4.7` as an opt-in preview line.
+The current stable typed SDK release lines are NetBox `4.7`, `4.6`, `4.5`, `4.4`, and `4.3`; the default uses the official `v4.7.0` GA schema.
 Continuous integration exercises the live-NetBox suite against
-`v4.7.0-beta2`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
+`v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`.
 
 --8<-- "snippets/documented-release-en.md"
 

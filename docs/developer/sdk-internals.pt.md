@@ -187,12 +187,12 @@ for list_path, detail_path in paths:
 
 ### Esquemas embutidos por versão
 
-Esquemas OpenAPI versionados são fornecidos com o pacote em `netbox_sdk/reference/openapi/`. `load_openapi_schema()` usa o esquema NetBox 4.6 por padrão, a menos que uma linha de release suportada seja fornecida explicitamente.
+Esquemas OpenAPI versionados são fornecidos com o pacote em `netbox_sdk/reference/openapi/`. `load_openapi_schema()` usa por padrão o schema oficial GA do NetBox 4.7, a menos que uma linha de release suportada seja fornecida explicitamente.
 
 | Arquivo | Versão do NetBox |
 |---|---|
 | `netbox-openapi.json` | Alias legado de compatibilidade |
-| `netbox-openapi-4.7.json` | NetBox 4.7 (preview) |
+| `netbox-openapi-4.7.json` | NetBox 4.7 GA (padrão) |
 | `netbox-openapi-4.6.json` | NetBox 4.6 |
 | `netbox-openapi-4.5.json` | NetBox 4.5 |
 | `netbox-openapi-4.4.json` | NetBox 4.4 |

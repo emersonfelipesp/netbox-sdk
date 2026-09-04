@@ -2,9 +2,8 @@
 
 The server used to store the *default* bundled index at construction and use it
 for every tool call except those explicitly asking for ``live=true``. A server
-talking to a 4.5 instance — or, now that 4.7 is registered as a preview line, a
-4.7 instance while the default stays 4.6 — therefore dispatched default reads
-*and any enabled mutations* against the wrong contract.
+talking to a 4.5 or 4.6 instance while the default is 4.7 would therefore
+dispatch default reads *and any enabled mutations* against the wrong contract.
 
 Every other surface already resolved the connected line: the CLI does it through
 ``_get_runtime_index()`` and hands the result to the TUI. Only MCP did not.
@@ -75,11 +74,11 @@ def test_construction_performs_no_detection() -> None:
     "reported",
     [
         pytest.param("4.5.10", id="4.5-below-default"),
-        pytest.param("4.7.0", id="4.7-preview-above-default"),
+        pytest.param("4.6.6", id="4.6-below-default"),
     ],
 )
 async def test_unpinned_reads_dispatch_against_the_connected_line(reported: str) -> None:
-    """Covers both directions past the default, which is 4.6."""
+    """Covers both supported release lines immediately below the 4.7 default."""
     client = _Client(reported)
     service = _service(client)
 

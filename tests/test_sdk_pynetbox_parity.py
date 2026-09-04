@@ -15,6 +15,7 @@ from netbox_sdk import (
     api,
     async_api,
     build_schema_index,
+    load_openapi_schema,
 )
 from tests.conftest import OPENAPI_PATH
 
@@ -135,6 +136,76 @@ async def test_async_api_enriches_runtime_plugin_resources() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("line", "reported_version"),
+    [("4.3", "4.3.8"), ("4.4", "4.4.10"), ("4.5", "4.5.10"), ("4.6", "4.6.6")],
+)
+async def test_async_api_detects_every_supported_older_release_line(
+    line: str,
+    reported_version: str,
+) -> None:
+    class _VersionedClient(_FakeClient):
+        async def status(self):
+            return {"netbox-version": reported_version}
+
+        async def get_version(self):
+            return reported_version
+
+        async def openapi(self):
+            pytest.fail("a supported release line must use its bundled schema")
+
+    nb = await async_api(
+        "https://netbox.example.com",
+        client=_VersionedClient({}),
+        discover_resources=False,
+        strict_filters=True,
+    )
+    expected = load_openapi_schema(version=line)  # type: ignore[arg-type]
+
+    assert set(nb.schema.schema["paths"]) == set(expected["paths"])
+    assert nb.schema.schema["info"]["version"] == expected["info"]["version"]
+    if line in {"4.5", "4.6"}:
+        parameter_names = {
+            parameter["name"]
+            for parameter in nb.schema.schema["paths"]["/api/ipam/services/"]["get"]["parameters"]
+        }
+        assert "protocol__ic" in parameter_names
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("line", "reported_version"),
+    [("4.3", "4.3.8"), ("4.4", "4.4.10"), ("4.5", "4.5.10"), ("4.6", "4.6.6")],
+)
+async def test_sync_api_resolves_the_connected_older_release_before_listing(
+    line: str,
+    reported_version: str,
+) -> None:
+    class _OlderVersionClient(_FakeClient):
+        async def status(self):
+            return {"netbox-version": reported_version}
+
+    group = "ipam" if line in {"4.5", "4.6"} else "dcim"
+    resource = "services" if group == "ipam" else "devices"
+    path = f"/api/{group}/{resource}/"
+    filters = {"protocol__ic": "tcp"} if group == "ipam" else {"q": "leaf"}
+
+    client = _OlderVersionClient(
+        {
+            ("GET", path): ApiResponse(
+                status=200,
+                text='{"count": 0, "next": null, "previous": null, "results": []}',
+                headers={},
+            )
+        }
+    )
+    nb = api("https://netbox.example.com", token="tok", client=client, strict_filters=True)
+
+    assert await getattr(getattr(nb, group), resource).filter(**filters).to_list() == []
+    assert nb.schema.schema["info"]["version"].startswith(line)
+
+
+@pytest.mark.asyncio
 async def test_api_filter_strict_validation_raises_for_unknown_parameter() -> None:
     nb = api(
         "https://netbox.example.com",
@@ -144,7 +215,7 @@ async def test_api_filter_strict_validation_raises_for_unknown_parameter() -> No
         schema=build_schema_index(OPENAPI_PATH),
     )
 
-    with pytest.raises(ParameterValidationError):
+    with pytest.raises(ParameterValidationError, match=r"loaded NetBox schema .*async_api"):
         nb.dcim.devices.filter(not_a_real_filter="value")
 
 
@@ -397,7 +468,12 @@ async def test_invalid_json_raises_content_error() -> None:
             )
         }
     )
-    nb = api("https://netbox.example.com", token="tok", client=client)
+    nb = api(
+        "https://netbox.example.com",
+        token="tok",
+        client=client,
+        schema=build_schema_index(version="4.7"),
+    )
 
     with pytest.raises(ContentError):
         await nb.plugins.installed_plugins()
@@ -414,7 +490,12 @@ async def test_get_returns_none_on_404() -> None:
             )
         }
     )
-    nb = api("https://netbox.example.com", token="tok", client=client)
+    nb = api(
+        "https://netbox.example.com",
+        token="tok",
+        client=client,
+        schema=build_schema_index(version="4.7"),
+    )
 
     record = await nb.dcim.devices.get(404)
 
@@ -432,7 +513,12 @@ async def test_non_detail_errors_raise_request_error() -> None:
             )
         }
     )
-    nb = api("https://netbox.example.com", token="tok", client=client)
+    nb = api(
+        "https://netbox.example.com",
+        token="tok",
+        client=client,
+        schema=build_schema_index(version="4.7"),
+    )
 
     with pytest.raises(RequestError):
         await nb.dcim.devices.get(1)

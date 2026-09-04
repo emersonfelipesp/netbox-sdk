@@ -12,7 +12,13 @@ from pydantic import BaseModel, Field
 
 from netbox_sdk.client import NetBoxApiClient
 from netbox_sdk.models.v4_7 import *  # noqa: F403, F405
-from netbox_sdk.typed_runtime import RawBranchingApp, TypedApiBase, TypedAppBase, build_typed_client
+from netbox_sdk.typed_runtime import (
+    RawBranchingApp,
+    TypedApiBase,
+    TypedAppBase,
+    build_typed_client,
+    BackgroundJobReference,
+)
 
 
 class CircuitsCircuitGroupAssignmentsDetailGetQuery(BaseModel):
@@ -15679,8 +15685,8 @@ class IpamVlanGroupsRootDeleteQuery(BaseModel):
 
 class IpamVlanGroupsRootGetQuery(BaseModel):
     brief: bool | None = None
-    cluster: int | None = None
-    cluster_group: int | None = None
+    cluster: list[int] | None = None
+    cluster_group: list[int] | None = None
     contains_vid: float | None = None
     created: list[str] | None = None
     created_empty: list[str] | None = Field(None, alias="created__empty")
@@ -15719,7 +15725,7 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     last_updated_lte: list[str] | None = Field(None, alias="last_updated__lte")
     last_updated_n: list[str] | None = Field(None, alias="last_updated__n")
     limit: int | None = None
-    location: int | None = None
+    location: list[int] | None = None
     modified_by_request: str | None = None
     name: list[str] | None = None
     name_empty: bool | None = Field(None, alias="name__empty")
@@ -15746,9 +15752,9 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     owner_id: list[int] | None = None
     owner_id_n: list[int] | None = Field(None, alias="owner_id__n")
     q: str | None = None
-    rack: int | None = None
-    rack_group: float | None = None
-    region: int | None = None
+    rack: list[int] | None = None
+    rack_group: list[int] | None = None
+    region: list[int] | None = None
     scope_id: list[int] | None = None
     scope_id_empty: bool | None = Field(None, alias="scope_id__empty")
     scope_id_gt: list[int] | None = Field(None, alias="scope_id__gt")
@@ -15758,8 +15764,8 @@ class IpamVlanGroupsRootGetQuery(BaseModel):
     scope_id_n: list[int] | None = Field(None, alias="scope_id__n")
     scope_type: list[str] | None = None
     scope_type_n: list[str] | None = Field(None, alias="scope_type__n")
-    site: int | None = None
-    site_group: int | None = None
+    site: list[int] | None = None
+    site_group: list[int] | None = None
     slug: list[str] | None = None
     slug_empty: bool | None = Field(None, alias="slug__empty")
     slug_ic: list[str] | None = Field(None, alias="slug__ic")
@@ -20498,7 +20504,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: WritableCircuitGroupAssignmentRequest | list[WritableCircuitGroupAssignmentRequest],
         query: CircuitsCircuitGroupAssignmentsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CircuitGroupAssignment:
+    ) -> CircuitGroupAssignment | list[CircuitGroupAssignment] | BackgroundJobReference:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "POST",
@@ -20516,7 +20522,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[BulkCircuitGroupAssignmentRequest],
         query: CircuitsCircuitGroupAssignmentsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitGroupAssignment]:
+    ) -> list[CircuitGroupAssignment] | BackgroundJobReference:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "PUT",
@@ -20533,7 +20539,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCircuitGroupAssignmentRequest],
         query: CircuitsCircuitGroupAssignmentsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitGroupAssignment]:
+    ) -> list[CircuitGroupAssignment] | BackgroundJobReference:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "PATCH",
@@ -20550,7 +20556,7 @@ class CircuitsCircuitGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[CircuitGroupAssignmentRequest],
         query: CircuitsCircuitGroupAssignmentsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/circuit-group-assignments/"
         return await self._typed_json_request(
             "DELETE",
@@ -20649,7 +20655,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
         self,
         body: CircuitGroupRequest | list[CircuitGroupRequest],
         query: CircuitsCircuitGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CircuitGroup:
+    ) -> CircuitGroup | list[CircuitGroup] | BackgroundJobReference:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "POST",
@@ -20666,7 +20672,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkCircuitGroupRequest],
         query: CircuitsCircuitGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitGroup]:
+    ) -> list[CircuitGroup] | BackgroundJobReference:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -20683,7 +20689,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCircuitGroupRequest],
         query: CircuitsCircuitGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitGroup]:
+    ) -> list[CircuitGroup] | BackgroundJobReference:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -20700,7 +20706,7 @@ class CircuitsCircuitGroupsEndpoint(TypedAppBase):
         self,
         body: list[CircuitGroupRequest],
         query: CircuitsCircuitGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/circuit-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -20799,7 +20805,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: CircuitTerminationRequest | list[CircuitTerminationRequest],
         query: CircuitsCircuitTerminationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CircuitTermination:
+    ) -> CircuitTermination | list[CircuitTermination] | BackgroundJobReference:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "POST",
@@ -20816,7 +20822,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: list[BulkCircuitTerminationRequest],
         query: CircuitsCircuitTerminationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitTermination]:
+    ) -> list[CircuitTermination] | BackgroundJobReference:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "PUT",
@@ -20833,7 +20839,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCircuitTerminationRequest],
         query: CircuitsCircuitTerminationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitTermination]:
+    ) -> list[CircuitTermination] | BackgroundJobReference:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "PATCH",
@@ -20850,7 +20856,7 @@ class CircuitsCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: list[CircuitTerminationRequest],
         query: CircuitsCircuitTerminationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/circuit-terminations/"
         return await self._typed_json_request(
             "DELETE",
@@ -20971,7 +20977,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
         self,
         body: CircuitTypeRequest | list[CircuitTypeRequest],
         query: CircuitsCircuitTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> CircuitType:
+    ) -> CircuitType | list[CircuitType] | BackgroundJobReference:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "POST",
@@ -20988,7 +20994,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkCircuitTypeRequest],
         query: CircuitsCircuitTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitType]:
+    ) -> list[CircuitType] | BackgroundJobReference:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "PUT",
@@ -21005,7 +21011,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCircuitTypeRequest],
         query: CircuitsCircuitTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CircuitType]:
+    ) -> list[CircuitType] | BackgroundJobReference:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -21022,7 +21028,7 @@ class CircuitsCircuitTypesEndpoint(TypedAppBase):
         self,
         body: list[CircuitTypeRequest],
         query: CircuitsCircuitTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/circuit-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -21117,7 +21123,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
         self,
         body: WritableCircuitRequest | list[WritableCircuitRequest],
         query: CircuitsCircuitsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Circuit:
+    ) -> Circuit | list[Circuit] | BackgroundJobReference:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "POST",
@@ -21134,7 +21140,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
         self,
         body: list[BulkCircuitRequest],
         query: CircuitsCircuitsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Circuit]:
+    ) -> list[Circuit] | BackgroundJobReference:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "PUT",
@@ -21151,7 +21157,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCircuitRequest],
         query: CircuitsCircuitsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Circuit]:
+    ) -> list[Circuit] | BackgroundJobReference:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "PATCH",
@@ -21168,7 +21174,7 @@ class CircuitsCircuitsEndpoint(TypedAppBase):
         self,
         body: list[CircuitRequest],
         query: CircuitsCircuitsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/circuits/"
         return await self._typed_json_request(
             "DELETE",
@@ -21261,7 +21267,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
         self,
         body: ProviderAccountRequest | list[ProviderAccountRequest],
         query: CircuitsProviderAccountsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ProviderAccount:
+    ) -> ProviderAccount | list[ProviderAccount] | BackgroundJobReference:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "POST",
@@ -21278,7 +21284,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
         self,
         body: list[BulkProviderAccountRequest],
         query: CircuitsProviderAccountsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ProviderAccount]:
+    ) -> list[ProviderAccount] | BackgroundJobReference:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "PUT",
@@ -21295,7 +21301,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkProviderAccountRequest],
         query: CircuitsProviderAccountsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ProviderAccount]:
+    ) -> list[ProviderAccount] | BackgroundJobReference:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "PATCH",
@@ -21312,7 +21318,7 @@ class CircuitsProviderAccountsEndpoint(TypedAppBase):
         self,
         body: list[ProviderAccountRequest],
         query: CircuitsProviderAccountsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/provider-accounts/"
         return await self._typed_json_request(
             "DELETE",
@@ -21409,7 +21415,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
         self,
         body: ProviderNetworkRequest | list[ProviderNetworkRequest],
         query: CircuitsProviderNetworksRootPostQuery | dict[str, Any] | None = None,
-    ) -> ProviderNetwork:
+    ) -> ProviderNetwork | list[ProviderNetwork] | BackgroundJobReference:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "POST",
@@ -21426,7 +21432,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
         self,
         body: list[BulkProviderNetworkRequest],
         query: CircuitsProviderNetworksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ProviderNetwork]:
+    ) -> list[ProviderNetwork] | BackgroundJobReference:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "PUT",
@@ -21443,7 +21449,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkProviderNetworkRequest],
         query: CircuitsProviderNetworksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ProviderNetwork]:
+    ) -> list[ProviderNetwork] | BackgroundJobReference:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "PATCH",
@@ -21460,7 +21466,7 @@ class CircuitsProviderNetworksEndpoint(TypedAppBase):
         self,
         body: list[ProviderNetworkRequest],
         query: CircuitsProviderNetworksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/provider-networks/"
         return await self._typed_json_request(
             "DELETE",
@@ -21557,7 +21563,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
         self,
         body: ProviderRequest | list[ProviderRequest],
         query: CircuitsProvidersRootPostQuery | dict[str, Any] | None = None,
-    ) -> Provider:
+    ) -> Provider | list[Provider] | BackgroundJobReference:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "POST",
@@ -21574,7 +21580,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
         self,
         body: list[BulkProviderRequest],
         query: CircuitsProvidersRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Provider]:
+    ) -> list[Provider] | BackgroundJobReference:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "PUT",
@@ -21591,7 +21597,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkProviderRequest],
         query: CircuitsProvidersRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Provider]:
+    ) -> list[Provider] | BackgroundJobReference:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "PATCH",
@@ -21608,7 +21614,7 @@ class CircuitsProvidersEndpoint(TypedAppBase):
         self,
         body: list[ProviderRequest],
         query: CircuitsProvidersRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/providers/"
         return await self._typed_json_request(
             "DELETE",
@@ -21706,7 +21712,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         body: WritableVirtualCircuitTerminationRequest
         | list[WritableVirtualCircuitTerminationRequest],
         query: CircuitsVirtualCircuitTerminationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualCircuitTermination:
+    ) -> VirtualCircuitTermination | list[VirtualCircuitTermination] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "POST",
@@ -21724,7 +21730,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualCircuitTerminationRequest],
         query: CircuitsVirtualCircuitTerminationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualCircuitTermination]:
+    ) -> list[VirtualCircuitTermination] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "PUT",
@@ -21741,7 +21747,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualCircuitTerminationRequest],
         query: CircuitsVirtualCircuitTerminationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualCircuitTermination]:
+    ) -> list[VirtualCircuitTermination] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "PATCH",
@@ -21758,7 +21764,7 @@ class CircuitsVirtualCircuitTerminationsEndpoint(TypedAppBase):
         self,
         body: list[VirtualCircuitTerminationRequest],
         query: CircuitsVirtualCircuitTerminationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/virtual-circuit-terminations/"
         return await self._typed_json_request(
             "DELETE",
@@ -21881,7 +21887,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         self,
         body: VirtualCircuitTypeRequest | list[VirtualCircuitTypeRequest],
         query: CircuitsVirtualCircuitTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualCircuitType:
+    ) -> VirtualCircuitType | list[VirtualCircuitType] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "POST",
@@ -21898,7 +21904,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualCircuitTypeRequest],
         query: CircuitsVirtualCircuitTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualCircuitType]:
+    ) -> list[VirtualCircuitType] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "PUT",
@@ -21915,7 +21921,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualCircuitTypeRequest],
         query: CircuitsVirtualCircuitTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualCircuitType]:
+    ) -> list[VirtualCircuitType] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -21932,7 +21938,7 @@ class CircuitsVirtualCircuitTypesEndpoint(TypedAppBase):
         self,
         body: list[VirtualCircuitTypeRequest],
         query: CircuitsVirtualCircuitTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/virtual-circuit-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -22029,7 +22035,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
         self,
         body: WritableVirtualCircuitRequest | list[WritableVirtualCircuitRequest],
         query: CircuitsVirtualCircuitsRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualCircuit:
+    ) -> VirtualCircuit | list[VirtualCircuit] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "POST",
@@ -22046,7 +22052,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualCircuitRequest],
         query: CircuitsVirtualCircuitsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualCircuit]:
+    ) -> list[VirtualCircuit] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "PUT",
@@ -22063,7 +22069,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualCircuitRequest],
         query: CircuitsVirtualCircuitsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualCircuit]:
+    ) -> list[VirtualCircuit] | BackgroundJobReference:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "PATCH",
@@ -22080,7 +22086,7 @@ class CircuitsVirtualCircuitsEndpoint(TypedAppBase):
         self,
         body: list[VirtualCircuitRequest],
         query: CircuitsVirtualCircuitsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/circuits/virtual-circuits/"
         return await self._typed_json_request(
             "DELETE",
@@ -22429,7 +22435,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
         self,
         body: WritableDataSourceRequest | list[WritableDataSourceRequest],
         query: CoreDataSourcesRootPostQuery | dict[str, Any] | None = None,
-    ) -> DataSource:
+    ) -> DataSource | list[DataSource] | BackgroundJobReference:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "POST",
@@ -22446,7 +22452,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
         self,
         body: list[BulkDataSourceRequest],
         query: CoreDataSourcesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[DataSource]:
+    ) -> list[DataSource] | BackgroundJobReference:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "PUT",
@@ -22463,7 +22469,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkDataSourceRequest],
         query: CoreDataSourcesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[DataSource]:
+    ) -> list[DataSource] | BackgroundJobReference:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "PATCH",
@@ -22480,7 +22486,7 @@ class CoreDataSourcesEndpoint(TypedAppBase):
         self,
         body: list[DataSourceRequest],
         query: CoreDataSourcesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/core/data-sources/"
         return await self._typed_json_request(
             "DELETE",
@@ -22706,7 +22712,7 @@ class DcimCableBundlesEndpoint(TypedAppBase):
         self,
         body: CableBundleRequest | list[CableBundleRequest],
         query: DcimCableBundlesRootPostQuery | dict[str, Any] | None = None,
-    ) -> CableBundle:
+    ) -> CableBundle | list[CableBundle] | BackgroundJobReference:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "POST",
@@ -22723,7 +22729,7 @@ class DcimCableBundlesEndpoint(TypedAppBase):
         self,
         body: list[BulkCableBundleRequest],
         query: DcimCableBundlesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CableBundle]:
+    ) -> list[CableBundle] | BackgroundJobReference:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "PUT",
@@ -22740,7 +22746,7 @@ class DcimCableBundlesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCableBundleRequest],
         query: DcimCableBundlesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CableBundle]:
+    ) -> list[CableBundle] | BackgroundJobReference:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "PATCH",
@@ -22757,7 +22763,7 @@ class DcimCableBundlesEndpoint(TypedAppBase):
         self,
         body: list[CableBundleRequest],
         query: DcimCableBundlesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cable-bundles/"
         return await self._typed_json_request(
             "DELETE",
@@ -22889,7 +22895,7 @@ class DcimCablesEndpoint(TypedAppBase):
         self,
         body: WritableCableRequest | list[WritableCableRequest],
         query: DcimCablesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Cable:
+    ) -> Cable | list[Cable] | BackgroundJobReference:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "POST",
@@ -22906,7 +22912,7 @@ class DcimCablesEndpoint(TypedAppBase):
         self,
         body: list[BulkCableRequest],
         query: DcimCablesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Cable]:
+    ) -> list[Cable] | BackgroundJobReference:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "PUT",
@@ -22923,7 +22929,7 @@ class DcimCablesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCableRequest],
         query: DcimCablesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Cable]:
+    ) -> list[Cable] | BackgroundJobReference:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "PATCH",
@@ -22940,7 +22946,7 @@ class DcimCablesEndpoint(TypedAppBase):
         self,
         body: list[CableRequest],
         query: DcimCablesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cables/"
         return await self._typed_json_request(
             "DELETE",
@@ -23055,7 +23061,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableConsolePortTemplateRequest | list[WritableConsolePortTemplateRequest],
         query: DcimConsolePortTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConsolePortTemplate:
+    ) -> ConsolePortTemplate | list[ConsolePortTemplate] | BackgroundJobReference:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "POST",
@@ -23073,7 +23079,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkConsolePortTemplateRequest],
         query: DcimConsolePortTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConsolePortTemplate]:
+    ) -> list[ConsolePortTemplate] | BackgroundJobReference:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -23090,7 +23096,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConsolePortTemplateRequest],
         query: DcimConsolePortTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConsolePortTemplate]:
+    ) -> list[ConsolePortTemplate] | BackgroundJobReference:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -23107,7 +23113,7 @@ class DcimConsolePortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[ConsolePortTemplateRequest],
         query: DcimConsolePortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/console-port-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -23210,7 +23216,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
         self,
         body: WritableConsolePortRequest | list[WritableConsolePortRequest],
         query: DcimConsolePortsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConsolePort:
+    ) -> ConsolePort | list[ConsolePort] | BackgroundJobReference:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "POST",
@@ -23227,7 +23233,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
         self,
         body: list[BulkConsolePortRequest],
         query: DcimConsolePortsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConsolePort]:
+    ) -> list[ConsolePort] | BackgroundJobReference:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "PUT",
@@ -23244,7 +23250,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConsolePortRequest],
         query: DcimConsolePortsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConsolePort]:
+    ) -> list[ConsolePort] | BackgroundJobReference:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "PATCH",
@@ -23261,7 +23267,7 @@ class DcimConsolePortsEndpoint(TypedAppBase):
         self,
         body: list[ConsolePortRequest],
         query: DcimConsolePortsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/console-ports/"
         return await self._typed_json_request(
             "DELETE",
@@ -23379,7 +23385,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         body: WritableConsoleServerPortTemplateRequest
         | list[WritableConsoleServerPortTemplateRequest],
         query: DcimConsoleServerPortTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConsoleServerPortTemplate:
+    ) -> ConsoleServerPortTemplate | list[ConsoleServerPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "POST",
@@ -23397,7 +23403,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkConsoleServerPortTemplateRequest],
         query: DcimConsoleServerPortTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConsoleServerPortTemplate]:
+    ) -> list[ConsoleServerPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -23414,7 +23420,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConsoleServerPortTemplateRequest],
         query: DcimConsoleServerPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConsoleServerPortTemplate]:
+    ) -> list[ConsoleServerPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -23431,7 +23437,7 @@ class DcimConsoleServerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[ConsoleServerPortTemplateRequest],
         query: DcimConsoleServerPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/console-server-port-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -23534,7 +23540,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         self,
         body: WritableConsoleServerPortRequest | list[WritableConsoleServerPortRequest],
         query: DcimConsoleServerPortsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConsoleServerPort:
+    ) -> ConsoleServerPort | list[ConsoleServerPort] | BackgroundJobReference:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "POST",
@@ -23551,7 +23557,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         self,
         body: list[BulkConsoleServerPortRequest],
         query: DcimConsoleServerPortsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConsoleServerPort]:
+    ) -> list[ConsoleServerPort] | BackgroundJobReference:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "PUT",
@@ -23568,7 +23574,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConsoleServerPortRequest],
         query: DcimConsoleServerPortsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConsoleServerPort]:
+    ) -> list[ConsoleServerPort] | BackgroundJobReference:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "PATCH",
@@ -23585,7 +23591,7 @@ class DcimConsoleServerPortsEndpoint(TypedAppBase):
         self,
         body: list[ConsoleServerPortRequest],
         query: DcimConsoleServerPortsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/console-server-ports/"
         return await self._typed_json_request(
             "DELETE",
@@ -23708,7 +23714,7 @@ class DcimCoolingFeedsEndpoint(TypedAppBase):
         self,
         body: WritableCoolingFeedRequest | list[WritableCoolingFeedRequest],
         query: DcimCoolingFeedsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CoolingFeed:
+    ) -> CoolingFeed | list[CoolingFeed] | BackgroundJobReference:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "POST",
@@ -23725,7 +23731,7 @@ class DcimCoolingFeedsEndpoint(TypedAppBase):
         self,
         body: list[BulkCoolingFeedRequest],
         query: DcimCoolingFeedsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingFeed]:
+    ) -> list[CoolingFeed] | BackgroundJobReference:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "PUT",
@@ -23742,7 +23748,7 @@ class DcimCoolingFeedsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCoolingFeedRequest],
         query: DcimCoolingFeedsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingFeed]:
+    ) -> list[CoolingFeed] | BackgroundJobReference:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "PATCH",
@@ -23759,7 +23765,7 @@ class DcimCoolingFeedsEndpoint(TypedAppBase):
         self,
         body: list[CoolingFeedRequest],
         query: DcimCoolingFeedsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cooling-feeds/"
         return await self._typed_json_request(
             "DELETE",
@@ -23854,7 +23860,7 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableCoolingIntakeTemplateRequest | list[WritableCoolingIntakeTemplateRequest],
         query: DcimCoolingIntakeTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> CoolingIntakeTemplate:
+    ) -> CoolingIntakeTemplate | list[CoolingIntakeTemplate] | BackgroundJobReference:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "POST",
@@ -23872,7 +23878,7 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkCoolingIntakeTemplateRequest],
         query: DcimCoolingIntakeTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingIntakeTemplate]:
+    ) -> list[CoolingIntakeTemplate] | BackgroundJobReference:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -23889,7 +23895,7 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCoolingIntakeTemplateRequest],
         query: DcimCoolingIntakeTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingIntakeTemplate]:
+    ) -> list[CoolingIntakeTemplate] | BackgroundJobReference:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -23906,7 +23912,7 @@ class DcimCoolingIntakeTemplatesEndpoint(TypedAppBase):
         self,
         body: list[CoolingIntakeTemplateRequest],
         query: DcimCoolingIntakeTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cooling-intake-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -24005,7 +24011,7 @@ class DcimCoolingIntakesEndpoint(TypedAppBase):
         self,
         body: WritableCoolingIntakeRequest | list[WritableCoolingIntakeRequest],
         query: DcimCoolingIntakesRootPostQuery | dict[str, Any] | None = None,
-    ) -> CoolingIntake:
+    ) -> CoolingIntake | list[CoolingIntake] | BackgroundJobReference:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "POST",
@@ -24022,7 +24028,7 @@ class DcimCoolingIntakesEndpoint(TypedAppBase):
         self,
         body: list[BulkCoolingIntakeRequest],
         query: DcimCoolingIntakesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingIntake]:
+    ) -> list[CoolingIntake] | BackgroundJobReference:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "PUT",
@@ -24039,7 +24045,7 @@ class DcimCoolingIntakesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCoolingIntakeRequest],
         query: DcimCoolingIntakesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingIntake]:
+    ) -> list[CoolingIntake] | BackgroundJobReference:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "PATCH",
@@ -24056,7 +24062,7 @@ class DcimCoolingIntakesEndpoint(TypedAppBase):
         self,
         body: list[CoolingIntakeRequest],
         query: DcimCoolingIntakesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cooling-intakes/"
         return await self._typed_json_request(
             "DELETE",
@@ -24151,7 +24157,7 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableCoolingOutflowTemplateRequest | list[WritableCoolingOutflowTemplateRequest],
         query: DcimCoolingOutflowTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> CoolingOutflowTemplate:
+    ) -> CoolingOutflowTemplate | list[CoolingOutflowTemplate] | BackgroundJobReference:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "POST",
@@ -24169,7 +24175,7 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkCoolingOutflowTemplateRequest],
         query: DcimCoolingOutflowTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingOutflowTemplate]:
+    ) -> list[CoolingOutflowTemplate] | BackgroundJobReference:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -24186,7 +24192,7 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCoolingOutflowTemplateRequest],
         query: DcimCoolingOutflowTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingOutflowTemplate]:
+    ) -> list[CoolingOutflowTemplate] | BackgroundJobReference:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -24203,7 +24209,7 @@ class DcimCoolingOutflowTemplatesEndpoint(TypedAppBase):
         self,
         body: list[CoolingOutflowTemplateRequest],
         query: DcimCoolingOutflowTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cooling-outflow-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -24302,7 +24308,7 @@ class DcimCoolingOutflowsEndpoint(TypedAppBase):
         self,
         body: WritableCoolingOutflowRequest | list[WritableCoolingOutflowRequest],
         query: DcimCoolingOutflowsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CoolingOutflow:
+    ) -> CoolingOutflow | list[CoolingOutflow] | BackgroundJobReference:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "POST",
@@ -24319,7 +24325,7 @@ class DcimCoolingOutflowsEndpoint(TypedAppBase):
         self,
         body: list[BulkCoolingOutflowRequest],
         query: DcimCoolingOutflowsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingOutflow]:
+    ) -> list[CoolingOutflow] | BackgroundJobReference:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "PUT",
@@ -24336,7 +24342,7 @@ class DcimCoolingOutflowsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCoolingOutflowRequest],
         query: DcimCoolingOutflowsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingOutflow]:
+    ) -> list[CoolingOutflow] | BackgroundJobReference:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "PATCH",
@@ -24353,7 +24359,7 @@ class DcimCoolingOutflowsEndpoint(TypedAppBase):
         self,
         body: list[CoolingOutflowRequest],
         query: DcimCoolingOutflowsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cooling-outflows/"
         return await self._typed_json_request(
             "DELETE",
@@ -24448,7 +24454,7 @@ class DcimCoolingSourcesEndpoint(TypedAppBase):
         self,
         body: WritableCoolingSourceRequest | list[WritableCoolingSourceRequest],
         query: DcimCoolingSourcesRootPostQuery | dict[str, Any] | None = None,
-    ) -> CoolingSource:
+    ) -> CoolingSource | list[CoolingSource] | BackgroundJobReference:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "POST",
@@ -24465,7 +24471,7 @@ class DcimCoolingSourcesEndpoint(TypedAppBase):
         self,
         body: list[BulkCoolingSourceRequest],
         query: DcimCoolingSourcesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingSource]:
+    ) -> list[CoolingSource] | BackgroundJobReference:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "PUT",
@@ -24482,7 +24488,7 @@ class DcimCoolingSourcesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCoolingSourceRequest],
         query: DcimCoolingSourcesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CoolingSource]:
+    ) -> list[CoolingSource] | BackgroundJobReference:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "PATCH",
@@ -24499,7 +24505,7 @@ class DcimCoolingSourcesEndpoint(TypedAppBase):
         self,
         body: list[CoolingSourceRequest],
         query: DcimCoolingSourcesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/cooling-sources/"
         return await self._typed_json_request(
             "DELETE",
@@ -24594,7 +24600,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         self,
         body: DeviceBayTemplateRequest | list[DeviceBayTemplateRequest],
         query: DcimDeviceBayTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> DeviceBayTemplate:
+    ) -> DeviceBayTemplate | list[DeviceBayTemplate] | BackgroundJobReference:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "POST",
@@ -24611,7 +24617,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkDeviceBayTemplateRequest],
         query: DcimDeviceBayTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceBayTemplate]:
+    ) -> list[DeviceBayTemplate] | BackgroundJobReference:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -24628,7 +24634,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkDeviceBayTemplateRequest],
         query: DcimDeviceBayTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceBayTemplate]:
+    ) -> list[DeviceBayTemplate] | BackgroundJobReference:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -24645,7 +24651,7 @@ class DcimDeviceBayTemplatesEndpoint(TypedAppBase):
         self,
         body: list[DeviceBayTemplateRequest],
         query: DcimDeviceBayTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/device-bay-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -24742,7 +24748,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
         self,
         body: DeviceBayRequest | list[DeviceBayRequest],
         query: DcimDeviceBaysRootPostQuery | dict[str, Any] | None = None,
-    ) -> DeviceBay:
+    ) -> DeviceBay | list[DeviceBay] | BackgroundJobReference:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "POST",
@@ -24759,7 +24765,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
         self,
         body: list[BulkDeviceBayRequest],
         query: DcimDeviceBaysRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceBay]:
+    ) -> list[DeviceBay] | BackgroundJobReference:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "PUT",
@@ -24776,7 +24782,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkDeviceBayRequest],
         query: DcimDeviceBaysRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceBay]:
+    ) -> list[DeviceBay] | BackgroundJobReference:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "PATCH",
@@ -24793,7 +24799,7 @@ class DcimDeviceBaysEndpoint(TypedAppBase):
         self,
         body: list[DeviceBayRequest],
         query: DcimDeviceBaysRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/device-bays/"
         return await self._typed_json_request(
             "DELETE",
@@ -24886,7 +24892,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
         self,
         body: WritableDeviceRoleRequest | list[WritableDeviceRoleRequest],
         query: DcimDeviceRolesRootPostQuery | dict[str, Any] | None = None,
-    ) -> DeviceRole:
+    ) -> DeviceRole | list[DeviceRole] | BackgroundJobReference:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "POST",
@@ -24903,7 +24909,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
         self,
         body: list[BulkDeviceRoleRequest],
         query: DcimDeviceRolesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceRole]:
+    ) -> list[DeviceRole] | BackgroundJobReference:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "PUT",
@@ -24920,7 +24926,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkDeviceRoleRequest],
         query: DcimDeviceRolesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceRole]:
+    ) -> list[DeviceRole] | BackgroundJobReference:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "PATCH",
@@ -24937,7 +24943,7 @@ class DcimDeviceRolesEndpoint(TypedAppBase):
         self,
         body: list[DeviceRoleRequest],
         query: DcimDeviceRolesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/device-roles/"
         return await self._typed_json_request(
             "DELETE",
@@ -25032,7 +25038,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         self,
         body: WritableDeviceTypeRequest | list[WritableDeviceTypeRequest] | dict[str, Any],
         query: DcimDeviceTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> DeviceType:
+    ) -> DeviceType | list[DeviceType] | BackgroundJobReference:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "POST",
@@ -25050,7 +25056,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkDeviceTypeRequest] | dict[str, Any],
         query: DcimDeviceTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceType]:
+    ) -> list[DeviceType] | BackgroundJobReference:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "PUT",
@@ -25068,7 +25074,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkDeviceTypeRequest] | dict[str, Any],
         query: DcimDeviceTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[DeviceType]:
+    ) -> list[DeviceType] | BackgroundJobReference:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "PATCH",
@@ -25086,7 +25092,7 @@ class DcimDeviceTypesEndpoint(TypedAppBase):
         self,
         body: list[DeviceTypeRequest] | dict[str, Any],
         query: DcimDeviceTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/device-types/"
         return await self._typed_multipart_request(
             "DELETE",
@@ -25190,7 +25196,7 @@ class DcimDevicesEndpoint(TypedAppBase):
         self,
         body: WritableDeviceRequest | list[WritableDeviceRequest],
         query: DcimDevicesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Device:
+    ) -> Device | list[Device] | BackgroundJobReference:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "POST",
@@ -25207,7 +25213,7 @@ class DcimDevicesEndpoint(TypedAppBase):
         self,
         body: list[BulkDeviceRequest],
         query: DcimDevicesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Device]:
+    ) -> list[Device] | BackgroundJobReference:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "PUT",
@@ -25224,7 +25230,7 @@ class DcimDevicesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkDeviceRequest],
         query: DcimDevicesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Device]:
+    ) -> list[Device] | BackgroundJobReference:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "PATCH",
@@ -25241,7 +25247,7 @@ class DcimDevicesEndpoint(TypedAppBase):
         self,
         body: list[DeviceRequest],
         query: DcimDevicesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/devices/"
         return await self._typed_json_request(
             "DELETE",
@@ -25359,7 +25365,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableFrontPortTemplateRequest | list[WritableFrontPortTemplateRequest],
         query: DcimFrontPortTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> FrontPortTemplate:
+    ) -> FrontPortTemplate | list[FrontPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "POST",
@@ -25376,7 +25382,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkFrontPortTemplateRequest],
         query: DcimFrontPortTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[FrontPortTemplate]:
+    ) -> list[FrontPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -25393,7 +25399,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkFrontPortTemplateRequest],
         query: DcimFrontPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[FrontPortTemplate]:
+    ) -> list[FrontPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -25410,7 +25416,7 @@ class DcimFrontPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[FrontPortTemplateRequest],
         query: DcimFrontPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/front-port-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -25513,7 +25519,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
         self,
         body: WritableFrontPortRequest | list[WritableFrontPortRequest],
         query: DcimFrontPortsRootPostQuery | dict[str, Any] | None = None,
-    ) -> FrontPort:
+    ) -> FrontPort | list[FrontPort] | BackgroundJobReference:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "POST",
@@ -25530,7 +25536,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
         self,
         body: list[BulkFrontPortRequest],
         query: DcimFrontPortsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[FrontPort]:
+    ) -> list[FrontPort] | BackgroundJobReference:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "PUT",
@@ -25547,7 +25553,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkFrontPortRequest],
         query: DcimFrontPortsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[FrontPort]:
+    ) -> list[FrontPort] | BackgroundJobReference:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "PATCH",
@@ -25564,7 +25570,7 @@ class DcimFrontPortsEndpoint(TypedAppBase):
         self,
         body: list[FrontPortRequest],
         query: DcimFrontPortsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/front-ports/"
         return await self._typed_json_request(
             "DELETE",
@@ -25681,7 +25687,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableInterfaceTemplateRequest | list[WritableInterfaceTemplateRequest],
         query: DcimInterfaceTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> InterfaceTemplate:
+    ) -> InterfaceTemplate | list[InterfaceTemplate] | BackgroundJobReference:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "POST",
@@ -25698,7 +25704,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkInterfaceTemplateRequest],
         query: DcimInterfaceTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[InterfaceTemplate]:
+    ) -> list[InterfaceTemplate] | BackgroundJobReference:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -25715,7 +25721,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkInterfaceTemplateRequest],
         query: DcimInterfaceTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[InterfaceTemplate]:
+    ) -> list[InterfaceTemplate] | BackgroundJobReference:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -25732,7 +25738,7 @@ class DcimInterfaceTemplatesEndpoint(TypedAppBase):
         self,
         body: list[InterfaceTemplateRequest],
         query: DcimInterfaceTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/interface-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -25835,7 +25841,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
         self,
         body: WritableInterfaceRequest | list[WritableInterfaceRequest],
         query: DcimInterfacesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Interface:
+    ) -> Interface | list[Interface] | BackgroundJobReference:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "POST",
@@ -25852,7 +25858,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
         self,
         body: list[BulkInterfaceRequest],
         query: DcimInterfacesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Interface]:
+    ) -> list[Interface] | BackgroundJobReference:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "PUT",
@@ -25869,7 +25875,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkInterfaceRequest],
         query: DcimInterfacesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Interface]:
+    ) -> list[Interface] | BackgroundJobReference:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "PATCH",
@@ -25886,7 +25892,7 @@ class DcimInterfacesEndpoint(TypedAppBase):
         self,
         body: list[InterfaceRequest],
         query: DcimInterfacesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/interfaces/"
         return await self._typed_json_request(
             "DELETE",
@@ -26003,7 +26009,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         self,
         body: InventoryItemRoleRequest | list[InventoryItemRoleRequest],
         query: DcimInventoryItemRolesRootPostQuery | dict[str, Any] | None = None,
-    ) -> InventoryItemRole:
+    ) -> InventoryItemRole | list[InventoryItemRole] | BackgroundJobReference:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "POST",
@@ -26020,7 +26026,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         self,
         body: list[BulkInventoryItemRoleRequest],
         query: DcimInventoryItemRolesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[InventoryItemRole]:
+    ) -> list[InventoryItemRole] | BackgroundJobReference:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "PUT",
@@ -26037,7 +26043,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkInventoryItemRoleRequest],
         query: DcimInventoryItemRolesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[InventoryItemRole]:
+    ) -> list[InventoryItemRole] | BackgroundJobReference:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "PATCH",
@@ -26054,7 +26060,7 @@ class DcimInventoryItemRolesEndpoint(TypedAppBase):
         self,
         body: list[InventoryItemRoleRequest],
         query: DcimInventoryItemRolesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/inventory-item-roles/"
         return await self._typed_json_request(
             "DELETE",
@@ -26151,7 +26157,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         self,
         body: InventoryItemTemplateRequest | list[InventoryItemTemplateRequest],
         query: DcimInventoryItemTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> InventoryItemTemplate:
+    ) -> InventoryItemTemplate | list[InventoryItemTemplate] | BackgroundJobReference:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "POST",
@@ -26168,7 +26174,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkInventoryItemTemplateRequest],
         query: DcimInventoryItemTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[InventoryItemTemplate]:
+    ) -> list[InventoryItemTemplate] | BackgroundJobReference:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -26185,7 +26191,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkInventoryItemTemplateRequest],
         query: DcimInventoryItemTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[InventoryItemTemplate]:
+    ) -> list[InventoryItemTemplate] | BackgroundJobReference:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -26202,7 +26208,7 @@ class DcimInventoryItemTemplatesEndpoint(TypedAppBase):
         self,
         body: list[InventoryItemTemplateRequest],
         query: DcimInventoryItemTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/inventory-item-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -26301,7 +26307,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
         self,
         body: WritableInventoryItemRequest | list[WritableInventoryItemRequest],
         query: DcimInventoryItemsRootPostQuery | dict[str, Any] | None = None,
-    ) -> InventoryItem:
+    ) -> InventoryItem | list[InventoryItem] | BackgroundJobReference:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "POST",
@@ -26318,7 +26324,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
         self,
         body: list[BulkInventoryItemRequest],
         query: DcimInventoryItemsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[InventoryItem]:
+    ) -> list[InventoryItem] | BackgroundJobReference:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "PUT",
@@ -26335,7 +26341,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkInventoryItemRequest],
         query: DcimInventoryItemsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[InventoryItem]:
+    ) -> list[InventoryItem] | BackgroundJobReference:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "PATCH",
@@ -26352,7 +26358,7 @@ class DcimInventoryItemsEndpoint(TypedAppBase):
         self,
         body: list[InventoryItemRequest],
         query: DcimInventoryItemsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/inventory-items/"
         return await self._typed_json_request(
             "DELETE",
@@ -26447,7 +26453,7 @@ class DcimLocationsEndpoint(TypedAppBase):
         self,
         body: WritableLocationRequest | list[WritableLocationRequest],
         query: DcimLocationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Location:
+    ) -> Location | list[Location] | BackgroundJobReference:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "POST",
@@ -26464,7 +26470,7 @@ class DcimLocationsEndpoint(TypedAppBase):
         self,
         body: list[BulkLocationRequest],
         query: DcimLocationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Location]:
+    ) -> list[Location] | BackgroundJobReference:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "PUT",
@@ -26481,7 +26487,7 @@ class DcimLocationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkLocationRequest],
         query: DcimLocationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Location]:
+    ) -> list[Location] | BackgroundJobReference:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "PATCH",
@@ -26498,7 +26504,7 @@ class DcimLocationsEndpoint(TypedAppBase):
         self,
         body: list[LocationRequest],
         query: DcimLocationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/locations/"
         return await self._typed_json_request(
             "DELETE",
@@ -26591,7 +26597,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
         self,
         body: MACAddressRequest | list[MACAddressRequest],
         query: DcimMacAddressesRootPostQuery | dict[str, Any] | None = None,
-    ) -> MACAddress:
+    ) -> MACAddress | list[MACAddress] | BackgroundJobReference:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "POST",
@@ -26608,7 +26614,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
         self,
         body: list[BulkMACAddressRequest],
         query: DcimMacAddressesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[MACAddress]:
+    ) -> list[MACAddress] | BackgroundJobReference:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "PUT",
@@ -26625,7 +26631,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkMACAddressRequest],
         query: DcimMacAddressesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[MACAddress]:
+    ) -> list[MACAddress] | BackgroundJobReference:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "PATCH",
@@ -26642,7 +26648,7 @@ class DcimMacAddressesEndpoint(TypedAppBase):
         self,
         body: list[MACAddressRequest],
         query: DcimMacAddressesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/mac-addresses/"
         return await self._typed_json_request(
             "DELETE",
@@ -26735,7 +26741,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
         self,
         body: ManufacturerRequest | list[ManufacturerRequest],
         query: DcimManufacturersRootPostQuery | dict[str, Any] | None = None,
-    ) -> Manufacturer:
+    ) -> Manufacturer | list[Manufacturer] | BackgroundJobReference:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "POST",
@@ -26752,7 +26758,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
         self,
         body: list[BulkManufacturerRequest],
         query: DcimManufacturersRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Manufacturer]:
+    ) -> list[Manufacturer] | BackgroundJobReference:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "PUT",
@@ -26769,7 +26775,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkManufacturerRequest],
         query: DcimManufacturersRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Manufacturer]:
+    ) -> list[Manufacturer] | BackgroundJobReference:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "PATCH",
@@ -26786,7 +26792,7 @@ class DcimManufacturersEndpoint(TypedAppBase):
         self,
         body: list[ManufacturerRequest],
         query: DcimManufacturersRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/manufacturers/"
         return await self._typed_json_request(
             "DELETE",
@@ -26879,7 +26885,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         self,
         body: ModuleBayTemplateRequest | list[ModuleBayTemplateRequest],
         query: DcimModuleBayTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ModuleBayTemplate:
+    ) -> ModuleBayTemplate | list[ModuleBayTemplate] | BackgroundJobReference:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "POST",
@@ -26896,7 +26902,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkModuleBayTemplateRequest],
         query: DcimModuleBayTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleBayTemplate]:
+    ) -> list[ModuleBayTemplate] | BackgroundJobReference:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -26913,7 +26919,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkModuleBayTemplateRequest],
         query: DcimModuleBayTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleBayTemplate]:
+    ) -> list[ModuleBayTemplate] | BackgroundJobReference:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -26930,7 +26936,7 @@ class DcimModuleBayTemplatesEndpoint(TypedAppBase):
         self,
         body: list[ModuleBayTemplateRequest],
         query: DcimModuleBayTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/module-bay-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -27027,7 +27033,7 @@ class DcimModuleBayTypesEndpoint(TypedAppBase):
         self,
         body: ModuleBayTypeRequest | list[ModuleBayTypeRequest],
         query: DcimModuleBayTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ModuleBayType:
+    ) -> ModuleBayType | list[ModuleBayType] | BackgroundJobReference:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "POST",
@@ -27044,7 +27050,7 @@ class DcimModuleBayTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkModuleBayTypeRequest],
         query: DcimModuleBayTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleBayType]:
+    ) -> list[ModuleBayType] | BackgroundJobReference:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "PUT",
@@ -27061,7 +27067,7 @@ class DcimModuleBayTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkModuleBayTypeRequest],
         query: DcimModuleBayTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleBayType]:
+    ) -> list[ModuleBayType] | BackgroundJobReference:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -27078,7 +27084,7 @@ class DcimModuleBayTypesEndpoint(TypedAppBase):
         self,
         body: list[ModuleBayTypeRequest],
         query: DcimModuleBayTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/module-bay-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -27173,7 +27179,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
         self,
         body: ModuleBayRequest | list[ModuleBayRequest],
         query: DcimModuleBaysRootPostQuery | dict[str, Any] | None = None,
-    ) -> ModuleBay:
+    ) -> ModuleBay | list[ModuleBay] | BackgroundJobReference:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "POST",
@@ -27190,7 +27196,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
         self,
         body: list[BulkModuleBayRequest],
         query: DcimModuleBaysRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleBay]:
+    ) -> list[ModuleBay] | BackgroundJobReference:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "PUT",
@@ -27207,7 +27213,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkModuleBayRequest],
         query: DcimModuleBaysRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleBay]:
+    ) -> list[ModuleBay] | BackgroundJobReference:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "PATCH",
@@ -27224,7 +27230,7 @@ class DcimModuleBaysEndpoint(TypedAppBase):
         self,
         body: list[ModuleBayRequest],
         query: DcimModuleBaysRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/module-bays/"
         return await self._typed_json_request(
             "DELETE",
@@ -27317,7 +27323,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         self,
         body: ModuleTypeProfileRequest | list[ModuleTypeProfileRequest],
         query: DcimModuleTypeProfilesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ModuleTypeProfile:
+    ) -> ModuleTypeProfile | list[ModuleTypeProfile] | BackgroundJobReference:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "POST",
@@ -27334,7 +27340,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         self,
         body: list[BulkModuleTypeProfileRequest],
         query: DcimModuleTypeProfilesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleTypeProfile]:
+    ) -> list[ModuleTypeProfile] | BackgroundJobReference:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "PUT",
@@ -27351,7 +27357,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkModuleTypeProfileRequest],
         query: DcimModuleTypeProfilesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleTypeProfile]:
+    ) -> list[ModuleTypeProfile] | BackgroundJobReference:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "PATCH",
@@ -27368,7 +27374,7 @@ class DcimModuleTypeProfilesEndpoint(TypedAppBase):
         self,
         body: list[ModuleTypeProfileRequest],
         query: DcimModuleTypeProfilesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/module-type-profiles/"
         return await self._typed_json_request(
             "DELETE",
@@ -27465,7 +27471,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
         self,
         body: WritableModuleTypeRequest | list[WritableModuleTypeRequest],
         query: DcimModuleTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ModuleType:
+    ) -> ModuleType | list[ModuleType] | BackgroundJobReference:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "POST",
@@ -27482,7 +27488,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkModuleTypeRequest],
         query: DcimModuleTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleType]:
+    ) -> list[ModuleType] | BackgroundJobReference:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "PUT",
@@ -27499,7 +27505,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkModuleTypeRequest],
         query: DcimModuleTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ModuleType]:
+    ) -> list[ModuleType] | BackgroundJobReference:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -27516,7 +27522,7 @@ class DcimModuleTypesEndpoint(TypedAppBase):
         self,
         body: list[ModuleTypeRequest],
         query: DcimModuleTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/module-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -27611,7 +27617,7 @@ class DcimModulesEndpoint(TypedAppBase):
         self,
         body: WritableModuleRequest | list[WritableModuleRequest],
         query: DcimModulesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Module:
+    ) -> Module | list[Module] | BackgroundJobReference:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "POST",
@@ -27628,7 +27634,7 @@ class DcimModulesEndpoint(TypedAppBase):
         self,
         body: list[BulkModuleRequest],
         query: DcimModulesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Module]:
+    ) -> list[Module] | BackgroundJobReference:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "PUT",
@@ -27645,7 +27651,7 @@ class DcimModulesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkModuleRequest],
         query: DcimModulesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Module]:
+    ) -> list[Module] | BackgroundJobReference:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "PATCH",
@@ -27662,7 +27668,7 @@ class DcimModulesEndpoint(TypedAppBase):
         self,
         body: list[ModuleRequest],
         query: DcimModulesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/modules/"
         return await self._typed_json_request(
             "DELETE",
@@ -27755,7 +27761,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
         self,
         body: WritablePlatformRequest | list[WritablePlatformRequest],
         query: DcimPlatformsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Platform:
+    ) -> Platform | list[Platform] | BackgroundJobReference:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "POST",
@@ -27772,7 +27778,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
         self,
         body: list[BulkPlatformRequest],
         query: DcimPlatformsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Platform]:
+    ) -> list[Platform] | BackgroundJobReference:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "PUT",
@@ -27789,7 +27795,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPlatformRequest],
         query: DcimPlatformsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Platform]:
+    ) -> list[Platform] | BackgroundJobReference:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "PATCH",
@@ -27806,7 +27812,7 @@ class DcimPlatformsEndpoint(TypedAppBase):
         self,
         body: list[PlatformRequest],
         query: DcimPlatformsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/platforms/"
         return await self._typed_json_request(
             "DELETE",
@@ -27903,7 +27909,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
         self,
         body: WritablePowerFeedRequest | list[WritablePowerFeedRequest],
         query: DcimPowerFeedsRootPostQuery | dict[str, Any] | None = None,
-    ) -> PowerFeed:
+    ) -> PowerFeed | list[PowerFeed] | BackgroundJobReference:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "POST",
@@ -27920,7 +27926,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
         self,
         body: list[BulkPowerFeedRequest],
         query: DcimPowerFeedsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[PowerFeed]:
+    ) -> list[PowerFeed] | BackgroundJobReference:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "PUT",
@@ -27937,7 +27943,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPowerFeedRequest],
         query: DcimPowerFeedsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[PowerFeed]:
+    ) -> list[PowerFeed] | BackgroundJobReference:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "PATCH",
@@ -27954,7 +27960,7 @@ class DcimPowerFeedsEndpoint(TypedAppBase):
         self,
         body: list[PowerFeedRequest],
         query: DcimPowerFeedsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/power-feeds/"
         return await self._typed_json_request(
             "DELETE",
@@ -28071,7 +28077,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         self,
         body: WritablePowerOutletTemplateRequest | list[WritablePowerOutletTemplateRequest],
         query: DcimPowerOutletTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> PowerOutletTemplate:
+    ) -> PowerOutletTemplate | list[PowerOutletTemplate] | BackgroundJobReference:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "POST",
@@ -28089,7 +28095,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkPowerOutletTemplateRequest],
         query: DcimPowerOutletTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[PowerOutletTemplate]:
+    ) -> list[PowerOutletTemplate] | BackgroundJobReference:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -28106,7 +28112,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPowerOutletTemplateRequest],
         query: DcimPowerOutletTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[PowerOutletTemplate]:
+    ) -> list[PowerOutletTemplate] | BackgroundJobReference:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -28123,7 +28129,7 @@ class DcimPowerOutletTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PowerOutletTemplateRequest],
         query: DcimPowerOutletTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/power-outlet-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -28226,7 +28232,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
         self,
         body: WritablePowerOutletRequest | list[WritablePowerOutletRequest],
         query: DcimPowerOutletsRootPostQuery | dict[str, Any] | None = None,
-    ) -> PowerOutlet:
+    ) -> PowerOutlet | list[PowerOutlet] | BackgroundJobReference:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "POST",
@@ -28243,7 +28249,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
         self,
         body: list[BulkPowerOutletRequest],
         query: DcimPowerOutletsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[PowerOutlet]:
+    ) -> list[PowerOutlet] | BackgroundJobReference:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "PUT",
@@ -28260,7 +28266,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPowerOutletRequest],
         query: DcimPowerOutletsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[PowerOutlet]:
+    ) -> list[PowerOutlet] | BackgroundJobReference:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "PATCH",
@@ -28277,7 +28283,7 @@ class DcimPowerOutletsEndpoint(TypedAppBase):
         self,
         body: list[PowerOutletRequest],
         query: DcimPowerOutletsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/power-outlets/"
         return await self._typed_json_request(
             "DELETE",
@@ -28394,7 +28400,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
         self,
         body: PowerPanelRequest | list[PowerPanelRequest],
         query: DcimPowerPanelsRootPostQuery | dict[str, Any] | None = None,
-    ) -> PowerPanel:
+    ) -> PowerPanel | list[PowerPanel] | BackgroundJobReference:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "POST",
@@ -28411,7 +28417,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
         self,
         body: list[BulkPowerPanelRequest],
         query: DcimPowerPanelsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[PowerPanel]:
+    ) -> list[PowerPanel] | BackgroundJobReference:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "PUT",
@@ -28428,7 +28434,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPowerPanelRequest],
         query: DcimPowerPanelsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[PowerPanel]:
+    ) -> list[PowerPanel] | BackgroundJobReference:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "PATCH",
@@ -28445,7 +28451,7 @@ class DcimPowerPanelsEndpoint(TypedAppBase):
         self,
         body: list[PowerPanelRequest],
         query: DcimPowerPanelsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/power-panels/"
         return await self._typed_json_request(
             "DELETE",
@@ -28538,7 +28544,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: WritablePowerPortTemplateRequest | list[WritablePowerPortTemplateRequest],
         query: DcimPowerPortTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> PowerPortTemplate:
+    ) -> PowerPortTemplate | list[PowerPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "POST",
@@ -28555,7 +28561,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkPowerPortTemplateRequest],
         query: DcimPowerPortTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[PowerPortTemplate]:
+    ) -> list[PowerPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -28572,7 +28578,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPowerPortTemplateRequest],
         query: DcimPowerPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[PowerPortTemplate]:
+    ) -> list[PowerPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -28589,7 +28595,7 @@ class DcimPowerPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PowerPortTemplateRequest],
         query: DcimPowerPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/power-port-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -28692,7 +28698,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
         self,
         body: WritablePowerPortRequest | list[WritablePowerPortRequest],
         query: DcimPowerPortsRootPostQuery | dict[str, Any] | None = None,
-    ) -> PowerPort:
+    ) -> PowerPort | list[PowerPort] | BackgroundJobReference:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "POST",
@@ -28709,7 +28715,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
         self,
         body: list[BulkPowerPortRequest],
         query: DcimPowerPortsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[PowerPort]:
+    ) -> list[PowerPort] | BackgroundJobReference:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "PUT",
@@ -28726,7 +28732,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPowerPortRequest],
         query: DcimPowerPortsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[PowerPort]:
+    ) -> list[PowerPort] | BackgroundJobReference:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "PATCH",
@@ -28743,7 +28749,7 @@ class DcimPowerPortsEndpoint(TypedAppBase):
         self,
         body: list[PowerPortRequest],
         query: DcimPowerPortsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/power-ports/"
         return await self._typed_json_request(
             "DELETE",
@@ -28860,7 +28866,7 @@ class DcimRackGroupsEndpoint(TypedAppBase):
         self,
         body: RackGroupRequest | list[RackGroupRequest],
         query: DcimRackGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> RackGroup:
+    ) -> RackGroup | list[RackGroup] | BackgroundJobReference:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "POST",
@@ -28877,7 +28883,7 @@ class DcimRackGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkRackGroupRequest],
         query: DcimRackGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RackGroup]:
+    ) -> list[RackGroup] | BackgroundJobReference:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -28894,7 +28900,7 @@ class DcimRackGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRackGroupRequest],
         query: DcimRackGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RackGroup]:
+    ) -> list[RackGroup] | BackgroundJobReference:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -28911,7 +28917,7 @@ class DcimRackGroupsEndpoint(TypedAppBase):
         self,
         body: list[RackGroupRequest],
         query: DcimRackGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/rack-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -29004,7 +29010,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
         self,
         body: WritableRackReservationRequest | list[WritableRackReservationRequest],
         query: DcimRackReservationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> RackReservation:
+    ) -> RackReservation | list[RackReservation] | BackgroundJobReference:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "POST",
@@ -29021,7 +29027,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
         self,
         body: list[BulkRackReservationRequest],
         query: DcimRackReservationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RackReservation]:
+    ) -> list[RackReservation] | BackgroundJobReference:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "PUT",
@@ -29038,7 +29044,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRackReservationRequest],
         query: DcimRackReservationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RackReservation]:
+    ) -> list[RackReservation] | BackgroundJobReference:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "PATCH",
@@ -29055,7 +29061,7 @@ class DcimRackReservationsEndpoint(TypedAppBase):
         self,
         body: list[RackReservationRequest],
         query: DcimRackReservationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/rack-reservations/"
         return await self._typed_json_request(
             "DELETE",
@@ -29152,7 +29158,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
         self,
         body: RackRoleRequest | list[RackRoleRequest],
         query: DcimRackRolesRootPostQuery | dict[str, Any] | None = None,
-    ) -> RackRole:
+    ) -> RackRole | list[RackRole] | BackgroundJobReference:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "POST",
@@ -29169,7 +29175,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
         self,
         body: list[BulkRackRoleRequest],
         query: DcimRackRolesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RackRole]:
+    ) -> list[RackRole] | BackgroundJobReference:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "PUT",
@@ -29186,7 +29192,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRackRoleRequest],
         query: DcimRackRolesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RackRole]:
+    ) -> list[RackRole] | BackgroundJobReference:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "PATCH",
@@ -29203,7 +29209,7 @@ class DcimRackRolesEndpoint(TypedAppBase):
         self,
         body: list[RackRoleRequest],
         query: DcimRackRolesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/rack-roles/"
         return await self._typed_json_request(
             "DELETE",
@@ -29296,7 +29302,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
         self,
         body: WritableRackTypeRequest | list[WritableRackTypeRequest],
         query: DcimRackTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> RackType:
+    ) -> RackType | list[RackType] | BackgroundJobReference:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "POST",
@@ -29313,7 +29319,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkRackTypeRequest],
         query: DcimRackTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RackType]:
+    ) -> list[RackType] | BackgroundJobReference:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "PUT",
@@ -29330,7 +29336,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRackTypeRequest],
         query: DcimRackTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RackType]:
+    ) -> list[RackType] | BackgroundJobReference:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -29347,7 +29353,7 @@ class DcimRackTypesEndpoint(TypedAppBase):
         self,
         body: list[RackTypeRequest],
         query: DcimRackTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/rack-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -29444,7 +29450,7 @@ class DcimRacksEndpoint(TypedAppBase):
         self,
         body: WritableRackRequest | list[WritableRackRequest],
         query: DcimRacksRootPostQuery | dict[str, Any] | None = None,
-    ) -> Rack:
+    ) -> Rack | list[Rack] | BackgroundJobReference:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "POST",
@@ -29461,7 +29467,7 @@ class DcimRacksEndpoint(TypedAppBase):
         self,
         body: list[BulkRackRequest],
         query: DcimRacksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Rack]:
+    ) -> list[Rack] | BackgroundJobReference:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "PUT",
@@ -29478,7 +29484,7 @@ class DcimRacksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRackRequest],
         query: DcimRacksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Rack]:
+    ) -> list[Rack] | BackgroundJobReference:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "PATCH",
@@ -29495,7 +29501,7 @@ class DcimRacksEndpoint(TypedAppBase):
         self,
         body: list[RackRequest],
         query: DcimRacksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/racks/"
         return await self._typed_json_request(
             "DELETE",
@@ -29610,7 +29616,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableRearPortTemplateRequest | list[WritableRearPortTemplateRequest],
         query: DcimRearPortTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> RearPortTemplate:
+    ) -> RearPortTemplate | list[RearPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "POST",
@@ -29627,7 +29633,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkRearPortTemplateRequest],
         query: DcimRearPortTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RearPortTemplate]:
+    ) -> list[RearPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -29644,7 +29650,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRearPortTemplateRequest],
         query: DcimRearPortTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RearPortTemplate]:
+    ) -> list[RearPortTemplate] | BackgroundJobReference:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -29661,7 +29667,7 @@ class DcimRearPortTemplatesEndpoint(TypedAppBase):
         self,
         body: list[RearPortTemplateRequest],
         query: DcimRearPortTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/rear-port-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -29764,7 +29770,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
         self,
         body: WritableRearPortRequest | list[WritableRearPortRequest],
         query: DcimRearPortsRootPostQuery | dict[str, Any] | None = None,
-    ) -> RearPort:
+    ) -> RearPort | list[RearPort] | BackgroundJobReference:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "POST",
@@ -29781,7 +29787,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
         self,
         body: list[BulkRearPortRequest],
         query: DcimRearPortsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RearPort]:
+    ) -> list[RearPort] | BackgroundJobReference:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "PUT",
@@ -29798,7 +29804,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRearPortRequest],
         query: DcimRearPortsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RearPort]:
+    ) -> list[RearPort] | BackgroundJobReference:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "PATCH",
@@ -29815,7 +29821,7 @@ class DcimRearPortsEndpoint(TypedAppBase):
         self,
         body: list[RearPortRequest],
         query: DcimRearPortsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/rear-ports/"
         return await self._typed_json_request(
             "DELETE",
@@ -29930,7 +29936,7 @@ class DcimRegionsEndpoint(TypedAppBase):
         self,
         body: WritableRegionRequest | list[WritableRegionRequest],
         query: DcimRegionsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Region:
+    ) -> Region | list[Region] | BackgroundJobReference:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "POST",
@@ -29947,7 +29953,7 @@ class DcimRegionsEndpoint(TypedAppBase):
         self,
         body: list[BulkRegionRequest],
         query: DcimRegionsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Region]:
+    ) -> list[Region] | BackgroundJobReference:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "PUT",
@@ -29964,7 +29970,7 @@ class DcimRegionsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRegionRequest],
         query: DcimRegionsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Region]:
+    ) -> list[Region] | BackgroundJobReference:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "PATCH",
@@ -29981,7 +29987,7 @@ class DcimRegionsEndpoint(TypedAppBase):
         self,
         body: list[RegionRequest],
         query: DcimRegionsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/regions/"
         return await self._typed_json_request(
             "DELETE",
@@ -30074,7 +30080,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
         self,
         body: WritableSiteGroupRequest | list[WritableSiteGroupRequest],
         query: DcimSiteGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> SiteGroup:
+    ) -> SiteGroup | list[SiteGroup] | BackgroundJobReference:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "POST",
@@ -30091,7 +30097,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkSiteGroupRequest],
         query: DcimSiteGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[SiteGroup]:
+    ) -> list[SiteGroup] | BackgroundJobReference:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -30108,7 +30114,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkSiteGroupRequest],
         query: DcimSiteGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[SiteGroup]:
+    ) -> list[SiteGroup] | BackgroundJobReference:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -30125,7 +30131,7 @@ class DcimSiteGroupsEndpoint(TypedAppBase):
         self,
         body: list[SiteGroupRequest],
         query: DcimSiteGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/site-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -30220,7 +30226,7 @@ class DcimSitesEndpoint(TypedAppBase):
         self,
         body: WritableSiteRequest | list[WritableSiteRequest],
         query: DcimSitesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Site:
+    ) -> Site | list[Site] | BackgroundJobReference:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "POST",
@@ -30237,7 +30243,7 @@ class DcimSitesEndpoint(TypedAppBase):
         self,
         body: list[BulkSiteRequest],
         query: DcimSitesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Site]:
+    ) -> list[Site] | BackgroundJobReference:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "PUT",
@@ -30254,7 +30260,7 @@ class DcimSitesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkSiteRequest],
         query: DcimSitesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Site]:
+    ) -> list[Site] | BackgroundJobReference:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "PATCH",
@@ -30271,7 +30277,7 @@ class DcimSitesEndpoint(TypedAppBase):
         self,
         body: list[SiteRequest],
         query: DcimSitesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/sites/"
         return await self._typed_json_request(
             "DELETE",
@@ -30364,7 +30370,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
         self,
         body: WritableVirtualChassisRequest | list[WritableVirtualChassisRequest],
         query: DcimVirtualChassisRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualChassis:
+    ) -> VirtualChassis | list[VirtualChassis] | BackgroundJobReference:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "POST",
@@ -30381,7 +30387,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualChassisRequest],
         query: DcimVirtualChassisRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualChassis]:
+    ) -> list[VirtualChassis] | BackgroundJobReference:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "PUT",
@@ -30398,7 +30404,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualChassisRequest],
         query: DcimVirtualChassisRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualChassis]:
+    ) -> list[VirtualChassis] | BackgroundJobReference:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "PATCH",
@@ -30415,7 +30421,7 @@ class DcimVirtualChassisEndpoint(TypedAppBase):
         self,
         body: list[VirtualChassisRequest],
         query: DcimVirtualChassisRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/virtual-chassis/"
         return await self._typed_json_request(
             "DELETE",
@@ -30510,7 +30516,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         self,
         body: WritableVirtualDeviceContextRequest | list[WritableVirtualDeviceContextRequest],
         query: DcimVirtualDeviceContextsRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualDeviceContext:
+    ) -> VirtualDeviceContext | list[VirtualDeviceContext] | BackgroundJobReference:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "POST",
@@ -30528,7 +30534,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualDeviceContextRequest],
         query: DcimVirtualDeviceContextsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualDeviceContext]:
+    ) -> list[VirtualDeviceContext] | BackgroundJobReference:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "PUT",
@@ -30545,7 +30551,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualDeviceContextRequest],
         query: DcimVirtualDeviceContextsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualDeviceContext]:
+    ) -> list[VirtualDeviceContext] | BackgroundJobReference:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "PATCH",
@@ -30562,7 +30568,7 @@ class DcimVirtualDeviceContextsEndpoint(TypedAppBase):
         self,
         body: list[VirtualDeviceContextRequest],
         query: DcimVirtualDeviceContextsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/dcim/virtual-device-contexts/"
         return await self._typed_json_request(
             "DELETE",
@@ -30661,7 +30667,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
         self,
         body: BookmarkRequest | list[BookmarkRequest],
         query: ExtrasBookmarksRootPostQuery | dict[str, Any] | None = None,
-    ) -> Bookmark:
+    ) -> Bookmark | list[Bookmark] | BackgroundJobReference:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "POST",
@@ -30678,7 +30684,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
         self,
         body: list[BulkBookmarkRequest],
         query: ExtrasBookmarksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Bookmark]:
+    ) -> list[Bookmark] | BackgroundJobReference:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "PUT",
@@ -30695,7 +30701,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkBookmarkRequest],
         query: ExtrasBookmarksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Bookmark]:
+    ) -> list[Bookmark] | BackgroundJobReference:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "PATCH",
@@ -30712,7 +30718,7 @@ class ExtrasBookmarksEndpoint(TypedAppBase):
         self,
         body: list[BookmarkRequest],
         query: ExtrasBookmarksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/bookmarks/"
         return await self._typed_json_request(
             "DELETE",
@@ -30809,7 +30815,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         self,
         body: ConfigContextProfileRequest | list[ConfigContextProfileRequest],
         query: ExtrasConfigContextProfilesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConfigContextProfile:
+    ) -> ConfigContextProfile | list[ConfigContextProfile] | BackgroundJobReference:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "POST",
@@ -30826,7 +30832,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         self,
         body: list[BulkConfigContextProfileRequest],
         query: ExtrasConfigContextProfilesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConfigContextProfile]:
+    ) -> list[ConfigContextProfile] | BackgroundJobReference:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "PUT",
@@ -30843,7 +30849,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConfigContextProfileRequest],
         query: ExtrasConfigContextProfilesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConfigContextProfile]:
+    ) -> list[ConfigContextProfile] | BackgroundJobReference:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "PATCH",
@@ -30860,7 +30866,7 @@ class ExtrasConfigContextProfilesEndpoint(TypedAppBase):
         self,
         body: list[ConfigContextProfileRequest],
         query: ExtrasConfigContextProfilesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/config-context-profiles/"
         return await self._typed_json_request(
             "DELETE",
@@ -30985,7 +30991,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
         self,
         body: ConfigContextRequest | list[ConfigContextRequest],
         query: ExtrasConfigContextsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConfigContext:
+    ) -> ConfigContext | list[ConfigContext] | BackgroundJobReference:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "POST",
@@ -31002,7 +31008,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
         self,
         body: list[BulkConfigContextRequest],
         query: ExtrasConfigContextsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConfigContext]:
+    ) -> list[ConfigContext] | BackgroundJobReference:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "PUT",
@@ -31019,7 +31025,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConfigContextRequest],
         query: ExtrasConfigContextsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConfigContext]:
+    ) -> list[ConfigContext] | BackgroundJobReference:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "PATCH",
@@ -31036,7 +31042,7 @@ class ExtrasConfigContextsEndpoint(TypedAppBase):
         self,
         body: list[ConfigContextRequest],
         query: ExtrasConfigContextsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/config-contexts/"
         return await self._typed_json_request(
             "DELETE",
@@ -31161,7 +31167,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
         self,
         body: ConfigTemplateRequest | list[ConfigTemplateRequest],
         query: ExtrasConfigTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ConfigTemplate:
+    ) -> ConfigTemplate | list[ConfigTemplate] | BackgroundJobReference:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "POST",
@@ -31178,7 +31184,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkConfigTemplateRequest],
         query: ExtrasConfigTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ConfigTemplate]:
+    ) -> list[ConfigTemplate] | BackgroundJobReference:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -31195,7 +31201,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkConfigTemplateRequest],
         query: ExtrasConfigTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ConfigTemplate]:
+    ) -> list[ConfigTemplate] | BackgroundJobReference:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -31212,7 +31218,7 @@ class ExtrasConfigTemplatesEndpoint(TypedAppBase):
         self,
         body: list[ConfigTemplateRequest],
         query: ExtrasConfigTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/config-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -31358,7 +31364,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         self,
         body: WritableCustomFieldChoiceSetRequest | list[WritableCustomFieldChoiceSetRequest],
         query: ExtrasCustomFieldChoiceSetsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CustomFieldChoiceSet:
+    ) -> CustomFieldChoiceSet | list[CustomFieldChoiceSet] | BackgroundJobReference:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "POST",
@@ -31376,7 +31382,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         self,
         body: list[BulkCustomFieldChoiceSetRequest],
         query: ExtrasCustomFieldChoiceSetsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CustomFieldChoiceSet]:
+    ) -> list[CustomFieldChoiceSet] | BackgroundJobReference:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "PUT",
@@ -31393,7 +31399,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCustomFieldChoiceSetRequest],
         query: ExtrasCustomFieldChoiceSetsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CustomFieldChoiceSet]:
+    ) -> list[CustomFieldChoiceSet] | BackgroundJobReference:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "PATCH",
@@ -31410,7 +31416,7 @@ class ExtrasCustomFieldChoiceSetsEndpoint(TypedAppBase):
         self,
         body: list[CustomFieldChoiceSetRequest],
         query: ExtrasCustomFieldChoiceSetsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/custom-field-choice-sets/"
         return await self._typed_json_request(
             "DELETE",
@@ -31533,7 +31539,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
         self,
         body: WritableCustomFieldRequest | list[WritableCustomFieldRequest],
         query: ExtrasCustomFieldsRootPostQuery | dict[str, Any] | None = None,
-    ) -> CustomField:
+    ) -> CustomField | list[CustomField] | BackgroundJobReference:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "POST",
@@ -31550,7 +31556,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
         self,
         body: list[BulkCustomFieldRequest],
         query: ExtrasCustomFieldsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CustomField]:
+    ) -> list[CustomField] | BackgroundJobReference:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "PUT",
@@ -31567,7 +31573,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCustomFieldRequest],
         query: ExtrasCustomFieldsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CustomField]:
+    ) -> list[CustomField] | BackgroundJobReference:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "PATCH",
@@ -31584,7 +31590,7 @@ class ExtrasCustomFieldsEndpoint(TypedAppBase):
         self,
         body: list[CustomFieldRequest],
         query: ExtrasCustomFieldsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/custom-fields/"
         return await self._typed_json_request(
             "DELETE",
@@ -31679,7 +31685,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
         self,
         body: CustomLinkRequest | list[CustomLinkRequest],
         query: ExtrasCustomLinksRootPostQuery | dict[str, Any] | None = None,
-    ) -> CustomLink:
+    ) -> CustomLink | list[CustomLink] | BackgroundJobReference:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "POST",
@@ -31696,7 +31702,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
         self,
         body: list[BulkCustomLinkRequest],
         query: ExtrasCustomLinksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[CustomLink]:
+    ) -> list[CustomLink] | BackgroundJobReference:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "PUT",
@@ -31713,7 +31719,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkCustomLinkRequest],
         query: ExtrasCustomLinksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[CustomLink]:
+    ) -> list[CustomLink] | BackgroundJobReference:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "PATCH",
@@ -31730,7 +31736,7 @@ class ExtrasCustomLinksEndpoint(TypedAppBase):
         self,
         body: list[CustomLinkRequest],
         query: ExtrasCustomLinksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/custom-links/"
         return await self._typed_json_request(
             "DELETE",
@@ -31884,7 +31890,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
         self,
         body: WritableEventRuleRequest | list[WritableEventRuleRequest],
         query: ExtrasEventRulesRootPostQuery | dict[str, Any] | None = None,
-    ) -> EventRule:
+    ) -> EventRule | list[EventRule] | BackgroundJobReference:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "POST",
@@ -31901,7 +31907,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
         self,
         body: list[BulkEventRuleRequest],
         query: ExtrasEventRulesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[EventRule]:
+    ) -> list[EventRule] | BackgroundJobReference:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "PUT",
@@ -31918,7 +31924,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkEventRuleRequest],
         query: ExtrasEventRulesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[EventRule]:
+    ) -> list[EventRule] | BackgroundJobReference:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "PATCH",
@@ -31935,7 +31941,7 @@ class ExtrasEventRulesEndpoint(TypedAppBase):
         self,
         body: list[EventRuleRequest],
         query: ExtrasEventRulesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/event-rules/"
         return await self._typed_json_request(
             "DELETE",
@@ -32034,7 +32040,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
         self,
         body: ExportTemplateRequest | list[ExportTemplateRequest],
         query: ExtrasExportTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ExportTemplate:
+    ) -> ExportTemplate | list[ExportTemplate] | BackgroundJobReference:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "POST",
@@ -32051,7 +32057,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkExportTemplateRequest],
         query: ExtrasExportTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ExportTemplate]:
+    ) -> list[ExportTemplate] | BackgroundJobReference:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -32068,7 +32074,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkExportTemplateRequest],
         query: ExtrasExportTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ExportTemplate]:
+    ) -> list[ExportTemplate] | BackgroundJobReference:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -32085,7 +32091,7 @@ class ExtrasExportTemplatesEndpoint(TypedAppBase):
         self,
         body: list[ExportTemplateRequest],
         query: ExtrasExportTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/export-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -32202,7 +32208,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         self,
         body: ImageAttachmentRequest | list[ImageAttachmentRequest] | dict[str, Any],
         query: ExtrasImageAttachmentsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ImageAttachment:
+    ) -> ImageAttachment | list[ImageAttachment] | BackgroundJobReference:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "POST",
@@ -32220,7 +32226,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         self,
         body: list[BulkImageAttachmentRequest] | dict[str, Any],
         query: ExtrasImageAttachmentsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ImageAttachment]:
+    ) -> list[ImageAttachment] | BackgroundJobReference:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "PUT",
@@ -32238,7 +32244,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkImageAttachmentRequest] | dict[str, Any],
         query: ExtrasImageAttachmentsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ImageAttachment]:
+    ) -> list[ImageAttachment] | BackgroundJobReference:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "PATCH",
@@ -32256,7 +32262,7 @@ class ExtrasImageAttachmentsEndpoint(TypedAppBase):
         self,
         body: list[ImageAttachmentRequest] | dict[str, Any],
         query: ExtrasImageAttachmentsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/image-attachments/"
         return await self._typed_multipart_request(
             "DELETE",
@@ -32358,7 +32364,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
         self,
         body: WritableJournalEntryRequest | list[WritableJournalEntryRequest],
         query: ExtrasJournalEntriesRootPostQuery | dict[str, Any] | None = None,
-    ) -> JournalEntry:
+    ) -> JournalEntry | list[JournalEntry] | BackgroundJobReference:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "POST",
@@ -32375,7 +32381,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
         self,
         body: list[BulkJournalEntryRequest],
         query: ExtrasJournalEntriesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[JournalEntry]:
+    ) -> list[JournalEntry] | BackgroundJobReference:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "PUT",
@@ -32392,7 +32398,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkJournalEntryRequest],
         query: ExtrasJournalEntriesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[JournalEntry]:
+    ) -> list[JournalEntry] | BackgroundJobReference:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "PATCH",
@@ -32409,7 +32415,7 @@ class ExtrasJournalEntriesEndpoint(TypedAppBase):
         self,
         body: list[JournalEntryRequest],
         query: ExtrasJournalEntriesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/journal-entries/"
         return await self._typed_json_request(
             "DELETE",
@@ -32506,7 +32512,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         self,
         body: NotificationGroupRequest | list[NotificationGroupRequest],
         query: ExtrasNotificationGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> NotificationGroup:
+    ) -> NotificationGroup | list[NotificationGroup] | BackgroundJobReference:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "POST",
@@ -32523,7 +32529,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkNotificationGroupRequest],
         query: ExtrasNotificationGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[NotificationGroup]:
+    ) -> list[NotificationGroup] | BackgroundJobReference:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -32540,7 +32546,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkNotificationGroupRequest],
         query: ExtrasNotificationGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[NotificationGroup]:
+    ) -> list[NotificationGroup] | BackgroundJobReference:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -32557,7 +32563,7 @@ class ExtrasNotificationGroupsEndpoint(TypedAppBase):
         self,
         body: list[NotificationGroupRequest],
         query: ExtrasNotificationGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/notification-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -32654,7 +32660,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
         self,
         body: NotificationRequest | list[NotificationRequest],
         query: ExtrasNotificationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Notification:
+    ) -> Notification | list[Notification] | BackgroundJobReference:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "POST",
@@ -32671,7 +32677,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
         self,
         body: list[BulkNotificationRequest],
         query: ExtrasNotificationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Notification]:
+    ) -> list[Notification] | BackgroundJobReference:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "PUT",
@@ -32688,7 +32694,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkNotificationRequest],
         query: ExtrasNotificationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Notification]:
+    ) -> list[Notification] | BackgroundJobReference:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "PATCH",
@@ -32705,7 +32711,7 @@ class ExtrasNotificationsEndpoint(TypedAppBase):
         self,
         body: list[NotificationRequest],
         query: ExtrasNotificationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/notifications/"
         return await self._typed_json_request(
             "DELETE",
@@ -32798,7 +32804,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
         self,
         body: SavedFilterRequest | list[SavedFilterRequest],
         query: ExtrasSavedFiltersRootPostQuery | dict[str, Any] | None = None,
-    ) -> SavedFilter:
+    ) -> SavedFilter | list[SavedFilter] | BackgroundJobReference:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "POST",
@@ -32815,7 +32821,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
         self,
         body: list[BulkSavedFilterRequest],
         query: ExtrasSavedFiltersRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[SavedFilter]:
+    ) -> list[SavedFilter] | BackgroundJobReference:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "PUT",
@@ -32832,7 +32838,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkSavedFilterRequest],
         query: ExtrasSavedFiltersRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[SavedFilter]:
+    ) -> list[SavedFilter] | BackgroundJobReference:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "PATCH",
@@ -32849,7 +32855,7 @@ class ExtrasSavedFiltersEndpoint(TypedAppBase):
         self,
         body: list[SavedFilterRequest],
         query: ExtrasSavedFiltersRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/saved-filters/"
         return await self._typed_json_request(
             "DELETE",
@@ -33060,7 +33066,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
         self,
         body: SubscriptionRequest | list[SubscriptionRequest],
         query: ExtrasSubscriptionsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Subscription:
+    ) -> Subscription | list[Subscription] | BackgroundJobReference:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "POST",
@@ -33077,7 +33083,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
         self,
         body: list[BulkSubscriptionRequest],
         query: ExtrasSubscriptionsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Subscription]:
+    ) -> list[Subscription] | BackgroundJobReference:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "PUT",
@@ -33094,7 +33100,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkSubscriptionRequest],
         query: ExtrasSubscriptionsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Subscription]:
+    ) -> list[Subscription] | BackgroundJobReference:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "PATCH",
@@ -33111,7 +33117,7 @@ class ExtrasSubscriptionsEndpoint(TypedAppBase):
         self,
         body: list[SubscriptionRequest],
         query: ExtrasSubscriptionsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/subscriptions/"
         return await self._typed_json_request(
             "DELETE",
@@ -33204,7 +33210,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
         self,
         body: TableConfigRequest | list[TableConfigRequest],
         query: ExtrasTableConfigsRootPostQuery | dict[str, Any] | None = None,
-    ) -> TableConfig:
+    ) -> TableConfig | list[TableConfig] | BackgroundJobReference:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "POST",
@@ -33221,7 +33227,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
         self,
         body: list[BulkTableConfigRequest],
         query: ExtrasTableConfigsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[TableConfig]:
+    ) -> list[TableConfig] | BackgroundJobReference:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "PUT",
@@ -33238,7 +33244,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTableConfigRequest],
         query: ExtrasTableConfigsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[TableConfig]:
+    ) -> list[TableConfig] | BackgroundJobReference:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "PATCH",
@@ -33255,7 +33261,7 @@ class ExtrasTableConfigsEndpoint(TypedAppBase):
         self,
         body: list[TableConfigRequest],
         query: ExtrasTableConfigsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/table-configs/"
         return await self._typed_json_request(
             "DELETE",
@@ -33385,7 +33391,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
         self,
         body: TagRequest | list[TagRequest],
         query: ExtrasTagsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Tag:
+    ) -> Tag | list[Tag] | BackgroundJobReference:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "POST",
@@ -33402,7 +33408,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
         self,
         body: list[BulkTagRequest],
         query: ExtrasTagsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Tag]:
+    ) -> list[Tag] | BackgroundJobReference:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "PUT",
@@ -33419,7 +33425,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTagRequest],
         query: ExtrasTagsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Tag]:
+    ) -> list[Tag] | BackgroundJobReference:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "PATCH",
@@ -33436,7 +33442,7 @@ class ExtrasTagsEndpoint(TypedAppBase):
         self,
         body: list[TagRequest],
         query: ExtrasTagsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/tags/"
         return await self._typed_json_request(
             "DELETE",
@@ -33529,7 +33535,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
         self,
         body: WebhookRequest | list[WebhookRequest],
         query: ExtrasWebhooksRootPostQuery | dict[str, Any] | None = None,
-    ) -> Webhook:
+    ) -> Webhook | list[Webhook] | BackgroundJobReference:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "POST",
@@ -33546,7 +33552,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
         self,
         body: list[BulkWebhookRequest],
         query: ExtrasWebhooksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Webhook]:
+    ) -> list[Webhook] | BackgroundJobReference:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "PUT",
@@ -33563,7 +33569,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkWebhookRequest],
         query: ExtrasWebhooksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Webhook]:
+    ) -> list[Webhook] | BackgroundJobReference:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "PATCH",
@@ -33580,7 +33586,7 @@ class ExtrasWebhooksEndpoint(TypedAppBase):
         self,
         body: list[WebhookRequest],
         query: ExtrasWebhooksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/extras/webhooks/"
         return await self._typed_json_request(
             "DELETE",
@@ -33673,7 +33679,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
         self,
         body: WritableAggregateRequest | list[WritableAggregateRequest],
         query: IpamAggregatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Aggregate:
+    ) -> Aggregate | list[Aggregate] | BackgroundJobReference:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "POST",
@@ -33690,7 +33696,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
         self,
         body: list[BulkAggregateRequest],
         query: IpamAggregatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Aggregate]:
+    ) -> list[Aggregate] | BackgroundJobReference:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "PUT",
@@ -33707,7 +33713,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkAggregateRequest],
         query: IpamAggregatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Aggregate]:
+    ) -> list[Aggregate] | BackgroundJobReference:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "PATCH",
@@ -33724,7 +33730,7 @@ class IpamAggregatesEndpoint(TypedAppBase):
         self,
         body: list[AggregateRequest],
         query: IpamAggregatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/aggregates/"
         return await self._typed_json_request(
             "DELETE",
@@ -33823,7 +33829,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
         self,
         body: ASNRangeRequest | list[ASNRangeRequest],
         query: IpamAsnRangesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ASNRange:
+    ) -> ASNRange | list[ASNRange] | BackgroundJobReference:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "POST",
@@ -33840,7 +33846,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
         self,
         body: list[BulkASNRangeRequest],
         query: IpamAsnRangesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ASNRange]:
+    ) -> list[ASNRange] | BackgroundJobReference:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "PUT",
@@ -33857,7 +33863,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkASNRangeRequest],
         query: IpamAsnRangesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ASNRange]:
+    ) -> list[ASNRange] | BackgroundJobReference:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "PATCH",
@@ -33874,7 +33880,7 @@ class IpamAsnRangesEndpoint(TypedAppBase):
         self,
         body: list[ASNRangeRequest],
         query: IpamAsnRangesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/asn-ranges/"
         return await self._typed_json_request(
             "DELETE",
@@ -33965,7 +33971,7 @@ class IpamAsnRangesAvailableAsns(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, id: int | str, body: list[ASNRequest]) -> list[ASN]:
+    async def create(self, id: int | str, body: list[ASNRequest]) -> list[ASN] | list[list[ASN]]:
         path = f"/api/ipam/asn-ranges/{id}/available-asns/"
         return await self._typed_json_request(
             "POST",
@@ -34004,7 +34010,7 @@ class IpamAsnsEndpoint(TypedAppBase):
         self,
         body: ASNRequest | list[ASNRequest],
         query: IpamAsnsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ASN:
+    ) -> ASN | list[ASN] | BackgroundJobReference:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "POST",
@@ -34019,7 +34025,7 @@ class IpamAsnsEndpoint(TypedAppBase):
 
     async def bulk_update(
         self, body: list[BulkASNRequest], query: IpamAsnsRootPutQuery | dict[str, Any] | None = None
-    ) -> list[ASN]:
+    ) -> list[ASN] | BackgroundJobReference:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "PUT",
@@ -34036,7 +34042,7 @@ class IpamAsnsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkASNRequest],
         query: IpamAsnsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ASN]:
+    ) -> list[ASN] | BackgroundJobReference:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "PATCH",
@@ -34051,7 +34057,7 @@ class IpamAsnsEndpoint(TypedAppBase):
 
     async def bulk_delete(
         self, body: list[ASNRequest], query: IpamAsnsRootDeleteQuery | dict[str, Any] | None = None
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/asns/"
         return await self._typed_json_request(
             "DELETE",
@@ -34144,7 +34150,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: FHRPGroupAssignmentRequest | list[FHRPGroupAssignmentRequest],
         query: IpamFhrpGroupAssignmentsRootPostQuery | dict[str, Any] | None = None,
-    ) -> FHRPGroupAssignment:
+    ) -> FHRPGroupAssignment | list[FHRPGroupAssignment] | BackgroundJobReference:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "POST",
@@ -34161,7 +34167,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[BulkFHRPGroupAssignmentRequest],
         query: IpamFhrpGroupAssignmentsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[FHRPGroupAssignment]:
+    ) -> list[FHRPGroupAssignment] | BackgroundJobReference:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "PUT",
@@ -34178,7 +34184,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkFHRPGroupAssignmentRequest],
         query: IpamFhrpGroupAssignmentsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[FHRPGroupAssignment]:
+    ) -> list[FHRPGroupAssignment] | BackgroundJobReference:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "PATCH",
@@ -34195,7 +34201,7 @@ class IpamFhrpGroupAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[FHRPGroupAssignmentRequest],
         query: IpamFhrpGroupAssignmentsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/fhrp-group-assignments/"
         return await self._typed_json_request(
             "DELETE",
@@ -34292,7 +34298,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
         self,
         body: FHRPGroupRequest | list[FHRPGroupRequest],
         query: IpamFhrpGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> FHRPGroup:
+    ) -> FHRPGroup | list[FHRPGroup] | BackgroundJobReference:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "POST",
@@ -34309,7 +34315,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkFHRPGroupRequest],
         query: IpamFhrpGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[FHRPGroup]:
+    ) -> list[FHRPGroup] | BackgroundJobReference:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -34326,7 +34332,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkFHRPGroupRequest],
         query: IpamFhrpGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[FHRPGroup]:
+    ) -> list[FHRPGroup] | BackgroundJobReference:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -34343,7 +34349,7 @@ class IpamFhrpGroupsEndpoint(TypedAppBase):
         self,
         body: list[FHRPGroupRequest],
         query: IpamFhrpGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/fhrp-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -34436,7 +34442,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
         self,
         body: WritableIPAddressRequest | list[WritableIPAddressRequest],
         query: IpamIpAddressesRootPostQuery | dict[str, Any] | None = None,
-    ) -> IPAddress:
+    ) -> IPAddress | list[IPAddress] | BackgroundJobReference:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "POST",
@@ -34453,7 +34459,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
         self,
         body: list[BulkIPAddressRequest],
         query: IpamIpAddressesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IPAddress]:
+    ) -> list[IPAddress] | BackgroundJobReference:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "PUT",
@@ -34470,7 +34476,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIPAddressRequest],
         query: IpamIpAddressesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IPAddress]:
+    ) -> list[IPAddress] | BackgroundJobReference:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "PATCH",
@@ -34487,7 +34493,7 @@ class IpamIpAddressesEndpoint(TypedAppBase):
         self,
         body: list[IPAddressRequest],
         query: IpamIpAddressesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/ip-addresses/"
         return await self._typed_json_request(
             "DELETE",
@@ -34586,7 +34592,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
         self,
         body: WritableIPRangeRequest | list[WritableIPRangeRequest],
         query: IpamIpRangesRootPostQuery | dict[str, Any] | None = None,
-    ) -> IPRange:
+    ) -> IPRange | list[IPRange] | BackgroundJobReference:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "POST",
@@ -34603,7 +34609,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
         self,
         body: list[BulkIPRangeRequest],
         query: IpamIpRangesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IPRange]:
+    ) -> list[IPRange] | BackgroundJobReference:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "PUT",
@@ -34620,7 +34626,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIPRangeRequest],
         query: IpamIpRangesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IPRange]:
+    ) -> list[IPRange] | BackgroundJobReference:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "PATCH",
@@ -34637,7 +34643,7 @@ class IpamIpRangesEndpoint(TypedAppBase):
         self,
         body: list[IPRangeRequest],
         query: IpamIpRangesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/ip-ranges/"
         return await self._typed_json_request(
             "DELETE",
@@ -34726,7 +34732,9 @@ class IpamIpRangesAvailableIps(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, id: int | str, body: list[AvailableIPRequestRequest]) -> list[IPAddress]:
+    async def create(
+        self, id: int | str, body: list[AvailableIPRequestRequest]
+    ) -> list[IPAddress] | list[list[IPAddress]]:
         path = f"/api/ipam/ip-ranges/{id}/available-ips/"
         return await self._typed_json_request(
             "POST",
@@ -34773,7 +34781,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
         self,
         body: WritablePrefixRequest | list[WritablePrefixRequest],
         query: IpamPrefixesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Prefix:
+    ) -> Prefix | list[Prefix] | BackgroundJobReference:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "POST",
@@ -34790,7 +34798,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
         self,
         body: list[BulkPrefixRequest],
         query: IpamPrefixesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Prefix]:
+    ) -> list[Prefix] | BackgroundJobReference:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "PUT",
@@ -34807,7 +34815,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkPrefixRequest],
         query: IpamPrefixesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Prefix]:
+    ) -> list[Prefix] | BackgroundJobReference:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "PATCH",
@@ -34824,7 +34832,7 @@ class IpamPrefixesEndpoint(TypedAppBase):
         self,
         body: list[PrefixRequest],
         query: IpamPrefixesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/prefixes/"
         return await self._typed_json_request(
             "DELETE",
@@ -34913,7 +34921,9 @@ class IpamPrefixesAvailableIps(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, id: int | str, body: list[AvailableIPRequestRequest]) -> list[IPAddress]:
+    async def create(
+        self, id: int | str, body: list[AvailableIPRequestRequest]
+    ) -> list[IPAddress] | list[list[IPAddress]]:
         path = f"/api/ipam/prefixes/{id}/available-ips/"
         return await self._typed_json_request(
             "POST",
@@ -34950,7 +34960,9 @@ class IpamPrefixesAvailablePrefixes(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, id: int | str, body: list[PrefixLengthRequest]) -> list[Prefix]:
+    async def create(
+        self, id: int | str, body: list[PrefixLengthRequest]
+    ) -> list[Prefix] | list[list[Prefix]]:
         path = f"/api/ipam/prefixes/{id}/available-prefixes/"
         return await self._typed_json_request(
             "POST",
@@ -34989,7 +35001,7 @@ class IpamRirsEndpoint(TypedAppBase):
         self,
         body: RIRRequest | list[RIRRequest],
         query: IpamRirsRootPostQuery | dict[str, Any] | None = None,
-    ) -> RIR:
+    ) -> RIR | list[RIR] | BackgroundJobReference:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "POST",
@@ -35004,7 +35016,7 @@ class IpamRirsEndpoint(TypedAppBase):
 
     async def bulk_update(
         self, body: list[BulkRIRRequest], query: IpamRirsRootPutQuery | dict[str, Any] | None = None
-    ) -> list[RIR]:
+    ) -> list[RIR] | BackgroundJobReference:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "PUT",
@@ -35021,7 +35033,7 @@ class IpamRirsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRIRRequest],
         query: IpamRirsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RIR]:
+    ) -> list[RIR] | BackgroundJobReference:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "PATCH",
@@ -35036,7 +35048,7 @@ class IpamRirsEndpoint(TypedAppBase):
 
     async def bulk_delete(
         self, body: list[RIRRequest], query: IpamRirsRootDeleteQuery | dict[str, Any] | None = None
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/rirs/"
         return await self._typed_json_request(
             "DELETE",
@@ -35129,7 +35141,7 @@ class IpamRolesEndpoint(TypedAppBase):
         self,
         body: RoleRequest | list[RoleRequest],
         query: IpamRolesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Role:
+    ) -> Role | list[Role] | BackgroundJobReference:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "POST",
@@ -35146,7 +35158,7 @@ class IpamRolesEndpoint(TypedAppBase):
         self,
         body: list[BulkRoleRequest],
         query: IpamRolesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Role]:
+    ) -> list[Role] | BackgroundJobReference:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "PUT",
@@ -35163,7 +35175,7 @@ class IpamRolesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRoleRequest],
         query: IpamRolesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Role]:
+    ) -> list[Role] | BackgroundJobReference:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "PATCH",
@@ -35180,7 +35192,7 @@ class IpamRolesEndpoint(TypedAppBase):
         self,
         body: list[RoleRequest],
         query: IpamRolesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/roles/"
         return await self._typed_json_request(
             "DELETE",
@@ -35273,7 +35285,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
         self,
         body: RouteTargetRequest | list[RouteTargetRequest],
         query: IpamRouteTargetsRootPostQuery | dict[str, Any] | None = None,
-    ) -> RouteTarget:
+    ) -> RouteTarget | list[RouteTarget] | BackgroundJobReference:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "POST",
@@ -35290,7 +35302,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
         self,
         body: list[BulkRouteTargetRequest],
         query: IpamRouteTargetsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[RouteTarget]:
+    ) -> list[RouteTarget] | BackgroundJobReference:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "PUT",
@@ -35307,7 +35319,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkRouteTargetRequest],
         query: IpamRouteTargetsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[RouteTarget]:
+    ) -> list[RouteTarget] | BackgroundJobReference:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "PATCH",
@@ -35324,7 +35336,7 @@ class IpamRouteTargetsEndpoint(TypedAppBase):
         self,
         body: list[RouteTargetRequest],
         query: IpamRouteTargetsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/route-targets/"
         return await self._typed_json_request(
             "DELETE",
@@ -35417,7 +35429,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
         self,
         body: WritableServiceTemplateRequest | list[WritableServiceTemplateRequest],
         query: IpamServiceTemplatesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ServiceTemplate:
+    ) -> ServiceTemplate | list[ServiceTemplate] | BackgroundJobReference:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "POST",
@@ -35434,7 +35446,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
         self,
         body: list[BulkServiceTemplateRequest],
         query: IpamServiceTemplatesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ServiceTemplate]:
+    ) -> list[ServiceTemplate] | BackgroundJobReference:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "PUT",
@@ -35451,7 +35463,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkServiceTemplateRequest],
         query: IpamServiceTemplatesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ServiceTemplate]:
+    ) -> list[ServiceTemplate] | BackgroundJobReference:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "PATCH",
@@ -35468,7 +35480,7 @@ class IpamServiceTemplatesEndpoint(TypedAppBase):
         self,
         body: list[ServiceTemplateRequest],
         query: IpamServiceTemplatesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/service-templates/"
         return await self._typed_json_request(
             "DELETE",
@@ -35565,7 +35577,7 @@ class IpamServicesEndpoint(TypedAppBase):
         self,
         body: WritableServiceRequest | list[WritableServiceRequest],
         query: IpamServicesRootPostQuery | dict[str, Any] | None = None,
-    ) -> Service:
+    ) -> Service | list[Service] | BackgroundJobReference:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "POST",
@@ -35582,7 +35594,7 @@ class IpamServicesEndpoint(TypedAppBase):
         self,
         body: list[BulkServiceRequest],
         query: IpamServicesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Service]:
+    ) -> list[Service] | BackgroundJobReference:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "PUT",
@@ -35599,7 +35611,7 @@ class IpamServicesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkServiceRequest],
         query: IpamServicesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Service]:
+    ) -> list[Service] | BackgroundJobReference:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "PATCH",
@@ -35616,7 +35628,7 @@ class IpamServicesEndpoint(TypedAppBase):
         self,
         body: list[ServiceRequest],
         query: IpamServicesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/services/"
         return await self._typed_json_request(
             "DELETE",
@@ -35713,7 +35725,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
         self,
         body: VLANGroupRequest | list[VLANGroupRequest],
         query: IpamVlanGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> VLANGroup:
+    ) -> VLANGroup | list[VLANGroup] | BackgroundJobReference:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "POST",
@@ -35730,7 +35742,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkVLANGroupRequest],
         query: IpamVlanGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VLANGroup]:
+    ) -> list[VLANGroup] | BackgroundJobReference:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -35747,7 +35759,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVLANGroupRequest],
         query: IpamVlanGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VLANGroup]:
+    ) -> list[VLANGroup] | BackgroundJobReference:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -35764,7 +35776,7 @@ class IpamVlanGroupsEndpoint(TypedAppBase):
         self,
         body: list[VLANGroupRequest],
         query: IpamVlanGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/vlan-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -35855,7 +35867,9 @@ class IpamVlanGroupsAvailableVlans(TypedAppBase):
             return_none_on_404=False,
         )
 
-    async def create(self, id: int | str, body: list[CreateAvailableVLANRequest]) -> list[VLAN]:
+    async def create(
+        self, id: int | str, body: list[CreateAvailableVLANRequest]
+    ) -> list[VLAN] | list[list[VLAN]]:
         path = f"/api/ipam/vlan-groups/{id}/available-vlans/"
         return await self._typed_json_request(
             "POST",
@@ -35894,7 +35908,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         self,
         body: VLANTranslationPolicyRequest | list[VLANTranslationPolicyRequest],
         query: IpamVlanTranslationPoliciesRootPostQuery | dict[str, Any] | None = None,
-    ) -> VLANTranslationPolicy:
+    ) -> VLANTranslationPolicy | list[VLANTranslationPolicy] | BackgroundJobReference:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "POST",
@@ -35911,7 +35925,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         self,
         body: list[BulkVLANTranslationPolicyRequest],
         query: IpamVlanTranslationPoliciesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VLANTranslationPolicy]:
+    ) -> list[VLANTranslationPolicy] | BackgroundJobReference:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "PUT",
@@ -35928,7 +35942,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVLANTranslationPolicyRequest],
         query: IpamVlanTranslationPoliciesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VLANTranslationPolicy]:
+    ) -> list[VLANTranslationPolicy] | BackgroundJobReference:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "PATCH",
@@ -35945,7 +35959,7 @@ class IpamVlanTranslationPoliciesEndpoint(TypedAppBase):
         self,
         body: list[VLANTranslationPolicyRequest],
         query: IpamVlanTranslationPoliciesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/vlan-translation-policies/"
         return await self._typed_json_request(
             "DELETE",
@@ -36044,7 +36058,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         self,
         body: VLANTranslationRuleRequest | list[VLANTranslationRuleRequest],
         query: IpamVlanTranslationRulesRootPostQuery | dict[str, Any] | None = None,
-    ) -> VLANTranslationRule:
+    ) -> VLANTranslationRule | list[VLANTranslationRule] | BackgroundJobReference:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "POST",
@@ -36061,7 +36075,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         self,
         body: list[BulkVLANTranslationRuleRequest],
         query: IpamVlanTranslationRulesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VLANTranslationRule]:
+    ) -> list[VLANTranslationRule] | BackgroundJobReference:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "PUT",
@@ -36078,7 +36092,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVLANTranslationRuleRequest],
         query: IpamVlanTranslationRulesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VLANTranslationRule]:
+    ) -> list[VLANTranslationRule] | BackgroundJobReference:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "PATCH",
@@ -36095,7 +36109,7 @@ class IpamVlanTranslationRulesEndpoint(TypedAppBase):
         self,
         body: list[VLANTranslationRuleRequest],
         query: IpamVlanTranslationRulesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/vlan-translation-rules/"
         return await self._typed_json_request(
             "DELETE",
@@ -36192,7 +36206,7 @@ class IpamVlansEndpoint(TypedAppBase):
         self,
         body: WritableVLANRequest | list[WritableVLANRequest],
         query: IpamVlansRootPostQuery | dict[str, Any] | None = None,
-    ) -> VLAN:
+    ) -> VLAN | list[VLAN] | BackgroundJobReference:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "POST",
@@ -36209,7 +36223,7 @@ class IpamVlansEndpoint(TypedAppBase):
         self,
         body: list[BulkVLANRequest],
         query: IpamVlansRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VLAN]:
+    ) -> list[VLAN] | BackgroundJobReference:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "PUT",
@@ -36226,7 +36240,7 @@ class IpamVlansEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVLANRequest],
         query: IpamVlansRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VLAN]:
+    ) -> list[VLAN] | BackgroundJobReference:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "PATCH",
@@ -36243,7 +36257,7 @@ class IpamVlansEndpoint(TypedAppBase):
         self,
         body: list[VLANRequest],
         query: IpamVlansRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/vlans/"
         return await self._typed_json_request(
             "DELETE",
@@ -36336,7 +36350,7 @@ class IpamVrfsEndpoint(TypedAppBase):
         self,
         body: VRFRequest | list[VRFRequest],
         query: IpamVrfsRootPostQuery | dict[str, Any] | None = None,
-    ) -> VRF:
+    ) -> VRF | list[VRF] | BackgroundJobReference:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "POST",
@@ -36351,7 +36365,7 @@ class IpamVrfsEndpoint(TypedAppBase):
 
     async def bulk_update(
         self, body: list[BulkVRFRequest], query: IpamVrfsRootPutQuery | dict[str, Any] | None = None
-    ) -> list[VRF]:
+    ) -> list[VRF] | BackgroundJobReference:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "PUT",
@@ -36368,7 +36382,7 @@ class IpamVrfsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVRFRequest],
         query: IpamVrfsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VRF]:
+    ) -> list[VRF] | BackgroundJobReference:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "PATCH",
@@ -36383,7 +36397,7 @@ class IpamVrfsEndpoint(TypedAppBase):
 
     async def bulk_delete(
         self, body: list[VRFRequest], query: IpamVrfsRootDeleteQuery | dict[str, Any] | None = None
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/ipam/vrfs/"
         return await self._typed_json_request(
             "DELETE",
@@ -36476,7 +36490,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         self,
         body: WritableContactAssignmentRequest | list[WritableContactAssignmentRequest],
         query: TenancyContactAssignmentsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ContactAssignment:
+    ) -> ContactAssignment | list[ContactAssignment] | BackgroundJobReference:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "POST",
@@ -36493,7 +36507,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[BulkContactAssignmentRequest],
         query: TenancyContactAssignmentsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ContactAssignment]:
+    ) -> list[ContactAssignment] | BackgroundJobReference:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "PUT",
@@ -36510,7 +36524,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkContactAssignmentRequest],
         query: TenancyContactAssignmentsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ContactAssignment]:
+    ) -> list[ContactAssignment] | BackgroundJobReference:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "PATCH",
@@ -36527,7 +36541,7 @@ class TenancyContactAssignmentsEndpoint(TypedAppBase):
         self,
         body: list[ContactAssignmentRequest],
         query: TenancyContactAssignmentsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/tenancy/contact-assignments/"
         return await self._typed_json_request(
             "DELETE",
@@ -36626,7 +36640,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
         self,
         body: WritableContactGroupRequest | list[WritableContactGroupRequest],
         query: TenancyContactGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ContactGroup:
+    ) -> ContactGroup | list[ContactGroup] | BackgroundJobReference:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "POST",
@@ -36643,7 +36657,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkContactGroupRequest],
         query: TenancyContactGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ContactGroup]:
+    ) -> list[ContactGroup] | BackgroundJobReference:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -36660,7 +36674,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkContactGroupRequest],
         query: TenancyContactGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ContactGroup]:
+    ) -> list[ContactGroup] | BackgroundJobReference:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -36677,7 +36691,7 @@ class TenancyContactGroupsEndpoint(TypedAppBase):
         self,
         body: list[ContactGroupRequest],
         query: TenancyContactGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/tenancy/contact-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -36774,7 +36788,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
         self,
         body: ContactRoleRequest | list[ContactRoleRequest],
         query: TenancyContactRolesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ContactRole:
+    ) -> ContactRole | list[ContactRole] | BackgroundJobReference:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "POST",
@@ -36791,7 +36805,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
         self,
         body: list[BulkContactRoleRequest],
         query: TenancyContactRolesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ContactRole]:
+    ) -> list[ContactRole] | BackgroundJobReference:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "PUT",
@@ -36808,7 +36822,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkContactRoleRequest],
         query: TenancyContactRolesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ContactRole]:
+    ) -> list[ContactRole] | BackgroundJobReference:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "PATCH",
@@ -36825,7 +36839,7 @@ class TenancyContactRolesEndpoint(TypedAppBase):
         self,
         body: list[ContactRoleRequest],
         query: TenancyContactRolesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/tenancy/contact-roles/"
         return await self._typed_json_request(
             "DELETE",
@@ -36918,7 +36932,7 @@ class TenancyContactsEndpoint(TypedAppBase):
         self,
         body: ContactRequest | list[ContactRequest],
         query: TenancyContactsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Contact:
+    ) -> Contact | list[Contact] | BackgroundJobReference:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "POST",
@@ -36935,7 +36949,7 @@ class TenancyContactsEndpoint(TypedAppBase):
         self,
         body: list[BulkContactRequest],
         query: TenancyContactsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Contact]:
+    ) -> list[Contact] | BackgroundJobReference:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "PUT",
@@ -36952,7 +36966,7 @@ class TenancyContactsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkContactRequest],
         query: TenancyContactsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Contact]:
+    ) -> list[Contact] | BackgroundJobReference:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "PATCH",
@@ -36969,7 +36983,7 @@ class TenancyContactsEndpoint(TypedAppBase):
         self,
         body: list[ContactRequest],
         query: TenancyContactsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/tenancy/contacts/"
         return await self._typed_json_request(
             "DELETE",
@@ -37062,7 +37076,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
         self,
         body: WritableTenantGroupRequest | list[WritableTenantGroupRequest],
         query: TenancyTenantGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> TenantGroup:
+    ) -> TenantGroup | list[TenantGroup] | BackgroundJobReference:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "POST",
@@ -37079,7 +37093,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkTenantGroupRequest],
         query: TenancyTenantGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[TenantGroup]:
+    ) -> list[TenantGroup] | BackgroundJobReference:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -37096,7 +37110,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTenantGroupRequest],
         query: TenancyTenantGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[TenantGroup]:
+    ) -> list[TenantGroup] | BackgroundJobReference:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -37113,7 +37127,7 @@ class TenancyTenantGroupsEndpoint(TypedAppBase):
         self,
         body: list[TenantGroupRequest],
         query: TenancyTenantGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/tenancy/tenant-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -37208,7 +37222,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
         self,
         body: TenantRequest | list[TenantRequest],
         query: TenancyTenantsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Tenant:
+    ) -> Tenant | list[Tenant] | BackgroundJobReference:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "POST",
@@ -37225,7 +37239,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
         self,
         body: list[BulkTenantRequest],
         query: TenancyTenantsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Tenant]:
+    ) -> list[Tenant] | BackgroundJobReference:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "PUT",
@@ -37242,7 +37256,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTenantRequest],
         query: TenancyTenantsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Tenant]:
+    ) -> list[Tenant] | BackgroundJobReference:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "PATCH",
@@ -37259,7 +37273,7 @@ class TenancyTenantsEndpoint(TypedAppBase):
         self,
         body: list[TenantRequest],
         query: TenancyTenantsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/tenancy/tenants/"
         return await self._typed_json_request(
             "DELETE",
@@ -37374,7 +37388,7 @@ class UsersGroupsEndpoint(TypedAppBase):
         self,
         body: GroupRequest | list[GroupRequest],
         query: UsersGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Group:
+    ) -> Group | list[Group] | BackgroundJobReference:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "POST",
@@ -37391,7 +37405,7 @@ class UsersGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkGroupRequest],
         query: UsersGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Group]:
+    ) -> list[Group] | BackgroundJobReference:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "PUT",
@@ -37408,7 +37422,7 @@ class UsersGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkGroupRequest],
         query: UsersGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Group]:
+    ) -> list[Group] | BackgroundJobReference:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -37425,7 +37439,7 @@ class UsersGroupsEndpoint(TypedAppBase):
         self,
         body: list[GroupRequest],
         query: UsersGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/users/groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -37518,7 +37532,7 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
         self,
         body: OwnerGroupRequest | list[OwnerGroupRequest],
         query: UsersOwnerGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> OwnerGroup:
+    ) -> OwnerGroup | list[OwnerGroup] | BackgroundJobReference:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "POST",
@@ -37535,7 +37549,7 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkOwnerGroupRequest],
         query: UsersOwnerGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[OwnerGroup]:
+    ) -> list[OwnerGroup] | BackgroundJobReference:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -37552,7 +37566,7 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkOwnerGroupRequest],
         query: UsersOwnerGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[OwnerGroup]:
+    ) -> list[OwnerGroup] | BackgroundJobReference:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -37569,7 +37583,7 @@ class UsersOwnerGroupsEndpoint(TypedAppBase):
         self,
         body: list[OwnerGroupRequest],
         query: UsersOwnerGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/users/owner-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -37662,7 +37676,7 @@ class UsersOwnersEndpoint(TypedAppBase):
         self,
         body: OwnerRequest | list[OwnerRequest],
         query: UsersOwnersRootPostQuery | dict[str, Any] | None = None,
-    ) -> Owner:
+    ) -> Owner | list[Owner] | BackgroundJobReference:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "POST",
@@ -37679,7 +37693,7 @@ class UsersOwnersEndpoint(TypedAppBase):
         self,
         body: list[BulkOwnerRequest],
         query: UsersOwnersRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Owner]:
+    ) -> list[Owner] | BackgroundJobReference:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "PUT",
@@ -37696,7 +37710,7 @@ class UsersOwnersEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkOwnerRequest],
         query: UsersOwnersRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Owner]:
+    ) -> list[Owner] | BackgroundJobReference:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "PATCH",
@@ -37713,7 +37727,7 @@ class UsersOwnersEndpoint(TypedAppBase):
         self,
         body: list[OwnerRequest],
         query: UsersOwnersRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/users/owners/"
         return await self._typed_json_request(
             "DELETE",
@@ -37806,7 +37820,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
         self,
         body: ObjectPermissionRequest | list[ObjectPermissionRequest],
         query: UsersPermissionsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ObjectPermission:
+    ) -> ObjectPermission | list[ObjectPermission] | BackgroundJobReference:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "POST",
@@ -37823,7 +37837,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
         self,
         body: list[BulkObjectPermissionRequest],
         query: UsersPermissionsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ObjectPermission]:
+    ) -> list[ObjectPermission] | BackgroundJobReference:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "PUT",
@@ -37840,7 +37854,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkObjectPermissionRequest],
         query: UsersPermissionsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ObjectPermission]:
+    ) -> list[ObjectPermission] | BackgroundJobReference:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "PATCH",
@@ -37857,7 +37871,7 @@ class UsersPermissionsEndpoint(TypedAppBase):
         self,
         body: list[ObjectPermissionRequest],
         query: UsersPermissionsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/users/permissions/"
         return await self._typed_json_request(
             "DELETE",
@@ -37956,7 +37970,7 @@ class UsersTokensEndpoint(TypedAppBase):
         self,
         body: TokenRequest | list[TokenRequest],
         query: UsersTokensRootPostQuery | dict[str, Any] | None = None,
-    ) -> Token:
+    ) -> Token | list[Token] | BackgroundJobReference:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "POST",
@@ -37973,7 +37987,7 @@ class UsersTokensEndpoint(TypedAppBase):
         self,
         body: list[BulkTokenRequest],
         query: UsersTokensRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Token]:
+    ) -> list[Token] | BackgroundJobReference:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "PUT",
@@ -37990,7 +38004,7 @@ class UsersTokensEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTokenRequest],
         query: UsersTokensRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Token]:
+    ) -> list[Token] | BackgroundJobReference:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "PATCH",
@@ -38007,7 +38021,7 @@ class UsersTokensEndpoint(TypedAppBase):
         self,
         body: list[TokenRequest],
         query: UsersTokensRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/users/tokens/"
         return await self._typed_json_request(
             "DELETE",
@@ -38120,7 +38134,7 @@ class UsersUsersEndpoint(TypedAppBase):
         self,
         body: UserRequest | list[UserRequest],
         query: UsersUsersRootPostQuery | dict[str, Any] | None = None,
-    ) -> User:
+    ) -> User | list[User] | BackgroundJobReference:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "POST",
@@ -38137,7 +38151,7 @@ class UsersUsersEndpoint(TypedAppBase):
         self,
         body: list[BulkUserRequest],
         query: UsersUsersRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[User]:
+    ) -> list[User] | BackgroundJobReference:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "PUT",
@@ -38154,7 +38168,7 @@ class UsersUsersEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkUserRequest],
         query: UsersUsersRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[User]:
+    ) -> list[User] | BackgroundJobReference:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "PATCH",
@@ -38171,7 +38185,7 @@ class UsersUsersEndpoint(TypedAppBase):
         self,
         body: list[UserRequest],
         query: UsersUsersRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/users/users/"
         return await self._typed_json_request(
             "DELETE",
@@ -38264,7 +38278,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
         self,
         body: ClusterGroupRequest | list[ClusterGroupRequest],
         query: VirtualizationClusterGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> ClusterGroup:
+    ) -> ClusterGroup | list[ClusterGroup] | BackgroundJobReference:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "POST",
@@ -38281,7 +38295,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkClusterGroupRequest],
         query: VirtualizationClusterGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ClusterGroup]:
+    ) -> list[ClusterGroup] | BackgroundJobReference:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -38298,7 +38312,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkClusterGroupRequest],
         query: VirtualizationClusterGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ClusterGroup]:
+    ) -> list[ClusterGroup] | BackgroundJobReference:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -38315,7 +38329,7 @@ class VirtualizationClusterGroupsEndpoint(TypedAppBase):
         self,
         body: list[ClusterGroupRequest],
         query: VirtualizationClusterGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/cluster-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -38410,7 +38424,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
         self,
         body: ClusterTypeRequest | list[ClusterTypeRequest],
         query: VirtualizationClusterTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> ClusterType:
+    ) -> ClusterType | list[ClusterType] | BackgroundJobReference:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "POST",
@@ -38427,7 +38441,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkClusterTypeRequest],
         query: VirtualizationClusterTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[ClusterType]:
+    ) -> list[ClusterType] | BackgroundJobReference:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "PUT",
@@ -38444,7 +38458,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkClusterTypeRequest],
         query: VirtualizationClusterTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[ClusterType]:
+    ) -> list[ClusterType] | BackgroundJobReference:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -38461,7 +38475,7 @@ class VirtualizationClusterTypesEndpoint(TypedAppBase):
         self,
         body: list[ClusterTypeRequest],
         query: VirtualizationClusterTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/cluster-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -38556,7 +38570,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
         self,
         body: WritableClusterRequest | list[WritableClusterRequest],
         query: VirtualizationClustersRootPostQuery | dict[str, Any] | None = None,
-    ) -> Cluster:
+    ) -> Cluster | list[Cluster] | BackgroundJobReference:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "POST",
@@ -38573,7 +38587,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
         self,
         body: list[BulkClusterRequest],
         query: VirtualizationClustersRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Cluster]:
+    ) -> list[Cluster] | BackgroundJobReference:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "PUT",
@@ -38590,7 +38604,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkClusterRequest],
         query: VirtualizationClustersRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Cluster]:
+    ) -> list[Cluster] | BackgroundJobReference:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "PATCH",
@@ -38607,7 +38621,7 @@ class VirtualizationClustersEndpoint(TypedAppBase):
         self,
         body: list[ClusterRequest],
         query: VirtualizationClustersRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/clusters/"
         return await self._typed_json_request(
             "DELETE",
@@ -38702,7 +38716,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
         self,
         body: WritableVMInterfaceRequest | list[WritableVMInterfaceRequest],
         query: VirtualizationInterfacesRootPostQuery | dict[str, Any] | None = None,
-    ) -> VMInterface:
+    ) -> VMInterface | list[VMInterface] | BackgroundJobReference:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "POST",
@@ -38719,7 +38733,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
         self,
         body: list[BulkVMInterfaceRequest],
         query: VirtualizationInterfacesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VMInterface]:
+    ) -> list[VMInterface] | BackgroundJobReference:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "PUT",
@@ -38736,7 +38750,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVMInterfaceRequest],
         query: VirtualizationInterfacesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VMInterface]:
+    ) -> list[VMInterface] | BackgroundJobReference:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "PATCH",
@@ -38753,7 +38767,7 @@ class VirtualizationInterfacesEndpoint(TypedAppBase):
         self,
         body: list[VMInterfaceRequest],
         query: VirtualizationInterfacesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/interfaces/"
         return await self._typed_json_request(
             "DELETE",
@@ -38850,7 +38864,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
         self,
         body: VirtualDiskRequest | list[VirtualDiskRequest],
         query: VirtualizationVirtualDisksRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualDisk:
+    ) -> VirtualDisk | list[VirtualDisk] | BackgroundJobReference:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "POST",
@@ -38867,7 +38881,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualDiskRequest],
         query: VirtualizationVirtualDisksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualDisk]:
+    ) -> list[VirtualDisk] | BackgroundJobReference:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "PUT",
@@ -38884,7 +38898,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualDiskRequest],
         query: VirtualizationVirtualDisksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualDisk]:
+    ) -> list[VirtualDisk] | BackgroundJobReference:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "PATCH",
@@ -38901,7 +38915,7 @@ class VirtualizationVirtualDisksEndpoint(TypedAppBase):
         self,
         body: list[VirtualDiskRequest],
         query: VirtualizationVirtualDisksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/virtual-disks/"
         return await self._typed_json_request(
             "DELETE",
@@ -38996,7 +39010,7 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         self,
         body: VirtualMachineTypeRequest | list[VirtualMachineTypeRequest],
         query: VirtualizationVirtualMachineTypesRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualMachineType:
+    ) -> VirtualMachineType | list[VirtualMachineType] | BackgroundJobReference:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "POST",
@@ -39013,7 +39027,7 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualMachineTypeRequest],
         query: VirtualizationVirtualMachineTypesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualMachineType]:
+    ) -> list[VirtualMachineType] | BackgroundJobReference:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "PUT",
@@ -39030,7 +39044,7 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualMachineTypeRequest],
         query: VirtualizationVirtualMachineTypesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualMachineType]:
+    ) -> list[VirtualMachineType] | BackgroundJobReference:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "PATCH",
@@ -39047,7 +39061,7 @@ class VirtualizationVirtualMachineTypesEndpoint(TypedAppBase):
         self,
         body: list[VirtualMachineTypeRequest],
         query: VirtualizationVirtualMachineTypesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/virtual-machine-types/"
         return await self._typed_json_request(
             "DELETE",
@@ -39148,7 +39162,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         self,
         body: WritableVirtualMachineRequest | list[WritableVirtualMachineRequest],
         query: VirtualizationVirtualMachinesRootPostQuery | dict[str, Any] | None = None,
-    ) -> VirtualMachine:
+    ) -> VirtualMachine | list[VirtualMachine] | BackgroundJobReference:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "POST",
@@ -39165,7 +39179,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         self,
         body: list[BulkVirtualMachineRequest],
         query: VirtualizationVirtualMachinesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualMachine]:
+    ) -> list[VirtualMachine] | BackgroundJobReference:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "PUT",
@@ -39182,7 +39196,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkVirtualMachineRequest],
         query: VirtualizationVirtualMachinesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[VirtualMachine]:
+    ) -> list[VirtualMachine] | BackgroundJobReference:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "PATCH",
@@ -39199,7 +39213,7 @@ class VirtualizationVirtualMachinesEndpoint(TypedAppBase):
         self,
         body: list[VirtualMachineRequest],
         query: VirtualizationVirtualMachinesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/virtualization/virtual-machines/"
         return await self._typed_json_request(
             "DELETE",
@@ -39321,7 +39335,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
         self,
         body: WritableIKEPolicyRequest | list[WritableIKEPolicyRequest],
         query: VpnIkePoliciesRootPostQuery | dict[str, Any] | None = None,
-    ) -> IKEPolicy:
+    ) -> IKEPolicy | list[IKEPolicy] | BackgroundJobReference:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "POST",
@@ -39338,7 +39352,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
         self,
         body: list[BulkIKEPolicyRequest],
         query: VpnIkePoliciesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IKEPolicy]:
+    ) -> list[IKEPolicy] | BackgroundJobReference:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "PUT",
@@ -39355,7 +39369,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIKEPolicyRequest],
         query: VpnIkePoliciesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IKEPolicy]:
+    ) -> list[IKEPolicy] | BackgroundJobReference:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "PATCH",
@@ -39372,7 +39386,7 @@ class VpnIkePoliciesEndpoint(TypedAppBase):
         self,
         body: list[IKEPolicyRequest],
         query: VpnIkePoliciesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/ike-policies/"
         return await self._typed_json_request(
             "DELETE",
@@ -39467,7 +39481,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
         self,
         body: WritableIKEProposalRequest | list[WritableIKEProposalRequest],
         query: VpnIkeProposalsRootPostQuery | dict[str, Any] | None = None,
-    ) -> IKEProposal:
+    ) -> IKEProposal | list[IKEProposal] | BackgroundJobReference:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "POST",
@@ -39484,7 +39498,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
         self,
         body: list[BulkIKEProposalRequest],
         query: VpnIkeProposalsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IKEProposal]:
+    ) -> list[IKEProposal] | BackgroundJobReference:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "PUT",
@@ -39501,7 +39515,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIKEProposalRequest],
         query: VpnIkeProposalsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IKEProposal]:
+    ) -> list[IKEProposal] | BackgroundJobReference:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "PATCH",
@@ -39518,7 +39532,7 @@ class VpnIkeProposalsEndpoint(TypedAppBase):
         self,
         body: list[IKEProposalRequest],
         query: VpnIkeProposalsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/ike-proposals/"
         return await self._typed_json_request(
             "DELETE",
@@ -39613,7 +39627,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
         self,
         body: WritableIPSecPolicyRequest | list[WritableIPSecPolicyRequest],
         query: VpnIpsecPoliciesRootPostQuery | dict[str, Any] | None = None,
-    ) -> IPSecPolicy:
+    ) -> IPSecPolicy | list[IPSecPolicy] | BackgroundJobReference:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "POST",
@@ -39630,7 +39644,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
         self,
         body: list[BulkIPSecPolicyRequest],
         query: VpnIpsecPoliciesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IPSecPolicy]:
+    ) -> list[IPSecPolicy] | BackgroundJobReference:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "PUT",
@@ -39647,7 +39661,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIPSecPolicyRequest],
         query: VpnIpsecPoliciesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IPSecPolicy]:
+    ) -> list[IPSecPolicy] | BackgroundJobReference:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "PATCH",
@@ -39664,7 +39678,7 @@ class VpnIpsecPoliciesEndpoint(TypedAppBase):
         self,
         body: list[IPSecPolicyRequest],
         query: VpnIpsecPoliciesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/ipsec-policies/"
         return await self._typed_json_request(
             "DELETE",
@@ -39759,7 +39773,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
         self,
         body: WritableIPSecProfileRequest | list[WritableIPSecProfileRequest],
         query: VpnIpsecProfilesRootPostQuery | dict[str, Any] | None = None,
-    ) -> IPSecProfile:
+    ) -> IPSecProfile | list[IPSecProfile] | BackgroundJobReference:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "POST",
@@ -39776,7 +39790,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
         self,
         body: list[BulkIPSecProfileRequest],
         query: VpnIpsecProfilesRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IPSecProfile]:
+    ) -> list[IPSecProfile] | BackgroundJobReference:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "PUT",
@@ -39793,7 +39807,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIPSecProfileRequest],
         query: VpnIpsecProfilesRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IPSecProfile]:
+    ) -> list[IPSecProfile] | BackgroundJobReference:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "PATCH",
@@ -39810,7 +39824,7 @@ class VpnIpsecProfilesEndpoint(TypedAppBase):
         self,
         body: list[IPSecProfileRequest],
         query: VpnIpsecProfilesRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/ipsec-profiles/"
         return await self._typed_json_request(
             "DELETE",
@@ -39905,7 +39919,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
         self,
         body: WritableIPSecProposalRequest | list[WritableIPSecProposalRequest],
         query: VpnIpsecProposalsRootPostQuery | dict[str, Any] | None = None,
-    ) -> IPSecProposal:
+    ) -> IPSecProposal | list[IPSecProposal] | BackgroundJobReference:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "POST",
@@ -39922,7 +39936,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
         self,
         body: list[BulkIPSecProposalRequest],
         query: VpnIpsecProposalsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[IPSecProposal]:
+    ) -> list[IPSecProposal] | BackgroundJobReference:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "PUT",
@@ -39939,7 +39953,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkIPSecProposalRequest],
         query: VpnIpsecProposalsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[IPSecProposal]:
+    ) -> list[IPSecProposal] | BackgroundJobReference:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "PATCH",
@@ -39956,7 +39970,7 @@ class VpnIpsecProposalsEndpoint(TypedAppBase):
         self,
         body: list[IPSecProposalRequest],
         query: VpnIpsecProposalsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/ipsec-proposals/"
         return await self._typed_json_request(
             "DELETE",
@@ -40051,7 +40065,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
         self,
         body: L2VPNTerminationRequest | list[L2VPNTerminationRequest],
         query: VpnL2vpnTerminationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> L2VPNTermination:
+    ) -> L2VPNTermination | list[L2VPNTermination] | BackgroundJobReference:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "POST",
@@ -40068,7 +40082,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
         self,
         body: list[BulkL2VPNTerminationRequest],
         query: VpnL2vpnTerminationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[L2VPNTermination]:
+    ) -> list[L2VPNTermination] | BackgroundJobReference:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "PUT",
@@ -40085,7 +40099,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkL2VPNTerminationRequest],
         query: VpnL2vpnTerminationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[L2VPNTermination]:
+    ) -> list[L2VPNTermination] | BackgroundJobReference:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "PATCH",
@@ -40102,7 +40116,7 @@ class VpnL2vpnTerminationsEndpoint(TypedAppBase):
         self,
         body: list[L2VPNTerminationRequest],
         query: VpnL2vpnTerminationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/l2vpn-terminations/"
         return await self._typed_json_request(
             "DELETE",
@@ -40199,7 +40213,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
         self,
         body: WritableL2VPNRequest | list[WritableL2VPNRequest],
         query: VpnL2vpnsRootPostQuery | dict[str, Any] | None = None,
-    ) -> L2VPN:
+    ) -> L2VPN | list[L2VPN] | BackgroundJobReference:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "POST",
@@ -40216,7 +40230,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
         self,
         body: list[BulkL2VPNRequest],
         query: VpnL2vpnsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[L2VPN]:
+    ) -> list[L2VPN] | BackgroundJobReference:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "PUT",
@@ -40233,7 +40247,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkL2VPNRequest],
         query: VpnL2vpnsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[L2VPN]:
+    ) -> list[L2VPN] | BackgroundJobReference:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "PATCH",
@@ -40250,7 +40264,7 @@ class VpnL2vpnsEndpoint(TypedAppBase):
         self,
         body: list[L2VPNRequest],
         query: VpnL2vpnsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/l2vpns/"
         return await self._typed_json_request(
             "DELETE",
@@ -40343,7 +40357,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
         self,
         body: TunnelGroupRequest | list[TunnelGroupRequest],
         query: VpnTunnelGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> TunnelGroup:
+    ) -> TunnelGroup | list[TunnelGroup] | BackgroundJobReference:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "POST",
@@ -40360,7 +40374,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkTunnelGroupRequest],
         query: VpnTunnelGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[TunnelGroup]:
+    ) -> list[TunnelGroup] | BackgroundJobReference:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -40377,7 +40391,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTunnelGroupRequest],
         query: VpnTunnelGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[TunnelGroup]:
+    ) -> list[TunnelGroup] | BackgroundJobReference:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -40394,7 +40408,7 @@ class VpnTunnelGroupsEndpoint(TypedAppBase):
         self,
         body: list[TunnelGroupRequest],
         query: VpnTunnelGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/tunnel-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -40487,7 +40501,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         self,
         body: WritableTunnelTerminationRequest | list[WritableTunnelTerminationRequest],
         query: VpnTunnelTerminationsRootPostQuery | dict[str, Any] | None = None,
-    ) -> TunnelTermination:
+    ) -> TunnelTermination | list[TunnelTermination] | BackgroundJobReference:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "POST",
@@ -40504,7 +40518,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         self,
         body: list[BulkTunnelTerminationRequest],
         query: VpnTunnelTerminationsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[TunnelTermination]:
+    ) -> list[TunnelTermination] | BackgroundJobReference:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "PUT",
@@ -40521,7 +40535,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTunnelTerminationRequest],
         query: VpnTunnelTerminationsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[TunnelTermination]:
+    ) -> list[TunnelTermination] | BackgroundJobReference:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "PATCH",
@@ -40538,7 +40552,7 @@ class VpnTunnelTerminationsEndpoint(TypedAppBase):
         self,
         body: list[TunnelTerminationRequest],
         query: VpnTunnelTerminationsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/tunnel-terminations/"
         return await self._typed_json_request(
             "DELETE",
@@ -40637,7 +40651,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
         self,
         body: WritableTunnelRequest | list[WritableTunnelRequest],
         query: VpnTunnelsRootPostQuery | dict[str, Any] | None = None,
-    ) -> Tunnel:
+    ) -> Tunnel | list[Tunnel] | BackgroundJobReference:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "POST",
@@ -40654,7 +40668,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
         self,
         body: list[BulkTunnelRequest],
         query: VpnTunnelsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[Tunnel]:
+    ) -> list[Tunnel] | BackgroundJobReference:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "PUT",
@@ -40671,7 +40685,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkTunnelRequest],
         query: VpnTunnelsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[Tunnel]:
+    ) -> list[Tunnel] | BackgroundJobReference:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "PATCH",
@@ -40688,7 +40702,7 @@ class VpnTunnelsEndpoint(TypedAppBase):
         self,
         body: list[TunnelRequest],
         query: VpnTunnelsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/vpn/tunnels/"
         return await self._typed_json_request(
             "DELETE",
@@ -40781,7 +40795,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
         self,
         body: WritableWirelessLANGroupRequest | list[WritableWirelessLANGroupRequest],
         query: WirelessWirelessLanGroupsRootPostQuery | dict[str, Any] | None = None,
-    ) -> WirelessLANGroup:
+    ) -> WirelessLANGroup | list[WirelessLANGroup] | BackgroundJobReference:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "POST",
@@ -40798,7 +40812,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
         self,
         body: list[BulkWirelessLANGroupRequest],
         query: WirelessWirelessLanGroupsRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[WirelessLANGroup]:
+    ) -> list[WirelessLANGroup] | BackgroundJobReference:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "PUT",
@@ -40815,7 +40829,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkWirelessLANGroupRequest],
         query: WirelessWirelessLanGroupsRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[WirelessLANGroup]:
+    ) -> list[WirelessLANGroup] | BackgroundJobReference:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "PATCH",
@@ -40832,7 +40846,7 @@ class WirelessWirelessLanGroupsEndpoint(TypedAppBase):
         self,
         body: list[WirelessLANGroupRequest],
         query: WirelessWirelessLanGroupsRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/wireless/wireless-lan-groups/"
         return await self._typed_json_request(
             "DELETE",
@@ -40931,7 +40945,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
         self,
         body: WritableWirelessLANRequest | list[WritableWirelessLANRequest],
         query: WirelessWirelessLansRootPostQuery | dict[str, Any] | None = None,
-    ) -> WirelessLAN:
+    ) -> WirelessLAN | list[WirelessLAN] | BackgroundJobReference:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "POST",
@@ -40948,7 +40962,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
         self,
         body: list[BulkWirelessLANRequest],
         query: WirelessWirelessLansRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[WirelessLAN]:
+    ) -> list[WirelessLAN] | BackgroundJobReference:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "PUT",
@@ -40965,7 +40979,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkWirelessLANRequest],
         query: WirelessWirelessLansRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[WirelessLAN]:
+    ) -> list[WirelessLAN] | BackgroundJobReference:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "PATCH",
@@ -40982,7 +40996,7 @@ class WirelessWirelessLansEndpoint(TypedAppBase):
         self,
         body: list[WirelessLANRequest],
         query: WirelessWirelessLansRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/wireless/wireless-lans/"
         return await self._typed_json_request(
             "DELETE",
@@ -41079,7 +41093,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
         self,
         body: WritableWirelessLinkRequest | list[WritableWirelessLinkRequest],
         query: WirelessWirelessLinksRootPostQuery | dict[str, Any] | None = None,
-    ) -> WirelessLink:
+    ) -> WirelessLink | list[WirelessLink] | BackgroundJobReference:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "POST",
@@ -41096,7 +41110,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
         self,
         body: list[BulkWirelessLinkRequest],
         query: WirelessWirelessLinksRootPutQuery | dict[str, Any] | None = None,
-    ) -> list[WirelessLink]:
+    ) -> list[WirelessLink] | BackgroundJobReference:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "PUT",
@@ -41113,7 +41127,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
         self,
         body: list[PatchedBulkWirelessLinkRequest],
         query: WirelessWirelessLinksRootPatchQuery | dict[str, Any] | None = None,
-    ) -> list[WirelessLink]:
+    ) -> list[WirelessLink] | BackgroundJobReference:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "PATCH",
@@ -41130,7 +41144,7 @@ class WirelessWirelessLinksEndpoint(TypedAppBase):
         self,
         body: list[WirelessLinkRequest],
         query: WirelessWirelessLinksRootDeleteQuery | dict[str, Any] | None = None,
-    ) -> None:
+    ) -> BackgroundJobReference | None:
         path = "/api/wireless/wireless-links/"
         return await self._typed_json_request(
             "DELETE",

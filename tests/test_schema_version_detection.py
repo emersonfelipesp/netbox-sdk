@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import re
+from collections.abc import Iterator
 
 import pytest
 import typer
@@ -18,6 +19,14 @@ from netbox_sdk.schema import fetch_schema_for_client
 
 pytestmark = pytest.mark.suite_cli
 runner = CliRunner()
+
+
+@pytest.fixture(autouse=True)
+def _isolated_bundled_index_cache() -> Iterator[None]:
+    """Prevent patched schema loaders from leaking documents to later tests."""
+    schema_resolution._clear_bundled_index_cache()
+    yield
+    schema_resolution._clear_bundled_index_cache()
 
 
 # ---------------------------------------------------------------------------
@@ -57,7 +66,7 @@ def test_netbox_version_help_uses_the_shared_registry_description() -> None:
     normalized_output = " ".join(plain_output.replace("│", " ").split())
 
     assert result.exit_code == 0
-    assert "4.3, 4.4, 4.5, 4.6, 4.7 (preview)" in normalized_output
+    assert "4.3, 4.4, 4.5, 4.6, 4.7" in normalized_output
 
 
 class _FakeClient:
@@ -148,7 +157,7 @@ def test_load_schema_falls_back_when_no_base_url(monkeypatch) -> None:
     assert result["_source"] == "fallback"
 
 
-def test_load_schema_falls_back_on_connection_error(monkeypatch) -> None:
+def test_load_schema_fails_closed_on_connection_error(monkeypatch) -> None:
     from netbox_cli import runtime
 
     fallback_doc = {"paths": {}, "_source": "fallback"}
@@ -171,11 +180,11 @@ def test_load_schema_falls_back_on_connection_error(monkeypatch) -> None:
 
     monkeypatch.setattr(runtime, "run_with_spinner", _raise)
 
-    result = runtime._load_schema_for_connected_instance()
-    assert result["_source"] == "fallback"
+    with pytest.raises(RuntimeError, match="unreachable"):
+        runtime._load_schema_for_connected_instance()
 
 
-def test_load_schema_falls_back_on_non_openapi_response(monkeypatch) -> None:
+def test_load_schema_fails_closed_on_non_openapi_response(monkeypatch) -> None:
     from netbox_cli import runtime
 
     fallback_doc = {"paths": {}, "_source": "fallback"}
@@ -198,8 +207,8 @@ def test_load_schema_falls_back_on_non_openapi_response(monkeypatch) -> None:
 
     monkeypatch.setattr(runtime, "run_with_spinner", _return_error)
 
-    result = runtime._load_schema_for_connected_instance()
-    assert result["_source"] == "fallback"
+    with pytest.raises(RuntimeError, match="refusing to use the default bundled contract"):
+        runtime._load_schema_for_connected_instance()
 
 
 def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> None:
@@ -225,7 +234,7 @@ def test_get_index_uses_bundled_schema_without_connected_probe(monkeypatch) -> N
     assert result.schema["_source"] == "bundled"
 
 
-def test_registration_index_defaults_to_netbox_46(monkeypatch, minimal_schema) -> None:
+def test_registration_index_defaults_to_netbox_47(monkeypatch, minimal_schema) -> None:
     _reset_runtime_schema(monkeypatch)
     versions: list[str | None] = []
 
@@ -238,7 +247,7 @@ def test_registration_index_defaults_to_netbox_46(monkeypatch, minimal_schema) -
     result = runtime._get_registration_index()
 
     assert result.resources("dcim") == ["devices"]
-    assert versions == ["4.6"]
+    assert versions == ["4.7"]
 
 
 def test_registration_index_honors_cli_netbox_version_override(monkeypatch, minimal_schema) -> None:
@@ -289,6 +298,25 @@ def test_runtime_index_detects_configured_instance(monkeypatch) -> None:
     assert calls == [(runtime.DEFAULT_PROFILE, cfg)]
 
 
+def test_runtime_index_fails_closed_when_configured_detection_fails(monkeypatch) -> None:
+    _reset_runtime_schema(monkeypatch)
+    cfg = Config(base_url="https://netbox.example.com")
+    monkeypatch.setattr(runtime, "load_profile_config", lambda profile: cfg)
+    monkeypatch.setattr(
+        runtime,
+        "_get_connected_index",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("detection failed")),
+    )
+    monkeypatch.setattr(
+        runtime,
+        "_get_static_index",
+        lambda *args, **kwargs: pytest.fail("configured detection failure must not use 4.7"),
+    )
+
+    with pytest.raises(RuntimeError, match="detection failed"):
+        runtime._get_runtime_index()
+
+
 def test_runtime_index_override_skips_connected_detection(monkeypatch, minimal_schema) -> None:
     _reset_runtime_schema(monkeypatch)
     versions: list[str | None] = []
@@ -310,7 +338,7 @@ def test_runtime_index_override_skips_connected_detection(monkeypatch, minimal_s
     assert versions == ["4.5"]
 
 
-def test_registered_command_tree_defaults_to_netbox_46(monkeypatch) -> None:
+def test_registered_command_tree_defaults_to_netbox_47(monkeypatch) -> None:
     _reset_runtime_schema(monkeypatch)
     target = typer.Typer(no_args_is_help=True)
 

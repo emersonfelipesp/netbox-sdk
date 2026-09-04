@@ -67,7 +67,7 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 
 | Flag | Description |
 |------|-------------|
-| `--netbox-version` / `--api-version` | Global option to force a supported bundled schema release line (`4.3`, `4.4`, `4.5`, `4.6`, `4.7` preview) |
+| `--netbox-version` / `--api-version` | Global option to force a supported bundled schema release line (`4.3`, `4.4`, `4.5`, `4.6`, `4.7`) |
 | `--id INTEGER` | Object ID for detail operations (`get`, `update`, `patch`, `delete`) |
 | `-q` / `--query KEY=VALUE` | Query string filter (repeatable) |
 | `-H` / `--header HEADER=VALUE` | HTTP header for the request; `Header: Value` is also accepted (repeatable) |
@@ -91,14 +91,16 @@ Not every resource supports all actions — availability depends on the OpenAPI 
 
 ## NetBox version selection
 
-`nbx` supports every bundled NetBox command surface in parallel (`4.3`, `4.4`, `4.5`, `4.6`, and the `4.7` preview line):
+`nbx` supports every bundled NetBox command surface in parallel (`4.3`, `4.4`, `4.5`, `4.6`, and `4.7`):
 
-- By default, the static command tree uses the bundled NetBox 4.6 schema so 4.6 resources such as `dcim/cable-bundles` are available.
+- By default, the static command tree uses the official bundled NetBox 4.7 GA schema.
 - During command execution, discovery helpers, and TUI launch, `nbx` checks the configured instance version and uses the matching bundled schema for supported release lines.
+- If a configured instance cannot be reached, version detection fails, or its live schema is invalid, execution fails closed instead of substituting the default bundled contract.
+- Client-free `--dry-run` previews use the explicit/static schema that registered the command and never probe the instance.
 - Use `--netbox-version` / `--api-version` or `NETBOX_SDK_NETBOX_VERSION` to pin the bundled schema explicitly.
 
 ```bash
-# Default 4.6 command discovery
+# Default 4.7 command discovery
 nbx dcim cable-bundles list --help
 
 # Pin command discovery and execution to NetBox 4.5
@@ -359,8 +361,8 @@ See [Demo Profile](demo-profile.md) for setup.
 
 ## How it works
 
-At startup, `_register_openapi_subcommands()` in `dynamic.py` builds a network-free `SchemaIndex` from the bundled schema selected by `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`, defaulting to NetBox 4.6. It then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root `app` and once for `demo_app` with the demo client factory.
+At startup, `_register_openapi_subcommands()` in `dynamic.py` builds a network-free `SchemaIndex` from the bundled schema selected by `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION`, defaulting to NetBox 4.7. It then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root `app` and once for `demo_app` with the demo client factory.
 
-Actual command execution uses `_get_runtime_index()` from `runtime.py`. Explicit version overrides win; otherwise the CLI probes the configured instance and selects the matching bundled schema for supported NetBox release lines.
+Actual command execution uses `_get_runtime_index()` from `runtime.py`. Explicit version overrides win; otherwise the CLI probes the configured instance and selects the matching bundled schema for supported NetBox release lines. A configured profile's detection or schema failure is terminal; only profiles without a base URL may use the default bundled contract. Dry-run previews remain network-free and resolve against the static registration index.
 
 For plugin/custom-object resources, the bundled schema gives `nbx` the static command tree it knows about. Use `--live` with `groups`, `resources`, or `ops` to enrich that index from the configured NetBox instance via `/api/plugins/` and `/api/core/object-types/`. Free-form dynamic invocations also try live enrichment when the requested resource is missing from the bundled schema.

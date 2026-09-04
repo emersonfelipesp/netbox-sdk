@@ -133,7 +133,7 @@ pip install -e '.[all]'
 
 ## CLI Dynamic Command Surface
 
-The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.6 schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` as a thin adapter over `netbox_sdk.schema_resolution` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line.
+The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.7 GA schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` as a thin adapter over `netbox_sdk.schema_resolution` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line. Configured-profile detection and live-schema failures fail closed instead of substituting the default contract; client-free dry runs use their explicit/static registration index.
 
 | Action | HTTP | Path | Notes |
 |---|---|---|---|
@@ -253,20 +253,25 @@ the transport loss as a warning rather than a job error.
 - Semantic plugin discovery and dispatch must use `NetBoxApiClient.request_bounded()` so contracts are current, uncached, non-redirecting, and body-bounded; never authorize a plugin tool from the ordinary stale-if-error cache.
 - Filesystem-cache invalidation failures (lock timeouts and other `OSError`s alike) are a per-path bypass state: reads must not trust or populate existing entries until a failed invalidation has been completed, and portable stale-lock reclamation must preserve exclusive ownership across racing reclaimers. A cache entry proven stale by a generation mismatch (the 304-concurrent-write race) must not be resurrected by a later stale-if-error fallback in the same request if the follow-up refetch itself fails. A corrupted per-path index recovers into the same per-path bypass state, not a trustable generation `0`: `_load_index_state_or_purge()` marks the path unavailable on corruption, and `_purge_all_entries()` publishes digest-keyed markers for every secondary corrupted index it discovers, so `load()`/`save()`/`refresh()`/`path_generation()` never let a stale captured `expected_generation=0` match a freshly reset index's `0`. On POSIX, `_locked_index()`'s `fcntl` branch polls `flock(LOCK_EX | LOCK_NB)` on the same bounded timeout `_portable_lock` uses (never a blocking `flock(LOCK_EX)`), retrying only `EAGAIN`/`EACCES`; `NetBoxApiClient` runs every synchronous cache-store operation through `asyncio.to_thread()` so the required wait-then-succeed locking semantics do not stall its event loop.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
+- The synchronous `api()` facade performs no network access while it is being
+  constructed. Without an explicit `schema=`, it starts with the newest stable
+  bundled contract (currently 4.7), then detects and installs the connected
+  release before the first schema-dependent request; detection failures
+  propagate. Callers may use `await async_api(...)` for eager detection and
+  runtime-resource discovery, or pass `build_schema_index(version="4.x")` to
+  pin the contract. Strict-filter validation runs after deferred detection and
+  must never imply that NetBox rejected a request prevented by the local schema.
 - OpenTelemetry request tracing is opt-in and lives in `netbox_sdk.telemetry`; keep
   all `opentelemetry.*` imports lazy/guarded so base `import netbox_sdk` works
   without the `otel` extra.
 - `netbox_sdk.versioning` is the single release-line registry, and
   `netbox_sdk.schema_resolution` is the single bundled/live resolution policy
   used by SDK, CLI, TUI, and MCP. Bundled typed and OpenAPI support currently
-  targets NetBox release lines `4.7` (preview), `4.6`, `4.5`, `4.4`, and `4.3`; the default
-  remains 4.6. `4.7` is bundled from the upstream `v4.7.0-beta2` pre-release and
-  is registered with `status="preview"`: reachable by explicit pin
-  (`--netbox-version 4.7` / `NETBOX_SDK_NETBOX_VERSION=4.7`) or by live detection
-  when the instance reports `4.7.x`, but never selected by default. Live CI
-  exercises `v4.7.0-beta2` from a digest-pinned GHCR image (that image's
-  `/api/status/` reports `4.7.0`; live CI accepts that known alias), plus `v4.6.6`,
-  `v4.6.3`, `v4.6.2`, and `v4.5.10`. The **bundled release-line matrix** still
+  targets stable NetBox release lines `4.7`, `4.6`, `4.5`, `4.4`, and `4.3`; the
+  default is 4.7. `4.7` is bundled from the official upstream `v4.7.0` GA
+  release and registered with `status="stable"`. Live CI exercises `v4.7.0`,
+  `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`. The **bundled release-line matrix**
+  still
   runs one CI job per registered line against the bundled schema.
 - Never hardcode colors in TCSS. Use theme variables and JSON theme definitions.
 - Consult [`reference/PYNETBOX.md`](reference/PYNETBOX.md) when evaluating prior-art NetBox client patterns or interoperability expectations.

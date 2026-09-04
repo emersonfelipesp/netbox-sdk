@@ -92,15 +92,15 @@ def test_ci_contains_certification_package_and_docs_gates() -> None:
     assert "tests/test_certification_readiness.py" in certification_workflow
     assert "mkdocs build --strict" in docs_workflow
     assert "pull_request:" in docs_workflow
+    assert 'netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6", "v4.7.0"]' in tests_workflow
     assert (
-        'netbox-version: ["v4.5.10", "v4.6.2", "v4.6.3", "v4.6.6", "v4.7.0-beta2"]'
-        in tests_workflow
+        'netbox_image: "ghcr.io/netbox-community/netbox@sha256:'
+        'a2cdf00fab61d2ae37e4f987adaa403fad5c4049a63bc960768b7bbf804e2cb6"' in tests_workflow
     )
-    assert (
-        "ghcr.io/netbox-community/netbox@sha256:b4c36c2ecbb161dad6557cec9f505e7dd7af0fee23f16f937f5585f440941467"
-        in tests_workflow
-    )
-    assert "failing closed (no mutable tag fallback)" in tests_workflow
+    assert "scripts/check_live_netbox_provenance.py" in tests_workflow
+    assert "--expected-commit" in tests_workflow
+    assert "--expected-image-digest" in tests_workflow
+    assert "--verify-only" in tests_workflow
     assert "NETBOX_EXPECTED_VERSION: ${{ matrix.netbox-version }}" in tests_workflow
     assert "scripts/check_live_netbox_status.py" in tests_workflow
     assert "tests/test_check_live_netbox_status.py" in tests_workflow

@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
+from scripts.check_live_netbox_provenance import (
+    image_digest_matches,
+    source_commit_matches,
+)
+from scripts.check_live_netbox_provenance import (
+    main as provenance_main,
+)
 from scripts.check_live_netbox_status import (
-    PREVIEW_LIVE_IMAGE,
     allowed_live_status_versions,
     live_status_matches,
     main,
@@ -23,52 +28,62 @@ def test_stable_pins_require_an_exact_status_match() -> None:
     assert not live_status_matches("v4.6.6", "4.6.3")
 
 
-def test_preview_pin_requires_the_pinned_image_and_observed_status() -> None:
-    assert allowed_live_status_versions("v4.7.0-beta2", PREVIEW_LIVE_IMAGE) == frozenset({"4.7.0"})
-    assert live_status_matches("v4.7.0-beta2", "4.7.0", PREVIEW_LIVE_IMAGE)
-    assert not live_status_matches("v4.7.0-beta2", "4.7.0")
-    assert not live_status_matches(
-        "v4.7.0-beta2", "4.7.0", "ghcr.io/netbox-community/netbox:v4.7.0-beta2"
-    )
-    assert not live_status_matches("v4.7.0-beta2", "4.7.0-beta2", PREVIEW_LIVE_IMAGE)
+def test_v47_ga_pin_requires_an_exact_status_match() -> None:
+    assert allowed_live_status_versions("v4.7.0") == frozenset({"4.7.0"})
+    assert live_status_matches("v4.7.0", "4.7.0")
+    assert not live_status_matches("v4.7.0", "4.7.1")
 
 
-def test_preview_image_constant_is_the_workflow_runtime_image() -> None:
-    workflow = Path(__file__).resolve().parents[1] / ".github/workflows/test.yml"
-    text = workflow.read_text(encoding="utf-8")
-    assert f'image="{PREVIEW_LIVE_IMAGE}"' in text or PREVIEW_LIVE_IMAGE in text
-    assert 'echo "NETBOX_CI_IMAGE=$image"' in text
-    assert '--image "${NETBOX_CI_IMAGE:-}"' in text
-
-
-def test_cli_accepts_the_preview_status_only_for_the_pinned_image(
-    tmp_path,
-) -> None:
+def test_cli_accepts_only_the_exact_status(tmp_path) -> None:
     status = tmp_path / "status.json"
     status.write_text(json.dumps({"netbox-version": "4.7.0"}), encoding="utf-8")
     assert (
         main(
             [
                 "--expected",
-                "v4.7.0-beta2",
+                "v4.7.0",
                 "--status-file",
                 str(status),
-                "--image",
-                PREVIEW_LIVE_IMAGE,
             ]
         )
         == 0
     )
+    status.write_text(json.dumps({"netbox-version": "4.7.1"}), encoding="utf-8")
+    assert main(["--expected", "v4.7.0", "--status-file", str(status)]) == 1
+
+
+def test_live_source_commit_guard_fails_closed_on_mutation() -> None:
+    reviewed = "5f06007e4c9bacc93ce17c1e645fc1143d60df3d"
+    wrong = "0" * 40
+
+    assert source_commit_matches(reviewed, reviewed)
+    assert not source_commit_matches(reviewed, wrong)
+    assert provenance_main(["--expected-commit", reviewed, "--actual-commit", wrong]) == 1
+
+
+def test_live_image_digest_guard_fails_closed_on_mutation(tmp_path) -> None:
+    reviewed = "sha256:a2cdf00fab61d2ae37e4f987adaa403fad5c4049a63bc960768b7bbf804e2cb6"
+    wrong = "sha256:" + "0" * 64
+    evidence = tmp_path / "repo-digests.json"
+    evidence.write_text(
+        json.dumps([f"ghcr.io/netbox-community/netbox@{wrong}"]),
+        encoding="utf-8",
+    )
+
+    assert image_digest_matches(reviewed, [f"ghcr.io/netbox-community/netbox@{reviewed}"])
+    assert not image_digest_matches(reviewed, [f"ghcr.io/netbox-community/netbox@{wrong}"])
     assert (
-        main(
+        provenance_main(
             [
-                "--expected",
-                "v4.7.0-beta2",
-                "--status-file",
-                str(status),
-                "--image",
-                "ghcr.io/netbox-community/netbox:v4.7.0-beta2",
+                "--expected-image-digest",
+                reviewed,
+                "--repo-digests-file",
+                str(evidence),
             ]
         )
         == 1
     )
+
+
+def test_live_provenance_guard_rejects_missing_evidence() -> None:
+    assert provenance_main([]) == 1

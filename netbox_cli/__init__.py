@@ -181,27 +181,6 @@ def root_callback(
     if ctx.invoked_subcommand is None and ctx.args:
         _handle_dynamic_invocation(ctx.args)
         return
-    if ctx.invoked_subcommand not in {
-        "init",
-        "config",
-        "test",
-        "groups",
-        "resources",
-        "ops",
-        "capabilities",
-        "call",
-        "tui",
-        "cli",
-        "docs",
-        "demo",
-        "dev",
-        "logs",
-        "graphql",
-        "branching",
-        "branch",
-        "proxbox",
-    }:
-        _ensure_runtime_config()
 
 
 @app.command("init")
