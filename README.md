@@ -390,8 +390,9 @@ uv run pyright netbox_sdk netbox_cli netbox_tui netbox_mcp
 
 ## Release Process
 
-Release candidates use an annotated RC tag on the canonical source repository.
-The repository-owned workflow publishes the immutable candidate to an
+Release candidates use an annotated RC tag on the canonical source repository,
+while final and post releases are authorized only through a GitHub Release.
+The repository-owned workflow publishes an immutable candidate to an
 access-controlled package registry; GitHub Actions remains the only authority
 that publishes to TestPyPI or the default PyPI index:
 
@@ -425,8 +426,6 @@ nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
 python -m scripts.gitea_release validate-tag-protection \
   --policy-file .gitea/release-tag-policy.json \
   --evidence-file /tmp/netbox-sdk-tag-protections.json
-git tag -a v0.0.13rc1 -m "Release v0.0.13rc1"
-git push gitea v0.0.13rc1
 ```
 
 The evidence command and validator are a mandatory preflight before creating
@@ -435,25 +434,45 @@ for every `v*` tag, with only `emersonfelipesp` allowlisted and no teams. This
 is external repository state: the tag-triggered workflow cannot and does not
 self-verify the protection that authorized its own trigger.
 
-The current source candidate is **`0.0.13rc1`**, an RC. RC publication is
-direct-tag/TestPyPI-only: the commands above create and push its exact annotated
-tag. Do not create a GitHub Release for this RC because that event authorizes
-publication to the default PyPI index.
+### Release-candidate procedure
 
-### Future final-release procedure (not for the current RC)
-
-Use this procedure only after the RC is validated and a separate final-version
-tree has been prepared and reviewed. Final and post releases must never be
-authorized by a direct tag push. Confirm that the intended final tag is absent,
-then publish through the GitHub Release event with the title pattern
-`netbox-sdk vX.Y.Z`. `--target` is ignored when the tag already exists, so any
-output from the first command must fail closed:
+A direct annotated tag push belongs only to a release candidate. The following
+commands show the already validated candidate for this release line; they do
+not authorize the final release:
 
 ```bash
-git ls-remote origin refs/tags/vX.Y.Z
-# Must print nothing.
+git tag -a v0.0.13rc1 -m "Release v0.0.13rc1"
+git push gitea v0.0.13rc1
+```
+
+Do not create a GitHub Release for an RC because that event authorizes
+publication to the default PyPI index.
+
+### Final-release procedure for the current tree
+
+The current source candidate is the final **`0.0.13`** tree. Do not authorize
+this final with a direct tag push. Confirm that the intended final tag is absent,
+then publish through the GitHub Release event with the title pattern
+`netbox-sdk vX.Y.Z`. `--target` is ignored when the tag already exists, so any
+failed query or nonempty result must stop release creation. The generic
+procedure is:
+
+```bash
+git ls-remote origin refs/tags/vX.Y.Z > /tmp/netbox-sdk-vX.Y.Z-tag-refs && \
+test ! -s /tmp/netbox-sdk-vX.Y.Z-tag-refs && \
 gh release create vX.Y.Z \
   --title "netbox-sdk vX.Y.Z" \
+  --target <canonical-main-sha>
+```
+
+For this reviewed final tree, use the exact version and bind the release to the
+reviewed default-branch commit:
+
+```bash
+git ls-remote origin refs/tags/v0.0.13 > /tmp/netbox-sdk-v0.0.13-tag-refs && \
+test ! -s /tmp/netbox-sdk-v0.0.13-tag-refs && \
+gh release create v0.0.13 \
+  --title "netbox-sdk v0.0.13" \
   --target <canonical-main-sha>
 ```
 

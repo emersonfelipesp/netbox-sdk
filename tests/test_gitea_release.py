@@ -22,6 +22,7 @@ from types import SimpleNamespace
 
 import pytest
 import yaml
+from packaging.version import InvalidVersion, Version
 
 from scripts.gitea_release import (
     MANIFEST_NAME,
@@ -1920,10 +1921,6 @@ def _pyproject_version() -> str:
 
 
 _SHELL_CONTROL_OPERATORS = {"&", "&&", ";", ";;", "|", "||"}
-_CONCRETE_VERSION_TAG = re.compile(
-    r"(?<![0-9A-Za-z])v[0-9]+(?:\.[0-9]+){2}"
-    r"(?:(?:a|b|rc)[0-9]+|(?:\.post|\.dev)[0-9]+)?(?![0-9A-Za-z])"
-)
 
 
 def _tokenize_shell_line(line: str) -> list[str]:
@@ -1966,6 +1963,9 @@ def _shell_commands(markdown: str) -> list[tuple[str, ...]]:
     assert len(blocks) * 2 == opening_fence_count, (
         "every fenced code block must be closed and tokenizable"
     )
+    assert all("$(" not in block and "`" not in block for block in blocks), (
+        "documented shell blocks must not use command substitutions or backticks"
+    )
     commands: list[tuple[str, ...]] = []
     for block in blocks:
         logical_lines = re.sub(r"\\\r?\n", " ", block).splitlines()
@@ -1974,19 +1974,75 @@ def _shell_commands(markdown: str) -> list[tuple[str, ...]]:
     return commands
 
 
-def _contains_command(command: tuple[str, ...], prefix: tuple[str, ...]) -> bool:
-    width = len(prefix)
+def _contains_ordered_tokens(command: tuple[str, ...], expected: tuple[str, ...]) -> bool:
+    remaining = iter(command)
+    return all(any(token == wanted for token in remaining) for wanted in expected)
+
+
+def _is_release_tag_or_push_command(command: tuple[str, ...]) -> bool:
     return any(
-        command[index : index + width] == prefix for index in range(len(command) - width + 1)
+        _contains_ordered_tokens(command, signature)
+        for signature in (("gh", "release", "create"), ("git", "tag"), ("git", "push"))
     )
 
 
-def _names_concrete_version(command: tuple[str, ...]) -> bool:
-    return _CONCRETE_VERSION_TAG.search(" ".join(command)) is not None
+def _approved_rc_tag(command: tuple[str, ...], release_line: str) -> str | None:
+    if len(command) < 4 or command[:3] != ("git", "tag", "-a"):
+        return None
+    tag = command[3]
+    if not tag.startswith("v"):
+        return None
+    try:
+        candidate = Version(tag[1:])
+    except InvalidVersion:
+        return None
+    if (
+        tag != f"v{candidate}"
+        or candidate.base_version != release_line
+        or candidate.pre is None
+        or candidate.pre[0] != "rc"
+        or candidate.post is not None
+        or candidate.dev is not None
+        or candidate.local is not None
+    ):
+        return None
+    return tag
 
 
-def test_release_docs_require_external_tag_policy_preflight_and_terminal_recovery() -> None:
-    readme = Path("README.md").read_text(encoding="utf-8")
+def _release_documentation_mode(version: str) -> tuple[str, bool]:
+    try:
+        candidate = Version(version)
+    except InvalidVersion as exc:
+        raise ValueError(
+            "release documentation only supports valid final, post, and RC versions"
+        ) from exc
+    if candidate.dev is not None or candidate.local is not None:
+        raise ValueError(
+            "release documentation only supports publishable final, post, and RC versions"
+        )
+    if candidate.pre is not None:
+        if candidate.pre[0] != "rc" or candidate.post is not None:
+            raise ValueError("release documentation only supports final, post, and RC versions")
+        return candidate.base_version, True
+    return str(candidate), False
+
+
+def _assert_contiguous_release_chain(
+    readme: str,
+    *,
+    query: str,
+    empty_check: str,
+    release_command: str,
+    description: str,
+) -> None:
+    expected = f"{query} && \\\n{empty_check} && \\\n{release_command}"
+    assert readme.count(expected) == 1, (
+        f"the {description} must be one contiguous &&-only chain with release creation "
+        "directly dependent on the empty-result check"
+    )
+
+
+def _assert_release_documentation(readme: str, version: str) -> None:
     compact_readme = " ".join(readme.split())
     shell_commands = _shell_commands(readme)
     api_command = (
@@ -2000,35 +2056,40 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    candidate = _pyproject_version()
-    final = candidate.split("rc", 1)[0]
-    assert candidate != final, (
-        "the documented release examples are only meaningful while the source "
-        "candidate is a release candidate"
+    final, is_candidate = _release_documentation_mode(version)
+    release_tag_or_push_commands = [
+        command for command in shell_commands if _is_release_tag_or_push_command(command)
+    ]
+    template_release_command = (
+        "gh",
+        "release",
+        "create",
+        "vX.Y.Z",
+        "--title",
+        "netbox-sdk vX.Y.Z",
+        "--target",
+        "<canonical-main-sha>",
     )
-    candidate_tag_command = (
+    template_refs_path = "/tmp/netbox-sdk-vX.Y.Z-tag-refs"
+    template_capture_command = (
         "git",
-        "tag",
-        "-a",
-        f"v{candidate}",
-        "-m",
-        f"Release v{candidate}",
+        "ls-remote",
+        "origin",
+        "refs/tags/vX.Y.Z",
+        ">",
+        template_refs_path,
     )
-    candidate_push_command = ("git", "push", "gitea", f"v{candidate}")
-    concrete_version_commands = [
-        command for command in shell_commands if _names_concrete_version(command)
-    ]
-    concrete_release_commands = [
-        command
-        for command in shell_commands
-        if _contains_command(command, ("gh", "release", "create"))
-        and _names_concrete_version(command)
-    ]
-    assert not concrete_release_commands, (
-        "an RC release guide must not contain a concrete GitHub Release command"
-    )
-    assert concrete_version_commands == [candidate_tag_command, candidate_push_command], (
-        "the only concrete version commands must be the exact candidate tag and push"
+    template_empty_check = ("test", "!", "-s", template_refs_path)
+    _assert_contiguous_release_chain(
+        readme,
+        query=f"git ls-remote origin refs/tags/vX.Y.Z > {template_refs_path}",
+        empty_check=f"test ! -s {template_refs_path}",
+        release_command=(
+            "gh release create vX.Y.Z \\\n"
+            '  --title "netbox-sdk vX.Y.Z" \\\n'
+            "  --target <canonical-main-sha>"
+        ),
+        description="template tag-absence precheck and release command",
     )
     policy_command = (
         "nms",
@@ -2049,29 +2110,118 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
         "--evidence-file",
         "/tmp/netbox-sdk-tag-protections.json",
     )
-    assert shell_commands.index(policy_command) < shell_commands.index(candidate_tag_command)
-    assert shell_commands.index(validator_command) < shell_commands.index(candidate_tag_command)
-    assert "workflow cannot and does not self-verify" in compact_readme
-    assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert f"current source candidate is **`{candidate}`**, an RC" in compact_readme
-    assert "RC publication is direct-tag/TestPyPI-only" in compact_readme
-    assert "Future final-release procedure (not for the current RC)" in readme
-    assert ("git", "ls-remote", "origin", "refs/tags/vX.Y.Z") in shell_commands
-    assert (
-        shell_commands.count(
-            (
-                "gh",
-                "release",
-                "create",
-                "vX.Y.Z",
-                "--title",
-                "netbox-sdk vX.Y.Z",
-                "--target",
-                "<canonical-main-sha>",
+
+    if is_candidate:
+        candidate_tag_command = (
+            "git",
+            "tag",
+            "-a",
+            f"v{version}",
+            "-m",
+            f"Release v{version}",
+        )
+        candidate_push_command = ("git", "push", "gitea", f"v{version}")
+        assert release_tag_or_push_commands == [
+            candidate_tag_command,
+            candidate_push_command,
+            template_release_command,
+        ], (
+            "release documentation may contain only the approved literal RC commands "
+            "and final-release template"
+        )
+        assert shell_commands.index(policy_command) < shell_commands.index(candidate_tag_command)
+        assert shell_commands.index(validator_command) < shell_commands.index(candidate_tag_command)
+        assert f"current source candidate is **`{version}`**, an RC" in compact_readme
+        assert "RC publication is direct-tag/TestPyPI-only" in compact_readme
+        assert "Future final-release procedure (not for the current RC)" in readme
+    else:
+        final_tag = f"v{final}"
+        final_refs_path = f"/tmp/netbox-sdk-{final_tag}-tag-refs"
+        final_capture_command = (
+            "git",
+            "ls-remote",
+            "origin",
+            f"refs/tags/{final_tag}",
+            ">",
+            final_refs_path,
+        )
+        final_empty_check = ("test", "!", "-s", final_refs_path)
+        final_release_command = (
+            "gh",
+            "release",
+            "create",
+            final_tag,
+            "--title",
+            f"netbox-sdk {final_tag}",
+            "--target",
+            "<canonical-main-sha>",
+        )
+        release_line = Version(version).base_version
+        rc_tags = tuple(
+            dict.fromkeys(
+                tag
+                for command in release_tag_or_push_commands
+                if (tag := _approved_rc_tag(command, release_line)) is not None
             )
         )
-        == 1
-    )
+        assert len(rc_tags) == 1, (
+            "a final release guide must identify exactly one approved RC command pair"
+        )
+        approved_rc_commands = [
+            command
+            for tag in rc_tags
+            for command in (
+                ("git", "tag", "-a", tag, "-m", f"Release {tag}"),
+                ("git", "push", "gitea", tag),
+            )
+        ]
+        assert release_tag_or_push_commands == [
+            *approved_rc_commands,
+            template_release_command,
+            final_release_command,
+        ], (
+            "release documentation may contain only approved literal RC commands, "
+            "the final-release template, and the exact final release command"
+        )
+        assert shell_commands.count(final_capture_command) == 1, (
+            "a final release guide must capture its exact tag-absence query once"
+        )
+        assert shell_commands.count(final_empty_check) == 1, (
+            "a final release guide must test that the captured tag query is empty once"
+        )
+        _assert_contiguous_release_chain(
+            readme,
+            query=(f"git ls-remote origin refs/tags/{final_tag} > {final_refs_path}"),
+            empty_check=f"test ! -s {final_refs_path}",
+            release_command=(
+                f"gh release create {final_tag} \\\n"
+                f'  --title "netbox-sdk {final_tag}" \\\n'
+                "  --target <canonical-main-sha>"
+            ),
+            description="exact tag-absence precheck and release command",
+        )
+        final_capture_index = shell_commands.index(final_capture_command)
+        final_empty_check_index = shell_commands.index(final_empty_check)
+        final_release_index = shell_commands.index(final_release_command)
+        assert shell_commands.index(policy_command) < final_capture_index
+        assert shell_commands.index(validator_command) < final_capture_index
+        assert final_capture_index < final_empty_check_index < final_release_index, (
+            "the exact tag-absence precheck must precede release creation"
+        )
+        assert f"current source candidate is the final **`{final}`** tree" in compact_readme
+        assert "Do not authorize this final with a direct tag push" in compact_readme
+        assert "Final-release procedure for the current tree" in readme
+
+    assert "workflow cannot and does not self-verify" in compact_readme
+    assert "never delete files, overwrite them, or retry the same version" in compact_readme
+    assert shell_commands.count(template_capture_command) == 1
+    assert shell_commands.count(template_empty_check) == 1
+    assert shell_commands.count(template_release_command) == 1
+    assert (
+        shell_commands.index(template_capture_command)
+        < shell_commands.index(template_empty_check)
+        < shell_commands.index(template_release_command)
+    ), "the template tag-absence precheck must precede release creation"
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {
@@ -2095,3 +2245,125 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
         assert "/repos/emersonfelipesp/netbox-sdk/tag_protections" in text
         assert "not self-verified" in text
         assert "next unused `rcN`" in text
+
+
+def test_release_docs_require_external_tag_policy_preflight_and_terminal_recovery() -> None:
+    _assert_release_documentation(
+        Path("README.md").read_text(encoding="utf-8"),
+        _pyproject_version(),
+    )
+
+
+@pytest.mark.parametrize(
+    ("version", "expected"),
+    [
+        pytest.param("0.0.13", ("0.0.13", False), id="final"),
+        pytest.param("1.0", ("1.0", False), id="short-final"),
+        pytest.param("0.0.13.post1", ("0.0.13.post1", False), id="post"),
+        pytest.param("2!1.0.post2", ("2!1.0.post2", False), id="epoch-post"),
+        pytest.param("0.0.13rc1", ("0.0.13", True), id="rc"),
+        pytest.param("1!0.0.13", ("1!0.0.13", False), id="epoch-final"),
+    ],
+)
+def test_release_documentation_mode_classifies_publishable_versions(
+    version: str,
+    expected: tuple[str, bool],
+) -> None:
+    assert _release_documentation_mode(version) == expected
+
+
+@pytest.mark.parametrize(
+    "version",
+    [
+        pytest.param("0.0.13.dev1", id="development"),
+        pytest.param("0.0.13+local", id="local"),
+        pytest.param("0.0.13a1", id="alpha"),
+        pytest.param("0.0.13rc1.post1", id="rc-post"),
+        pytest.param("not-a-version", id="invalid"),
+    ],
+)
+def test_release_documentation_mode_rejects_unpublishable_versions(version: str) -> None:
+    with pytest.raises(ValueError, match="release documentation only supports"):
+        _release_documentation_mode(version)
+
+
+@pytest.mark.parametrize(
+    "dynamic_command",
+    [
+        pytest.param('gh release create "$WRONG_TAG"', id="dynamic-github-release"),
+        pytest.param(
+            'git tag -a "$WRONG_TAG" -m "Release $WRONG_TAG"',
+            id="dynamic-git-tag",
+        ),
+        pytest.param('git push gitea "$FINAL_TAG"', id="dynamic-gitea-push"),
+    ],
+)
+def test_release_docs_reject_dynamic_release_tag_and_push_commands(
+    dynamic_command: str,
+) -> None:
+    version = _pyproject_version()
+    readme = Path("README.md").read_text(encoding="utf-8")
+    marker = f"gh release create v{version} \\\n"
+    assert readme.count(marker) == 1
+    mutated = readme.replace(marker, f"{dynamic_command}\n{marker}", 1)
+    with pytest.raises(AssertionError, match="approved literal RC commands"):
+        _assert_release_documentation(mutated, version)
+
+
+def test_release_docs_reject_command_substitution_release_bypass() -> None:
+    version = _pyproject_version()
+    readme = Path("README.md").read_text(encoding="utf-8")
+    marker = f"gh release create v{version} \\\n"
+    assert readme.count(marker) == 1
+    mutated = readme.replace(
+        marker,
+        f'echo "$(gh release create "$WRONG_TAG")"\n{marker}',
+        1,
+    )
+    with pytest.raises(AssertionError, match="command substitutions or backticks"):
+        _assert_release_documentation(mutated, version)
+
+
+def test_release_docs_reject_release_before_exact_tag_absence_precheck() -> None:
+    version = _pyproject_version()
+    readme = Path("README.md").read_text(encoding="utf-8")
+    refs_path = f"/tmp/netbox-sdk-v{version}-tag-refs"
+    safe_block = f"""git ls-remote origin refs/tags/v{version} > {refs_path} && \\
+test ! -s {refs_path} && \\
+gh release create v{version} \\
+  --title "netbox-sdk v{version}" \\
+  --target <canonical-main-sha>"""
+    unsafe_block = f"""gh release create v{version} \\
+  --title "netbox-sdk v{version}" \\
+  --target <canonical-main-sha> && \\
+git ls-remote origin refs/tags/v{version} > {refs_path} && \\
+test ! -s {refs_path} && \\
+true"""
+    assert readme.count(safe_block) == 1
+    mutated = readme.replace(safe_block, unsafe_block, 1)
+    with pytest.raises(
+        AssertionError,
+        match="contiguous &&-only chain",
+    ):
+        _assert_release_documentation(mutated, version)
+
+
+def test_release_docs_reject_alternate_branch_after_tag_absence_check() -> None:
+    version = _pyproject_version()
+    readme = Path("README.md").read_text(encoding="utf-8")
+    refs_path = f"/tmp/netbox-sdk-v{version}-tag-refs"
+    safe_block = f"""git ls-remote origin refs/tags/v{version} > {refs_path} && \\
+test ! -s {refs_path} && \\
+gh release create v{version} \\
+  --title "netbox-sdk v{version}" \\
+  --target <canonical-main-sha>"""
+    bypass_block = f"""git ls-remote origin refs/tags/v{version} > {refs_path} && \\
+test ! -s {refs_path} && \\
+true || \\
+gh release create v{version} \\
+  --title "netbox-sdk v{version}" \\
+  --target <canonical-main-sha>"""
+    assert readme.count(safe_block) == 1
+    mutated = readme.replace(safe_block, bypass_block, 1)
+    with pytest.raises(AssertionError, match="contiguous &&-only chain"):
+        _assert_release_documentation(mutated, version)

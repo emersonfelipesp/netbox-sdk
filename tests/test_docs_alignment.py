@@ -448,11 +448,17 @@ def test_all_release_version_surfaces_match_pyproject() -> None:
         assert not any(line.startswith(f"git tag -a v{version} ") for line in readme_lines)
         assert f"gh release create v{version} \\" in readme_lines
         assert "--target <canonical-main-sha>" in readme
-        assert f"git ls-remote origin refs/tags/v{version}" in readme_lines
+        final_refs_path = f"/tmp/netbox-sdk-v{version}-tag-refs"
+        assert (
+            f"git ls-remote origin refs/tags/v{version} > {final_refs_path} && \\" in readme_lines
+        )
+        assert f"test ! -s {final_refs_path} && \\" in readme_lines
     else:
         assert f'git tag -a v{version} -m "Release v{version}"' in readme_lines
         assert f"git push gitea v{version}" in readme_lines
-    assert "git ls-remote origin refs/tags/vX.Y.Z" in readme_lines
+    template_refs_path = "/tmp/netbox-sdk-vX.Y.Z-tag-refs"
+    assert f"git ls-remote origin refs/tags/vX.Y.Z > {template_refs_path} && \\" in readme_lines
+    assert f"test ! -s {template_refs_path} && \\" in readme_lines
     assert "gh release create vX.Y.Z \\" in readme_lines
     assert '  --title "netbox-sdk vX.Y.Z" \\' in readme_lines
 
