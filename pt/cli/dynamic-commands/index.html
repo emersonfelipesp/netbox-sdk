@@ -3756,7 +3756,7 @@
 <tbody>
 <tr>
 <td><code>--netbox-version</code> / <code>--api-version</code></td>
-<td>Opção global para forçar uma linha de esquema integrada suportada (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, <code>4.7</code> preview)</td>
+<td>Opção global para forçar uma linha de esquema integrada suportada (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, <code>4.7</code>)</td>
 </tr>
 <tr>
 <td><code>--id INTEGER</code></td>
@@ -3827,13 +3827,15 @@
 <p><code>--json</code>, <code>--yaml</code> e <code>--markdown</code> são mutuamente exclusivos.</p>
 <hr />
 <h2 id="selecao-de-versao-do-netbox">Seleção de versão do NetBox<a class="headerlink" href="#selecao-de-versao-do-netbox" title="Permanent link">&para;</a></h2>
-<p><code>nbx</code> suporta em paralelo todas as superfícies de comando integradas (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code> e a linha preview <code>4.7</code>):</p>
+<p><code>nbx</code> suporta em paralelo todas as superfícies de comando integradas (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code> e <code>4.7</code>):</p>
 <ul>
-<li>Por padrão, a árvore estática de comandos usa o esquema integrado do NetBox 4.6, então recursos 4.6 como <code>dcim/cable-bundles</code> ficam disponíveis.</li>
+<li>Por padrão, a árvore estática de comandos usa o schema oficial GA integrado do NetBox 4.7.</li>
 <li>Durante a execução de comandos, auxiliares de descoberta e abertura de TUI, <code>nbx</code> verifica a versão da instância configurada e usa o esquema integrado correspondente quando a linha é suportada.</li>
+<li>Se a instância configurada não puder ser alcançada, se a detecção de versão falhar ou se o schema ao vivo for inválido, a execução falha de forma segura em vez de substituir o contrato integrado padrão.</li>
+<li>As visualizações <code>--dry-run</code>, que não criam cliente, usam o schema explícito/estático que registrou o comando e nunca consultam a instância.</li>
 <li>Use <code>--netbox-version</code> / <code>--api-version</code> ou <code>NETBOX_SDK_NETBOX_VERSION</code> para fixar explicitamente o esquema integrado.</li>
 </ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Descoberta de comandos padrão em 4.6</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Descoberta de comandos padrão em 4.7</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>cable-bundles<span class="w"> </span>list<span class="w"> </span>--help
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Fixar descoberta e execução em NetBox 4.5</span>
@@ -4014,8 +4016,8 @@ subprocesso.
 <p>Veja <a href="../demo-profile/">Perfil demo</a> para a configuração.</p>
 <hr />
 <h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
-<p>Na inicialização, <code>_register_openapi_subcommands()</code> em <code>dynamic.py</code> constrói um <code>SchemaIndex</code> sem rede a partir do esquema integrado selecionado por <code>--netbox-version</code> / <code>NETBOX_SDK_NETBOX_VERSION</code>, com padrão NetBox 4.6. Em seguida, cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o <code>app</code> raiz e outra para <code>demo_app</code> com a fábrica de cliente demo.</p>
-<p>A execução real do comando usa <code>_get_runtime_index()</code> de <code>runtime.py</code>. Overrides explícitos de versão têm prioridade; caso contrário, a CLI consulta a instância configurada e seleciona o esquema integrado correspondente para linhas de release NetBox suportadas.</p>
+<p>Na inicialização, <code>_register_openapi_subcommands()</code> em <code>dynamic.py</code> constrói um <code>SchemaIndex</code> sem rede a partir do esquema integrado selecionado por <code>--netbox-version</code> / <code>NETBOX_SDK_NETBOX_VERSION</code>, com padrão NetBox 4.7. Em seguida, cria um sub-app Typer para cada grupo, um sub-app aninhado para cada recurso e um comando para cada ação suportada. O mesmo registro executa duas vezes — uma para o <code>app</code> raiz e outra para <code>demo_app</code> com a fábrica de cliente demo.</p>
+<p>A execução real do comando usa <code>_get_runtime_index()</code> de <code>runtime.py</code>. Overrides explícitos de versão têm prioridade; caso contrário, a CLI consulta a instância configurada e seleciona o esquema integrado correspondente para linhas de release NetBox suportadas. Uma falha de detecção ou de schema em um perfil configurado é terminal; somente perfis sem URL base podem usar o contrato integrado padrão. As visualizações dry-run permanecem sem rede e são resolvidas pelo índice estático de registro.</p>
 <p>Para recursos de plugins / objetos customizados, o esquema integrado dá ao <code>nbx</code> a árvore estática de comandos que ele conhece. Use <code>--live</code> com <code>groups</code>, <code>resources</code> ou <code>ops</code> para enriquecer esse índice a partir da instância NetBox configurada via <code>/api/plugins/</code> e <code>/api/core/object-types/</code>. Invocações dinâmicas livres também tentam enriquecimento ao vivo quando o recurso solicitado não existe no esquema integrado.</p>
 
 

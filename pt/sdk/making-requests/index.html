@@ -4081,9 +4081,9 @@ resposta validados e modelos de endpoint específicos da versão.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">typed_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;tok&quot;</span><span class="p">,</span> <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.5&quot;</span><span class="p">)</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">typed_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;tok&quot;</span><span class="p">,</span> <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.5.5&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p>O cliente tipado suporta NetBox <code>4.6</code>, <code>4.5</code>, <code>4.4</code> e <code>4.3</code>, além de <code>4.7</code> (preview, opcional). Modelos gerados
+<p>O cliente tipado suporta as linhas estáveis do NetBox <code>4.7</code>, <code>4.6</code>, <code>4.5</code>, <code>4.4</code> e <code>4.3</code>. Modelos gerados
 para essas linhas de release estão versionados no repositório e acompanham
-o pacote. A suíte live-NetBox de CI exercita <code>v4.7.0-beta2</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code> e <code>v4.5.10</code>.</p>
+o pacote. A suíte live-NetBox de CI exercita <code>v4.7.0</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code> e <code>v4.5.10</code>.</p>
 <hr />
 <h2 id="uso-do-cliente-de-baixo-nivel">Uso do cliente de baixo nível<a class="headerlink" href="#uso-do-cliente-de-baixo-nivel" title="Permanent link">&para;</a></h2>
 <p>Chamadas HTTP diretas comuns passam por <code>NetBoxApiClient.request()</code>. Protocolos

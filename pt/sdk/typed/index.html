@@ -985,10 +985,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#netbox-47-preview-mapeamentos-de-porta-de-servicos" class="md-nav__link">
+  <a href="#netbox-47-ga-mapeamentos-de-porta-de-servicos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        NetBox 4.7 (preview) — mapeamentos de porta de serviços
+        NetBox 4.7 GA — mapeamentos de porta de serviços
       
     </span>
   </a>
@@ -3379,10 +3379,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#netbox-47-preview-mapeamentos-de-porta-de-servicos" class="md-nav__link">
+  <a href="#netbox-47-ga-mapeamentos-de-porta-de-servicos" class="md-nav__link">
     <span class="md-ellipsis">
       
-        NetBox 4.7 (preview) — mapeamentos de porta de serviços
+        NetBox 4.7 GA — mapeamentos de porta de serviços
       
     </span>
   </a>
@@ -3483,6 +3483,7 @@ fachada assíncrona.</p>
 </span></code></pre></div>
 <p>Linhas de release suportadas:</p>
 <ul>
+<li><code>4.7</code> (padrão estável)</li>
 <li><code>4.6</code></li>
 <li><code>4.5</code></li>
 <li><code>4.4</code></li>
@@ -3490,7 +3491,7 @@ fachada assíncrona.</p>
 </ul>
 <p>Versões de patch normalizam para sua linha de release, então <code>4.4.10</code> seleciona o
 cliente tipado <code>4.4</code>.</p>
-<p>A integração contínua exercita a suíte live-NetBox contra <code>v4.7.0-beta2</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code> e <code>v4.5.10</code>.</p>
+<p>A integração contínua exercita a suíte live-NetBox contra <code>v4.7.0</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code> e <code>v4.5.10</code>.</p>
 <h2 id="exemplo">Exemplo<a class="headerlink" href="#exemplo" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -3551,7 +3552,7 @@ formato do corpo, porque um lote enfileirado retorna um job tanto para um objeto
 único quanto para uma lista. Sem a flag, nada muda.</p>
 <blockquote>
 <p><strong>Isto é um overlay, enquanto o schema upstream não descreve o recurso.</strong> O
-artefato 4.7 fixado (<code>v4.7.0-beta2</code>) não descreve o parâmetro, então o gerador
+artefato 4.7 fixado (<code>v4.7.0</code>) não descreve o parâmetro, então o gerador
 o declara em escritas bulk com corpo JSON em array, mantendo o bundle
 versionado fiel byte a byte ao upstream. Caminhos de coleção singulares, como
 o dashboard de extras, não recebem o overlay. Um teste de guarda falha assim
@@ -3564,13 +3565,13 @@ bindings tipados de endpoints gerados para as linhas de release suportadas. Não
 necessário executar geração de código localmente.</p>
 <p>Módulos relevantes:</p>
 <ul>
+<li><code>netbox_sdk.models.v4_7</code></li>
 <li><code>netbox_sdk.models.v4_6</code></li>
-<li><code>netbox_sdk.models.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.models.v4_5</code></li>
 <li><code>netbox_sdk.models.v4_4</code></li>
 <li><code>netbox_sdk.models.v4_3</code></li>
+<li><code>netbox_sdk.typed_versions.v4_7</code></li>
 <li><code>netbox_sdk.typed_versions.v4_6</code></li>
-<li><code>netbox_sdk.typed_versions.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.typed_versions.v4_5</code></li>
 <li><code>netbox_sdk.typed_versions.v4_4</code></li>
 <li><code>netbox_sdk.typed_versions.v4_3</code></li>
@@ -3581,7 +3582,7 @@ necessário executar geração de código localmente.</p>
 <li>Use <code>api()</code> para a fachada assíncrona ergonômica</li>
 <li>Use <code>typed_api()</code> para E/S validada por Pydantic versionada</li>
 </ul>
-<h3 id="netbox-47-preview-mapeamentos-de-porta-de-servicos">NetBox 4.7 (preview) — mapeamentos de porta de serviços<a class="headerlink" href="#netbox-47-preview-mapeamentos-de-porta-de-servicos" title="Permanent link">&para;</a></h3>
+<h3 id="netbox-47-ga-mapeamentos-de-porta-de-servicos">NetBox 4.7 GA — mapeamentos de porta de serviços<a class="headerlink" href="#netbox-47-ga-mapeamentos-de-porta-de-servicos" title="Permanent link">&para;</a></h3>
 <p>O NetBox 4.7 adiciona <code>port_mappings</code>, permitindo que um serviço exponha vários
 protocolos ao mesmo tempo (DNS em <code>tcp/53</code> e <code>udp/53</code>). O par legado
 <code>protocol</code> + <code>ports</code> continua válido na escrita: o serializer compartilhado do
@@ -3598,15 +3599,10 @@ aceito quando concordam; um conflito real é rejeitado como ambíguo.</p>
 legados <code>protocol</code>/<code>ports</code>; um serviço multiprotocolo reporta <code>null</code> para ambos,
 pois não pode ser expresso no formato antigo.</p>
 <blockquote>
-<p><strong>Nota de geração.</strong> O <code>drf-spectacular</code> omite <code>protocol</code> do bloco
-<code>properties</code> dos modelos <em>graváveis</em> de serviço, embora o contrato de escrita
-documentado o aceite. O <code>netbox-sdk</code> o restaura com um overlay determinístico
-de geração (<code>scripts/generate_typed_sdk.py::apply_write_compat_overlay</code>)
-aplicado apenas em memória — o bundle OpenAPI versionado permanece fiel byte a
-byte ao artefato upstream fixado. Sem ele, um PATCH de
-<code>{"protocol": "udp", "ports": [53]}</code> seria enviado como <code>{"ports": [53]}</code> e o
-NetBox repreencheria o protocolo armazenado, ignorando silenciosamente a
-alteração.</p>
+<p><strong>Nota de geração.</strong> O schema oficial GA <code>v4.7.0</code> emite <code>protocol</code>, <code>ports</code> e
+<code>port_mappings</code> diretamente em todos os modelos graváveis de serviço e de
+template de serviço. Portanto, o gerador consome as propriedades upstream sem
+um overlay de compatibilidade de serviço.</p>
 </blockquote>
 
 

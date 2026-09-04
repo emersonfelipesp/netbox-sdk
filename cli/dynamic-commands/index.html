@@ -3756,7 +3756,7 @@
 <tbody>
 <tr>
 <td><code>--netbox-version</code> / <code>--api-version</code></td>
-<td>Global option to force a supported bundled schema release line (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, <code>4.7</code> preview)</td>
+<td>Global option to force a supported bundled schema release line (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, <code>4.7</code>)</td>
 </tr>
 <tr>
 <td><code>--id INTEGER</code></td>
@@ -3827,13 +3827,15 @@
 <p><code>--json</code>, <code>--yaml</code>, and <code>--markdown</code> are mutually exclusive.</p>
 <hr />
 <h2 id="netbox-version-selection">NetBox version selection<a class="headerlink" href="#netbox-version-selection" title="Permanent link">&para;</a></h2>
-<p><code>nbx</code> supports every bundled NetBox command surface in parallel (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, and the <code>4.7</code> preview line):</p>
+<p><code>nbx</code> supports every bundled NetBox command surface in parallel (<code>4.3</code>, <code>4.4</code>, <code>4.5</code>, <code>4.6</code>, and <code>4.7</code>):</p>
 <ul>
-<li>By default, the static command tree uses the bundled NetBox 4.6 schema so 4.6 resources such as <code>dcim/cable-bundles</code> are available.</li>
+<li>By default, the static command tree uses the official bundled NetBox 4.7 GA schema.</li>
 <li>During command execution, discovery helpers, and TUI launch, <code>nbx</code> checks the configured instance version and uses the matching bundled schema for supported release lines.</li>
+<li>If a configured instance cannot be reached, version detection fails, or its live schema is invalid, execution fails closed instead of substituting the default bundled contract.</li>
+<li>Client-free <code>--dry-run</code> previews use the explicit/static schema that registered the command and never probe the instance.</li>
 <li>Use <code>--netbox-version</code> / <code>--api-version</code> or <code>NETBOX_SDK_NETBOX_VERSION</code> to pin the bundled schema explicitly.</li>
 </ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Default 4.6 command discovery</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Default 4.7 command discovery</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>nbx<span class="w"> </span>dcim<span class="w"> </span>cable-bundles<span class="w"> </span>list<span class="w"> </span>--help
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Pin command discovery and execution to NetBox 4.5</span>
@@ -4014,8 +4016,8 @@ a subprocess.
 <p>See <a href="../demo-profile/">Demo Profile</a> for setup.</p>
 <hr />
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<p>At startup, <code>_register_openapi_subcommands()</code> in <code>dynamic.py</code> builds a network-free <code>SchemaIndex</code> from the bundled schema selected by <code>--netbox-version</code> / <code>NETBOX_SDK_NETBOX_VERSION</code>, defaulting to NetBox 4.6. It then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root <code>app</code> and once for <code>demo_app</code> with the demo client factory.</p>
-<p>Actual command execution uses <code>_get_runtime_index()</code> from <code>runtime.py</code>. Explicit version overrides win; otherwise the CLI probes the configured instance and selects the matching bundled schema for supported NetBox release lines.</p>
+<p>At startup, <code>_register_openapi_subcommands()</code> in <code>dynamic.py</code> builds a network-free <code>SchemaIndex</code> from the bundled schema selected by <code>--netbox-version</code> / <code>NETBOX_SDK_NETBOX_VERSION</code>, defaulting to NetBox 4.7. It then creates a Typer sub-app for every group, a nested sub-app for every resource, and a command for every supported action. The same registration runs twice — once for the root <code>app</code> and once for <code>demo_app</code> with the demo client factory.</p>
+<p>Actual command execution uses <code>_get_runtime_index()</code> from <code>runtime.py</code>. Explicit version overrides win; otherwise the CLI probes the configured instance and selects the matching bundled schema for supported NetBox release lines. A configured profile's detection or schema failure is terminal; only profiles without a base URL may use the default bundled contract. Dry-run previews remain network-free and resolve against the static registration index.</p>
 <p>For plugin/custom-object resources, the bundled schema gives <code>nbx</code> the static command tree it knows about. Use <code>--live</code> with <code>groups</code>, <code>resources</code>, or <code>ops</code> to enrich that index from the configured NetBox instance via <code>/api/plugins/</code> and <code>/api/core/object-types/</code>. Free-form dynamic invocations also try live enrichment when the requested resource is missing from the bundled schema.</p>
 
 

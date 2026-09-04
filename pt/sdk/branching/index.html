@@ -3465,7 +3465,7 @@ branch (o SDK resolve o nome automaticamente).</p>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">typed_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;…&quot;</span><span class="p">,</span> <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.6&quot;</span><span class="p">)</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">branches</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">plugins</span><span class="o">.</span><span class="n">branching</span><span class="o">.</span><span class="n">branches</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 </span></code></pre></div>
-<p><code>PluginsApp.branching</code> está conectado para todas as linhas integradas — 4.3, 4.4, 4.5, 4.6 e a linha preview 4.7. Somente a 4.4 traz o wrapper totalmente tipado; as demais expõem o <code>RawBranchingApp</code> baseado em dicionário.</p>
+<p><code>PluginsApp.branching</code> está conectado para todas as linhas integradas — 4.3, 4.4, 4.5, 4.6 e 4.7. Somente a 4.4 traz o wrapper totalmente tipado; as demais expõem o <code>RawBranchingApp</code> baseado em dicionário.</p>
 
 
 

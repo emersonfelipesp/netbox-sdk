@@ -985,10 +985,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#netbox-47-preview-service-port-mappings" class="md-nav__link">
+  <a href="#netbox-47-ga-service-port-mappings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        NetBox 4.7 (preview) — service port mappings
+        NetBox 4.7 GA — service port mappings
       
     </span>
   </a>
@@ -3379,10 +3379,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#netbox-47-preview-service-port-mappings" class="md-nav__link">
+  <a href="#netbox-47-ga-service-port-mappings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        NetBox 4.7 (preview) — service port mappings
+        NetBox 4.7 GA — service port mappings
       
     </span>
   </a>
@@ -3483,6 +3483,7 @@ facade.</p>
 </span></code></pre></div>
 <p>Supported release lines:</p>
 <ul>
+<li><code>4.7</code> (stable default)</li>
 <li><code>4.6</code></li>
 <li><code>4.5</code></li>
 <li><code>4.4</code></li>
@@ -3491,7 +3492,7 @@ facade.</p>
 <p>Patch versions normalize to their release line, so <code>4.4.10</code> selects the <code>4.4</code>
 typed client.</p>
 <p>Continuous integration exercises the live-NetBox suite against
-<code>v4.7.0-beta2</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code>, and <code>v4.5.10</code>.</p>
+<code>v4.7.0</code>, <code>v4.6.6</code>, <code>v4.6.3</code>, <code>v4.6.2</code>, and <code>v4.5.10</code>.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -3550,7 +3551,7 @@ body shape, because a queued batch returns a job for either a single object or a
 list. Without the flag, nothing changes.</p>
 <blockquote>
 <p><strong>This is an overlay, pending upstream schema support.</strong> The pinned 4.7
-artifact (<code>v4.7.0-beta2</code>) does not describe the parameter, so the generator
+artifact (<code>v4.7.0</code>) does not describe the parameter, so the generator
 declares it on bulk JSON-array writes while keeping the committed bundle
 byte-faithful to upstream. Singular collection paths such as the extras
 dashboard are not overlaid. A guard test fails once a refreshed 4.7 schema
@@ -3563,13 +3564,13 @@ generated typed endpoint bindings for the supported release lines. Users do not
 need to run code generation locally.</p>
 <p>Relevant modules:</p>
 <ul>
+<li><code>netbox_sdk.models.v4_7</code></li>
 <li><code>netbox_sdk.models.v4_6</code></li>
-<li><code>netbox_sdk.models.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.models.v4_5</code></li>
 <li><code>netbox_sdk.models.v4_4</code></li>
 <li><code>netbox_sdk.models.v4_3</code></li>
+<li><code>netbox_sdk.typed_versions.v4_7</code></li>
 <li><code>netbox_sdk.typed_versions.v4_6</code></li>
-<li><code>netbox_sdk.typed_versions.v4_7</code> (preview)</li>
 <li><code>netbox_sdk.typed_versions.v4_5</code></li>
 <li><code>netbox_sdk.typed_versions.v4_4</code></li>
 <li><code>netbox_sdk.typed_versions.v4_3</code></li>
@@ -3580,7 +3581,7 @@ need to run code generation locally.</p>
 <li>Use <code>api()</code> for the async ergonomic facade</li>
 <li>Use <code>typed_api()</code> for versioned Pydantic-validated I/O</li>
 </ul>
-<h3 id="netbox-47-preview-service-port-mappings">NetBox 4.7 (preview) — service port mappings<a class="headerlink" href="#netbox-47-preview-service-port-mappings" title="Permanent link">&para;</a></h3>
+<h3 id="netbox-47-ga-service-port-mappings">NetBox 4.7 GA — service port mappings<a class="headerlink" href="#netbox-47-ga-service-port-mappings" title="Permanent link">&para;</a></h3>
 <p>NetBox 4.7 adds <code>port_mappings</code>, letting a service expose several protocols at
 once (DNS on both <code>tcp/53</code> and <code>udp/53</code>). The legacy single-protocol
 <code>protocol</code> + <code>ports</code> pair still works on write: upstream's shared serializer
@@ -3597,14 +3598,10 @@ only when they agree; a genuine conflict is rejected as ambiguous.</p>
 <code>protocol</code>/<code>ports</code>; a multi-protocol service reports <code>null</code> for both, because it
 cannot be expressed in the old format.</p>
 <blockquote>
-<p><strong>Generation note.</strong> <code>drf-spectacular</code> omits <code>protocol</code> from the <em>writable</em>
-service models' <code>properties</code> block even though the documented write contract
-accepts it. <code>netbox-sdk</code> restores it with a deterministic generation overlay
-(<code>scripts/generate_typed_sdk.py::apply_write_compat_overlay</code>) applied in memory
-only — the committed OpenAPI bundle stays byte-faithful to the pinned upstream
-artifact. Without it, a PATCH of <code>{"protocol": "udp", "ports": [53]}</code> would be
-sent as <code>{"ports": [53]}</code> and NetBox would backfill the stored protocol,
-silently ignoring the change.</p>
+<p><strong>Generation note.</strong> The official <code>v4.7.0</code> GA schema emits <code>protocol</code>, <code>ports</code>,
+and <code>port_mappings</code> directly on every writable service and service-template
+model. The generator therefore consumes the upstream properties without a
+service compatibility overlay.</p>
 </blockquote>
 
 

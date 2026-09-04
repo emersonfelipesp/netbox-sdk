@@ -3178,6 +3178,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Início rápido">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contrato-de-compatibilidade-do-esquema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrato de compatibilidade do esquema
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3349,15 +3366,39 @@ dependência Python.</p>
 </span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
 <p>Se quiser controle HTTP bruto em vez da fachada, use <code>NetBoxApiClient</code> diretamente.</p>
+<h3 id="contrato-de-compatibilidade-do-esquema">Contrato de compatibilidade do esquema<a class="headerlink" href="#contrato-de-compatibilidade-do-esquema" title="Permanent link">&para;</a></h3>
+<p><code>api()</code> é uma fábrica síncrona, portanto não contata o servidor durante sua
+construção. Se <code>schema=</code> for omitido, a construção começa com o contrato
+integrado estável mais recente (atualmente NetBox 4.7); antes da primeira
+requisição que depende do esquema, a fachada detecta a release conectada e
+substitui esse índice provisório. Falhas de detecção ou de esquema ativo são
+propagadas em vez de preservar silenciosamente o contrato padrão. Para um
+servidor mais antigo conhecido, você pode ignorar a detecção e fixar o esquema
+explicitamente:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span><span class="p">,</span> <span class="n">build_schema_index</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">api</span><span class="p">(</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-token&quot;</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">schema</span><span class="o">=</span><span class="n">build_schema_index</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;4.6&quot;</span><span class="p">),</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>Para um servidor não fixado, omita <code>schema=</code> e deixe a primeira requisição
+detectar cada linha de release suportada, ou use <code>await async_api(...)</code> quando a
+detecção precisar terminar antes de a fachada ser retornada. Com
+<code>strict_filters</code> habilitado, a validação adiada ocorre depois da detecção; um
+erro de filtro desconhecido informa o esquema carregado e aponta para os
+caminhos de seleção disponíveis, pois a rejeição é local e nenhuma requisição
+chegou ao NetBox.</p>
 <h2 id="plugins-e-objetos-customizados">Plugins e objetos customizados<a class="headerlink" href="#plugins-e-objetos-customizados" title="Permanent link">&para;</a></h2>
-<p>Use <code>async_api()</code> quando quiser que a fachada selecione o esquema da instância
-NetBox conectada e o enriqueça com recursos em tempo de execução. Ela descobre
+<p>Use <code>async_api()</code> quando quiser seleção antecipada do esquema e enriquecimento
+com recursos em tempo de execução. Ela descobre
 coleções REST de plugins sob <code>/api/plugins/</code> e recursos públicos de ObjectType
 anunciados por <code>/api/core/object-types/</code>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">async_api</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="k">await</span> <span class="n">async_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-token&quot;</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">widgets</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">plugins</span><span class="o">.</span><span class="n">custom</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">async_api</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="k">await</span> <span class="n">async_api</span><span class="p">(</span><span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-token&quot;</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">widgets</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nb</span><span class="o">.</span><span class="n">plugins</span><span class="o">.</span><span class="n">custom</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 </span></code></pre></div>
 <p>O SDK suporta objetos de plugins / customizados que expõem endpoints REST
 padrão de lista e detalhe. Modelos privados ou dados de plugins sem endpoint
@@ -3365,17 +3406,17 @@ REST são ignorados.</p>
 <h2 id="sdk-tipado">SDK tipado<a class="headerlink" href="#sdk-tipado" title="Permanent link">&para;</a></h2>
 <p>Use <code>typed_api()</code> quando quiser validação de requisição e resposta e modelos de
 endpoint visíveis no IDE.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">typed_api</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">typed_api</span><span class="p">(</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-token&quot;</span><span class="p">,</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.5&quot;</span><span class="p">,</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">netbox_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">typed_api</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">nb</span> <span class="o">=</span> <span class="n">typed_api</span><span class="p">(</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;https://netbox.example.com&quot;</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-token&quot;</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">netbox_version</span><span class="o">=</span><span class="s2">&quot;4.5&quot;</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>Linhas de release suportadas:</p>
 <ul>
-<li><code>4.7</code> (preview, opcional)</li>
+<li><code>4.7</code> (estável, padrão; schema oficial GA <code>v4.7.0</code>)</li>
 <li><code>4.6</code></li>
 <li><code>4.5</code></li>
 <li><code>4.4</code></li>
