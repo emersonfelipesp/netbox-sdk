@@ -106,6 +106,7 @@ require the head to be current with its base before merge.
   - gives `SOURCE_MIRROR_TOKEN` only to the canonical fetch step and `GH_MIRROR_TOKEN` only to the GitHub push step; the GitHub push retries a changed lease at most three times
   - creates a freshly generated metadata-only child of each canonical tip before updating GitHub, so the mirror cannot discard the provenance commit
   - implements the weaker mirror-side design because no existing Gitea workflow exposes a repository-content write credential; the metadata follow-up therefore remains absent from canonical Gitea history
+  - because that follow-up is absent from canonical history, the provenance test requires the recorded commit to describe the candidate tree but not to be an ancestor of it: a squash merge leaves the recorded commit a same-tree sibling of the released history
 - `workflows/publish-metadata.yml`
   - runs only when `metadata.json` changes on GitHub `main`
   - validates the full commit-object SHA, same-version ancestry, and whole-tree equality outside the metadata follow-up through `scripts.build_metadata.validate_source_provenance`

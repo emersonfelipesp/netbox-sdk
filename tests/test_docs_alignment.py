@@ -701,6 +701,44 @@ def test_published_v0_0_10_is_in_candidate_ancestry() -> None:
     )
 
 
+def _metadata_source_mismatch(commit: str, release: str) -> str | None:
+    """Return why ``commit`` fails to describe the candidate tree, or ``None``.
+
+    Ancestry is deliberately not part of this predicate. A squash merge collapses
+    a branch into a new commit, so the commit the branch recorded is a same-tree
+    sibling of the released history rather than an ancestor of it. What has to
+    hold is that the recorded commit carries the same project version and
+    describes the same tree as the candidate outside the metadata file itself.
+    """
+    source_pyproject = _run_git("show", f"{commit}:pyproject.toml")
+    if source_pyproject is None or source_pyproject.returncode != 0:
+        return f"metadata source.commit {commit} does not expose pyproject.toml"
+    source_version = tomllib.loads(source_pyproject.stdout)["project"]["version"]
+    if source_version != release:
+        return (
+            "metadata must name a commit containing the same project version; "
+            f"{commit} declares {source_version!r} but the metadata declares {release!r}"
+        )
+    source_diff = _run_git(
+        "diff",
+        "--name-only",
+        commit,
+        "HEAD",
+        "--",
+        ".",
+        ":(exclude)metadata.json",
+    )
+    if source_diff is None or source_diff.returncode != 0:
+        return f"the candidate tree could not be compared against {commit}"
+    drifted = source_diff.stdout.strip()
+    if drifted:
+        return (
+            "metadata source.commit must represent the candidate tree outside "
+            f"metadata.json; {commit} differs in: {drifted.splitlines()[0]}"
+        )
+    return None
+
+
 def test_metadata_has_traceable_source_commit() -> None:
     metadata = json.loads(_read("metadata.json"))
     commit = metadata["source"]["commit"]
@@ -719,10 +757,14 @@ def test_metadata_has_traceable_source_commit() -> None:
     assert source_type.stdout.strip() == "commit", (
         "metadata source.commit must identify a commit object in repository history"
     )
+    # Ancestry is not required. A squash merge collapses the branch into a new
+    # commit, so the commit the branch recorded is a sibling of the released
+    # history rather than an ancestor of it, while still describing exactly the
+    # same tree. The substantive guarantee is the tree comparison below, which
+    # rejects a recorded commit that does not describe the candidate tree
+    # whether or not it is reachable from HEAD.
     ancestor = _run_git("merge-base", "--is-ancestor", commit, "HEAD")
-    assert ancestor is not None and ancestor.returncode == 0, (
-        "metadata source.commit must be in candidate ancestry"
-    )
+    assert ancestor is not None, "git merge-base must be runnable in the candidate checkout"
 
     pending_parent = _run_git("rev-parse", "--verify", "MERGE_HEAD^{}")
     if pending_parent is not None and pending_parent.returncode == 0:
@@ -734,25 +776,73 @@ def test_metadata_has_traceable_source_commit() -> None:
         )
         return
 
-    source_pyproject = _run_git("show", f"{commit}:pyproject.toml")
-    assert source_pyproject is not None and source_pyproject.returncode == 0
-    source_version = tomllib.loads(source_pyproject.stdout)["project"]["version"]
-    assert source_version == metadata["release"], (
-        "metadata must be a follow-up to an ancestor containing the same project version"
+    reason = _metadata_source_mismatch(commit, metadata["release"])
+    assert reason is None, reason
+
+
+def _same_version_different_tree_commit(release: str) -> str | None:
+    """Return a published commit that declares ``release`` but has another tree.
+
+    Walking history rather than hard-coding a SHA keeps the fixture valid as the
+    branch moves, and the caller asserts that one was found so an empty search
+    fails the test instead of silently skipping it.
+    """
+    history = _run_git("rev-list", "--max-count=40", "HEAD~1")
+    if history is None or history.returncode != 0:
+        return None
+    for candidate in history.stdout.split():
+        pyproject = _run_git("show", f"{candidate}:pyproject.toml")
+        if pyproject is None or pyproject.returncode != 0:
+            continue
+        if tomllib.loads(pyproject.stdout)["project"]["version"] != release:
+            continue
+        diff = _run_git(
+            "diff", "--name-only", candidate, "HEAD", "--", ".", ":(exclude)metadata.json"
+        )
+        if diff is not None and diff.returncode == 0 and diff.stdout.strip():
+            return candidate
+    return None
+
+
+def _require_repository_checkout() -> None:
+    git_probe = _run_git("rev-parse", "--show-toplevel")
+    assert git_probe is not None and git_probe.returncode == 0, (
+        "the traceability predicate cannot be exercised without Git metadata"
     )
-    source_diff = _run_git(
-        "diff",
-        "--name-only",
-        commit,
-        "HEAD",
-        "--",
-        ".",
-        ":(exclude)metadata.json",
+    assert Path(git_probe.stdout.strip()).resolve() == REPO_ROOT.resolve()
+
+
+def test_metadata_traceability_rejects_a_commit_with_a_different_tree() -> None:
+    """A commit declaring the same version but another tree must be rejected.
+
+    This is the mutation that matters: the recorded version alone cannot carry
+    the check, so the fixture deliberately matches on version and differs only in
+    tree. Removing the tree comparison from the predicate makes this fail.
+    """
+    _require_repository_checkout()
+    release = json.loads(_read("metadata.json"))["release"]
+    candidate = _same_version_different_tree_commit(release)
+    assert candidate is not None, (
+        "no published commit declares the current version with a different tree, "
+        "so this guard cannot observe the property it asserts"
     )
-    assert source_diff is not None and source_diff.returncode == 0
-    assert not source_diff.stdout.strip(), (
-        "metadata source.commit must represent the candidate tree outside metadata.json"
-    )
+    reason = _metadata_source_mismatch(candidate, release)
+    assert reason is not None and "represent the candidate tree" in reason
+
+
+def test_metadata_traceability_rejects_a_commit_with_a_different_version() -> None:
+    """A commit from an earlier release must be rejected on its version alone."""
+    _require_repository_checkout()
+    release = json.loads(_read("metadata.json"))["release"]
+    reason = _metadata_source_mismatch(_IMMUTABLE_V0_0_10_COMMIT, release)
+    assert reason is not None and "same project version" in reason
+
+
+def test_metadata_traceability_accepts_the_recorded_commit() -> None:
+    """The predicate must accept the commit the metadata actually records."""
+    _require_repository_checkout()
+    metadata = json.loads(_read("metadata.json"))
+    assert _metadata_source_mismatch(metadata["source"]["commit"], metadata["release"]) is None
 
 
 def test_metadata_generation_rejects_invalid_source_commit(
