@@ -1,31 +1,26 @@
-name: publish-metadata
+name: Validate metadata provenance
 
 on:
   push:
     branches: [main]
     paths:
-      - pyproject.toml
-      - netbox_sdk/typed_versions/**
-      - scripts/build_metadata.py
-      - .github/workflows/publish-metadata.yml
+      - metadata.json
 
 permissions:
   contents: read
 
 concurrency:
-  group: publish-metadata
-  cancel-in-progress: false
+  group: validate-metadata-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  generate-metadata:
+  validate-metadata:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    outputs:
-      metadata_b64: ${{ steps.capture.outputs.metadata_b64 }}
     steps:
-      - name: Checkout exact metadata source
+      - name: Checkout the exact metadata commit
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
@@ -36,45 +31,24 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Generate metadata.json
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_SHA: ${{ github.sha }}
-        run: python scripts/build_metadata.py
-
-      - name: Capture generated metadata
-        id: capture
+      - name: Validate committed metadata against repository history
         run: |
-          set -euo pipefail
-          metadata_b64="$(base64 -w 0 metadata.json)"
-          echo "metadata_b64=${metadata_b64}" >> "$GITHUB_OUTPUT"
+          python - <<'PY'
+          import json
+          import re
+          import tomllib
+          from pathlib import Path
 
-  publish-metadata:
-    needs: generate-metadata
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    steps:
-      - name: Commit and push if changed
-        env:
-          METADATA_B64: ${{ needs.generate-metadata.outputs.metadata_b64 }}
-          METADATA_WRITE_TOKEN: ${{ secrets.METADATA_WRITE_TOKEN }}
-          SOURCE_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          test -n "$METADATA_WRITE_TOKEN"
-          git clone --no-tags --single-branch --branch main \
-            "https://github.com/${GITHUB_REPOSITORY}.git" writer
-          test "$(git -C writer rev-parse HEAD)" = "$SOURCE_SHA"
-          printf '%s' "$METADATA_B64" | base64 --decode > writer/metadata.json
-          cd writer
-          if git diff --quiet -- metadata.json; then
-            echo "metadata.json unchanged; nothing to commit."
-            exit 0
-          fi
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add metadata.json
-          git commit -m "chore: refresh metadata.json [skip ci]"
-          git push "https://x-access-token:${METADATA_WRITE_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          from scripts.build_metadata import validate_source_provenance
+
+          root = Path.cwd()
+          metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
+          commit = metadata["source"]["commit"]
+          if not re.fullmatch(r"[0-9a-f]{40}", commit):
+              raise SystemExit("metadata source.commit must be a full lowercase Git SHA")
+          project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+          if metadata["release"] != project["version"]:
+              raise SystemExit("metadata release does not match the project version")
+          validate_source_provenance(commit, str(project["version"]))
+          print(f"metadata.json is traceable to {commit}")
+          PY

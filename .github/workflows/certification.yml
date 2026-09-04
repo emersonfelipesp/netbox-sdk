@@ -3,6 +3,8 @@ name: Certification Evidence
 on:
   push:
     branches: ["**"]
+    paths-ignore:
+      - metadata.json
   pull_request:
     branches: ["**"]
 

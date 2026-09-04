@@ -72,34 +72,44 @@ require the head to be current with its base before merge.
   - installs dev dependencies plus `cli`, `tui`, `demo`, and `mcp` extras
   - runs `ty check` as the type-check gate
   - runs pre-commit as the formatting/lint gate
+  - ignores metadata-only pushes, which are covered by the dedicated provenance validator
 - `workflows/test.yml`
   - detects whether a change affects `netbox_sdk`, `netbox_cli`, `netbox_tui`, `netbox_mcp`, or shared repo-wide validation inputs
   - runs `suite_sdk`, `suite_cli`, `suite_tui`, or `suite_mcp` on Python 3.11, 3.12, and 3.13 for branch/PR changes
   - escalates to a full `pytest` matrix when shared files change or when the push targets `main`
-  - adds the `mock` extra for mock API coverage and runs live NetBox tests for SDK-affecting branch/PR changes and every `main` push against `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`. Each source checkout must resolve its tag to the reviewed full commit. The `v4.7.0` image is pulled by reviewed OCI digest and the inspected RepoDigests must contain that exact digest; lines without a reviewed image digest run from their verified source checkout. Provenance-managed lines also verify the upstream tag, commit, source blob, independent source SHA-256, and normalized committed bundle before startup. `/api/status/` must then match the exact matrix version after stripping a leading `v`
+  - adds the `mock` extra for mock API coverage and runs live NetBox tests for SDK-affecting branch/PR changes and every mirrored canonical `main` source update against `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2`, and `v4.5.10`. Metadata-only pushes use the dedicated provenance validator instead. Each source checkout must resolve its tag to the reviewed full commit. The `v4.7.0` image is pulled by reviewed OCI digest and the inspected RepoDigests must contain that exact digest; lines without a reviewed image digest run from their verified source checkout. Provenance-managed lines also verify the upstream tag, commit, source blob, independent source SHA-256, and normalized committed bundle before startup. `/api/status/` must then match the exact matrix version after stripping a leading `v`
   - runs the **bundled release-line matrix** (`test-bundled-release-lines`) on the same trigger: one job per registered NetBox line, pinning `NETBOX_SDK_NETBOX_VERSION`/`NETBOX_MOCK_VERSION` and running the version-sensitive suites plus a CLI-vs-MCP resolution parity check. It needs no live NetBox, so it still covers lines that remain live-exempt for CI cost (`4.3`, `4.4`). The matrix must match `netbox_sdk.versioning.SUPPORTED_NETBOX_VERSIONS`; `tests/test_release_line_coverage.py` fails if it drifts, and also fails if a line has neither a live job nor a documented self-retiring exception
   - fetches full Git history for every SDK/full-suite job because release-lineage tests resolve the immutable `v0.0.10` tag
   - routes release policy, metadata generation, and metadata-workflow changes through the complete suite
 - `workflows/security.yml`
   - path-routes SDK, CLI, and TUI security tests
   - runs the relevant `tests/test_security_*.py` module on Python 3.11, 3.12, and 3.13
+  - ignores metadata-only pushes, which are covered by the dedicated provenance validator
 - `workflows/docs.yml`
   - builds docs with docs+dev groups plus CLI/TUI/demo extras
   - optionally regenerates captured docs when demo secrets are available
   - deploys to the current repository's `gh-pages` branch via `mkdocs gh-deploy`
+  - ignores metadata-only pushes and serializes deployments per ref so concurrent `gh-pages` writes cannot race
   - must keep `mkdocs.yml` `site_url` and repo links aligned with `emersonfelipesp/netbox-sdk`
 - `workflows/certification.yml`
   - validates `CERTIFICATION.md` evidence with `tests/test_certification_readiness.py`
   - builds the distribution, checks metadata with Twine, and smoke-installs the wheel
+  - ignores metadata-only pushes, which are covered by the dedicated provenance validator
 - `workflows/main-post-merge.yml`
   - validates the published `netbox-sdk[cli]` install
   - then runs source-based full-suite pytest coverage with full extras
+  - ignores metadata-only pushes while still running once for every mirrored canonical source update
 - `workflows/django-model-builds.yml`
   - installs `netbox-sdk[cli]` from PyPI and rebuilds cached Django model graphs
+- `.gitea/workflows/mirror-github.yml`
+  - serializes every canonical `main` push, generates metadata in a credential-free untrusted job, and confirms the event SHA is still the latest canonical tip before publishing
+  - gives `SOURCE_MIRROR_TOKEN` only to the canonical fetch step and `GH_MIRROR_TOKEN` only to the GitHub push step; the GitHub push retries a changed lease at most three times
+  - creates a freshly generated metadata-only child of each canonical tip before updating GitHub, so the mirror cannot discard the provenance commit
+  - implements the weaker mirror-side design because no existing Gitea workflow exposes a repository-content write credential; the metadata follow-up therefore remains absent from canonical Gitea history
 - `workflows/publish-metadata.yml`
-  - regenerates `metadata.json` from `scripts/build_metadata.py` only on relevant `main` updates
-  - passes a full commit-object SHA; metadata generation rejects tag objects, empty or abbreviated provenance
-  - generates in a read-only job, then hands the file through a job output to a separate minimal `main`-only writer whose automatic token stays read-only; the fine-grained `METADATA_WRITE_TOKEN` secret is exposed only to the guarded clone/commit/push step, and every action is pinned
+  - runs only when `metadata.json` changes on GitHub `main`
+  - validates the full commit-object SHA, same-version ancestry, and whole-tree equality outside the metadata follow-up through `scripts.build_metadata.validate_source_provenance`
+  - uses no write credential; test, lint, security, certification, post-merge, and documentation workflows ignore metadata-only pushes because this dedicated gate covers them
 - `workflows/publish-testpypi.yml`
   - authorizes direct pushes only for exact `v*rc*` candidates and authorizes final/post PyPI publication only from `release: published`
   - builds and uploads the single `netbox-sdk` distribution to TestPyPI and optionally PyPI

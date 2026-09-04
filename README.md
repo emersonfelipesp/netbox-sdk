@@ -507,11 +507,16 @@ only that approved directory after its filename/digest manifest is revalidated
 in the upload step, so a partial PyPI upload can resume without
 `--skip-existing`. A bounded post-upload check then requires PyPI to expose the
 exact wheel/sdist pair and hashes. Publisher jobs install only the audited,
-locked `publish` dependency group. Metadata generation runs in a read-only job;
-a separate minimal `main`-only writer receives the generated file through a job
-output while its automatic token stays read-only. Configure a fine-grained
-`METADATA_WRITE_TOKEN` repository secret with contents-write access; it is
-exposed only to the guarded clone/commit/push step.
+locked `publish` dependency group. Metadata generation runs without credentials
+on every canonical `main` push. The serialized Gitea-to-GitHub mirror then
+confirms that the event SHA is still the latest canonical tip, adds the generated
+metadata follow-up, and updates GitHub with a three-attempt lease retry. The
+canonical fetch and GitHub push credentials are confined to separate steps.
+This is a weaker mirror-side design: no existing Gitea workflow exposes a
+repository-content write credential, so the metadata follow-up exists only on
+GitHub and is regenerated instead of being retained in canonical history.
+A dedicated read-only GitHub workflow validates metadata-only commits, while
+unrelated broad workflows ignore them.
 
 Private-registry versions are immutable. A partial remote version is a terminal
 collision for that version: never delete files, overwrite them, or retry the

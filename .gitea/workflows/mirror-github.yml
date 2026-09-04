@@ -6,88 +6,84 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-github-${{ github.repository }}-main
+  cancel-in-progress: false
+
 jobs:
-  mirror:
-    name: Push branch to GitHub
-    runs-on: mirror-host
-    env:
-      GH_TOKEN: ${{ secrets.GH_MIRROR_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GH_MIRROR_TOKEN }}
-      GITEA_SOURCE_TOKEN: ${{ secrets.SOURCE_MIRROR_TOKEN }}
-      GITHUB_OWNER: emersonfelipesp
-
+  generate-metadata:
+    name: Generate credential-free metadata
+    runs-on: ci-untrusted-python312
+    permissions:
+      contents: read
+    outputs:
+      metadata_b64: ${{ steps.capture.outputs.metadata_b64 }}
+      source_sha: ${{ steps.capture.outputs.source_sha }}
     steps:
-      - name: Install GitHub CLI
+      - name: Check out the exact canonical event source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Generate metadata for the canonical commit
         shell: bash
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: python3 scripts/build_metadata.py
+
+      - name: Capture the bounded metadata handoff
+        id: capture
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
+          test "$(wc -c < metadata.json)" -le 4096
+          metadata_b64="$(base64 -w 0 metadata.json)"
+          printf 'metadata_b64=%s\n' "$metadata_b64" >> "$GITHUB_OUTPUT"
+          printf 'source_sha=%s\n' "$SOURCE_SHA" >> "$GITHUB_OUTPUT"
 
-          if command -v gh >/dev/null 2>&1; then
-            gh --version
-            exit 0
-          fi
-
-          if [ "$(uname -s)" != "Linux" ] || ! command -v apt-get >/dev/null 2>&1; then
-            echo "::error::GitHub CLI is not installed and this workflow can only install it on Debian/Ubuntu-style Linux runners."
-            exit 1
-          fi
-
-          sudo_cmd=()
-          if [ "$(id -u)" -ne 0 ]; then
-            if ! command -v sudo >/dev/null 2>&1; then
-              echo "::error::GitHub CLI is missing and sudo is unavailable for installation."
-              exit 1
-            fi
-            sudo_cmd=(sudo -n)
-          fi
-
-          "${sudo_cmd[@]}" apt-get update
-          "${sudo_cmd[@]}" apt-get install -y ca-certificates curl gnupg
-          "${sudo_cmd[@]}" mkdir -p -m 755 /etc/apt/keyrings
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-            | "${sudo_cmd[@]}" tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
-          "${sudo_cmd[@]}" chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-            | "${sudo_cmd[@]}" tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-          "${sudo_cmd[@]}" apt-get update
-          "${sudo_cmd[@]}" apt-get install -y gh
-          gh --version
-
-      - name: Mirror triggering branch
+  mirror:
+    name: Preserve metadata and push the branch to GitHub
+    needs: generate-metadata
+    runs-on: mirror-host
+    permissions:
+      contents: read
+    steps:
+      - name: Prepare the latest canonical tree and metadata commit
+        id: prepare
         shell: bash
+        env:
+          GIT_CONFIG_GLOBAL: /dev/null
+          GIT_CONFIG_NOSYSTEM: "1"
+          GITEA_SOURCE_TOKEN: ${{ secrets.SOURCE_MIRROR_TOKEN }}
+          METADATA_B64: ${{ needs.generate-metadata.outputs.metadata_b64 }}
+          SOURCE_SHA: ${{ needs.generate-metadata.outputs.source_sha }}
         run: |
           set -euo pipefail
-
-          if [ -z "${GH_TOKEN:-}" ]; then
-            echo "::error::Missing required Gitea Actions secret GH_MIRROR_TOKEN."
-            exit 1
-          fi
-          if [ -z "${GITEA_SOURCE_TOKEN:-}" ]; then
-            echo "::error::Missing required Gitea Actions secret SOURCE_MIRROR_TOKEN."
+          umask 077
+          test -n "$GITEA_SOURCE_TOKEN"
+          if ! [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Canonical source SHA is not a full lowercase Git SHA."
             exit 1
           fi
 
           mirror_branch="${GITHUB_REF_NAME:?}"
           source_repository="${GITHUB_REPOSITORY:?}"
+          test "$mirror_branch" = main
 
-          case "${mirror_branch}" in
-            main)
-              ;;
-            *)
-              echo "::error::Ref ${mirror_branch} is not approved for GitHub mirroring."
-              exit 1
-              ;;
-          esac
-
-          repo_name="${source_repository#*/}"
-          target_repo="${GITHUB_OWNER}/${repo_name}"
+          mirror_root="$(mktemp -d "${RUNNER_TEMP:?}/netbox-sdk-mirror.XXXXXX")"
+          printf 'mirror_root=%s\n' "$mirror_root" >> "$GITHUB_OUTPUT"
           source_url="https://git.nmulti.cloud/${source_repository}.git"
-          worktree="$(mktemp -d)"
-          trap 'rm -rf "${worktree}"' EXIT
-          export HOME="${worktree}/home"
-          mkdir -p "${HOME}"
-          gitea_askpass="${worktree}/gitea-askpass.sh"
-          cat > "${gitea_askpass}" <<'EOF'
+          git init "$mirror_root"
+          gitea_askpass="${mirror_root}/.git/gitea-askpass.sh"
+          trap 'rm -f "$gitea_askpass"' EXIT
+          cat > "$gitea_askpass" <<'EOF'
           #!/usr/bin/env bash
           case "$1" in
             *Username*) printf '%s\n' x-access-token ;;
@@ -95,24 +91,120 @@ jobs:
             *) printf '\n' ;;
           esac
           EOF
-          chmod 700 "${gitea_askpass}"
+          chmod 700 "$gitea_askpass"
 
-          git init "${worktree}"
-          git -C "${worktree}" remote add gitea "${source_url}"
-          GIT_ASKPASS="${gitea_askpass}" GIT_TERMINAL_PROMPT=0 \
-            git -C "${worktree}" fetch --no-tags gitea "refs/heads/${mirror_branch}"
-          git -C "${worktree}" checkout --detach FETCH_HEAD
-
-          gh auth status --hostname github.com
-          gh repo view "${target_repo}" --json nameWithOwner --jq '.nameWithOwner'
-          gh auth setup-git --hostname github.com --force
-
-          git -C "${worktree}" remote add github "https://github.com/${target_repo}.git"
-          if expected_remote_sha="$(git -C "${worktree}" ls-remote github "refs/heads/${mirror_branch}" | awk '{print $1}')" \
-            && [ -n "${expected_remote_sha}" ]; then
-            git -C "${worktree}" push \
-              --force-with-lease="refs/heads/${mirror_branch}:${expected_remote_sha}" \
-              github "HEAD:refs/heads/${mirror_branch}"
-          else
-            git -C "${worktree}" push github "HEAD:refs/heads/${mirror_branch}"
+          git -C "$mirror_root" remote add gitea "$source_url"
+          GIT_ASKPASS="$gitea_askpass" GIT_TERMINAL_PROMPT=0 \
+            git -C "$mirror_root" fetch --no-tags gitea \
+              "+refs/heads/${mirror_branch}:refs/remotes/gitea/${mirror_branch}"
+          latest_sha="$(git -C "$mirror_root" rev-parse "refs/remotes/gitea/${mirror_branch}^{commit}")"
+          if [ "$latest_sha" != "$SOURCE_SHA" ]; then
+            echo "A newer canonical tip exists; its serialized workflow will publish the replacement."
+            printf 'publish=false\n' >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+
+          git -C "$mirror_root" checkout --detach "$latest_sha"
+          test -f "${mirror_root}/metadata.json"
+          test ! -L "${mirror_root}/metadata.json"
+          metadata_candidate="${mirror_root}/.git/metadata.json.candidate"
+          printf '%s' "$METADATA_B64" | base64 --decode > "$metadata_candidate"
+          mv "$metadata_candidate" "${mirror_root}/metadata.json"
+          MIRROR_ROOT="$mirror_root" python3 -I - "$SOURCE_SHA" "$source_repository" <<'PY'
+          import json
+          import os
+          import re
+          import sys
+          from pathlib import Path
+
+          metadata = json.loads((Path(os.environ["MIRROR_ROOT"]) / "metadata.json").read_text())
+          if set(metadata) != {"release", "python", "netbox", "generated_at", "source"}:
+              raise SystemExit("metadata.json has an unexpected top-level shape")
+          if not re.fullmatch(r"[0-9a-f]{40}", metadata["source"]["commit"]):
+              raise SystemExit("metadata.json source.commit is not a full lowercase Git SHA")
+          if metadata["source"] != {"repo": sys.argv[2], "commit": sys.argv[1]}:
+              raise SystemExit("metadata.json is not bound to the canonical event source")
+          PY
+          changed_paths="$(git -C "$mirror_root" diff --name-only -- .)"
+          test "$changed_paths" = metadata.json
+          git -C "$mirror_root" config user.name "github-actions[bot]"
+          git -C "$mirror_root" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$mirror_root" add metadata.json
+          git -C "$mirror_root" commit -m "chore: refresh metadata provenance"
+          printf 'publish=true\n' >> "$GITHUB_OUTPUT"
+
+      - name: Push the prepared mirror with a bounded lease retry
+        if: steps.prepare.outputs.publish == 'true'
+        shell: bash
+        env:
+          GIT_CONFIG_GLOBAL: /dev/null
+          GIT_CONFIG_NOSYSTEM: "1"
+          GH_TOKEN: ${{ secrets.GH_MIRROR_TOKEN }}
+          GITHUB_OWNER: emersonfelipesp
+          MIRROR_ROOT: ${{ steps.prepare.outputs.mirror_root }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$GH_TOKEN"
+          case "$MIRROR_ROOT" in
+            "${RUNNER_TEMP:?}"/netbox-sdk-mirror.*) ;;
+            *) echo "::error::Unexpected mirror worktree path."; exit 1 ;;
+          esac
+
+          repo_name="${GITHUB_REPOSITORY#*/}"
+          target_repo="${GITHUB_OWNER}/${repo_name}"
+          github_askpass="${MIRROR_ROOT}/.git/github-askpass.sh"
+          trap 'rm -f "$github_askpass"' EXIT
+          cat > "$github_askpass" <<'EOF'
+          #!/usr/bin/env bash
+          case "$1" in
+            *Username*) printf '%s\n' x-access-token ;;
+            *Password*) printf '%s\n' "${GH_TOKEN}" ;;
+            *) printf '\n' ;;
+          esac
+          EOF
+          chmod 700 "$github_askpass"
+          git -C "$MIRROR_ROOT" remote add github "https://github.com/${target_repo}.git"
+
+          for attempt in 1 2 3; do
+            if ! expected_remote_sha="$(
+              GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
+                git -C "$MIRROR_ROOT" ls-remote github refs/heads/main | awk '{print $1}'
+            )"; then
+              sleep "$attempt"
+              continue
+            fi
+            if [ -n "$expected_remote_sha" ]; then
+              if GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
+                git -C "$MIRROR_ROOT" push \
+                  --force-with-lease="refs/heads/main:${expected_remote_sha}" \
+                  github HEAD:refs/heads/main; then
+                exit 0
+              fi
+            elif GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
+              git -C "$MIRROR_ROOT" push github HEAD:refs/heads/main; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep "$attempt"
+            fi
+          done
+          echo "::error::GitHub mirror changed during all three lease attempts."
+          exit 1
+
+      - name: Remove the temporary mirror worktree
+        if: always()
+        shell: bash
+        env:
+          MIRROR_ROOT: ${{ steps.prepare.outputs.mirror_root }}
+        run: |
+          set -euo pipefail
+          if [ -z "${MIRROR_ROOT:-}" ]; then
+            exit 0
+          fi
+          case "$MIRROR_ROOT" in
+            "${RUNNER_TEMP:?}"/netbox-sdk-mirror.*) ;;
+            *) echo "::error::Refusing to remove an unexpected path."; exit 1 ;;
+          esac
+          test -d "$MIRROR_ROOT"
+          find -P "$MIRROR_ROOT" -depth -delete

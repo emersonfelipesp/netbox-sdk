@@ -3,6 +3,8 @@ name: Tests
 on:
   push:
     branches: ["**"]
+    paths-ignore:
+      - metadata.json
   pull_request:
     branches: ["**"]
 
@@ -35,6 +37,7 @@ jobs:
               - '.github/workflows/test.yml'
               - '.github/workflows/main-post-merge.yml'
               - '.github/workflows/publish-metadata.yml'
+              - '.gitea/workflows/mirror-github.yml'
               - '.github/workflows/publish-testpypi.yml'
               - 'scripts/build_metadata.py'
               - 'scripts/release_policy.py'

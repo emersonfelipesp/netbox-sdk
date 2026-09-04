@@ -426,31 +426,80 @@ def test_release_workflow_authorizes_rc_pushes_and_official_release_events() -> 
     assert "github.event_name == 'release'" in str(workflow["jobs"]["publish-pypi"]["if"])
 
 
-def test_metadata_writer_is_main_only_and_does_not_persist_credentials() -> None:
-    workflow = _load_workflow(".github/workflows/publish-metadata.yml")
+def test_metadata_mirror_preserves_provenance_with_scoped_credentials() -> None:
+    workflow = _load_workflow(".gitea/workflows/mirror-github.yml")
     triggers = workflow["on"]
-    assert triggers["push"]["branches"] == ["main"]
-    assert "tags" not in triggers["push"]
-    assert "workflow_dispatch" not in triggers
+    assert triggers["push"] == {"branches": ["main"]}
     assert workflow["permissions"] == {"contents": "read"}
+    assert workflow["concurrency"]["cancel-in-progress"] == "false"
 
     generator = workflow["jobs"]["generate-metadata"]
-    assert "github.ref == 'refs/heads/main'" in str(generator["if"])
+    assert generator["runs-on"] == "ci-untrusted-python312"
     assert generator["permissions"] == {"contents": "read"}
     checkout = generator["steps"][0]
     assert checkout["with"]["persist-credentials"] == "false"
+    assert "scripts/build_metadata.py" in generator["steps"][1]["run"]
 
-    writer = workflow["jobs"]["publish-metadata"]
+    writer = workflow["jobs"]["mirror"]
     assert writer["needs"] == "generate-metadata"
-    assert "github.ref == 'refs/heads/main'" in str(writer["if"])
+    assert writer["runs-on"] == "mirror-host"
     assert writer["permissions"] == {"contents": "read"}
-    assert len(writer["steps"]) == 1
-    push_step = writer["steps"][0]
-    assert "uses" not in push_step
-    assert push_step["env"]["METADATA_WRITE_TOKEN"] == ("${{ secrets.METADATA_WRITE_TOKEN }}")
-    assert "github.token" not in str(writer)
-    assert "git clone --no-tags --single-branch --branch main" in push_step["run"]
-    assert 'test "$(git -C writer rev-parse HEAD)" = "$SOURCE_SHA"' in push_step["run"]
+    prepare_step, push_step, _cleanup_step = writer["steps"]
+    assert prepare_step["env"]["GITEA_SOURCE_TOKEN"] == ("${{ secrets.SOURCE_MIRROR_TOKEN }}")
+    assert prepare_step["env"]["GIT_CONFIG_GLOBAL"] == "/dev/null"
+    assert prepare_step["env"]["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert "GH_TOKEN" not in prepare_step["env"]
+    assert push_step["env"]["GH_TOKEN"] == "${{ secrets.GH_MIRROR_TOKEN }}"
+    assert push_step["env"]["GIT_CONFIG_GLOBAL"] == "/dev/null"
+    assert push_step["env"]["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert "GITEA_SOURCE_TOKEN" not in push_step["env"]
+    assert "latest_sha" in prepare_step["run"]
+    assert "for attempt in 1 2 3" in push_step["run"]
+    assert "--force-with-lease" in push_step["run"]
+    workflow_text = _read(".gitea/workflows/mirror-github.yml")
+    assert workflow_text.count("${{ secrets.SOURCE_MIRROR_TOKEN }}") == 1
+    assert workflow_text.count("${{ secrets.GH_MIRROR_TOKEN }}") == 1
+    assert "METADATA_WRITE_TOKEN" not in workflow_text
+
+
+def test_metadata_only_push_has_a_dedicated_validation_gate() -> None:
+    workflow = _load_workflow(".github/workflows/publish-metadata.yml")
+    triggers = workflow["on"]
+    assert triggers["push"] == {"branches": ["main"], "paths": ["metadata.json"]}
+    assert "workflow_dispatch" not in triggers
+    assert workflow["permissions"] == {"contents": "read"}
+
+    validator = workflow["jobs"]["validate-metadata"]
+    assert "github.ref == 'refs/heads/main'" in str(validator["if"])
+    assert validator["permissions"] == {"contents": "read"}
+    checkout = validator["steps"][0]
+    assert checkout["with"]["fetch-depth"] == "0"
+    assert checkout["with"]["persist-credentials"] == "false"
+    validation_command = validator["steps"][-1]["run"]
+    assert "validate_source_provenance" in validation_command
+    assert "METADATA_WRITE_TOKEN" not in str(workflow)
+    assert "github.token" not in str(workflow)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".github/workflows/test.yml",
+        ".github/workflows/lint.yml",
+        ".github/workflows/security.yml",
+        ".github/workflows/certification.yml",
+        ".github/workflows/docs.yml",
+        ".github/workflows/main-post-merge.yml",
+    ],
+)
+def test_metadata_only_push_skips_unrelated_github_workflows(path: str) -> None:
+    workflow = _load_workflow(path)
+    assert workflow["on"]["push"]["paths-ignore"] == ["metadata.json"]
+
+
+def test_docs_deployments_are_serialized() -> None:
+    workflow = _load_workflow(".github/workflows/docs.yml")
+    assert workflow["concurrency"]["cancel-in-progress"] == "false"
 
 
 @pytest.mark.parametrize(
@@ -458,9 +507,10 @@ def test_metadata_writer_is_main_only_and_does_not_persist_credentials() -> None
     [
         ".github/workflows/publish-testpypi.yml",
         ".github/workflows/publish-metadata.yml",
+        ".gitea/workflows/mirror-github.yml",
     ],
 )
-def test_credentialed_release_workflows_use_immutable_actions(path: str) -> None:
+def test_sensitive_workflows_use_immutable_actions(path: str) -> None:
     workflow = _load_workflow(path)
     for job_name, job in workflow["jobs"].items():
         for step in job["steps"]:
@@ -562,6 +612,7 @@ def test_release_policy_inputs_route_to_the_full_github_suite() -> None:
     assert "scripts/build_metadata.py" in filters
     assert "scripts/release_policy.py" in filters
     assert ".github/workflows/publish-metadata.yml" in filters
+    assert ".gitea/workflows/mirror-github.yml" in filters
     assert "tests/test_release_policy.py" in filters
 
 
