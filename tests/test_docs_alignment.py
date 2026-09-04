@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 import yaml
+from packaging.version import Version
 
 from netbox_sdk.versioning import SUPPORTED_NETBOX_VERSIONS
 from scripts import build_metadata
@@ -47,21 +48,36 @@ def _pyproject_version() -> str:
     return str(data["project"]["version"])
 
 
-_SOURCE_CANDIDATE_SNIPPETS = (
-    "docs/snippets/package-version.txt",
-    "docs/snippets/documented-release-en.md",
-    "docs/snippets/documented-release-pt.md",
-)
+_DOCUMENTED_RELEASE_VERSION_FIELDS = {
+    "docs/snippets/documented-release-en.md": {
+        "candidate": r"\*\*netbox-sdk (?P<version>[^*\s]+) source candidate\*\*",
+        "published": r"default PyPI index is \*\*(?P<version>[^*\s]+)\*\*",
+        "install": r"use `==(?P<version>[^`\s]+)`",
+    },
+    "docs/snippets/documented-release-pt.md": {
+        "candidate": (
+            r"\*\*candidato de código-fonte netbox-sdk "
+            r"(?P<version>[^*\s]+)\*\*"
+        ),
+        "published": r"índice PyPI padrão é a \*\*(?P<version>[^*\s]+)\*\*",
+        "install": r"use `==(?P<version>[^`\s]+)`",
+    },
+}
 
-_PUBLISHED_INSTALL_SNIPPETS = (
-    "docs/snippets/documented-release-en.md",
-    "docs/snippets/documented-release-pt.md",
-    "docs/snippets/pip-pinned-sdk.txt",
-    "docs/snippets/pip-pinned-cli.txt",
-    "docs/snippets/pip-pinned-tui.txt",
-    "docs/snippets/pip-pinned-all.txt",
-    "docs/snippets/uv-pinned-cli.txt",
-)
+_PINNED_INSTALL_SNIPPETS = {
+    "docs/snippets/pip-pinned-sdk.txt": "pip install netbox-sdk=={version}",
+    "docs/snippets/pip-pinned-cli.txt": "pip install 'netbox-sdk[cli]=={version}'",
+    "docs/snippets/pip-pinned-tui.txt": "pip install 'netbox-sdk[tui]=={version}'",
+    "docs/snippets/pip-pinned-all.txt": "pip install 'netbox-sdk[all]=={version}'",
+    "docs/snippets/uv-pinned-cli.txt": ("uv tool install --force 'netbox-sdk[cli]=={version}'"),
+}
+
+
+def _documented_version_field(path: str, field: str) -> str:
+    pattern = _DOCUMENTED_RELEASE_VERSION_FIELDS[path][field]
+    match = re.search(pattern, _read(path))
+    assert match is not None, f"{path} must expose an exact {field} version field"
+    return match.group("version")
 
 
 def test_mkdocs_and_package_metadata_point_to_netbox_sdk() -> None:
@@ -301,9 +317,10 @@ def test_mkdocs_extra_package_version_matches_pyproject() -> None:
 
 def test_docs_version_snippets_reference_pyproject_version() -> None:
     version = _pyproject_version()
-    for rel in _SOURCE_CANDIDATE_SNIPPETS:
-        text = _read(rel)
-        assert version in text, f"{rel} must include project version {version!r}"
+    for path in _DOCUMENTED_RELEASE_VERSION_FIELDS:
+        assert _documented_version_field(path, "candidate") == version, (
+            f"{path} candidate field must equal project version {version!r}"
+        )
 
 
 def test_default_index_install_snippets_reference_published_final() -> None:
@@ -311,8 +328,98 @@ def test_default_index_install_snippets_reference_published_final() -> None:
     assert is_public_pypi_version(published), (
         "the default-index install version must be a public final or post-release"
     )
-    for rel in _PUBLISHED_INSTALL_SNIPPETS:
-        assert published in _read(rel), f"{rel} must include published final {published!r}"
+    for path in _DOCUMENTED_RELEASE_VERSION_FIELDS:
+        for field in ("published", "install"):
+            assert _documented_version_field(path, field) == published, (
+                f"{path} {field} field must equal published final {published!r}"
+            )
+    for path, template in _PINNED_INSTALL_SNIPPETS.items():
+        expected = template.format(version=published)
+        assert _read(path).strip() == expected, (
+            f"{path} must contain only the exact published install command {expected!r}"
+        )
+
+
+def _live_ci_netbox_targets() -> tuple[str, ...]:
+    workflow = yaml.load(_read(".github/workflows/test.yml"), Loader=yaml.BaseLoader)
+    assert isinstance(workflow, dict), "the test workflow must be a YAML mapping"
+    jobs = workflow.get("jobs")
+    assert isinstance(jobs, dict), "the test workflow must define jobs"
+    live_job = jobs.get("test-live-netbox")
+    assert isinstance(live_job, dict), "the test workflow must define test-live-netbox"
+    strategy = live_job.get("strategy")
+    assert isinstance(strategy, dict), "test-live-netbox must define a strategy"
+    matrix = strategy.get("matrix")
+    assert isinstance(matrix, dict), "test-live-netbox must define a matrix"
+    targets = list(matrix.get("netbox-version") or [])
+    assert targets, "test-live-netbox must define a non-empty netbox-version matrix"
+    # ``include`` entries create additional live jobs, so an include-only target
+    # is as real as a base-matrix one and must be part of the effective set.
+    included = matrix.get("include") or []
+    assert isinstance(included, list), "a test-live-netbox matrix include must be a list"
+    for entry in included:
+        assert isinstance(entry, dict), "every matrix include entry must be a mapping"
+        extra = entry.get("netbox-version")
+        if extra is not None and extra not in targets:
+            targets.append(extra)
+    assert all(isinstance(target, str) for target in targets), (
+        "every test-live-netbox target must be a string"
+    )
+    assert len(targets) == len(set(targets)), (
+        "the test-live-netbox matrix must not contain duplicate targets"
+    )
+    return tuple(
+        sorted(targets, key=lambda target: Version(target.removeprefix("v")), reverse=True)
+    )
+
+
+def _table_after_heading(markdown: str, heading: str) -> list[str]:
+    lines = markdown.splitlines()
+    heading_indexes = [index for index, line in enumerate(lines) if line == heading]
+    assert len(heading_indexes) == 1, f"expected exactly one {heading!r} heading"
+    index = heading_indexes[0] + 1
+    while index < len(lines) and not lines[index]:
+        index += 1
+    rows: list[str] = []
+    while index < len(lines) and lines[index].startswith("|"):
+        rows.append(lines[index])
+        index += 1
+    assert rows, f"{heading!r} must be followed by a Markdown table"
+    return rows
+
+
+def test_certification_matrices_track_the_source_candidate_and_ci_contract() -> None:
+    version = _pyproject_version()
+    typed_lines = ", ".join(f"`{line}`" for line in SUPPORTED_NETBOX_VERSIONS)
+    live_targets = ", ".join(f"`{target}`" for target in _live_ci_netbox_targets())
+    expected_tables = {
+        "docs/certification.md": (
+            "## Compatibility matrix",
+            [
+                "| `netbox-sdk` release | Python | Typed NetBox API lines | "
+                "Live CI NetBox targets |",
+                "| --- | --- | --- | --- |",
+                f"| `{version}` source candidate | `>=3.11,<3.14` | {typed_lines} | "
+                f"{live_targets}; one bundled-schema job per release line |",
+            ],
+        ),
+        "docs/certification.pt.md": (
+            "## Matriz de compatibilidade",
+            [
+                "| Release `netbox-sdk` | Python | Linhas de API NetBox tipadas | "
+                "Alvos live NetBox na CI |",
+                "| --- | --- | --- | --- |",
+                f"| candidato de código-fonte `{version}` | `>=3.11,<3.14` | "
+                f"{typed_lines} | {live_targets}; um job com schema integrado por "
+                "linha de release |",
+            ],
+        ),
+    }
+    for path, (heading, expected) in expected_tables.items():
+        rows = _table_after_heading(_read(path), heading)
+        assert rows == expected, (
+            f"{path} must contain exactly one current compatibility row derived from CI"
+        )
 
 
 def test_all_release_version_surfaces_match_pyproject() -> None:
@@ -333,18 +440,21 @@ def test_all_release_version_surfaces_match_pyproject() -> None:
     assert f"**Current project version**: `{version}`" in _read("llms.txt")
 
     readme = _read("README.md")
-    assert f"netbox-sdk[all]=={published}" in readme
+    readme_lines = readme.splitlines()
+    assert f"pip install 'netbox-sdk[all]=={published}'" in readme_lines
     if is_public_pypi_version(version):
         assert re.search(r"git push gitea v\S+rc\S*", readme)
-        assert not re.search(rf"git push gitea v{re.escape(version)}(?:\s|$)", readme)
-        assert f"git tag -a v{version} -m" not in readme
-        assert f"gh release create v{version}" in readme
+        assert f"git push gitea v{version}" not in readme_lines
+        assert not any(line.startswith(f"git tag -a v{version} ") for line in readme_lines)
+        assert f"gh release create v{version} \\" in readme_lines
         assert "--target <canonical-main-sha>" in readme
-        assert f"git ls-remote origin refs/tags/v{version}" in readme
+        assert f"git ls-remote origin refs/tags/v{version}" in readme_lines
     else:
-        assert f"git push gitea v{version}" in readme
-    assert "gh release create vX.Y.Z" in readme
-    assert '--title "netbox-sdk vX.Y.Z"' in readme
+        assert f'git tag -a v{version} -m "Release v{version}"' in readme_lines
+        assert f"git push gitea v{version}" in readme_lines
+    assert "git ls-remote origin refs/tags/vX.Y.Z" in readme_lines
+    assert "gh release create vX.Y.Z \\" in readme_lines
+    assert '  --title "netbox-sdk vX.Y.Z" \\' in readme_lines
 
 
 def _load_workflow(path: str) -> dict[str, Any]:
@@ -798,27 +908,28 @@ def test_metadata_has_traceable_source_commit() -> None:
     assert reason is None, reason
 
 
-def _same_version_different_tree_commit(release: str) -> str | None:
-    """Return a published commit that declares ``release`` but has another tree.
+def _tree_drifted_commit() -> tuple[str, str] | None:
+    """Return a published commit and the project version it declares.
 
-    Walking history rather than hard-coding a SHA keeps the fixture valid as the
-    branch moves, and the caller asserts that one was found so an empty search
-    fails the test instead of silently skipping it.
+    The pair is chosen so the version comparison passes by construction and only
+    the tree comparison can reject it, which isolates the property under test.
+    Deriving the version from the commit rather than from the current metadata
+    keeps the fixture valid immediately after a version bump, when no older
+    commit yet declares the new version.
     """
-    history = _run_git("rev-list", "--max-count=40", "HEAD~1")
+    history = _run_git("rev-list", "--max-count=60", "HEAD~1")
     if history is None or history.returncode != 0:
         return None
     for candidate in history.stdout.split():
         pyproject = _git_blob_text(candidate, "pyproject.toml")
         if pyproject is None:
             continue
-        if tomllib.loads(pyproject)["project"]["version"] != release:
-            continue
+        declared = tomllib.loads(pyproject)["project"]["version"]
         diff = _run_git(
             "diff", "--name-only", candidate, "HEAD", "--", ".", ":(exclude)metadata.json"
         )
         if diff is not None and diff.returncode == 0 and diff.stdout.strip():
-            return candidate
+            return candidate, declared
     return None
 
 
@@ -831,20 +942,21 @@ def _require_repository_checkout() -> None:
 
 
 def test_metadata_traceability_rejects_a_commit_with_a_different_tree() -> None:
-    """A commit declaring the same version but another tree must be rejected.
+    """A commit declaring its own version but another tree must be rejected.
 
-    This is the mutation that matters: the recorded version alone cannot carry
-    the check, so the fixture deliberately matches on version and differs only in
-    tree. Removing the tree comparison from the predicate makes this fail.
+    This is the mutation that matters: the version comparison cannot carry the
+    check, because the fixture supplies the version the commit itself declares
+    and differs only in tree. Removing the tree comparison from the predicate
+    makes this fail.
     """
     _require_repository_checkout()
-    release = json.loads(_read("metadata.json"))["release"]
-    candidate = _same_version_different_tree_commit(release)
-    assert candidate is not None, (
-        "no published commit declares the current version with a different tree, "
-        "so this guard cannot observe the property it asserts"
+    fixture = _tree_drifted_commit()
+    assert fixture is not None, (
+        "no published commit has a tree differing from the candidate, so this "
+        "guard cannot observe the property it asserts"
     )
-    reason = _metadata_source_mismatch(candidate, release)
+    candidate, declared = fixture
+    reason = _metadata_source_mismatch(candidate, declared)
     assert reason is not None and "represent the candidate tree" in reason
 
 

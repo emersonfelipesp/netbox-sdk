@@ -7,6 +7,8 @@ import hashlib
 import io
 import json
 import os
+import re
+import shlex
 import shutil
 import stat
 import subprocess
@@ -1907,9 +1909,86 @@ def test_private_registry_bootstrap_clears_poisoned_uv_environment(tmp_path: Pat
     ]
 
 
+def _pyproject_version() -> str:
+    """Return the project version declared in ``pyproject.toml``.
+
+    The documented release examples must track the source candidate, so reading
+    the version here keeps a version bump from silently invalidating them.
+    """
+    document = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+    return str(document["project"]["version"])
+
+
+_SHELL_CONTROL_OPERATORS = {"&", "&&", ";", ";;", "|", "||"}
+_CONCRETE_VERSION_TAG = re.compile(
+    r"(?<![0-9A-Za-z])v[0-9]+(?:\.[0-9]+){2}"
+    r"(?:(?:a|b|rc)[0-9]+|(?:\.post|\.dev)[0-9]+)?(?![0-9A-Za-z])"
+)
+
+
+def _tokenize_shell_line(line: str) -> list[str]:
+    lexer = shlex.shlex(line, posix=True, punctuation_chars=";&|")
+    lexer.commenters = "#"
+    lexer.whitespace_split = True
+    try:
+        return list(lexer)
+    except ValueError as exc:
+        pytest.fail(f"could not tokenize a fenced shell command: {exc}")
+
+
+def _commands_from_shell_line(line: str) -> list[tuple[str, ...]]:
+    commands: list[tuple[str, ...]] = []
+    command: list[str] = []
+    for token in _tokenize_shell_line(line):
+        if token not in _SHELL_CONTROL_OPERATORS:
+            command.append(token)
+            continue
+        if command:
+            commands.append(tuple(command))
+            command = []
+    if command:
+        commands.append(tuple(command))
+    return commands
+
+
+def _shell_commands(markdown: str) -> list[tuple[str, ...]]:
+    # Every fenced block is scanned, whatever its info string. A prohibited
+    # command does not stop being prohibited because the fence says "console"
+    # instead of "bash", and an unrecognised info string must not silently
+    # exclude a block from the guard.
+    blocks = re.findall(
+        r"^```[^\n]*\n(?P<body>.*?)^```[ \t]*$",
+        markdown,
+        re.MULTILINE | re.DOTALL,
+    )
+    assert blocks, "README.md must contain fenced code blocks"
+    opening_fence_count = len(re.findall(r"^```[^\n]*$", markdown, re.MULTILINE))
+    assert len(blocks) * 2 == opening_fence_count, (
+        "every fenced code block must be closed and tokenizable"
+    )
+    commands: list[tuple[str, ...]] = []
+    for block in blocks:
+        logical_lines = re.sub(r"\\\r?\n", " ", block).splitlines()
+        for line in logical_lines:
+            commands.extend(_commands_from_shell_line(line))
+    return commands
+
+
+def _contains_command(command: tuple[str, ...], prefix: tuple[str, ...]) -> bool:
+    width = len(prefix)
+    return any(
+        command[index : index + width] == prefix for index in range(len(command) - width + 1)
+    )
+
+
+def _names_concrete_version(command: tuple[str, ...]) -> bool:
+    return _CONCRETE_VERSION_TAG.search(" ".join(command)) is not None
+
+
 def test_release_docs_require_external_tag_policy_preflight_and_terminal_recovery() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
     compact_readme = " ".join(readme.split())
+    shell_commands = _shell_commands(readme)
     api_command = (
         "nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections "
         "\\ --output /tmp/netbox-sdk-tag-protections.json"
@@ -1921,14 +2000,78 @@ def test_release_docs_require_external_tag_policy_preflight_and_terminal_recover
     )
     assert api_command in compact_readme
     assert validator in compact_readme
-    assert readme.index("nms git api GET") < readme.index("git tag -a v0.0.12rc3")
-    assert readme.index("validate-tag-protection") < readme.index("git tag -a v0.0.12rc3")
+    candidate = _pyproject_version()
+    final = candidate.split("rc", 1)[0]
+    assert candidate != final, (
+        "the documented release examples are only meaningful while the source "
+        "candidate is a release candidate"
+    )
+    candidate_tag_command = (
+        "git",
+        "tag",
+        "-a",
+        f"v{candidate}",
+        "-m",
+        f"Release v{candidate}",
+    )
+    candidate_push_command = ("git", "push", "gitea", f"v{candidate}")
+    concrete_version_commands = [
+        command for command in shell_commands if _names_concrete_version(command)
+    ]
+    concrete_release_commands = [
+        command
+        for command in shell_commands
+        if _contains_command(command, ("gh", "release", "create"))
+        and _names_concrete_version(command)
+    ]
+    assert not concrete_release_commands, (
+        "an RC release guide must not contain a concrete GitHub Release command"
+    )
+    assert concrete_version_commands == [candidate_tag_command, candidate_push_command], (
+        "the only concrete version commands must be the exact candidate tag and push"
+    )
+    policy_command = (
+        "nms",
+        "git",
+        "api",
+        "GET",
+        "/repos/emersonfelipesp/netbox-sdk/tag_protections",
+        "--output",
+        "/tmp/netbox-sdk-tag-protections.json",
+    )
+    validator_command = (
+        "python",
+        "-m",
+        "scripts.gitea_release",
+        "validate-tag-protection",
+        "--policy-file",
+        ".gitea/release-tag-policy.json",
+        "--evidence-file",
+        "/tmp/netbox-sdk-tag-protections.json",
+    )
+    assert shell_commands.index(policy_command) < shell_commands.index(candidate_tag_command)
+    assert shell_commands.index(validator_command) < shell_commands.index(candidate_tag_command)
     assert "workflow cannot and does not self-verify" in compact_readme
     assert "never delete files, overwrite them, or retry the same version" in compact_readme
-    assert "git push gitea v0.0.12rc3" in readme
-    assert "git tag -a v0.0.12 -m" not in readme
-    assert "--target <canonical-main-sha>" in readme
-    assert "git ls-remote origin refs/tags/v0.0.12" in readme
+    assert f"current source candidate is **`{candidate}`**, an RC" in compact_readme
+    assert "RC publication is direct-tag/TestPyPI-only" in compact_readme
+    assert "Future final-release procedure (not for the current RC)" in readme
+    assert ("git", "ls-remote", "origin", "refs/tags/vX.Y.Z") in shell_commands
+    assert (
+        shell_commands.count(
+            (
+                "gh",
+                "release",
+                "create",
+                "vX.Y.Z",
+                "--title",
+                "netbox-sdk vX.Y.Z",
+                "--target",
+                "<canonical-main-sha>",
+            )
+        )
+        == 1
+    )
 
     policy = json.loads(Path(".gitea/release-tag-policy.json").read_text(encoding="utf-8"))
     assert policy == {

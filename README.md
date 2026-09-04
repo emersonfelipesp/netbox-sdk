@@ -425,8 +425,8 @@ nms git api GET /repos/emersonfelipesp/netbox-sdk/tag_protections \
 python -m scripts.gitea_release validate-tag-protection \
   --policy-file .gitea/release-tag-policy.json \
   --evidence-file /tmp/netbox-sdk-tag-protections.json
-git tag -a v0.0.12rc3 -m "Release v0.0.12rc3"
-git push gitea v0.0.12rc3
+git tag -a v0.0.13rc1 -m "Release v0.0.13rc1"
+git push gitea v0.0.13rc1
 ```
 
 The evidence command and validator are a mandatory preflight before creating
@@ -435,26 +435,25 @@ for every `v*` tag, with only `emersonfelipesp` allowlisted and no teams. This
 is external repository state: the tag-triggered workflow cannot and does not
 self-verify the protection that authorized its own trigger.
 
-Do not create a GitHub Release for an RC. Final and post releases must never be
-authorized by a direct tag push; publish them through the GitHub Release event
-with the title pattern `netbox-sdk vX.Y.Z`:
+The current source candidate is **`0.0.13rc1`**, an RC. RC publication is
+direct-tag/TestPyPI-only: the commands above create and push its exact annotated
+tag. Do not create a GitHub Release for this RC because that event authorizes
+publication to the default PyPI index.
+
+### Future final-release procedure (not for the current RC)
+
+Use this procedure only after the RC is validated and a separate final-version
+tree has been prepared and reviewed. Final and post releases must never be
+authorized by a direct tag push. Confirm that the intended final tag is absent,
+then publish through the GitHub Release event with the title pattern
+`netbox-sdk vX.Y.Z`. `--target` is ignored when the tag already exists, so any
+output from the first command must fail closed:
 
 ```bash
+git ls-remote origin refs/tags/vX.Y.Z
+# Must print nothing.
 gh release create vX.Y.Z \
   --title "netbox-sdk vX.Y.Z" \
-  --target <canonical-main-sha>
-```
-
-This source candidate is a final. Do not authorize it with a direct tag push.
-After the Gitea package exists, confirm the tag is absent, then bind the
-GitHub Release to the reviewed `main` SHA. `--target` is ignored when the
-tag already exists, so an unexpected `v0.0.12` must fail closed:
-
-```bash
-git ls-remote origin refs/tags/v0.0.12
-# Must print nothing.
-gh release create v0.0.12 \
-  --title "netbox-sdk v0.0.12" \
   --target <canonical-main-sha>
 ```
 
