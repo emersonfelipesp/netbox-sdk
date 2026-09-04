@@ -20,6 +20,8 @@ class ReleaseLine(BaseModel):
     openapi_asset: str
     models_module: str
     typed_module: str
+    background_bulk_overlay: bool = False
+    ga_response_shapes: bool = False
 
     @property
     def module_suffix(self) -> str:
@@ -35,6 +37,8 @@ _RELEASE_LINE_REGISTRY: dict[SupportedNetBoxVersion, ReleaseLine] = {
         openapi_asset="netbox-openapi-4.7.json",
         models_module="netbox_sdk.models.v4_7",
         typed_module="netbox_sdk.typed_versions.v4_7",
+        background_bulk_overlay=True,
+        ga_response_shapes=True,
     ),
     "4.6": ReleaseLine(
         line="4.6",

@@ -93,6 +93,26 @@ def _git_output(*args: str) -> str:
     return result.stdout.strip()
 
 
+def _git_blob_text(commit: str, path: str) -> str:
+    """Read one committed file through its tree entry and blob object."""
+    entry = _git_output("ls-tree", commit, "--", path)
+    lines = entry.splitlines()
+    if len(lines) != 1:
+        raise RuntimeError(
+            f"Metadata provenance expected one Git tree entry for {path!r}, found {len(lines)}"
+        )
+    try:
+        metadata, recorded_path = lines[0].split("\t", 1)
+        _mode, object_type, object_id = metadata.split()
+    except ValueError as exc:
+        raise RuntimeError(
+            f"Metadata provenance found a malformed tree entry for {path!r}"
+        ) from exc
+    if object_type != "blob" or recorded_path != path:
+        raise RuntimeError(f"Metadata provenance did not resolve {path!r} to the expected blob")
+    return _git_output("cat-file", "blob", object_id)
+
+
 def validate_source_provenance(commit: str, project_version: str) -> None:
     """Require provenance for the candidate tree or its metadata-only parent."""
     object_type = _git_output("cat-file", "-t", commit)
@@ -101,7 +121,7 @@ def validate_source_provenance(commit: str, project_version: str) -> None:
             f"Metadata source SHA must identify a commit object, got {object_type!r}"
         )
     _git_output("merge-base", "--is-ancestor", commit, "HEAD")
-    source_pyproject = tomllib.loads(_git_output("show", f"{commit}:pyproject.toml"))
+    source_pyproject = tomllib.loads(_git_blob_text(commit, "pyproject.toml"))
     source_version = str(source_pyproject["project"]["version"])
     if source_version != project_version:
         raise RuntimeError(

@@ -15,6 +15,7 @@ from scripts.generate_typed_sdk import (
     RELEASE_PROVENANCE,
     RUFF_VERSION,
     _prepend_models_module_doc,
+    _release_source_blob,
     apply_background_bulk_overlay,
     build_bindings,
     format_generated_artifacts,
@@ -28,6 +29,17 @@ from scripts.generate_typed_sdk import (
 pytestmark = pytest.mark.suite_sdk
 
 ROOT = Path(__file__).resolve().parents[1]
+UPSTREAM_OBJECT_PACK = (
+    ROOT
+    / "tests"
+    / "fixtures"
+    / "netbox-release-source-objects-fb63775283eb495a0c8219b5ce6ff57416b423df.pack"
+)
+UPSTREAM_OBJECT_PACK_CHECKSUM = "fb63775283eb495a0c8219b5ce6ff57416b423df"
+UPSTREAM_RELEASE_REFS = {
+    "v4.6.6": "fb8c455ba61b57119a70670612dfdd05e8438b10",
+    "v4.7.0": "5f06007e4c9bacc93ce17c1e645fc1143d60df3d",
+}
 
 
 def test_model_generator_version_is_pinned() -> None:
@@ -91,7 +103,7 @@ def test_v46_artifact_provenance_is_current() -> None:
     assert provenance["source_blob_sha"] == "024d34500a04ec876fb3b32fa18c685e953a02f8"
     assert (
         provenance["source_sha256"]
-        == "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e"
+        == "915a25d48e638ea49218f142af30271812f5f75f67ad619b05a9a9300c04f7d8"
     )
     assert provenance["generator"] == {
         "name": "datamodel-code-generator",
@@ -116,6 +128,65 @@ def test_v46_artifact_provenance_is_current() -> None:
     for name, path in artifact_paths.items():
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         assert digest == provenance["artifacts"][name]
+
+
+def _materialize_upstream_object_fixture(tmp_path: Path) -> Path:
+    repository = tmp_path / "netbox-upstream.git"
+    subprocess.run(["git", "init", "--bare", "-q", str(repository)], check=True)
+    pack_path = repository / "objects" / "pack" / f"pack-{UPSTREAM_OBJECT_PACK_CHECKSUM}.pack"
+    shutil.copyfile(UPSTREAM_OBJECT_PACK, pack_path)
+    indexed = subprocess.run(
+        ["git", "index-pack", str(pack_path)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert indexed.stdout.strip() == UPSTREAM_OBJECT_PACK_CHECKSUM
+    for tag, commit in UPSTREAM_RELEASE_REFS.items():
+        subprocess.run(
+            ["git", "--git-dir", str(repository), "update-ref", f"refs/tags/{tag}", commit],
+            check=True,
+        )
+    return repository
+
+
+def test_every_recorded_source_digest_matches_its_upstream_blob(
+    tmp_path: Path,
+) -> None:
+    repository = _materialize_upstream_object_fixture(tmp_path)
+    assert {
+        release["netbox_release"]: release["release_commit"]
+        for release in RELEASE_PROVENANCE.values()
+    } == UPSTREAM_RELEASE_REFS
+
+    for version, release in RELEASE_PROVENANCE.items():
+        blob_id = _release_source_blob(
+            repository,
+            release["release_commit"],
+            release["source_path"],
+        )
+        assert blob_id == release["source_blob_sha"]
+        blob = subprocess.run(
+            ["git", "-C", str(repository), "cat-file", "blob", blob_id],
+            check=True,
+            capture_output=True,
+        ).stdout
+        blob_digest = hashlib.sha256(blob).hexdigest()
+        assert blob_digest == release["source_sha256"]
+
+        sidecar_path = (
+            ROOT
+            / "netbox_sdk"
+            / "reference"
+            / "openapi"
+            / f"netbox-openapi-{version}.provenance.json"
+        )
+        sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
+        assert sidecar["netbox_release"] == release["netbox_release"]
+        assert sidecar["release_commit"] == release["release_commit"]
+        assert sidecar["source_path"] == release["source_path"]
+        assert sidecar["source_blob_sha"] == blob_id
+        assert sidecar["source_sha256"] == blob_digest
 
 
 def test_v46_typed_regeneration_matches_committed_artifact(tmp_path) -> None:
@@ -320,18 +391,8 @@ def _pinned_test_release(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tup
         capture_output=True,
         text=True,
     ).stdout.strip()
-    source_blob = subprocess.run(
-        ["git", "-C", str(repository), "rev-parse", "HEAD:contrib/openapi.json"],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-    other_blob = subprocess.run(
-        ["git", "-C", str(repository), "rev-parse", "HEAD:other.txt"],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
+    source_blob = _release_source_blob(repository, commit, "contrib/openapi.json")
+    other_blob = _release_source_blob(repository, commit, "other.txt")
     monkeypatch.setitem(
         RELEASE_PROVENANCE,
         "test",

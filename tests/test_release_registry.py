@@ -42,6 +42,8 @@ EXPECTED_RELEASE_RECORDS = {
         "openapi_asset": "netbox-openapi-4.7.json",
         "models_module": "netbox_sdk.models.v4_7",
         "typed_module": "netbox_sdk.typed_versions.v4_7",
+        "background_bulk_overlay": True,
+        "ga_response_shapes": True,
     },
     "4.6": {
         "line": "4.6",
@@ -49,6 +51,8 @@ EXPECTED_RELEASE_RECORDS = {
         "openapi_asset": "netbox-openapi-4.6.json",
         "models_module": "netbox_sdk.models.v4_6",
         "typed_module": "netbox_sdk.typed_versions.v4_6",
+        "background_bulk_overlay": False,
+        "ga_response_shapes": False,
     },
     "4.5": {
         "line": "4.5",
@@ -56,6 +60,8 @@ EXPECTED_RELEASE_RECORDS = {
         "openapi_asset": "netbox-openapi-4.5.json",
         "models_module": "netbox_sdk.models.v4_5",
         "typed_module": "netbox_sdk.typed_versions.v4_5",
+        "background_bulk_overlay": False,
+        "ga_response_shapes": False,
     },
     "4.4": {
         "line": "4.4",
@@ -63,6 +69,8 @@ EXPECTED_RELEASE_RECORDS = {
         "openapi_asset": "netbox-openapi-4.4.json",
         "models_module": "netbox_sdk.models.v4_4",
         "typed_module": "netbox_sdk.typed_versions.v4_4",
+        "background_bulk_overlay": False,
+        "ga_response_shapes": False,
     },
     "4.3": {
         "line": "4.3",
@@ -70,6 +78,8 @@ EXPECTED_RELEASE_RECORDS = {
         "openapi_asset": "netbox-openapi-4.3.json",
         "models_module": "netbox_sdk.models.v4_3",
         "typed_module": "netbox_sdk.typed_versions.v4_3",
+        "background_bulk_overlay": False,
+        "ga_response_shapes": False,
     },
 }
 

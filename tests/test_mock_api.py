@@ -13,13 +13,28 @@ Covers:
 from __future__ import annotations
 
 import asyncio
+import os
 from typing import Any
 
 import httpx
 import pytest
+from fastapi import FastAPI
 
 from netbox_sdk.mock import create_mock_app
-from netbox_sdk.mock.routes import RefResolver, _value_validation_errors
+from netbox_sdk.mock.routes import (
+    RefResolver,
+    _supports_ga_response_shapes,
+    _value_validation_errors,
+    register_netbox_mock_routes,
+)
+from netbox_sdk.schema import load_openapi_schema
+from netbox_sdk.versioning import (
+    DEFAULT_NETBOX_VERSION,
+    SUPPORTED_NETBOX_VERSIONS,
+    normalize_netbox_version,
+    release_line,
+)
+from scripts.generate_typed_sdk import BACKGROUND_BULK_OVERLAY_VERSIONS
 
 pytestmark = pytest.mark.suite_sdk
 
@@ -30,8 +45,38 @@ pytestmark = pytest.mark.suite_sdk
 
 
 @pytest.fixture(scope="module")
-def app():
-    return create_mock_app()
+def mock_version():
+    return normalize_netbox_version(os.environ.get("NETBOX_MOCK_VERSION", DEFAULT_NETBOX_VERSION))
+
+
+@pytest.fixture(scope="module")
+def mock_schema(mock_version):
+    return load_openapi_schema(version=mock_version)
+
+
+@pytest.fixture(scope="module")
+def expected_mock_release(mock_schema):
+    version = mock_schema.get("info", {}).get("version")
+    if not isinstance(version, str) or not version:
+        raise AssertionError("the selected mock schema has no evaluable info.version")
+    return version
+
+
+@pytest.fixture(scope="module")
+def app(mock_version):
+    return create_mock_app(version=mock_version)
+
+
+@pytest.fixture()
+def background_bulk_capability(mock_version):
+    if mock_version not in BACKGROUND_BULK_OVERLAY_VERSIONS:
+        pytest.skip(f"background bulk is absent from the {mock_version} release line")
+
+
+@pytest.fixture()
+def ga_response_shape_capability(mock_schema, mock_version):
+    if not release_line(mock_version).ga_response_shapes:
+        pytest.skip(f"the GA response-shape cohort is absent from the {mock_version} release line")
 
 
 class _AsgiTestClient:
@@ -90,19 +135,47 @@ def test_health(client):
     assert resp.json() == {"status": "ready"}
 
 
-def test_netbox_status(client):
+def test_netbox_status(client, expected_mock_release):
     resp = client.get("/api/status/")
     assert resp.status_code == 200
     body = resp.json()
     assert "netbox-version" in body
-    assert body["netbox-version"] == "4.7.0"
+    assert body["netbox-version"] == expected_mock_release
 
 
-def test_default_mock_tracks_the_stable_sdk_default(client):
-    from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION
+def test_mock_tracks_the_selected_sdk_release_line(client, expected_mock_release):
+    assert client.get("/mock/state").json()["schema_version"] == expected_mock_release
 
+
+def test_ga_response_shape_detector_matches_registered_release_capabilities():
     assert DEFAULT_NETBOX_VERSION == "4.7"
-    assert client.get("/mock/state").json()["schema_version"] == "4.7.0"
+    assert release_line(DEFAULT_NETBOX_VERSION).ga_response_shapes
+    assert _supports_ga_response_shapes(load_openapi_schema(version=DEFAULT_NETBOX_VERSION))
+
+    for version in SUPPORTED_NETBOX_VERSIONS:
+        assert (
+            _supports_ga_response_shapes(load_openapi_schema(version=version))
+            is release_line(version).ga_response_shapes
+        )
+
+
+def test_custom_openapi_document_without_service_schema_registers():
+    custom_document = {
+        "openapi": "3.0.3",
+        "info": {"title": "Narrow custom API", "version": "1.0.0"},
+        "paths": {},
+        "components": {"schemas": {}},
+    }
+    custom_app = FastAPI()
+
+    state = register_netbox_mock_routes(custom_app, openapi_document=custom_document)
+
+    assert state == {
+        "route_count": 0,
+        "path_count": 0,
+        "method_count": 0,
+        "schema_version": "1.0.0",
+    }
 
 
 def test_mock_state_endpoint(client):
@@ -136,8 +209,9 @@ def test_mock_apps_have_independent_state_namespaces():
 
 
 def test_mock_apps_isolate_branching_jobs_reset_and_route_metadata():
-    first = _AsgiTestClient(create_mock_app(version="4.7"))
-    second = _AsgiTestClient(create_mock_app(version="4.6"))
+    first_line, second_line = SUPPORTED_NETBOX_VERSIONS[:2]
+    first = _AsgiTestClient(create_mock_app(version=first_line))
+    second = _AsgiTestClient(create_mock_app(version=second_line))
 
     first_branch = first.post(
         "/api/plugins/branching/branches/",
@@ -159,8 +233,14 @@ def test_mock_apps_isolate_branching_jobs_reset_and_route_metadata():
     assert first.get(f"/api/core/jobs/{first_job['id']}/").json()["name"] == "sync"
     assert second.get(f"/api/core/jobs/{second_job['id']}/").json()["name"] == "merge"
 
-    assert first.get("/mock/state").json()["schema_version"] == "4.7.0"
-    assert second.get("/mock/state").json()["schema_version"] == "4.6.6"
+    assert (
+        first.get("/mock/state").json()["schema_version"]
+        == load_openapi_schema(version=first_line)["info"]["version"]
+    )
+    assert (
+        second.get("/mock/state").json()["schema_version"]
+        == load_openapi_schema(version=second_line)["info"]["version"]
+    )
 
     assert first.post("/mock/reset").status_code == 200
     assert first.get("/api/plugins/branching/branches/").json()["count"] == 0
@@ -341,7 +421,7 @@ def test_bulk_update_patch(client):
 
     resp = client.patch(
         "/api/ipam/vlans/",
-        json=[{"id": ids[1], "name": "PV2-Patched"}],
+        json=[{"id": ids[1], "name": "PV2-Patched", "vid": 20}],
     )
     assert resp.status_code == 200
     assert resp.json()[0]["name"] == "PV2-Patched"
@@ -436,7 +516,12 @@ def test_unique_field_validation_is_singular_and_bulk_atomic(client):
     ("method", "expected_count"),
     [("POST", 1), ("PUT", 1), ("PATCH", 1), ("DELETE", 0)],
 )
-def test_background_bulk_is_pollable_and_eventually_mutates(client, method, expected_count):
+def test_background_bulk_is_pollable_and_eventually_mutates(
+    client,
+    background_bulk_capability,
+    method,
+    expected_count,
+):
     resp = client.request(
         method,
         "/api/dcim/sites/?background=true",
@@ -460,7 +545,7 @@ def test_background_bulk_is_pollable_and_eventually_mutates(client, method, expe
     assert client.get("/api/dcim/sites/").json()["count"] == expected_count
 
 
-def test_background_bulk_failure_is_observable_and_atomic(client):
+def test_background_bulk_failure_is_observable_and_atomic(client, background_bulk_capability):
     response = client.post(
         "/api/ipam/vlans/?background=true",
         json=[{"name": "Missing VID"}],
@@ -475,7 +560,7 @@ def test_background_bulk_failure_is_observable_and_atomic(client):
     assert client.get("/api/ipam/vlans/").json()["count"] == 0
 
 
-def test_ga_service_port_shapes_round_trip(client):
+def test_ga_service_port_shapes_round_trip(client, ga_response_shape_capability):
     created = client.post(
         "/api/ipam/services/",
         json={
@@ -516,14 +601,14 @@ def _service_payload(**overrides):
     return payload
 
 
-def test_ga_service_accepts_matching_dual_representations(client):
+def test_ga_service_accepts_matching_dual_representations(client, ga_response_shape_capability):
     response = client.post("/api/ipam/services/", json=_service_payload())
 
     assert response.status_code == 201
     assert response.json()["port_mappings"] == ["tcp/53"]
 
 
-def test_ga_service_rejects_conflicting_create(client):
+def test_ga_service_rejects_conflicting_create(client, ga_response_shape_capability):
     response = client.post(
         "/api/ipam/services/",
         json=_service_payload(ports=[443]),
@@ -534,7 +619,9 @@ def test_ga_service_rejects_conflicting_create(client):
     assert client.get("/api/ipam/services/").json()["count"] == 0
 
 
-def test_ga_service_rejects_conflicting_patch_without_mutation(client):
+def test_ga_service_rejects_conflicting_patch_without_mutation(
+    client, ga_response_shape_capability
+):
     service = client.post("/api/ipam/services/", json=_service_payload()).json()
 
     response = client.patch(
@@ -548,7 +635,7 @@ def test_ga_service_rejects_conflicting_patch_without_mutation(client):
     assert stored["port_mappings"] == ["tcp/53"]
 
 
-def test_ga_service_rejects_conflicting_bulk_atomically(client):
+def test_ga_service_rejects_conflicting_bulk_atomically(client, ga_response_shape_capability):
     response = client.post(
         "/api/ipam/services/",
         json=[_service_payload(name="valid"), _service_payload(name="invalid", ports=[443])],
@@ -560,7 +647,9 @@ def test_ga_service_rejects_conflicting_bulk_atomically(client):
     assert client.get("/api/ipam/services/").json()["count"] == 0
 
 
-def test_ga_selection_custom_fields_serialize_as_choice_objects(client):
+def test_ga_selection_custom_fields_serialize_as_choice_objects(
+    client, ga_response_shape_capability
+):
     choice_set = client.post(
         "/api/extras/custom-field-choice-sets/",
         json={
@@ -607,7 +696,9 @@ def test_ga_selection_custom_fields_serialize_as_choice_objects(client):
     }
 
 
-def test_ga_selection_custom_fields_preserve_null_empty_and_unknown_values(client):
+def test_ga_selection_custom_fields_preserve_null_empty_and_unknown_values(
+    client, ga_response_shape_capability
+):
     choice_set = client.post(
         "/api/extras/custom-field-choice-sets/",
         json={"name": "Sparse choices", "extra_choices": [["known", "Known"]]},

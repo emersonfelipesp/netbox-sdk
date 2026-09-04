@@ -25,7 +25,7 @@ from netbox_sdk.mock.schema_helpers import (
 )
 from netbox_sdk.mock.state import ThreadSafeMockStore, mock_store
 from netbox_sdk.schema import load_openapi_schema
-from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION, SupportedNetBoxVersion
+from netbox_sdk.versioning import DEFAULT_NETBOX_VERSION, SupportedNetBoxVersion, release_line
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +52,7 @@ class NetBoxRouteTopology:
     item_schema: dict[str, Any] | None  # For list endpoints: schema of one result
     list_path_template: str | None  # Corresponding list path
     supports_background: bool = False
+    supports_ga_response_shapes: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -469,6 +470,31 @@ def _service_representation_errors(
     }
 
 
+def _supports_ga_response_shapes(openapi_document: dict[str, Any]) -> bool:
+    """Return whether the schema declares the GA service response-shape cohort."""
+    components = openapi_document.get("components")
+    if components is None:
+        return False
+    if not isinstance(components, dict):
+        raise ValueError("OpenAPI document has no evaluable components object")
+    schemas = components.get("schemas")
+    if schemas is None:
+        return False
+    if not isinstance(schemas, dict):
+        raise ValueError("OpenAPI document has no evaluable component schemas")
+    service = schemas.get("Service")
+    if service is None:
+        return False
+    if not isinstance(service, dict):
+        raise ValueError("OpenAPI document has no evaluable Service schema")
+    properties = service.get("properties")
+    if properties is None:
+        return False
+    if not isinstance(properties, dict):
+        raise ValueError("OpenAPI Service schema has no evaluable properties")
+    return "port_mappings" in properties
+
+
 def _entry_errors(
     request: _GeneratedRequest,
     item: Any,
@@ -488,11 +514,12 @@ def _entry_errors(
         not isinstance(item.get("id"), int) or isinstance(item.get("id"), bool) or item["id"] < 1
     ):
         errors["id"] = ["A positive integer ID is required."]
-    for name, messages in _service_representation_errors(
-        item,
-        list_path=request.list_path,
-    ).items():
-        errors.setdefault(name, []).extend(messages)
+    if request.topology.supports_ga_response_shapes:
+        for name, messages in _service_representation_errors(
+            item,
+            list_path=request.list_path,
+        ).items():
+            errors.setdefault(name, []).extend(messages)
     return errors
 
 
@@ -699,8 +726,11 @@ def _normalize_response_object(
     list_path: str,
     write_payload: dict[str, Any] | None,
     store: ThreadSafeMockStore,
+    supports_ga_response_shapes: bool,
 ) -> dict[str, Any]:
     """Apply response-only NetBox 4.7 representations before storage."""
+    if not supports_ga_response_shapes:
+        return obj
     result = _normalize_service_response(obj, list_path=list_path, write_payload=write_payload)
     return _serialize_custom_field_choices(result, store)
 
@@ -1047,6 +1077,7 @@ def _get_detail_response(request: _GeneratedRequest) -> Any:
                 list_path=request.list_path,
                 write_payload=None,
                 store=request.store,
+                supports_ga_response_shapes=request.topology.supports_ga_response_shapes,
             )
         request.store.set_object(obj_key, obj)
     return obj
@@ -1093,6 +1124,7 @@ def _create_object(request: _GeneratedRequest, item_body: Any) -> dict[str, Any]
         list_path=request.list_path,
         write_payload=item_body if isinstance(item_body, dict) else None,
         store=request.store,
+        supports_ga_response_shapes=request.topology.supports_ga_response_shapes,
     )
     obj_key = _object_key(request.list_path, new_id)
     request.store.set_object(obj_key, new_obj)
@@ -1175,6 +1207,7 @@ def _update_detail_response(request: _GeneratedRequest) -> Any:
             list_path=request.list_path,
             write_payload=body,
             store=request.store,
+            supports_ga_response_shapes=request.topology.supports_ga_response_shapes,
         )
     request.store.set_object(obj_key, updated)
     request.store.upsert_collection_member(request.list_key, obj_key, updated)
@@ -1201,6 +1234,7 @@ def _update_bulk_object(request: _GeneratedRequest, item_body: dict[str, Any]) -
         list_path=request.list_path,
         write_payload=item_body,
         store=request.store,
+        supports_ga_response_shapes=request.topology.supports_ga_response_shapes,
     )
     request.store.set_object(obj_key, updated)
     request.store.upsert_collection_member(request.list_key, obj_key, updated)
@@ -1364,7 +1398,8 @@ def _route_topology(
     method: str,
     operation: dict[str, Any],
     resolver: RefResolver,
-    version: SupportedNetBoxVersion,
+    supports_background_bulk: bool,
+    supports_ga_response_shapes: bool,
 ) -> NetBoxRouteTopology:
     """Build the complete schema-derived topology for one supported operation."""
     is_list, is_detail, is_action, group, resource = _classify_path(path_template)
@@ -1385,11 +1420,12 @@ def _route_topology(
         item_schema=_item_schema_for_response(response_schema, resolver),
         list_path_template=list_path if (is_detail or is_action) else None,
         supports_background=(
-            version == "4.7"
+            supports_background_bulk
             and is_list
             and method in {"POST", "PUT", "PATCH", "DELETE"}
             and _schema_allows_array(request_schema)
         ),
+        supports_ga_response_shapes=supports_ga_response_shapes,
     )
 
 
@@ -1397,7 +1433,8 @@ def _iter_route_topologies(
     path_items: dict[str, dict[str, Any]],
     *,
     resolver: RefResolver,
-    version: SupportedNetBoxVersion,
+    supports_background_bulk: bool,
+    supports_ga_response_shapes: bool,
 ) -> Iterator[NetBoxRouteTopology]:
     """Yield supported, well-formed operations in deterministic route order."""
     for path_template, path_item in sorted(path_items.items()):
@@ -1410,7 +1447,8 @@ def _iter_route_topologies(
                 method=method,
                 operation=operation,
                 resolver=resolver,
-                version=version,
+                supports_background_bulk=supports_background_bulk,
+                supports_ga_response_shapes=supports_ga_response_shapes,
             )
 
 
@@ -1514,7 +1552,14 @@ def register_netbox_mock_routes(
         path: item for path, item in (document.get("paths") or {}).items() if isinstance(item, dict)
     }
     _seed_custom_mock_data(doc_fingerprint, namespace, custom_mock_data)
-    topologies = list(_iter_route_topologies(path_items, resolver=resolver, version=version))
+    topologies = list(
+        _iter_route_topologies(
+            path_items,
+            resolver=resolver,
+            supports_background_bulk=release_line(version).background_bulk_overlay,
+            supports_ga_response_shapes=_supports_ga_response_shapes(document),
+        )
+    )
     for topology in topologies:
         _register_topology(
             app,

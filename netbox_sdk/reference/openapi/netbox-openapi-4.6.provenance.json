@@ -4,7 +4,7 @@
   "source_path": "contrib/openapi.json",
   "source_blob_sha": "024d34500a04ec876fb3b32fa18c685e953a02f8",
   "source_url": "https://github.com/netbox-community/netbox/blob/v4.6.6/contrib/openapi.json",
-  "source_sha256": "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e",
+  "source_sha256": "915a25d48e638ea49218f142af30271812f5f75f67ad619b05a9a9300c04f7d8",
   "generator": {
     "name": "datamodel-code-generator",
     "version": "0.55.0",

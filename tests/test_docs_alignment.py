@@ -644,6 +644,24 @@ def _run_git(*args: str) -> subprocess.CompletedProcess[str] | None:
         return None
 
 
+def _git_blob_text(commit: str, path: str) -> str | None:
+    entry = _run_git("ls-tree", commit, "--", path)
+    if entry is None or entry.returncode != 0:
+        return None
+    lines = entry.stdout.splitlines()
+    if len(lines) != 1:
+        return None
+    try:
+        metadata, recorded_path = lines[0].split("\t", 1)
+        _mode, object_type, object_id = metadata.split()
+    except ValueError:
+        return None
+    if object_type != "blob" or recorded_path != path:
+        return None
+    blob = _run_git("cat-file", "blob", object_id)
+    return blob.stdout if blob is not None and blob.returncode == 0 else None
+
+
 def test_published_v0_0_10_is_in_candidate_ancestry() -> None:
     git_probe = _run_git("rev-parse", "--show-toplevel")
     if (
@@ -710,10 +728,10 @@ def _metadata_source_mismatch(commit: str, release: str) -> str | None:
     hold is that the recorded commit carries the same project version and
     describes the same tree as the candidate outside the metadata file itself.
     """
-    source_pyproject = _run_git("show", f"{commit}:pyproject.toml")
-    if source_pyproject is None or source_pyproject.returncode != 0:
+    source_pyproject = _git_blob_text(commit, "pyproject.toml")
+    if source_pyproject is None:
         return f"metadata source.commit {commit} does not expose pyproject.toml"
-    source_version = tomllib.loads(source_pyproject.stdout)["project"]["version"]
+    source_version = tomllib.loads(source_pyproject)["project"]["version"]
     if source_version != release:
         return (
             "metadata must name a commit containing the same project version; "
@@ -791,10 +809,10 @@ def _same_version_different_tree_commit(release: str) -> str | None:
     if history is None or history.returncode != 0:
         return None
     for candidate in history.stdout.split():
-        pyproject = _run_git("show", f"{candidate}:pyproject.toml")
-        if pyproject is None or pyproject.returncode != 0:
+        pyproject = _git_blob_text(candidate, "pyproject.toml")
+        if pyproject is None:
             continue
-        if tomllib.loads(pyproject.stdout)["project"]["version"] != release:
+        if tomllib.loads(pyproject)["project"]["version"] != release:
             continue
         diff = _run_git(
             "diff", "--name-only", candidate, "HEAD", "--", ".", ":(exclude)metadata.json"

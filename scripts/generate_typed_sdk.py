@@ -16,6 +16,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+from netbox_sdk.versioning import release_lines
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SDK_ROOT = REPO_ROOT / "netbox_sdk"
 MODELS_ROOT = SDK_ROOT / "models"
@@ -39,7 +41,7 @@ RELEASE_PROVENANCE: dict[str, dict[str, str]] = {
         "release_commit": "fb8c455ba61b57119a70670612dfdd05e8438b10",
         "source_path": "contrib/openapi.json",
         "source_blob_sha": "024d34500a04ec876fb3b32fa18c685e953a02f8",
-        "source_sha256": "c1a3e2dee07a7a5bfedd9221c3495597cd2624baa32695800d1f75edbc5c044e",
+        "source_sha256": "915a25d48e638ea49218f142af30271812f5f75f67ad619b05a9a9300c04f7d8",
         "source_url": "https://github.com/netbox-community/netbox/blob/v4.6.6/contrib/openapi.json",
     },
 }
@@ -733,8 +735,11 @@ def build_bindings(version: str, schema: dict[str, Any]) -> str:
 #
 # Remove this the moment an upstream schema describes the parameter; the guard
 # test in tests/test_typed_background_bulk.py fails if the overlay outlives its
-# reason to exist.
-BACKGROUND_BULK_OVERLAY_VERSIONS: frozenset[str] = frozenset({"4.7"})
+# reason to exist. The release registry is shared with the mock server so its
+# capability surface cannot drift from the generated bindings.
+BACKGROUND_BULK_OVERLAY_VERSIONS: frozenset[str] = frozenset(
+    record.line for record in release_lines() if record.background_bulk_overlay
+)
 
 _BACKGROUND_PARAMETER: dict[str, Any] = {
     "in": "query",
@@ -940,6 +945,35 @@ def _git_output(repository: Path, *args: str, text: bool = True) -> str | bytes:
     return result.stdout.strip() if text else result.stdout
 
 
+def _release_source_blob(repository: Path, commit: str, source_path: str) -> str:
+    """Resolve one source path with ``git ls-tree`` without revision-path syntax."""
+    raw = _git_output(
+        repository,
+        "ls-tree",
+        "-z",
+        commit,
+        "--",
+        source_path,
+        text=False,
+    )
+    if not isinstance(raw, bytes):
+        raise ValueError("git ls-tree returned text instead of bytes")
+    entries = [entry for entry in raw.split(b"\0") if entry]
+    if len(entries) != 1:
+        raise ValueError(
+            f"Expected exactly one Git tree entry for {source_path!r}, found {len(entries)}"
+        )
+    try:
+        metadata, recorded_path = entries[0].split(b"\t", 1)
+        _mode, object_type, object_id = metadata.decode("ascii").split()
+        decoded_path = recorded_path.decode("utf-8")
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise ValueError(f"Malformed Git tree entry for {source_path!r}") from exc
+    if object_type != "blob" or decoded_path != source_path:
+        raise ValueError(f"Git tree entry for {source_path!r} is not the expected blob path")
+    return object_id
+
+
 def _validate_release_git_objects(
     version: str,
     source_path: Path,
@@ -956,11 +990,10 @@ def _validate_release_git_objects(
             "-t",
             release["release_commit"],
         )
-        source_blob = _git_output(
+        source_blob = _release_source_blob(
             release_repository,
-            "rev-parse",
-            "--verify",
-            f"{release['release_commit']}:{release['source_path']}",
+            release["release_commit"],
+            release["source_path"],
         )
         blob_bytes = _git_output(
             release_repository,
@@ -988,6 +1021,12 @@ def _validate_release_git_objects(
         raise ValueError(
             f"NetBox {release['netbox_release']} source blob mismatch: expected "
             f"{release['source_blob_sha']}, got {source_blob}"
+        )
+    blob_digest = hashlib.sha256(blob_bytes).hexdigest()
+    if blob_digest != release["source_sha256"]:
+        raise ValueError(
+            f"NetBox {release['netbox_release']} Git blob SHA-256 mismatch: expected "
+            f"{release['source_sha256']}, got {blob_digest}"
         )
     if blob_bytes != source_path.read_bytes():
         raise ValueError(
