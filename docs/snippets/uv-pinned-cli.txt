@@ -1,1 +1,1 @@
-uv tool install --force 'netbox-sdk[cli]==0.0.12'
+uv tool install --force 'netbox-sdk[cli]==0.0.13'
