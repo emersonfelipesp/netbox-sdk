@@ -43,7 +43,7 @@ UPSTREAM_RELEASE_REFS = {
 
 
 def test_model_generator_version_is_pinned() -> None:
-    assert DATAMODEL_CODE_GENERATOR_VERSION == "0.55.0"
+    assert DATAMODEL_CODE_GENERATOR_VERSION == "0.77.0"
     assert RUFF_VERSION == "0.15.9"
 
 

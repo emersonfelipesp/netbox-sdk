@@ -7,7 +7,7 @@
   "source_url": "https://github.com/netbox-community/netbox/blob/v4.7.0/contrib/openapi.json",
   "generator": {
     "name": "datamodel-code-generator",
-    "version": "0.55.0",
+    "version": "0.77.0",
     "timestamp_disabled": true
   },
   "formatter": {
@@ -16,7 +16,7 @@
   },
   "artifacts": {
     "netbox-openapi-4.7.json": "be7f971179b1d6ba03b590c08ebe65966a32220ea8fdfd272f60dc5d66ea9008",
-    "models/v4_7.py": "dd070053ca7b95710639d9fa2817eb544ea0797aff64b2e5257234d30e835319",
+    "models/v4_7.py": "8ddcc1d3c0867e5c08ab80f4f0879b00cfb15b3fb4964770f8b469643ed14c37",
     "typed_versions/v4_7.py": "8b9a273ebb6e88388cc6d267818290ef6bf9e84b6363b3a10d6621fc39209bd6"
   }
 }

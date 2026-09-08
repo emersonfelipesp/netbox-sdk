@@ -5214,9 +5214,7 @@ class PatchedBulkDeviceTypeRequest(BaseModel):
     part_number: constr(max_length=50) | None = Field(
         None, description="Discrete part number (optional)"
     )
-    u_height: PositionU7 | None = Field(
-        default_factory=lambda: PositionU7(1.0), title="Position (U)"
-    )
+    u_height: PositionU7 | None = Field(1.0, title="Position (U)", validate_default=True)
     exclude_from_utilization: bool | None = Field(
         None,
         description="Devices of this type are excluded when calculating rack utilization.",
@@ -7809,9 +7807,7 @@ class PatchedWritableDeviceTypeRequest(BaseModel):
     part_number: constr(max_length=50) | None = Field(
         None, description="Discrete part number (optional)"
     )
-    u_height: PositionU9 | None = Field(
-        default_factory=lambda: PositionU9(1.0), title="Position (U)"
-    )
+    u_height: PositionU9 | None = Field(1.0, title="Position (U)", validate_default=True)
     exclude_from_utilization: bool | None = Field(
         None,
         description="Devices of this type are excluded when calculating rack utilization.",
@@ -12195,9 +12191,7 @@ class WritableDeviceTypeRequest(BaseModel):
     part_number: constr(max_length=50) | None = Field(
         None, description="Discrete part number (optional)"
     )
-    u_height: PositionU11 | None = Field(
-        default_factory=lambda: PositionU11(1.0), title="Position (U)"
-    )
+    u_height: PositionU11 | None = Field(1.0, title="Position (U)", validate_default=True)
     exclude_from_utilization: bool | None = Field(
         None,
         description="Devices of this type are excluded when calculating rack utilization.",
@@ -13736,7 +13730,7 @@ class BulkDeviceTypeRequest(BaseModel):
     part_number: constr(max_length=50) | None = Field(
         None, description="Discrete part number (optional)"
     )
-    u_height: PositionU | None = Field(default_factory=lambda: PositionU(1.0), title="Position (U)")
+    u_height: PositionU | None = Field(1.0, title="Position (U)", validate_default=True)
     exclude_from_utilization: bool | None = Field(
         None,
         description="Devices of this type are excluded when calculating rack utilization.",
@@ -17855,9 +17849,7 @@ class DeviceType(BaseModel):
     part_number: constr(max_length=50) | None = Field(
         None, description="Discrete part number (optional)"
     )
-    u_height: PositionU3 | None = Field(
-        default_factory=lambda: PositionU3(1.0), title="Position (U)"
-    )
+    u_height: PositionU3 | None = Field(1.0, title="Position (U)", validate_default=True)
     exclude_from_utilization: bool | None = Field(
         None,
         description="Devices of this type are excluded when calculating rack utilization.",
@@ -17899,9 +17891,7 @@ class DeviceTypeRequest(BaseModel):
     part_number: constr(max_length=50) | None = Field(
         None, description="Discrete part number (optional)"
     )
-    u_height: PositionU3 | None = Field(
-        default_factory=lambda: PositionU3(1.0), title="Position (U)"
-    )
+    u_height: PositionU3 | None = Field(1.0, title="Position (U)", validate_default=True)
     exclude_from_utilization: bool | None = Field(
         None,
         description="Devices of this type are excluded when calculating rack utilization.",
