@@ -2968,6 +2968,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#django-model-build-catalog-refreshes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Django model-build catalog refreshes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-metadata-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository metadata provenance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#public-sdk-surface" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3283,6 +3305,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#django-model-build-catalog-refreshes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Django model-build catalog refreshes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-metadata-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository metadata provenance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#public-sdk-surface" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3466,6 +3510,81 @@ only missing PyPI files so partial uploads resume safely without
 manifest, and a bounded final check requires PyPI to expose exactly the local
 wheel/sdist filenames and hashes. Registry jobs install only the audited,
 locked <code>publish</code> dependency group.</p>
+<h2 id="django-model-build-catalog-refreshes">Django model-build catalog refreshes<a class="headerlink" href="#django-model-build-catalog-refreshes" title="Permanent link">&para;</a></h2>
+<p>The repository archive under <code>django_models_builds/</code> is the source for the
+supported catalog packaged under <code>netbox_sdk/django_models/model_builds/</code>.
+The weekly <code>.github/workflows/django-model-builds.yml</code> workflow builds the
+latest three NetBox releases with the exact read-only repository source and
+retains the JSON files as a 14-day artifact. GitHub <code>main</code> remains read-only:
+the workflow never commits or pushes an archive refresh.</p>
+<p>A maintainer selects and downloads an artifact locally, prepares the archive
+and bundled catalog, and submits the result through a reviewed Gitea pull
+request:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span>&lt;run-id&gt;<span class="w"> </span>--dir<span class="w"> </span>.tmp/django-model-builds/&lt;run-id&gt;
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>python<span class="w"> </span>scripts/refresh_django_model_builds.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--artifact-dir<span class="w"> </span>.tmp/django-model-builds/&lt;run-id&gt;
+</span></code></pre></div>
+<p><code>scripts/refresh_django_model_builds.py</code> performs no downloads. It accepts the
+local artifact directory, normalizes each build into <code>django_models_builds/</code>,
+regenerates the supported package catalog with
+<code>scripts/build_model_catalog.py</code>, and prints the exact <code>git status</code> for
+review. The same command can build from an existing local NetBox checkout:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>python<span class="w"> </span>scripts/refresh_django_model_builds.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--netbox-checkout<span class="w"> </span>/path/to/netbox<span class="w"> </span>--tag<span class="w"> </span>v4.7.0
+</span></code></pre></div>
+<p>Local-tag generation requires <code>HEAD</code> to resolve to the requested tag commit and
+requires <code>git status --porcelain --untracked-files=all</code> to be empty. Modified
+tracked files and untracked files are rejected so they cannot be published under
+an official NetBox release name.</p>
+<p>Every previously packaged exact patch build remains available. Calling
+<code>catalog.load_build("v4.6.3")</code> loads that exact artifact; matching the <code>4.6</code>
+release line selects the newest numeric patch available in the line. The
+manifest's <code>builds</code> map records these release-line defaults, while
+<code>exact_builds</code> records the complete packaged inventory.
+<code>scripts/build_model_catalog.py</code> preserves existing packaged builds by default.
+The <code>--prune</code> flag removes builds that are not current line defaults and must be
+used only for an explicit compatibility decision.</p>
+<p>Both the graph builder and catalog normalizer record paths relative to the
+NetBox checkout root. The normalizer infers checkout roots from older
+<code>meta.source_path</code> values and rejects any remaining absolute path with an
+actionable error. The offline test suite also requires
+<code>django_models_builds/</code> to contain the newest release line marked stable in
+<code>netbox_sdk/versioning.py</code>; adding a stable line without its reviewed graph
+therefore fails before merge.</p>
+<h2 id="repository-metadata-provenance">Repository metadata provenance<a class="headerlink" href="#repository-metadata-provenance" title="Permanent link">&para;</a></h2>
+<p><code>metadata.json</code> identifies the candidate by content. Its authoritative
+<code>source.content_id</code> field is the SHA-256 digest of the UTF-8 bytes of the sorted
+<code>git ls-tree -r --full-tree</code> lines for the candidate tree. The digest excludes
+the <code>metadata.json</code> entry because including that entry would make the digest
+contain itself. Recursive <code>git ls-tree</code> output omits empty subtrees, so empty
+directories do not affect the identity.</p>
+<p><code>scripts/build_metadata.py</code> stages the current checkout in a temporary Git
+index and temporary object database, then computes the digest from that
+candidate tree without changing the real index or repository objects.
+The exact schema rejects missing and unknown fields. It derives <code>python</code> and
+<code>netbox</code> from the same project sources used during generation, pins
+<code>source.repo</code> to the canonical repository identity declared by the trusted
+project configuration, and requires <code>generated_at</code> to be a valid RFC 3339 UTC
+timestamp. <code>source.version</code> must equal <code>project.version</code>. <code>source.commit</code>
+remains a full informational SHA: when the object is available, generation and
+verification require it to be a commit with the candidate's project version and
+content identity, but its absence does not invalidate the content identity.
+Content equality authenticates the tree, not the repository origin; an external
+trusted fetch or equivalent canonical-source binding must authenticate the
+origin. <code>python scripts/build_metadata.py --verify</code> checks committed metadata
+against <code>HEAD</code>.</p>
+<p>The credential-free metadata workflow validates this content identity. The
+Gitea-to-GitHub mirror pushes the exact canonical commit and runs only the
+bounded <code>scripts/mirror_github.py</code> helper from that detached commit during the
+push step. It does not regenerate <code>metadata.json</code> or create a GitHub-only
+metadata commit. The one-time rewrite is permitted only when the observed
+GitHub tip equals the exact reviewed historical mirror-only commit
+<code>d0b46101d3d91d6755b6a419e9095577b66a443d</code>, and the force-with-lease remains
+fixed to that SHA. Every other update requires the observed GitHub tip to be an
+ancestor of the canonical commit and uses an exact force-with-lease fixed to the
+tip inspected by that ancestry check. Any push rejection aborts without
+refreshing the tip or retrying, so neither a concurrent rewind nor another
+concurrent write is overwritten.</p>
 <h2 id="public-sdk-surface">Public SDK surface<a class="headerlink" href="#public-sdk-surface" title="Permanent link">&para;</a></h2>
 <p>Stable symbols for library use are exported from <code>netbox_sdk</code> (see <code>netbox_sdk/__init__.py</code>), including:</p>
 <ul>
@@ -3477,30 +3596,30 @@ locked <code>publish</code> dependency group.</p>
 </ul>
 <p>Everything outside that <code>__all__</code> is considered internal unless documented otherwise.</p>
 <h2 id="layer-diagram">Layer diagram<a class="headerlink" href="#layer-diagram" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart TB
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  subgraph sdk [netbox_sdk]
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    config[config.py]
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    schema[schema.py]
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    services[services.py]
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    client[client.py]
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    config --&gt; client
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    schema --&gt; services
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    client --&gt; services
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  end
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  subgraph cli [netbox_cli]
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    runtime[runtime.py]
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    dynamic[dynamic.py]
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    runtime --&gt; client
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    runtime --&gt; schema
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    dynamic --&gt; runtime
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    dynamic --&gt; services
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  end
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  subgraph tui [netbox_tui]
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    app[app.py]
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>  end
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  cli --&gt; sdk
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  tui --&gt; sdk
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>  cli -. lazy launch .-&gt; tui
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>flowchart TB
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  subgraph sdk [netbox_sdk]
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    config[config.py]
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    schema[schema.py]
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    services[services.py]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    client[client.py]
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    config --&gt; client
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    schema --&gt; services
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    client --&gt; services
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  end
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  subgraph cli [netbox_cli]
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    runtime[runtime.py]
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    dynamic[dynamic.py]
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    runtime --&gt; client
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    runtime --&gt; schema
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    dynamic --&gt; runtime
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    dynamic --&gt; services
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  end
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>  subgraph tui [netbox_tui]
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    app[app.py]
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  end
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  cli --&gt; sdk
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  tui --&gt; sdk
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>  cli -. lazy launch .-&gt; tui
 </span></code></pre></div>
 <h2 id="allowed-import-edges">Allowed import edges<a class="headerlink" href="#allowed-import-edges" title="Permanent link">&para;</a></h2>
 <table>

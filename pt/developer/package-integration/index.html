@@ -2968,6 +2968,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atualizacoes-do-catalogo-de-builds-dos-modelos-django" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atualizações do catálogo de builds dos modelos Django
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proveniencia-dos-metadados-do-repositorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proveniência dos metadados do repositório
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#superficie-publica-do-sdk" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3283,6 +3305,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#atualizacoes-do-catalogo-de-builds-dos-modelos-django" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atualizações do catálogo de builds dos modelos Django
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proveniencia-dos-metadados-do-repositorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proveniência dos metadados do repositório
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#superficie-publica-do-sdk" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3467,6 +3511,85 @@ etapa do Twine revalida o manifesto aprovado de nomes/digests, e uma verificaç�
 final limitada exige que o PyPI exponha exatamente os nomes e hashes locais do
 wheel e do sdist. Os jobs de registro instalam somente o grupo de dependências
 <code>publish</code> auditado e bloqueado pelo lockfile.</p>
+<h2 id="atualizacoes-do-catalogo-de-builds-dos-modelos-django">Atualizações do catálogo de builds dos modelos Django<a class="headerlink" href="#atualizacoes-do-catalogo-de-builds-dos-modelos-django" title="Permanent link">&para;</a></h2>
+<p>O arquivo do repositório em <code>django_models_builds/</code> é a fonte do catálogo de
+versões compatíveis empacotado em <code>netbox_sdk/django_models/model_builds/</code>.
+O workflow semanal <code>.github/workflows/django-model-builds.yml</code> constrói as três
+versões mais recentes do NetBox com o código-fonte exato e somente leitura do
+repositório e retém os arquivos JSON como artefato por 14 dias. A branch <code>main</code>
+do GitHub permanece somente leitura: o workflow nunca faz commit nem push de
+uma atualização do arquivo.</p>
+<p>Um mantenedor seleciona e baixa um artefato localmente, prepara o arquivo e o
+catálogo empacotado e envia o resultado por meio de um pull request revisado no
+Gitea:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gh<span class="w"> </span>run<span class="w"> </span>download<span class="w"> </span>&lt;run-id&gt;<span class="w"> </span>--dir<span class="w"> </span>.tmp/django-model-builds/&lt;run-id&gt;
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>python<span class="w"> </span>scripts/refresh_django_model_builds.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--artifact-dir<span class="w"> </span>.tmp/django-model-builds/&lt;run-id&gt;
+</span></code></pre></div>
+<p>O <code>scripts/refresh_django_model_builds.py</code> não realiza downloads. Ele recebe o
+diretório local do artefato, normaliza cada build em <code>django_models_builds/</code>,
+regenera o catálogo empacotado de versões compatíveis com
+<code>scripts/build_model_catalog.py</code> e imprime a saída exata de
+<code>git status</code> para revisão. O mesmo comando pode construir os dados a
+partir de um checkout local existente do NetBox:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>python<span class="w"> </span>scripts/refresh_django_model_builds.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--netbox-checkout<span class="w"> </span>/path/to/netbox<span class="w"> </span>--tag<span class="w"> </span>v4.7.0
+</span></code></pre></div>
+<p>A geração por tag local exige que <code>HEAD</code> resolva para o commit da tag solicitada
+e que <code>git status --porcelain --untracked-files=all</code> esteja vazio. Arquivos
+rastreados modificados e arquivos não rastreados são rejeitados para que não
+sejam publicados sob o nome de uma versão oficial do NetBox.</p>
+<p>Cada build de patch exata já empacotada permanece disponível. A chamada
+<code>catalog.load_build("v4.6.3")</code> carrega esse artefato exato; a correspondência da
+linha de versão <code>4.6</code> seleciona o patch numérico mais recente disponível nessa
+linha. O mapa <code>builds</code> do manifesto registra esses padrões por linha de versão,
+enquanto <code>exact_builds</code> registra o inventário empacotado completo. O
+<code>scripts/build_model_catalog.py</code> preserva as builds empacotadas existentes por
+padrão. A opção <code>--prune</code> remove builds que não são padrões atuais de uma linha
+e deve ser usada somente por uma decisão explícita de compatibilidade.</p>
+<p>Tanto o construtor do grafo quanto o normalizador do catálogo registram os
+caminhos relativos à raiz do checkout do NetBox. O normalizador infere as
+raízes de checkout dos valores antigos de <code>meta.source_path</code> e rejeita qualquer
+caminho absoluto remanescente com uma mensagem acionável. A suíte offline
+também exige que <code>django_models_builds/</code> contenha a linha de versão mais recente
+marcada como estável em <code>netbox_sdk/versioning.py</code>; portanto, adicionar uma
+linha estável sem seu grafo revisado causa uma falha antes do merge.</p>
+<h2 id="proveniencia-dos-metadados-do-repositorio">Proveniência dos metadados do repositório<a class="headerlink" href="#proveniencia-dos-metadados-do-repositorio" title="Permanent link">&para;</a></h2>
+<p>O <code>metadata.json</code> identifica o candidato pelo conteúdo. O campo autoritativo
+<code>source.content_id</code> é o digest SHA-256 dos bytes UTF-8 das linhas ordenadas de
+<code>git ls-tree -r --full-tree</code> para a árvore candidata. O digest exclui a entrada
+de <code>metadata.json</code> porque incluí-la faria o digest conter a si próprio.
+Subárvores vazias não aparecem na saída recursiva de <code>git ls-tree</code>; portanto,
+diretórios vazios não afetam a identidade.</p>
+<p>O <code>scripts/build_metadata.py</code> prepara o checkout atual em um índice Git e um
+banco de objetos temporários e calcula o digest dessa árvore candidata sem
+alterar o índice real nem os objetos do repositório. O schema exato rejeita
+campos ausentes e desconhecidos. Ele deriva <code>python</code> e <code>netbox</code> das mesmas fontes
+do projeto usadas durante a geração, fixa <code>source.repo</code> à identidade do
+repositório canônico declarada pela configuração confiável do projeto e exige
+que <code>generated_at</code> seja um timestamp RFC 3339 UTC válido. <code>source.version</code> deve
+ser igual a <code>project.version</code>. <code>source.commit</code> continua sendo um SHA completo e
+informativo: quando o objeto está disponível, a geração e a verificação exigem
+que ele seja um commit com a versão do projeto e a identidade de conteúdo da
+árvore candidata, mas a ausência do objeto não invalida a identidade do
+conteúdo. A igualdade de conteúdo autentica a árvore, não a origem do
+repositório; um fetch externo confiável ou vínculo equivalente à fonte canônica
+deve autenticar a origem. O comando
+<code>python scripts/build_metadata.py --verify</code> verifica os metadados commitados em
+relação ao <code>HEAD</code>.</p>
+<p>O workflow de metadados sem credenciais valida essa identidade de conteúdo. O
+espelho do Gitea para o GitHub envia o commit canônico exato e executa somente o
+auxiliar limitado <code>scripts/mirror_github.py</code> desse commit destacado durante a
+etapa de push. Ele não regenera o <code>metadata.json</code> nem cria um commit de metadados
+exclusivo do GitHub. A reescrita única é permitida somente quando a ponta
+observada no GitHub for exatamente o commit histórico e revisado exclusivo do
+espelho <code>d0b46101d3d91d6755b6a419e9095577b66a443d</code>, e o force-with-lease
+permanece fixo nesse SHA. Todas as outras atualizações exigem que a ponta
+observada no GitHub seja ancestral do commit canônico e usam um force-with-lease
+exato, fixo na ponta inspecionada por essa verificação de ancestralidade.
+Qualquer rejeição do push encerra o job sem atualizar a ponta observada ou
+tentar novamente; assim, nem um retrocesso concorrente nem outra gravação
+concorrente são sobrescritos.</p>
 <h2 id="superficie-publica-do-sdk">Superfície pública do SDK<a class="headerlink" href="#superficie-publica-do-sdk" title="Permanent link">&para;</a></h2>
 <p>Símbolos estáveis para uso em biblioteca são exportados de <code>netbox_sdk</code> (veja <code>netbox_sdk/__init__.py</code>), incluindo:</p>
 <ul>
@@ -3478,30 +3601,30 @@ wheel e do sdist. Os jobs de registro instalam somente o grupo de dependências
 </ul>
 <p>Tudo fora desse <code>__all__</code> é considerado interno salvo documentação em contrário.</p>
 <h2 id="diagrama-de-camadas">Diagrama de camadas<a class="headerlink" href="#diagrama-de-camadas" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart TB
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  subgraph sdk [netbox_sdk]
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    config[config.py]
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    schema[schema.py]
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    services[services.py]
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    client[client.py]
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    config --&gt; client
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    schema --&gt; services
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    client --&gt; services
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  end
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  subgraph cli [netbox_cli]
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    runtime[runtime.py]
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    dynamic[dynamic.py]
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    runtime --&gt; client
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    runtime --&gt; schema
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    dynamic --&gt; runtime
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    dynamic --&gt; services
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  end
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  subgraph tui [netbox_tui]
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    app[app.py]
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>  end
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  cli --&gt; sdk
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  tui --&gt; sdk
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>  cli -. lazy launch .-&gt; tui
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>flowchart TB
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  subgraph sdk [netbox_sdk]
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    config[config.py]
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    schema[schema.py]
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    services[services.py]
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    client[client.py]
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    config --&gt; client
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    schema --&gt; services
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    client --&gt; services
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  end
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  subgraph cli [netbox_cli]
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    runtime[runtime.py]
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    dynamic[dynamic.py]
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    runtime --&gt; client
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    runtime --&gt; schema
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    dynamic --&gt; runtime
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    dynamic --&gt; services
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  end
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>  subgraph tui [netbox_tui]
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>    app[app.py]
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  end
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  cli --&gt; sdk
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  tui --&gt; sdk
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>  cli -. lazy launch .-&gt; tui
 </span></code></pre></div>
 <h2 id="arestas-de-import-permitidas">Arestas de import permitidas<a class="headerlink" href="#arestas-de-import-permitidas" title="Permanent link">&para;</a></h2>
 <table>
