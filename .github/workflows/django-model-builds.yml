@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -14,55 +14,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - name: Check out the exact read-only source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.12"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           enable-cache: true
+          version: "0.11.28"
 
-      - name: Install netbox-sdk tool from PyPI
-        run: uv tool install --force netbox-sdk[cli]
+      - name: Install the checked-out netbox-sdk tool
+        run: uv tool install --force '.[cli]'
 
       - name: Get last 3 NetBox release tags
         id: releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAGS=$(gh api repos/netbox-community/netbox/releases --paginate --jq '.[0:3] | .[].tag_name')
+          tags="$(gh api --method GET 'repos/netbox-community/netbox/releases?per_page=3' --jq '.[].tag_name')"
           echo "tags<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$TAGS" >> "$GITHUB_OUTPUT"
+          echo "$tags" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Build model graphs
         env:
           TAGS: ${{ steps.releases.outputs.tags }}
         run: |
-          mkdir -p django_models_builds
-          while IFS= read -r TAG; do
-            [ -z "$TAG" ] && continue
-            CHECKOUT_DIR="/tmp/netbox-${TAG}"
-            git clone --depth 1 --branch "$TAG" https://github.com/netbox-community/netbox.git "$CHECKOUT_DIR"
+          set -euo pipefail
+          build_dir="${RUNNER_TEMP:?}/django-model-builds"
+          mkdir -p "$build_dir"
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            if ! [[ "$tag" =~ ^v[0-9][0-9A-Za-z.-]*$ ]]; then
+              echo "Unexpected NetBox release tag: $tag" >&2
+              exit 1
+            fi
+            checkout_dir="$(mktemp -d "${RUNNER_TEMP:?}/netbox-${tag}.XXXXXX")"
+            git clone --depth 1 --branch "$tag" https://github.com/netbox-community/netbox.git "$checkout_dir"
             ~/.local/bin/nbx dev django-model build --rebuild \
-              --netbox-root "$CHECKOUT_DIR/netbox/" \
-              --cache-path "django_models_builds/${TAG}-django-models-build.json"
-            rm -rf "$CHECKOUT_DIR"
+              --netbox-root "$checkout_dir/netbox/" \
+              --cache-path "$build_dir/${tag}-django-models-build.json"
           done <<< "$TAGS"
 
-      - name: Commit and push if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add django_models_builds/
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "build(django-models): update last 3 NetBox releases"
-            git push
-          fi
+      - name: Upload model graphs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: django-model-graphs-${{ github.run_id }}
+          path: ${{ runner.temp }}/django-model-builds/*.json
+          if-no-files-found: error
+          retention-days: 14

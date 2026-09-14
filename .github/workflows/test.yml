@@ -3,8 +3,6 @@ name: Tests
 on:
   push:
     branches: ["**"]
-    paths-ignore:
-      - metadata.json
   pull_request:
     branches: ["**"]
 
@@ -38,9 +36,15 @@ jobs:
               - '.github/workflows/main-post-merge.yml'
               - '.github/workflows/publish-metadata.yml'
               - '.gitea/workflows/mirror-github.yml'
+              - '.github/workflows/django-model-builds.yml'
               - '.github/workflows/publish-testpypi.yml'
               - 'scripts/build_metadata.py'
+              - 'scripts/build_model_catalog.py'
+              - 'scripts/mirror_github.py'
+              - 'scripts/refresh_django_model_builds.py'
               - 'scripts/release_policy.py'
+              - 'tests/test_mirror_github.py'
+              - 'tests/test_model_build_catalog.py'
               - 'tests/test_release_policy.py'
             docs:
               - 'docs/**'
@@ -58,6 +62,7 @@ jobs:
               # and pull request, and .gitea/workflows/ci.yml runs it too.
             sdk:
               - 'netbox_sdk/**'
+              - 'django_models_builds/**'
               - 'scripts/generate_typed_sdk.py'
               - 'scripts/prepare_testpypi_upload.py'
               - 'scripts/check_live_netbox_status.py'

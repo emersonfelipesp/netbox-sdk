@@ -90,8 +90,10 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_logo_render.py` | NetBox logo wordmark rendering against each built-in theme |
 | `test_logs_tui.py` | `NetBoxLogsTuiApp` Pilot tests: log entry display, surface theming across all built-in themes |
 | `test_markdown_output.py` | Markdown rendering helpers and `--output markdown` flag handling |
+| `test_mirror_github.py` | Executable local-bare-repository matrix for the one-time historical mirror rewrite, ordinary fast-forward, divergence refusal, and concurrent push rejection without retry |
 | `test_mcp.py` | MCP schemas, mutation gate, dry-run, mocked reads, CLI JSON parity, and deterministic hook behavior including literal dry-run allowance |
 | `test_mock_api.py` | FastAPI mock NetBox API CRUD, pagination, filtering, and Branching routes |
+| `test_model_build_catalog.py` | Bundled Django model catalog packaging, portable checkout-relative paths, refresh normalization, absolute-path rejection, and newest-stable archive coverage |
 | `test_no_hardcoded_colors.py` | Two checks: (1) zero hex literals in any runtime TCSS file; (2) all `$token` references in TCSS are in the explicit `_ALLOWED_THEME_TOKENS` allowlist |
 | `test_output_safety.py` | ANSI stripping, control character replacement, safe Rich Text rendering |
 | `test_pagination_cursor.py` | Cursor and paginated response handling |

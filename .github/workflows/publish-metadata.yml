@@ -1,4 +1,4 @@
-name: Validate metadata provenance
+name: Validate metadata content identity
 
 on:
   push:
@@ -31,24 +31,5 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Validate committed metadata against repository history
-        run: |
-          python - <<'PY'
-          import json
-          import re
-          import tomllib
-          from pathlib import Path
-
-          from scripts.build_metadata import validate_source_provenance
-
-          root = Path.cwd()
-          metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
-          commit = metadata["source"]["commit"]
-          if not re.fullmatch(r"[0-9a-f]{40}", commit):
-              raise SystemExit("metadata source.commit must be a full lowercase Git SHA")
-          project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-          if metadata["release"] != project["version"]:
-              raise SystemExit("metadata release does not match the project version")
-          validate_source_provenance(commit, str(project["version"]))
-          print(f"metadata.json is traceable to {commit}")
-          PY
+      - name: Validate committed metadata against repository content
+        run: python scripts/build_metadata.py --verify

@@ -45,7 +45,7 @@ def django_model_build(
     Run this once (or when NetBox is updated) to generate the model graph
     used by the TUI.
     """
-    store = DjangoModelStore(cache_path=cache_path)
+    store = DjangoModelStore(cache_path=cache_path, checkout_root=netbox_root.parent)
     if store.exists() and not rebuild:
         typer.echo(f"Cache already exists at {store.path}. Use --rebuild to refresh.")
         raise typer.Exit(code=0)
@@ -94,7 +94,7 @@ def django_model_tui(
     from netbox_cli.runtime import _get_client, _get_runtime_index  # noqa: PLC0415
     from netbox_tui.django_model_app import run_django_model_tui  # noqa: PLC0415
 
-    store = DjangoModelStore(cache_path=cache_path)
+    store = DjangoModelStore(cache_path=cache_path, checkout_root=netbox_root.parent)
     if not store.exists():
         if not netbox_root.is_dir():
             typer.echo(f"Error: NetBox source not found at {netbox_root}", err=True)

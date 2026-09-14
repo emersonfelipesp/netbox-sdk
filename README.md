@@ -526,15 +526,21 @@ in the upload step, so a partial PyPI upload can resume without
 `--skip-existing`. A bounded post-upload check then requires PyPI to expose the
 exact wheel/sdist pair and hashes. Publisher jobs install only the audited,
 locked `publish` dependency group. Metadata generation runs without credentials
-on every canonical `main` push. The serialized Gitea-to-GitHub mirror then
-confirms that the event SHA is still the latest canonical tip, adds the generated
-metadata follow-up, and updates GitHub with a three-attempt lease retry. The
-canonical fetch and GitHub push credentials are confined to separate steps.
-This is a weaker mirror-side design: no existing Gitea workflow exposes a
-repository-content write credential, so the metadata follow-up exists only on
-GitHub and is regenerated instead of being retained in canonical history.
-A dedicated read-only GitHub workflow validates metadata-only commits, while
-unrelated broad workflows ignore them.
+and records an authoritative content identity. A dedicated credential-free
+workflow validates the committed metadata. The serialized Gitea-to-GitHub
+mirror confirms that the event SHA is still the latest canonical tip and pushes
+that exact commit without executing repository code, generating metadata, or
+committing a GitHub-only metadata update. Canonical fetch and GitHub push
+credentials are confined to separate steps. The one-time historical rewrite is
+permitted only when the observed GitHub `main` tip is exactly
+`d0b46101d3d91d6755b6a419e9095577b66a443d`, and its force-with-lease remains
+fixed to that reviewed SHA. Every other update requires the observed GitHub tip
+to be an ancestor of the canonical commit and uses an exact force-with-lease
+fixed to the tip inspected by that ancestry check. A rejected push aborts
+without refreshing the observed tip or retrying, so concurrent rewinds and
+other concurrent writes are never overwritten.
+Regular GitHub validation workflows run when metadata changes, and the
+dedicated read-only workflow calls the same content-identity verifier.
 
 Private-registry versions are immutable. A partial remote version is a terminal
 collision for that version: never delete files, overwrite them, or retry the
@@ -542,10 +548,23 @@ same version. Diagnose and fix the release source or workflow, advance every
 candidate-version surface to the next unused `rcN`, repeat the external
 release-tag protection preflight, and publish only the new candidate tag.
 
-Release metadata is a deliberate follow-up commit: first commit the integration,
-then run `SOURCE_COMMIT=<integration-sha> python scripts/build_metadata.py` and
-commit the resulting `metadata.json` before pushing. Supply the integration
-commit SHA, never the annotated tag-object SHA. The generator rejects a
-non-commit object, a commit outside candidate ancestry, a commit whose
-`pyproject.toml` has a different project version, or a source tree that differs
-from the candidate anywhere except the deliberate `metadata.json` follow-up.
+Release metadata uses `source.content_id` as its authoritative provenance. The
+value is the SHA-256 digest of the UTF-8 bytes of sorted
+`git ls-tree -r --full-tree` lines for the candidate tree, excluding the
+`metadata.json` entry so the digest does not contain itself. The generator uses
+a temporary index and object database to stage the current checkout without
+changing the real index. Empty subtrees do not appear in recursive `ls-tree`
+output and therefore do not affect the identity. Content equality authenticates
+the tree, not the repository origin; release workflows must bind the commit to a
+trusted canonical fetch separately. The exact metadata schema pins
+`source.repo`, derives `python` and `netbox` from the same project sources as
+generation, and requires `generated_at` in RFC 3339 UTC form. Commit the
+candidate changes, run
+`python scripts/build_metadata.py`, stage `metadata.json`, and amend that same
+commit rather than creating a mirror-side or metadata-only follow-up. The
+digest remains stable across the amendment because `metadata.json` is excluded.
+`source.version` must match `project.version`; `source.commit` is informational.
+If that commit object remains available, its version and tree outside
+`metadata.json` must match the exact candidate tree during generation as well as
+verification. Run `python scripts/build_metadata.py --verify` in a clean
+checkout to validate the committed content identity against `HEAD`.

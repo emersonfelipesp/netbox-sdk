@@ -113,12 +113,14 @@ Before applying with a release, confirm:
   whose manifest is revalidated in the Twine step, allowing safe partial-upload
   retries without `--skip-existing`; a bounded final check requires PyPI to
   expose exactly the expected filenames and hashes;
-- metadata generation runs without credentials on every canonical `main` push;
-  the serialized mirror confirms the latest canonical tip, creates the
-  GitHub-side metadata follow-up, retries a changed push lease at most three
-  times, and exposes its canonical-fetch and GitHub-push credentials only to
-  separate steps; the dedicated read-only provenance workflow validates the
-  result;
+- `metadata.json` records the project version and an authoritative content
+  identity that excludes its own tree entry; the dedicated credential-free
+  workflow validates the committed metadata, while the serialized mirror
+  confirms the latest canonical tip and pushes that exact commit without
+  executing repository code or creating a GitHub-only follow-up; it retries a
+  changed push lease at most three times and exposes its canonical-fetch and
+  GitHub-push credentials only to separate steps; the dedicated read-only
+  workflow uses the same verifier;
 - registry jobs install only the audited, locked `publish` dependency group;
 - package build and `twine check` pass;
 - strict docs build passes;

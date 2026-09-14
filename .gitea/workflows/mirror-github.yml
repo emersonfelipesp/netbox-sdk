@@ -14,56 +14,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  generate-metadata:
-    name: Generate credential-free metadata
-    runs-on: ci-untrusted-python312
-    permissions:
-      contents: read
-    outputs:
-      metadata_b64: ${{ steps.capture.outputs.metadata_b64 }}
-      source_sha: ${{ steps.capture.outputs.source_sha }}
-    steps:
-      - name: Check out the exact canonical event source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Generate metadata for the canonical commit
-        shell: bash
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          SOURCE_COMMIT: ${{ github.sha }}
-        run: python3 scripts/build_metadata.py
-
-      - name: Capture the bounded metadata handoff
-        id: capture
-        shell: bash
-        env:
-          SOURCE_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          test "$(wc -c < metadata.json)" -le 4096
-          metadata_b64="$(base64 -w 0 metadata.json)"
-          printf 'metadata_b64=%s\n' "$metadata_b64" >> "$GITHUB_OUTPUT"
-          printf 'source_sha=%s\n' "$SOURCE_SHA" >> "$GITHUB_OUTPUT"
-
   mirror:
-    name: Preserve metadata and push the branch to GitHub
-    needs: generate-metadata
+    name: Push the exact canonical branch to GitHub
     runs-on: mirror-host
     permissions:
       contents: read
     steps:
-      - name: Prepare the latest canonical tree and metadata commit
+      - name: Prepare the latest canonical commit
         id: prepare
         shell: bash
         env:
           GIT_CONFIG_GLOBAL: /dev/null
           GIT_CONFIG_NOSYSTEM: "1"
           GITEA_SOURCE_TOKEN: ${{ secrets.SOURCE_MIRROR_TOKEN }}
-          METADATA_B64: ${{ needs.generate-metadata.outputs.metadata_b64 }}
-          SOURCE_SHA: ${{ needs.generate-metadata.outputs.source_sha }}
+          SOURCE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           umask 077
@@ -105,35 +69,10 @@ jobs:
           fi
 
           git -C "$mirror_root" checkout --detach "$latest_sha"
-          test -f "${mirror_root}/metadata.json"
-          test ! -L "${mirror_root}/metadata.json"
-          metadata_candidate="${mirror_root}/.git/metadata.json.candidate"
-          printf '%s' "$METADATA_B64" | base64 --decode > "$metadata_candidate"
-          mv "$metadata_candidate" "${mirror_root}/metadata.json"
-          MIRROR_ROOT="$mirror_root" python3 -I - "$SOURCE_SHA" "$source_repository" <<'PY'
-          import json
-          import os
-          import re
-          import sys
-          from pathlib import Path
-
-          metadata = json.loads((Path(os.environ["MIRROR_ROOT"]) / "metadata.json").read_text())
-          if set(metadata) != {"release", "python", "netbox", "generated_at", "source"}:
-              raise SystemExit("metadata.json has an unexpected top-level shape")
-          if not re.fullmatch(r"[0-9a-f]{40}", metadata["source"]["commit"]):
-              raise SystemExit("metadata.json source.commit is not a full lowercase Git SHA")
-          if metadata["source"] != {"repo": sys.argv[2], "commit": sys.argv[1]}:
-              raise SystemExit("metadata.json is not bound to the canonical event source")
-          PY
-          changed_paths="$(git -C "$mirror_root" diff --name-only -- .)"
-          test "$changed_paths" = metadata.json
-          git -C "$mirror_root" config user.name "github-actions[bot]"
-          git -C "$mirror_root" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git -C "$mirror_root" add metadata.json
-          git -C "$mirror_root" commit -m "chore: refresh metadata provenance"
+          test "$(git -C "$mirror_root" rev-parse HEAD)" = "$SOURCE_SHA"
           printf 'publish=true\n' >> "$GITHUB_OUTPUT"
 
-      - name: Push the prepared mirror with a bounded lease retry
+      - name: Push the prepared mirror without overwriting GitHub changes
         if: steps.prepare.outputs.publish == 'true'
         shell: bash
         env:
@@ -166,31 +105,11 @@ jobs:
           chmod 700 "$github_askpass"
           git -C "$MIRROR_ROOT" remote add github "https://github.com/${target_repo}.git"
 
-          for attempt in 1 2 3; do
-            if ! expected_remote_sha="$(
-              GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
-                git -C "$MIRROR_ROOT" ls-remote github refs/heads/main | awk '{print $1}'
-            )"; then
-              sleep "$attempt"
-              continue
-            fi
-            if [ -n "$expected_remote_sha" ]; then
-              if GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
-                git -C "$MIRROR_ROOT" push \
-                  --force-with-lease="refs/heads/main:${expected_remote_sha}" \
-                  github HEAD:refs/heads/main; then
-                exit 0
-              fi
-            elif GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
-              git -C "$MIRROR_ROOT" push github HEAD:refs/heads/main; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              sleep "$attempt"
-            fi
-          done
-          echo "::error::GitHub mirror changed during all three lease attempts."
-          exit 1
+          GIT_ASKPASS="$github_askpass" GIT_TERMINAL_PROMPT=0 \
+            python3 "$MIRROR_ROOT/scripts/mirror_github.py" \
+              --repository "$MIRROR_ROOT" \
+              --remote github \
+              --branch main
 
       - name: Remove the temporary mirror worktree
         if: always()

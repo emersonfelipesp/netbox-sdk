@@ -35,6 +35,96 @@ manifest, and a bounded final check requires PyPI to expose exactly the local
 wheel/sdist filenames and hashes. Registry jobs install only the audited,
 locked `publish` dependency group.
 
+## Django model-build catalog refreshes
+
+The repository archive under `django_models_builds/` is the source for the
+supported catalog packaged under `netbox_sdk/django_models/model_builds/`.
+The weekly `.github/workflows/django-model-builds.yml` workflow builds the
+latest three NetBox releases with the exact read-only repository source and
+retains the JSON files as a 14-day artifact. GitHub `main` remains read-only:
+the workflow never commits or pushes an archive refresh.
+
+A maintainer selects and downloads an artifact locally, prepares the archive
+and bundled catalog, and submits the result through a reviewed Gitea pull
+request:
+
+```bash
+gh run download <run-id> --dir .tmp/django-model-builds/<run-id>
+uv run --locked python scripts/refresh_django_model_builds.py \
+  --artifact-dir .tmp/django-model-builds/<run-id>
+```
+
+`scripts/refresh_django_model_builds.py` performs no downloads. It accepts the
+local artifact directory, normalizes each build into `django_models_builds/`,
+regenerates the supported package catalog with
+`scripts/build_model_catalog.py`, and prints the exact `git status` for
+review. The same command can build from an existing local NetBox checkout:
+
+```bash
+uv run --locked python scripts/refresh_django_model_builds.py \
+  --netbox-checkout /path/to/netbox --tag v4.7.0
+```
+
+Local-tag generation requires `HEAD` to resolve to the requested tag commit and
+requires `git status --porcelain --untracked-files=all` to be empty. Modified
+tracked files and untracked files are rejected so they cannot be published under
+an official NetBox release name.
+
+Every previously packaged exact patch build remains available. Calling
+`catalog.load_build("v4.6.3")` loads that exact artifact; matching the `4.6`
+release line selects the newest numeric patch available in the line. The
+manifest's `builds` map records these release-line defaults, while
+`exact_builds` records the complete packaged inventory.
+`scripts/build_model_catalog.py` preserves existing packaged builds by default.
+The `--prune` flag removes builds that are not current line defaults and must be
+used only for an explicit compatibility decision.
+
+Both the graph builder and catalog normalizer record paths relative to the
+NetBox checkout root. The normalizer infers checkout roots from older
+`meta.source_path` values and rejects any remaining absolute path with an
+actionable error. The offline test suite also requires
+`django_models_builds/` to contain the newest release line marked stable in
+`netbox_sdk/versioning.py`; adding a stable line without its reviewed graph
+therefore fails before merge.
+
+## Repository metadata provenance
+
+`metadata.json` identifies the candidate by content. Its authoritative
+`source.content_id` field is the SHA-256 digest of the UTF-8 bytes of the sorted
+`git ls-tree -r --full-tree` lines for the candidate tree. The digest excludes
+the `metadata.json` entry because including that entry would make the digest
+contain itself. Recursive `git ls-tree` output omits empty subtrees, so empty
+directories do not affect the identity.
+
+`scripts/build_metadata.py` stages the current checkout in a temporary Git
+index and temporary object database, then computes the digest from that
+candidate tree without changing the real index or repository objects.
+The exact schema rejects missing and unknown fields. It derives `python` and
+`netbox` from the same project sources used during generation, pins
+`source.repo` to the canonical repository identity declared by the trusted
+project configuration, and requires `generated_at` to be a valid RFC 3339 UTC
+timestamp. `source.version` must equal `project.version`. `source.commit`
+remains a full informational SHA: when the object is available, generation and
+verification require it to be a commit with the candidate's project version and
+content identity, but its absence does not invalidate the content identity.
+Content equality authenticates the tree, not the repository origin; an external
+trusted fetch or equivalent canonical-source binding must authenticate the
+origin. `python scripts/build_metadata.py --verify` checks committed metadata
+against `HEAD`.
+
+The credential-free metadata workflow validates this content identity. The
+Gitea-to-GitHub mirror pushes the exact canonical commit and runs only the
+bounded `scripts/mirror_github.py` helper from that detached commit during the
+push step. It does not regenerate `metadata.json` or create a GitHub-only
+metadata commit. The one-time rewrite is permitted only when the observed
+GitHub tip equals the exact reviewed historical mirror-only commit
+`d0b46101d3d91d6755b6a419e9095577b66a443d`, and the force-with-lease remains
+fixed to that SHA. Every other update requires the observed GitHub tip to be an
+ancestor of the canonical commit and uses an exact force-with-lease fixed to the
+tip inspected by that ancestry check. Any push rejection aborts without
+refreshing the tip or retrying, so neither a concurrent rewind nor another
+concurrent write is overwritten.
+
 ## Public SDK surface
 
 Stable symbols for library use are exported from `netbox_sdk` (see `netbox_sdk/__init__.py`), including:

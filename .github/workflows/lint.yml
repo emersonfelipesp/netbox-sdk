@@ -3,8 +3,6 @@ name: Lint and Format
 on:
   push:
     branches: ["**"]
-    paths-ignore:
-      - metadata.json
   pull_request:
     branches: ["**"]
 

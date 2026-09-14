@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 import subprocess
 import tomllib
@@ -542,24 +544,7 @@ def test_release_workflow_authorizes_rc_pushes_and_official_release_events() -> 
     assert "github.event_name == 'release'" in str(workflow["jobs"]["publish-pypi"]["if"])
 
 
-def test_metadata_mirror_preserves_provenance_with_scoped_credentials() -> None:
-    workflow = _load_workflow(".gitea/workflows/mirror-github.yml")
-    triggers = workflow["on"]
-    assert triggers["push"] == {"branches": ["main"]}
-    assert workflow["permissions"] == {"contents": "read"}
-    assert workflow["concurrency"]["cancel-in-progress"] == "false"
-
-    generator = workflow["jobs"]["generate-metadata"]
-    assert generator["runs-on"] == "ci-untrusted-python312"
-    assert generator["permissions"] == {"contents": "read"}
-    checkout = generator["steps"][0]
-    assert checkout["with"]["persist-credentials"] == "false"
-    assert "scripts/build_metadata.py" in generator["steps"][1]["run"]
-
-    writer = workflow["jobs"]["mirror"]
-    assert writer["needs"] == "generate-metadata"
-    assert writer["runs-on"] == "mirror-host"
-    assert writer["permissions"] == {"contents": "read"}
+def _assert_mirror_credentials_are_step_scoped(writer: dict[str, Any]) -> None:
     prepare_step, push_step, _cleanup_step = writer["steps"]
     assert prepare_step["env"]["GITEA_SOURCE_TOKEN"] == ("${{ secrets.SOURCE_MIRROR_TOKEN }}")
     assert prepare_step["env"]["GIT_CONFIG_GLOBAL"] == "/dev/null"
@@ -569,13 +554,50 @@ def test_metadata_mirror_preserves_provenance_with_scoped_credentials() -> None:
     assert push_step["env"]["GIT_CONFIG_GLOBAL"] == "/dev/null"
     assert push_step["env"]["GIT_CONFIG_NOSYSTEM"] == "1"
     assert "GITEA_SOURCE_TOKEN" not in push_step["env"]
+
+
+def _assert_mirror_pushes_the_exact_commit(writer: dict[str, Any]) -> None:
+    prepare_step, push_step, _cleanup_step = writer["steps"]
     assert "latest_sha" in prepare_step["run"]
-    assert "for attempt in 1 2 3" in push_step["run"]
-    assert "--force-with-lease" in push_step["run"]
+    assert "scripts/build_metadata.py" not in prepare_step["run"]
+    assert "git commit" not in prepare_step["run"]
+    assert "for attempt in 1 2 3" not in push_step["run"]
+    assert "ls-remote github" not in push_step["run"]
+    assert 'python3 "$MIRROR_ROOT/scripts/mirror_github.py"' in push_step["run"]
+    assert '--repository "$MIRROR_ROOT"' in push_step["run"]
+    assert "--remote github" in push_step["run"]
+    assert "--branch main" in push_step["run"]
+    assert "--historical-tip" not in push_step["run"]
+    assert 'git -C "$MIRROR_ROOT" push' not in push_step["run"]
+
+
+def test_metadata_mirror_preserves_provenance_with_scoped_credentials() -> None:
+    workflow = _load_workflow(".gitea/workflows/mirror-github.yml")
+    triggers = workflow["on"]
+    assert triggers["push"] == {"branches": ["main"]}
+    assert workflow["permissions"] == {"contents": "read"}
+    assert workflow["concurrency"]["cancel-in-progress"] == "false"
+    assert set(workflow["jobs"]) == {"mirror"}
+
+    writer = workflow["jobs"]["mirror"]
+    assert "needs" not in writer
+    assert writer["runs-on"] == "mirror-host"
+    assert writer["permissions"] == {"contents": "read"}
+    _assert_mirror_credentials_are_step_scoped(writer)
+    _assert_mirror_pushes_the_exact_commit(writer)
+
     workflow_text = _read(".gitea/workflows/mirror-github.yml")
     assert workflow_text.count("${{ secrets.SOURCE_MIRROR_TOKEN }}") == 1
     assert workflow_text.count("${{ secrets.GH_MIRROR_TOKEN }}") == 1
     assert "METADATA_WRITE_TOKEN" not in workflow_text
+    assert "generate-metadata" not in workflow_text
+    assert "chore: refresh metadata provenance" not in workflow_text
+
+
+def test_metadata_source_records_version_and_content_identity() -> None:
+    metadata = json.loads(_read("metadata.json"))
+    assert metadata["source"]["version"] == _pyproject_version()
+    assert re.fullmatch(r"[0-9a-f]{64}", metadata["source"]["content_id"])
 
 
 def test_metadata_only_push_has_a_dedicated_validation_gate() -> None:
@@ -592,7 +614,7 @@ def test_metadata_only_push_has_a_dedicated_validation_gate() -> None:
     assert checkout["with"]["fetch-depth"] == "0"
     assert checkout["with"]["persist-credentials"] == "false"
     validation_command = validator["steps"][-1]["run"]
-    assert "validate_source_provenance" in validation_command
+    assert validation_command == "python scripts/build_metadata.py --verify"
     assert "METADATA_WRITE_TOKEN" not in str(workflow)
     assert "github.token" not in str(workflow)
 
@@ -608,9 +630,37 @@ def test_metadata_only_push_has_a_dedicated_validation_gate() -> None:
         ".github/workflows/main-post-merge.yml",
     ],
 )
-def test_metadata_only_push_skips_unrelated_github_workflows(path: str) -> None:
+def test_metadata_changes_run_regular_github_workflows(path: str) -> None:
     workflow = _load_workflow(path)
-    assert workflow["on"]["push"]["paths-ignore"] == ["metadata.json"]
+    assert "paths-ignore" not in workflow["on"]["push"]
+
+
+def test_github_workflows_do_not_push_to_main() -> None:
+    for path in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml")):
+        workflow_text = path.read_text(encoding="utf-8")
+        assert "git push" not in workflow_text, f"{path.name} must not push GitHub main"
+        assert "HEAD:refs/heads/main" not in workflow_text, (
+            f"{path.name} must not update GitHub main"
+        )
+
+
+def test_django_model_builds_uploads_only_three_overall_releases() -> None:
+    workflow = _load_workflow(".github/workflows/django-model-builds.yml")
+    assert workflow["permissions"] == {"contents": "read"}
+    steps = workflow["jobs"]["build"]["steps"]
+    checkout_step = steps[0]
+    assert str(checkout_step["uses"]).startswith("actions/checkout@")
+    assert checkout_step["with"]["persist-credentials"] == "false"
+    install_step = next(
+        step for step in steps if step.get("name") == "Install the checked-out netbox-sdk tool"
+    )
+    assert install_step["run"] == "uv tool install --force '.[cli]'"
+    release_step = next(step for step in steps if step.get("id") == "releases")
+    assert "releases?per_page=3" in release_step["run"]
+    assert "--paginate" not in release_step["run"]
+    upload_step = next(step for step in steps if step.get("name") == "Upload model graphs")
+    assert str(upload_step["uses"]).startswith("actions/upload-artifact@")
+    assert upload_step["with"]["if-no-files-found"] == "error"
 
 
 def test_docs_deployments_are_serialized() -> None:
@@ -623,6 +673,7 @@ def test_docs_deployments_are_serialized() -> None:
     [
         ".github/workflows/publish-testpypi.yml",
         ".github/workflows/publish-metadata.yml",
+        ".github/workflows/django-model-builds.yml",
         ".gitea/workflows/mirror-github.yml",
     ],
 )
@@ -838,11 +889,9 @@ def test_published_v0_0_10_is_in_candidate_ancestry() -> None:
 def _metadata_source_mismatch(commit: str, release: str) -> str | None:
     """Return why ``commit`` fails to describe the candidate tree, or ``None``.
 
-    Ancestry is deliberately not part of this predicate. A squash merge collapses
-    a branch into a new commit, so the commit the branch recorded is a same-tree
-    sibling of the released history rather than an ancestor of it. What has to
-    hold is that the recorded commit carries the same project version and
-    describes the same tree as the candidate outside the metadata file itself.
+    Content identity is authoritative. When the informational commit remains
+    available, this additional predicate requires it to carry the same project
+    version and tree as the candidate outside the metadata file itself.
     """
     source_pyproject = _git_blob_text(commit, "pyproject.toml")
     if source_pyproject is None:
@@ -876,7 +925,9 @@ def _metadata_source_mismatch(commit: str, release: str) -> str | None:
 def test_metadata_has_traceable_source_commit() -> None:
     metadata = json.loads(_read("metadata.json"))
     commit = metadata["source"]["commit"]
-    assert metadata["release"] == _pyproject_version()
+    project_version = _pyproject_version()
+    assert metadata["release"] == project_version
+    assert metadata["source"]["version"] == project_version
     assert re.fullmatch(r"[0-9a-f]{40}", commit), "metadata source.commit must be a full SHA"
 
     git_probe = _run_git("rev-parse", "--show-toplevel")
@@ -886,32 +937,457 @@ def test_metadata_has_traceable_source_commit() -> None:
         or Path(git_probe.stdout.strip()).resolve() != REPO_ROOT.resolve()
     ):
         return
+
+    expected_content_id = build_metadata.content_id_for_tree("HEAD")
+    candidate_changes = _run_git(
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        "--",
+        ".",
+        ":(exclude)metadata.json",
+    )
+    assert candidate_changes is not None and candidate_changes.returncode == 0
+    if candidate_changes.stdout.strip():
+        # Local patch verification runs before a commit exists. The generated
+        # candidate identity must match that future tree. A committed CI checkout
+        # takes the HEAD path above, which is the published contract.
+        expected_content_id = build_metadata.content_id_for_worktree()
+    assert metadata["source"]["content_id"] == expected_content_id
+
     source_type = _run_git("cat-file", "-t", commit)
-    assert source_type is not None and source_type.returncode == 0
+    assert source_type is not None
+    if source_type.returncode != 0:
+        return
     assert source_type.stdout.strip() == "commit", (
         "metadata source.commit must identify a commit object in repository history"
     )
-    # Ancestry is not required. A squash merge collapses the branch into a new
-    # commit, so the commit the branch recorded is a sibling of the released
-    # history rather than an ancestor of it, while still describing exactly the
-    # same tree. The substantive guarantee is the tree comparison below, which
-    # rejects a recorded commit that does not describe the candidate tree
-    # whether or not it is reachable from HEAD.
-    ancestor = _run_git("merge-base", "--is-ancestor", commit, "HEAD")
-    assert ancestor is not None, "git merge-base must be runnable in the candidate checkout"
-
-    pending_parent = _run_git("rev-parse", "--verify", "MERGE_HEAD^{}")
-    if pending_parent is not None and pending_parent.returncode == 0:
-        head = _run_git("rev-parse", "HEAD")
-        assert head is not None and head.returncode == 0
-        assert commit == head.stdout.strip(), (
-            "pending integration metadata must identify the first-parent checkout; "
-            "regenerate it against the integration commit immediately after committing"
-        )
-        return
-
     reason = _metadata_source_mismatch(commit, metadata["release"])
     assert reason is None, reason
+
+
+def test_metadata_verification_allows_an_unavailable_informational_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    metadata = json.loads(_read("metadata.json"))
+    metadata["source"]["content_id"] = build_metadata.content_id_for_worktree()
+    metadata["source"]["commit"] = "f" * 40
+    output = tmp_path / "metadata.json"
+    output.write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(build_metadata, "OUTPUT", output)
+    monkeypatch.setattr(build_metadata, "_resolved_object_type", lambda _commit: None)
+
+    build_metadata.verify_metadata(use_worktree=True)
+
+
+def test_metadata_verification_rejects_a_changed_content_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    metadata = json.loads(_read("metadata.json"))
+    metadata["source"]["content_id"] = "0" * 64
+    output = tmp_path / "metadata.json"
+    output.write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(build_metadata, "OUTPUT", output)
+
+    with pytest.raises(RuntimeError, match="does not match the repository content"):
+        build_metadata.verify_metadata(use_worktree=True)
+
+
+def _worktree_metadata() -> dict[str, Any]:
+    metadata = json.loads(_read("metadata.json"))
+    metadata["source"]["content_id"] = build_metadata.content_id_for_worktree()
+    metadata["source"]["commit"] = "f" * 40
+    return metadata
+
+
+def _write_metadata_fixture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    metadata: dict[str, Any],
+) -> None:
+    output = tmp_path / "metadata.json"
+    output.write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(build_metadata, "OUTPUT", output)
+    monkeypatch.setattr(build_metadata, "_resolved_object_type", lambda _commit: None)
+
+
+@pytest.mark.parametrize("container", ["top", "source"])
+def test_metadata_verification_rejects_unknown_fields(
+    container: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    metadata = _worktree_metadata()
+    target = metadata if container == "top" else metadata["source"]
+    target["unexpected"] = True
+    _write_metadata_fixture(tmp_path, monkeypatch, metadata)
+
+    with pytest.raises(RuntimeError, match="unknown: unexpected"):
+        build_metadata.verify_metadata(use_worktree=True)
+
+
+@pytest.mark.parametrize(
+    ("container", "field"),
+    [("top", "python"), ("source", "repo")],
+)
+def test_metadata_verification_rejects_missing_fields(
+    container: str,
+    field: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    metadata = _worktree_metadata()
+    target = metadata if container == "top" else metadata["source"]
+    del target[field]
+    _write_metadata_fixture(tmp_path, monkeypatch, metadata)
+
+    with pytest.raises(RuntimeError, match=rf"missing: {field}"):
+        build_metadata.verify_metadata(use_worktree=True)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("python", "3.12+", "project.requires-python"),
+        ("netbox", ["4.7"], "typed version modules"),
+        ("generated_at", "2026-02-30T00:00:00Z", "valid RFC 3339 UTC"),
+        ("generated_at", "2026-09-14T00:00:00+00:00", "YYYY-MM-DDTHH:MM:SSZ"),
+    ],
+)
+def test_metadata_verification_rejects_noncanonical_derived_values(
+    field: str,
+    value: object,
+    message: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    metadata = _worktree_metadata()
+    metadata[field] = value
+    _write_metadata_fixture(tmp_path, monkeypatch, metadata)
+
+    with pytest.raises(RuntimeError, match=message):
+        build_metadata.verify_metadata(use_worktree=True)
+
+
+def test_metadata_verification_rejects_a_noncanonical_repository(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    metadata = _worktree_metadata()
+    metadata["source"]["repo"] = "attacker/netbox-sdk"
+    _write_metadata_fixture(tmp_path, monkeypatch, metadata)
+
+    with pytest.raises(RuntimeError, match="source.repo"):
+        build_metadata.verify_metadata(use_worktree=True)
+
+
+def _stub_generation_source(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    object_type: str | None,
+    source_version: str,
+    source_content_id: str,
+) -> None:
+    monkeypatch.setattr(build_metadata, "source_commit", lambda: "a" * 40)
+    monkeypatch.setattr(build_metadata, "content_id_for_worktree", lambda: "b" * 64)
+    monkeypatch.setattr(build_metadata, "_resolved_object_type", lambda _commit: object_type)
+    monkeypatch.setattr(
+        build_metadata,
+        "_git_output",
+        lambda *_args, **_kwargs: object_type or "",
+    )
+    monkeypatch.setattr(
+        build_metadata,
+        "_git_blob_text",
+        lambda _commit, _path: f'[project]\nversion = "{source_version}"\n',
+    )
+    monkeypatch.setattr(
+        build_metadata,
+        "content_id_for_tree",
+        lambda _treeish="HEAD", **_kwargs: source_content_id,
+    )
+
+
+def test_generate_metadata_rejects_a_resolved_wrong_version(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _stub_generation_source(
+        monkeypatch,
+        object_type="commit",
+        source_version="0.0.12",
+        source_content_id="b" * 64,
+    )
+
+    with pytest.raises(RuntimeError, match="project version"):
+        build_metadata.generate_metadata()
+
+
+def test_generate_metadata_rejects_a_resolved_wrong_tree(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _stub_generation_source(
+        monkeypatch,
+        object_type="commit",
+        source_version=_pyproject_version(),
+        source_content_id="c" * 64,
+    )
+
+    with pytest.raises(RuntimeError, match="does not match the candidate tree"):
+        build_metadata.generate_metadata()
+
+
+def test_generate_metadata_rejects_a_resolved_tag_object(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _stub_generation_source(
+        monkeypatch,
+        object_type="tag",
+        source_version=_pyproject_version(),
+        source_content_id="b" * 64,
+    )
+
+    with pytest.raises(RuntimeError, match="must identify a commit object"):
+        build_metadata.generate_metadata()
+
+
+def test_main_allows_an_unavailable_informational_sha(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output = tmp_path / "metadata.json"
+    monkeypatch.setattr(build_metadata, "OUTPUT", output)
+    monkeypatch.setattr(build_metadata, "source_commit", lambda: "f" * 40)
+    monkeypatch.setattr(build_metadata, "content_id_for_worktree", lambda: "b" * 64)
+    monkeypatch.setattr(build_metadata, "_resolved_object_type", lambda _commit: None)
+    monkeypatch.setenv("GITHUB_REPOSITORY", "attacker/netbox-sdk")
+
+    assert build_metadata.main([]) == 0
+    assert json.loads(output.read_text(encoding="utf-8"))["source"] == {
+        "repo": "emersonfelipesp/netbox-sdk",
+        "version": _pyproject_version(),
+        "commit": "f" * 40,
+        "content_id": "b" * 64,
+    }
+
+
+def _run_vector_git(
+    repository: Path,
+    *args: str,
+    input_text: str | None = None,
+    env: dict[str, str] | None = None,
+) -> str:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=repository,
+        capture_output=True,
+        check=False,
+        env=env,
+        input=input_text,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    return result.stdout.rstrip("\n")
+
+
+def _fixed_commit_environment() -> dict[str, str]:
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "GIT_AUTHOR_DATE": "2000-01-01T00:00:00Z",
+            "GIT_AUTHOR_EMAIL": "vector@example.invalid",
+            "GIT_AUTHOR_NAME": "Content Identity Vector",
+            "GIT_COMMITTER_DATE": "2000-01-01T00:00:00Z",
+            "GIT_COMMITTER_EMAIL": "vector@example.invalid",
+            "GIT_COMMITTER_NAME": "Content Identity Vector",
+        }
+    )
+    return environment
+
+
+def _build_content_identity_vector(repository: Path) -> str:
+    repository.mkdir()
+    _run_vector_git(repository, "init", "--quiet", "--initial-branch=main", "--object-format=sha1")
+    _run_vector_git(repository, "config", "core.autocrlf", "false")
+    _run_vector_git(repository, "config", "core.filemode", "true")
+    _run_vector_git(repository, "config", "core.symlinks", "true")
+    (repository / "dir with space").mkdir()
+    (repository / "sub").mkdir()
+    (repository / "unicodé").mkdir()
+    (repository / "lf.txt").write_bytes(b"line one\nline two\n")
+    (repository / "crlf.txt").write_bytes(b"line one\r\nline two\r\n")
+    (repository / "plain.txt").write_bytes(b"regular file\n")
+    executable = repository / "run.sh"
+    executable.write_bytes(b"#!/bin/sh\nexit 0\n")
+    executable.chmod(0o755)
+    (repository / "link").symlink_to("lf.txt")
+    (repository / "dir with space" / "file name.txt").write_bytes(b"space path\n")
+    (repository / "unicodé" / "雪.txt").write_bytes(b"snow\n")
+    (repository / "metadata.json").write_bytes(b"{}\n")
+    (repository / "sub" / "metadata.json").write_bytes(b"nested decoy\n")
+
+    submodule = repository / "vendor" / "submodule"
+    submodule.mkdir(parents=True)
+    _run_vector_git(submodule, "init", "--quiet", "--initial-branch=main", "--object-format=sha1")
+    empty_tree = _run_vector_git(submodule, "mktree", input_text="")
+    submodule_commit = _run_vector_git(
+        submodule,
+        "commit-tree",
+        empty_tree,
+        input_text="fixed gitlink\n",
+        env=_fixed_commit_environment(),
+    )
+    _run_vector_git(submodule, "update-ref", "refs/heads/main", submodule_commit)
+
+    _run_vector_git(repository, "add", "--all", "--", ".")
+    indexed_tree = _run_vector_git(repository, "write-tree")
+    top_level = _run_vector_git(repository, "ls-tree", indexed_tree)
+    outer_empty_tree = _run_vector_git(repository, "mktree", input_text="")
+    tree_with_empty_subtree = _run_vector_git(
+        repository,
+        "mktree",
+        input_text=f"{top_level}\n040000 tree {outer_empty_tree}\tempty\n",
+    )
+    commit = _run_vector_git(
+        repository,
+        "commit-tree",
+        tree_with_empty_subtree,
+        input_text="content identity vector\n",
+        env=_fixed_commit_environment(),
+    )
+    _run_vector_git(repository, "update-ref", "refs/heads/main", commit)
+    _run_vector_git(repository, "reset", "--quiet", "--hard", commit)
+    return commit
+
+
+_CONTENT_ID_VECTOR_TREE_LISTING = r"""100644 blob cf9b2a85b62bc2fd67c5ed43a1d0009df848ac8a	crlf.txt
+100644 blob 3190dbbebe345ad88c4267721535251ac3d50cb9	dir with space/file name.txt
+100644 blob e5c5c5583f49a34e86ce622b59363df99e09d4c6	lf.txt
+120000 blob 934e2ae319ffce66c7278c255ef10440c9ed7865	link
+100644 blob 0967ef424bce6791893e9a57bb952f80fd536e93	metadata.json
+100644 blob fa4665e97505b2a2f243527a696b947843637735	plain.txt
+100755 blob 039e4d0069c5c26909f86c505b9de66182e6d1f3	run.sh
+100644 blob 5134f8db0a7d9c0212a25f1e84f081fe5f2e198c	sub/metadata.json
+100644 blob 89f9f82472c28346d996925d034168dd77ac5da5	"unicod\303\251/\351\233\252.txt"
+160000 commit 3fadd769e8d901d107861776309699201f31540f	vendor/submodule
+"""
+_CONTENT_ID_VECTOR_CANONICAL_LISTING = r"""100644 blob 3190dbbebe345ad88c4267721535251ac3d50cb9	dir with space/file name.txt
+100644 blob 5134f8db0a7d9c0212a25f1e84f081fe5f2e198c	sub/metadata.json
+100644 blob 89f9f82472c28346d996925d034168dd77ac5da5	"unicod\303\251/\351\233\252.txt"
+100644 blob cf9b2a85b62bc2fd67c5ed43a1d0009df848ac8a	crlf.txt
+100644 blob e5c5c5583f49a34e86ce622b59363df99e09d4c6	lf.txt
+100644 blob fa4665e97505b2a2f243527a696b947843637735	plain.txt
+100755 blob 039e4d0069c5c26909f86c505b9de66182e6d1f3	run.sh
+120000 blob 934e2ae319ffce66c7278c255ef10440c9ed7865	link
+160000 commit 3fadd769e8d901d107861776309699201f31540f	vendor/submodule
+"""
+_CONTENT_ID_VECTOR_SHA256 = "fbe4d1ce900a12e27db9a6bf143f2e5ee8fdf5ab7edcc16d7fa1d5f39cf00842"
+
+
+def _use_vector_repository(monkeypatch: pytest.MonkeyPatch, repository: Path) -> None:
+    monkeypatch.setattr(build_metadata, "ROOT", repository)
+    monkeypatch.setattr(build_metadata, "OUTPUT", repository / "metadata.json")
+    monkeypatch.setattr(
+        build_metadata,
+        "_load_project",
+        lambda: {
+            "version": "1.2.3",
+            "requires-python": ">=3.11,<3.14",
+            "urls": {"Repository": "https://github.com/emersonfelipesp/netbox-sdk"},
+        },
+    )
+    monkeypatch.setattr(build_metadata, "discover_netbox_versions", lambda _directory: ["4.7"])
+
+
+def test_content_identity_matches_the_independent_known_vector(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "vector"
+    _build_content_identity_vector(repository)
+    _use_vector_repository(monkeypatch, repository)
+    listing = _run_vector_git(
+        repository,
+        "-c",
+        "core.quotePath=true",
+        "ls-tree",
+        "-r",
+        "--full-tree",
+        "HEAD",
+    )
+
+    # These literals are transcribed from the hand-computed tree and canonical
+    # listings above; they are intentionally independent of
+    # build_metadata._canonical_tree_bytes().
+    assert f"{listing}\n" == _CONTENT_ID_VECTOR_TREE_LISTING
+    assert hashlib.sha256(_CONTENT_ID_VECTOR_CANONICAL_LISTING.encode()).hexdigest() == (
+        _CONTENT_ID_VECTOR_SHA256
+    )
+    assert build_metadata.content_id_for_tree() == _CONTENT_ID_VECTOR_SHA256
+    assert _run_vector_git(repository, "ls-tree", "HEAD", "--", "empty").startswith("040000 tree ")
+    assert "\tempty\n" not in _CONTENT_ID_VECTOR_CANONICAL_LISTING
+
+
+@pytest.mark.parametrize("mutation", ["mode", "content", "rename", "nested_metadata"])
+def test_content_identity_vector_detects_every_material_mutation(
+    mutation: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "vector"
+    _build_content_identity_vector(repository)
+    _use_vector_repository(monkeypatch, repository)
+    if mutation == "mode":
+        (repository / "run.sh").chmod(0o644)
+    elif mutation == "content":
+        (repository / "lf.txt").write_bytes(b"changed\n")
+    elif mutation == "rename":
+        (repository / "plain.txt").rename(repository / "renamed.txt")
+    else:
+        (repository / "sub" / "metadata.json").unlink()
+
+    assert build_metadata.content_id_for_worktree() != _CONTENT_ID_VECTOR_SHA256
+
+
+def test_content_identity_excludes_only_the_root_metadata_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "vector"
+    _build_content_identity_vector(repository)
+    _use_vector_repository(monkeypatch, repository)
+    (repository / "metadata.json").write_bytes(b"changed but excluded\n")
+    assert build_metadata.content_id_for_worktree() == _CONTENT_ID_VECTOR_SHA256
+    (repository / "sub" / "metadata.json").unlink()
+    assert build_metadata.content_id_for_worktree() != _CONTENT_ID_VECTOR_SHA256
+
+
+def test_default_verify_cli_hashes_head_not_the_dirty_worktree(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "vector"
+    _build_content_identity_vector(repository)
+    _use_vector_repository(monkeypatch, repository)
+    metadata = {
+        "release": "1.2.3",
+        "python": "3.11+",
+        "netbox": ["4.7"],
+        "generated_at": "2026-09-14T00:00:00Z",
+        "source": {
+            "repo": "emersonfelipesp/netbox-sdk",
+            "version": "1.2.3",
+            "commit": "f" * 40,
+            "content_id": _CONTENT_ID_VECTOR_SHA256,
+        },
+    }
+    (repository / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
+    (repository / "lf.txt").write_bytes(b"dirty worktree\n")
+
+    assert build_metadata.main(["--verify"]) == 0
+    with pytest.raises(RuntimeError, match="does not match the repository content"):
+        build_metadata.verify_metadata(use_worktree=True)
 
 
 def _tree_drifted_commit() -> tuple[str, str] | None:
@@ -975,9 +1451,14 @@ def test_metadata_traceability_rejects_a_commit_with_a_different_version() -> No
 
 
 def test_metadata_traceability_accepts_the_recorded_commit() -> None:
-    """The predicate must accept the commit the metadata actually records."""
+    """The predicate accepts an available informational commit."""
     _require_repository_checkout()
     metadata = json.loads(_read("metadata.json"))
+    source_type = _run_git("cat-file", "-t", metadata["source"]["commit"])
+    assert source_type is not None
+    if source_type.returncode != 0:
+        return
+    assert source_type.stdout.strip() == "commit"
     assert _metadata_source_mismatch(metadata["source"]["commit"], metadata["release"]) is None
 
 
@@ -1005,7 +1486,7 @@ def test_metadata_generation_fails_without_commit_provenance(
 
 
 def test_metadata_generation_rejects_source_version_mismatch() -> None:
-    with pytest.raises(RuntimeError, match="commit the integration first"):
+    with pytest.raises(RuntimeError, match="project version"):
         build_metadata.validate_source_provenance(
             "646af6da9276886a0ea32fb518af6b3b9e0eb721",
             _pyproject_version(),

@@ -20,6 +20,7 @@ from typing import Any
 
 from netbox_sdk.config import config_path, legacy_config_path
 from netbox_sdk.django_models.parser import build_model_graph, parse_netbox_models
+from netbox_sdk.django_models.paths import normalize_build_paths
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +44,14 @@ class DjangoModelStore:
     - ``meta``: generation metadata (source path, timestamp, netbox version)
     """
 
-    def __init__(self, cache_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        cache_path: Path | None = None,
+        checkout_root: Path | None = None,
+    ) -> None:
         self._path = cache_path or _default_cache_path()
         self._fallback_path = _legacy_cache_path() if cache_path is None else self._path
+        self._checkout_root = checkout_root.resolve() if checkout_root is not None else None
 
     @property
     def path(self) -> Path:
@@ -85,20 +91,23 @@ class DjangoModelStore:
         if apps is None:
             apps = _DEFAULT_APPS
 
+        resolved_root = netbox_root.resolve()
+        self._checkout_root = resolved_root.parent
         logger.info(
             "building django model graph",
-            extra={"nbx_event": "django_models_build", "netbox_root": str(netbox_root)},
+            extra={"nbx_event": "django_models_build", "netbox_root": str(resolved_root)},
         )
-        models = parse_netbox_models(netbox_root, apps=apps)
+        models = parse_netbox_models(resolved_root, apps=apps)
         graph = build_model_graph(models)
 
         # Add metadata
         graph["meta"] = {
-            "source_path": str(netbox_root),
+            "source_path": str(resolved_root),
             "total_models": graph["stats"]["total_models"],
             "total_edges": graph["stats"]["total_edges"],
             "apps": graph["stats"]["apps"],
         }
+        graph = normalize_build_paths(graph, checkout_roots=(resolved_root.parent,))
 
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._path.write_text(
@@ -127,6 +136,8 @@ class DjangoModelStore:
         if model is None:
             return f"# Model not found: {key}"
         file_path = Path(model["file_path"])
+        if not file_path.is_absolute() and self._checkout_root is not None:
+            file_path = self._checkout_root / file_path
         if not file_path.exists():
             return f"# File not found: {file_path}"
         try:

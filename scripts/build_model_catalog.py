@@ -4,15 +4,15 @@
 upstream tag ever built, including release lines this SDK no longer supports. It
 sits outside every package, so it cannot ship in a distribution.
 
-This script derives the *deliberately supported* subset — the newest non-prerelease
-build for each supported NetBox release line — into package data, so an installed
-wheel exposes the same catalog a checkout does. Selecting a subset is what keeps
-the wheel from carrying ~9.5 MB of history for lines the SDK cannot talk to.
+This script derives the newest non-prerelease build for each supported NetBox
+release line into package data, so an installed wheel exposes the same catalog a
+checkout does. Previously packaged exact builds are retained by default. Pass
+``--prune`` only when an explicit compatibility decision removes those builds.
 
-It also relativizes provenance. Builds are generated from a throwaway clone, so
-every ``file_path`` recorded an absolute ``/tmp/netbox-<tag>/...`` path that says
-nothing to a consumer and leaks the build machine's layout into a published
-artifact.
+It also validates portable provenance. Current builders record paths relative to
+the NetBox checkout root. Older artifacts are normalized from the checkout root
+identified by ``meta.source_path``; an absolute path outside that root is rejected
+instead of leaking the build machine's layout into a published artifact.
 
 Run from the repository root:
 
@@ -21,9 +21,11 @@ Run from the repository root:
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -31,8 +33,6 @@ SOURCE_DIR = REPO_ROOT / "django_models_builds"
 TARGET_DIR = REPO_ROOT / "netbox_sdk" / "django_models" / "model_builds"
 MANIFEST = TARGET_DIR / "manifest.json"
 SUFFIX = "-django-models-build.json"
-
-_TMP_PREFIX = re.compile(r"^/tmp/netbox-[^/]+/")
 
 
 def _parse(tag: str) -> tuple[int, ...] | None:
@@ -67,43 +67,72 @@ def select_tags() -> dict[str, str]:
     return {line: tag for line, (_version, tag) in sorted(newest.items())}
 
 
-def relativize(payload: object) -> object:
-    """Rewrite absolute build-machine paths to repository-relative ones."""
-    if isinstance(payload, dict):
-        return {key: relativize(value) for key, value in payload.items()}
-    if isinstance(payload, list):
-        return [relativize(item) for item in payload]
-    if isinstance(payload, str):
-        return _TMP_PREFIX.sub("", payload)
-    return payload
+def _load_normalized_build(path: Path) -> dict[str, object]:
+    sys.path.insert(0, str(REPO_ROOT))
+    from netbox_sdk.django_models.paths import normalize_build_paths  # noqa: PLC0415
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return normalize_build_paths(payload)
 
 
-def main() -> int:
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
+def _exact_tags() -> list[str]:
+    tags = {path.name[: -len(SUFFIX)] for path in TARGET_DIR.glob(f"*{SUFFIX}")}
+    return sorted(tags, key=lambda tag: (_parse(tag) or (), tag), reverse=True)
+
+
+def _prune_unselected(selected_tags: set[str]) -> None:
+    for existing in TARGET_DIR.glob(f"*{SUFFIX}"):
+        tag = existing.name[: -len(SUFFIX)]
+        if tag not in selected_tags:
+            existing.unlink()
+
+
+def main(*, prune: bool = False) -> int:
     selected = select_tags()
     if not selected:
         print("no builds matched a supported release line", file=sys.stderr)
         return 1
 
+    normalized_builds: dict[str, dict[str, object]] = {}
+    for line, tag in selected.items():
+        source = SOURCE_DIR / f"{tag}{SUFFIX}"
+        try:
+            normalized_builds[tag] = _load_normalized_build(source)
+        except (OSError, ValueError) as exc:
+            print(f"cannot normalize {_display_path(source)}: {exc}", file=sys.stderr)
+            return 1
+
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
-    for stale in TARGET_DIR.glob(f"*{SUFFIX}"):
-        stale.unlink()
+    if prune:
+        _prune_unselected(set(selected.values()))
 
     for line, tag in selected.items():
-        payload = json.loads((SOURCE_DIR / f"{tag}{SUFFIX}").read_text(encoding="utf-8"))
         target = TARGET_DIR / f"{tag}{SUFFIX}"
         target.write_text(
-            json.dumps(relativize(payload), indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            json.dumps(normalized_builds[tag], indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
         )
-        print(f"{line}: {tag} -> {target.relative_to(REPO_ROOT)} ({target.stat().st_size} bytes)")
+        print(f"{line}: {tag} -> {_display_path(target)} ({target.stat().st_size} bytes)")
 
     MANIFEST.write_text(
         json.dumps(
             {
                 "description": (
-                    "Newest non-prerelease Django model build per supported NetBox "
-                    "release line. Regenerate with scripts/build_model_catalog.py."
+                    "Newest non-prerelease Django model build per supported NetBox release "
+                    "line, with previously packaged exact builds retained. Refresh with "
+                    "scripts/refresh_django_model_builds.py."
                 ),
                 "builds": selected,
+                "exact_builds": _exact_tags(),
             },
             indent=2,
             sort_keys=True,
@@ -117,5 +146,16 @@ def main() -> int:
     return 0
 
 
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument(
+        "--prune",
+        action="store_true",
+        help="remove packaged exact builds that are not selected release-line defaults",
+    )
+    return parser.parse_args(argv)
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    arguments = parse_args()
+    raise SystemExit(main(prune=arguments.prune))
