@@ -388,3 +388,48 @@ async def test_stream_sse_rejects_redirect(monkeypatch) -> None:
         _ = [block async for block in client.stream_sse("GET", "/plugins/proxbox/jobs/42/stream/")]
 
     assert excinfo.value.response.status == 302
+
+
+async def test_stream_sse_refuses_a_block_larger_than_the_configured_cap(monkeypatch) -> None:
+    """A stream that never terminates an event must not grow the buffer unbounded."""
+
+    from netbox_sdk.exceptions import ResponseSizeLimitError
+
+    cfg = Config(
+        base_url="https://netbox.example.com",
+        token_version="v1",
+        token_secret="plain-token",
+        max_sse_block_bytes=64,
+    )
+    client = NetBoxApiClient(cfg)
+    session = _FakeSession(_FakeStreamResponse(200, [b"data: " + b"x" * 40, b"y" * 40]))
+
+    async def _fake_get_session() -> _FakeSession:
+        return session
+
+    monkeypatch.setattr(client, "_get_session", _fake_get_session)
+
+    with pytest.raises(ResponseSizeLimitError, match="64"):
+        async for _block in client.stream_sse("GET", "/plugins/proxbox/jobs/42/stream/"):
+            raise AssertionError("no block should be yielded before the cap trips")
+
+
+async def test_stream_sse_cap_applies_per_block_not_per_stream(monkeypatch) -> None:
+    cfg = Config(
+        base_url="https://netbox.example.com",
+        token_version="v1",
+        token_secret="plain-token",
+        max_sse_block_bytes=64,
+    )
+    client = NetBoxApiClient(cfg)
+    chunks = [b"data: " + bytes([65 + i]) * 40 + b"\n\n" for i in range(5)]
+    session = _FakeSession(_FakeStreamResponse(200, chunks))
+
+    async def _fake_get_session() -> _FakeSession:
+        return session
+
+    monkeypatch.setattr(client, "_get_session", _fake_get_session)
+
+    blocks = [block async for block in client.stream_sse("GET", "/plugins/proxbox/jobs/42/stream/")]
+
+    assert len(blocks) == 5

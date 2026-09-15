@@ -134,6 +134,7 @@ As variáveis a seguir substituem apenas o **perfil default**:
 | `NETBOX_TOKEN_KEY` | `token_key` |
 | `NETBOX_TOKEN_SECRET` | `token_secret` |
 | `NETBOX_SSL_VERIFY` | `ssl_verify` (veja [HTTPS e verificação TLS](#https-and-tls-verification)) |
+| `NETBOX_MAX_RESPONSE_BYTES` | `max_response_bytes` (inteiro positivo; valores inválidos usam o padrão de 64 MiB) |
 
 Variáveis de ambiente têm precedência sobre valores armazenados, mas não são gravadas em disco.
 

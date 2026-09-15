@@ -593,12 +593,21 @@ class NetBoxApiClient:
                 )
 
             buffer = ""
+            pending_bytes = 0
+            max_block_bytes = self.config.max_sse_block_bytes
             async for raw in response.content:
                 buffer += raw.decode("utf-8", errors="replace")
+                pending_bytes += len(raw)
+                if pending_bytes > max_block_bytes:
+                    # One event must fit in memory before it can be parsed; a
+                    # stream that never terminates a block is not an SSE feed.
+                    raise ResponseSizeLimitError(max_block_bytes)
                 while True:
                     block, buffer = self._pop_sse_block(buffer)
                     if block is None:
                         break
+                    # Only the unterminated remainder counts toward the cap.
+                    pending_bytes = len(buffer.encode("utf-8"))
                     if block.strip():
                         yield block
             if buffer.strip():
@@ -910,26 +919,29 @@ class NetBoxApiClient:
         ) as response:
             body_size_bytes: int | None = None
             if max_response_bytes is None:
-                text = await response.text()
-            else:
-                declared_length = response.headers.get("Content-Length")
-                if method.upper() != "HEAD" and declared_length is not None:
-                    try:
-                        parsed_length = int(declared_length)
-                    except (TypeError, ValueError):
-                        parsed_length = -1
-                    if parsed_length > max_response_bytes:
-                        raise ResponseSizeLimitError(max_response_bytes)
+                # Ordinary bodies are read into memory; the configured bound is
+                # the default so no call path is ever unbounded.
+                max_response_bytes = self.config.max_response_bytes
+            if max_response_bytes <= 0:
+                raise ValueError("max_response_bytes must be positive")
+            declared_length = response.headers.get("Content-Length")
+            if method.upper() != "HEAD" and declared_length is not None:
+                try:
+                    parsed_length = int(declared_length)
+                except (TypeError, ValueError):
+                    parsed_length = -1
+                if parsed_length > max_response_bytes:
+                    raise ResponseSizeLimitError(max_response_bytes)
 
-                body = bytearray()
-                chunk_size = min(64 * 1024, max_response_bytes + 1)
-                async for chunk in response.content.iter_chunked(chunk_size):
-                    if len(body) + len(chunk) > max_response_bytes:
-                        raise ResponseSizeLimitError(max_response_bytes)
-                    body.extend(chunk)
-                body_size_bytes = len(body)
-                encoding = response.charset or "utf-8"
-                text = bytes(body).decode(encoding)
+            body = bytearray()
+            chunk_size = min(64 * 1024, max_response_bytes + 1)
+            async for chunk in response.content.iter_chunked(chunk_size):
+                if len(body) + len(chunk) > max_response_bytes:
+                    raise ResponseSizeLimitError(max_response_bytes)
+                body.extend(chunk)
+            body_size_bytes = len(body)
+            encoding = response.charset or "utf-8"
+            text = bytes(body).decode(encoding)
             logger.debug(
                 "received raw api response",
                 extra={

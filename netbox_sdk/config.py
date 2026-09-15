@@ -12,13 +12,14 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import math
 import os
 import re
 import stat
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ValidationInfo, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,12 @@ logger = logging.getLogger(__name__)
 _BARE_SCHEME_RE = re.compile(r"^([a-zA-Z][a-zA-Z0-9+\-]*):", re.ASCII)
 
 DEFAULT_TIMEOUT = 30.0
+# Every ordinary response body is read into memory; 64 MiB comfortably covers
+# the largest NetBox list page (limit=1000 with nested objects) while refusing
+# a body that would exhaust the caller.
+DEFAULT_MAX_RESPONSE_BYTES = 64 * 1024 * 1024
+# A single SSE block (one event) must fit in memory before it is parsed.
+DEFAULT_MAX_SSE_BLOCK_BYTES = 1024 * 1024
 DEFAULT_CONFIG_DIRNAME = "netbox-sdk"
 LEGACY_CONFIG_DIRNAME = "netbox-cli"
 DEFAULT_CONFIG_FILENAME = "config.json"
@@ -40,6 +47,7 @@ BASE_URL_ENV_VAR = "NETBOX_URL"
 DEMO_USERNAME_ENV_VAR = "DEMO_USERNAME"
 DEMO_PASSWORD_ENV_VAR = "DEMO_PASSWORD"
 SSL_VERIFY_ENV_VAR = "NETBOX_SSL_VERIFY"
+MAX_RESPONSE_BYTES_ENV_VAR = "NETBOX_MAX_RESPONSE_BYTES"
 OTEL_ENABLED_ENV_VAR = "NETBOX_OTEL_ENABLED"
 DEFAULT_PROFILE = "default"
 DEMO_PROFILE = "demo"
@@ -54,6 +62,8 @@ class Config(BaseModel):
     demo_username: str | None = None
     demo_password: str | None = None
     timeout: float = DEFAULT_TIMEOUT
+    max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES
+    max_sse_block_bytes: int = DEFAULT_MAX_SSE_BLOCK_BYTES
     ssl_verify: bool | None = None
     otel_enabled: bool | None = None
 
@@ -87,12 +97,52 @@ class Config(BaseModel):
     @field_validator("timeout", mode="before")
     @classmethod
     def _coerce_timeout(cls, v: object) -> float:
+        """Coerce the request deadline, refusing values that would disable it.
+
+        ``aiohttp`` treats ``0`` and ``None`` as "no deadline", so a zero,
+        negative, or non-finite timeout is rejected the same way as unparseable
+        input: the default applies and the rejection is logged.
+        """
         try:
             if v is None or v == "":
                 return DEFAULT_TIMEOUT
-            return float(v)
+            value = float(v)
         except (TypeError, ValueError):
             return DEFAULT_TIMEOUT
+        if not math.isfinite(value) or value <= 0:
+            logger.warning(
+                "ignoring invalid request timeout; using the default",
+                extra={"nbx_event": "config_invalid_timeout", "rejected": repr(v)},
+            )
+            return DEFAULT_TIMEOUT
+        return value
+
+    @field_validator("max_response_bytes", "max_sse_block_bytes", mode="before")
+    @classmethod
+    def _coerce_positive_bytes(cls, v: object, info: ValidationInfo) -> int:
+        """Coerce a byte bound, refusing anything that would unbound the read."""
+        default = (
+            DEFAULT_MAX_RESPONSE_BYTES
+            if info.field_name == "max_response_bytes"
+            else DEFAULT_MAX_SSE_BLOCK_BYTES
+        )
+        try:
+            if v is None or v == "":
+                return default
+            value = int(v)
+        except (TypeError, ValueError):
+            return default
+        if isinstance(v, bool) or value <= 0:
+            logger.warning(
+                "ignoring invalid byte bound; using the default",
+                extra={
+                    "nbx_event": "config_invalid_byte_bound",
+                    "field": info.field_name,
+                    "rejected": repr(v),
+                },
+            )
+            return default
+        return value
 
     @field_validator("ssl_verify", "otel_enabled", mode="before")
     @classmethod
@@ -264,6 +314,10 @@ def _coerce_config(payload: dict[str, object], *, apply_env: bool) -> Config:
         raw["base_url"] = raw.get("base_url") or os.environ.get(BASE_URL_ENV_VAR)
         raw["token_key"] = raw.get("token_key") or os.environ.get(TOKEN_KEY_ENV_VAR)
         raw["token_secret"] = raw.get("token_secret") or os.environ.get(TOKEN_SECRET_ENV_VAR)
+    if apply_env:
+        raw["max_response_bytes"] = raw.get("max_response_bytes") or os.environ.get(
+            MAX_RESPONSE_BYTES_ENV_VAR
+        )
     raw["demo_username"] = raw.get("demo_username") or os.environ.get(DEMO_USERNAME_ENV_VAR)
     raw["demo_password"] = raw.get("demo_password") or os.environ.get(DEMO_PASSWORD_ENV_VAR)
     if apply_env:

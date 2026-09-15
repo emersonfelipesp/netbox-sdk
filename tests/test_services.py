@@ -363,6 +363,39 @@ async def test_list_all_pages_respects_max_records():
     )
     data = json.loads(result.text)
     assert len(data["results"]) == 3
+    # The synthesized envelope must not contradict itself: count describes the
+    # records actually returned, not the records fetched before truncation.
+    assert data["count"] == 3
+    assert [item["id"] for item in data["results"]] == [1, 2, 3]
+
+
+async def test_list_all_pages_stops_requesting_once_max_records_is_reached():
+    page1 = {
+        "count": 6,
+        "next": "http://netbox.example.com/api/dcim/devices/?limit=2&offset=2",
+        "previous": None,
+        "results": [{"id": 1}, {"id": 2}],
+    }
+    page2 = {
+        "count": 6,
+        "next": "http://netbox.example.com/api/dcim/devices/?limit=2&offset=4",
+        "previous": None,
+        "results": [{"id": 3}, {"id": 4}],
+    }
+    page3 = {"count": 6, "next": None, "previous": None, "results": [{"id": 5}, {"id": 6}]}
+    client = _MockClient(
+        [
+            ApiResponse(status=200, text=json.dumps(page1)),
+            ApiResponse(status=200, text=json.dumps(page2)),
+            ApiResponse(status=200, text=json.dumps(page3)),
+        ]
+    )
+    result = await list_all_pages(
+        client, _index(), "dcim", "devices", query_pairs=[], max_records=4
+    )
+    data = json.loads(result.text)
+    assert data["count"] == 4
+    assert len(client.calls) == 2
 
 
 async def test_list_all_pages_propagates_second_page_http_failure():

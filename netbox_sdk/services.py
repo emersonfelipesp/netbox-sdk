@@ -403,10 +403,21 @@ async def list_all_pages(
             )
         all_results.extend(page_results)
 
+    if len(all_results) > max_records:
+        logger.warning(
+            "automatic pagination truncated the listing at max_records",
+            extra={
+                "nbx_event": "list_all_pages_truncated",
+                "path": resolved.path,
+                "max_records": max_records,
+                "retrieved": len(all_results),
+            },
+        )
+        del all_results[max_records:]
     combined: dict[str, Any] = {
         "count": len(all_results),
         "next": None,
         "previous": None,
-        "results": all_results[:max_records],
+        "results": all_results,
     }
     return ApiResponse(status=200, text=json.dumps(combined), headers=response.headers)

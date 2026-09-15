@@ -18,7 +18,9 @@ You will be prompted for:
 - **NetBox base URL** — e.g. `https://netbox.example.com`
 - **Token key** — the key portion of a v2 API token
 - **Token secret** — the secret portion of a v2 API token
-- **Timeout** — HTTP timeout in seconds (default: 30)
+- **Timeout** — HTTP timeout in seconds (default: 30). Zero, negative, and non-finite values are rejected and the default applies, because `aiohttp` treats `0` as "no deadline".
+- **Max response bytes** — upper bound on any ordinary response body read into memory (default: 64 MiB). Every `request()` is bounded by it; an oversized body or `Content-Length` raises `ResponseSizeLimitError`.
+- **Max SSE block bytes** — upper bound on a single server-sent event while it is being assembled (default: 1 MiB).
 - **TLS verification** — optional; see [HTTPS and TLS verification](#https-and-tls-verification)
 
 Any command that requires a connection will also prompt automatically if the config is missing.
@@ -134,6 +136,7 @@ The following variables override the **default profile** only:
 | `NETBOX_TOKEN_KEY` | `token_key` |
 | `NETBOX_TOKEN_SECRET` | `token_secret` |
 | `NETBOX_SSL_VERIFY` | `ssl_verify` (see [HTTPS and TLS verification](#https-and-tls-verification)) |
+| `NETBOX_MAX_RESPONSE_BYTES` | `max_response_bytes` (positive integer; invalid values fall back to the 64 MiB default) |
 
 Environment variables take precedence over stored config values but are not saved to disk.
 

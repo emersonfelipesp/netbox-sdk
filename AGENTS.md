@@ -28,6 +28,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `netbox_tui/themes/` | [→](netbox_tui/themes/CLAUDE.md) | JSON theme files auto-discovered by the TUI |
 | `netbox_cli/` | [→](netbox_cli/CLAUDE.md) | Typer CLI package: root app, runtime, dynamic commands, demo/dev/docgen wiring |
 | `netbox_mcp/` | [→](netbox_mcp/CLAUDE.md) | Optional schema-driven MCP package: validated tools, stdio/HTTP transports, auth, mutation gate |
+| `netbox_cli/reference/` | [→](netbox_cli/reference/CLAUDE.md) | Bundled CLI-local OpenAPI reference copy (schema driving dynamic commands) |
 | `netbox_sdk/reference/` | [→](netbox_sdk/reference/CLAUDE.md) | Bundled SDK OpenAPI assets for supported NetBox release lines |
 | `tests/` | [→](tests/CLAUDE.md) | pytest suite |
 | `docs/` | [→](docs/CLAUDE.md) | MkDocs sources |
@@ -43,17 +44,19 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── config.py
     ├── client.py
     ├── decorators.py
+    ├── exceptions.py
+    ├── proxbox.py
+    ├── proxbox_jobs.py
+    ├── proxbox_sync.py
     ├── http_cache.py
     ├── http_ssl.py
     ├── telemetry.py
+    ├── mock_main.py
     ├── schema.py
     ├── schema_resolution.py
     ├── services.py
     ├── plugin_discovery.py
     ├── plugin_bridge.py
-    ├── proxbox.py
-├── proxbox_jobs.py
-├── proxbox_sync.py
     ├── formatting.py
     ├── logging_runtime.py
     ├── output_safety.py
@@ -73,6 +76,7 @@ netbox_tui/   optional Textual layer
     ├── app.py / dev_app.py / cli_tui.py / logs_app.py / django_model_app.py / graphql_app.py / proxbox_app.py
     ├── branch_screen.py / filter_overlay.py / login_modal.py / ssl_verify_support.py
     ├── chrome.py / widgets.py / navigation.py / nav_blueprint.py / panels.py / state.py
+    ├── cli_completions.py / dev_rendering.py / lifecycle.py / logo_render.py
     ├── theme_registry.py
     ├── *.tcss
     └── themes/*.json
@@ -84,7 +88,7 @@ netbox_cli/   optional Typer layer
     ├── runtime.py    config/index/client factories
     ├── dynamic.py    OpenAPI command registration/execution
     ├── proxbox.py    netbox-proxbox catalog, CRUD, TUI, and sync commands
-├── proxbox_jobs.py  nbx proxbox jobs — bounded, filtered sync-job retrieval (read-only)
+    ├── proxbox_jobs.py  nbx proxbox jobs — bounded, filtered sync-job retrieval (read-only)
     ├── support.py    shared CLI rendering/error helpers
     ├── demo.py       demo profile command tree
     ├── dev.py        dev command tree
@@ -104,7 +108,8 @@ Data flow:
    and shared data transformation.
 2. `netbox_cli` imports `netbox_sdk` and lazy-loads `netbox_tui` where needed.
 3. `netbox_tui` imports `netbox_sdk` directly and only reaches into `netbox_cli` for CLI app/runtime callbacks where required.
-4. `netbox_mcp` imports only `netbox_sdk`; it never imports CLI or TUI code.
+4. `netbox_mcp` imports only `netbox_sdk`; it shares introspection and request
+   resolution contracts with the CLI without importing the CLI package.
 
 ## Contributor Workflow
 
@@ -184,7 +189,112 @@ pip install -e '.[all]'
 
 The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. Static command registration is network-free and defaults to the bundled NetBox 4.7 GA schema; command execution, discovery helpers, and TUI launch use `_get_runtime_index()` as a thin adapter over `netbox_sdk.schema_resolution` to honor `--netbox-version` / `NETBOX_SDK_NETBOX_VERSION` or detect the configured instance release line. Configured-profile detection and live-schema failures fail closed instead of substituting the default contract; client-free dry runs use their explicit/static registration index.
 
-`list` supports `--all` / `--max-records`; write actions include `create`, `update`, `patch`, `delete`, plus `bulk-update`, `bulk-patch`, and `bulk-delete` on list paths; `filters` is a local schema action. `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows. Write-method `nbx call` requests support client-free `--dry-run` previews of the normalized method and path plus parsed query, headers, and JSON body; compound API/private-key credential names are redacted recursively, explicit empty bodies remain distinct from no body, and literal backslashes or encoded path separators fail before preview or dispatch.
+| Action | HTTP | Path | Notes |
+|---|---|---|---|
+| `list` | GET | list path | Supports `--all` for auto-pagination |
+| `get` | GET | detail path | Requires `--id` |
+| `create` | POST | list path | |
+| `update` | PUT | detail path | Requires `--id` |
+| `patch` | PATCH | detail path | Requires `--id` |
+| `delete` | DELETE | detail path | Requires `--id` |
+| `bulk-update` | PUT | list path | Array body; no `--id` |
+| `bulk-patch` | PATCH | list path | Array body; no `--id` |
+| `bulk-delete` | DELETE | list path | Array body; no `--id` |
+| `filters` | — | local only | Prints available filter parameters from schema |
+
+Every dynamic action that resolves to `POST`, `PUT`, `PATCH`, or `DELETE`
+(including a raw HTTP-method action spelling), write-method `nbx call` and
+`nbx dev http` requests, every mutating `nbx branching`/`nbx branch` verb,
+and Proxbox CRUD/sync scheduling or TUI launch require `--confirm` or
+`NETBOX_SDK_CONFIRM_WRITE=1`. Dry-run previews do not require confirmation;
+the shared dev/Proxbox request workbench also presents a separate confirmation
+dialog before every POST, PUT, PATCH, or DELETE dispatch.
+
+**Auto-pagination** (`--all` / `--max-records`): When `--all` is passed for a `list` action, `list_all_pages` in `netbox_sdk/services.py` follows the `next` URL chain and returns a single synthesised response. It raises `PaginationError` on malformed result arrays, repeated page targets, or a page that supplies another link without adding records. `--max-records N` (default 10 000) remains the hard ceiling on accumulated records.
+
+**Query/header forwarding**: `parse_key_value_pairs()` preserves repeated query keys as list values so filters like `tag=a&tag=b` survive through `aiohttp`. Dynamic commands, `nbx call`, and `nbx dev http` accept `-H` / `--header` in either `Header=Value` or `Header: Value` form for ETag/conditional request workflows.
+
+**Guarded raw-call preview**: write-method `nbx call` requests accept a
+client-free `--dry-run` that renders the normalized method, path, parsed query,
+headers, and JSON body before the existing confirmation gate permits live
+execution; credential-shaped fields, including compound API/private-key names,
+are redacted recursively, while explicit empty JSON objects and arrays remain
+distinct from an absent body. Read methods reject `--dry-run`, and `--dry-run`
+cannot be combined with `--confirm`. Literal backslashes and percent-encoded
+path separators fail before preview or dispatch.
+
+**Bulk routing**: `bulk-update`, `bulk-patch`, and `bulk-delete` always target the list path, never the detail path. The `--id` option is silently ignored for bulk actions.
+
+**Filter discovery**: `filters` is a synthetic local action that calls `SchemaIndex.filter_params()` and prints the available query parameters without making an HTTP request.
+
+**Plugin auto-discovery** (`netbox_sdk/plugin_discovery.py`): when `dynamic.py` is asked to act on a `group/resource` pair that is absent from the bundled schema (`index.resource_paths(group, resource) is None`), it lazily calls `enrich_schema_index_with_runtime_resources(index, client)`. That function does a BFS walk starting at `GET /api/plugins/` and follows every URL found in API root responses, collecting collection and detail path pairs into the live `SchemaIndex`. Any installed NetBox plugin that exposes a `NetBoxRouter` root is therefore automatically reachable via `nbx plugins <plugin> <resource> <action>` — no CLI rebuild or SDK configuration required.
+
+Plugin auto-discovery also runs unconditionally in `runtime.py::_get_enriched_index()`, which is used when the CLI needs a fully populated index without a prior resource-miss trigger.
+
+**What a plugin needs to be auto-discovered:**
+1. Register a `NetBoxRouter` with `APIRootView` in its `api/urls.py`.
+2. Return a JSON dict of collection URLs from `GET /api/plugins/<plugin>/`.
+3. Each collection URL must serve a paginated `{"count": …, "results": […]}` response.
+
+Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are discovered through the same BFS as long as the plugin root links to the sub-namespace root, which `NetBoxRouter` includes automatically. `netbox-proxbox` satisfies all three requirements across all 29 of its ViewSets.
+
+## Proxbox Surface
+
+`netbox_sdk.proxbox` owns the stable catalog for the dedicated Proxbox command
+surface. It registers Proxbox plugin resources into a `SchemaIndex` without a
+live schema probe, marks read-only plugin resources as read-only, and feeds the
+generated `nbx proxbox <family> <resource> <action>` commands plus the
+Proxbox-only TUI.
+
+`netbox_sdk.client.NetBoxApiClient.stream_sse()` is the transport-only primitive
+for long-running Server-Sent Event streams. It bypasses HTTP cache and token
+retry logic, keeps the aiohttp response context open while yielding raw SSE
+blocks, and is intentionally generic. It does **not** follow redirects
+(`allow_redirects=False`) and raises `RequestError` on any `>=400`, any `3xx`, or
+any success whose `Content-Type` is not `text/event-stream`, so a non-SSE body
+(login/redirect/interstitial) can never be silently parsed as an empty stream.
+
+`netbox_sdk.proxbox_sync.ProxboxSyncClient` owns the netbox-proxbox contract:
+scheduling `POST /api/plugins/proxbox/sync/schedule/`, resolving Proxmox
+endpoint names through `/api/plugins/proxbox/endpoints/proxmox/`, parsing SSE
+blocks into `SseFrame`, streaming `/plugins/proxbox/jobs/{job_id}/stream/`, and
+fetching `/api/core/jobs/{job_id}/` after the stream for authoritative status
+and error log entries. `ProxboxSyncError` preserves a known scheduled `job_id`
+when that authoritative fetch fails so automation can inspect the existing job
+instead of blindly scheduling a duplicate.
+
+`netbox_sdk.proxbox_jobs` owns the read side of the same contract. netbox-proxbox
+has no job model: a sync is a core `core.Job` row whose `data` carries a
+`proxbox_sync` block, and `/api/core/jobs/` cannot filter on `data`. The module
+therefore mirrors the plugin's `is_proxbox_sync_job` predicate and runs a
+**bounded** scan — server-side filters pushed down, Proxbox predicate and
+parameter filters applied locally. Two rules are load-bearing and must not be
+relaxed. `ProxboxJobFilters.server_query()` may emit only names in
+`SERVER_PARAM_WHITELIST`, because NetBox *silently ignores* an unknown query
+parameter: a misspelled filter does not fail, it returns every job in the
+instance. And every listing carries `scanned` / `matched` / `truncated` /
+`window`, so a scan that stopped at `--limit` or `--max-scan` can never be
+mistaken for an exhaustive one. Three behaviours in that module are counter-intuitive on purpose and must not be
+"optimised" back. `--errored` and `--user` are evaluated client-side: pushing the
+failure statuses down would discard a run that finished `completed` while
+recording a stage error — the row an operator is looking for — and the core
+`user` filter is typed as an integer on NetBox 4.5 but as a username on 4.6+, so
+only a local comparison is correct on every supported line. And a scope list
+that cannot be parsed is `INVALID`, not empty: an unreadable endpoint list is
+not "all endpoints", so a scoped query skips that row instead of matching it.
+
+`netbox_cli.proxbox_jobs` owns the matching Rich
+and Typer surface (`nbx proxbox jobs list|get|statuses`), including the default
+30-day window and the scan footer; it is read-only and takes no `--confirm`.
+
+`netbox_cli.proxbox` owns all Rich/Typer behavior for `nbx proxbox resources`,
+`ops`, generated CRUD commands, the confirmation-gated Proxbox TUI launcher,
+`sync`, and `sync-types`. Keep Rich rendering out of the SDK; final CLI sync results must
+merge streamed errors with post-stream Job `error` and error-level `log_entries`
+because server-side SSE throttling can drop granular errors. After a stream
+failure, the fetched job status is authoritative: poll the same job within the
+remaining timeout when necessary, keep terminal success successful, and report
+the transport loss as a warning rather than a job error.
 
 ## Core Rules
 
@@ -195,6 +305,8 @@ The CLI exposes NetBox API resources through `nbx <group> <resource> <action>`. 
 - Use absolute imports only: `netbox_sdk.*`, `netbox_tui.*`, `netbox_cli.*`, `netbox_mcp.*`.
 - Never use pynetbox or direct NetBox model access. Use `aiohttp` via `netbox_sdk.client`.
 - Semantic plugin discovery and dispatch must use `NetBoxApiClient.request_bounded()` so contracts are current, uncached, non-redirecting, and body-bounded; never authorize a plugin tool from the ordinary stale-if-error cache.
+- Every transport read is bounded. Ordinary `request()` bodies are capped by `Config.max_response_bytes` (default 64 MiB, env `NETBOX_MAX_RESPONSE_BYTES` for the default profile) and raise `ResponseSizeLimitError` past it; `request_bounded()` overrides the cap per call. `stream_sse()` caps a single pending event at `Config.max_sse_block_bytes` (default 1 MiB). `Config.timeout` rejects zero, negative, and non-finite values (they would disable the `aiohttp` deadline) and falls back to the default with a logged warning. `list_all_pages()` stops requesting once `max_records` is reached and reports `count == len(results)`. Never add a code path that reads `response.text()`/`read()` without a bound.
+- Filesystem-cache invalidation failures (lock timeouts and other `OSError`s alike) are a per-path bypass state: reads must not trust or populate existing entries until a failed invalidation has been completed, and portable stale-lock reclamation must preserve exclusive ownership across racing reclaimers. A cache entry proven stale by a generation mismatch (the 304-concurrent-write race) must not be resurrected by a later stale-if-error fallback in the same request if the follow-up refetch itself fails. A corrupted per-path index recovers into the same per-path bypass state, not a trustable generation `0`: `_load_index_state_or_purge()` marks the path unavailable on corruption, and `_purge_all_entries()` publishes digest-keyed markers for every secondary corrupted index it discovers, so `load()`/`save()`/`refresh()`/`path_generation()` never let a stale captured `expected_generation=0` match a freshly reset index's `0`. On POSIX, `_locked_index()`'s `fcntl` branch polls `flock(LOCK_EX | LOCK_NB)` on the same bounded timeout `_portable_lock` uses (never a blocking `flock(LOCK_EX)`), retrying only `EAGAIN`/`EACCES`; `NetBoxApiClient` runs every synchronous cache-store operation through `asyncio.to_thread()` so the required wait-then-succeed locking semantics do not stall its event loop.
 - The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
 - The synchronous `api()` facade performs no network access while it is being
   constructed. Without an explicit `schema=`, it starts with the newest stable

@@ -158,3 +158,118 @@ async def test_bounded_request_preserves_predecode_streamed_byte_count(
 
 async def _async_value(value: object):
     return value
+
+
+def _no_cache(client: NetBoxApiClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(client, "_cache_policy", lambda **kwargs: None)
+
+
+async def test_ordinary_request_is_bounded_by_the_configured_default(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A plain ``request()`` never reads an unbounded body."""
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    response = _BoundedResponse(chunks=[b"x" * 3000, b"y" * 2000])
+    session = _BoundedSession(response)
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com", max_response_bytes=4096))
+    monkeypatch.setattr(client, "_get_session", lambda: _async_value(session))
+    _no_cache(client, monkeypatch)
+
+    with pytest.raises(ResponseSizeLimitError, match="4096"):
+        await client.request("GET", "/api/dcim/devices/")
+
+
+async def test_ordinary_request_rejects_declared_length_over_the_default(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    response = _BoundedResponse(headers={"Content-Length": "4097"})
+    session = _BoundedSession(response)
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com", max_response_bytes=4096))
+    monkeypatch.setattr(client, "_get_session", lambda: _async_value(session))
+    _no_cache(client, monkeypatch)
+
+    with pytest.raises(ResponseSizeLimitError, match="4096"):
+        await client.request("GET", "/api/dcim/devices/")
+
+
+async def test_ordinary_request_within_the_default_bound_reports_its_size(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    response = _BoundedResponse(chunks=[b'{"ok":', b"true}"])
+    session = _BoundedSession(response)
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com", max_response_bytes=4096))
+    monkeypatch.setattr(client, "_get_session", lambda: _async_value(session))
+    _no_cache(client, monkeypatch)
+
+    result = await client.request("GET", "/api/dcim/devices/")
+
+    assert result.text == '{"ok":true}'
+    assert result.body_size_bytes == 11
+
+
+async def test_explicit_bound_overrides_the_configured_default(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    response = _BoundedResponse(chunks=[b"x" * 100])
+    session = _BoundedSession(response)
+    client = NetBoxApiClient(Config(base_url="https://netbox.example.com", max_response_bytes=4096))
+    monkeypatch.setattr(client, "_get_session", lambda: _async_value(session))
+    _no_cache(client, monkeypatch)
+
+    with pytest.raises(ResponseSizeLimitError, match="64"):
+        await client._request_impl("GET", "/api/dcim/devices/", max_response_bytes=64)
+
+
+def test_config_default_bounds_are_positive_and_overridable() -> None:
+    from netbox_sdk.config import DEFAULT_MAX_RESPONSE_BYTES, DEFAULT_MAX_SSE_BLOCK_BYTES
+
+    cfg = Config(base_url="https://netbox.example.com")
+    assert cfg.max_response_bytes == DEFAULT_MAX_RESPONSE_BYTES == 64 * 1024 * 1024
+    assert cfg.max_sse_block_bytes == DEFAULT_MAX_SSE_BLOCK_BYTES == 1024 * 1024
+    assert (
+        Config(base_url="https://netbox.example.com", max_response_bytes="2048").max_response_bytes
+        == 2048
+    )
+
+
+@pytest.mark.parametrize("value", [0, -1, "0", "abc", None, "", True, "inf", "nan"])
+def test_config_rejects_bounds_that_would_unbound_the_read(value: object) -> None:
+    from netbox_sdk.config import DEFAULT_MAX_RESPONSE_BYTES, DEFAULT_MAX_SSE_BLOCK_BYTES
+
+    cfg = Config(
+        base_url="https://netbox.example.com",
+        max_response_bytes=value,
+        max_sse_block_bytes=value,
+    )
+    assert cfg.max_response_bytes == DEFAULT_MAX_RESPONSE_BYTES
+    assert cfg.max_sse_block_bytes == DEFAULT_MAX_SSE_BLOCK_BYTES
+
+
+def test_max_response_bytes_env_applies_to_the_default_profile(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    from netbox_sdk.config import MAX_RESPONSE_BYTES_ENV_VAR, load_config
+
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setenv(MAX_RESPONSE_BYTES_ENV_VAR, "8192")
+
+    assert load_config().max_response_bytes == 8192
+
+
+@pytest.mark.parametrize("value", [0, -3, "0", "-1", "nan", "inf", float("inf"), float("nan")])
+def test_config_rejects_timeouts_that_disable_the_deadline(value: object) -> None:
+    from netbox_sdk.config import DEFAULT_TIMEOUT
+
+    assert Config(base_url="https://netbox.example.com", timeout=value).timeout == DEFAULT_TIMEOUT
+
+
+def test_config_keeps_a_valid_timeout() -> None:
+    assert Config(base_url="https://netbox.example.com", timeout="2.5").timeout == 2.5
