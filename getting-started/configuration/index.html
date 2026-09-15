@@ -3573,7 +3573,9 @@ named profiles: <code>default</code> and <code>demo</code>.</p>
 <li><strong>NetBox base URL</strong> — e.g. <code>https://netbox.example.com</code></li>
 <li><strong>Token key</strong> — the key portion of a v2 API token</li>
 <li><strong>Token secret</strong> — the secret portion of a v2 API token</li>
-<li><strong>Timeout</strong> — HTTP timeout in seconds (default: 30)</li>
+<li><strong>Timeout</strong> — HTTP timeout in seconds (default: 30). Zero, negative, and non-finite values are rejected and the default applies, because <code>aiohttp</code> treats <code>0</code> as "no deadline".</li>
+<li><strong>Max response bytes</strong> — upper bound on any ordinary response body read into memory (default: 64 MiB). Every <code>request()</code> is bounded by it; an oversized body or <code>Content-Length</code> raises <code>ResponseSizeLimitError</code>.</li>
+<li><strong>Max SSE block bytes</strong> — upper bound on a single server-sent event while it is being assembled (default: 1 MiB).</li>
 <li><strong>TLS verification</strong> — optional; see <a href="#https-and-tls-verification">HTTPS and TLS verification</a></li>
 </ul>
 <p>Any command that requires a connection will also prompt automatically if the config is missing.</p>
@@ -3700,6 +3702,10 @@ named profiles: <code>default</code> and <code>demo</code>.</p>
 <tr>
 <td><code>NETBOX_SSL_VERIFY</code></td>
 <td><code>ssl_verify</code> (see <a href="#https-and-tls-verification">HTTPS and TLS verification</a>)</td>
+</tr>
+<tr>
+<td><code>NETBOX_MAX_RESPONSE_BYTES</code></td>
+<td><code>max_response_bytes</code> (positive integer; invalid values fall back to the 64 MiB default)</td>
 </tr>
 </tbody>
 </table>
