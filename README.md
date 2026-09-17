@@ -2,13 +2,13 @@
 
 **SDK-first NetBox integration package for Python automation, terminal workflows, and Textual UIs.**
 
-`netbox-sdk` is an SDK-first NetBox toolkit with terminal interfaces built on
+`netbox-sdk` is an SDK-first NetBox toolkit with four public surfaces built on
 one shared runtime:
 
 - `netbox_cli` — Typer command-line interface
 - `netbox_tui` — Textual terminal applications
 - `netbox_mcp` — schema-driven Model Context Protocol server
-- `netbox_sdk` — standalone REST API SDK shared by both
+- `netbox_sdk` — standalone REST API SDK shared by the other three surfaces
 
 Published package name: `netbox-sdk`. `netbox-console` was a legacy alias published in earlier releases and is no longer shipped from this project.
 

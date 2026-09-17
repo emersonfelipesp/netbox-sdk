@@ -9,8 +9,8 @@ integration package / SDK. It is not a NetBox plugin.
 | --- | --- |
 | Repository | <https://github.com/emersonfelipesp/netbox-sdk> |
 | PyPI package | `netbox-sdk` |
-| Import packages | `netbox_sdk`, `netbox_cli`, `netbox_tui` |
-| Console scripts | `nbx`, `nbx-mock` |
+| Import packages | `netbox_sdk`, `netbox_cli`, `netbox_tui`, `netbox_mcp` |
+| Console scripts | `nbx`, `nbx-mcp`, `nbx-mock` |
 | Maintainer | Emerson Felipe (`emersonfelipesp`) |
 | License | Apache-2.0 |
 | License file | `LICENSE.txt` |
@@ -27,9 +27,9 @@ surfaces. It does not:
 - have a NetBox plugin config name;
 - need plugin catalog screenshots or an icon for in-app plugin UI.
 
-The package does provide a standalone SDK, an optional CLI, optional Textual
-TUIs, a mock NetBox API, typed clients, schema discovery, and live API
-compatibility tests.
+The package provides a standalone SDK, an optional CLI, optional Textual TUIs,
+an optional MCP server, a mock NetBox API, typed clients, schema discovery, and
+live API compatibility tests.
 
 ## Compatibility Evidence
 
@@ -47,10 +47,10 @@ compatibility tests.
 GitHub Actions cover the package as an SDK/integration artifact:
 
 - `Lint and Format`: type checks plus pre-commit lint/format gates.
-- `Tests`: mock SDK/CLI/TUI suites on Python 3.11, 3.12, and 3.13.
+- `Tests`: mock SDK/CLI/TUI/MCP suites on Python 3.11, 3.12, and 3.13.
 - `Tests` main-branch live suite: NetBox API integration against supported
   NetBox release tags.
-- `Security Tests`: scoped SDK, CLI, and TUI security tests.
+- `Security Tests`: scoped SDK, CLI, TUI, and MCP security tests.
 - `Certification Evidence`: repository evidence checks, package build,
   `twine check`, and wheel install/import smoke tests.
 - `Build and deploy documentation`: PR strict MkDocs build and main-branch
@@ -66,9 +66,9 @@ The README and MkDocs site document:
 - typed NetBox API support;
 - runtime dependencies and optional extras;
 - support channels;
-- architecture and public SDK surface;
+- architecture and all four public package surfaces;
 - authentication, request handling, error handling, schema indexing, branching,
-  mock API, CLI, and TUI workflows.
+  mock API, CLI, TUI, and MCP workflows.
 
 ## Application Notes
 

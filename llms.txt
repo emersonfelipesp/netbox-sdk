@@ -1,6 +1,38 @@
 # netbox-sdk — LLM Project Guide
 
-API-first NetBox client with a Python SDK, CLI, typed MCP server, and interactive TUI. Driven by OpenAPI schema discovery.
+API-first NetBox toolkit at version `0.0.13`, supporting Python
+`>=3.11,<3.14`. One schema/version-resolution runtime serves four public
+packages: the standalone `netbox_sdk` Python SDK, `netbox_cli` Typer CLI,
+`netbox_tui` Textual applications, and schema-driven `netbox_mcp` server.
+
+## Public Surface Inventory
+
+- **`netbox_sdk`**: `NetBoxApiClient`, async `api()`, versioned `typed_api()`,
+  schema/index resolution, pagination, plugin discovery, semantic plugin bridge,
+  branching, Proxbox integration, mock API, cache, TLS, and telemetry.
+- **`netbox_cli`**: the `nbx` entry point, static introspection commands,
+  OpenAPI-generated resource actions, profiles, demo/developer tools,
+  branching, Proxbox operations, and command-document capture.
+- **`netbox_tui`**: main browser plus developer, CLI-builder, logs, GraphQL,
+  Django-model, and Proxbox Textual applications with a JSON theme registry.
+- **`netbox_mcp`**: the `nbx-mcp` entry point and a compact tool grammar for
+  groups, resources, operations, records, filters, CRUD/bulk CRUD, generic
+  calls, plugin discovery, and semantic plugin tool dispatch. It does not
+  generate one MCP tool per OpenAPI operation.
+
+Import boundaries are enforced: `netbox_sdk` imports none of the optional
+surfaces; `netbox_cli` lazy-loads TUI entry points; `netbox_mcp` imports only
+`netbox_sdk` and itself. All four packages ship `py.typed`.
+
+## Supported NetBox Contracts
+
+Bundled stable release lines are `4.7`, `4.6`, `4.5`, `4.4`, and `4.3`; `4.7`
+is the default and uses the official NetBox `v4.7.0` GA schema. Explicit pins,
+connected-instance detection, live schema fetching, and default fallback share
+one policy in `netbox_sdk.schema_resolution`. CLI fallback is compatibility
+behavior; SDK and MCP live-resolution failures fail closed. MCP reads its pin
+once at startup and never lets an embedding process's unrelated arguments
+silently repoint the server.
 
 ## AI Search & Discovery Tools
 - **OpenAPI-Driven Commands**: Dynamic resource commands are generated from bundled NetBox OpenAPI schemas, alongside built-in static commands including `groups`, `resources`, `ops`, `capabilities`, and `call`.
@@ -8,7 +40,7 @@ API-first NetBox client with a Python SDK, CLI, typed MCP server, and interactiv
 - **JSON Capabilities**: `nbx groups --json`, `nbx resources ... --json`, `nbx ops ... --json`, and `nbx capabilities --json` expose the same stable contract used by MCP introspection tools.
 - **Dynamic Command Resolution**: `netbox_cli/dynamic.py` handles runtime command discovery and Typer subcommand generation.
 - **Plugin Discovery**: Automatically discovers and surfaces NetBox plugin endpoints under `/api/plugins/`.
-- **MCP Server**: `nbx-mcp` exposes validated schema-driven tools over stdio or Streamable HTTP. Writes and non-read raw calls are denied unless `NETBOX_MCP_ALLOW_MUTATIONS=1` or `--allow-mutations` is set; `dry_run` is local preview only.
+- **MCP Server**: `nbx-mcp` exposes validated schema-driven tools over stdio or Streamable HTTP. Every Streamable HTTP host, including loopback, requires `NETBOX_MCP_AUTH_TOKEN` or `--auth-token`. Writes and non-read raw calls are denied unless `NETBOX_MCP_ALLOW_MUTATIONS=1` or `--allow-mutations` is set; `dry_run` is local preview only. Semantic plugin dry-run may perform bounded read-only discovery but never dispatches the advertised mutation.
 
 ## AI Agent Entry Points
 - **AGENTS.md**: Central index for AI agents. Provides a quick start guide, directory-specific `CLAUDE.md` map, and documentation index.
@@ -31,6 +63,7 @@ API-first NetBox client with a Python SDK, CLI, typed MCP server, and interactiv
 
 ### MCP Reference
 - `docs/mcp/index.md`: Tools, transports, authentication, mutation safety, and the agent operating workflow.
+- `docs/mcp/plugin-bridge.md`: Bridge-v1 plugin manifest discovery, strict JSON Schema validation, bounded dispatch, and ambiguity rules.
 
 ### TUI Reference
 - `docs/tui/index.md`: Overview of the interactive Textual interface.
@@ -58,10 +91,19 @@ API-first NetBox client with a Python SDK, CLI, typed MCP server, and interactiv
 - **Prompting Workflow**: Defined in `PROMPTING-GUIDE.md`. Mandatory metaprompting process (restate objective, list assumptions, define criteria) for all non-trivial tasks.
 - **API-Only**: Use `aiohttp` for all NetBox interactions; do not use `pynetbox` or direct model access.
 - **Simplicity & Elegance**: Favor small, composable Textual widgets and minimal code impact.
-- **CLI/TUI Parity**: Every feature must be interchangeable between CLI and TUI modes.
+- **Shared Contracts**: Put reusable HTTP, schema, versioning, pagination,
+  introspection, plugin, and safety behavior in `netbox_sdk`; keep CLI/TUI/MCP
+  presentation and transport adapters thin.
 - **Testing**: Use `uv run pytest` and `uv run pre-commit run --all-files` for validation.
+- **Write Safety**: CLI writes require `--confirm` or
+  `NETBOX_SDK_CONFIRM_WRITE=1`. MCP mutations additionally require its global
+  mutation gate. Dry-run is a preview, not server-side validation.
 
 ## Packaging Status
 - **Repository name**: `netbox-sdk`
 - **Current published package name**: `netbox-sdk` (PyPI `name = "netbox-sdk"` in `pyproject.toml`). `netbox-console` was a legacy alias published separately in earlier releases; it is not shipped from this project file.
 - **Current project version**: `0.0.13`
+- **LLM generation**: no dedicated `llms.txt` generator exists. Keep this
+  committed guide synchronized with the canonical agent guides, version
+  registry, package metadata, and executable surface inventories; the CLI
+  command-capture generator is unrelated.

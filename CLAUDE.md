@@ -11,6 +11,13 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 
 ## Codebase Index
 
+Current package version: `0.0.13`; supported Python: `>=3.11,<3.14`.
+
+The repository ships four public import surfaces: `netbox_sdk`, `netbox_cli`,
+`netbox_tui`, and `netbox_mcp`. The base SDK owns schema/version resolution and
+HTTP behavior; CLI, TUI, and MCP consume those contracts without duplicating
+them. All four packages ship `py.typed`.
+
 | Path | CLAUDE.md | What's there |
 |---|---|---|
 | `netbox_sdk/` | [→](netbox_sdk/CLAUDE.md) | Standalone SDK package: client, config, schema, services, cache, shared formatting/logging/output helpers |
@@ -297,7 +304,7 @@ the transport loss as a warning rather than a job error.
 - Semantic plugin discovery and dispatch must use `NetBoxApiClient.request_bounded()` so contracts are current, uncached, non-redirecting, and body-bounded; never authorize a plugin tool from the ordinary stale-if-error cache.
 - Every transport read is bounded. Ordinary `request()` bodies are capped by `Config.max_response_bytes` (default 64 MiB, env `NETBOX_MAX_RESPONSE_BYTES` for the default profile) and raise `ResponseSizeLimitError` past it; `request_bounded()` overrides the cap per call. `stream_sse()` caps a single pending event at `Config.max_sse_block_bytes` (default 1 MiB). `Config.timeout` rejects zero, negative, and non-finite values (they would disable the `aiohttp` deadline) and falls back to the default with a logged warning. `list_all_pages()` stops requesting once `max_records` is reached and reports `count == len(results)`. Never add a code path that reads `response.text()`/`read()` without a bound.
 - Filesystem-cache invalidation failures (lock timeouts and other `OSError`s alike) are a per-path bypass state: reads must not trust or populate existing entries until a failed invalidation has been completed, and portable stale-lock reclamation must preserve exclusive ownership across racing reclaimers. A cache entry proven stale by a generation mismatch (the 304-concurrent-write race) must not be resurrected by a later stale-if-error fallback in the same request if the follow-up refetch itself fails. A corrupted per-path index recovers into the same per-path bypass state, not a trustable generation `0`: `_load_index_state_or_purge()` marks the path unavailable on corruption, and `_purge_all_entries()` publishes digest-keyed markers for every secondary corrupted index it discovers, so `load()`/`save()`/`refresh()`/`path_generation()` never let a stale captured `expected_generation=0` match a freshly reset index's `0`. On POSIX, `_locked_index()`'s `fcntl` branch polls `flock(LOCK_EX | LOCK_NB)` on the same bounded timeout `_portable_lock` uses (never a blocking `flock(LOCK_EX)`), retrying only `EAGAIN`/`EACCES`; `NetBoxApiClient` runs every synchronous cache-store operation through `asyncio.to_thread()` so the required wait-then-succeed locking semantics do not stall its event loop.
-- The SDK now exposes three public layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`.
+- Within the `netbox_sdk` package, the SDK API itself exposes three layers: raw `NetBoxApiClient`, async facade `api()`, and versioned typed client `typed_api()`. These are distinct from the repository's four public import packages.
 - The synchronous `api()` facade performs no network access while it is being
   constructed. Without an explicit `schema=`, it starts with the newest stable
   bundled contract (currently 4.7), then detects and installs the connected

@@ -23,9 +23,9 @@ compatibilidade de API, testes, documentação, suporte e manutenibilidade.
 | Suporte Python | Python 3.11, 3.12 e 3.13 |
 | Compatibilidade NetBox | Linhas estáveis de SDK tipado para NetBox `4.7`, `4.6`, `4.5`, `4.4` e `4.3`; a linha 4.7 padrão usa o schema oficial GA `v4.7.0` |
 | Validação live NetBox | A CI executa testes live do SDK contra NetBox `v4.7.0`, `v4.6.6`, `v4.6.3`, `v4.6.2` e `v4.5.10`; toda linha integrada, inclusive `4.7`, também executa um job dedicado com o esquema fixado |
-| Validação offline | API mock do NetBox, testes do cliente tipado, testes de schema, suítes SDK/CLI/TUI e testes de segurança |
+| Validação offline | API mock do NetBox, testes do cliente tipado, testes de schema, suítes SDK/CLI/TUI/MCP e testes de segurança |
 | Validação de pacote | Build, `twine check` e smoke test de instalação/importação do wheel na CI |
-| Documentação | README e site MkDocs cobrindo instalação, autenticação, requisições, SDK tipado, schema, erros, branching, API mock, CLI e TUI |
+| Documentação | README e site MkDocs cobrindo instalação, autenticação, requisições, SDK tipado, schema, erros, branching, API mock, CLI, TUI e MCP |
 | Suporte | GitHub issues para bugs, funcionalidades e pedidos de documentação |
 
 ## Matriz de compatibilidade
@@ -52,6 +52,7 @@ Extras opcionais:
 - `cli`: interface de linha de comando com Typer
 - `tui`: aplicações de terminal com Textual
 - `mock`: API mock do NetBox com FastAPI/uvicorn
+- `mcp`: servidor MCP orientado por schema com transportes stdio e Streamable HTTP autenticado
 - `demo`: automação do ambiente demo com Playwright
 - `branching`: extra marcador para fluxos com NetBox Branching
 - `all`: todas as superfícies opcionais para usuário

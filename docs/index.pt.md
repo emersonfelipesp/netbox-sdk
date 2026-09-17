@@ -8,17 +8,19 @@ hide:
 
 **Kit NetBox com foco no SDK para Python, terminal e UIs Textual.**
 
-O `netbox-sdk` é organizado em três pacotes irmãos:
+O `netbox-sdk` é organizado em quatro pacotes irmãos:
 
 - `netbox_sdk` — SDK REST NetBox independente
 - `netbox_cli` — CLI com Typer
 - `netbox_tui` — TUI com Textual
+- `netbox_mcp` — servidor Model Context Protocol orientado por schema
 
-O repositório expõe três superfícies públicas:
+O repositório expõe quatro superfícies públicas:
 
 - `netbox_sdk` para integrações Python
 - `nbx` para fluxos de CLI
 - várias TUIs Textual para navegação, depuração e execução guiada de comandos
+- `nbx-mcp` para acesso de agentes orientado por schema via stdio ou Streamable HTTP autenticado
 
 O próprio pacote SDK expõe três camadas:
 
@@ -59,6 +61,15 @@ A integração contínua exercita a suíte live-NetBox contra `v4.7.0`, `v4.6.6`
 
     [:octicons-arrow-right-24: Guia da TUI](tui/index.md)
 
+-   :material-robot:{ .lg .middle } **MCP**
+
+    ```bash
+    pip install 'netbox-sdk[mcp]'
+    nbx-mcp
+    ```
+
+    [:octicons-arrow-right-24: Guia do MCP](mcp/index.pt.md)
+
 -   :material-lightning-bolt:{ .lg .middle } **Início rápido**
 
     ```bash
@@ -80,11 +91,13 @@ A integração contínua exercita a suíte live-NetBox contra `v4.7.0`, `v4.6.6`
   GraphQL, perfil demo e exemplos de comandos capturados.
 - A documentação da `TUI` cobre o navegador principal, a bancada do desenvolvedor,
   o construtor de CLI, o visualizador de logs e o navegador de modelos Django.
+- A documentação do `MCP` cobre ferramentas, autenticação de transporte,
+  segurança de mutações, resolução da linha de release e o bridge semântico de plugins.
 
 ## Padrão para contribuidores
 
 ```bash
-uv sync --dev --extra cli --extra tui --extra demo
+uv sync --dev --extra cli --extra tui --extra demo --extra mcp
 uv run pre-commit install --hook-type pre-commit --hook-type pre-push
 uv run pre-commit run --all-files
 uv run pytest
