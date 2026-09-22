@@ -22,6 +22,8 @@ O SDK expõe três camadas:
 | `netbox_sdk.schema` | Carregamento e indexação do esquema OpenAPI |
 | `netbox_sdk.services` | Resolução dinâmica de requisições |
 | `netbox_sdk.plugin_discovery` | Descoberta de API de plugins / objetos customizados em tempo de execução |
+| `netbox_sdk.plugins` | Registro de plugins oficiais (`netbox-rpc`, `netbox-proxbox`) |
+| `netbox_sdk.rpc` | Coleções completas do netbox-rpc, ações personalizadas e consulta limitada |
 
 ## Instalação
 

@@ -172,6 +172,13 @@ nbx proxbox sync --confirm
 nbx proxbox sync pve-prod -t virtual-machines -t storage --confirm
 nbx proxbox sync-types
 
+# Official netbox-rpc catalog and execution lifecycle
+nbx rpc procedures available --target-type dcim.device
+nbx rpc executions create --body-json '{"procedure_id":1,"assigned_object_type":"dcim.device","assigned_object_id":42,"params":{}}' --confirm
+nbx rpc executions wait --id 100 --json
+nbx rpc executions events --id 100 --json
+nbx rpc executions cancel --id 100 --confirm
+
 # TUI and developer tools
 nbx tui
 nbx dev tui

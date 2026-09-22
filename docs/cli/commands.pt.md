@@ -137,6 +137,34 @@ incorporá-los em `PATH`.
 
 ---
 
+## `nbx rpc ...`
+
+O `netbox-rpc` é um plugin oficialmente suportado. `nbx rpc` expõe as oito
+coleções REST com a política exata de mutação e todas as ações personalizadas:
+
+```bash
+nbx rpc procedures available --target-type dcim.device --json
+nbx rpc procedures commands --id 6 --json
+nbx rpc intents run --id 2 --assigned-object-type dcim.device --assigned-object-id 42 --params-json '{"service_slug":"nginx"}' --confirm
+nbx rpc executions create --body-json '{"procedure_id":6,"assigned_object_type":"dcim.device","assigned_object_id":42,"params":{}}' --confirm
+nbx rpc executions wait --id 100 --timeout 300 --interval 2 --json
+nbx rpc executions events --id 100 --json
+nbx rpc executions approve --id 100 --reason reviewed --confirm
+nbx rpc executions reject --id 100 --reason unsafe --confirm
+nbx rpc executions cancel --id 100 --confirm
+```
+
+Configurações suportam apenas list/get/patch; execuções suportam
+list/get/create e as ações do ciclo de vida; eventos são somente leitura. As
+demais coleções RPC expõem o CRUD padrão mais `bulk-update`, `bulk-patch` e
+`bulk-delete` na coleção. Todo POST personalizado e escrita em lote exige a
+confirmação compartilhada antes da construção do cliente. A espera é limitada
+e termina em `succeeded`, `failed`, `cancelled`, `rejected` ou `expired`;
+`approved` não é terminal. O servidor continua sendo a autoridade para
+permissões, admissão por JSON Schema, restrições de alvo e aprovação.
+
+---
+
 ## `nbx proxbox resources`
 
 Lista o catálogo dedicado do `netbox-proxbox` como tabela Rich colorida ou

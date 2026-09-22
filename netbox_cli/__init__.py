@@ -25,6 +25,7 @@ from netbox_cli.demo import demo_app
 from netbox_cli.dev import dev_app
 from netbox_cli.dynamic import _handle_dynamic_invocation, _register_openapi_subcommands
 from netbox_cli.proxbox import proxbox_app
+from netbox_cli.rpc import rpc_app
 from netbox_cli.runtime import (
     _RUNTIME_CONFIGS as _RUNTIME_CONFIGS,  # re-exported so docgen_capture can access cli._RUNTIME_CONFIGS
 )
@@ -762,6 +763,7 @@ app.add_typer(dev_app, name="dev")
 app.add_typer(branching_app, name="branching")
 app.add_typer(branching_app, name="branch", help="Alias for 'branching'.")
 app.add_typer(proxbox_app, name="proxbox")
+app.add_typer(rpc_app, name="rpc")
 
 _register_openapi_subcommands(app)
 _register_openapi_subcommands(

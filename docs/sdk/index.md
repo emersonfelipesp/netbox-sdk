@@ -22,6 +22,8 @@ The SDK exposes three layers:
 | `netbox_sdk.schema` | OpenAPI schema loading and indexing |
 | `netbox_sdk.services` | Dynamic request resolution |
 | `netbox_sdk.plugin_discovery` | Runtime plugin/custom-object API discovery |
+| `netbox_sdk.plugins` | Official plugin registry (`netbox-rpc`, `netbox-proxbox`) |
+| `netbox_sdk.rpc` | Complete netbox-rpc collections, custom actions, and bounded polling |
 
 ## Installation
 

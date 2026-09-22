@@ -110,6 +110,14 @@ __all__ = [
     "discover_plugin_resources",
     "discover_runtime_resources",
     "enrich_schema_index_with_runtime_resources",
+    "OfficialPlugin",
+    "official_plugin",
+    "official_plugins",
+    "RPCClient",
+    "RPCResourceSpec",
+    "build_rpc_schema_index",
+    "find_rpc_resource",
+    "rpc_resources",
     # plugin_bridge
     "BRIDGE_SCHEMA_VERSION",
     "PluginBridgeAdvertisement",
@@ -212,6 +220,7 @@ from netbox_sdk.plugin_discovery import (
     discover_runtime_resources,
     enrich_schema_index_with_runtime_resources,
 )
+from netbox_sdk.plugins import OfficialPlugin, official_plugin, official_plugins
 from netbox_sdk.proxbox_sync import (
     ProxboxSyncClient,
     ProxboxSyncError,
@@ -219,6 +228,13 @@ from netbox_sdk.proxbox_sync import (
     SseFrame,
     SyncType,
     validate_sync_types,
+)
+from netbox_sdk.rpc import (
+    RPCClient,
+    RPCResourceSpec,
+    build_rpc_schema_index,
+    find_rpc_resource,
+    rpc_resources,
 )
 from netbox_sdk.schema import (
     FilterParam,

@@ -40,6 +40,7 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `demo.py` | `nbx demo ...` command tree |
 | `dev.py` | `nbx dev ...` command tree |
 | `django_model.py` | Django model CLI commands |
+| `rpc.py` | `nbx rpc ...`: exact netbox-rpc collection CRUD plus procedures available/commands, intent run, execution cancel/approve/reject/events, and bounded wait; every custom POST confirms before client construction |
 | `proxbox.py` | `nbx proxbox ...` catalog, generated Proxbox CRUD commands, TUI launcher, and streaming sync commands |
 | `proxbox_jobs.py` | `nbx proxbox jobs list|get|statuses` — read-only retrieval of Proxbox sync jobs from the core job list. Owns option parsing, the default 30-day scan window (`--since`/`--until`/`--date-field`/`--all-time`, suppressed by `--id`), `--endpoint`/`--cluster`/`--node` resolution as a union, column selection (`--fields`/`--wide`), and the scan footer that states window/scanned/matched/truncation on every result. Refuses `--since`/`--until` that collide with an explicit same-field bound rather than silently overwriting it, reports every bound in effect, and sanitizes every server-derived string before it becomes a Rich renderable (Rich `Text` preserves CSI/OSC verbatim, so a job field is an injection point). Read-only: no `--confirm` gate |
 | `markdown_output.py` | Markdown rendering helpers |

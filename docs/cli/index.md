@@ -13,6 +13,7 @@ It supports six complementary interaction modes:
 | **GraphQL** | `nbx graphql "{ sites { name } }"` | Cross-resource queries and schema experimentation |
 | **Plugin jobs** | `nbx proxbox sync -t storage` | Guided workflows for plugin job APIs |
 | **Proxbox CRUD** | `nbx proxbox firewall rules patch --id 7` | Dedicated `netbox-proxbox` catalog, CRUD, and TUI workflows |
+| **RPC** | `nbx rpc procedures available` | Official `netbox-rpc` catalog and audited execution lifecycle |
 
 ---
 
@@ -28,6 +29,7 @@ nbx
 ├── graphql                 execute GraphQL queries
 ├── call METHOD PATH        explicit HTTP request
 ├── proxbox                 Proxbox catalog, CRUD, sync, and TUI
+├── rpc                     RPC catalog, CRUD, intents, executions, events, and waiting
 │   ├── resources           list Proxbox catalog resources
 │   ├── ops RESOURCE        list operations for one Proxbox resource
 │   ├── tui                 launch the Proxbox request workbench
