@@ -25,11 +25,14 @@ plugins nem implica que cada plugin descoberto tenha métodos de workflow mantid
 
 ## Especificações das coleções
 
-`rpc_resources()` retorna oito valores imutáveis `RPCResourceSpec` para
+`rpc_resources()` retorna nove valores imutáveis `RPCResourceSpec` para
 configurações, backends, procedimentos, comandos de procedimento, intents, a
-lista de serviços Linux permitidos, execuções e eventos de execução. Cada
-especificação possui caminhos de lista/detalhe e métodos permitidos;
-`supported_actions` deriva as ações do SDK e da CLI.
+lista de serviços Linux permitidos, a lista de plugins NetBox permitidos,
+execuções e eventos de execução. Cada especificação possui caminhos de
+lista/detalhe e métodos permitidos; `supported_actions` deriva as ações do SDK e
+da CLI. As duas coleções de listas permitidas expõem toda a superfície padrão de
+escrita REST do NetBox; a validação e as permissões do servidor continuam sendo
+autoritativas.
 
 Use `build_rpc_schema_index()` para um índice isolado somente de RPC ou
 `register_rpc_resources(index)` para adicionar o contrato fixo a um

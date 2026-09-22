@@ -105,6 +105,8 @@ The default `pytest` invocation still means “test everything”. Marker runs a
 | `test_proxbox_sync.py` | Proxbox sync scheduling, endpoint resolution, SSE parsing, and stream transport |
 | `test_proxbox_tui.py` | Proxbox-only request workbench catalog and resource activation behavior |
 | `test_return_annotations.py` | Repo-wide non-test return annotation regression guard |
+| `test_rpc_cli.py` | Fixed nine-route RPC CLI command/action oracle, exact CRUD and bulk transports for every mutable collection, workflow transports, confirmation gates, dry-run redaction, and bounded waits |
+| `test_rpc_support.py` | Official-plugin registry plus the fixed nine-route RPC SDK oracle, omission mutation proof, exact standard/workflow transports, and bounded cache-free polling |
 | `test_schema_index.py` | Group/resource extraction, list/detail path identification, trace path support |
 | `test_schema_resolution.py` | Shared override precedence, connected bundled/live/default selection, failure fallback, and clone-isolated bundled-index caching |
 | `test_schema_version_detection.py` | Schema version detection and release-line selection |

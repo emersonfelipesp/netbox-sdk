@@ -257,13 +257,16 @@ support means the repository maintains workflow semantics, dedicated SDK/CLI
 surfaces, documentation, and fixed contract tests. Unknown plugins continue to
 use runtime discovery when their standard REST API is sufficient.
 
-`netbox_sdk.rpc` is the maintained `netbox-rpc` boundary. Its eight collection
+`netbox_sdk.rpc` is the maintained `netbox-rpc` boundary. Its nine collection
 specifications are the source of truth for list/detail methods and generated
-CLI actions. Custom endpoints that OpenAPI discovery cannot infer are explicit
+CLI actions, including complete standard CRUD and bulk writes for both
+`linux-service-allowlist` and `netbox-plugin-allowlist`. Custom endpoints that
+OpenAPI discovery cannot infer are explicit
 `RPCClient` methods: procedure availability, procedure command GET/POST, intent
 run, execution cancel/approve/reject, execution events, and bounded execution
 polling. Keep `tests/test_rpc_support.py` and `tests/test_rpc_cli.py` as fixed
-oracles: every collection has an exact action set; procedures, intents, and
+oracles: every collection has an exact action set; the fixed route oracle must
+fail when any collection is omitted; procedures, intents, and
 every other mutable collection must exercise exact collection/detail CRUD and
 bulk transports with fixed expectations; and every custom CLI command must
 assert its exact HTTP method, path, query, and payload. Collection `create`

@@ -33,10 +33,10 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 | `rpc.py` | `nbx rpc ...`: exact netbox-rpc collection CRUD plus procedures available/commands, intent run, execution cancel/approve/reject/events, and bounded wait; every custom POST confirms before client construction |
 
 The RPC command tree is a fixed public contract rather than a best-effort view
-of OpenAPI. Keep exact command-set tests for all eight collections and invoke
+of OpenAPI. Keep exact command-set tests for all nine collections and invoke
 every custom command against a fixed method/path/query/payload oracle. Exercise
-exact CRUD and bulk dispatch for procedures, intents, and every mutable
-collection; `create` must accept object and array payloads. New mutations must
+exact CRUD and bulk dispatch for procedures, intents, both allowlists, and every
+other mutable collection; `create` must accept object and array payloads. New mutations must
 confirm before `_get_client()` and support the shared redacted, client-free
 dry-run behavior where standard CRUD exposes it. Semantic reads preserve
 repeated query keys, while their POST forms reject query options. Update both

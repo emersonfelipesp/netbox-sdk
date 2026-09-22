@@ -24,10 +24,13 @@ discovery or imply that every discovered plugin has maintained workflow methods.
 
 ## Collection specifications
 
-`rpc_resources()` returns eight frozen `RPCResourceSpec` values for settings,
+`rpc_resources()` returns nine frozen `RPCResourceSpec` values for settings,
 backends, procedures, procedure commands, intents, the Linux service allowlist,
-executions, and execution events. Each specification owns its list/detail paths
-and allowed methods; `supported_actions` derives the SDK and CLI actions.
+the NetBox plugin allowlist, executions, and execution events. Each
+specification owns its list/detail paths and allowed methods;
+`supported_actions` derives the SDK and CLI actions. The two allowlist
+collections expose the complete standard NetBox REST write surface; server-side
+validation and permissions remain authoritative.
 
 Use `build_rpc_schema_index()` for an isolated RPC-only index, or
 `register_rpc_resources(index)` to add the fixed contract to an existing

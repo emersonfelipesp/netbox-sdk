@@ -137,7 +137,7 @@ dispatch; pass query values through `-q` instead of embedding them in `PATH`.
 
 ## `nbx rpc ...`
 
-`netbox-rpc` is an officially supported plugin. `nbx rpc` exposes all eight
+`netbox-rpc` is an officially supported plugin. `nbx rpc` exposes all nine
 REST collections with their exact mutation policy and every custom workflow
 action:
 
@@ -145,6 +145,7 @@ action:
 nbx rpc procedures available --target-type dcim.device --json
 nbx rpc procedures commands --id 6 --json
 nbx rpc intents run --id 2 --assigned-object-type dcim.device --assigned-object-id 42 --params-json '{"service_slug":"nginx"}' --confirm
+nbx rpc netbox-plugin-allowlist list --json
 nbx rpc executions create --body-json '{"procedure_id":6,"assigned_object_type":"dcim.device","assigned_object_id":42,"params":{}}' --confirm
 nbx rpc executions wait --id 100 --timeout 300 --interval 2 --json
 nbx rpc executions events --id 100 --json

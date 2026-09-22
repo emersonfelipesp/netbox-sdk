@@ -14,6 +14,7 @@ workflow commands that generic OpenAPI discovery cannot infer.
 | `procedure-commands` | list/get/create/update/patch/delete and all three bulk writes | — |
 | `intents` | list/get/create/update/patch/delete and all three bulk writes | `run` |
 | `linux-service-allowlist` | list/get/create/update/patch/delete and all three bulk writes | — |
+| `netbox-plugin-allowlist` | list/get/create/update/patch/delete and all three bulk writes | — |
 | `executions` | `list`, `get`, `create` | `cancel`, `approve`, `reject`, `events`, `wait` |
 | `execution-events` | `list`, `get` | — |
 
@@ -78,10 +79,14 @@ Every custom POST and every standard write confirms before the HTTP client is
 constructed. Standard CRUD commands also support the shared client-free,
 recursively redacted `--dry-run` preview.
 
-Use the same standard commands for `backends`, `procedure-commands`, and
-`linux-service-allowlist`. The server intentionally restricts `settings` to
-list/get/patch, `executions` to list/get/create, and `execution-events` to
-list/get; `nbx rpc` does not advertise unsupported mutations.
+Use the same standard commands for `backends`, `procedure-commands`,
+`linux-service-allowlist`, and `netbox-plugin-allowlist`. The latter manages
+the server-controlled distributions, modules, paths, and services that RPC
+plugin-install procedures may use; the server remains authoritative for
+validation and permissions. The server intentionally
+restricts `settings` to list/get/patch, `executions` to list/get/create, and
+`execution-events` to list/get; `nbx rpc` does not advertise unsupported
+mutations.
 
 ## Bounded waiting
 

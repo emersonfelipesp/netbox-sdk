@@ -35,6 +35,83 @@ class _FakeClient:
         return ApiResponse(status=200, text=json.dumps(body), headers={})
 
 
+_EXPECTED_RPC_COLLECTION_ACTIONS = {
+    "settings": ("list", "get", "patch"),
+    "backends": (
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "bulk-update",
+        "bulk-patch",
+        "bulk-delete",
+    ),
+    "procedures": (
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "bulk-update",
+        "bulk-patch",
+        "bulk-delete",
+    ),
+    "procedure-commands": (
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "bulk-update",
+        "bulk-patch",
+        "bulk-delete",
+    ),
+    "intents": (
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "bulk-update",
+        "bulk-patch",
+        "bulk-delete",
+    ),
+    "linux-service-allowlist": (
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "bulk-update",
+        "bulk-patch",
+        "bulk-delete",
+    ),
+    "netbox-plugin-allowlist": (
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "bulk-update",
+        "bulk-patch",
+        "bulk-delete",
+    ),
+    "executions": ("list", "get", "create"),
+    "execution-events": ("list", "get"),
+}
+
+
+def _assert_fixed_rpc_collection_oracle(resources: dict[str, tuple[str, ...]]) -> None:
+    assert resources == _EXPECTED_RPC_COLLECTION_ACTIONS
+
+
 def test_official_plugin_registry_is_explicit_and_resolvable() -> None:
     assert [plugin.package for plugin in official_plugins()] == [
         "netbox-rpc",
@@ -46,39 +123,17 @@ def test_official_plugin_registry_is_explicit_and_resolvable() -> None:
 
 
 def test_rpc_fixed_collection_matrix_covers_every_router_resource() -> None:
-    resources = {spec.key: spec for spec in rpc_resources()}
-    assert set(resources) == {
-        "settings",
-        "backends",
-        "procedures",
-        "procedure-commands",
-        "intents",
-        "linux-service-allowlist",
-        "executions",
-        "execution-events",
-    }
-    assert resources["settings"].supported_actions == ("list", "get", "patch")
-    assert resources["executions"].supported_actions == ("list", "get", "create")
-    assert resources["execution-events"].supported_actions == ("list", "get")
-    mutable_actions = (
-        "list",
-        "get",
-        "create",
-        "update",
-        "patch",
-        "delete",
-        "bulk-update",
-        "bulk-patch",
-        "bulk-delete",
+    _assert_fixed_rpc_collection_oracle(
+        {spec.key: spec.supported_actions for spec in rpc_resources()}
     )
-    for key in (
-        "backends",
-        "procedures",
-        "procedure-commands",
-        "intents",
-        "linux-service-allowlist",
-    ):
-        assert resources[key].supported_actions == mutable_actions
+
+
+def test_rpc_fixed_collection_oracle_detects_route_omission() -> None:
+    incomplete = dict(_EXPECTED_RPC_COLLECTION_ACTIONS)
+    incomplete.pop("netbox-plugin-allowlist")
+
+    with pytest.raises(AssertionError):
+        _assert_fixed_rpc_collection_oracle(incomplete)
 
 
 def test_rpc_schema_index_contains_fixed_crud_contract() -> None:
@@ -194,6 +249,7 @@ async def test_rpc_client_covers_standard_crud_with_resource_policy() -> None:
         ("procedure-commands", "/api/plugins/rpc/procedure-commands/"),
         ("intents", "/api/plugins/rpc/intents/"),
         ("linux-service-allowlist", "/api/plugins/rpc/linux-service-allowlist/"),
+        ("netbox-plugin-allowlist", "/api/plugins/rpc/netbox-plugin-allowlist/"),
     ],
 )
 @pytest.mark.parametrize(

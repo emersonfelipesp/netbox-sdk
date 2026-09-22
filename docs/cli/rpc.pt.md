@@ -14,6 +14,7 @@ com comandos de workflow que a descoberta OpenAPI genérica não consegue inferi
 | `procedure-commands` | list/get/create/update/patch/delete e as três escritas em lote | — |
 | `intents` | list/get/create/update/patch/delete e as três escritas em lote | `run` |
 | `linux-service-allowlist` | list/get/create/update/patch/delete e as três escritas em lote | — |
+| `netbox-plugin-allowlist` | list/get/create/update/patch/delete e as três escritas em lote | — |
 | `executions` | `list`, `get`, `create` | `cancel`, `approve`, `reject`, `events`, `wait` |
 | `execution-events` | `list`, `get` | — |
 
@@ -78,10 +79,13 @@ Cada POST personalizado e cada escrita padrão confirma antes da construção do
 cliente HTTP. Os comandos CRUD padrão também oferecem a visualização
 `--dry-run`, sem cliente e com redação recursiva de segredos.
 
-Use os mesmos comandos padrão para `backends`, `procedure-commands` e
-`linux-service-allowlist`. O servidor restringe intencionalmente `settings` a
-list/get/patch, `executions` a list/get/create e `execution-events` a list/get;
-`nbx rpc` não anuncia mutações incompatíveis.
+Use os mesmos comandos padrão para `backends`, `procedure-commands`,
+`linux-service-allowlist` e `netbox-plugin-allowlist`. A última coleção gerencia
+as distribuições, os módulos, os caminhos e os serviços controlados pelo
+servidor que os procedimentos RPC de instalação de plugins podem usar; o
+servidor continua sendo a autoridade para validação e permissões. O servidor
+restringe intencionalmente `settings` a list/get/patch, `executions` a list/get/create e
+`execution-events` a list/get; `nbx rpc` não anuncia mutações incompatíveis.
 
 ## Espera limitada
 

@@ -15,6 +15,17 @@ from netbox_sdk.client import ApiResponse
 
 pytestmark = pytest.mark.suite_cli
 runner = CliRunner()
+EXPECTED_RPC_COLLECTIONS = {
+    "settings",
+    "backends",
+    "procedures",
+    "procedure-commands",
+    "intents",
+    "linux-service-allowlist",
+    "netbox-plugin-allowlist",
+    "executions",
+    "execution-events",
+}
 
 
 class _FakeClient:
@@ -51,16 +62,9 @@ class _FakeClient:
 def test_rpc_help_exposes_all_collections_and_workflows() -> None:
     result = runner.invoke(app, ["rpc", "--help"])
     assert result.exit_code == 0
-    for name in (
-        "settings",
-        "backends",
-        "procedures",
-        "procedure-commands",
-        "intents",
-        "linux-service-allowlist",
-        "executions",
-        "execution-events",
-    ):
+    root = get_command(app)
+    assert set(root.commands["rpc"].commands) == EXPECTED_RPC_COLLECTIONS
+    for name in EXPECTED_RPC_COLLECTIONS:
         assert name in result.stdout
 
 
@@ -71,7 +75,14 @@ def _rpc_action_names(resource: str) -> set[str]:
 
 @pytest.mark.parametrize(
     "resource",
-    ["backends", "procedures", "procedure-commands", "intents", "linux-service-allowlist"],
+    [
+        "backends",
+        "procedures",
+        "procedure-commands",
+        "intents",
+        "linux-service-allowlist",
+        "netbox-plugin-allowlist",
+    ],
 )
 def test_rpc_mutable_collections_expose_complete_netbox_router_actions(resource: str) -> None:
     expected = {
@@ -341,6 +352,7 @@ def test_rpc_custom_actions_forward_exact_contract(
         ("procedure-commands", "/api/plugins/rpc/procedure-commands/"),
         ("intents", "/api/plugins/rpc/intents/"),
         ("linux-service-allowlist", "/api/plugins/rpc/linux-service-allowlist/"),
+        ("netbox-plugin-allowlist", "/api/plugins/rpc/netbox-plugin-allowlist/"),
     ],
 )
 def test_rpc_bulk_cli_dispatches_collection_method_and_array_body(
@@ -376,6 +388,7 @@ def test_rpc_bulk_cli_dispatches_collection_method_and_array_body(
         ("procedure-commands", "/api/plugins/rpc/procedure-commands/"),
         ("intents", "/api/plugins/rpc/intents/"),
         ("linux-service-allowlist", "/api/plugins/rpc/linux-service-allowlist/"),
+        ("netbox-plugin-allowlist", "/api/plugins/rpc/netbox-plugin-allowlist/"),
     ],
 )
 @pytest.mark.parametrize(

@@ -92,6 +92,7 @@ RPC_RESOURCES: tuple[RPCResourceSpec, ...] = (
     _resource("procedure-commands"),
     _resource("intents"),
     _resource("linux-service-allowlist"),
+    _resource("netbox-plugin-allowlist"),
     _resource(
         "executions",
         list_methods=("GET", "POST"),
