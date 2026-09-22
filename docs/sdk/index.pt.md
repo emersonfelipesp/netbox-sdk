@@ -25,6 +25,9 @@ O SDK expõe três camadas:
 | `netbox_sdk.plugins` | Registro de plugins oficiais (`netbox-rpc`, `netbox-proxbox`) |
 | `netbox_sdk.rpc` | Coleções completas do netbox-rpc, ações personalizadas e consulta limitada |
 
+Consulte [Plugin RPC](rpc.md) para a matriz mantida de coleções, exemplos do
+SDK, métodos de workflow, semântica de espera e regras de extensão.
+
 ## Instalação
 
 ```bash

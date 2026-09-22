@@ -82,6 +82,7 @@ plugins:
             Facade API: API de fachada
             Typed API: API tipada
             Schema Indexing: Indexação de esquema
+            RPC Plugin: Plugin RPC
             Error Handling: Tratamento de erros
             Branching: Branching
             Mock API: API Mock
@@ -97,6 +98,7 @@ plugins:
             Commands: Comandos
             Dynamic Commands: Comandos dinâmicos
             Proxbox: Proxbox
+            RPC: RPC
             GraphQL: GraphQL
             Demo Profile: Perfil demo
             Captured Command Output: Saída de comandos capturados
@@ -184,6 +186,7 @@ nav:
     - Facade API: sdk/facade.md
     - Typed API: sdk/typed.md
     - Schema Indexing: sdk/schema.md
+    - RPC Plugin: sdk/rpc.md
     - Error Handling: sdk/error-handling.md
     - Branching: sdk/branching.md
   - Mock API:
@@ -198,6 +201,7 @@ nav:
     - Commands: cli/commands.md
     - Dynamic Commands: cli/dynamic-commands.md
     - Proxbox: cli/proxbox.md
+    - RPC: cli/rpc.md
     - GraphQL: cli/graphql.md
     - Demo Profile: cli/demo-profile.md
     - Branching: cli/branching.md

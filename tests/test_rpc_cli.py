@@ -137,16 +137,105 @@ def test_rpc_mutating_custom_action_requires_confirmation_before_client(
     assert result.exit_code != 0
 
 
-def test_rpc_custom_actions_forward_exact_contract(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize(
+    ("args", "expected"),
+    [
+        (
+            ["rpc", "procedures", "available", "--target-type", "DCIM.Device"],
+            ("GET", "/api/plugins/rpc/procedures/available/", {"target_type": "dcim.device"}),
+        ),
+        (
+            ["rpc", "procedures", "commands", "--id", "7"],
+            ("GET", "/api/plugins/rpc/procedures/7/commands/", None),
+        ),
+        (
+            [
+                "rpc",
+                "procedures",
+                "commands",
+                "--id",
+                "7",
+                "--body-json",
+                '{"argv":["true"]}',
+                "--confirm",
+            ],
+            ("POST", "/api/plugins/rpc/procedures/7/commands/", {"argv": ["true"]}),
+        ),
+        (
+            [
+                "rpc",
+                "intents",
+                "run",
+                "--id",
+                "2",
+                "--assigned-object-type",
+                "dcim.device",
+                "--assigned-object-id",
+                "7",
+                "--params-json",
+                '{"service_slug":"nginx"}',
+                "--confirm",
+            ],
+            (
+                "POST",
+                "/api/plugins/rpc/intents/2/run/",
+                {
+                    "assigned_object_type": "dcim.device",
+                    "assigned_object_id": 7,
+                    "params": {"service_slug": "nginx"},
+                },
+            ),
+        ),
+        (
+            ["rpc", "executions", "cancel", "--id", "7", "--confirm"],
+            ("POST", "/api/plugins/rpc/executions/7/cancel/", {}),
+        ),
+        (
+            [
+                "rpc",
+                "executions",
+                "approve",
+                "--id",
+                "7",
+                "--reason",
+                "reviewed",
+                "--confirm",
+            ],
+            ("POST", "/api/plugins/rpc/executions/7/approve/", {"reason": "reviewed"}),
+        ),
+        (
+            [
+                "rpc",
+                "executions",
+                "reject",
+                "--id",
+                "7",
+                "--reason",
+                "unsafe",
+                "--confirm",
+            ],
+            ("POST", "/api/plugins/rpc/executions/7/reject/", {"reason": "unsafe"}),
+        ),
+        (
+            ["rpc", "executions", "events", "--id", "7"],
+            ("GET", "/api/plugins/rpc/executions/7/events/", None),
+        ),
+        (
+            ["rpc", "executions", "wait", "--id", "7", "--timeout", "1"],
+            ("GET", "/api/plugins/rpc/executions/7/", None),
+        ),
+    ],
+)
+def test_rpc_custom_actions_forward_exact_contract(
+    monkeypatch: pytest.MonkeyPatch,
+    args: list[str],
+    expected: tuple[str, str, Any],
+) -> None:
     fake = _FakeClient()
     monkeypatch.setattr(rpc_mod, "_get_client", lambda: fake)
-
-    result = runner.invoke(
-        app,
-        ["rpc", "executions", "approve", "--id", "7", "--reason", "ok", "--confirm"],
-    )
+    result = runner.invoke(app, args)
     assert result.exit_code == 0
-    assert fake.calls == [("POST", "/api/plugins/rpc/executions/7/approve/", {"reason": "ok"})]
+    assert fake.calls == [expected]
     assert fake.closed is True
 
 

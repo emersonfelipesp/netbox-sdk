@@ -248,6 +248,29 @@ Plugin auto-discovery also runs unconditionally in `runtime.py::_get_enriched_in
 
 Sub-namespaced endpoints (e.g. `endpoints/proxmox/`, `endpoints/pbs/`) are discovered through the same BFS as long as the plugin root links to the sub-namespace root, which `NetBoxRouter` includes automatically. `netbox-proxbox` satisfies all three requirements across all 29 of its ViewSets.
 
+## Official Plugin and RPC Contract
+
+`netbox_sdk.plugins` is the immutable registry of first-class integrations. It
+contains exactly `netbox-rpc` and `netbox-proxbox`. Do not add a plugin merely
+because generic discovery can enumerate its standard REST resources: official
+support means the repository maintains workflow semantics, dedicated SDK/CLI
+surfaces, documentation, and fixed contract tests. Unknown plugins continue to
+use runtime discovery when their standard REST API is sufficient.
+
+`netbox_sdk.rpc` is the maintained `netbox-rpc` boundary. Its eight collection
+specifications are the source of truth for list/detail methods and generated
+CLI actions. Custom endpoints that OpenAPI discovery cannot infer are explicit
+`RPCClient` methods: procedure availability, procedure command GET/POST, intent
+run, execution cancel/approve/reject, execution events, and bounded execution
+polling. Keep `tests/test_rpc_support.py` and `tests/test_rpc_cli.py` as fixed
+oracles: every collection has an exact action set, and every custom CLI command
+must assert its exact HTTP method, path, query, and payload. Mutations must
+confirm before constructing a client; dry-run output must remain client-free
+and recursively redacted. Polling accepts only finite positive bounds and
+treats `succeeded`, `failed`, `cancelled`, `rejected`, and `expired` as terminal;
+`approved` remains nonterminal. Update both bilingual RPC guides whenever this
+contract changes.
+
 ## Proxbox Surface
 
 `netbox_sdk.proxbox` owns the stable catalog for the dedicated Proxbox command

@@ -25,6 +25,9 @@ The SDK exposes three layers:
 | `netbox_sdk.plugins` | Official plugin registry (`netbox-rpc`, `netbox-proxbox`) |
 | `netbox_sdk.rpc` | Complete netbox-rpc collections, custom actions, and bounded polling |
 
+See [RPC Plugin](rpc.md) for the maintained collection matrix, SDK examples,
+workflow methods, polling semantics, and extension rules.
+
 ## Installation
 
 ```bash

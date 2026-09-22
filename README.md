@@ -186,6 +186,10 @@ nbx cli tui
 nbx logs
 ```
 
+The maintained contract, complete collection/action matrix, SDK examples, and
+automation safety rules are documented in the dedicated [RPC CLI](docs/cli/rpc.md)
+and [RPC SDK](docs/sdk/rpc.md) guides.
+
 ## MCP Server and Agent Safety
 
 Install the `mcp` extra and run the server over stdio (the default):

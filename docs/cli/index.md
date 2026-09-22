@@ -30,12 +30,11 @@ nbx
 ├── call METHOD PATH        explicit HTTP request
 ├── proxbox                 Proxbox catalog, CRUD, sync, and TUI
 ├── rpc                     RPC catalog, CRUD, intents, executions, events, and waiting
-│   ├── resources           list Proxbox catalog resources
-│   ├── ops RESOURCE        list operations for one Proxbox resource
-│   ├── tui                 launch the Proxbox request workbench
-│   ├── sync                schedule sync job and stream progress
-│   ├── sync-types          list available Proxbox sync types
-│   └── <family> <resource> generated list/get/create/update/patch/delete commands
+│   ├── settings            list/get/patch plugin settings
+│   ├── procedures          CRUD, availability, and command discovery/creation
+│   ├── intents             CRUD and intent execution
+│   ├── executions          create/read, lifecycle actions, events, and bounded wait
+│   └── <collection>        policy-correct standard and bulk operations
 ├── tui                     launch the main Textual browser
 ├── logs                    show recent structured application logs
 ├── cli                     CLI-specific helpers
@@ -72,6 +71,7 @@ nbx
 - [Commands](commands.md) for the top-level command set
 - [Dynamic Commands](dynamic-commands.md) for OpenAPI-driven resource operations
 - [Proxbox](proxbox.md) for the dedicated `netbox-proxbox` catalog, CRUD, sync, and TUI commands
+- [RPC](rpc.md) for the complete `netbox-rpc` collection and workflow command contract
 - [GraphQL](graphql.md) for GraphQL-specific usage
 - [Demo Profile](demo-profile.md) for the `nbx demo` command tree
 - [Captured Command Output](../reference/cli/command-examples/index.md) for generated CLI examples
