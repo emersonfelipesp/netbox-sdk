@@ -90,6 +90,13 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/proxbox/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/cli/rpc/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/cli/rpc/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/rpc/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/developer/</loc>
         <lastmod>2026-09-22</lastmod>
         <changefreq>daily</changefreq>
@@ -391,6 +398,13 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/making-requests/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/sdk/rpc/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/sdk/rpc/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/rpc/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/sdk/schema/</loc>
         <lastmod>2026-09-22</lastmod>
         <changefreq>daily</changefreq>
@@ -604,6 +618,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/proxbox/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/cli/proxbox/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/cli/rpc/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/rpc/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/cli/rpc/"/>
     </url>
     <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/developer/architecture/</loc>
@@ -905,6 +926,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/making-requests/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/sdk/making-requests/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/rpc/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/rpc/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/sdk/rpc/"/>
     </url>
     <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/schema/</loc>
