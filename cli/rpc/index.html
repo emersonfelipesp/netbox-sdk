@@ -3480,6 +3480,11 @@ workflow commands that generic OpenAPI discovery cannot infer.</p>
 <td>—</td>
 </tr>
 <tr>
+<td><code>netbox-plugin-allowlist</code></td>
+<td>list/get/create/update/patch/delete and all three bulk writes</td>
+<td>—</td>
+</tr>
+<tr>
 <td><code>executions</code></td>
 <td><code>list</code>, <code>get</code>, <code>create</code></td>
 <td><code>cancel</code>, <code>approve</code>, <code>reject</code>, <code>events</code>, <code>wait</code></td>
@@ -3542,10 +3547,14 @@ restrictions, permissions, and approval policy.</p>
 <p>Every custom POST and every standard write confirms before the HTTP client is
 constructed. Standard CRUD commands also support the shared client-free,
 recursively redacted <code>--dry-run</code> preview.</p>
-<p>Use the same standard commands for <code>backends</code>, <code>procedure-commands</code>, and
-<code>linux-service-allowlist</code>. The server intentionally restricts <code>settings</code> to
-list/get/patch, <code>executions</code> to list/get/create, and <code>execution-events</code> to
-list/get; <code>nbx rpc</code> does not advertise unsupported mutations.</p>
+<p>Use the same standard commands for <code>backends</code>, <code>procedure-commands</code>,
+<code>linux-service-allowlist</code>, and <code>netbox-plugin-allowlist</code>. The latter manages
+the server-controlled distributions, modules, paths, and services that RPC
+plugin-install procedures may use; the server remains authoritative for
+validation and permissions. The server intentionally
+restricts <code>settings</code> to list/get/patch, <code>executions</code> to list/get/create, and
+<code>execution-events</code> to list/get; <code>nbx rpc</code> does not advertise unsupported
+mutations.</p>
 <h2 id="bounded-waiting">Bounded waiting<a class="headerlink" href="#bounded-waiting" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>nbx<span class="w"> </span>rpc<span class="w"> </span>executions<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--id<span class="w"> </span><span class="m">100</span><span class="w"> </span>--timeout<span class="w"> </span><span class="m">300</span><span class="w"> </span>--interval<span class="w"> </span><span class="m">2</span><span class="w"> </span>--json
 </span></code></pre></div>

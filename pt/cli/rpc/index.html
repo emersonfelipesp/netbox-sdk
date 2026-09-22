@@ -3480,6 +3480,11 @@ com comandos de workflow que a descoberta OpenAPI genérica não consegue inferi
 <td>—</td>
 </tr>
 <tr>
+<td><code>netbox-plugin-allowlist</code></td>
+<td>list/get/create/update/patch/delete e as três escritas em lote</td>
+<td>—</td>
+</tr>
+<tr>
 <td><code>executions</code></td>
 <td><code>list</code>, <code>get</code>, <code>create</code></td>
 <td><code>cancel</code>, <code>approve</code>, <code>reject</code>, <code>events</code>, <code>wait</code></td>
@@ -3542,10 +3547,13 @@ de alvo, permissões e política de aprovação.</p>
 <p>Cada POST personalizado e cada escrita padrão confirma antes da construção do
 cliente HTTP. Os comandos CRUD padrão também oferecem a visualização
 <code>--dry-run</code>, sem cliente e com redação recursiva de segredos.</p>
-<p>Use os mesmos comandos padrão para <code>backends</code>, <code>procedure-commands</code> e
-<code>linux-service-allowlist</code>. O servidor restringe intencionalmente <code>settings</code> a
-list/get/patch, <code>executions</code> a list/get/create e <code>execution-events</code> a list/get;
-<code>nbx rpc</code> não anuncia mutações incompatíveis.</p>
+<p>Use os mesmos comandos padrão para <code>backends</code>, <code>procedure-commands</code>,
+<code>linux-service-allowlist</code> e <code>netbox-plugin-allowlist</code>. A última coleção gerencia
+as distribuições, os módulos, os caminhos e os serviços controlados pelo
+servidor que os procedimentos RPC de instalação de plugins podem usar; o
+servidor continua sendo a autoridade para validação e permissões. O servidor
+restringe intencionalmente <code>settings</code> a list/get/patch, <code>executions</code> a list/get/create e
+<code>execution-events</code> a list/get; <code>nbx rpc</code> não anuncia mutações incompatíveis.</p>
 <h2 id="espera-limitada">Espera limitada<a class="headerlink" href="#espera-limitada" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>nbx<span class="w"> </span>rpc<span class="w"> </span>executions<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--id<span class="w"> </span><span class="m">100</span><span class="w"> </span>--timeout<span class="w"> </span><span class="m">300</span><span class="w"> </span>--interval<span class="w"> </span><span class="m">2</span><span class="w"> </span>--json
 </span></code></pre></div>

@@ -3451,10 +3451,13 @@ through runtime discovery when standard REST operations are sufficient.</p>
 <p>The registry is descriptive and immutable. It does not disable generic plugin
 discovery or imply that every discovered plugin has maintained workflow methods.</p>
 <h2 id="collection-specifications">Collection specifications<a class="headerlink" href="#collection-specifications" title="Permanent link">&para;</a></h2>
-<p><code>rpc_resources()</code> returns eight frozen <code>RPCResourceSpec</code> values for settings,
+<p><code>rpc_resources()</code> returns nine frozen <code>RPCResourceSpec</code> values for settings,
 backends, procedures, procedure commands, intents, the Linux service allowlist,
-executions, and execution events. Each specification owns its list/detail paths
-and allowed methods; <code>supported_actions</code> derives the SDK and CLI actions.</p>
+the NetBox plugin allowlist, executions, and execution events. Each
+specification owns its list/detail paths and allowed methods;
+<code>supported_actions</code> derives the SDK and CLI actions. The two allowlist
+collections expose the complete standard NetBox REST write surface; server-side
+validation and permissions remain authoritative.</p>
 <p>Use <code>build_rpc_schema_index()</code> for an isolated RPC-only index, or
 <code>register_rpc_resources(index)</code> to add the fixed contract to an existing
 <code>SchemaIndex</code>. This avoids a network probe and prevents generic discovery from

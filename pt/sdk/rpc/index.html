@@ -3452,11 +3452,14 @@ são suficientes.</p>
 <p>O registro é descritivo e imutável. Ele não desativa a descoberta genérica de
 plugins nem implica que cada plugin descoberto tenha métodos de workflow mantidos.</p>
 <h2 id="especificacoes-das-colecoes">Especificações das coleções<a class="headerlink" href="#especificacoes-das-colecoes" title="Permanent link">&para;</a></h2>
-<p><code>rpc_resources()</code> retorna oito valores imutáveis <code>RPCResourceSpec</code> para
+<p><code>rpc_resources()</code> retorna nove valores imutáveis <code>RPCResourceSpec</code> para
 configurações, backends, procedimentos, comandos de procedimento, intents, a
-lista de serviços Linux permitidos, execuções e eventos de execução. Cada
-especificação possui caminhos de lista/detalhe e métodos permitidos;
-<code>supported_actions</code> deriva as ações do SDK e da CLI.</p>
+lista de serviços Linux permitidos, a lista de plugins NetBox permitidos,
+execuções e eventos de execução. Cada especificação possui caminhos de
+lista/detalhe e métodos permitidos; <code>supported_actions</code> deriva as ações do SDK e
+da CLI. As duas coleções de listas permitidas expõem toda a superfície padrão de
+escrita REST do NetBox; a validação e as permissões do servidor continuam sendo
+autoritativas.</p>
 <p>Use <code>build_rpc_schema_index()</code> para um índice isolado somente de RPC ou
 <code>register_rpc_resources(index)</code> para adicionar o contrato fixo a um
 <code>SchemaIndex</code> existente. Isso evita uma sondagem de rede e impede que a
