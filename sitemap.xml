@@ -83,6 +83,13 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/graphql/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/cli/openbao/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/cli/openbao/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/openbao/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/cli/proxbox/</loc>
         <lastmod>2026-09-22</lastmod>
         <changefreq>daily</changefreq>
@@ -398,6 +405,13 @@
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/making-requests/"/>
     </url>
     <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/sdk/openbao/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/sdk/openbao/"/>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/openbao/"/>
+    </url>
+    <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/sdk/rpc/</loc>
         <lastmod>2026-09-22</lastmod>
         <changefreq>daily</changefreq>
@@ -611,6 +625,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/cli/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/cli/openbao/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/cli/openbao/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/cli/openbao/"/>
     </url>
     <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/cli/proxbox/</loc>
@@ -926,6 +947,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/making-requests/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/sdk/making-requests/"/>
+    </url>
+    <url>
+        <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/openbao/</loc>
+        <lastmod>2026-09-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pt" href="https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/openbao/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://emersonfelipesp.github.io/netbox-sdk/sdk/openbao/"/>
     </url>
     <url>
         <loc>https://emersonfelipesp.github.io/netbox-sdk/pt/sdk/rpc/</loc>
