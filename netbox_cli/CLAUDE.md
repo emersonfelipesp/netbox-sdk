@@ -34,9 +34,12 @@ Submodule layout and cross-repo links: `/root/personal-context/claude-reference/
 
 The RPC command tree is a fixed public contract rather than a best-effort view
 of OpenAPI. Keep exact command-set tests for all eight collections and invoke
-every custom command against a fixed method/path/query/payload oracle. New
-mutations must confirm before `_get_client()` and support the shared redacted,
-client-free dry-run behavior where standard CRUD exposes it. Update both
+every custom command against a fixed method/path/query/payload oracle. Exercise
+exact CRUD and bulk dispatch for procedures, intents, and every mutable
+collection; `create` must accept object and array payloads. New mutations must
+confirm before `_get_client()` and support the shared redacted, client-free
+dry-run behavior where standard CRUD exposes it. Semantic reads preserve
+repeated query keys, while their POST forms reject query options. Update both
 bilingual RPC guides and the SDK agent mirror with every contract change.
 | `proxbox.py` | `nbx proxbox ...` catalog, generated Proxbox CRUD commands, confirmation-gated TUI launcher, and streaming sync commands; stream failures recover the authoritative job, poll within the remaining timeout, and report transport loss as a warning when the job succeeds; post-schedule authoritative-fetch failures preserve the structured `job_id` and warn automation to inspect that existing job before retrying |
 | `proxbox_jobs.py` | `nbx proxbox jobs list|get|statuses` — read-only retrieval of Proxbox sync jobs from the core job list. Owns option parsing, the default 30-day scan window (`--since`/`--until`/`--date-field`/`--all-time`, suppressed by `--id`), `--endpoint`/`--cluster`/`--node` resolution as a union, column selection (`--fields`/`--wide`), and the scan footer that states window/scanned/matched/truncation on every result. Refuses `--since`/`--until` that collide with an explicit same-field bound rather than silently overwriting it, reports every bound in effect, and sanitizes every server-derived string before it becomes a Rich renderable (Rich `Text` preserves CSI/OSC verbatim, so a job field is an injection point). Read-only: no `--confirm` gate |

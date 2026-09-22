@@ -87,6 +87,38 @@ async def test_api_client_serves_fresh_list_response_from_cache(monkeypatch, tmp
 
 
 @pytest.mark.asyncio
+async def test_api_client_explicit_cache_bypass_always_uses_transport(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    _install_fake_aiohttp(monkeypatch)
+
+    cfg = Config(
+        base_url="https://demo.netbox.dev",
+        token_version="v1",
+        token_secret="plain-token",
+    )
+    client = NetBoxApiClient(cfg)
+    calls: list[dict[str, object]] = []
+
+    async def _fake_request_once(self, session, **kwargs):
+        calls.append(kwargs)
+        sequence = len(calls)
+        return ApiResponse(status=200, text=f'{{"sequence": {sequence}}}', headers={})
+
+    monkeypatch.setattr(NetBoxApiClient, "_request_once", _fake_request_once, raising=True)
+
+    first = await client.request("GET", "/api/plugins/rpc/executions/7/", use_cache=False)
+    second = await client.request("GET", "/api/plugins/rpc/executions/7/", use_cache=False)
+
+    assert first.text == '{"sequence": 1}'
+    assert second.text == '{"sequence": 2}'
+    assert "X-NBX-Cache" not in first.headers
+    assert "X-NBX-Cache" not in second.headers
+    assert len(calls) == 2
+
+
+@pytest.mark.asyncio
 async def test_api_client_revalidates_stale_cache_with_etag(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     _install_fake_aiohttp(monkeypatch)

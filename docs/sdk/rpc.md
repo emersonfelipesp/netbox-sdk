@@ -58,13 +58,37 @@ async def main() -> None:
         batch = await rpc.request(
             "backends", "bulk-patch", payload=[{"id": 7, "verify_ssl": True}]
         )
+        procedure = await rpc.request(
+            "procedures",
+            "create",
+            payload={
+                "name": "service-status",
+                "handler_id": "linux.service.status",
+                "version": "1.0",
+                "target_models": ["dcim.device"],
+                "effect": "read",
+                "params_schema": {"type": "object"},
+            },
+        )
+        intents = await rpc.request(
+            "intents",
+            "create",
+            payload=[
+                {
+                    "name": "inspect-service",
+                    "execution_mode": "sequential",
+                    "procedure_ids": [6],
+                }
+            ],
+        )
 
 
 asyncio.run(main())
 ```
 
 Unsupported resource/action pairs fail before HTTP dispatch. Bulk actions take
-an array payload and target the collection path.
+an array payload and target the collection path. Collection `create` accepts
+either an object or an array, matching standard NetBox single and bulk POST.
 
 ## Workflow methods
 
@@ -82,8 +106,10 @@ async def main() -> None:
     )
     async with NetBoxApiClient(config) as transport:
         rpc = RPCClient(transport)
-        available = await rpc.available_procedures(target_type="dcim.device")
-        commands = await rpc.procedure_commands(6)
+        available = await rpc.available_procedures(
+            target_type="dcim.device", query={"limit": 100}
+        )
+        commands = await rpc.procedure_commands(6, query={"limit": 100})
         command_result = await rpc.procedure_commands(6, payload={"argv": ["true"]})
         execution = await rpc.run_intent(
             2,
@@ -94,7 +120,7 @@ async def main() -> None:
         approved = await rpc.execution_action(100, "approve", reason="reviewed")
         rejected = await rpc.execution_action(101, "reject", reason="unsafe")
         cancelled = await rpc.execution_action(102, "cancel")
-        events = await rpc.execution_events(100)
+        events = await rpc.execution_events(100, query={"limit": 100})
         terminal = await rpc.wait_for_execution(100, timeout=300, interval=2)
 
 
@@ -106,6 +132,9 @@ asyncio.run(main())
 `failed`, `cancelled`, `rejected`, or `expired`; `approved` remains nonterminal.
 HTTP errors return immediately. A nonterminal or malformed successful response
 is polled until the deadline and then raises `TimeoutError`.
+Polling bypasses the normal HTTP response cache on every request. Custom read
+queries accept repeated-key mappings; procedure-command POST rejects query
+parameters rather than silently ignoring them.
 
 ## Safety and maintenance
 

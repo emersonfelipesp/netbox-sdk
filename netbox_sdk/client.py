@@ -415,6 +415,7 @@ class NetBoxApiClient:
         payload: dict[str, Any] | list[Any] | None = None,
         headers: dict[str, str] | None = None,
         expect_json: bool = True,
+        use_cache: bool = True,
     ) -> ApiResponse:
         server_address = server_address_from_url(self.config.base_url)
         with client_request_span(self.config, method, path, server_address) as span:
@@ -428,6 +429,7 @@ class NetBoxApiClient:
                     payload=payload,
                     headers=headers,
                     expect_json=expect_json,
+                    use_cache=use_cache,
                 )
                 status = response.status
             finally:

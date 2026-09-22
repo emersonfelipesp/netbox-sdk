@@ -13,7 +13,7 @@ from netbox_cli.support import print_response, run_with_spinner
 from netbox_cli.write_confirmation import require_write_confirmation
 from netbox_sdk.rpc import RPCClient, build_rpc_schema_index, rpc_resources
 from netbox_sdk.schema import SchemaIndex
-from netbox_sdk.services import load_json_payload
+from netbox_sdk.services import load_json_payload, parse_key_value_pairs
 
 rpc_app = typer.Typer(
     add_completion=False,
@@ -52,10 +52,21 @@ executions_app = typer.Typer(no_args_is_help=True, help="RPC execution lifecycle
 @procedures_app.command("available")
 def available_procedures(
     target_type: str | None = typer.Option(None, "--target-type"),
+    query: list[str] | None = typer.Option(
+        None, "-q", "--query", help="Query parameter key=value (repeatable)."
+    ),
     as_json: bool = typer.Option(False, "--json"),
 ) -> None:
+    try:
+        query_params = parse_key_value_pairs(query or [])
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc), param_hint="--query") from exc
+
     async def invoke(client: Any) -> Any:
-        return await RPCClient(client).available_procedures(target_type=target_type)
+        return await RPCClient(client).available_procedures(
+            target_type=target_type,
+            query=query_params,
+        )
 
     _print(_run_rpc(invoke), as_json=as_json)
 
@@ -63,18 +74,35 @@ def available_procedures(
 @procedures_app.command("commands")
 def procedure_commands(
     procedure_id: int = typer.Option(..., "--id", min=1),
+    query: list[str] | None = typer.Option(
+        None, "-q", "--query", help="GET query parameter key=value (repeatable)."
+    ),
     body_json: str | None = typer.Option(None, "--body-json"),
     body_file: str | None = typer.Option(None, "--body-file"),
     confirm: bool = typer.Option(False, "--confirm"),
     as_json: bool = typer.Option(False, "--json"),
 ) -> None:
+    try:
+        query_params = parse_key_value_pairs(query or [])
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc), param_hint="--query") from exc
     payload = None
     if body_json is not None or body_file is not None:
+        if query_params:
+            raise typer.BadParameter(
+                "--query cannot be combined with --body-json or --body-file; "
+                "query parameters are only supported for GET",
+                param_hint="--query",
+            )
         require_write_confirmation(confirmed=confirm)
         payload = _load_object(body_json, body_file)
 
     async def invoke(client: Any) -> Any:
-        return await RPCClient(client).procedure_commands(procedure_id, payload=payload)
+        return await RPCClient(client).procedure_commands(
+            procedure_id,
+            query=query_params or None,
+            payload=payload,
+        )
 
     _print(_run_rpc(invoke), as_json=as_json)
 
@@ -127,10 +155,21 @@ for _action in ("cancel", "approve", "reject"):
 @executions_app.command("events")
 def execution_events(
     execution_id: int = typer.Option(..., "--id", min=1),
+    query: list[str] | None = typer.Option(
+        None, "-q", "--query", help="Query parameter key=value (repeatable)."
+    ),
     as_json: bool = typer.Option(False, "--json"),
 ) -> None:
+    try:
+        query_params = parse_key_value_pairs(query or [])
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc), param_hint="--query") from exc
+
     async def invoke(client: Any) -> Any:
-        return await RPCClient(client).execution_events(execution_id)
+        return await RPCClient(client).execution_events(
+            execution_id,
+            query=query_params,
+        )
 
     _print(_run_rpc(invoke), as_json=as_json)
 

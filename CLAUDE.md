@@ -253,12 +253,18 @@ CLI actions. Custom endpoints that OpenAPI discovery cannot infer are explicit
 `RPCClient` methods: procedure availability, procedure command GET/POST, intent
 run, execution cancel/approve/reject, execution events, and bounded execution
 polling. Keep `tests/test_rpc_support.py` and `tests/test_rpc_cli.py` as fixed
-oracles: every collection has an exact action set, and every custom CLI command
-must assert its exact HTTP method, path, query, and payload. Mutations must
+oracles: every collection has an exact action set; procedures, intents, and
+every other mutable collection must exercise exact collection/detail CRUD and
+bulk transports with fixed expectations; and every custom CLI command must
+assert its exact HTTP method, path, query, and payload. Collection `create`
+accepts both an object and an array and therefore owns bulk creation; do not add
+a divergent `bulk-create` transport. Mutations must
 confirm before constructing a client; dry-run output must remain client-free
 and recursively redacted. Polling accepts only finite positive bounds and
 treats `succeeded`, `failed`, `cancelled`, `rejected`, and `expired` as terminal;
-`approved` remains nonterminal. Update both bilingual RPC guides whenever this
+`approved` remains nonterminal, and every state poll bypasses response caching.
+Semantic paginated reads forward repeated query keys without permitting query
+parameters on their POST forms. Update both bilingual RPC guides whenever this
 contract changes.
 
 ## Proxbox Surface

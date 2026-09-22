@@ -27,7 +27,9 @@ class _FakeClient:
         query: dict[str, Any] | None = None,
         payload: Any = None,
         headers: dict[str, str] | None = None,
+        use_cache: bool = True,
     ) -> ApiResponse:
+        del headers, use_cache
         self.calls.append({"method": method, "path": path, "query": query, "payload": payload})
         body = self.responses.pop(0) if len(self.responses) > 1 else self.responses[0]
         return ApiResponse(status=200, text=json.dumps(body), headers={})
@@ -122,6 +124,52 @@ async def test_rpc_client_covers_every_custom_action() -> None:
     assert fake.calls[3]["payload"]["assigned_object_type"] == "dcim.device"
 
 
+async def test_rpc_read_workflows_forward_queries_without_losing_repeated_values() -> None:
+    fake = _FakeClient()
+    client = RPCClient(fake)  # type: ignore[arg-type]
+
+    await client.available_procedures(
+        target_type="DCIM.Device",
+        query={"tag": ["edge", "managed"], "target_type": "ignored"},
+    )
+    await client.procedure_commands(2, query={"limit": "25", "tag": ["a", "b"]})
+    await client.execution_events(5, query={"level": ["warning", "error"]})
+
+    assert fake.calls == [
+        {
+            "method": "GET",
+            "path": "/api/plugins/rpc/procedures/available/",
+            "query": {"tag": ["edge", "managed"], "target_type": "dcim.device"},
+            "payload": None,
+        },
+        {
+            "method": "GET",
+            "path": "/api/plugins/rpc/procedures/2/commands/",
+            "query": {"limit": "25", "tag": ["a", "b"]},
+            "payload": None,
+        },
+        {
+            "method": "GET",
+            "path": "/api/plugins/rpc/executions/5/events/",
+            "query": {"level": ["warning", "error"]},
+            "payload": None,
+        },
+    ]
+
+
+async def test_rpc_procedure_commands_rejects_query_on_post_before_request() -> None:
+    fake = _FakeClient()
+
+    with pytest.raises(ValueError, match="only supported when listing"):
+        await RPCClient(fake).procedure_commands(  # type: ignore[arg-type]
+            2,
+            query={"limit": "25"},
+            payload={"argv": ["true"]},
+        )
+
+    assert fake.calls == []
+
+
 async def test_rpc_client_covers_standard_crud_with_resource_policy() -> None:
     fake = _FakeClient()
     client = RPCClient(fake)  # type: ignore[arg-type]
@@ -136,6 +184,120 @@ async def test_rpc_client_covers_standard_crud_with_resource_policy() -> None:
     ]
     with pytest.raises(ValueError, match="not supported"):
         await client.request("execution-events", "delete", object_id=1)
+
+
+@pytest.mark.parametrize(
+    ("resource", "collection_path"),
+    [
+        ("backends", "/api/plugins/rpc/backends/"),
+        ("procedures", "/api/plugins/rpc/procedures/"),
+        ("procedure-commands", "/api/plugins/rpc/procedure-commands/"),
+        ("intents", "/api/plugins/rpc/intents/"),
+        ("linux-service-allowlist", "/api/plugins/rpc/linux-service-allowlist/"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("action", "object_id", "payload", "method", "path_suffix"),
+    [
+        ("list", None, None, "GET", "/"),
+        ("get", 7, None, "GET", "/7/"),
+        ("create", None, {"name": "single"}, "POST", "/"),
+        ("create", None, [{"name": "first"}, {"name": "second"}], "POST", "/"),
+        ("update", 7, {"id": 7, "name": "replacement"}, "PUT", "/7/"),
+        ("patch", 7, {"name": "partial"}, "PATCH", "/7/"),
+        ("delete", 7, None, "DELETE", "/7/"),
+        ("bulk-update", None, [{"id": 7}], "PUT", "/"),
+        ("bulk-patch", None, [{"id": 7}], "PATCH", "/"),
+        ("bulk-delete", None, [{"id": 7}], "DELETE", "/"),
+    ],
+)
+async def test_rpc_mutable_collection_exact_standard_transport(
+    resource: str,
+    collection_path: str,
+    action: str,
+    object_id: int | None,
+    payload: dict[str, Any] | list[dict[str, Any]] | None,
+    method: str,
+    path_suffix: str,
+) -> None:
+    fake = _FakeClient()
+
+    await RPCClient(fake).request(  # type: ignore[arg-type]
+        resource,
+        action,
+        object_id=object_id,
+        payload=payload,
+    )
+
+    assert fake.calls == [
+        {
+            "method": method,
+            "path": f"{collection_path.rstrip('/')}{path_suffix}",
+            "query": {},
+            "payload": payload,
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    ("resource", "action", "object_id", "payload", "method", "path"),
+    [
+        ("settings", "list", None, None, "GET", "/api/plugins/rpc/settings/"),
+        ("settings", "get", 1, None, "GET", "/api/plugins/rpc/settings/1/"),
+        (
+            "settings",
+            "patch",
+            1,
+            {"enabled": True},
+            "PATCH",
+            "/api/plugins/rpc/settings/1/",
+        ),
+        ("executions", "list", None, None, "GET", "/api/plugins/rpc/executions/"),
+        ("executions", "get", 7, None, "GET", "/api/plugins/rpc/executions/7/"),
+        (
+            "executions",
+            "create",
+            None,
+            {"procedure_id": 2},
+            "POST",
+            "/api/plugins/rpc/executions/",
+        ),
+        (
+            "execution-events",
+            "list",
+            None,
+            None,
+            "GET",
+            "/api/plugins/rpc/execution-events/",
+        ),
+        (
+            "execution-events",
+            "get",
+            9,
+            None,
+            "GET",
+            "/api/plugins/rpc/execution-events/9/",
+        ),
+    ],
+)
+async def test_rpc_restricted_collection_exact_standard_transport(
+    resource: str,
+    action: str,
+    object_id: int | None,
+    payload: dict[str, Any] | None,
+    method: str,
+    path: str,
+) -> None:
+    fake = _FakeClient()
+
+    await RPCClient(fake).request(  # type: ignore[arg-type]
+        resource,
+        action,
+        object_id=object_id,
+        payload=payload,
+    )
+
+    assert fake.calls == [{"method": method, "path": path, "query": {}, "payload": payload}]
 
 
 @pytest.mark.parametrize(
@@ -178,6 +340,44 @@ async def test_rpc_wait_polls_from_nonterminal_to_terminal(
     assert response.json() == {"status": "succeeded"}
     assert sleeps == [0.25]
     assert len(fake.calls) == 2
+
+
+async def test_rpc_wait_bypasses_response_cache_on_every_poll(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, Any]] = []
+    responses = [{"status": "running"}, {"status": "succeeded"}]
+
+    class CacheAwareClient:
+        async def request(
+            self,
+            method: str,
+            path: str,
+            *,
+            use_cache: bool = True,
+        ) -> ApiResponse:
+            calls.append({"method": method, "path": path, "use_cache": use_cache})
+            return ApiResponse(status=200, text=json.dumps(responses.pop(0)), headers={})
+
+    async def fake_sleep(_delay: float) -> None:
+        return None
+
+    monkeypatch.setattr("netbox_sdk.rpc.asyncio.sleep", fake_sleep)
+    response = await RPCClient(CacheAwareClient()).wait_for_execution(9, interval=0.25)  # type: ignore[arg-type]
+
+    assert response.json() == {"status": "succeeded"}
+    assert calls == [
+        {
+            "method": "GET",
+            "path": "/api/plugins/rpc/executions/9/",
+            "use_cache": False,
+        },
+        {
+            "method": "GET",
+            "path": "/api/plugins/rpc/executions/9/",
+            "use_cache": False,
+        },
+    ]
 
 
 async def test_rpc_wait_returns_http_error_response() -> None:

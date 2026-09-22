@@ -188,19 +188,35 @@ class RPCClient:
             kwargs["headers"] = headers
         return await self.client.request(resolved.method, resolved.path, **kwargs)
 
-    async def available_procedures(self, *, target_type: str | None = None) -> ApiResponse:
-        query: QueryParams | None = None
+    async def available_procedures(
+        self,
+        *,
+        target_type: str | None = None,
+        query: QueryParams | None = None,
+    ) -> ApiResponse:
+        request_query = dict(query or {})
         if target_type:
-            query = {"target_type": target_type.strip().lower()}
-        return await self.client.request("GET", f"{RPC_BASE}/procedures/available/", query=query)
+            request_query["target_type"] = target_type.strip().lower()
+        return await self.client.request(
+            "GET",
+            f"{RPC_BASE}/procedures/available/",
+            query=request_query or None,
+        )
 
     async def procedure_commands(
-        self, procedure_id: int, *, payload: dict[str, Any] | None = None
+        self,
+        procedure_id: int,
+        *,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | None = None,
     ) -> ApiResponse:
+        if payload is not None and query:
+            raise ValueError("query parameters are only supported when listing procedure commands")
         method = "POST" if payload is not None else "GET"
         return await self.client.request(
             method,
             f"{RPC_BASE}/procedures/{procedure_id}/commands/",
+            query=query,
             payload=payload,
         )
 
@@ -232,8 +248,17 @@ class RPCClient:
             "POST", f"{RPC_BASE}/executions/{execution_id}/{action}/", payload=body
         )
 
-    async def execution_events(self, execution_id: int) -> ApiResponse:
-        return await self.client.request("GET", f"{RPC_BASE}/executions/{execution_id}/events/")
+    async def execution_events(
+        self,
+        execution_id: int,
+        *,
+        query: QueryParams | None = None,
+    ) -> ApiResponse:
+        return await self.client.request(
+            "GET",
+            f"{RPC_BASE}/executions/{execution_id}/events/",
+            query=query,
+        )
 
     async def wait_for_execution(
         self,
@@ -250,7 +275,11 @@ class RPCClient:
         terminal = {value.casefold() for value in terminal_statuses}
         deadline = time.monotonic() + timeout
         while True:
-            response = await self.client.request("GET", f"{RPC_BASE}/executions/{execution_id}/")
+            response = await self.client.request(
+                "GET",
+                f"{RPC_BASE}/executions/{execution_id}/",
+                use_cache=False,
+            )
             if response.status >= 400:
                 return response
             payload = response.json()
