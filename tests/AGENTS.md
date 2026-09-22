@@ -288,6 +288,8 @@ asserting in whichever mode the local shell happens to provide.
 ## Patterns
 
 ### Mocking the API client
+`test_openbao.py` is the independent fixed transport oracle for every maintained netbox-openbao collection and custom route. It must pin exact CRUD matrices, methods, paths, nested parameters, material and binary classifications, nonredirecting/nonreplaying transport, defensive write cache invalidation, generated-key credential creation, mutation/material-read confirmation before client creation, private exclusive snapshot output, typed restore metadata, and descriptor-safe bounded binary transfer. Never derive its expected route matrix from `netbox_sdk.openbao`.
+
 Most tests that touch `NetBoxApiClient` inject a mock via `monkeypatch` or a fixture that replaces `aiohttp.ClientSession`. Never mock at the HTTP level inside `test_tui_interaction.py` — use the `NetBoxApiClient` mock boundary instead.
 
 ### Live tests (skip if secrets absent)

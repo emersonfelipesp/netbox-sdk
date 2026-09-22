@@ -24,6 +24,7 @@ from netbox_cli.branching import branching_app
 from netbox_cli.demo import demo_app
 from netbox_cli.dev import dev_app
 from netbox_cli.dynamic import _handle_dynamic_invocation, _register_openapi_subcommands
+from netbox_cli.openbao import openbao_app
 from netbox_cli.proxbox import proxbox_app
 from netbox_cli.rpc import rpc_app
 from netbox_cli.runtime import (
@@ -764,6 +765,7 @@ app.add_typer(branching_app, name="branching")
 app.add_typer(branching_app, name="branch", help="Alias for 'branching'.")
 app.add_typer(proxbox_app, name="proxbox")
 app.add_typer(rpc_app, name="rpc")
+app.add_typer(openbao_app, name="openbao")
 
 _register_openapi_subcommands(app)
 _register_openapi_subcommands(

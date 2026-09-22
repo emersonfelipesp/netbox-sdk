@@ -8,11 +8,11 @@
     "4.6",
     "4.7"
   ],
-  "generated_at": "2026-09-22T17:34:40Z",
+  "generated_at": "2026-09-22T17:57:27Z",
   "source": {
     "repo": "emersonfelipesp/netbox-sdk",
     "version": "0.0.13",
-    "commit": "5f5b40720a925a1c8f8c2a3dfb40e1b616a17959",
-    "content_id": "399af1e6a53751d526256a6580bfefe1382cec4542da717512cfd03e885da1af"
+    "commit": "245fd00f5d7a48c36ba986ec981d4e11697ef26a",
+    "content_id": "83e46612e593fb7c4839cbdf8c3486dd633b70d101f29c71c653793e3bc8045c"
   }
 }

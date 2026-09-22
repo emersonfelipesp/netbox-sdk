@@ -23,6 +23,13 @@ class OfficialPlugin(BaseModel):
 
 OFFICIAL_PLUGINS: tuple[OfficialPlugin, ...] = (
     OfficialPlugin(
+        package="netbox-openbao",
+        api_slug="openbao",
+        sdk_module="netbox_sdk.openbao",
+        cli_command="openbao",
+        description="Credential lifecycle and reviewed OpenBao administration workflows.",
+    ),
+    OfficialPlugin(
         package="netbox-rpc",
         api_slug="rpc",
         sdk_module="netbox_sdk.rpc",

@@ -179,6 +179,14 @@ nbx rpc executions wait --id 100 --json
 nbx rpc executions events --id 100 --json
 nbx rpc executions cancel --id 100 --confirm
 
+# Official netbox-openbao catalog, credential lifecycle, and administration
+nbx openbao resources
+nbx openbao credentials create --body-json '{"name":"router","generate_ssh_key":true,"ssh_key_type":"ed25519"}' --confirm
+nbx openbao actions credential-reveal --id 12 --method POST --body-json '{"reason":"maintenance"}' --confirm --json
+nbx openbao actions cluster-auth-method --id 3 --path-param mount_path=userpass
+nbx openbao snapshot download --id 3 --output cluster.snap --confirm
+nbx openbao snapshot upload --id 3 --input cluster.snap --reason "disaster recovery" --confirmation "RESTORE SNAPSHOT primary" --openbao-cluster-id raft-cluster-a --raft-index 17 --confirm
+
 # TUI and developer tools
 nbx tui
 nbx dev tui
@@ -189,6 +197,8 @@ nbx logs
 The maintained contract, complete collection/action matrix, SDK examples, and
 automation safety rules are documented in the dedicated [RPC CLI](docs/cli/rpc.md)
 and [RPC SDK](docs/sdk/rpc.md) guides.
+The official OpenBao contract and its material-handling rules are documented in
+the [OpenBao CLI](docs/cli/openbao.md) and [OpenBao SDK](docs/sdk/openbao.md) guides.
 
 ## MCP Server and Agent Safety
 

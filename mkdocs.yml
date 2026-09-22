@@ -83,6 +83,7 @@ plugins:
             Typed API: API tipada
             Schema Indexing: Indexação de esquema
             RPC Plugin: Plugin RPC
+            OpenBao Plugin: Plugin OpenBao
             Error Handling: Tratamento de erros
             Branching: Branching
             Mock API: API Mock
@@ -187,6 +188,7 @@ nav:
     - Typed API: sdk/typed.md
     - Schema Indexing: sdk/schema.md
     - RPC Plugin: sdk/rpc.md
+    - OpenBao Plugin: sdk/openbao.md
     - Error Handling: sdk/error-handling.md
     - Branching: sdk/branching.md
   - Mock API:
@@ -202,6 +204,7 @@ nav:
     - Dynamic Commands: cli/dynamic-commands.md
     - Proxbox: cli/proxbox.md
     - RPC: cli/rpc.md
+    - OpenBao: cli/openbao.md
     - GraphQL: cli/graphql.md
     - Demo Profile: cli/demo-profile.md
     - Branching: cli/branching.md

@@ -13,10 +13,13 @@ from __future__ import annotations
 
 import asyncio
 import contextvars
+import io
 import json
 import logging
+import os
 import posixpath
 import re
+import stat
 import time
 from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import contextmanager
@@ -56,6 +59,31 @@ _ENCODED_PATH_SEPARATOR_RE = re.compile(r"%(?:2f|5c)", re.IGNORECASE)
 JSONScalar: TypeAlias = str | int | float | bool | None
 JSONValue: TypeAlias = JSONScalar | list["JSONValue"] | dict[str, "JSONValue"]
 FileLike: TypeAlias = IO[bytes] | IO[str]
+
+
+class _BoundedBinaryReader(io.BufferedReader):
+    """Stream exactly the descriptor size that was validated before dispatch."""
+
+    def __init__(self, raw: io.FileIO, expected_size: int) -> None:
+        super().__init__(raw)
+        self._remaining = expected_size
+        self._checked_eof = False
+
+    def read(self, size: int | None = -1) -> bytes:
+        if self._remaining == 0:
+            if self._checked_eof:
+                return b""
+            self._checked_eof = True
+            if super().read(1):
+                raise ValueError("Binary upload source grew after validation")
+            return b""
+        requested = self._remaining if size is None or size < 0 else min(size, self._remaining)
+        chunk = super().read(requested)
+        if not chunk:
+            raise ValueError("Binary upload source shrank after validation")
+        self._remaining -= len(chunk)
+        return chunk
+
 
 # Per-task scoped request headers. Using a ContextVar (rather than a mutable
 # instance attribute) makes header_scope() / activate_branch() safe under
@@ -487,6 +515,177 @@ class NetBoxApiClient:
             )
             span.set_response_status(response.status)
             return response
+
+    def _one_shot_headers(self, headers: dict[str, str] | None) -> dict[str, str]:
+        """Merge request headers for a deliberately non-retrying transport."""
+        persistent = dict(self.persistent_headers)
+        scoped = dict(_scoped_headers.get() or {})
+        call = dict(headers or {})
+        layers: list[tuple[bool, str | None]] = []
+        for layer in (persistent, scoped, call):
+            present, value, clean = _extract_case_insensitive(layer, "Authorization")
+            layers.append((present, value))
+            layer.clear()
+            layer.update(clean)
+        result = {**persistent, **scoped, **call}
+        _, authorization = _resolve_authorization_precedence(
+            persistent=layers[0],
+            scoped=layers[1],
+            per_call=layers[2],
+            configured=authorization_header_value(self.config),
+        )
+        if authorization:
+            result["Authorization"] = authorization
+        return result
+
+    async def request_one_shot(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | list[Any] | None = None,
+        headers: dict[str, str] | None = None,
+        expect_json: bool = True,
+        max_response_bytes: int | None = None,
+    ) -> ApiResponse:
+        """Send one bounded request without caching, redirects, or auth replay."""
+        response_limit = (
+            self.config.max_response_bytes if max_response_bytes is None else max_response_bytes
+        )
+        if response_limit <= 0:
+            raise ValueError("max_response_bytes must be positive")
+        normalized = self._normalize_request_path(path)
+        session = await self._get_session()
+        is_write = method.upper() not in {"GET", "HEAD"}
+        try:
+            return await self._request_once(
+                session,
+                method=method,
+                path=normalized,
+                query=query,
+                payload=payload,
+                headers=self._one_shot_headers(headers),
+                authorization=None,
+                expect_json=expect_json,
+                allow_redirects=False,
+                max_response_bytes=response_limit,
+            )
+        finally:
+            if is_write:
+                await self._safe_invalidate_related_cache(normalized, payload)
+
+    @staticmethod
+    async def _read_bounded_body(response: Any, limit: int) -> bytes:
+        body = bytearray()
+        async for chunk in response.content.iter_chunked(min(64 * 1024, limit + 1)):
+            if len(body) + len(chunk) > limit:
+                raise ResponseSizeLimitError(limit)
+            body.extend(chunk)
+        return bytes(body)
+
+    async def request_binary(
+        self,
+        method: str,
+        path: str,
+        *,
+        max_response_bytes: int,
+        query: QueryParams | None = None,
+        payload: dict[str, Any] | list[Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> bytes:
+        """Return a bounded binary response with no cache, redirects, or retries."""
+        if max_response_bytes <= 0:
+            raise ValueError("max_response_bytes must be positive")
+        normalized = self._normalize_request_path(path)
+        request_headers = self._one_shot_headers(headers)
+        request_headers.setdefault("Accept", "application/octet-stream")
+        session = await self._get_session()
+        async with session.request(
+            method=method.upper(),
+            url=self.build_url(normalized),
+            params=query,
+            json=payload,
+            headers=request_headers,
+            allow_redirects=False,
+        ) as response:
+            declared = response.headers.get("Content-Length")
+            if declared is not None:
+                try:
+                    if int(declared) > max_response_bytes:
+                        raise ResponseSizeLimitError(max_response_bytes)
+                except ValueError:
+                    pass
+            body = await self._read_bounded_body(response, max_response_bytes)
+            if response.status >= 400:
+                raise RequestError(
+                    ApiResponse(
+                        status=response.status,
+                        text=body.decode(response.charset or "utf-8", errors="replace"),
+                        headers=dict(response.headers),
+                        body_size_bytes=len(body),
+                    )
+                )
+            return body
+
+    async def request_binary_upload(
+        self,
+        method: str,
+        path: str,
+        *,
+        source: Path,
+        max_request_bytes: int,
+        headers: dict[str, str] | None = None,
+    ) -> ApiResponse:
+        """Stream a bounded file as octets with no cache, redirects, or retries."""
+        if max_request_bytes <= 0:
+            raise ValueError("max_request_bytes must be positive")
+        normalized = self._normalize_request_path(path)
+        request_headers = self._one_shot_headers(headers)
+        request_headers.setdefault("Accept", "application/json")
+        request_headers["Content-Type"] = "application/octet-stream"
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(source, flags)
+        except OSError as exc:
+            raise ValueError("Snapshot source must be a regular, readable file") from exc
+        raw = io.FileIO(descriptor, mode="rb", closefd=True)
+        try:
+            metadata = os.fstat(raw.fileno())
+            size = metadata.st_size
+            if not stat.S_ISREG(metadata.st_mode):
+                raise ValueError("Binary upload source must be a regular file")
+            if size <= 0 or size > max_request_bytes:
+                raise ValueError(
+                    f"Binary upload size must be between 1 and {max_request_bytes} bytes"
+                )
+            request_headers["Content-Length"] = str(size)
+            with _BoundedBinaryReader(raw, size) as stream:
+                session = await self._get_session()
+                try:
+                    async with session.request(
+                        method=method.upper(),
+                        url=self.build_url(normalized),
+                        data=stream,
+                        headers=request_headers,
+                        allow_redirects=False,
+                    ) as response:
+                        body = await self._read_bounded_body(
+                            response, self.config.max_response_bytes
+                        )
+                        api_response = ApiResponse(
+                            status=response.status,
+                            text=body.decode(response.charset or "utf-8", errors="replace"),
+                            headers=dict(response.headers),
+                            body_size_bytes=len(body),
+                        )
+                        if response.status >= 400:
+                            raise RequestError(api_response)
+                        return api_response
+                finally:
+                    await self._safe_invalidate_related_cache(normalized, None)
+        finally:
+            raw.close()
 
     async def stream_sse(
         self,

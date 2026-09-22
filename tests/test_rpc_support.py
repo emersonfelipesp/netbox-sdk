@@ -114,6 +114,7 @@ def _assert_fixed_rpc_collection_oracle(resources: dict[str, tuple[str, ...]]) -
 
 def test_official_plugin_registry_is_explicit_and_resolvable() -> None:
     assert [plugin.package for plugin in official_plugins()] == [
+        "netbox-openbao",
         "netbox-rpc",
         "netbox-proxbox",
     ]

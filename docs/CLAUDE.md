@@ -174,6 +174,7 @@ Certification   → Integration package evidence
 CLI Reference   → Commands, Dynamic Commands, GraphQL, Branching, Demo Profile
 MCP Server      → Tools, plugin bridge, transports, authentication, and mutation safety
 SDK             → Authentication, Facade API, Typed API, Branching, Making Requests, Schema Indexing, Error Handling
+OpenBao         → Fixed SDK/CLI catalog, credential lifecycle, reviewed administration, and bounded snapshot transport
 TUI             → Themes, Keyboard Shortcuts, Branching, CLI Builder, GraphQL, Logs, Django Models, Screenshots
 Mock API        → CRUD, bulk operations, pagination/filtering, pytest integration, standalone server
 CLI Captures    → index, Core Commands, Schema Discovery, GraphQL and HTTP,

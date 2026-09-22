@@ -118,6 +118,14 @@ __all__ = [
     "build_rpc_schema_index",
     "find_rpc_resource",
     "rpc_resources",
+    "OpenBaoActionSpec",
+    "OpenBaoClient",
+    "OpenBaoResourceSpec",
+    "build_openbao_schema_index",
+    "find_openbao_action",
+    "find_openbao_resource",
+    "openbao_actions",
+    "openbao_resources",
     # plugin_bridge
     "BRIDGE_SCHEMA_VERSION",
     "PluginBridgeAdvertisement",
@@ -194,6 +202,16 @@ from netbox_sdk.introspection import (
     serialize_operation,
     serialize_resource_description,
     serialize_resources,
+)
+from netbox_sdk.openbao import (
+    OpenBaoActionSpec,
+    OpenBaoClient,
+    OpenBaoResourceSpec,
+    build_openbao_schema_index,
+    find_openbao_action,
+    find_openbao_resource,
+    openbao_actions,
+    openbao_resources,
 )
 from netbox_sdk.plugin_bridge import (
     BRIDGE_SCHEMA_VERSION,

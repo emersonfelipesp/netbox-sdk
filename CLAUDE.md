@@ -45,6 +45,7 @@ netbox_sdk/   standalone runtime-independent API layer
     ├── proxbox.py
     ├── plugins.py
     ├── rpc.py
+    ├── openbao.py
     ├── proxbox_jobs.py
     ├── proxbox_sync.py
     ├── http_cache.py
@@ -88,6 +89,7 @@ netbox_cli/   optional Typer layer
     ├── dynamic.py    OpenAPI command registration/execution
     ├── proxbox.py    netbox-proxbox catalog, CRUD, TUI, and sync commands
     ├── rpc.py        netbox-rpc catalog, CRUD, custom actions, events, and bounded wait
+    ├── openbao.py    netbox-openbao collections, actions, and bounded snapshot transport
     ├── proxbox_jobs.py  nbx proxbox jobs — bounded, filtered sync-job retrieval (read-only)
     ├── support.py    shared CLI rendering/error helpers
     ├── demo.py       demo profile command tree
