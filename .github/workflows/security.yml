@@ -2,9 +2,13 @@ name: Security Tests
 
 on:
   push:
-    branches: ["**"]
+    branches: ["main", "v*"]
   pull_request:
     branches: ["**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   changes:
@@ -124,3 +128,50 @@ jobs:
 
       - name: Run TUI security tests
         run: uv run pytest -v --tb=short -p no:randomly tests/test_security_tui.py
+
+  security-quality:
+    name: security quality
+    if: ${{ always() }}
+    needs: [changes, security-sdk, security-cli, security-tui]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require every selected security matrix
+        env:
+          CI_NEEDS: ${{ toJSON(needs) }}
+          CI_EVENT: ${{ github.event_name }}
+        run: |
+          node <<'NODE'
+          function readFlags(outputs, keys) {
+            if (!outputs || Object.keys(outputs).sort().join(',') !== [...keys].sort().join(',')) {
+              throw new Error('Security scope outputs are missing or unexpected');
+            }
+            const flags = {};
+            for (const key of keys) {
+              if (outputs[key] !== 'true' && outputs[key] !== 'false') {
+                throw new Error(`Invalid security scope output: ${key}`);
+              }
+              flags[key] = outputs[key] === 'true';
+            }
+            return flags;
+          }
+          function requireResult(needs, name, selected) {
+            if (!Object.hasOwn(needs, name)) throw new Error(`Missing security dependency: ${name}`);
+            const expected = selected ? 'success' : 'skipped';
+            if (needs[name]?.result !== expected) {
+              throw new Error(`Security dependency ${name} must be ${expected}`);
+            }
+          }
+          const needs = JSON.parse(process.env.CI_NEEDS);
+          if (!['push', 'pull_request'].includes(process.env.CI_EVENT)) throw new Error('Unexpected security event');
+          if (Object.keys(needs).length !== 4) throw new Error('Unexpected security dependency graph');
+          requireResult(needs, 'changes', true);
+          const flags = readFlags(needs.changes.outputs, ['run_all', 'sdk', 'cli', 'tui']);
+          const selected = {
+            'security-sdk': flags.run_all || flags.sdk,
+            'security-cli': flags.run_all || flags.cli,
+            'security-tui': flags.run_all || flags.tui,
+          };
+          for (const [name, applicable] of Object.entries(selected)) requireResult(needs, name, applicable);
+          console.log('Every selected security matrix succeeded; only unselected matrices skipped.');
+          NODE

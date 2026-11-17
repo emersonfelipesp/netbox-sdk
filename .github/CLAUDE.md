@@ -53,6 +53,26 @@ require the head to be current with its base before merge.
 
 ## Workflow Summary
 
+Public quality workflows run on every pull request and on `main` or documented
+`v*` release-branch pushes. Ordinary feature pushes do not duplicate pull request
+validation. Cancellation applies only to superseded pull requests; main and
+release-branch qualification remains independent. Documentation keeps its original
+non-cancelling serialization contract for pull requests and Pages deployments.
+
+The unconditional `test quality` and `security quality` jobs require successful
+scope detection, exact boolean scope outputs, every selected original job/matrix
+to succeed, and only deliberately unselected jobs to skip. They use native
+`needs.result` for matrix completion rather than a last-row output. Missing,
+failed, cancelled, empty or unexpected results refuse admission. Test-tree changes
+select the complete existing test suite, so an unlisted test module or fixture
+cannot silently select no tests. Every original command, supported Python and
+NetBox row, live assertion and release/publisher body remains unchanged.
+
+Protection must use the actual successful unconditional quality contexts together
+with the unconditional lint, certification and strict documentation jobs. Do not
+replace a failed matrix with a skipped result or treat a generated artifact as a
+deployment authorization.
+
 - `.gitea/workflows/ci.yml`
   - runs on pushes and pull requests targeting `main`
   - consumes no secrets and has no publish, deploy, repository-write, or live-NetBox authority

@@ -2,9 +2,13 @@ name: Tests
 
 on:
   push:
-    branches: ["**"]
+    branches: ["main", "v*"]
   pull_request:
     branches: ["**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   changes:
@@ -29,6 +33,8 @@ jobs:
         with:
           filters: |
             run_all:
+              # Test-only changes must not disappear from the selected suites.
+              - 'tests/**'
               - 'pyproject.toml'
               - 'uv.lock'
               - 'tests/conftest.py'
@@ -725,3 +731,76 @@ jobs:
             kill "$(cat /tmp/netbox-source.pid)" 2>/dev/null || true
           fi
           docker rm -f netbox-ci 2>/dev/null || true
+
+  test-quality:
+    name: test quality
+    if: ${{ always() }}
+    needs:
+      - changes
+      - test-sdk
+      - test-cli
+      - test-tui
+      - test-mcp
+      - test-all-mock
+      - test-bundled-release-lines
+      - test-all-mock-main
+      - test-live-netbox
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require every selected test matrix
+        env:
+          CI_NEEDS: ${{ toJSON(needs) }}
+          CI_EVENT: ${{ github.event_name }}
+          CI_REF_NAME: ${{ github.ref_name }}
+        run: |
+          node <<'NODE'
+          function readFlags(outputs, keys) {
+            if (!outputs || Object.keys(outputs).sort().join(',') !== [...keys].sort().join(',')) {
+              throw new Error('Test scope outputs are missing or unexpected');
+            }
+            const flags = {};
+            for (const key of keys) {
+              if (outputs[key] !== 'true' && outputs[key] !== 'false') {
+                throw new Error(`Invalid test scope output: ${key}`);
+              }
+              flags[key] = outputs[key] === 'true';
+            }
+            return flags;
+          }
+          function requireResult(needs, name, selected) {
+            if (!Object.hasOwn(needs, name)) throw new Error(`Missing test dependency: ${name}`);
+            const expected = selected ? 'success' : 'skipped';
+            if (needs[name]?.result !== expected) {
+              throw new Error(`Test dependency ${name} must be ${expected}`);
+            }
+          }
+          function partialSuites(flags, partial) {
+            return {
+              'test-sdk': partial && (flags.sdk || flags.docs),
+              'test-cli': partial && flags.cli,
+              'test-tui': partial && flags.tui,
+              'test-mcp': partial && flags.mcp,
+            };
+          }
+          function completeSuites(flags, main) {
+            return {
+              'test-all-mock': !main && flags.run_all,
+              'test-bundled-release-lines': main || flags.run_all || flags.sdk || flags.cli || flags.mcp,
+              'test-all-mock-main': main,
+              'test-live-netbox': main || flags.run_all || flags.sdk,
+            };
+          }
+          const needs = JSON.parse(process.env.CI_NEEDS);
+          if (!['push', 'pull_request'].includes(process.env.CI_EVENT)) throw new Error('Unexpected test event');
+          if (Object.keys(needs).length !== 9) throw new Error('Unexpected test dependency graph');
+          requireResult(needs, 'changes', true);
+          const flags = readFlags(needs.changes.outputs, ['run_all', 'docs', 'sdk', 'cli', 'tui', 'mcp']);
+          const main = process.env.CI_EVENT === 'push' && process.env.CI_REF_NAME === 'main';
+          const selected = {
+            ...partialSuites(flags, !main && !flags.run_all),
+            ...completeSuites(flags, main),
+          };
+          for (const [name, applicable] of Object.entries(selected)) requireResult(needs, name, applicable);
+          console.log('Every selected test matrix succeeded; only unselected matrices skipped.');
+          NODE
